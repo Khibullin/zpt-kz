@@ -1,0 +1,159 @@
+{
+  "checked_on": "2026-11-11",
+  "status": "reviewed_pending_application",
+  "supplier_id": 3,
+  "targets": {
+    "KC46": 35138,
+    "LX939": 35142
+  },
+  "payload": {
+    "checked_on": "2026-11-11",
+    "offers": [
+      {
+        "brand": "MAHLE",
+        "article": "KC46",
+        "source_brand": "MAHLE",
+        "source_article": "KC46",
+        "source_url": "https://www.mahle-aftermarket.com/media/local-media-north-america/catalogs-and-lit-pictures/fi-20-26_web.pdf",
+        "status": "sourced",
+        "note": "Printed exact identifier KC 46: only whitespace formatting differs from supplier KC46, no letters/digits/suffix dropped. All seven application rows in this regional catalogue reviewed visually; not a declaration of complete global fitment.",
+        "rows": [
+          {
+            "make": "DODGE",
+            "model": "H100",
+            "years": "2007–2010",
+            "engine": "2.5 L4 151",
+            "pdf_page": "288",
+            "notes": "MAHLE FI-20-26, North American light vehicle catalogue; regional application only. Engine code, body/chassis or restrictions not printed for this filter are not inferred. ",
+            "source_row": "H100 2.5 L4 151 | 2010-2007 | fuel KC 46"
+          },
+          {
+            "make": "ISUZU",
+            "model": "I-MARK",
+            "years": "1981–1984",
+            "engine": "1.8 L4",
+            "pdf_page": "440",
+            "notes": "MAHLE FI-20-26, North American light vehicle catalogue; regional application only. Engine code, body/chassis or restrictions not printed for this filter are not inferred. ",
+            "source_row": "I-Mark 1.8 L4 | 1984-1981 | fuel KC 46"
+          },
+          {
+            "make": "ISUZU",
+            "model": "PICKUP",
+            "years": "1981–1985; 1987",
+            "engine": "2.2 L4",
+            "pdf_page": "441",
+            "notes": "MAHLE FI-20-26, North American light vehicle catalogue; regional application only. Engine code, body/chassis or restrictions not printed for this filter are not inferred. Non-contiguous years preserved. The adjacent Without California Emissions qualifier belongs to AIR filter LX 1, not KC 46.",
+            "source_row": "Pickup 2.2 L4 | 1987, 1985-1981 | fuel KC 46"
+          },
+          {
+            "make": "ISUZU",
+            "model": "PICKUP",
+            "years": "1986",
+            "engine": "2.2 L4",
+            "pdf_page": "441",
+            "notes": "MAHLE FI-20-26, North American light vehicle catalogue; regional application only. Engine code, body/chassis or restrictions not printed for this filter are not inferred. Without California Emissions is in the adjacent AIR filter LX 1 column, not KC 46.",
+            "source_row": "Pickup 2.2 L4 | 1986 | fuel KC 46"
+          },
+          {
+            "make": "ISUZU",
+            "model": "TROOPER",
+            "years": "1986–1987",
+            "engine": "2.2 L4",
+            "pdf_page": "442",
+            "notes": "MAHLE FI-20-26, North American light vehicle catalogue; regional application only. Engine code, body/chassis or restrictions not printed for this filter are not inferred. ",
+            "source_row": "Trooper 2.2 L4 | 1987-1986 | fuel KC 46"
+          },
+          {
+            "make": "MITSUBISHI",
+            "model": "MIGHTY MAX",
+            "years": "1985",
+            "engine": "2.3 L4 143",
+            "pdf_page": "592",
+            "notes": "MAHLE FI-20-26, North American light vehicle catalogue; regional application only. Engine code, body/chassis or restrictions not printed for this filter are not inferred. ",
+            "source_row": "Mighty Max 2.3 L4 143 | 1985 | fuel KC 46"
+          },
+          {
+            "make": "MITSUBISHI",
+            "model": "MIGHTY MAX",
+            "years": "1983–1984",
+            "engine": "2.3 L4 143",
+            "pdf_page": "592",
+            "notes": "MAHLE FI-20-26, North American light vehicle catalogue; regional application only. Engine code, body/chassis or restrictions not printed for this filter are not inferred. ",
+            "source_row": "Mighty Max 2.3 L4 143 | 1984-1983 | fuel KC 46"
+          }
+        ]
+      },
+      {
+        "brand": "MAHLE",
+        "article": "LX939",
+        "source_brand": "MAHLE",
+        "source_article": "LX939",
+        "source_url": "https://www.mahle-aftermarket.com/media/local-media-north-america/catalogs-and-lit-pictures/fi-20-26_web.pdf",
+        "status": "sourced",
+        "note": "Printed exact identifier LX 939: only whitespace formatting differs. Two regional catalogue application rows visually reviewed; no global completeness claim.",
+        "rows": [
+          {
+            "make": "MERCEDES-BENZ",
+            "model": "C200",
+            "years": "2001–2002",
+            "engine": "2.0 L4 122",
+            "pdf_page": "522",
+            "notes": "MAHLE FI-20-26, North American light vehicle catalogue; regional application only. Engine code, body/chassis or restrictions not printed for this filter are not inferred. ",
+            "source_row": "C200 2.0 L4 122 | 2002-2001 | air LX 939"
+          },
+          {
+            "make": "MERCEDES-BENZ",
+            "model": "C230",
+            "years": "2002",
+            "engine": "2.3 L4; 111.981",
+            "pdf_page": "523",
+            "notes": "MAHLE FI-20-26, North American light vehicle catalogue; regional application only. Engine code, body/chassis or restrictions not printed for this filter are not inferred. ",
+            "source_row": "C230 2.3 L4 | 2002 | air LX 939 | Engine Designation 111.981"
+          }
+        ]
+      }
+    ]
+  },
+  "evidence": {
+    "catalogue": "MAHLE FI-20-26",
+    "url": "https://www.mahle-aftermarket.com/media/local-media-north-america/catalogs-and-lit-pictures/fi-20-26_web.pdf",
+    "pdf_download_bytes": 12844683,
+    "review": "Native PDF downloaded, pdftotext extracted, application rows and filter columns visually verified from locally rendered PDF pages 288,440,441,442,522,523,592.",
+    "regional_scope": "North America only; not complete worldwide applicability.",
+    "pdf_pages_with_printed_numbers": {
+      "288": 290,
+      "440": 442,
+      "441": 443,
+      "442": 444,
+      "522": 524,
+      "523": 525,
+      "592": 594
+    }
+  },
+  "exceptions": [
+    {
+      "source": "https://eu.motorad.com/part/1014-100k/",
+      "status": "HTTP 403",
+      "action": "No alternate URL/protocol/channel retry. MOTORAD photo task13941 not staged."
+    },
+    {
+      "source": "CTR CVKH-150 official PDF fileDownload URL from previous checkpoint",
+      "status": "Web screenshot redirect loop; same original URL download also redirect loop",
+      "action": "No import without visual verification; transient technical issue, not no-fitment evidence."
+    }
+  ],
+  "live_before": {
+    "verified_offers": 4279,
+    "products_with_photos": 19105,
+    "photo_queue": {
+      "done": 18745,
+      "skipped": 1622,
+      "needs_source": 29126
+    }
+  },
+  "best_missing": {
+    "supplier3": 161,
+    "supplier5": 156,
+    "scope": "Current best_candidates_query cost/match/date/profit SQL, no stock/demand screening added; exact shared base matches zero."
+  }
+}
