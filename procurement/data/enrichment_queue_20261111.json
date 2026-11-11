@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T11:06:22.105Z",
+  "checked_at": "2026-11-11T11:06:25.275Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -10526,18 +10526,18 @@
       "article": "CVKH-150",
       "brand": "CTR",
       "cost": 1100,
-      "has_fitment": false,
+      "has_fitment": true,
       "id": 25915,
       "kaspi_price": 3530,
       "kaspi_url": "https://kaspi.kz/shop/p/ctr-vtulka-ressory-cvkh-150-147893556/?c=750000000",
-      "main_image": "",
+      "main_image": "products/optimized/fc1dedd545482a4916d84ee2ec10540d87175be30f6f2809bb3153def37393a7.webp",
       "name": "Втулка рессоры Hyundai",
-      "photo_status": "needs_source",
+      "photo_status": "done",
       "product_id": 7414,
       "profit": 1738.75,
       "stock": "1",
       "supplier_id": 5,
-      "supplier_thumbnail": "",
+      "supplier_thumbnail": "products/optimized/694f8a487e139d79f38238c102869b5da43ca573fc5d00fe374ac5ef32254eed.webp",
       "task_id": 5387
     },
     {
@@ -11198,14 +11198,14 @@
       25789,
       26282
     ],
-    "reviewed": 42,
-    "published_fitments": 10,
-    "published_photos": 8,
+    "reviewed": 43,
+    "published_fitments": 11,
+    "published_photos": 9,
     "unconfirmed": 34,
-    "next_offer_id": 25915,
-    "photos_present": 8,
-    "fitments_present": 49,
-    "both_present": 8,
+    "next_offer_id": 26258,
+    "photos_present": 9,
+    "fitments_present": 50,
+    "both_present": 9,
     "created_at": "2026-11-11T10:30:05.643Z",
     "fixed": true
   },
@@ -11275,7 +11275,8 @@
     26829,
     26288,
     25581,
-    26893
+    26893,
+    25915
   ],
   "reviewed_offer_ids": [
     26787,
@@ -11519,19 +11520,20 @@
     26829,
     26288,
     25581,
-    26893
+    26893,
+    25915
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 242,
-    "remaining_unreviewed": 166,
+    "reviewed": 243,
+    "remaining_unreviewed": 165,
     "unconfirmed_reviewed": 176,
-    "remaining_missing_fields": 342,
-    "photo_added": 65,
-    "fitment_added": 41,
-    "make_model_pairs_added": 96,
-    "configurations_added": 133
+    "remaining_missing_fields": 341,
+    "photo_added": 66,
+    "fitment_added": 42,
+    "make_model_pairs_added": 100,
+    "configurations_added": 137
   },
   "prepared_candidate": null,
   "source_limits": [
@@ -11602,85 +11604,7 @@
     "ui_images_loaded": true,
     "unchanged_trade_data": true
   },
-  "prepared_candidates": [
-    {
-      "article": "CVKH-150",
-      "brand": "CTR",
-      "cost": 1100,
-      "has_fitment": false,
-      "id": 25915,
-      "kaspi_price": 3530,
-      "kaspi_url": "https://kaspi.kz/shop/p/ctr-vtulka-ressory-cvkh-150-147893556/?c=750000000",
-      "main_image": "",
-      "name": "Втулка рессоры Hyundai",
-      "photo_status": "needs_source",
-      "product_id": 7414,
-      "profit": 1738.75,
-      "stock": "1",
-      "supplier_id": 5,
-      "supplier_thumbnail": "",
-      "task_id": 5387,
-      "offer_id": 25915,
-      "status": "prepared_photo_and_fitment",
-      "checked_on": "2026-11-11",
-      "source_url": "https://www.farpost.ru/khabarovsk/zapchasti/sajlentblok-zadnej-ressory-perednij-novyj-art-gv0175-ctr-artikul-cvkh-150-dostavka-do-tk-birhab-5-zvezd-garantija-ot-12-mes-pomosh-v-podbore-artikul-cvkh-150-g18284907593.html",
-      "source_label": "BESTтесн на FarPost — независимое предложение продавца",
-      "source_kind": "retailer_catalogue",
-      "source_article": "CVKH-150",
-      "fitments": [
-        {
-          "make": "Kia",
-          "model": "Bongo III",
-          "years": "2006–н.в.",
-          "position": "Передняя позиция сайлентблока задней рессоры"
-        },
-        {
-          "make": "Hyundai",
-          "model": "Libero",
-          "years": "2000–2007",
-          "position": "Передняя позиция сайлентблока задней рессоры"
-        },
-        {
-          "make": "Hyundai",
-          "model": "Porter",
-          "years": "2006–н.в.",
-          "position": "Передняя позиция сайлентблока задней рессоры"
-        },
-        {
-          "make": "Hyundai",
-          "model": "Starex",
-          "years": "1996–2007",
-          "position": "Передняя позиция сайлентблока задней рессоры"
-        }
-      ],
-      "fitment_note": "ТочноеCTR/CVKH-150вобъявлении,новыйGV0175указанотдельнобеззаменыисходногоартикула. Четыремодели/периодыпереписаныизявнойстрокиПрименимость,двигателинеуказаны. ПервичныйCTRPDF:первыйзапростаймаут,разумныйповтордалredirectloop;другимURL/каналомнеобходился. Фото—одинреальныйсайлентблок сCTRводянымзнаком.",
-      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/07a306f9-e033-4bf9-b70c-7f9f2eaf3001",
-      "image_url": "https://static.baza.farpost.ru/farpost_catalog/1785912394376_default",
-      "image_note": "ОдинреальныйсайлентблокCTRизточнойкарточкиCVKH-150/GV0175;нетчужихдеталей/комплектов.",
-      "photo": {
-        "status": "downloaded_visually_verified_not_queued"
-      },
-      "fitment_status": "prepared_not_imported",
-      "checked_sources": [
-        {
-          "url": "https://www.farpost.ru/khabarovsk/zapchasti/sajlentblok-zadnej-ressory-perednij-novyj-art-gv0175-ctr-artikul-cvkh-150-dostavka-do-tk-birhab-5-zvezd-garantija-ot-12-mes-pomosh-v-podbore-artikul-cvkh-150-g18284907593.html",
-          "result": "ExactCTR/CVKH-150,newGV0175noted;4explicitmodelperiodrows;photoactualsinglebush"
-        },
-        {
-          "url": "https://www.autoopt.ru/catalog/342033-sajlentblok_ctr_cvkh_150",
-          "result": "Exactarticlecardonlycap.pngplaceholder;excluded"
-        },
-        {
-          "url": "https://aftermarket.ctr.co.kr/Act/fileDownload?fileName=88b69f8d62e90b8429091959733335ac.pdf&filePath=%2Fdata%2Ffiles%2F&orgName=CTR_Bush_Catalogue_2020_Re02.pdf",
-          "result": "Timeoutfirst,ordinarysameURLretryredirectloop;noalternativeURL/protocol/channel"
-        }
-      ],
-      "next_offer_id": 26258,
-      "verification": {
-        "trade_data_unchanged": true
-      }
-    }
-  ],
+  "prepared_candidates": [],
   "batch_history": [
     {
       "supplier_id": 5,
@@ -11918,5 +11842,5 @@
     }
   ],
   "publication_pending": null,
-  "next_offer_id": 25915
+  "next_offer_id": 26258
 }
