@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 5387,
   "offer_id": 25915,
-  "status": "prepared_photo_and_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://www.farpost.ru/khabarovsk/zapchasti/sajlentblok-zadnej-ressory-perednij-novyj-art-gv0175-ctr-artikul-cvkh-150-dostavka-do-tk-birhab-5-zvezd-garantija-ot-12-mes-pomosh-v-podbore-artikul-cvkh-150-g18284907593.html",
   "source_label": "BESTтесн на FarPost — независимое предложение продавца",
@@ -49,13 +49,22 @@
     }
   ],
   "fitment_note": "ТочноеCTR/CVKH-150вобъявлении,новыйGV0175указанотдельнобеззаменыисходногоартикула. Четыремодели/периодыпереписаныизявнойстрокиПрименимость,двигателинеуказаны. ПервичныйCTRPDF:первыйзапростаймаут,разумныйповтордалredirectloop;другимURL/каналомнеобходился. Фото—одинреальныйсайлентблок сCTRводянымзнаком.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/07a306f9-e033-4bf9-b70c-7f9f2eaf3001",
   "image_url": "https://static.baza.farpost.ru/farpost_catalog/1785912394376_default",
   "image_note": "ОдинреальныйсайлентблокCTRизточнойкарточкиCVKH-150/GV0175;нетчужихдеталей/комплектов.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/fc1dedd545482a4916d84ee2ec10540d87175be30f6f2809bb3153def37393a7.webp",
+    "thumbnail_path": "products/optimized/694f8a487e139d79f38238c102869b5da43ca573fc5d00fe374ac5ef32254eed.webp",
+    "main_size": [
+      600,
+      600
+    ],
+    "thumbnail_size": [
+      180,
+      180
+    ]
   },
-  "fitment_status": "prepared_not_imported",
+  "fitment_status": "saved_db_and_ui_verified",
   "checked_sources": [
     {
       "url": "https://www.farpost.ru/khabarovsk/zapchasti/sajlentblok-zadnej-ressory-perednij-novyj-art-gv0175-ctr-artikul-cvkh-150-dostavka-do-tk-birhab-5-zvezd-garantija-ot-12-mes-pomosh-v-podbore-artikul-cvkh-150-g18284907593.html",
@@ -72,6 +81,29 @@
   ],
   "next_offer_id": 26258,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T11:06:23.843Z"
+  },
+  "source_sha256": "ad6ea99552bdb70ad2d9a4a69c2b57b37f0bbd7176a654f66067aee4c5cbfdac",
+  "main_sha256": "fc1dedd545482a4916d84ee2ec10540d87175be30f6f2809bb3153def37393a7",
+  "main_size": [
+    600,
+    600
+  ],
+  "thumbnail_sha256": "694f8a487e139d79f38238c102869b5da43ca573fc5d00fe374ac5ef32254eed",
+  "thumbnail_size": [
+    180,
+    180
+  ],
+  "publication": {
+    "commit": "44a99fc6d2aca7ad840396d2d3d5420d4cbea950",
+    "deploy": "dep-dbq4mt7f3r2c73b8rv50",
+    "status": "live"
   }
 }
