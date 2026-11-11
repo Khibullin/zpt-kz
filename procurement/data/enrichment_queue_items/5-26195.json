@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 5636,
   "offer_id": 26195,
-  "status": "prepared_fitment_photo_unconfirmed",
+  "status": "published_partial_exception",
   "checked_on": "2026-11-11",
   "source_url": "https://www.hyundaipartsdeal.com/genuine/hyundai-sensor-assy-abs-fr-w~95670-1r000.html",
   "source_label": "HyundaiPartsDeal — независимый продавец оригинальных Hyundai",
@@ -44,7 +44,7 @@
   "photo": {
     "status": "unconfirmed"
   },
-  "fitment_status": "prepared_not_imported",
+  "fitment_status": "saved_db_and_ui_verified",
   "checked_sources": [
     {
       "url": "https://www.hyundaipartsdeal.com/genuine/hyundai-sensor-assy-abs-fr-w~95670-1r000.html",
@@ -65,6 +65,18 @@
   ],
   "next_offer_id": 26928,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": false,
+    "thumbnail_image_complete": false,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T11:06:06.218Z"
+  },
+  "publication": {
+    "commit": "44a99fc6d2aca7ad840396d2d3d5420d4cbea950",
+    "deploy": "dep-dbq4mt7f3r2c73b8rv50",
+    "status": "live"
   }
 }
