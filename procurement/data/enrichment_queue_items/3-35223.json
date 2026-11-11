@@ -1,0 +1,44 @@
+{
+  "article": "CH5538",
+  "brand": "MOTORAD",
+  "cost": 5840,
+  "has_fitment": true,
+  "id": 35223,
+  "kaspi_price": 10291,
+  "kaspi_url": "https://kaspi.kz/shop/p/motorad-flanets-sistemy-ohlazhdenija-ch5538-183186313/?c=750000000",
+  "main_image": "",
+  "name": "Патрубки сист охлаждения",
+  "photo_status": "needs_source",
+  "product_id": 16030,
+  "profit": 2914.625,
+  "stock": "2",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 14003,
+  "offer_id": 35223,
+  "status": "prepared_photo_existing_fitment",
+  "checked_on": "2026-11-11",
+  "source_url": "https://spareto.com/products/motorad-coolant-flange/ch5538",
+  "source_label": "Spareto — независимый каталог продавца",
+  "source_kind": "retailer_catalogue",
+  "source_article": "CH5538",
+  "fitments": [],
+  "fitment_note": "Существующая применимость сохранена.",
+  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/c7430d0e-cef5-4137-ad6e-6e95b17f9dba",
+  "image_url": "https://cdn.spareto.com/variants/images/003/536/978/medium/ch5538.jpg?1737736020",
+  "image_note": "MOTORADCH5538:точнаякарточка корпуса/фланцасистемыохлаждения. Однадеталь с уплотнениемпо карточке,реальноеизображениепроверено. Прежние44конфигурации производителя не изменены.",
+  "photo": {
+    "status": "downloaded_visually_verified_not_queued"
+  },
+  "fitment_status": "existing_preserved",
+  "checked_sources": [
+    {
+      "url": "https://spareto.com/products/motorad-coolant-flange/ch5538",
+      "result": "MOTORADCH5538:точнаякарточка корпуса/фланцасистемыохлаждения. Однадеталь с уплотнениемпо карточке,реальноеизображениепроверено. Прежние44конфигурации производителя не изменены."
+    }
+  ],
+  "next_offer_id": 23164,
+  "verification": {
+    "trade_data_unchanged": true
+  }
+}
