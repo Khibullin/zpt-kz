@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T11:33:03.805Z",
+  "checked_at": "2026-11-11T11:33:51.406Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -10548,14 +10548,14 @@
       "id": 26258,
       "kaspi_price": 7630,
       "kaspi_url": "https://kaspi.kz/shop/p/hyundai-kia-datchik-polozhenija-raspredelitel-nogo-vala-3935025010-129470625/?c=750000000",
-      "main_image": "",
+      "main_image": "products/optimized/694b49f3ac74540f8e0cded048764cd114005dd9ba6be3a40f002fcaba911c57.webp",
       "name": "Датчик положения Hyundai",
-      "photo_status": "needs_source",
+      "photo_status": "done",
       "product_id": 7823,
       "profit": 1726.25,
       "stock": "2",
       "supplier_id": 5,
-      "supplier_thumbnail": "",
+      "supplier_thumbnail": "products/optimized/e6542fd2726ea540d8671765051b7dd9d44027e7ed4ff26ef5a6b4782cb94b01.webp",
       "task_id": 5796
     },
     {
@@ -11198,12 +11198,12 @@
       25789,
       26282
     ],
-    "reviewed": 49,
+    "reviewed": 50,
     "published_fitments": 11,
-    "published_photos": 9,
-    "unconfirmed": 40,
-    "next_offer_id": 26258,
-    "photos_present": 9,
+    "published_photos": 10,
+    "unconfirmed": 41,
+    "next_offer_id": 28084,
+    "photos_present": 10,
     "fitments_present": 50,
     "both_present": 9,
     "created_at": "2026-11-11T10:30:05.643Z",
@@ -11527,16 +11527,17 @@
     25492,
     25128,
     26834,
-    28161
+    28161,
+    26258
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 249,
-    "remaining_unreviewed": 159,
-    "unconfirmed_reviewed": 182,
+    "reviewed": 250,
+    "remaining_unreviewed": 158,
+    "unconfirmed_reviewed": 183,
     "remaining_missing_fields": 341,
-    "photo_added": 66,
+    "photo_added": 67,
     "fitment_added": 42,
     "make_model_pairs_added": 100,
     "configurations_added": 137
@@ -11603,59 +11604,15 @@
   "next_batch_instruction": "FixedPhaeton100complete, all29photos/thumbs6fitoffersDB/UIverified. Continue fixedZakazAuto75 inbatch.offer_ids exactprofitorder. ThenremainingPhaeton100; preserveallpriorcanonicalexceptions/restrictions.",
   "technical_notes": "All200reviewed,57photos31fitmentoffers81pairs115configs cumulative acrossqueue. No pendingpublication. Phaeton100 added29photos6fitoffers23pairs46configs in4livepublications,31photo59fit29both. NewZakazAuto75frozenafterDBUIverification.",
   "latest_publication": {
-    "commit": "44a99fc6d2aca7ad840396d2d3d5420d4cbea950",
-    "deploy": "dep-dbq4mt7f3r2c73b8rv50",
+    "commit": "67ceb32acec7ee3307f1a9a44c0c779c90797192",
+    "deploy": "dep-dbq53i8473hc73ch8gv0",
     "status": "live",
-    "checked_photo_and_thumbnail": 6,
-    "checked_fitment_offers": 5,
+    "checked_photo_and_thumbnail": 7,
+    "checked_fitment_offers": 6,
     "ui_images_loaded": true,
     "unchanged_trade_data": true
   },
   "prepared_candidates": [
-    {
-      "article": "3935025010",
-      "brand": "HYUNDAI-KIA",
-      "cost": 4700,
-      "has_fitment": false,
-      "id": 26258,
-      "kaspi_price": 7630,
-      "kaspi_url": "https://kaspi.kz/shop/p/hyundai-kia-datchik-polozhenija-raspredelitel-nogo-vala-3935025010-129470625/?c=750000000",
-      "main_image": "",
-      "name": "Датчик положения Hyundai",
-      "photo_status": "needs_source",
-      "product_id": 7823,
-      "profit": 1726.25,
-      "stock": "2",
-      "supplier_id": 5,
-      "supplier_thumbnail": "",
-      "task_id": 5796,
-      "offer_id": 26258,
-      "status": "prepared_photo_fitment_unconfirmed",
-      "checked_on": "2026-11-11",
-      "source_url": "https://www.dvsavto.ru/catalog/zapchasti_po_proizvoditelyam_i_modelyam/zapchasti_hyundai_kia/zapchasti_dvigateley/zapchasti_dlya_benzinovykh_dvigateley_hyundai/zapchasti_dvigatelya_g4ka_g4kd_2000cc_theta_theta_2/datchik_polozheniya_raspredvala_3935025010_39350_25010_g4na_g4kd_g4ke_g4kj_original/",
-      "source_label": "Глобал Авто (DvsAvto) — независимый продавец оригинальных Hyundai/Kia",
-      "source_kind": "retailer_catalogue",
-      "source_article": "3935025010",
-      "fitments": [],
-      "fitment_note": "Применимость не подтверждена; добавляется только точная фотография.",
-      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/c149052b-c253-4527-9bca-c45cf8668635",
-      "image_url": "https://www.dvsavto.ru/upload/iblock/715/7ieybu1rwnswh857djj70anbq86ibq1b.jpeg",
-      "image_note": "Точныйоригинальный3935025010/39350-25010 изразделаHyundai/Kia: реальнаяфотографияодногодатчикараспредваласуплотнением. Применимостькмоделям/периодамнеподтверждена: двигателиG4NA/G4KD/G4KE/G4KJвзаголовкенепривязаныкмоделям;неперенесеныкаквыдуманныеавтомобили. Zarouni—иллюстрация,неиспользована.",
-      "photo": {
-        "status": "downloaded_visually_verified_not_queued"
-      },
-      "fitment_status": "unconfirmed",
-      "checked_sources": [
-        {
-          "url": "https://www.dvsavto.ru/catalog/zapchasti_po_proizvoditelyam_i_modelyam/zapchasti_hyundai_kia/zapchasti_dvigateley/zapchasti_dlya_benzinovykh_dvigateley_hyundai/zapchasti_dvigatelya_g4ka_g4kd_2000cc_theta_theta_2/datchik_polozheniya_raspredvala_3935025010_39350_25010_g4na_g4kd_g4ke_g4kj_original/",
-          "result": "Точныйоригинальный3935025010/39350-25010 изразделаHyundai/Kia: реальнаяфотографияодногодатчикараспредваласуплотнением. Применимостькмоделям/периодамнеподтверждена: двигателиG4NA/G4KD/G4KE/G4KJвзаголовкенепривязаныкмоделям;неперенесеныкаквыдуманныеавтомобили. Zarouni—иллюстрация,неиспользована."
-        }
-      ],
-      "next_offer_id": 25152,
-      "verification": {
-        "trade_data_unchanged": true
-      }
-    },
     {
       "article": "55353328",
       "brand": "GM",
@@ -12397,22 +12354,6 @@
       "publication": "7dec204910db6a8f38f987b3c44771cacb96ea1c"
     }
   ],
-  "publication_pending": {
-    "batch": "zakaz-resume24-20261111",
-    "commit": "67ceb32acec7ee3307f1a9a44c0c779c90797192",
-    "offer_ids": [
-      26258,
-      28084,
-      26624,
-      25969,
-      26260,
-      25480,
-      28023,
-      26196
-    ],
-    "status": "committed_waiting_deploy",
-    "photos_prepared": 7,
-    "fitments_prepared": 6
-  },
-  "next_offer_id": 26258
+  "publication_pending": null,
+  "next_offer_id": 28084
 }
