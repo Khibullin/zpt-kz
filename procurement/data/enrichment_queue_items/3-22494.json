@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 2201,
   "offer_id": 22494,
-  "status": "prepared_photo_existing_fitment",
+  "status": "published_complete_pending_db_audit",
   "checked_on": "2026-11-11",
   "source_url": "https://www.autodoc.parts/555/13056483",
   "source_label": "AUTODOC · независимый каталог продавца",
@@ -24,11 +24,20 @@
   "source_article": "SR-T270",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/1bf8a352-2ee1-4e56-973e-18fd2bb769c1",
   "image_url": "https://cdn.autodoc.de/thumb?id=13056483&m=0&n=0&lng=en&rev=94078121",
   "image_note": "Точный555SR-T270 безM. Реальное фото одной чёрной рулевой тяги с логотипом555,без зубчатой шайбы/дополнительного комплекта. Существующая применимость не меняется. UIналичие1,закупка5607/Kaspi7895 совпадают.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_ui_verified_db_audit_pending",
+    "main_path": "products/optimized/d057a2ee7af24f2a90942df422354a651a87fe308a3572d32167aebd8fb2e19e.webp",
+    "thumbnail_path": "products/optimized/e2c2d2d38d1a9996456e28654480889b7f7cc0357a5f9b70cf188ac1f5d55b09.webp",
+    "main_size": [
+      600,
+      400
+    ],
+    "thumbnail_size": [
+      180,
+      120
+    ]
   },
   "fitment_status": "existing_preserved",
   "checked_sources": [
@@ -39,6 +48,17 @@
   ],
   "next_offer_id": 23061,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": false,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "visible_trade_and_fitment_text_unchanged": true,
+    "existing_metadata_preserved_by_import": true,
+    "checked_at": "2026-11-11T13:26:53.472Z",
+    "db_audit_pending_reason": "Render MCP temporary Internal errors/timeouts; fresh stored row metadata audit pending"
+  },
+  "publication": {
+    "commit": "b83355cd9994f3667e7ee7842b3bbc9cb23ee5a5",
+    "status": "images_visible_on_live_site_render_status_unavailable"
   }
 }
