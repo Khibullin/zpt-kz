@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T10:59:55.911Z",
+  "checked_at": "2026-11-11T11:02:19.262Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -11960,6 +11960,83 @@
         }
       ],
       "next_offer_id": 25915,
+      "verification": {
+        "trade_data_unchanged": true
+      }
+    },
+    {
+      "article": "CVKH-150",
+      "brand": "CTR",
+      "cost": 1100,
+      "has_fitment": false,
+      "id": 25915,
+      "kaspi_price": 3530,
+      "kaspi_url": "https://kaspi.kz/shop/p/ctr-vtulka-ressory-cvkh-150-147893556/?c=750000000",
+      "main_image": "",
+      "name": "Втулка рессоры Hyundai",
+      "photo_status": "needs_source",
+      "product_id": 7414,
+      "profit": 1738.75,
+      "stock": "1",
+      "supplier_id": 5,
+      "supplier_thumbnail": "",
+      "task_id": 5387,
+      "offer_id": 25915,
+      "status": "prepared_photo_and_fitment",
+      "checked_on": "2026-11-11",
+      "source_url": "https://www.farpost.ru/khabarovsk/zapchasti/sajlentblok-zadnej-ressory-perednij-novyj-art-gv0175-ctr-artikul-cvkh-150-dostavka-do-tk-birhab-5-zvezd-garantija-ot-12-mes-pomosh-v-podbore-artikul-cvkh-150-g18284907593.html",
+      "source_label": "BESTтесн на FarPost — независимое предложение продавца",
+      "source_kind": "retailer_catalogue",
+      "source_article": "CVKH-150",
+      "fitments": [
+        {
+          "make": "Kia",
+          "model": "Bongo III",
+          "years": "2006–н.в.",
+          "position": "Передняя позиция сайлентблока задней рессоры"
+        },
+        {
+          "make": "Hyundai",
+          "model": "Libero",
+          "years": "2000–2007",
+          "position": "Передняя позиция сайлентблока задней рессоры"
+        },
+        {
+          "make": "Hyundai",
+          "model": "Porter",
+          "years": "2006–н.в.",
+          "position": "Передняя позиция сайлентблока задней рессоры"
+        },
+        {
+          "make": "Hyundai",
+          "model": "Starex",
+          "years": "1996–2007",
+          "position": "Передняя позиция сайлентблока задней рессоры"
+        }
+      ],
+      "fitment_note": "ТочноеCTR/CVKH-150вобъявлении,новыйGV0175указанотдельнобеззаменыисходногоартикула. Четыремодели/периодыпереписаныизявнойстрокиПрименимость,двигателинеуказаны. ПервичныйCTRPDF:первыйзапростаймаут,разумныйповтордалredirectloop;другимURL/каналомнеобходился. Фото—одинреальныйсайлентблок сCTRводянымзнаком.",
+      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/07a306f9-e033-4bf9-b70c-7f9f2eaf3001",
+      "image_url": "https://static.baza.farpost.ru/farpost_catalog/1785912394376_default",
+      "image_note": "ОдинреальныйсайлентблокCTRизточнойкарточкиCVKH-150/GV0175;нетчужихдеталей/комплектов.",
+      "photo": {
+        "status": "downloaded_visually_verified_not_queued"
+      },
+      "fitment_status": "prepared_not_imported",
+      "checked_sources": [
+        {
+          "url": "https://www.farpost.ru/khabarovsk/zapchasti/sajlentblok-zadnej-ressory-perednij-novyj-art-gv0175-ctr-artikul-cvkh-150-dostavka-do-tk-birhab-5-zvezd-garantija-ot-12-mes-pomosh-v-podbore-artikul-cvkh-150-g18284907593.html",
+          "result": "ExactCTR/CVKH-150,newGV0175noted;4explicitmodelperiodrows;photoactualsinglebush"
+        },
+        {
+          "url": "https://www.autoopt.ru/catalog/342033-sajlentblok_ctr_cvkh_150",
+          "result": "Exactarticlecardonlycap.pngplaceholder;excluded"
+        },
+        {
+          "url": "https://aftermarket.ctr.co.kr/Act/fileDownload?fileName=88b69f8d62e90b8429091959733335ac.pdf&filePath=%2Fdata%2Ffiles%2F&orgName=CTR_Bush_Catalogue_2020_Re02.pdf",
+          "result": "Timeoutfirst,ordinarysameURLretryredirectloop;noalternativeURL/protocol/channel"
+        }
+      ],
+      "next_offer_id": 26258,
       "verification": {
         "trade_data_unchanged": true
       }
