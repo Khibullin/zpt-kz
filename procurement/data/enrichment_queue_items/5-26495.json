@@ -1,0 +1,42 @@
+{
+  "article": "ST-51712-3K160",
+  "brand": "SAT",
+  "cost": 11000,
+  "has_fitment": true,
+  "id": 26495,
+  "kaspi_price": 15400,
+  "kaspi_url": "https://kaspi.kz/shop/p/diski-sat-perednie-st-51712-3k160-102346041/?c=750000000",
+  "main_image": "",
+  "name": "Диск тормозной Hyundai",
+  "photo_status": "needs_source",
+  "product_id": 8135,
+  "profit": 2225,
+  "stock": "1",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 6108,
+  "offer_id": 26495,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "SATST-51712-3K160: точное объявление Автотрейд/OLX содержит только техническийчертёждиска,фотоисключено. КаноническаяSATpartsстраницаnotaccessible,другимпутём/каналомнеобходилась. Прежняяприменимостьсохранена.",
+  "checked_sources": [
+    {
+      "url": "https://www.olx.kz/d/obyavlenie/disk-tormoznoy-peredniy-hyundai-creta-IDrdJAx.html",
+      "result": "ExactSATarticle;downloadedimageisdimensiondrawing,notpartphoto"
+    },
+    {
+      "url": "https://satparts.ru/index.php/product/st-51712-3k160",
+      "result": "Notaccessibleweb;samereadfailedagain,noalternateURL/channel"
+    }
+  ],
+  "next_offer_id": 26734,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true
+  }
+}
