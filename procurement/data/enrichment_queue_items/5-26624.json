@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 6305,
   "offer_id": 26624,
-  "status": "prepared_photo_and_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://abcparts.com.ua/ua/unit/ssangyong-7122009006",
   "source_label": "ABCparts — независимый каталог продавца оригинальных SsangYong",
@@ -37,13 +37,22 @@
     }
   ],
   "fitment_note": "ТочнаяABCparts7122009006/SSANGYONG/ОригиналпоказываетActyonиKyron,неизвестныегоды/двигателине дописаны. ПериодыActyon/Sportsвдругихпоисковыхснимкахнеоднозначноразделены,неперенесены. AvtoALLзапросилотключитьVPN,обход/изменениенастроек/альтернативныймаршруткнемунеделались. ФотоABCparts—реальныйодинпереднийправыйзамоквсборе.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/b02dac68-ef7e-454b-b1b3-9cf7ca165152",
   "image_url": "https://abcparts.com.ua/imgs/ssangyong/7122009006.webp",
   "image_note": "Реальныйодинзамокпереднейправойдвери с тягами/тросамиизточнойоригинальнойSSANGYONG7122009006карточкиABCparts;фотонеподмененоаналогом.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/2218de69fe4eff19b89e28b37b5b01662848619383026092075802d2c989960e.webp",
+    "thumbnail_path": "products/optimized/7b7f31db754a3f60968314ce556e2319471db7aaa903c43fee43ccc9379f3b80.webp",
+    "main_size": [
+      800,
+      534
+    ],
+    "thumbnail_size": [
+      180,
+      120
+    ]
   },
-  "fitment_status": "prepared_not_imported",
+  "fitment_status": "saved_db_and_ui_verified",
   "checked_sources": [
     {
       "url": "https://abcparts.com.ua/ua/unit/ssangyong-7122009006",
@@ -60,6 +69,29 @@
   ],
   "next_offer_id": 25969,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T11:33:55.073Z"
+  },
+  "source_sha256": "16c8bf3895f49ab3480221236d86bc6735f518441a4fc8341ddc6870401bca30",
+  "main_sha256": "2218de69fe4eff19b89e28b37b5b01662848619383026092075802d2c989960e",
+  "main_size": [
+    800,
+    534
+  ],
+  "thumbnail_sha256": "7b7f31db754a3f60968314ce556e2319471db7aaa903c43fee43ccc9379f3b80",
+  "thumbnail_size": [
+    180,
+    120
+  ],
+  "publication": {
+    "commit": "67ceb32acec7ee3307f1a9a44c0c779c90797192",
+    "deploy": "dep-dbq53i8473hc73ch8gv0",
+    "status": "live"
   }
 }
