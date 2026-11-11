@@ -1,0 +1,555 @@
+{
+  "checked_on": "2026-11-11",
+  "scope": "Following 50 Phaeton items ranked by net profit KZT, ranks51-100. Preserved previous top50.",
+  "before": {
+    "photos": 19143,
+    "verified_offers": 4297,
+    "queue": {
+      "done": 18783,
+      "skipped": 1619,
+      "needs_source": 29091
+    }
+  },
+  "photo_targets": [
+    {
+      "article": "19-135021",
+      "offer_id": 24816,
+      "product_id": 6520,
+      "task_id": 4493,
+      "source_url": "https://cart.bilsteinus.com/shock-19-135021.html",
+      "image_url": "https://cart.bilsteinus.com/media/catalog/product/a/p/apa_19-135021_1_20261103121715.jpg"
+    },
+    {
+      "article": "19-246390",
+      "offer_id": 24821,
+      "product_id": 6525,
+      "task_id": 4498,
+      "source_url": "https://cart.bilsteinus.com/shock-19-246390.html",
+      "image_url": "https://cart.bilsteinus.com/media/catalog/product/a/p/apa_19-246390_1_20261103123135.jpg"
+    }
+  ],
+  "verification": "Both exact official pages and images HTTP200; pro_part_number and pdpMainImg exact. Images 1500x1500 visually inspected; actual shocks. Existing fits11/1 left intact. Existing consumer compression800/180 and source evidence retained.",
+  "new_restrictions": [
+    {
+      "url": "https://eu.motorad.com/part/385-87k/",
+      "result": "Direct standard request HTTP403. No further requests to this page or alternate image/channel; do not bypass."
+    },
+    {
+      "url": "https://shop.globalparts.kz/product/akika/as172",
+      "result": "Web retrieval not accessible via this tool. No repeat through another URL/protocol/channel."
+    },
+    {
+      "url": "https://shop.globalparts.kz/product/akika/as04",
+      "result": "Web retrieval not accessible via this tool. No repeat through another URL/protocol/channel."
+    },
+    {
+      "url": "https://shop.globalparts.kz/product/akika/as201",
+      "result": "Web retrieval not accessible via this tool. No repeat through another URL/protocol/channel."
+    },
+    {
+      "url": "https://cart.bilsteinus.com/mounting-kit-12-244966.html",
+      "result": "Web retrieval not accessible via this tool. No repeat through another URL/protocol/channel."
+    }
+  ],
+  "previous_restrictions": "All earlier denials and ASVA/Alta-Karter restriction retained. Search incidentally returned Alta-Karter snippets; no direct request or use.",
+  "status": "Applied and verified in live DB. Do not stage the two BILSTEIN tasks again.",
+  "after": {
+    "products_with_photo": 19145,
+    "queue": {
+      "done": 18785,
+      "needs_source": 29089,
+      "skipped": 1619
+    },
+    "verified_offers": 4297
+  },
+  "priority_after": {
+    "ranks": "51-100",
+    "photos": 6,
+    "verified_offers": 28,
+    "missing_photos": 44,
+    "missing_fitments": 22
+  },
+  "priority_live": [
+    {
+      "article": "385-87K",
+      "brand": "MOTORAD",
+      "id": 35185,
+      "photo": "",
+      "rank": 51,
+      "verified": true
+    },
+    {
+      "article": "621-82K",
+      "brand": "MOTORAD",
+      "id": 35213,
+      "photo": "",
+      "rank": 52,
+      "verified": true
+    },
+    {
+      "article": "0223-T31RR",
+      "brand": "ASVA",
+      "id": 23331,
+      "photo": "",
+      "rank": 53,
+      "verified": false
+    },
+    {
+      "article": "446-82K",
+      "brand": "MOTORAD",
+      "id": 35195,
+      "photo": "",
+      "rank": 54,
+      "verified": true
+    },
+    {
+      "article": "0120-042",
+      "brand": "ASVA",
+      "id": 23053,
+      "photo": "products/optimized/33f32f8f9ce7f3a9db75537be662c07f7385497b37c9fadfd0c76b97a1e59aeb.webp",
+      "rank": 55,
+      "verified": true
+    },
+    {
+      "article": "691-88K",
+      "brand": "MOTORAD",
+      "id": 35218,
+      "photo": "",
+      "rank": 56,
+      "verified": true
+    },
+    {
+      "article": "385-87INSK",
+      "brand": "MOTORAD",
+      "id": 35184,
+      "photo": "",
+      "rank": 57,
+      "verified": true
+    },
+    {
+      "article": "251-85K",
+      "brand": "MOTORAD",
+      "id": 35169,
+      "photo": "",
+      "rank": 58,
+      "verified": true
+    },
+    {
+      "article": "294-82K",
+      "brand": "MOTORAD",
+      "id": 35174,
+      "photo": "",
+      "rank": 59,
+      "verified": true
+    },
+    {
+      "article": "AS-172",
+      "brand": "AKIKA",
+      "id": 22746,
+      "photo": "",
+      "rank": 60,
+      "verified": false
+    },
+    {
+      "article": "0121-003",
+      "brand": "ASVA",
+      "id": 23078,
+      "photo": "",
+      "rank": 61,
+      "verified": false
+    },
+    {
+      "article": "1212-TB11F",
+      "brand": "ASVA",
+      "id": 23700,
+      "photo": "",
+      "rank": 62,
+      "verified": false
+    },
+    {
+      "article": "19-135021",
+      "brand": "BILSTEIN",
+      "id": 24816,
+      "photo": "products/optimized/7cc39b183de8db6f634cb89332c5fd3603ed25d618855552600d7d23123715b8.webp",
+      "rank": 63,
+      "verified": true
+    },
+    {
+      "article": "0124063",
+      "brand": "ASVA",
+      "id": 23197,
+      "photo": "",
+      "rank": 64,
+      "verified": true
+    },
+    {
+      "article": "468-105K",
+      "brand": "MOTORAD",
+      "id": 35198,
+      "photo": "",
+      "rank": 65,
+      "verified": true
+    },
+    {
+      "article": "543-77",
+      "brand": "MOTORAD",
+      "id": 35202,
+      "photo": "",
+      "rank": 66,
+      "verified": true
+    },
+    {
+      "article": "AN-768WK",
+      "brand": "AKEBONO",
+      "id": 22576,
+      "photo": "",
+      "rank": 67,
+      "verified": true
+    },
+    {
+      "article": "0101046",
+      "brand": "ASVA",
+      "id": 22881,
+      "photo": "",
+      "rank": 68,
+      "verified": false
+    },
+    {
+      "article": "AS-04",
+      "brand": "AKIKA",
+      "id": 22692,
+      "photo": "",
+      "rank": 69,
+      "verified": false
+    },
+    {
+      "article": "0121GSU35",
+      "brand": "ASVA",
+      "id": 23105,
+      "photo": "",
+      "rank": 70,
+      "verified": false
+    },
+    {
+      "article": "427-82K",
+      "brand": "MOTORAD",
+      "id": 35191,
+      "photo": "",
+      "rank": 71,
+      "verified": true
+    },
+    {
+      "article": "SE-2954",
+      "brand": "555",
+      "id": 22054,
+      "photo": "products/optimized/82118a4d8d782a8abf2e07360650d2272911ba5d0f1990ea983a1de2f49f4cb6.webp",
+      "rank": 72,
+      "verified": true
+    },
+    {
+      "article": "606-101K",
+      "brand": "MOTORAD",
+      "id": 35210,
+      "photo": "",
+      "rank": 73,
+      "verified": true
+    },
+    {
+      "article": "0121-117L",
+      "brand": "ASVA",
+      "id": 23087,
+      "photo": "",
+      "rank": 74,
+      "verified": false
+    },
+    {
+      "article": "0112ST210LH",
+      "brand": "ASVA",
+      "id": 23040,
+      "photo": "",
+      "rank": 75,
+      "verified": false
+    },
+    {
+      "article": "AS-201",
+      "brand": "AKIKA",
+      "id": 22760,
+      "photo": "",
+      "rank": 76,
+      "verified": false
+    },
+    {
+      "article": "AS-187",
+      "brand": "AKIKA",
+      "id": 22756,
+      "photo": "",
+      "rank": 77,
+      "verified": true
+    },
+    {
+      "article": "0122TRH201",
+      "brand": "ASVA",
+      "id": 23137,
+      "photo": "",
+      "rank": 78,
+      "verified": true
+    },
+    {
+      "article": "0121-116L",
+      "brand": "ASVA",
+      "id": 23085,
+      "photo": "",
+      "rank": 79,
+      "verified": false
+    },
+    {
+      "article": "2028-77K",
+      "brand": "MOTORAD",
+      "id": 35167,
+      "photo": "",
+      "rank": 80,
+      "verified": true
+    },
+    {
+      "article": "AS-50",
+      "brand": "AKIKA",
+      "id": 22824,
+      "photo": "",
+      "rank": 81,
+      "verified": true
+    },
+    {
+      "article": "12-244966",
+      "brand": "BILSTEIN",
+      "id": 24810,
+      "photo": "",
+      "rank": 82,
+      "verified": false
+    },
+    {
+      "article": "2424004",
+      "brand": "ASVA",
+      "id": 23869,
+      "photo": "",
+      "rank": 83,
+      "verified": true
+    },
+    {
+      "article": "HC112",
+      "brand": "MAHLE",
+      "id": 35139,
+      "photo": "",
+      "rank": 84,
+      "verified": false
+    },
+    {
+      "article": "1211-007",
+      "brand": "ASVA",
+      "id": 23692,
+      "photo": "",
+      "rank": 85,
+      "verified": false
+    },
+    {
+      "article": "1115-82",
+      "brand": "MOTORAD",
+      "id": 35166,
+      "photo": "",
+      "rank": 86,
+      "verified": false
+    },
+    {
+      "article": "AS-22",
+      "brand": "AKIKA",
+      "id": 22771,
+      "photo": "",
+      "rank": 87,
+      "verified": true
+    },
+    {
+      "article": "0121401",
+      "brand": "ASVA",
+      "id": 23097,
+      "photo": "",
+      "rank": 88,
+      "verified": false
+    },
+    {
+      "article": "AS-150",
+      "brand": "AKIKA",
+      "id": 22732,
+      "photo": "",
+      "rank": 89,
+      "verified": false
+    },
+    {
+      "article": "AS-89",
+      "brand": "AKIKA",
+      "id": 22854,
+      "photo": "",
+      "rank": 90,
+      "verified": false
+    },
+    {
+      "article": "19-246390",
+      "brand": "BILSTEIN",
+      "id": 24821,
+      "photo": "products/optimized/3406b1954bdea42829de27cf9a413bb9e817c48c39ee4cb6764119b2c1a7f2da.webp",
+      "rank": 91,
+      "verified": true
+    },
+    {
+      "article": "0222-003",
+      "brand": "ASVA",
+      "id": 23317,
+      "photo": "",
+      "rank": 92,
+      "verified": false
+    },
+    {
+      "article": "SE-T521L",
+      "brand": "555",
+      "id": 22150,
+      "photo": "products/optimized/9467728fd533f7855a1cb429cb2e399035622f472795e7870b482b37289fca7f.webp",
+      "rank": 93,
+      "verified": true
+    },
+    {
+      "article": "AS-195",
+      "brand": "AKIKA",
+      "id": 22759,
+      "photo": "",
+      "rank": 94,
+      "verified": false
+    },
+    {
+      "article": "0121-087",
+      "brand": "ASVA",
+      "id": 23084,
+      "photo": "",
+      "rank": 95,
+      "verified": false
+    },
+    {
+      "article": "0121-086",
+      "brand": "ASVA",
+      "id": 23083,
+      "photo": "",
+      "rank": 96,
+      "verified": false
+    },
+    {
+      "article": "AS-09",
+      "brand": "AKIKA",
+      "id": 22696,
+      "photo": "",
+      "rank": 97,
+      "verified": true
+    },
+    {
+      "article": "337-82K",
+      "brand": "MOTORAD",
+      "id": 35177,
+      "photo": "",
+      "rank": 98,
+      "verified": true
+    },
+    {
+      "article": "SA-M112R",
+      "brand": "555",
+      "id": 21906,
+      "photo": "products/optimized/c10b2de93ffa15be2ec5bac4d4e28ff832db6c5f2806d5676eeebf4713f18cb0.webp",
+      "rank": 99,
+      "verified": true
+    },
+    {
+      "article": "1014-100K",
+      "brand": "MOTORAD",
+      "id": 35159,
+      "photo": "",
+      "rank": 100,
+      "verified": true
+    }
+  ],
+  "tasks": [
+    {
+      "evidence": {
+        "article": "19-135021",
+        "batch": "full-catalogue-20261110",
+        "brand": "BILSTEIN",
+        "bytes": 7212,
+        "checked_at": "2026-11-11T03:58:45.879577+00:00",
+        "checked_on": "2026-11-11",
+        "free_disk_bytes": 414302208,
+        "image_url": "https://cart.bilsteinus.com/media/catalog/product/a/p/apa_19-135021_1_20261103121715.jpg",
+        "main_bytes": 6372,
+        "main_path": "products/optimized/7cc39b183de8db6f634cb89332c5fd3603ed25d618855552600d7d23123715b8.webp",
+        "main_size": [
+          800,
+          800
+        ],
+        "review_batch": "phaeton-next50-bilstein-20261111",
+        "source_bytes": 148473,
+        "source_probe": true,
+        "source_url": "https://cart.bilsteinus.com/shock-19-135021.html",
+        "thumbnail_bytes": 840,
+        "thumbnail_path": "products/optimized/1d20d2ebec86b3b2695c91da0c1a0f4753f37339f97f77edb4d74d8473685d28.webp",
+        "thumbnail_size": [
+          180,
+          180
+        ]
+      },
+      "id": 4493,
+      "main_image": "products/optimized/7cc39b183de8db6f634cb89332c5fd3603ed25d618855552600d7d23123715b8.webp",
+      "note": "Фотография точного товара из подтверждённого открытого каталога.",
+      "status": "done",
+      "supplier_thumbnail": "products/optimized/1d20d2ebec86b3b2695c91da0c1a0f4753f37339f97f77edb4d74d8473685d28.webp"
+    },
+    {
+      "evidence": {
+        "article": "19-246390",
+        "batch": "full-catalogue-20261110",
+        "brand": "BILSTEIN",
+        "bytes": 9236,
+        "checked_at": "2026-11-11T03:58:47.008417+00:00",
+        "checked_on": "2026-11-11",
+        "free_disk_bytes": 414289920,
+        "image_url": "https://cart.bilsteinus.com/media/catalog/product/a/p/apa_19-246390_1_20261103123135.jpg",
+        "main_bytes": 8130,
+        "main_path": "products/optimized/3406b1954bdea42829de27cf9a413bb9e817c48c39ee4cb6764119b2c1a7f2da.webp",
+        "main_size": [
+          800,
+          800
+        ],
+        "review_batch": "phaeton-next50-bilstein-20261111",
+        "source_bytes": 209783,
+        "source_probe": true,
+        "source_url": "https://cart.bilsteinus.com/shock-19-246390.html",
+        "thumbnail_bytes": 1106,
+        "thumbnail_path": "products/optimized/aa41aac884fda02085ca3c9b5adfafc6c4bcf2f1a4c76d3fded400fe9b2d1de9.webp",
+        "thumbnail_size": [
+          180,
+          180
+        ]
+      },
+      "id": 4498,
+      "main_image": "products/optimized/3406b1954bdea42829de27cf9a413bb9e817c48c39ee4cb6764119b2c1a7f2da.webp",
+      "note": "Фотография точного товара из подтверждённого открытого каталога.",
+      "status": "done",
+      "supplier_thumbnail": "products/optimized/aa41aac884fda02085ca3c9b5adfafc6c4bcf2f1a4c76d3fded400fe9b2d1de9.webp"
+    }
+  ],
+  "deployment": {
+    "commit": "a354009f1972eeeb74699854ade7838ad9ddb4ca",
+    "id": "dep-dbpuf42jnfac739jka40",
+    "status": "live",
+    "finished_at": "2026-11-11T03:58:42.480326Z",
+    "manual_restart": false,
+    "new_consumer": false
+  },
+  "resolved_error": {
+    "deploy": "dep-dbpuen59el5s738uslv0",
+    "error": "Status marker exceeded existing varchar(16); migration atomic rollback confirmed targets still needs_source. Corrected marker to shock_ready; next deploy succeeded. No schema or tariff changes."
+  },
+  "next_steps": "First fresh DB and inspect running queue; no duplicate consumer. Following50 priority file saved. Existing fits/photo skip. General exact brand/article lookup for the22 missing fitments returned0 additional source offers. Continue independent permitted sources for missing photos44/fitments22. MAHLE HC112 new-number PDF found but only makes, no models/years; no fitment imported. All previous unresolved date rows and source restrictions stand. Full task unfinished; automation retained."
+}
