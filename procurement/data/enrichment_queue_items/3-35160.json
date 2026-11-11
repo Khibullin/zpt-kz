@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 13945,
   "offer_id": 35160,
-  "status": "prepared_photo_existing_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://spareto.com/products/motorad-thermostat-coolant/1069-87k",
   "source_label": "Spareto — независимый каталог продавца",
@@ -24,11 +24,20 @@
   "source_article": "1069-87K",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/69e74c93-157a-4116-bc50-5327185979e5",
   "image_url": "https://cdn.spareto.com/variants/images_webp/003/675/119/medium/1069-87k-D48C9C90.webp?1793168265",
   "image_note": "MOTORAD1069-87K,87°C,безкорпуса,суплотнением. Точная карточка и реальная деталь визуально проверены; существующая применимость сохранена.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/05ba8d86209471d7c0e7e59c5bd001aedbe3d844f0154b9d1a4071f0ffa17b0c.webp",
+    "thumbnail_path": "products/optimized/07aa68bb5e5ab6771ad93f1aefc900b63337b2730e2eb971409cbd3b733241ae.webp",
+    "main_size": [
+      360,
+      360
+    ],
+    "thumbnail_size": [
+      180,
+      180
+    ]
   },
   "fitment_status": "existing_preserved",
   "checked_sources": [
@@ -39,6 +48,29 @@
   ],
   "next_offer_id": 24801,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T10:00:37.182Z"
+  },
+  "source_sha256": "8843e782dc943016a9c9f0bfa107baffe5f9f2d5c18c08e52bee6a9eaef808fe",
+  "main_sha256": "05ba8d86209471d7c0e7e59c5bd001aedbe3d844f0154b9d1a4071f0ffa17b0c",
+  "main_size": [
+    360,
+    360
+  ],
+  "thumbnail_sha256": "07aa68bb5e5ab6771ad93f1aefc900b63337b2730e2eb971409cbd3b733241ae",
+  "thumbnail_size": [
+    180,
+    180
+  ],
+  "publication": {
+    "commit": "6d50b89ddbdaea78c8ee72c5f924121782c91caf",
+    "deploy": "dep-dbq3nju7bikc738hoo40",
+    "status": "live"
   }
 }
