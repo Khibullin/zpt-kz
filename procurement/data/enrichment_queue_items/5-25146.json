@@ -1,0 +1,38 @@
+{
+  "article": "PSA534002",
+  "brand": "PATRON",
+  "has_fitment": true,
+  "id": 25146,
+  "kaspi_url": "https://kaspi.kz/shop/p/patron-zadnii-psa534002-1-sht-180108640/?c=750000000",
+  "main_image": "",
+  "name": "Амортизатор задний Hyundai",
+  "photo_status": "needs_source",
+  "product_id": 6822,
+  "profit": 4681.625,
+  "stock": "2",
+  "supplier_id": 5,
+  "task_id": 4795,
+  "offer_id": 25146,
+  "status": "prepared_photo_preserve_fitment",
+  "checked_on": "2026-11-11",
+  "source_url": "https://ugkorea.com/products/00003092",
+  "source_label": "Автоцентр Южная Корея — независимый каталог продавца",
+  "source_kind": "retailer_catalogue",
+  "source_article": "PSA534002",
+  "fitments": [],
+  "fitment_note": "Существующая применимость сохраняется.",
+  "image_url": "https://ugkorea.com/pictures/product/big/40075_big.JPG",
+  "local_path": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/b9a90431-8864-4518-b3f5-dbcae2de8451",
+  "image_note": "Реальное фото одного амортизатора с коробкой PATRON; точный полный артикул PSA534002 и бренд в заголовке и поле производителя независимого продавца.",
+  "checked_sources": [
+    {
+      "url": "https://kaspi.kz/shop/p/patron-zadnii-psa534002-1-sht-180108640/?c=750000000",
+      "result": "not accessible via web tool; do not retry exact URL via other routes"
+    },
+    {
+      "url": "https://ugkorea.com/products/00003092",
+      "result": "exact article in title, PATRON manufacturer, real photo inspected"
+    }
+  ],
+  "next_offer_id": 26220
+}
