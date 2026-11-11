@@ -1,0 +1,22 @@
+{
+  "article": "SC100NJASHI",
+  "brand": "JASHI",
+  "has_fitment": false,
+  "id": 25630,
+  "kaspi_url": "https://kaspi.kz/shop/p/jashi-smart-konnektor-sc100njashi-144505550/?c=750000000",
+  "main_image": "",
+  "name": "Блок согласования",
+  "photo_status": "needs_source",
+  "product_id": 7324,
+  "profit": 5415,
+  "stock": "80",
+  "supplier_id": 5,
+  "task_id": 5297,
+  "checked_on": "2026-11-11",
+  "status": "unconfirmed",
+  "sources_checked": [
+    "https://kaspi.kz/shop/p/jashi-smart-konnektor-sc100njashi-144505550/?c=750000000"
+  ],
+  "reason": "Exact Kaspi card not accessible via retrieval. No retry via alternate URL or channel. Independent source still needed. Existing fields retained.",
+  "next_offer_id": 26477
+}
