@@ -49,11 +49,16 @@ def stage_review(apps, schema_editor):
             if not exact_offer(offer, row):
                 continue
             if row.get('fitments') and not Fitment.objects.filter(offer_id=offer.pk).exists():
+                grouped = {}
                 for fit in row['fitments']:
                     config = {k: v for k, v in fit.items() if k not in ('make', 'model')}
                     config['source_url'] = row['source_url']
-                    Fitment.objects.create(offer_id=offer.pk, make=fit['make'], model=fit['model'],
-                        configurations=[config], source_url=row['source_url'], verified=True)
+                    configs = grouped.setdefault((fit['make'], fit['model']), [])
+                    if config not in configs:
+                        configs.append(config)
+                for (make, model), configs in grouped.items():
+                    Fitment.objects.create(offer_id=offer.pk, make=make, model=model,
+                        configurations=configs, source_url=row['source_url'], verified=True)
                 meta = dict(offer.characteristics or {})
                 meta['manufacturer_applicability'] = {
                     'manufacturer': row['brand'], 'checked_on': '2026-11-11',
@@ -63,7 +68,7 @@ def stage_review(apps, schema_editor):
                 offer.characteristics = meta
                 offer.save(update_fields=['characteristics'])
                 counts['fitment_offers'] += 1
-                counts['make_model_pairs'] += len(row['fitments'])
+                counts['make_model_pairs'] += len(grouped)
             if not row.get('main_b64'):
                 continue
             listing = Listing.objects.select_related('product').filter(offer_id=offer.pk, enabled=True).first()
