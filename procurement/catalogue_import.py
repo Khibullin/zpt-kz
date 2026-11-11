@@ -7,7 +7,7 @@ from django.core.validators import URLValidator
 from django.core.exceptions import ValidationError
 from .models import Supplier, Offer, VehicleFitment, Activity
 
-ALLOWED = {'ASVA': {'asva-trading.com'}, 'MOTORAD': {'eu.motorad.com'},
+ALLOWED = {'MAHLE': {'www.mahle-aftermarket.com'}, 'ASVA': {'asva-trading.com'}, 'MOTORAD': {'eu.motorad.com'},
            'AKIKA': {'akika.jp', 'www.akika.jp'}, 'AYWIPARTS': {'aywiparts.ru'},
            '555': {'www.sankei-555.com'}, 'PATRON': {'patron.ru', 'www.patron.ru'},
            'BILSTEIN': {'cart.bilsteinus.com'}, 'BLUE PRINT': {'partsfinder.bilsteingroup.com'},
