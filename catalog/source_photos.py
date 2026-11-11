@@ -132,6 +132,8 @@ def process_photo_tasks(limit=10):
     done=process_reviewed_photos(limit=limit)
     from .reviewed_next50 import process_reviewed_photos as process_next50_photos
     done+=process_next50_photos(limit=max(0,limit-done))
+    from .reviewed_next50_extra import process_reviewed_photos as process_extra_photos
+    done+=process_extra_photos(limit=max(0,limit-done))
     pending=SupplierPhotoTask.objects.filter(status='pending')
     for host in {urlsplit(row['source_url']).netloc for row in blocked}:
         if host:pending=pending.exclude(source_url__startswith='https://'+host+'/')
