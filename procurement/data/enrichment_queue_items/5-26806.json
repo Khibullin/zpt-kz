@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 6302,
   "offer_id": 26806,
-  "status": "prepared_fitment_photo_unconfirmed",
+  "status": "published_partial_exception",
   "checked_on": "2026-11-11",
   "source_url": "https://pnm-parts.ru/catalog/ssang-yong/kg-mobility/1721580103",
   "source_label": "PNM Parts — независимый каталог продавца оригинальных SsangYong",
@@ -35,7 +35,7 @@
   "photo": {
     "status": "unconfirmed"
   },
-  "fitment_status": "prepared_not_imported",
+  "fitment_status": "saved_db_and_ui_verified",
   "checked_sources": [
     {
       "url": "https://pnm-parts.ru/catalog/ssang-yong/kg-mobility/1721580103",
@@ -48,6 +48,18 @@
   ],
   "next_offer_id": 26301,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": false,
+    "thumbnail_image_complete": false,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T11:48:30.599Z"
+  },
+  "publication": {
+    "commit": "4ded4decb82a9095ede0648b4c7dc054989e5f2d",
+    "deploy": "dep-dbq5a8ff3r2c73b9knv0",
+    "status": "live"
   }
 }
