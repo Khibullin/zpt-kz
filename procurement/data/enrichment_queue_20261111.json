@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T12:38:16.394Z",
+  "checked_at": "2026-11-11T12:39:06.612Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -4878,14 +4878,14 @@
       "id": 35187,
       "kaspi_price": 9283,
       "kaspi_url": "https://kaspi.kz/shop/p/motorad-termostat-sistemy-ohlazhdenija-39182k-129901124/?c=750000000",
-      "main_image": "",
+      "main_image": "products/optimized/a689ea337f6c64762f75a43cd436c0147b11177b27ddcfbbd00c93d65c62a347.webp",
       "name": "Термостат 82°С",
-      "photo_status": "needs_source",
+      "photo_status": "done",
       "product_id": 15995,
       "profit": 1444.625,
       "stock": "5",
       "supplier_id": 3,
-      "supplier_thumbnail": "",
+      "supplier_thumbnail": "products/optimized/0b78bad2ec700ca97dc5fc86d23f15313687e7e0637b5124bd2a42f44138c685.webp",
       "task_id": 13968
     },
     {
@@ -11223,16 +11223,16 @@
       22938,
       23110
     ],
-    "reviewed": 72,
+    "reviewed": 73,
     "published_fitments": 1,
-    "published_photos": 15,
+    "published_photos": 16,
     "unconfirmed": 57,
-    "photos_present": 17,
+    "photos_present": 18,
     "fitments_present": 47,
-    "both_present": 15,
+    "both_present": 16,
     "created_at": "2026-11-11T11:52:47.402Z",
     "fixed": true,
-    "next_offer_id": 35187
+    "next_offer_id": 35196
   },
   "completed_offer_ids": [
     26820,
@@ -11328,7 +11328,8 @@
     22504,
     22458,
     35189,
-    35145
+    35145,
+    35187
   ],
   "reviewed_offer_ids": [
     26787,
@@ -11677,16 +11678,17 @@
     23198,
     35140,
     22800,
-    22640
+    22640,
+    35187
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 347,
-    "remaining_unreviewed": 61,
+    "reviewed": 348,
+    "remaining_unreviewed": 60,
     "unconfirmed_reviewed": 253,
-    "remaining_missing_fields": 314,
-    "photo_added": 94,
+    "remaining_missing_fields": 313,
+    "photo_added": 95,
     "fitment_added": 55,
     "make_model_pairs_added": 126,
     "configurations_added": 164
@@ -11765,59 +11767,15 @@
   "next_batch_instruction": "FixedPhaeton100complete, all29photos/thumbs6fitoffersDB/UIverified. Continue fixedZakazAuto75 inbatch.offer_ids exactprofitorder. ThenremainingPhaeton100; preserveallpriorcanonicalexceptions/restrictions.",
   "technical_notes": "All200reviewed,57photos31fitmentoffers81pairs115configs cumulative acrossqueue. No pendingpublication. Phaeton100 added29photos6fitoffers23pairs46configs in4livepublications,31photo59fit29both. NewZakazAuto75frozenafterDBUIverification.",
   "latest_publication": {
-    "commit": "d3c9542cecfd849c5e190b514d72acff618374d0",
-    "deploy": "dep-dbq5rv8ae00c73fr6cmg",
+    "commit": "ad43a3c6edc4955b1a623ce66e1a32c1b133be2f",
+    "deploy": "dep-dbq62b5g1s2s739i35ig",
     "status": "live",
     "checked_photo_and_thumbnail": 8,
-    "checked_fitment_offers": 1,
+    "checked_fitment_offers": 0,
     "ui_images_loaded": true,
     "unchanged_trade_data": true
   },
   "prepared_candidates": [
-    {
-      "article": "391-82K",
-      "brand": "MOTORAD",
-      "cost": 6428,
-      "has_fitment": true,
-      "id": 35187,
-      "kaspi_price": 9283,
-      "kaspi_url": "https://kaspi.kz/shop/p/motorad-termostat-sistemy-ohlazhdenija-39182k-129901124/?c=750000000",
-      "main_image": "",
-      "name": "Термостат 82°С",
-      "photo_status": "needs_source",
-      "product_id": 15995,
-      "profit": 1444.625,
-      "stock": "5",
-      "supplier_id": 3,
-      "supplier_thumbnail": "",
-      "task_id": 13968,
-      "offer_id": 35187,
-      "status": "prepared_photo_existing_fitment",
-      "checked_on": "2026-11-11",
-      "source_url": "https://eu.motorad.com/part/391-82k/",
-      "source_label": "MotoRad — каталог производителя",
-      "source_kind": "manufacturer_catalogue",
-      "source_article": "391-82K",
-      "fitments": [],
-      "fitment_note": "Существующая применимость сохранена.",
-      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/416d9060-c251-42d1-be78-b15aa47fa465",
-      "image_url": "https://images.motorad.com/MotoRad-stills/391-82K_Angle.jpg",
-      "image_note": "Точная официальная карточка391-82K. Визуально один термостат в металлическом корпусе и отдельная треугольная прокладка; точный файл391-82K_Angle. Существующая применимость сохранена.",
-      "photo": {
-        "status": "downloaded_visually_verified_not_queued"
-      },
-      "fitment_status": "existing_preserved",
-      "checked_sources": [
-        {
-          "url": "https://eu.motorad.com/part/391-82k/",
-          "result": "Точная официальная карточка391-82K. Визуально один термостат в металлическом корпусе и отдельная треугольная прокладка; точный файл391-82K_Angle. Существующая применимость сохранена."
-        }
-      ],
-      "next_offer_id": 35196,
-      "verification": {
-        "trade_data_unchanged": true
-      }
-    },
     {
       "article": "458-88K",
       "brand": "MOTORAD",
@@ -12455,22 +12413,6 @@
       "publication": "453d5a997c729421b1a1f705ead7a96e239d5e6e"
     }
   ],
-  "publication_pending": {
-    "commit": "ad43a3c6edc4955b1a623ce66e1a32c1b133be2f",
-    "offer_ids": [
-      35187,
-      35196,
-      22113,
-      22388,
-      35137,
-      35217,
-      35172,
-      35180
-    ],
-    "photos": 8,
-    "fitments": 0,
-    "prepared": true,
-    "queued": false
-  },
-  "next_offer_id": 35187
+  "publication_pending": null,
+  "next_offer_id": 35196
 }
