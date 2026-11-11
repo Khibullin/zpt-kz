@@ -9267,7 +9267,7 @@
     }
   ],
   "results": [],
-  "next_offer_id": 26230,
+  "next_offer_id": 28171,
   "batch": {
     "supplier_id": 5,
     "batch_number": 1,
@@ -9373,11 +9373,11 @@
       25184,
       25210
     ],
-    "reviewed": 26,
+    "reviewed": 27,
     "published_fitments": 8,
     "published_photos": 7,
     "unconfirmed": 17,
-    "next_offer_id": 26230,
+    "next_offer_id": 28171,
     "photos_present": 10,
     "fitments_present": 58,
     "both_present": 8
@@ -9418,7 +9418,8 @@
     25575,
     26702,
     25105,
-    25415
+    25415,
+    26230
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
@@ -9439,7 +9440,8 @@
     "All historical ASVA / Alta-Karter / refused MOTORAD / BILSTEIN / PATRON restrictions remain."
   ],
   "pending_publication": [
-    25415
+    25415,
+    26230
   ],
   "superseded_candidates": [
     26720,
