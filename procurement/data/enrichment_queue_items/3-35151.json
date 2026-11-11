@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 14013,
   "offer_id": 35151,
-  "status": "prepared_photo_existing_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://spareto.co.uk/products/ngk-ignition-coil/u5020-48065",
   "source_label": "Spareto — независимый каталог продавца",
@@ -24,11 +24,20 @@
   "source_article": "48065",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/3efc99db-7d73-4955-94fd-b8077ae66047",
   "image_url": "https://cdn.spareto.com/variants/images_webp/000/553/841/medium/u5020-48065-680C906A.webp?1793006973",
   "image_note": "Точная NGK 48065/U5020: реальное фото одной катушки с маркировкой NGK, 4 контакта/SAE подтверждены точной карточкой. Конфликтующий заголовок U5024 у другого продавца не использован. Armtek503 отмечен временным.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/00333312e5b966010df8f9ed3987b1bae19d91e03bf23791c73f680acac80290.webp",
+    "thumbnail_path": "products/optimized/0eec19d67d56deff9100142553e676d9a8994563392558b0eb00b85210a676c6.webp",
+    "main_size": [
+      360,
+      360
+    ],
+    "thumbnail_size": [
+      180,
+      180
+    ]
   },
   "fitment_status": "existing_preserved",
   "checked_sources": [
@@ -39,6 +48,29 @@
   ],
   "next_offer_id": 22970,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T10:19:22.714Z"
+  },
+  "source_sha256": "ac4cea54e0fba9bd37a6359055d0a23c88a60299933d8166e81655c64445edfd",
+  "main_sha256": "00333312e5b966010df8f9ed3987b1bae19d91e03bf23791c73f680acac80290",
+  "main_size": [
+    360,
+    360
+  ],
+  "thumbnail_sha256": "0eec19d67d56deff9100142553e676d9a8994563392558b0eb00b85210a676c6",
+  "thumbnail_size": [
+    180,
+    180
+  ],
+  "publication": {
+    "commit": "5972845ab163fdf3bc44364404305472c7d8bd49",
+    "deploy": "dep-dbq40p3ncjis73clu9s0",
+    "status": "live"
   }
 }
