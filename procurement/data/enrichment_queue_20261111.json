@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T09:12:41.865Z",
+  "checked_at": "2026-11-11T09:12:45.038Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -9267,7 +9267,7 @@
     }
   ],
   "results": [],
-  "next_offer_id": 28080,
+  "next_offer_id": 26925,
   "batch": {
     "supplier_id": 5,
     "batch_number": 1,
@@ -9373,14 +9373,14 @@
       25184,
       25210
     ],
-    "reviewed": 76,
-    "published_fitments": 16,
-    "published_photos": 21,
+    "reviewed": 77,
+    "published_fitments": 17,
+    "published_photos": 22,
     "unconfirmed": 54,
-    "next_offer_id": 28080,
-    "photos_present": 24,
-    "fitments_present": 66,
-    "both_present": 22
+    "next_offer_id": 26925,
+    "photos_present": 25,
+    "fitments_present": 67,
+    "both_present": 23
   },
   "completed_offer_ids": [
     26820,
@@ -9404,7 +9404,8 @@
     25146,
     25494,
     26223,
-    26527
+    26527,
+    28080
   ],
   "reviewed_offer_ids": [
     26787,
@@ -9482,19 +9483,20 @@
     25755,
     25358,
     28173,
-    26527
+    26527,
+    28080
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 76,
-    "remaining_unreviewed": 332,
+    "reviewed": 77,
+    "remaining_unreviewed": 331,
     "unconfirmed_reviewed": 54,
-    "remaining_missing_fields": 386,
-    "photo_added": 21,
-    "fitment_added": 16,
-    "make_model_pairs_added": 35,
-    "configurations_added": 36
+    "remaining_missing_fields": 385,
+    "photo_added": 22,
+    "fitment_added": 17,
+    "make_model_pairs_added": 43,
+    "configurations_added": 44
   },
   "prepared_candidate": null,
   "source_limits": [
@@ -9578,104 +9580,6 @@
     "unchanged_trade_data": true
   },
   "prepared_candidates": [
-    {
-      "article": "461583B600",
-      "brand": "HYUNDAI-KIA",
-      "has_fitment": false,
-      "id": 28080,
-      "kaspi_url": "https://kaspi.kz/shop/p/hyundai-kia-kol-tso-uplotnitel-noe-akpp-461583b600-148269100/?c=750000000",
-      "main_image": "",
-      "name": "Кольцо уплотнительное Hyundai",
-      "photo_status": "needs_source",
-      "product_id": 9192,
-      "profit": 4163.75,
-      "stock": "1",
-      "supplier_id": 5,
-      "task_id": 7165,
-      "offer_id": 28080,
-      "status": "prepared_photo_and_fitment",
-      "checked_on": "2026-11-11",
-      "source_url": "https://www.hyundaipartsdeal.com/genuine/hyundai-o-ring-oil-pump~46158-3b600.html",
-      "source_label": "HyundaiPartsDeal — независимый каталог оригинальных деталей Hyundai",
-      "source_kind": "retailer_catalogue",
-      "source_article": "46158-3B600",
-      "fitments": [
-        {
-          "make": "Hyundai",
-          "model": "Elantra",
-          "engine": "DOHC - GDI",
-          "notes": "Независимый каталог HyundaiPartsDeal, точный оригинал461583B600. Опции источника: Coupe - 2Door 5P. Объём двигателя и регион не указаны.",
-          "years": "2011–2013"
-        },
-        {
-          "make": "Hyundai",
-          "model": "Elantra GT",
-          "engine": "DOHC - GDI",
-          "notes": "Независимый каталог HyundaiPartsDeal, точный оригинал461583B600. Опции источника: Sedan - 5Door 5P. Объём двигателя и регион не указаны.",
-          "years": "2013–2014"
-        },
-        {
-          "make": "Hyundai",
-          "model": "Kona",
-          "engine": "DOHC - MPI",
-          "notes": "Независимый каталог HyundaiPartsDeal, точный оригинал461583B600. Опции источника: Wagon - 5Door 5P. Объём двигателя и регион не указаны.",
-          "years": "2018–2021"
-        },
-        {
-          "make": "Hyundai",
-          "model": "Santa Fe",
-          "engine": "DOHC - MPI",
-          "notes": "Независимый каталог HyundaiPartsDeal, точный оригинал461583B600. Опции источника: Wagon - 5Door 5P. Объём двигателя и регион не указаны.",
-          "years": "2009–2012"
-        },
-        {
-          "make": "Hyundai",
-          "model": "Santa Fe Sport",
-          "engine": "DOHC - GDI",
-          "notes": "Независимый каталог HyundaiPartsDeal, точный оригинал461583B600. Опции источника: Wagon - 5Door 5P. Объём двигателя и регион не указаны.",
-          "years": "2013–2018"
-        },
-        {
-          "make": "Hyundai",
-          "model": "Sonata",
-          "engine": "DOHC - GDI",
-          "notes": "Независимый каталог HyundaiPartsDeal, точный оригинал461583B600. Опции источника: Sedan - 4Door 5P. Объём двигателя и регион не указаны.",
-          "years": "2009–2019"
-        },
-        {
-          "make": "Hyundai",
-          "model": "Tucson",
-          "engine": "DOHC - GDI, DOHC - MPI",
-          "notes": "Независимый каталог HyundaiPartsDeal, точный оригинал461583B600. Опции источника: Wagon - 5Door 5P. Объём двигателя и регион не указаны.",
-          "years": "2009–2021"
-        },
-        {
-          "make": "Hyundai",
-          "model": "Veloster",
-          "engine": "DOHC - TCI/GDI",
-          "notes": "Независимый каталог HyundaiPartsDeal, точный оригинал461583B600. Опции источника: Coupe - 4Door 4P (DR'S 1Door & Pass 2Door). Объём двигателя и регион не указаны.",
-          "years": "2011–2014"
-        }
-      ],
-      "fitment_note": "Точный бренд Genuine Hyundai, полный артикул46158-3B600/461583B600.8строк из таблицы VehicleFitment. Годы не обобщены между моделями; двигатель передан только указанной характеристикой DOHC/GDI/MPI без выдуманного объёма.",
-      "image_url": "https://www.hyundaipartsdeal.com/resources/encry/actual-picture/hpd/large/e70a02df370192569911dd1725e55c4a/e31bf34d4952dab021a39d04d2dd683d.jpg",
-      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/fcfb124f-2dca-4385-896c-96ca9271bac3",
-      "image_note": "Одно оригинальное уплотнительное кольцо масляного насоса Hyundai461583B600 из точной карточки HyundaiPartsDeal. Фото проверено визуально.",
-      "photo": {
-        "status": "downloaded_exact_verified"
-      },
-      "checked_sources": [
-        {
-          "url": "https://www.hyundaipartsdeal.com/genuine/hyundai-o-ring-oil-pump~46158-3b600.html",
-          "result": "ExactGenuineHyundai fullarticle,8specific fitmenttable rows, actualphoto downloaded visuallyverified."
-        }
-      ],
-      "next_offer_id": 26925,
-      "verification": {
-        "trade_data_unchanged": true,
-        "photo_visually_verified": true
-      }
-    },
     {
       "article": "12301004",
       "brand": "RIVAL",
