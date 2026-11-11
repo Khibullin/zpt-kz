@@ -13,7 +13,7 @@
   "supplier_id": 5,
   "task_id": 5031,
   "offer_id": 25494,
-  "status": "prepared_photo_and_fitment",
+  "status": "published_db_and_ui_verified",
   "checked_on": "2026-11-11",
   "source_url": "https://moward.ru/haval-dargo-bamper-perednij-verh-chast/",
   "source_label": "Moward — независимый каталог продавца",
@@ -28,7 +28,6 @@
   ],
   "fitment_note": "Точный полный артикул и производитель HAVAL совпадают. Общая фраза «все года (уточняйте совместимость)» не превращена в диапазон или универсальность.",
   "image_url": "https://moward.ru/wp-content/uploads/2026/04/mg_1123-scaled-1200x800.jpg",
-  "local_path": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/a1911087-6c69-4ed2-a256-6a6683437483",
   "image_note": "Собственная фотография новой верхней части бампера HAVAL DARGO с точным артикулом на странице продавца; фото повреждённого б/у товара другого продавца исключено.",
   "checked_sources": [
     {
@@ -40,5 +39,37 @@
       "result": "search result:used damaged bumper; not used for photo or fitment"
     }
   ],
-  "next_offer_id": 25099
+  "next_offer_id": 25099,
+  "publication": {
+    "commit": "08c5ddc32f0a2d0527741382fe3e064c4c21216d",
+    "deploy": "dep-dbq230dg1s2s739cu69g",
+    "status": "live",
+    "checked_photo_and_thumbnail": 3,
+    "checked_fitment_offers": 3,
+    "all_three_ui_images_loaded": true,
+    "unchanged_trade_data": true
+  },
+  "fitment_status": "saved_and_ui_verified",
+  "verification": {
+    "photo": true,
+    "thumbnail": true,
+    "display": true,
+    "source_and_constraints": true,
+    "stock_and_profit_preserved": true,
+    "existing_fitment_preserved": true
+  },
+  "photo": {
+    "status": "saved_and_ui_loaded",
+    "image_url": "https://moward.ru/wp-content/uploads/2026/04/mg_1123-scaled-1200x800.jpg",
+    "main_path": "products/optimized/3ccbfb3a61c8daba7927fc5159469dbcd91e5563161d720b2cc6c244069e6037.webp",
+    "thumbnail_path": "products/optimized/410bad8ad8d072a4d68a311e3ea0ef167b112e5094316e6eb9200a87aed5fabc.webp",
+    "main_size": [
+      800,
+      533
+    ],
+    "thumbnail_size": [
+      180,
+      120
+    ]
+  }
 }
