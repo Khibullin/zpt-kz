@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T13:27:01.306Z",
+  "checked_at": "2026-11-11T13:27:04.185Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -6228,14 +6228,14 @@
       "id": 22432,
       "kaspi_price": 8496,
       "kaspi_url": "https://kaspi.kz/shop/p/555-rulevaja-tjaga-sr-3960-180085561/?c=750000000",
-      "main_image": "",
+      "main_image": "products/optimized/a0d64c9db8feaaceaa7492574a313c49d77493590e2f659c82ce5ed599e88551.webp",
       "name": "555 Рулевая тяга",
-      "photo_status": "skipped",
+      "photo_status": "ui_verified_db_audit_pending",
       "product_id": 4166,
       "profit": 1008,
       "stock": "6",
       "supplier_id": 3,
-      "supplier_thumbnail": "",
+      "supplier_thumbnail": "products/optimized/ff8436efa6e0784f470bfb9b2c693909fbc959e95570f367425aed305002b64a.webp",
       "task_id": 2139
     },
     {
@@ -11156,16 +11156,16 @@
       22123,
       22974
     ],
-    "reviewed": 31,
+    "reviewed": 32,
     "published_fitments": 0,
-    "published_photos": 8,
+    "published_photos": 9,
     "unconfirmed": 23,
-    "photos_present": 9,
+    "photos_present": 10,
     "fitments_present": 15,
-    "both_present": 8,
+    "both_present": 9,
     "created_at": "2026-11-11T13:04:15.851Z",
     "fixed": true,
-    "next_offer_id": 22432,
+    "next_offer_id": 22123,
     "scope_note": "Final original queue remainder; original saved profit order. Render read temporarily unavailable, verify each offer live UI before source/import; do not change scope."
   },
   "completed_offer_ids": [
@@ -11281,7 +11281,8 @@
     35176,
     22494,
     22515,
-    35142
+    35142,
+    22432
   ],
   "reviewed_offer_ids": [
     26787,
@@ -11689,16 +11690,17 @@
     35176,
     22494,
     22515,
-    35142
+    35142,
+    22432
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 406,
-    "remaining_unreviewed": 2,
+    "reviewed": 407,
+    "remaining_unreviewed": 1,
     "unconfirmed_reviewed": 293,
-    "remaining_missing_fields": 295,
-    "photo_added": 113,
+    "remaining_missing_fields": 294,
+    "photo_added": 114,
     "fitment_added": 55,
     "make_model_pairs_added": 126,
     "configurations_added": 164
@@ -11784,50 +11786,6 @@
     "db_verified": false
   },
   "prepared_candidates": [
-    {
-      "article": "SR-3960",
-      "brand": "555",
-      "cost": 6176,
-      "has_fitment": true,
-      "id": 22432,
-      "kaspi_price": 8496,
-      "kaspi_url": "https://kaspi.kz/shop/p/555-rulevaja-tjaga-sr-3960-180085561/?c=750000000",
-      "main_image": "",
-      "name": "555 Рулевая тяга",
-      "photo_status": "skipped",
-      "product_id": 4166,
-      "profit": 1008,
-      "stock": "6",
-      "supplier_id": 3,
-      "supplier_thumbnail": "",
-      "task_id": 2139,
-      "offer_id": 22432,
-      "status": "prepared_photo_existing_fitment",
-      "checked_on": "2026-11-11",
-      "source_url": "https://www.auto-doc.at/555/13056142",
-      "source_label": "AUTODOC · независимый каталог продавца",
-      "source_kind": "retailer_catalogue",
-      "source_article": "SR-3960",
-      "fitments": [],
-      "fitment_note": "Существующая применимость сохранена.",
-      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/9c52e5a0-8557-4aae-8b71-1325b2be7072",
-      "image_url": "https://cdn.autodoc.de/thumb?id=13056142&m=0&n=0&lng=de&rev=94078121",
-      "image_note": "Точный555SR-3960 безM. Реальное фото одной чёрной рулевой тяги с логотипом555,без доп.шайбы или комплекта. Имеющаяся применимость сохранена. UIналичие6,закупка6176/Kaspi8496 совпадают с очередью.",
-      "photo": {
-        "status": "downloaded_visually_verified_not_queued"
-      },
-      "fitment_status": "existing_preserved",
-      "checked_sources": [
-        {
-          "url": "https://www.auto-doc.at/555/13056142",
-          "result": "Точный555SR-3960 безM. Реальное фото одной чёрной рулевой тяги с логотипом555,без доп.шайбы или комплекта. Имеющаяся применимость сохранена. UIналичие6,закупка6176/Kaspi8496 совпадают с очередью."
-        }
-      ],
-      "next_offer_id": 22123,
-      "verification": {
-        "trade_data_unchanged": true
-      }
-    },
     {
       "article": "SE-N201L",
       "brand": "555",
@@ -12325,7 +12283,7 @@
     }
   ],
   "publication_pending": null,
-  "next_offer_id": 22432,
+  "next_offer_id": 22123,
   "verification_pending": [
     {
       "supplier_id": 3,
@@ -12544,6 +12502,26 @@
         "cost": 6646,
         "stock": "1",
         "kaspi_price": 9055
+      },
+      "reason": "Render MCP temporary Internal errors/timeouts; fresh stored row metadata audit pending"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22432,
+      "commit": "b83355cd9994f3667e7ee7842b3bbc9cb23ee5a5",
+      "main_image": "products/optimized/a0d64c9db8feaaceaa7492574a313c49d77493590e2f659c82ce5ed599e88551.webp",
+      "supplier_thumbnail": "products/optimized/ff8436efa6e0784f470bfb9b2c693909fbc959e95570f367425aed305002b64a.webp",
+      "ui_verified": true,
+      "db_verified": false,
+      "checks_needed": [
+        "stored main+thumbnail",
+        "photo task status/evidence",
+        "trade values and old fitment metadata"
+      ],
+      "baseline_queue": {
+        "cost": 6176,
+        "stock": "6",
+        "kaspi_price": 8496
       },
       "reason": "Render MCP temporary Internal errors/timeouts; fresh stored row metadata audit pending"
     }
