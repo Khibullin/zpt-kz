@@ -27,6 +27,8 @@ def valid_page(url,brand):
     except ValueError:return False
     if p.scheme!='https' or p.fragment:return False
     brand=brand.strip().upper()
+    if p.netloc=='cart.bilsteinus.com' and brand=='BILSTEIN':
+        return not p.query and bool(re.fullmatch(r'/strut-\d{2}-\d{6}\.html',p.path))
     if p.netloc=='febest.com.ua' and brand=='FEBEST':
         q=parse_qs(p.query,keep_blank_values=True)
         return p.path=='/catalogue/' and set(q)=={'product'} and len(q['product'])==1 and bool(re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9.-]{0,119}',q['product'][0]))
@@ -46,7 +48,15 @@ def matching_manufacturer_image(html,url,brand,article):
     if not valid_page(url,brand):return ''
     p=urlsplit(url);expected=article.strip().upper();tags=Tags(html).tags
     if not expected:return ''
-    if p.netloc=='www.sankei-555.com':
+    if p.netloc=='cart.bilsteinus.com':
+        if p.path!='/strut-'+expected.lower()+'.html':return ''
+        identities=[attrs.get('value') for tag,attrs in tags if tag=='input' and attrs.get('id')=='pro_part_number']
+        if identities!=[expected]:return ''
+        for tag,attrs in tags:
+            if tag!='img' or attrs.get('id')!='pdpMainImg':continue
+            src=attrs.get('src','');target=urlsplit(src)
+            if target.scheme=='https' and target.netloc==p.netloc and not target.query and not target.fragment and re.fullmatch(r'/media/catalog/product/a/p/apa_'+re.escape(expected)+r'_1_\d{14}\.jpg',target.path):return src
+    elif p.netloc=='www.sankei-555.com':
         q=parse_qs(p.query)
         if q['sch_p_555no'][0].strip().upper()!=expected:return ''
         row=re.search(r'<th\b[^>]*>\s*555 No\..*?</th>\s*<td\b[^>]*>(.*?)</td>',html,re.S|re.I)
@@ -88,3 +98,4 @@ def matching_manufacturer_image(html,url,brand,article):
             if params and not (set(params)=={'v'} and len(params['v'])==1 and params['v'][0].isdigit()):continue
             if target.scheme=='https' and target.netloc==p.netloc and not target.fragment and re.fullmatch(r'/newfolder/product_image/'+re.escape(expected)+r'\.(?:jpg|jpeg|png|webp)',target.path,re.I):return src
     return ''
+
