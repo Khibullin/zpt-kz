@@ -1,0 +1,44 @@
+{
+  "article": "578-87K",
+  "brand": "MOTORAD",
+  "cost": 12140,
+  "has_fitment": true,
+  "id": 35206,
+  "kaspi_price": 16332,
+  "kaspi_url": "https://kaspi.kz/shop/p/motorad-termostat-sistemy-ohlazhdenija-57887k-129901139/?c=750000000",
+  "main_image": "",
+  "name": "Термостат 87°С",
+  "photo_status": "needs_source",
+  "product_id": 16013,
+  "profit": 1900.5,
+  "stock": "1",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 13986,
+  "offer_id": 35206,
+  "status": "prepared_photo_existing_fitment",
+  "checked_on": "2026-11-11",
+  "source_url": "https://www.trodo.com/thermostat-coolant-motorad-578-87k",
+  "source_label": "Trodo — независимый каталог продавца",
+  "source_kind": "retailer_catalogue",
+  "source_article": "578-87K",
+  "fitments": [],
+  "fitment_note": "Существующая применимость сохранена.",
+  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/639f91ad-5ecf-4d90-9fd4-35b5bce363d2",
+  "image_url": "https://picdn.trodo.com/media/m2_catalog_cache/480x480%2FTecDoc%2F388%2F004%2F39%2Fnew_578__watermark_.jpg?1",
+  "image_note": "Точная карточка MOTORAD 578-87K, EAN4037784023327,87°C,пластиковый корпус с уплотнением без датчика. Визуально один термостат в чёрном корпусе,водяной знак MotoRad; комплектность соответствует. Существующая применимость не изменялась.",
+  "photo": {
+    "status": "downloaded_visually_verified_not_queued"
+  },
+  "fitment_status": "existing_preserved",
+  "checked_sources": [
+    {
+      "url": "https://www.trodo.com/thermostat-coolant-motorad-578-87k",
+      "result": "Точная карточка MOTORAD 578-87K, EAN4037784023327,87°C,пластиковый корпус с уплотнением без датчика. Визуально один термостат в чёрном корпусе,водяной знак MotoRad; комплектность соответствует. Существующая применимость не изменялась."
+    }
+  ],
+  "next_offer_id": 23248,
+  "verification": {
+    "trade_data_unchanged": true
+  }
+}
