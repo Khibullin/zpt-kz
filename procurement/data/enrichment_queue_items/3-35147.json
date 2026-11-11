@@ -1,0 +1,44 @@
+{
+  "article": "48000",
+  "brand": "NGK",
+  "cost": 15920,
+  "has_fitment": true,
+  "id": 35147,
+  "kaspi_price": 22500,
+  "kaspi_url": "https://kaspi.kz/shop/p/katushka-zazhiganija-ngk-48000-107923990/?c=750000000",
+  "main_image": "",
+  "name": "NGK Катушка зажигания",
+  "photo_status": "needs_source",
+  "product_id": 16032,
+  "profit": 3517.5,
+  "stock": "5",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 14005,
+  "offer_id": 35147,
+  "status": "prepared_photo_existing_fitment",
+  "checked_on": "2026-11-11",
+  "source_url": "https://spareto.com/products/ngk-ignition-coil/u1001-48000",
+  "source_label": "Spareto — независимый каталог продавца",
+  "source_kind": "retailer_catalogue",
+  "source_article": "48000",
+  "fitments": [],
+  "fitment_note": "Существующая применимость сохранена.",
+  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/a5441c5a-ea85-4d7b-aa03-edd85eff412a",
+  "image_url": "https://cdn.spareto.com/variants/images_webp/000/525/628/medium/u1001-48000-B5C3326E.webp?1793006937",
+  "image_note": "NGK48000(U1001),3контактаM4,катушка для распределителя;одна деталь,точная карточка Spareto.",
+  "photo": {
+    "status": "downloaded_visually_verified_not_queued"
+  },
+  "fitment_status": "existing_preserved",
+  "checked_sources": [
+    {
+      "url": "https://spareto.com/products/ngk-ignition-coil/u1001-48000",
+      "result": "NGK48000(U1001),3контактаM4,катушка для распределителя;одна деталь,точная карточка Spareto."
+    }
+  ],
+  "next_offer_id": 23717,
+  "verification": {
+    "trade_data_unchanged": true
+  }
+}
