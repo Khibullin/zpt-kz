@@ -1,12 +1,8 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T07:02:26.160Z",
-  "lease": {
-    "owner": "enrichment-run-20261111T0652Z",
-    "acquired_at": "2026-11-11T06:51:50.447Z",
-    "expires_at": "2026-11-11T07:43:42.564Z"
-  },
+  "checked_at": "2026-11-11T07:03:22.367Z",
+  "lease": null,
   "next_supplier": 5,
   "batch_size": 100,
   "queue": [
@@ -9378,9 +9374,9 @@
     "published_photos": 17,
     "unconfirmed": 18,
     "next_offer_id": 25146,
-    "photos_present": 17,
-    "fitments_present": 60,
-    "both_present": 15
+    "photos_present": 20,
+    "fitments_present": 63,
+    "both_present": 18
   },
   "completed_offer_ids": [
     26820,
@@ -9458,34 +9454,23 @@
     "shop.globalparts.kz/product/jashi/8402010u226ke; /product/bort/b334501; /product/patron/pbd4855; /product/jac/2804100s4500-f011 returned not accessible. Do not retry via other routes.",
     "All historical ASVA / Alta-Karter / refused MOTORAD / BILSTEIN / PATRON restrictions remain."
   ],
-  "pending_publication": {
-    "commit": "69ae517ffa2eef6247cbfb986ba982c1d64791c1",
-    "offer_ids": [
-      25558,
-      25538,
-      25229,
-      25496
-    ],
-    "prepared_photos": 3,
-    "prepared_fitments": 3,
-    "status": "committed_waiting_deploy"
-  },
+  "pending_publication": null,
   "superseded_candidates": [
     26720,
     25488
   ],
   "actual_stats": {
-    "all_fitment_offers": 4367,
-    "all_photos": 19285,
+    "all_fitment_offers": 4372,
+    "all_photos": 19295,
     "batch": {
-      "both": 8,
-      "fitments": 58,
-      "photos": 10,
-      "total": 100
+      "total": 100,
+      "photos": 20,
+      "fitments": 63,
+      "both": 18
     },
     "photo_queue": [
       {
-        "count": 28954,
+        "count": 28944,
         "status": "needs_source"
       },
       {
@@ -9493,7 +9478,7 @@
         "status": "skipped"
       },
       {
-        "count": 18925,
+        "count": 18935,
         "status": "done"
       }
     ],
@@ -9512,17 +9497,19 @@
         "supplier_id": 5,
         "total": 268
       }
-    ]
+    ],
+    "checked_at": "2026-11-11T07:03:22.367Z",
+    "scope_note": "scope field is historical; fixed batch and explicit offer records are authoritative"
   },
-  "next_batch_instruction": "Continue remaining75 of this fixed ZakazAuto100; then100Phaeton. Skip reviewed exceptions unless new sources.",
-  "technical_notes": "Failed bumper build due17-char status rolled back. Fixed with bump4_ready11chars and task.full_clean regression test. Newest release Live, all7newphoto tasks done; no active photo tasks. No duplicate producer/consumer or manual restart.",
+  "next_batch_instruction": "Continue64 remaining offers of fixed ZakazAuto100, next25146 PATRON PSA534002, then26220 and batch.offer_ids unchanged. Do not switch toPhaeton before completing this100. Do not repeat reviewed exceptions without new sources.",
+  "technical_notes": "69ae517 Live dep-dbq148ks728c738up320.3photos+3thumbs saved by existing soleconsumer and loaded inUI;3fitments saved,1existing unchanged.Trade data unchanged.No pending prepared/publication.New25558photo exception:exactKaspi photo visibly has rectangular openings,descriptions specify withoutwasheropenings;do notimport/retrywithoutnewsource.",
   "latest_publication": {
-    "commit": "762ba56abbbf10cc51c8ff9c8d5e010871580dbb",
-    "deploy": "dep-dbq0ur2jnfac739ma9j0",
+    "commit": "69ae517ffa2eef6247cbfb986ba982c1d64791c1",
+    "deploy": "dep-dbq148ks728c738up320",
     "status": "live",
-    "checked_photo_and_thumbnail": 7,
-    "checked_fitment_offers": 2,
-    "all_seven_ui_images_loaded": true,
+    "checked_photo_and_thumbnail": 3,
+    "checked_fitment_offers": 3,
+    "all_three_ui_images_loaded": true,
     "unchanged_trade_data": true
   },
   "prepared_candidates": []
