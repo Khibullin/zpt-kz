@@ -13,7 +13,7 @@
   "supplier_id": 5,
   "task_id": 6140,
   "offer_id": 26466,
-  "status": "prepared_photo",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://abcparts.com.ua/ua/unit/valeo-kd20",
   "source_label": "ABCparts — независимый каталог продавца",
@@ -23,10 +23,19 @@
   "fitment_status": "existing_preserved",
   "fitment_note": "Существующая применимость сохранена.",
   "image_url": "https://abcparts.com.ua/imgs/valeo/kd20.webp",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/a1a52b00-71b6-4511-bd7d-178bfbf9b323",
   "image_note": "Один диск сцепления с коробкойPHCValeo;карточка явно указывает производителяValeo и полныйKD20. Фото визуально проверено;KD31/803716не использовались.",
   "photo": {
-    "status": "downloaded_exact_verified"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/e9c66c4985ba2acc917274105689c484628f79c8fedd6c168fad46a47df06063.webp",
+    "thumbnail_path": "products/optimized/e97409fd7c43d36c6e14c03f1b5752d2e277a6e57949954480cde8da4d514f5b.webp",
+    "main_size": [
+      800,
+      534
+    ],
+    "thumbnail_size": [
+      180,
+      120
+    ]
   },
   "checked_sources": [
     {
@@ -36,8 +45,30 @@
   ],
   "next_offer_id": 26736,
   "verification": {
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
     "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
     "existing_fitment_preserved": true,
-    "photo_visually_verified": true
+    "checked_at": "2026-11-11T09:24:49.730Z",
+    "same_exact_KD20_dimensions": "Source ValeoKD20 D240 Z22 matches existing source note D240 Z22. Existing SsangYong fitment unchanged; source KIA applications not transferred."
+  },
+  "source_sha256": "3a23e6b808e5ac805c2bf2c4970de2629d5df86b71d8ff7fc8e1e66358f22760",
+  "main_sha256": "e9c66c4985ba2acc917274105689c484628f79c8fedd6c168fad46a47df06063",
+  "main_size": [
+    800,
+    534
+  ],
+  "thumbnail_sha256": "e97409fd7c43d36c6e14c03f1b5752d2e277a6e57949954480cde8da4d514f5b",
+  "thumbnail_size": [
+    180,
+    120
+  ],
+  "publication": {
+    "commit": "68043a2dd731b06c16a8b6d6e8a33b13bd171d54",
+    "deploy": "dep-dbq36pajnfac739oua1g",
+    "status": "live"
   }
 }
