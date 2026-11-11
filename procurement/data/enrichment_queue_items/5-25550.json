@@ -1,0 +1,50 @@
+{
+  "article": "6044131600",
+  "brand": "JASHI",
+  "has_fitment": false,
+  "id": 25550,
+  "kaspi_url": "https://kaspi.kz/shop/p/jashi-bamper-6044131600-dlja-geely-emgrand-2023-2025-157639245/?c=750000000",
+  "main_image": "",
+  "name": "Бампер задний основной (с Geely",
+  "photo_status": "needs_source",
+  "product_id": 7141,
+  "profit": 4052.5,
+  "stock": "2",
+  "supplier_id": 5,
+  "task_id": 5114,
+  "offer_id": 25550,
+  "status": "prepared_fitment_photo_unconfirmed",
+  "checked_on": "2026-11-11",
+  "source_url": "https://autopiter.kz/goods/6044131600/jashi/id244695317?orderRef=5",
+  "source_label": "Автопитер — независимый каталог продавца",
+  "source_kind": "retailer_catalogue",
+  "source_article": "6044131600",
+  "fitments": [
+    {
+      "make": "Geely",
+      "model": "Emgrand",
+      "generation": "SS11",
+      "years": "2023–",
+      "notes": "Основная часть заднего бампера с отверстиями под парктроники. Точный JASHI6044131600. Двигатели/регион не указаны."
+    }
+  ],
+  "fitment_note": "Данные только точной строки JASHI,не соседних аналогов Geely. Открытый диапазон2023–;исполнение с отверстиями под парктроники.",
+  "photo": {
+    "status": "no_photo_in_exact_catalogue",
+    "reason": "Точная карточка Автопитер JASHI6044131600 не содержит фотографии; фото оригиналаGeely/другихбрендов не использованы."
+  },
+  "checked_sources": [
+    {
+      "url": "https://autopiter.kz/goods/6044131600/jashi/id244695317?orderRef=5",
+      "result": "ExactJASHIbrandarticle SS11 Emgrand2023-,no photo"
+    },
+    {
+      "url": "https://autopiter.kz/goods/6044131600/geely/id168597564?orderRef=5",
+      "result": "Firsttimeouttemporary,normalretry succeeded;exactJASHI row separatedfromGeely"
+    }
+  ],
+  "next_offer_id": 26522,
+  "verification": {
+    "trade_data_unchanged": true
+  }
+}
