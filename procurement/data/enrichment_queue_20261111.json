@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T13:30:04.362Z",
+  "checked_at": "2026-11-11T13:34:58.520Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -11166,7 +11166,9 @@
     "created_at": "2026-11-11T13:04:15.851Z",
     "fixed": true,
     "next_offer_id": null,
-    "scope_note": "Final original queue remainder; original saved profit order. Render read temporarily unavailable, verify each offer live UI before source/import; do not change scope."
+    "scope_note": "Final original queue remainder; original saved profit order. Render read temporarily unavailable, verify each offer live UI before source/import; do not change scope.",
+    "completed_at": "2026-11-11T13:34:58.520Z",
+    "db_and_ui_verified": true
   },
   "completed_offer_ids": [
     26820,
@@ -11729,7 +11731,8 @@
       "checked_at": "2026-11-11T12:28:36.472Z",
       "result": "Browser CAPTCHA sliders: Are you sure you are not a robot; no solve, retry or alternative routes.",
       "url": "https://ljapan.ru/catalog/avtomobilnye_zapchasti/detali_podveski/nakonechniki/nakonechnik_rulevoy_seh501r_555/"
-    }
+    },
+    "2026-11-11 final batch: https://eu.motorad.com/part/298-82k/ not accessible via web tool; no retries/alternate channel for that URL. Independent Spareto exact photograph used; existing fitment preserved."
   ],
   "pending_publication": null,
   "superseded_candidates": [
@@ -11737,49 +11740,38 @@
     25488
   ],
   "actual_stats": {
-    "all_fitment_offers": 4382,
-    "all_photos": 19304,
-    "batch": {
-      "total": 100,
-      "photos": 31,
-      "fitments": 59,
-      "both": 29
-    },
-    "photo_queue": [
-      {
-        "count": 28941,
-        "status": "needs_source"
-      },
-      {
-        "count": 1614,
-        "status": "skipped"
-      },
-      {
-        "count": 18938,
-        "status": "done"
-      }
-    ],
+    "all_photos": 19393,
+    "all_fitment_offers": 4414,
     "scope": [
       {
         "supplier_id": 3,
         "total": 349,
-        "photos": 150,
-        "fitments": 236,
-        "both": 145
+        "photos": 186,
+        "fitments": 237,
+        "both": 181
       },
       {
         "supplier_id": 5,
         "total": 268,
-        "photos": 124,
-        "fitments": 207,
-        "both": 122
+        "photos": 146,
+        "fitments": 230,
+        "both": 143
       }
     ],
-    "checked_at": "2026-11-11T10:30:05.643Z",
-    "scope_note": "Fresh live best_candidates+in_stock scope reconciled with all617 original offerIDs; no composition changes."
+    "batch": {
+      "total": 33,
+      "photos": 11,
+      "fitments": 15,
+      "both": 10
+    },
+    "checked_at": "2026-11-11T13:34:58.520Z",
+    "scope_note": "Fresh live DB best_candidates+in_stock has exactly the original617 IDs; every original cost/stock/Kaspi-price/profit matches. All332 scope photographs also have thumbnails. All293 incomplete exceptions have canonical journals and reason/source index."
   },
-  "next_batch_instruction": "All original408 incomplete offers reviewed; no new batches and no repeat sources. Only verify existing 13 verification_pending rows after Render read recovers: source manifests/main commits already published, all main+thumbnail UI verified, DO NOT republish/reimport. Then clear audit list, disable exact automation Automation_53216c82774c819184d7b160c159c83f, release lease and report.",
-  "technical_notes": "All200reviewed,57photos31fitmentoffers81pairs115configs cumulative acrossqueue. No pendingpublication. Phaeton100 added29photos6fitoffers23pairs46configs in4livepublications,31photo59fit29both. NewZakazAuto75frozenafterDBUIverification.",
+  "next_batch_instruction": "Queue completed: no unreviewed offers, no prepared/queued/unverified enrichment. Do not reprocess293 documented exceptions without new source and new owner task. Disable only automation Automation_53216c82774c819184d7b160c159c83f; do not disable shared catalogue consumer.",
+  "technical_notes": [
+    "All200reviewed,57photos31fitmentoffers81pairs115configs cumulative acrossqueue. No pendingpublication. Phaeton100 added29photos6fitoffers23pairs46configs in4livepublications,31photo59fit29both. NewZakazAuto75frozenafterDBUIverification.",
+    "Render MCP temporary internal errors/read timeouts roughly12:48–13:27UTC. Last13 packaged photographs saved via sole existing consumer and all main+thumbnail UI-verified; after recovery all13 DB rows/tasks/evidence verified and fresh617-scope trade values unchanged. No duplicate import or new worker."
+  ],
   "latest_publication": {
     "commit": "b83355cd9994f3667e7ee7842b3bbc9cb23ee5a5",
     "deploy": "dep-dbq6n1ks728c73961pb0",
@@ -11905,7 +11897,8 @@
       "fitments_present": 75,
       "both_present": 29,
       "completed_at": "2026-11-11T09:25:39.710Z",
-      "publication": "68043a2dd731b06c16a8b6d6e8a33b13bd171d54"
+      "publication": "68043a2dd731b06c16a8b6d6e8a33b13bd171d54",
+      "db_and_ui_verified": true
     },
     {
       "supplier_id": 3,
@@ -12023,7 +12016,8 @@
       "fixed": true,
       "next_offer_id": null,
       "completed_at": "2026-11-11T10:30:05.643Z",
-      "publication": "7dec204910db6a8f38f987b3c44771cacb96ea1c"
+      "publication": "7dec204910db6a8f38f987b3c44771cacb96ea1c",
+      "db_and_ui_verified": true
     },
     {
       "supplier_id": 5,
@@ -12115,7 +12109,8 @@
       "created_at": "2026-11-11T10:30:05.643Z",
       "fixed": true,
       "completed_at": "2026-11-11T11:52:47.402Z",
-      "publication": "453d5a997c729421b1a1f705ead7a96e239d5e6e"
+      "publication": "453d5a997c729421b1a1f705ead7a96e239d5e6e",
+      "db_and_ui_verified": true
     },
     {
       "supplier_id": 3,
@@ -12234,11 +12229,7 @@
       "next_offer_id": null,
       "completed_at": "2026-11-11T13:04:15.850Z",
       "publication": "300589ce14087af5866fa98c82545c9d25c1f691",
-      "db_audit_pending_offer_ids": [
-        35193,
-        22334,
-        22174
-      ]
+      "db_and_ui_verified": true
     },
     {
       "supplier_id": 3,
@@ -12291,24 +12282,13 @@
       "scope_note": "Final original queue remainder; original saved profit order. Render read temporarily unavailable, verify each offer live UI before source/import; do not change scope.",
       "completed_at": "2026-11-11T13:27:32.378Z",
       "publication": "b83355cd9994f3667e7ee7842b3bbc9cb23ee5a5",
-      "db_audit_pending_offer_ids": [
-        35183,
-        35168,
-        35143,
-        35182,
-        35176,
-        22494,
-        22515,
-        35142,
-        22432,
-        22123
-      ]
+      "db_and_ui_verified": true
     }
   ],
   "publication_pending": null,
   "next_offer_id": null,
   "verification_pending": [],
-  "phase": "verification_pending_after_all_sources_reviewed",
+  "phase": "completed_with_documented_exceptions",
   "ui_baseline_final_batch": {
     "checked_at": "2026-11-11T13:27:32.379Z",
     "supplier_id": 3,
@@ -12564,7 +12544,3088 @@
     "added_configurations": 164,
     "photo_db_and_ui_verified": 115,
     "photo_ui_verified_db_audit_pending": 0,
-    "checked_at": "2026-11-11T13:27:32.379Z",
-    "scope_note": "Saved original scope reconciled against per-item results. Final33 live UI trade values matched; fresh whole-scope DB check pending Render recovery."
+    "checked_at": "2026-11-11T13:34:58.520Z",
+    "scope_note": "Fresh live DB: original617 scope IDs and all trade values unchanged;332 photos with thumbnails,467 fitments,324 both. All408 originally incomplete reviewed;293 documented exceptions."
+  },
+  "completed_at": "2026-11-11T13:34:58.520Z",
+  "exceptions": [
+    {
+      "supplier_id": 3,
+      "offer_id": 23358,
+      "brand": "ASVA",
+      "article": "0224-084",
+      "missing_fields": [
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23358.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22746,
+      "brand": "AKIKA",
+      "article": "AS-172",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22746.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22576,
+      "brand": "AKEBONO",
+      "article": "AN-768WK",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22576.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22692,
+      "brand": "AKIKA",
+      "article": "AS-04",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22692.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22760,
+      "brand": "AKIKA",
+      "article": "AS-201",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22760.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22756,
+      "brand": "AKIKA",
+      "article": "AS-187",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22756.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22824,
+      "brand": "AKIKA",
+      "article": "AS-50",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22824.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 35166,
+      "brand": "MOTORAD",
+      "article": "1115-82",
+      "missing_fields": [
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-35166.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22771,
+      "brand": "AKIKA",
+      "article": "AS-22",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22771.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22732,
+      "brand": "AKIKA",
+      "article": "AS-150",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22732.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22854,
+      "brand": "AKIKA",
+      "article": "AS-89",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22854.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22759,
+      "brand": "AKIKA",
+      "article": "AS-195",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22759.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22696,
+      "brand": "AKIKA",
+      "article": "AS-09",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22696.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23081,
+      "brand": "ASVA",
+      "article": "0121-008",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23081.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22740,
+      "brand": "AKIKA",
+      "article": "AS-163",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22740.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23202,
+      "brand": "ASVA",
+      "article": "0124113",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23202.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23117,
+      "brand": "ASVA",
+      "article": "0122-486",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23117.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23770,
+      "brand": "ASVA",
+      "article": "1623163R",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23770.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23219,
+      "brand": "ASVA",
+      "article": "0125ACA25LR",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23219.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23703,
+      "brand": "ASVA",
+      "article": "1220-013",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23703.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22709,
+      "brand": "AKIKA",
+      "article": "AS-120",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22709.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22718,
+      "brand": "AKIKA",
+      "article": "AS-131",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22718.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23711,
+      "brand": "ASVA",
+      "article": "1221-009",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23711.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23717,
+      "brand": "ASVA",
+      "article": "1221-38R",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23717.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22861,
+      "brand": "ASVA",
+      "article": "0101-048",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22861.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 24801,
+      "brand": "AYWIPARTS",
+      "article": "AW2220464",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-24801.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22855,
+      "brand": "AKIKA",
+      "article": "AS-90",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22855.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23713,
+      "brand": "ASVA",
+      "article": "1221-011",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23713.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23046,
+      "brand": "ASVA",
+      "article": "0112TRJ120F",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23046.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23037,
+      "brand": "ASVA",
+      "article": "0112JZS160F",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23037.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22872,
+      "brand": "ASVA",
+      "article": "0101-463",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22872.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 24803,
+      "brand": "AYWIPARTS",
+      "article": "AW2220478",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-24803.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23015,
+      "brand": "ASVA",
+      "article": "0111ACV4F",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23015.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22784,
+      "brand": "AKIKA",
+      "article": "AS-242",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22784.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23080,
+      "brand": "ASVA",
+      "article": "0121-007",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23080.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 24799,
+      "brand": "AYWIPARTS",
+      "article": "AW2220442",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-24799.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23308,
+      "brand": "ASVA",
+      "article": "0221-285",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23308.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23164,
+      "brand": "ASVA",
+      "article": "0123GXE10R",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23164.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23819,
+      "brand": "ASVA",
+      "article": "2301-GVLH",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23819.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22738,
+      "brand": "AKIKA",
+      "article": "AS-158",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22738.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 21912,
+      "brand": "555",
+      "article": "SA-N942L",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-21912.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23192,
+      "brand": "ASVA",
+      "article": "0124043",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23192.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22283,
+      "brand": "555",
+      "article": "SL-H025L",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22283.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22749,
+      "brand": "AKIKA",
+      "article": "AS-175",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22749.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23019,
+      "brand": "ASVA",
+      "article": "0111E15F",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23019.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23867,
+      "brand": "ASVA",
+      "article": "2424001",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23867.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23217,
+      "brand": "ASVA",
+      "article": "0125710",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23217.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 35207,
+      "brand": "MOTORAD",
+      "article": "596-105K",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-35207.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22534,
+      "brand": "AKEBONO",
+      "article": "AN-340K",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22534.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23759,
+      "brand": "ASVA",
+      "article": "1601015",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23759.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23201,
+      "brand": "ASVA",
+      "article": "0124108",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23201.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22557,
+      "brand": "AKEBONO",
+      "article": "AN-685WK",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22557.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23651,
+      "brand": "ASVA",
+      "article": "1201-JDR4",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23651.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22992,
+      "brand": "ASVA",
+      "article": "0107ACA30LH",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22992.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22970,
+      "brand": "ASVA",
+      "article": "0107-UZJ200R",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22970.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22858,
+      "brand": "AKIKA",
+      "article": "AS-97",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22858.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23366,
+      "brand": "ASVA",
+      "article": "0224062",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23366.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 21933,
+      "brand": "555",
+      "article": "SAB-3852RR",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-21933.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23569,
+      "brand": "ASVA",
+      "article": "0512GHLH",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23569.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23016,
+      "brand": "ASVA",
+      "article": "0111AT22F",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23016.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22661,
+      "brand": "AKIKA",
+      "article": "AP-61",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22661.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23293,
+      "brand": "ASVA",
+      "article": "0212G15RH",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23293.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23221,
+      "brand": "ASVA",
+      "article": "0125ACA30RH",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23221.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22928,
+      "brand": "ASVA",
+      "article": "0101464R",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22928.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22867,
+      "brand": "ASVA",
+      "article": "0101-220",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22867.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23220,
+      "brand": "ASVA",
+      "article": "0125ACA25UP",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23220.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22728,
+      "brand": "AKIKA",
+      "article": "AS-144",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22728.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23013,
+      "brand": "ASVA",
+      "article": "0111-ACV50F",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23013.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22745,
+      "brand": "AKIKA",
+      "article": "AS-171",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22745.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22758,
+      "brand": "AKIKA",
+      "article": "AS-191",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22758.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22944,
+      "brand": "ASVA",
+      "article": "0101GRJ120S2",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22944.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22822,
+      "brand": "AKIKA",
+      "article": "AS-47",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22822.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22829,
+      "brand": "AKIKA",
+      "article": "AS-57",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22829.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23297,
+      "brand": "ASVA",
+      "article": "02200F0",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23297.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22733,
+      "brand": "AKIKA",
+      "article": "AS-151",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22733.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23365,
+      "brand": "ASVA",
+      "article": "0224061",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23365.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23248,
+      "brand": "ASVA",
+      "article": "0201J10B",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23248.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23746,
+      "brand": "ASVA",
+      "article": "1225JDR1",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23746.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23601,
+      "brand": "ASVA",
+      "article": "0801-004",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23601.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23325,
+      "brand": "ASVA",
+      "article": "0222R50",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23325.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23634,
+      "brand": "ASVA",
+      "article": "0822-406",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23634.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23560,
+      "brand": "ASVA",
+      "article": "0501CX7B",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23560.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23070,
+      "brand": "ASVA",
+      "article": "0120GX100R",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23070.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22748,
+      "brand": "AKIKA",
+      "article": "AS-174",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22748.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23377,
+      "brand": "ASVA",
+      "article": "0301151",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23377.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22817,
+      "brand": "AKIKA",
+      "article": "AS-31",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22817.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23109,
+      "brand": "ASVA",
+      "article": "0121LC100L",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23109.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23510,
+      "brand": "ASVA",
+      "article": "0421-457",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23510.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23074,
+      "brand": "ASVA",
+      "article": "0120J200U",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23074.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23332,
+      "brand": "ASVA",
+      "article": "0223014",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23332.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22787,
+      "brand": "AKIKA",
+      "article": "AS-248",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22787.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23518,
+      "brand": "ASVA",
+      "article": "0422CY",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23518.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23556,
+      "brand": "ASVA",
+      "article": "0501-038",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23556.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22521,
+      "brand": "555",
+      "article": "SS-2950",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22521.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23231,
+      "brand": "ASVA",
+      "article": "0201-260",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23231.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23429,
+      "brand": "ASVA",
+      "article": "0401-071",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23429.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22554,
+      "brand": "AKEBONO",
+      "article": "AN-663WK",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22554.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23562,
+      "brand": "ASVA",
+      "article": "0507-017",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23562.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23296,
+      "brand": "ASVA",
+      "article": "0212T31R",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23296.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23228,
+      "brand": "ASVA",
+      "article": "0201-070",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23228.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23428,
+      "brand": "ASVA",
+      "article": "0401-067",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23428.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23214,
+      "brand": "ASVA",
+      "article": "01253ACU35",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23214.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23423,
+      "brand": "ASVA",
+      "article": "0401-029",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23423.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23368,
+      "brand": "ASVA",
+      "article": "0301-143",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23368.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22873,
+      "brand": "ASVA",
+      "article": "0101-710",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22873.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23871,
+      "brand": "ASVA",
+      "article": "3101-002",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23871.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22995,
+      "brand": "ASVA",
+      "article": "0107ACU20R",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22995.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23506,
+      "brand": "ASVA",
+      "article": "0420901",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23506.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23850,
+      "brand": "ASVA",
+      "article": "2323001",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23850.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23868,
+      "brand": "ASVA",
+      "article": "2424002",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23868.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22390,
+      "brand": "555",
+      "article": "SLK-E060",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22390.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22802,
+      "brand": "AKIKA",
+      "article": "AS-269",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22802.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23271,
+      "brand": "ASVA",
+      "article": "0207-048",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23271.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22301,
+      "brand": "555",
+      "article": "SL-N285R",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22301.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22665,
+      "brand": "AKIKA",
+      "article": "AP-69",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22665.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22392,
+      "brand": "555",
+      "article": "SLK-E080L",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22392.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22826,
+      "brand": "AKIKA",
+      "article": "AS-52",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22826.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22703,
+      "brand": "AKIKA",
+      "article": "AS-111",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22703.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22848,
+      "brand": "AKIKA",
+      "article": "AS-81",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22848.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22834,
+      "brand": "AKIKA",
+      "article": "AS-62",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22834.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22700,
+      "brand": "AKIKA",
+      "article": "AS-109",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22700.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22270,
+      "brand": "555",
+      "article": "SL-A410",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22270.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 24768,
+      "brand": "AYWIPARTS",
+      "article": "AW1930014L",
+      "missing_fields": [
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-24768.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23270,
+      "brand": "ASVA",
+      "article": "0207-047",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23270.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23198,
+      "brand": "ASVA",
+      "article": "0124073",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23198.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 35140,
+      "brand": "MAHLE",
+      "article": "LX2283",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-35140.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22800,
+      "brand": "AKIKA",
+      "article": "AS-267",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22800.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22640,
+      "brand": "AKIKA",
+      "article": "AP-24",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22640.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23324,
+      "brand": "ASVA",
+      "article": "0222J32",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23324.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22716,
+      "brand": "AKIKA",
+      "article": "AS-128",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22716.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23222,
+      "brand": "ASVA",
+      "article": "0125GRJ120UL",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23222.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22866,
+      "brand": "ASVA",
+      "article": "0101-204",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22866.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23835,
+      "brand": "ASVA",
+      "article": "2320001R",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23835.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22471,
+      "brand": "555",
+      "article": "SR-H520-M",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22471.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23517,
+      "brand": "ASVA",
+      "article": "0422CS",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23517.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23236,
+      "brand": "ASVA",
+      "article": "0201028",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23236.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23256,
+      "brand": "ASVA",
+      "article": "0201R50RD1",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23256.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23212,
+      "brand": "ASVA",
+      "article": "01252ACV40",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23212.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22916,
+      "brand": "ASVA",
+      "article": "0101293",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22916.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23839,
+      "brand": "ASVA",
+      "article": "232061",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23839.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 24769,
+      "brand": "AYWIPARTS",
+      "article": "AW1930016L",
+      "missing_fields": [
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-24769.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22571,
+      "brand": "AKEBONO",
+      "article": "AN-745WK",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22571.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22818,
+      "brand": "AKIKA",
+      "article": "AS-34",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22818.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22938,
+      "brand": "ASVA",
+      "article": "0101ACA30B",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22938.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23110,
+      "brand": "ASVA",
+      "article": "0121LC100R",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23110.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23507,
+      "brand": "ASVA",
+      "article": "0420902",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23507.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22849,
+      "brand": "AKIKA",
+      "article": "AS-82",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22849.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22680,
+      "brand": "AKIKA",
+      "article": "AP-89",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22680.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23501,
+      "brand": "ASVA",
+      "article": "0414V75D",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23501.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23588,
+      "brand": "ASVA",
+      "article": "0701031",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23588.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23171,
+      "brand": "ASVA",
+      "article": "0123VDJ200FL",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23171.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23775,
+      "brand": "ASVA",
+      "article": "1801004",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23775.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22805,
+      "brand": "AKIKA",
+      "article": "AS-272",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22805.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23522,
+      "brand": "ASVA",
+      "article": "0423-010",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23522.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23232,
+      "brand": "ASVA",
+      "article": "0201001",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23232.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23285,
+      "brand": "ASVA",
+      "article": "0211-J15FL",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23285.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22924,
+      "brand": "ASVA",
+      "article": "0101450",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22924.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23095,
+      "brand": "ASVA",
+      "article": "0121150L",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23095.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23406,
+      "brand": "ASVA",
+      "article": "0322CL7",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23406.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23100,
+      "brand": "ASVA",
+      "article": "0121ACA30L",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23100.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23049,
+      "brand": "ASVA",
+      "article": "0113ACV40RHUB",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23049.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23392,
+      "brand": "ASVA",
+      "article": "0312EJAR",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23392.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23864,
+      "brand": "ASVA",
+      "article": "2421LOGL",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23864.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23061,
+      "brand": "ASVA",
+      "article": "0120120D",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23061.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 24764,
+      "brand": "AYWIPARTS",
+      "article": "AW1910063Y",
+      "missing_fields": [
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-24764.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23224,
+      "brand": "ASVA",
+      "article": "0125GSU45R3",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23224.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 23339,
+      "brand": "ASVA",
+      "article": "0223C11",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-23339.json"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22974,
+      "brand": "ASVA",
+      "article": "0107702",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/3-22974.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 26787,
+      "brand": "JASHI",
+      "article": "8402010U226KE",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-26787.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25193,
+      "brand": "BORT",
+      "article": "B334501",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25193.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 26493,
+      "brand": "PATRON",
+      "article": "PBD4855",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-26493.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25225,
+      "brand": "Changan",
+      "article": "S111F260204-0103",
+      "missing_fields": [
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25225.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25392,
+      "brand": "JAC",
+      "article": "2804100S4500-F011",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25392.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25401,
+      "brand": "Chery",
+      "article": "602000499AADQJ",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25401.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25630,
+      "brand": "JASHI",
+      "article": "SC100NJASHI",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25630.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 26477,
+      "brand": "SsangYong",
+      "article": "4840134100",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-26477.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25544,
+      "brand": "JASHI",
+      "article": "95022993",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25544.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25366,
+      "brand": "JASHI",
+      "article": "2804100P3010",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25366.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25232,
+      "brand": "JASHI",
+      "article": "2905323XGW01A",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25232.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 26467,
+      "brand": "JASHI",
+      "article": "1601200V5070",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-26467.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25212,
+      "brand": "JASHI",
+      "article": "54651-D3500",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25212.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25365,
+      "brand": "JASHI",
+      "article": "2804100U3480F011",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25365.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25371,
+      "brand": "Changan",
+      "article": "S111F271303-0202",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25371.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25437,
+      "brand": "JASHI",
+      "article": "2803102P306A",
+      "missing_fields": [
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25437.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25575,
+      "brand": "MSG",
+      "article": "SS002TANK",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25575.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25558,
+      "brand": "JASHI",
+      "article": "86511D7500",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25558.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 26220,
+      "brand": "JASHI",
+      "article": "1026605GE",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-26220.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 26530,
+      "brand": "JASHI",
+      "article": "51712-C1000",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-26530.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 26229,
+      "brand": "JASHI",
+      "article": "1026609GH051",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-26229.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25099,
+      "brand": "JASHI",
+      "article": "2915110U7300",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25099.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 26494,
+      "brand": "JASHI",
+      "article": "51712-2E300",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-26494.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25201,
+      "brand": "JASHI",
+      "article": "96407819.GAS",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25201.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25198,
+      "brand": "JASHI",
+      "article": "96858479.GAS",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25198.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25249,
+      "brand": "JASHI",
+      "article": "52024165.GAS",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25249.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25191,
+      "brand": "JASHI",
+      "article": "202001682AA",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25191.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25194,
+      "brand": "JASHI",
+      "article": "546513X050",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25194.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25199,
+      "brand": "JASHI",
+      "article": "13279327.GAS",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25199.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 26817,
+      "brand": "HAVAL",
+      "article": "3705100XEN01",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-26817.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25111,
+      "brand": "JASHI",
+      "article": "202001686AA",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25111.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25109,
+      "brand": "JASHI",
+      "article": "202001108AA",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25109.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 26153,
+      "brand": "JASHI",
+      "article": "1025100GH055-F001",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-26153.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25154,
+      "brand": "JASHI",
+      "article": "55300A7100",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25154.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25448,
+      "brand": "JASHI",
+      "article": "2803101U7300",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25448.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 26235,
+      "brand": "JASHI",
+      "article": "13301682",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-26235.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25217,
+      "brand": "JASHI",
+      "article": "54651A7400",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25217.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25267,
+      "brand": "JASHI",
+      "article": "54661A7400",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25267.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25591,
+      "brand": "JASHI",
+      "article": "1311100V5070",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25591.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 26475,
+      "brand": "JASHI",
+      "article": "58411-3A300",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-26475.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 26299,
+      "brand": "BRAVE",
+      "article": "BRSS58",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-26299.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 26943,
+      "brand": "Novline",
+      "article": "ELEMENTA67539V13",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-26943.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 26925,
+      "brand": "RIVAL",
+      "article": "12301004",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-26925.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 26528,
+      "brand": "JASHI",
+      "article": "3500330U3400",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-26528.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25196,
+      "brand": "JASHI",
+      "article": "CD569F260204-0101",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25196.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25550,
+      "brand": "JASHI",
+      "article": "6044131600",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25550.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 26522,
+      "brand": "JASHI",
+      "article": "204000081AA",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-26522.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25242,
+      "brand": "JASHI",
+      "article": "202001683AA",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25242.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 26520,
+      "brand": "JASHI",
+      "article": "3501030R0284",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-26520.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25185,
+      "brand": "JASHI",
+      "article": "2905901XGW02A",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25185.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25271,
+      "brand": "JASHI",
+      "article": "546602B500",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25271.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25108,
+      "brand": "JASHI",
+      "article": "202000962AA",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25108.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25359,
+      "brand": "JASHI",
+      "article": "C281F271303-1000",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25359.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25755,
+      "brand": "JAC",
+      "article": "2200100P31G3",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25755.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25358,
+      "brand": "JASHI",
+      "article": "86611H5000",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25358.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 28173,
+      "brand": "JASHI",
+      "article": "1601100V5070",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-28173.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 26709,
+      "brand": "Автоброня",
+      "article": "111.01023.1",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-26709.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25231,
+      "brand": "JASHI",
+      "article": "2905200S4500",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25231.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25380,
+      "brand": "JASHI",
+      "article": "F18-2804501-DQ",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25380.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25532,
+      "brand": "JASHI",
+      "article": "86512L1100",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25532.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 26553,
+      "brand": "JASHI",
+      "article": "1042200GG01C",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-26553.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25233,
+      "brand": "JASHI",
+      "article": "2905210U3400",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25233.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25122,
+      "brand": "OSM",
+      "article": "OSMLC7821",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25122.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25234,
+      "brand": "JASHI",
+      "article": "2905200U2400",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25234.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 26736,
+      "brand": "JASHI",
+      "article": "8210100U2262",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-26736.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25788,
+      "brand": "JASHI",
+      "article": "1308010R0092",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25788.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25353,
+      "brand": "JASHI",
+      "article": "2804104XST01A",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25353.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25182,
+      "brand": "JASHI",
+      "article": "2905100U2400",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25182.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25515,
+      "brand": "JASHI",
+      "article": "2803106XST01A",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25515.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25184,
+      "brand": "JASHI",
+      "article": "2905381XGW02A",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25184.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25210,
+      "brand": "JASHI",
+      "article": "54650-4H055",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25210.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25786,
+      "brand": "JAC",
+      "article": "1308100U00A5",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25786.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 26143,
+      "brand": "JASHI",
+      "article": "13579666",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-26143.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25183,
+      "brand": "JASHI",
+      "article": "2905100U1555",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25183.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25344,
+      "brand": "Chery",
+      "article": "T15-2810010",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25344.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25354,
+      "brand": "JASHI",
+      "article": "2804119XST01A",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25354.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 26737,
+      "brand": "JASHI",
+      "article": "8210200U2262",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-26737.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 26519,
+      "brand": "JASHI",
+      "article": "S203F260301-0300",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-26519.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25418,
+      "brand": "JASHI",
+      "article": "2804101XKN04A",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25418.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25190,
+      "brand": "JASHI",
+      "article": "202001105AA",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25190.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25189,
+      "brand": "JASHI",
+      "article": "202000280AA",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25189.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 26547,
+      "brand": "JASHI",
+      "article": "B511F2805010200",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-26547.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25192,
+      "brand": "JASHI",
+      "article": "202001095AA",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25192.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25397,
+      "brand": "JASHI",
+      "article": "F01-2804501NB-DQ",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25397.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 26923,
+      "brand": "RIVAL",
+      "article": "18901002",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-26923.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 26929,
+      "brand": "RIVAL",
+      "article": "12810002",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-26929.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25792,
+      "brand": "JASHI",
+      "article": "1308100XGW02A",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25792.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25926,
+      "brand": "HYUNDAI-KIA",
+      "article": "555133N300",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25926.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25188,
+      "brand": "JASHI",
+      "article": "202000607AA",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25188.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25400,
+      "brand": "Chery",
+      "article": "602000931AADQJ",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25400.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25513,
+      "brand": "JASHI",
+      "article": "S111F271301-0501",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25513.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25499,
+      "brand": "JASHI",
+      "article": "602001963AADQJ",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25499.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25372,
+      "brand": "JASHI",
+      "article": "CD569F271303-1901",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25372.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 26185,
+      "brand": "Mando",
+      "article": "MBA010550",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-26185.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 26821,
+      "brand": "PATRON",
+      "article": "PCI1212",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-26821.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 26195,
+      "brand": "HYUNDAI-KIA",
+      "article": "956701R000",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-26195.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 26928,
+      "brand": "RIVAL",
+      "article": "12805005",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-26928.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25279,
+      "brand": "PART-ONE",
+      "article": "1SA194",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25279.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25363,
+      "brand": "JAC",
+      "article": "2804100U2402-F011",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25363.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 26495,
+      "brand": "SAT",
+      "article": "ST-51712-3K160",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-26495.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 26734,
+      "brand": "JASHI",
+      "article": "8210200U7311",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-26734.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25077,
+      "brand": "JASHI",
+      "article": "2803201U2220",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25077.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 26954,
+      "brand": "NORPLAST",
+      "article": "NPA00-T31-736",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-26954.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 26271,
+      "brand": "JAC",
+      "article": "3550040P3010",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-26271.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 26151,
+      "brand": "JASHI",
+      "article": "1015301GD190",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-26151.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 26258,
+      "brand": "HYUNDAI-KIA",
+      "article": "3935025010",
+      "missing_fields": [
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-26258.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25152,
+      "brand": "KORTEX",
+      "article": "KSA073STD",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25152.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25762,
+      "brand": "JAC",
+      "article": "2200400U3400",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25762.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25492,
+      "brand": "JASHI",
+      "article": "F01-2803501NA-DQ",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25492.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25480,
+      "brand": "JAC",
+      "article": "2803101S55M0",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25480.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25128,
+      "brand": "WINKOD",
+      "article": "W349085SA",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25128.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 26834,
+      "brand": "JASHI",
+      "article": "1026102GD150",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-26834.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 28161,
+      "brand": "Valeo",
+      "article": "SYC-23",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-28161.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25574,
+      "brand": "JASHI",
+      "article": "571500U000",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25574.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25537,
+      "brand": "Changan",
+      "article": "S111F271301-0209",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25537.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 28154,
+      "brand": "JASHI",
+      "article": "3774200U1532A",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-28154.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 26806,
+      "brand": "SsangYong",
+      "article": "1721580103",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-26806.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 26301,
+      "brand": "JASHI",
+      "article": "1026604GH138",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-26301.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25120,
+      "brand": "PATRON",
+      "article": "PSA343398",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25120.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 26144,
+      "brand": "SsangYong",
+      "article": "1721543102",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-26144.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 26593,
+      "brand": "JAC",
+      "article": "2803105U226K",
+      "missing_fields": [
+        "photo",
+        "fitment"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-26593.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25124,
+      "brand": "WINKOD",
+      "article": "W339747SA",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-25124.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 26926,
+      "brand": "RIVAL",
+      "article": "12313002",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-26926.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 26250,
+      "brand": "JASHI",
+      "article": "1026601GE",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-26250.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 26282,
+      "brand": "JASHI",
+      "article": "3550200U2230",
+      "missing_fields": [
+        "photo"
+      ],
+      "journal": "procurement/data/enrichment_queue_items/5-26282.json"
+    }
+  ],
+  "exceptions_index": "procurement/data/enrichment_queue_exceptions_20261111.json",
+  "automation": {
+    "id": "Automation_53216c82774c819184d7b160c159c83f",
+    "status": "ready_to_disable_after_completion",
+    "title": "Фото и применимость ZPT"
   }
 }
