@@ -1,0 +1,48 @@
+{
+  "article": "LX939",
+  "brand": "MAHLE",
+  "cost": 6646,
+  "has_fitment": true,
+  "id": 35142,
+  "kaspi_price": 9055,
+  "kaspi_url": "https://kaspi.kz/shop/p/mahle-vozdushnyi-fil-tr-lx939-124290718/?c=750000000",
+  "main_image": "",
+  "name": "MAHLE фильтр воздушный",
+  "photo_status": "needs_source",
+  "product_id": 15965,
+  "profit": 1027.125,
+  "stock": "1",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 13938,
+  "offer_id": 35142,
+  "status": "prepared_photo_existing_fitment",
+  "checked_on": "2026-11-11",
+  "source_url": "https://www.auto-doc.at/mahle-original/2680802",
+  "source_label": "AUTODOC · независимый каталог продавца",
+  "source_kind": "retailer_catalogue",
+  "source_article": "LX939",
+  "fitments": [],
+  "fitment_note": "Существующая применимость сохранена.",
+  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/db6fcddf-a192-4977-a87b-98c24ec1fdac",
+  "image_url": "https://cdn.autodoc.de/thumb?id=2680802&m=0&n=1&lng=de&rev=94078121",
+  "image_note": "ТочныйMAHLE LX939=LX939,воздушный фильтр464x85x70.3мм. Выбран реальный дополнительный ракурсn1:один продолговатый фильтр,оранжевая рамка/белые складки;без размерных стрелок. Существующая применимость сохранена. UIналичие1,закупка6646/Kaspi9055 совпадают.",
+  "photo": {
+    "status": "downloaded_visually_verified_not_queued"
+  },
+  "fitment_status": "existing_preserved",
+  "checked_sources": [
+    {
+      "url": "https://www.auto-doc.at/mahle-original/2680802",
+      "result": "ТочныйMAHLE LX939=LX939,воздушный фильтр464x85x70.3мм. Выбран реальный дополнительный ракурсn1:один продолговатый фильтр,оранжевая рамка/белые складки;без размерных стрелок. Существующая применимость сохранена. UIналичие1,закупка6646/Kaspi9055 совпадают."
+    },
+    {
+      "url": "https://spareto.com/products/mahle-original-air-filter/lx-939",
+      "result": "Exact product; main photograph includes dimensional arrows; selected separate AUTODOC n1 real photograph"
+    }
+  ],
+  "next_offer_id": 23339,
+  "verification": {
+    "trade_data_unchanged": true
+  }
+}
