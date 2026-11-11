@@ -1,0 +1,70 @@
+{
+  "article": "52933D9100",
+  "brand": "HYUNDAI-KIA",
+  "cost": 12000,
+  "has_fitment": false,
+  "id": 26208,
+  "kaspi_price": 17000,
+  "kaspi_url": "https://kaspi.kz/shop/p/hyundai-kia-datchik-davlenija-v-shinah-52933d9100-181378440/?c=750000000",
+  "main_image": "",
+  "name": "Датчик давления Hyundai",
+  "photo_status": "needs_source",
+  "product_id": 7643,
+  "profit": 2625,
+  "stock": "7",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 5616,
+  "offer_id": 26208,
+  "status": "prepared_photo_and_fitment",
+  "checked_on": "2026-11-11",
+  "source_url": "https://www.kiapartsnow.com/genuine/kia-valve-tpms~52933d9100.html",
+  "source_label": "KiaPartsNow — независимый продавец оригинальных деталей Kia",
+  "source_kind": "retailer_catalogue",
+  "source_article": "52933D9100",
+  "fitments": [
+    {
+      "make": "Kia",
+      "model": "Cadenza",
+      "years": "2017–2020",
+      "engine": "3.3L Lambda 2",
+      "body": "Седан,4двери,5мест"
+    },
+    {
+      "make": "Kia",
+      "model": "Sportage",
+      "years": "2016–2022",
+      "engine": "2.0L Theta 2",
+      "body": "Универсал,5дверей,5мест"
+    },
+    {
+      "make": "Kia",
+      "model": "Sportage",
+      "years": "2016–2022",
+      "engine": "2.4L Theta 2",
+      "body": "Универсал,5дверей,5мест"
+    }
+  ],
+  "fitment_note": "Точные2модельныестроки/3конфигурацииKiaPartsNow оригинального52933D9100;разделеныуказанныедвигателиSportage. Другиемодели/регионы/частотыневыдуманы. СуществующийбрендHYUNDAI-KIAсохранён;висточникеKiaи на реальномфотооригинальныеэмблемыHyundai/Kiaиполныйартикул.",
+  "image_url": "https://www.kiapartsnow.com/resources/encry/actual-picture/kpn/large/cba82bf44d7543cd91083c5eaf0f10e8/37bca80096cb41be6443205a092e3f25.jpg",
+  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/a067a0a4-7059-4d78-a1a6-e14f4527a18f",
+  "image_note": "Реальный один TPMS52933D9100 с вентилем/колпачком; на фото видны артикул и эмблемыHyundai/Kia. Схемы/неоригинальныеаналоги не использованы.",
+  "photo": {
+    "status": "downloaded_visually_verified_not_queued"
+  },
+  "fitment_status": "prepared_not_imported",
+  "checked_sources": [
+    {
+      "url": "https://www.kiapartsnow.com/genuine/kia-valve-tpms~52933d9100.html",
+      "result": "Genuineexactarticle,actualphoto1/4withlabelHyKialogos,2modelrows3configs"
+    },
+    {
+      "url": "https://primespares.co.uk/products/1000610804/kia-sportage-ql-mk4-tmps-tyre-pressure-sensor-52933d9100-2015-2021-genuine-new",
+      "result": "Other exactretailernotused:universalfitfielddoesnotestablishuniversality"
+    }
+  ],
+  "next_offer_id": 25932,
+  "verification": {
+    "trade_data_unchanged": true
+  }
+}
