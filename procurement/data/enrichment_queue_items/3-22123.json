@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 1833,
   "offer_id": 22123,
-  "status": "prepared_photo_existing_fitment",
+  "status": "published_complete_pending_db_audit",
   "checked_on": "2026-11-11",
   "source_url": "https://www.autodoc.parts/555/13054720",
   "source_label": "AUTODOC · независимый каталог продавца",
@@ -24,11 +24,20 @@
   "source_article": "SE-N201L",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/c8168761-2a7d-422b-b505-8cb62661a29e",
   "image_url": "https://cdn.autodoc.de/thumb?id=13054720&m=0&n=0&lng=en&rev=94078121",
   "image_note": "Точный555SE-N201L,левый передний наконечник. Реальное фото одного изогнутого наконечника с гайкой и логотипом555;неправыйR,не схема. Существующая применимость сохранена. UIналичие8,закупка5509/Kaspi7731 совпадают.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_ui_verified_db_audit_pending",
+    "main_path": "products/optimized/e0bd50b80b62e5cfd4b0b5f24d6962a06343520ea2f572eff514f800ebed0642.webp",
+    "thumbnail_path": "products/optimized/f8c0b8384a1400d638a46922407dd298464de10ed09d2d5c4bf349fd7697a8b2.webp",
+    "main_size": [
+      600,
+      400
+    ],
+    "thumbnail_size": [
+      180,
+      120
+    ]
   },
   "fitment_status": "existing_preserved",
   "checked_sources": [
@@ -39,6 +48,17 @@
   ],
   "next_offer_id": 22974,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": false,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "visible_trade_and_fitment_text_unchanged": true,
+    "existing_metadata_preserved_by_import": true,
+    "checked_at": "2026-11-11T13:27:05.479Z",
+    "db_audit_pending_reason": "Render MCP temporary Internal errors/timeouts; fresh stored row metadata audit pending"
+  },
+  "publication": {
+    "commit": "b83355cd9994f3667e7ee7842b3bbc9cb23ee5a5",
+    "status": "images_visible_on_live_site_render_status_unavailable"
   }
 }
