@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 2396,
   "offer_id": 22692,
-  "status": "prepared_fitment_photo_unconfirmed",
+  "status": "published_fitment_photo_exception",
   "checked_on": "2026-11-11",
   "source_url": "https://avtokvartal.kz/product/khodovaya-chast/amortizator-zadney-podveski/amortizator-rr-lh-rh-286214023/",
   "source_label": "Автоквартал — независимый каталог продавца",
@@ -48,6 +48,19 @@
   ],
   "next_offer_id": 22760,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": false,
+    "thumbnail_image_complete": false,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T09:48:16.323Z"
+  },
+  "fitment_status": "saved_db_and_ui_verified",
+  "publication": {
+    "commit": "6a19252161cb12f233f8123e46324d6c88bf91bd",
+    "deploy": "dep-dbq3hlff3r2c73b7cb3g",
+    "status": "live"
   }
 }
