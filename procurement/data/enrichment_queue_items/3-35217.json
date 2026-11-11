@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 13997,
   "offer_id": 35217,
-  "status": "prepared_photo_existing_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://cars245.com/en/item/motorad-66282K-thermostat-coolant/",
   "source_label": "Cars245 — независимый каталог продавца",
@@ -24,11 +24,20 @@
   "source_article": "662-82K",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/349ae5ce-d272-4dc0-8676-2a556f5cd6be",
   "image_url": "https://cars245images.cc/webp/big/motorad/b4/motorad-66282K.jpg.webp",
   "image_note": "Точная карточкаMOTORAD662-82K,82°C,корпус,OE21200JA10A,для холодного климата. Визуально один термостат в металлическом угловом корпусе,на корпусеMotoRad662;не инойартикул. Существующая применимость сохранена.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/04361be29cbe8a7b5a7073196662a01d9a97d9e0167e85f4a6b5ce4c43c679f1.webp",
+    "thumbnail_path": "products/optimized/8630f51cd0995e7634b7dcb582b76eb058aff5c40707f3388da9490c23b61799.webp",
+    "main_size": [
+      800,
+      800
+    ],
+    "thumbnail_size": [
+      180,
+      180
+    ]
   },
   "fitment_status": "existing_preserved",
   "checked_sources": [
@@ -39,6 +48,29 @@
   ],
   "next_offer_id": 35172,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T12:39:20.275Z"
+  },
+  "source_sha256": "764a82e5f347482c31bbec3346f9c5f822564de3cc1972eb3565d0bb936f44f9",
+  "main_sha256": "04361be29cbe8a7b5a7073196662a01d9a97d9e0167e85f4a6b5ce4c43c679f1",
+  "main_size": [
+    800,
+    800
+  ],
+  "thumbnail_sha256": "8630f51cd0995e7634b7dcb582b76eb058aff5c40707f3388da9490c23b61799",
+  "thumbnail_size": [
+    180,
+    180
+  ],
+  "publication": {
+    "commit": "ad43a3c6edc4955b1a623ce66e1a32c1b133be2f",
+    "deploy": "dep-dbq62b5g1s2s739i35ig",
+    "status": "live"
   }
 }
