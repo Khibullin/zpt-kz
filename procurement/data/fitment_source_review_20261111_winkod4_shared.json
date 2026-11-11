@@ -1,0 +1,549 @@
+{
+  "checked_on": "2026-11-11",
+  "status": "prepared_for_bounded_migration_not_yet_verified",
+  "scope": "Four exact WINKOD identities copied from the existing reviewed shared base to supplier3. No remote source requests or photo staging.",
+  "targets": {
+    "55056": {
+      "article": "W333516SA",
+      "source_offer": 25270
+    },
+    "55057": {
+      "article": "W333517SA",
+      "source_offer": 25218
+    },
+    "55059": {
+      "article": "W333519SA",
+      "source_offer": 25195
+    },
+    "55289": {
+      "article": "W335624SA",
+      "source_offer": 25273
+    }
+  },
+  "expected": {
+    "offers": 4,
+    "pairs": 6,
+    "configurations": 18
+  },
+  "before": [
+    {
+      "fits": [
+        {
+          "configurations": [
+            {
+              "notes": "Каталог Global Parts. Назначение: передний | Сторона: левая | Количество в комплекте: 1 | Дополнительная информация: Амортизатор передний левый (седан/купе) Hyundai Elantra (2011 – 2014)/Elantra (2014– 2017)",
+              "source_url": "https://shop.globalparts.kz/product/winkod/w333519sa",
+              "years": "2011"
+            },
+            {
+              "notes": "Каталог Global Parts. Назначение: передний | Сторона: левая | Количество в комплекте: 1 | Дополнительная информация: Амортизатор передний левый (седан/купе) Hyundai Elantra (2011 – 2014)/Elantra (2014– 2017)",
+              "source_url": "https://shop.globalparts.kz/product/winkod/w333519sa",
+              "years": "2012"
+            },
+            {
+              "notes": "Каталог Global Parts. Назначение: передний | Сторона: левая | Количество в комплекте: 1 | Дополнительная информация: Амортизатор передний левый (седан/купе) Hyundai Elantra (2011 – 2014)/Elantra (2014– 2017)",
+              "source_url": "https://shop.globalparts.kz/product/winkod/w333519sa",
+              "years": "2013"
+            },
+            {
+              "notes": "Каталог Global Parts. Назначение: передний | Сторона: левая | Количество в комплекте: 1 | Дополнительная информация: Амортизатор передний левый (седан/купе) Hyundai Elantra (2011 – 2014)/Elantra (2014– 2017)",
+              "source_url": "https://shop.globalparts.kz/product/winkod/w333519sa",
+              "years": "2014"
+            },
+            {
+              "notes": "Каталог Global Parts. Назначение: передний | Сторона: левая | Количество в комплекте: 1 | Дополнительная информация: Амортизатор передний левый (седан/купе) Hyundai Elantra (2011 – 2014)/Elantra (2014– 2017)",
+              "source_url": "https://shop.globalparts.kz/product/winkod/w333519sa",
+              "years": "2015"
+            },
+            {
+              "notes": "Каталог Global Parts. Назначение: передний | Сторона: левая | Количество в комплекте: 1 | Дополнительная информация: Амортизатор передний левый (седан/купе) Hyundai Elantra (2011 – 2014)/Elantra (2014– 2017)",
+              "source_url": "https://shop.globalparts.kz/product/winkod/w333519sa",
+              "years": "2016"
+            },
+            {
+              "notes": "Каталог Global Parts. Назначение: передний | Сторона: левая | Количество в комплекте: 1 | Дополнительная информация: Амортизатор передний левый (седан/купе) Hyundai Elantra (2011 – 2014)/Elantra (2014– 2017)",
+              "source_url": "https://shop.globalparts.kz/product/winkod/w333519sa",
+              "years": "2017"
+            }
+          ],
+          "details": "",
+          "make": "HYUNDAI",
+          "model": "Elantra",
+          "source_url": "https://shop.globalparts.kz/product/winkod/w333519sa",
+          "verified": true
+        }
+      ],
+      "id": 25195,
+      "offer": {
+        "applicability": "",
+        "article": "W333519SA",
+        "brand": "WINKOD",
+        "category": "",
+        "characteristics": {
+          "kaspi_identity": {
+            "article": "W333519SA",
+            "brand": "WINKOD",
+            "checked_on": "2026-11-06",
+            "confirmed": true,
+            "method": "article_name_brand_v1",
+            "name_reviewed": true,
+            "reason": "Название и комплектность проверены; артикул и бренд совпадают",
+            "source_date": "2026-11-06",
+            "source_url": "https://kaspi.kz/shop/p/winkod-perednii-w333519sa-1-sht-129666375/?c=750000000",
+            "title": "Амортизатор Winkod передний W333519SA 1 шт"
+          },
+          "supplier_catalogue_applicability": {
+            "checked_on": "2026-11-10",
+            "manufacturer": "WINKOD",
+            "note": "Точные бренд и артикул сопоставлены; применимость по каталогу Global Parts. Ограничения источника сохранены, общие годы для нескольких моделей в фильтры не перенесены.",
+            "source_url": "https://shop.globalparts.kz/product/winkod/w333519sa",
+            "status": "sourced"
+          }
+        },
+        "checked_on": "2026-11-06",
+        "cost": 8300,
+        "created_at": "2026-11-06T15:37:51.0247+00:00",
+        "description": "",
+        "evidence_date": null,
+        "evidence_source": "",
+        "id": 25195,
+        "kaspi_price": 17040,
+        "kaspi_price_checked_on": "2026-11-06",
+        "kaspi_url": "https://kaspi.kz/shop/p/winkod-perednii-w333519sa-1-sht-129666375/?c=750000000",
+        "last_review": null,
+        "lead_days": null,
+        "match_verified": true,
+        "min_order": 1,
+        "name": "Амортизатор передний Hyundai",
+        "photo_url": "/products/products/optimized/73e89babc71eecddeede223504d7919718f6b49c3dd9a0ebbb5b50d1a893124b.webp",
+        "recent_reviews": null,
+        "review_count": null,
+        "sales_30": null,
+        "stock": "1",
+        "supplier_checked_on": "2026-11-09",
+        "supplier_id": 5,
+        "supplier_url": ""
+      }
+    },
+    {
+      "fits": [
+        {
+          "configurations": [
+            {
+              "notes": "Назначение: передний | Сторона: левая | Количество в комплекте: 1",
+              "source_url": "https://shop.globalparts.kz/product/winkod/w333517sa",
+              "years": ""
+            }
+          ],
+          "details": "",
+          "make": "HYUNDAI",
+          "model": "Accent",
+          "source_url": "https://shop.globalparts.kz/product/winkod/w333517sa",
+          "verified": true
+        },
+        {
+          "configurations": [
+            {
+              "notes": "Назначение: передний | Сторона: левая | Количество в комплекте: 1",
+              "source_url": "https://shop.globalparts.kz/product/winkod/w333517sa",
+              "years": ""
+            }
+          ],
+          "details": "",
+          "make": "KIA",
+          "model": "Rio",
+          "source_url": "https://shop.globalparts.kz/product/winkod/w333517sa",
+          "verified": true
+        }
+      ],
+      "id": 25218,
+      "offer": {
+        "applicability": "",
+        "article": "W333517SA",
+        "brand": "WINKOD",
+        "category": "",
+        "characteristics": {
+          "kaspi_identity": {
+            "article": "W333517SA",
+            "brand": "WINKOD",
+            "checked_on": "2026-11-07",
+            "confirmed": true,
+            "method": "article_name_brand_v1",
+            "name_reviewed": true,
+            "reason": "Название и комплектность проверены; артикул и бренд совпадают",
+            "source_date": "2026-11-07",
+            "source_url": "https://kaspi.kz/shop/p/winkod-perednii-w333517sa-1-sht-118744667/?c=750000000",
+            "title": "Амортизатор Winkod передний W333517SA 1 шт"
+          },
+          "supplier_catalogue_applicability": {
+            "checked_on": "2026-11-10",
+            "manufacturer": "WINKOD",
+            "note": "Внесены только модели, явно перечисленные в точной карточке Global Parts. Марки для них однозначно определены по справочнику автомобилей ZPT. Общий список годов не перенесён; перечень применений может быть неполным.",
+            "source_article": "W333517SA",
+            "source_brand": "WINKOD",
+            "source_url": "https://shop.globalparts.kz/product/winkod/w333517sa",
+            "status": "sourced"
+          }
+        },
+        "checked_on": "2026-11-07",
+        "cost": 8400,
+        "created_at": "2026-11-06T15:37:51.534033+00:00",
+        "description": "",
+        "evidence_date": null,
+        "evidence_source": "",
+        "id": 25218,
+        "kaspi_price": 15461,
+        "kaspi_price_checked_on": "2026-11-07",
+        "kaspi_url": "https://kaspi.kz/shop/p/winkod-perednii-w333517sa-1-sht-118744667/?c=750000000",
+        "last_review": null,
+        "lead_days": null,
+        "match_verified": true,
+        "min_order": 1,
+        "name": "Амортизатор передний Hyundai",
+        "photo_url": "",
+        "recent_reviews": null,
+        "review_count": null,
+        "sales_30": null,
+        "stock": "1",
+        "supplier_checked_on": "2026-11-09",
+        "supplier_id": 5,
+        "supplier_url": ""
+      }
+    },
+    {
+      "fits": [
+        {
+          "configurations": [
+            {
+              "notes": "Каталог Global Parts. Назначение: передний | Сторона: правая | Количество в комплекте: 1",
+              "source_url": "https://shop.globalparts.kz/product/winkod/w333516sa",
+              "years": "2005"
+            },
+            {
+              "notes": "Каталог Global Parts. Назначение: передний | Сторона: правая | Количество в комплекте: 1",
+              "source_url": "https://shop.globalparts.kz/product/winkod/w333516sa",
+              "years": "2006"
+            },
+            {
+              "notes": "Каталог Global Parts. Назначение: передний | Сторона: правая | Количество в комплекте: 1",
+              "source_url": "https://shop.globalparts.kz/product/winkod/w333516sa",
+              "years": "2007"
+            },
+            {
+              "notes": "Каталог Global Parts. Назначение: передний | Сторона: правая | Количество в комплекте: 1",
+              "source_url": "https://shop.globalparts.kz/product/winkod/w333516sa",
+              "years": "2008"
+            },
+            {
+              "notes": "Каталог Global Parts. Назначение: передний | Сторона: правая | Количество в комплекте: 1",
+              "source_url": "https://shop.globalparts.kz/product/winkod/w333516sa",
+              "years": "2009"
+            },
+            {
+              "notes": "Каталог Global Parts. Назначение: передний | Сторона: правая | Количество в комплекте: 1",
+              "source_url": "https://shop.globalparts.kz/product/winkod/w333516sa",
+              "years": "2010"
+            },
+            {
+              "notes": "Каталог Global Parts. Назначение: передний | Сторона: правая | Количество в комплекте: 1",
+              "source_url": "https://shop.globalparts.kz/product/winkod/w333516sa",
+              "years": "2011"
+            }
+          ],
+          "details": "",
+          "make": "KIA",
+          "model": "Rio",
+          "source_url": "https://shop.globalparts.kz/product/winkod/w333516sa",
+          "verified": true
+        }
+      ],
+      "id": 25270,
+      "offer": {
+        "applicability": "",
+        "article": "W333516SA",
+        "brand": "WINKOD",
+        "category": "",
+        "characteristics": {
+          "kaspi_identity": {
+            "article": "W333516SA",
+            "brand": "WINKOD",
+            "checked_on": "2026-11-07",
+            "confirmed": true,
+            "method": "article_name_brand_v1",
+            "name_reviewed": true,
+            "reason": "Название и комплектность проверены; артикул и бренд совпадают",
+            "source_date": "2026-11-07",
+            "source_url": "https://kaspi.kz/shop/p/winkod-perednii-w333516sa-1-sht-114773644/?c=750000000",
+            "title": "Амортизатор Winkod передний W333516SA 1 шт"
+          },
+          "supplier_catalogue_applicability": {
+            "checked_on": "2026-11-10",
+            "manufacturer": "WINKOD",
+            "note": "Точные бренд и артикул сопоставлены; применимость по каталогу Global Parts. Ограничения источника сохранены, общие годы для нескольких моделей в фильтры не перенесены.",
+            "source_url": "https://shop.globalparts.kz/product/winkod/w333516sa",
+            "status": "sourced"
+          }
+        },
+        "checked_on": "2026-11-07",
+        "cost": 8400,
+        "created_at": "2026-11-06T15:37:53.053783+00:00",
+        "description": "",
+        "evidence_date": null,
+        "evidence_source": "",
+        "id": 25270,
+        "kaspi_price": 15479,
+        "kaspi_price_checked_on": "2026-11-07",
+        "kaspi_url": "https://kaspi.kz/shop/p/winkod-perednii-w333516sa-1-sht-114773644/?c=750000000",
+        "last_review": null,
+        "lead_days": null,
+        "match_verified": true,
+        "min_order": 1,
+        "name": "Амортизатор передний Hyundai",
+        "photo_url": "",
+        "recent_reviews": null,
+        "review_count": null,
+        "sales_30": null,
+        "stock": "1",
+        "supplier_checked_on": "2026-11-09",
+        "supplier_id": 5,
+        "supplier_url": ""
+      }
+    },
+    {
+      "fits": [
+        {
+          "configurations": [
+            {
+              "notes": "Назначение: передний | Сторона: правая | Количество в комплекте: 1",
+              "source_url": "https://shop.globalparts.kz/product/winkod/w335624sa",
+              "years": ""
+            }
+          ],
+          "details": "",
+          "make": "HYUNDAI",
+          "model": "Santa Fe",
+          "source_url": "https://shop.globalparts.kz/product/winkod/w335624sa",
+          "verified": true
+        },
+        {
+          "configurations": [
+            {
+              "notes": "Назначение: передний | Сторона: правая | Количество в комплекте: 1",
+              "source_url": "https://shop.globalparts.kz/product/winkod/w335624sa",
+              "years": ""
+            }
+          ],
+          "details": "",
+          "make": "KIA",
+          "model": "Sorento",
+          "source_url": "https://shop.globalparts.kz/product/winkod/w335624sa",
+          "verified": true
+        }
+      ],
+      "id": 25273,
+      "offer": {
+        "applicability": "",
+        "article": "W335624SA",
+        "brand": "WINKOD",
+        "category": "",
+        "characteristics": {
+          "kaspi_identity": {
+            "article": "W335624SA",
+            "brand": "WINKOD",
+            "checked_on": "2026-11-07",
+            "confirmed": true,
+            "method": "article_name_brand_v1",
+            "name_reviewed": true,
+            "reason": "Название и комплектность проверены; артикул и бренд совпадают",
+            "source_date": "2026-11-07",
+            "source_url": "https://kaspi.kz/shop/p/winkod-perednii-w335624sa-1-sht-118744707/?c=750000000",
+            "title": "Амортизатор Winkod передний W335624SA 1 шт"
+          },
+          "supplier_catalogue_applicability": {
+            "checked_on": "2026-11-10",
+            "manufacturer": "WINKOD",
+            "note": "Внесены только модели, явно перечисленные в точной карточке Global Parts. Марки для них однозначно определены по справочнику автомобилей ZPT. Общий список годов не перенесён; перечень применений может быть неполным.",
+            "source_article": "W335624SA",
+            "source_brand": "WINKOD",
+            "source_url": "https://shop.globalparts.kz/product/winkod/w335624sa",
+            "status": "sourced"
+          }
+        },
+        "checked_on": "2026-11-07",
+        "cost": 11500,
+        "created_at": "2026-11-06T15:37:53.12672+00:00",
+        "description": "",
+        "evidence_date": null,
+        "evidence_source": "",
+        "id": 25273,
+        "kaspi_price": 21991,
+        "kaspi_price_checked_on": "2026-11-07",
+        "kaspi_url": "https://kaspi.kz/shop/p/winkod-perednii-w335624sa-1-sht-118744707/?c=750000000",
+        "last_review": null,
+        "lead_days": null,
+        "match_verified": true,
+        "min_order": 1,
+        "name": "Амортизатор передний Hyundai",
+        "photo_url": "/products/products/optimized/6d9615f1b04f86497481024141ad4ed18b923a9060547f26d97f85120686c7f3.webp",
+        "recent_reviews": null,
+        "review_count": null,
+        "sales_30": null,
+        "stock": "1",
+        "supplier_checked_on": "2026-11-09",
+        "supplier_id": 5,
+        "supplier_url": ""
+      }
+    },
+    {
+      "fits": null,
+      "id": 55056,
+      "offer": {
+        "applicability": "",
+        "article": "W333516SA",
+        "brand": "WINKOD",
+        "category": "",
+        "characteristics": {
+          "supplier_pack_size": 1
+        },
+        "checked_on": null,
+        "cost": 10321,
+        "created_at": "2026-11-09T09:05:49.039112+00:00",
+        "description": "",
+        "evidence_date": null,
+        "evidence_source": "",
+        "id": 55056,
+        "kaspi_price": null,
+        "kaspi_price_checked_on": null,
+        "kaspi_url": "",
+        "last_review": null,
+        "lead_days": null,
+        "match_verified": false,
+        "min_order": 1,
+        "name": "WINKOD Амортизатор, передний прав.",
+        "photo_url": "",
+        "recent_reviews": null,
+        "review_count": null,
+        "sales_30": null,
+        "stock": "1",
+        "supplier_checked_on": "2026-11-09",
+        "supplier_id": 3,
+        "supplier_url": ""
+      }
+    },
+    {
+      "fits": null,
+      "id": 55057,
+      "offer": {
+        "applicability": "",
+        "article": "W333517SA",
+        "brand": "WINKOD",
+        "category": "",
+        "characteristics": {
+          "supplier_pack_size": 1
+        },
+        "checked_on": null,
+        "cost": 10321,
+        "created_at": "2026-11-09T09:05:49.039115+00:00",
+        "description": "",
+        "evidence_date": null,
+        "evidence_source": "",
+        "id": 55057,
+        "kaspi_price": null,
+        "kaspi_price_checked_on": null,
+        "kaspi_url": "",
+        "last_review": null,
+        "lead_days": null,
+        "match_verified": false,
+        "min_order": 1,
+        "name": "WINKOD Амортизатор, передний лев.",
+        "photo_url": "",
+        "recent_reviews": null,
+        "review_count": null,
+        "sales_30": null,
+        "stock": "2",
+        "supplier_checked_on": "2026-11-09",
+        "supplier_id": 3,
+        "supplier_url": ""
+      }
+    },
+    {
+      "fits": null,
+      "id": 55059,
+      "offer": {
+        "applicability": "",
+        "article": "W333519SA",
+        "brand": "WINKOD",
+        "category": "",
+        "characteristics": {
+          "supplier_pack_size": 1
+        },
+        "checked_on": null,
+        "cost": 11087,
+        "created_at": "2026-11-09T09:05:49.03912+00:00",
+        "description": "",
+        "evidence_date": null,
+        "evidence_source": "",
+        "id": 55059,
+        "kaspi_price": null,
+        "kaspi_price_checked_on": null,
+        "kaspi_url": "",
+        "last_review": null,
+        "lead_days": null,
+        "match_verified": false,
+        "min_order": 1,
+        "name": "WINKOD Амортизатор, передний лев.",
+        "photo_url": "",
+        "recent_reviews": null,
+        "review_count": null,
+        "sales_30": null,
+        "stock": "4",
+        "supplier_checked_on": "2026-11-09",
+        "supplier_id": 3,
+        "supplier_url": ""
+      }
+    },
+    {
+      "fits": null,
+      "id": 55289,
+      "offer": {
+        "applicability": "",
+        "article": "W335624SA",
+        "brand": "WINKOD",
+        "category": "",
+        "characteristics": {
+          "supplier_pack_size": 1
+        },
+        "checked_on": null,
+        "cost": 14855,
+        "created_at": "2026-11-09T09:05:54.781891+00:00",
+        "description": "",
+        "evidence_date": null,
+        "evidence_source": "",
+        "id": 55289,
+        "kaspi_price": null,
+        "kaspi_price_checked_on": null,
+        "kaspi_url": "",
+        "last_review": null,
+        "lead_days": null,
+        "match_verified": false,
+        "min_order": 1,
+        "name": "WINKOD Амортизатор, передний прав.",
+        "photo_url": "",
+        "recent_reviews": null,
+        "review_count": null,
+        "sales_30": null,
+        "stock": "3",
+        "supplier_checked_on": "2026-11-09",
+        "supplier_id": 3,
+        "supplier_url": ""
+      }
+    }
+  ],
+  "checks": "Fresh live DB confirmed zero fitments for all four targets; exact manufacturer, complete article, side and supplier matched. Existing source provenance and all configuration restrictions retained. Nine local tests passed including migration idempotence and changed-identity skip.",
+  "exceptions": [
+    "Office browser Page.navigate timed out before any POST; no duplicate submission. Existing shared-fitment function called by bounded migration0033 instead.",
+    "ASVA0224-084 remains unconfirmed. Independent Drom seller descriptions agree on Mark X/IS250 but broad tags contain questionable chassis/model associations. No years/engines or broad tags imported. Searches yielded no stronger independent catalogue.",
+    "All prior source refusals retained; no requests sent to ASVA or Alta-Karter."
+  ],
+  "next": "Fresh DB first. Verify migration0033 and four copies before further work. Top50 photos50/50 and confirmed fitment49/50; ASVA0224-084 remains open. Continue supplier3/5 batches and remaining approved sources; job not completed. No new consumer/producer or manual restart."
+}
