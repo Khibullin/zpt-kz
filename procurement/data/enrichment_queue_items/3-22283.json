@@ -1,0 +1,42 @@
+{
+  "article": "SL-H025L",
+  "brand": "555",
+  "cost": 3755,
+  "has_fitment": true,
+  "id": 22283,
+  "kaspi_price": 7760,
+  "kaspi_url": "https://kaspi.kz/shop/p/555-stoika-stabilizatora-sl-h025l-179854484/?c=750000000",
+  "main_image": "",
+  "name": "555 Стойка стабилизатора",
+  "photo_status": "skipped",
+  "product_id": 4019,
+  "profit": 2785,
+  "stock": "3",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 1992,
+  "offer_id": 22283,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "Точная карточкаFitinpart555SL-H025L дала реальноефото стойки с двумя гайками. Комплектность не подтверждена:каталог5552022 различаетSL-H025L иSL-H025L-M(сгайками),поэтому изображение не импортировано безподтверждениякомплекта. Существующая применимость сохранена.",
+  "checked_sources": [
+    {
+      "url": "https://www.fitinpart.sg/v2/en/product/523096/555-sankei-sl-h025l",
+      "result": "Exactarticlebutimagewithnuts; kitdifferencevs-Mnotresolved"
+    },
+    {
+      "url": "https://larecoleccion.net/cat/images/cat/CATALOGO_555_IMG.pdf",
+      "result": "Searchindexed catalogue2022p17 explicitly SL-H025L vsSL-H025L-M C/TUERCA; notdownloaded, no bypassprior555SAKform"
+    }
+  ],
+  "next_offer_id": 22749,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true
+  }
+}
