@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 13973,
   "offer_id": 35193,
-  "status": "published_complete_pending_db_audit",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://eu.motorad.com/part/432-77k/",
   "source_label": "MotoRad — каталог производителя",
@@ -27,7 +27,7 @@
   "image_url": "https://images.motorad.com/MotoRad-stills/432-77K_Angle.jpg",
   "image_note": "Точная официальная карточка432-77K. Визуально один термостат в чёрном корпусе и отдельное кольцо уплотнения,точныйфайл432-77K_Angle. Существующая применимость сохранена.",
   "photo": {
-    "status": "saved_ui_verified_db_audit_pending",
+    "status": "saved_db_and_ui_verified",
     "main_path": "products/optimized/6ebe563db806ce98aa3d68afd0ca69efda4ac8ec520416959fbfe5356f49f4d8.webp",
     "thumbnail_path": "products/optimized/db9a741bf09fab51808d61c3fa226d164d5a2a08801c1e679396797f57fe2561.webp",
     "main_size": [
@@ -48,17 +48,31 @@
   ],
   "next_offer_id": 23324,
   "verification": {
-    "db_verified": false,
+    "db_verified": true,
     "ui_verified": true,
     "main_image_complete": true,
     "thumbnail_image_complete": true,
     "visible_trade_and_fitment_text_unchanged": true,
     "existing_metadata_preserved_by_import": true,
-    "checked_at": "2026-11-11T13:03:51.997Z",
-    "db_audit_pending_reason": "Render MCP temporary Internal errors/timeouts; fresh row metadata audit pending"
+    "checked_at": "2026-11-11T13:30:03.171Z",
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true,
+    "existing_metadata_preserved": true,
+    "task_status": "done",
+    "source_and_image_hashes_match_manifest": true,
+    "db_fitment_pairs": 9,
+    "db_fitment_configurations": 81,
+    "db_existing_characteristic_keys": [
+      "manufacturer_applicability",
+      "supplier_pack_size"
+    ],
+    "db_before_snapshot_available": false,
+    "preservation_evidence": "Photo-only bounded manifest contains no fitments; import does not write existing fitments or characteristics. Full visible card text before/after identical. Current DB fitments and metadata read and verified."
   },
   "publication": {
-    "commit": "300589ce14087af5866fa98c82545c9d25c1f691",
-    "status": "images_visible_on_live_site_render_status_unavailable"
+    "commit": "b83355cd9994f3667e7ee7842b3bbc9cb23ee5a5",
+    "source_commit": "300589ce14087af5866fa98c82545c9d25c1f691",
+    "deploy": "dep-dbq6n1ks728c73961pb0",
+    "status": "live"
   }
 }
