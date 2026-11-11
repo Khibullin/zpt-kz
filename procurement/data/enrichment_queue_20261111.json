@@ -4,7 +4,7 @@
   "checked_at": "2026-11-11T06:11:00Z",
   "lease": {
     "owner": "inline-root-28349c39cf95",
-    "expires_at": "2026-11-11T06:45:00Z"
+    "expires_at": "2026-11-11T06:50:00Z"
   },
   "next_supplier": 5,
   "batch_size": 100,
@@ -9266,7 +9266,7 @@
     }
   ],
   "results": [],
-  "next_offer_id": 25365,
+  "next_offer_id": 25415,
   "batch": {
     "supplier_id": 5,
     "batch_number": 1,
@@ -9372,11 +9372,11 @@
       25184,
       25210
     ],
-    "reviewed": 15,
+    "reviewed": 25,
     "published_fitments": 2,
     "published_photos": 0,
     "unconfirmed": 13,
-    "next_offer_id": 25365
+    "next_offer_id": 25415
   },
   "completed_offer_ids": [
     26820,
@@ -9397,7 +9397,17 @@
     25366,
     25232,
     26467,
-    25212
+    25212,
+    25365,
+    26720,
+    25371,
+    25488,
+    25547,
+    25437,
+    25369,
+    25575,
+    26702,
+    25105
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
@@ -9418,5 +9428,18 @@
     "Exact refused Kaspi URLs in item records must not be retried by alternative routes.",
     "shop.globalparts.kz/product/jashi/8402010u226ke; /product/bort/b334501; /product/patron/pbd4855; /product/jac/2804100s4500-f011 returned not accessible. Do not retry via other routes.",
     "All historical ASVA / Alta-Karter / refused MOTORAD / BILSTEIN / PATRON restrictions remain."
-  ]
+  ],
+  "pending_publication": {
+    "commit": "1d086429578c95f3031f7f780943cdf9b268aa1c",
+    "offer_ids": [
+      26702,
+      25105,
+      25575
+    ],
+    "photo_offer_ids": [
+      26702,
+      25105
+    ],
+    "note": "Only verify before counting. MSG photo intentionally excluded."
+  }
 }
