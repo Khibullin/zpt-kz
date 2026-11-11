@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T12:16:32.638Z",
+  "checked_at": "2026-11-11T12:17:57.602Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -11999,6 +11999,50 @@
         }
       ],
       "next_offer_id": 22665,
+      "verification": {
+        "trade_data_unchanged": true
+      }
+    },
+    {
+      "article": "412-79K",
+      "brand": "MOTORAD",
+      "cost": 3270,
+      "has_fitment": true,
+      "id": 35189,
+      "kaspi_price": 5706,
+      "kaspi_url": "https://kaspi.kz/shop/p/motorad-termostat-sistemy-ohlazhdenija-41279k-129697492/?c=750000000",
+      "main_image": "",
+      "name": "Термостат 79°С",
+      "photo_status": "needs_source",
+      "product_id": 15997,
+      "profit": 1472.75,
+      "stock": "1",
+      "supplier_id": 3,
+      "supplier_thumbnail": "",
+      "task_id": 13970,
+      "offer_id": 35189,
+      "status": "prepared_photo_existing_fitment",
+      "checked_on": "2026-11-11",
+      "source_url": "https://eu.motorad.com/part/412-79k/",
+      "source_label": "MotoRad — каталог производителя",
+      "source_kind": "retailer_catalogue",
+      "source_article": "412-79K",
+      "fitments": [],
+      "fitment_note": "Существующая применимость сохранена.",
+      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/3535be38-abb8-4aa9-87ae-4d54866b7f87",
+      "image_url": "https://images.motorad.com/MotoRad-stills/412-79K_Angle.jpg",
+      "image_note": "Точная официальная карточка412-79K,79°C,без корпуса,52/33мм,47мм. Визуально фотография одного металлического термостата с пружиной; точный Angle412-79K,не412-79безK. Существующая применимость сохранена; по фото не заявляется дополнительная комплектность.",
+      "photo": {
+        "status": "downloaded_visually_verified_not_queued"
+      },
+      "fitment_status": "existing_preserved",
+      "checked_sources": [
+        {
+          "url": "https://eu.motorad.com/part/412-79k/",
+          "result": "Точная официальная карточка412-79K,79°C,без корпуса,52/33мм,47мм. Визуально фотография одного металлического термостата с пружиной; точный Angle412-79K,не412-79безK. Существующая применимость сохранена; по фото не заявляется дополнительная комплектность."
+        }
+      ],
+      "next_offer_id": 35145,
       "verification": {
         "trade_data_unchanged": true
       }
