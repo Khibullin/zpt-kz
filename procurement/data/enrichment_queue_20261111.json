@@ -12280,5 +12280,20 @@
       "publication": "68043a2dd731b06c16a8b6d6e8a33b13bd171d54"
     }
   ],
-  "publication_pending": null
+  "publication_pending": {
+    "commit": "5972845ab163fdf3bc44364404305472c7d8bd49",
+    "offer_ids": [
+      24797,
+      35215,
+      22534,
+      35144,
+      35221,
+      35199,
+      24819,
+      35151
+    ],
+    "status": "awaiting_deploy",
+    "prepared_photos": 7,
+    "prepared_fitment_offers": 3
+  }
 }
