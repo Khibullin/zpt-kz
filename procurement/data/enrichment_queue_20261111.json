@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T13:26:45.870Z",
+  "checked_at": "2026-11-11T13:26:48.717Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -5940,14 +5940,14 @@
       "id": 35182,
       "kaspi_price": 11067,
       "kaspi_url": "https://kaspi.kz/shop/p/motorad-termostat-351-88k-115295913/?c=750000000",
-      "main_image": "",
+      "main_image": "products/optimized/c9ab3b56d77689b6b328843e670c9b9e35781f780c34db0f9f52921a166e6427.webp",
       "name": "Термостат 88°С",
-      "photo_status": "needs_source",
+      "photo_status": "ui_verified_db_audit_pending",
       "product_id": 15990,
       "profit": 1112.625,
       "stock": "10",
       "supplier_id": 3,
-      "supplier_thumbnail": "",
+      "supplier_thumbnail": "products/optimized/291f6dfae1b899c990482da3627a9efcc71008337c4b0a7be4a5b6cca44aaf72.webp",
       "task_id": 13963
     },
     {
@@ -11156,16 +11156,16 @@
       22123,
       22974
     ],
-    "reviewed": 26,
+    "reviewed": 27,
     "published_fitments": 0,
-    "published_photos": 3,
+    "published_photos": 4,
     "unconfirmed": 23,
-    "photos_present": 4,
+    "photos_present": 5,
     "fitments_present": 15,
-    "both_present": 3,
+    "both_present": 4,
     "created_at": "2026-11-11T13:04:15.851Z",
     "fixed": true,
-    "next_offer_id": 35182,
+    "next_offer_id": 35176,
     "scope_note": "Final original queue remainder; original saved profit order. Render read temporarily unavailable, verify each offer live UI before source/import; do not change scope."
   },
   "completed_offer_ids": [
@@ -11276,7 +11276,8 @@
     22174,
     35183,
     35168,
-    35143
+    35143,
+    35182
   ],
   "reviewed_offer_ids": [
     26787,
@@ -11679,16 +11680,17 @@
     22974,
     35183,
     35168,
-    35143
+    35143,
+    35182
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 401,
-    "remaining_unreviewed": 7,
+    "reviewed": 402,
+    "remaining_unreviewed": 6,
     "unconfirmed_reviewed": 293,
-    "remaining_missing_fields": 300,
-    "photo_added": 108,
+    "remaining_missing_fields": 299,
+    "photo_added": 109,
     "fitment_added": 55,
     "make_model_pairs_added": 126,
     "configurations_added": 164
@@ -11774,50 +11776,6 @@
     "db_verified": false
   },
   "prepared_candidates": [
-    {
-      "article": "351-88K",
-      "brand": "MOTORAD",
-      "cost": 8321,
-      "has_fitment": true,
-      "id": 35182,
-      "kaspi_price": 11067,
-      "kaspi_url": "https://kaspi.kz/shop/p/motorad-termostat-351-88k-115295913/?c=750000000",
-      "main_image": "",
-      "name": "Термостат 88°С",
-      "photo_status": "needs_source",
-      "product_id": 15990,
-      "profit": 1112.625,
-      "stock": "10",
-      "supplier_id": 3,
-      "supplier_thumbnail": "",
-      "task_id": 13963,
-      "offer_id": 35182,
-      "status": "prepared_photo_existing_fitment",
-      "checked_on": "2026-11-11",
-      "source_url": "https://eu.motorad.com/part/351-88k/",
-      "source_label": "MOTORAD · каталог производителя",
-      "source_kind": "manufacturer_catalogue",
-      "source_article": "351-88K",
-      "fitments": [],
-      "fitment_note": "Существующая применимость сохранена.",
-      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/e7cffa00-8b49-4be1-a115-dd3d259dc9e0",
-      "image_url": "https://images.motorad.com/MotoRad-stills/351-88K_Angle.jpg",
-      "image_note": "Точный полный артикул351-88K производителя,88°C,с корпусом и уплотнением. Фото показывает реальный металлический корпус с термостатом и отдельнымкольцом;не схема. Существующая применимость сохранена. UIналичие10,закупка8321/Kaspi11067 совпадают с очередью.",
-      "photo": {
-        "status": "downloaded_visually_verified_not_queued"
-      },
-      "fitment_status": "existing_preserved",
-      "checked_sources": [
-        {
-          "url": "https://eu.motorad.com/part/351-88k/",
-          "result": "Точный полный артикул351-88K производителя,88°C,с корпусом и уплотнением. Фото показывает реальный металлический корпус с термостатом и отдельнымкольцом;не схема. Существующая применимость сохранена. UIналичие10,закупка8321/Kaspi11067 совпадают с очередью."
-        }
-      ],
-      "next_offer_id": 23095,
-      "verification": {
-        "trade_data_unchanged": true
-      }
-    },
     {
       "article": "298-82K",
       "brand": "MOTORAD",
@@ -12543,7 +12501,7 @@
     }
   ],
   "publication_pending": null,
-  "next_offer_id": 35182,
+  "next_offer_id": 35176,
   "verification_pending": [
     {
       "supplier_id": 3,
@@ -12662,6 +12620,26 @@
         "cost": 7127,
         "stock": "2",
         "kaspi_price": 9712
+      },
+      "reason": "Render MCP temporary Internal errors/timeouts; fresh stored row metadata audit pending"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 35182,
+      "commit": "b83355cd9994f3667e7ee7842b3bbc9cb23ee5a5",
+      "main_image": "products/optimized/c9ab3b56d77689b6b328843e670c9b9e35781f780c34db0f9f52921a166e6427.webp",
+      "supplier_thumbnail": "products/optimized/291f6dfae1b899c990482da3627a9efcc71008337c4b0a7be4a5b6cca44aaf72.webp",
+      "ui_verified": true,
+      "db_verified": false,
+      "checks_needed": [
+        "stored main+thumbnail",
+        "photo task status/evidence",
+        "trade values and old fitment metadata"
+      ],
+      "baseline_queue": {
+        "cost": 8321,
+        "stock": "10",
+        "kaspi_price": 11067
       },
       "reason": "Render MCP temporary Internal errors/timeouts; fresh stored row metadata audit pending"
     }
