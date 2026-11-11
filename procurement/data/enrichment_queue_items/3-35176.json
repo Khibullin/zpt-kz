@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 13957,
   "offer_id": 35176,
-  "status": "prepared_photo_existing_fitment",
+  "status": "published_complete_pending_db_audit",
   "checked_on": "2026-11-11",
   "source_url": "https://spareto.com/products/motorad-thermostat-coolant/298-82k",
   "source_label": "Spareto · независимый каталог продавца",
@@ -24,11 +24,20 @@
   "source_article": "298-82K",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/eccebbe2-facd-4afc-b5e1-741ab9206cc5",
   "image_url": "https://cdn.spareto.com/variants/images_webp/005/601/811/large/298-82k-85C5F77C.webp?1793165854",
   "image_note": "Точная карточка и бренд MOTORAD298-82K,82°C,без корпуса;реальное фото термостата без датчика,не схема. Имеющаяся применимость сохранена. UIналичие2,закупка3854/Kaspi5945 совпадают. Карточка производителя298-82kнедоступна черезweb,не повторялась.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_ui_verified_db_audit_pending",
+    "main_path": "products/optimized/8612728e86a7f863c2569eb7e1f96712c442f0f60c1d11ae9ec7ffdec8787786.webp",
+    "thumbnail_path": "products/optimized/4dcf8a68516c10353cb26f1153d6828853f7b861f9bab8fe8fed4def58f57324.webp",
+    "main_size": [
+      720,
+      720
+    ],
+    "thumbnail_size": [
+      180,
+      180
+    ]
   },
   "fitment_status": "existing_preserved",
   "checked_sources": [
@@ -43,6 +52,17 @@
   ],
   "next_offer_id": 23406,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": false,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "visible_trade_and_fitment_text_unchanged": true,
+    "existing_metadata_preserved_by_import": true,
+    "checked_at": "2026-11-11T13:26:50.205Z",
+    "db_audit_pending_reason": "Render MCP temporary Internal errors/timeouts; fresh stored row metadata audit pending"
+  },
+  "publication": {
+    "commit": "b83355cd9994f3667e7ee7842b3bbc9cb23ee5a5",
+    "status": "images_visible_on_live_site_render_status_unavailable"
   }
 }
