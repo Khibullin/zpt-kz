@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T13:29:27.378Z",
+  "checked_at": "2026-11-11T13:29:30.710Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -5510,7 +5510,7 @@
       "kaspi_url": "https://kaspi.kz/shop/p/555-rulevoi-nakonechnik-sek-8471l-177618041/?c=750000000",
       "main_image": "products/optimized/394028676caef0f059982189cbb010a130fb14f96603b0c51a9a7b5ea5f5530e.webp",
       "name": "555 Наконечник рулевой тяги",
-      "photo_status": "ui_verified_db_audit_pending",
+      "photo_status": "done",
       "product_id": 3911,
       "profit": 1199.125,
       "stock": "10",
@@ -12350,26 +12350,6 @@
     },
     {
       "supplier_id": 3,
-      "offer_id": 22174,
-      "commit": "300589ce14087af5866fa98c82545c9d25c1f691",
-      "main_image": "products/optimized/394028676caef0f059982189cbb010a130fb14f96603b0c51a9a7b5ea5f5530e.webp",
-      "supplier_thumbnail": "products/optimized/0b6edf1ecea547f8225c0c428991cebf513b5e275c2accf1a570cd7a65d76076.webp",
-      "ui_verified": true,
-      "db_verified": false,
-      "checks_needed": [
-        "photo task status/evidence",
-        "stored main+thumbnail",
-        "trade data and old fitments/metadata"
-      ],
-      "baseline_queue": {
-        "cost": 6887,
-        "stock": "10",
-        "kaspi_price": 9527
-      },
-      "reason": "Render MCP temporary Internal errors/timeouts; fresh row metadata audit pending"
-    },
-    {
-      "supplier_id": 3,
       "offer_id": 35183,
       "commit": "b83355cd9994f3667e7ee7842b3bbc9cb23ee5a5",
       "main_image": "products/optimized/7b922927c80efd4e9a7512d58b6bd1fd3cdf5bb126cac7369cd9fdb761d991e1.webp",
@@ -12803,8 +12783,8 @@
     "added_fitment": 55,
     "added_make_model_pairs": 126,
     "added_configurations": 164,
-    "photo_db_and_ui_verified": 103,
-    "photo_ui_verified_db_audit_pending": 12,
+    "photo_db_and_ui_verified": 104,
+    "photo_ui_verified_db_audit_pending": 11,
     "checked_at": "2026-11-11T13:27:32.379Z",
     "scope_note": "Saved original scope reconciled against per-item results. Final33 live UI trade values matched; fresh whole-scope DB check pending Render recovery."
   }
