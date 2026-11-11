@@ -1,0 +1,44 @@
+{
+  "article": "348-92K",
+  "brand": "MOTORAD",
+  "cost": 5885,
+  "has_fitment": true,
+  "id": 35180,
+  "kaspi_price": 8592,
+  "kaspi_url": "https://kaspi.kz/shop/p/motorad-termostat-ohlazhdajuschaja-zhidkost-34892k-131372083/?c=750000000",
+  "main_image": "",
+  "name": "Термостат 92°С",
+  "photo_status": "needs_source",
+  "product_id": 15988,
+  "profit": 1383,
+  "stock": "4",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 13961,
+  "offer_id": 35180,
+  "status": "prepared_photo_existing_fitment",
+  "checked_on": "2026-11-11",
+  "source_url": "https://eu.motorad.com/part/348-92k/",
+  "source_label": "MotoRad — каталог производителя",
+  "source_kind": "retailer_catalogue",
+  "source_article": "348-92K",
+  "fitments": [],
+  "fitment_note": "Существующая применимость сохранена.",
+  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/af6866ad-d396-46e7-966c-81726dac5208",
+  "image_url": "https://images.motorad.com/MotoRad-stills/348-92K_Angle.jpg",
+  "image_note": "Точная официальная карточка348-92K. Визуально один металлический корпус с термостатом/пружиной,точный файл348-92K_Angle;не348-92безK. Существующая применимость сохранена.",
+  "photo": {
+    "status": "downloaded_visually_verified_not_queued"
+  },
+  "fitment_status": "existing_preserved",
+  "checked_sources": [
+    {
+      "url": "https://eu.motorad.com/part/348-92k/",
+      "result": "Точная официальная карточка348-92K. Визуально один металлический корпус с термостатом/пружиной,точный файл348-92K_Angle;не348-92безK. Существующая применимость сохранена."
+    }
+  ],
+  "next_offer_id": 23198,
+  "verification": {
+    "trade_data_unchanged": true
+  }
+}
