@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 13964,
   "offer_id": 35183,
-  "status": "prepared_photo_existing_fitment",
+  "status": "published_complete_pending_db_audit",
   "checked_on": "2026-11-11",
   "source_url": "https://cars245.com/en/item/motorad-35387K-thermostat-coolant/",
   "source_label": "Cars245 · независимый каталог продавца",
@@ -24,11 +24,20 @@
   "source_article": "353-87K",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/92f9647c-a529-4e06-97a5-15e86de972cc",
   "image_url": "https://cars245images.cc/webp/big/motorad/6f/motorad-35387K.jpg.webp",
   "image_note": "Точная карточка MOTORAD 353-87K,87°C,с корпусом. Проверено реальное фото металлического корпуса с термостатом,не схема. Существующая применимость производителя сохранена. UI: пустое фото,наличие1,закупка5080/Kaspi7431,данные совпадают с очередью.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_ui_verified_db_audit_pending",
+    "main_path": "products/optimized/7b922927c80efd4e9a7512d58b6bd1fd3cdf5bb126cac7369cd9fdb761d991e1.webp",
+    "thumbnail_path": "products/optimized/d54c24fe342a5dfc723049a737daa54b3b609724c4007a418a6f8f88031c140b.webp",
+    "main_size": [
+      800,
+      800
+    ],
+    "thumbnail_size": [
+      180,
+      180
+    ]
   },
   "fitment_status": "existing_preserved",
   "checked_sources": [
@@ -39,6 +48,17 @@
   ],
   "next_offer_id": 23507,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": false,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "visible_trade_and_fitment_text_unchanged": true,
+    "existing_metadata_preserved_by_import": true,
+    "checked_at": "2026-11-11T13:26:37.604Z",
+    "db_audit_pending_reason": "Render MCP temporary Internal errors/timeouts; fresh stored row metadata audit pending"
+  },
+  "publication": {
+    "commit": "b83355cd9994f3667e7ee7842b3bbc9cb23ee5a5",
+    "status": "images_visible_on_live_site_render_status_unavailable"
   }
 }
