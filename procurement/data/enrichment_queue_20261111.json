@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T09:42:13.870Z",
+  "checked_at": "2026-11-11T09:42:16.165Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -11651,6 +11651,50 @@
         }
       ],
       "next_offer_id": 35150,
+      "verification": {
+        "trade_data_unchanged": true
+      }
+    },
+    {
+      "article": "48047",
+      "brand": "NGK",
+      "cost": 27432,
+      "has_fitment": true,
+      "id": 35150,
+      "kaspi_price": 35662,
+      "kaspi_url": "https://kaspi.kz/shop/p/katushka-zazhiganija-ngk-48047-07c905715a-180382672/?c=750000000",
+      "main_image": "",
+      "name": "NGK Катушка зажигания U5017",
+      "photo_status": "needs_source",
+      "product_id": 16038,
+      "profit": 3522.25,
+      "stock": "1",
+      "supplier_id": 3,
+      "supplier_thumbnail": "",
+      "task_id": 14011,
+      "offer_id": 35150,
+      "status": "prepared_photo_existing_fitment",
+      "checked_on": "2026-11-11",
+      "source_url": "https://cars245.com/en/item/ngk-48047-ignition-coil/",
+      "source_label": "Cars245 — независимый каталог продавца",
+      "source_kind": "retailer_catalogue",
+      "source_article": "48047",
+      "fitments": [],
+      "fitment_note": "Существующая применимость сохранена.",
+      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/4d91bf2f-b24a-4730-9a0b-b0899150798f",
+      "image_url": "https://cars245images.cc/webp/big/ngk/a6/ngk-48047.jpg.webp",
+      "image_note": "Точная NGK48047,одна катушка,4контактаSAE;реальное фото карточки продавца визуально проверено.",
+      "photo": {
+        "status": "downloaded_visually_verified_not_queued"
+      },
+      "fitment_status": "existing_preserved",
+      "checked_sources": [
+        {
+          "url": "https://cars245.com/en/item/ngk-48047-ignition-coil/",
+          "result": "Точная NGK48047,одна катушка,4контактаSAE;реальное фото карточки продавца визуально проверено."
+        }
+      ],
+      "next_offer_id": 35147,
       "verification": {
         "trade_data_unchanged": true
       }
