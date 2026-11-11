@@ -13,7 +13,7 @@
   "supplier_id": 5,
   "task_id": 6109,
   "offer_id": 26531,
-  "status": "prepared_photo_and_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://satparts.ru/product/st-51712-d7000",
   "source_label": "SATparts.ru — независимый каталог продавца SAT (ИП Спиридонов)",
@@ -167,10 +167,19 @@
   ],
   "fitment_note": "18конфигураций из точной таблицы продавца,8пар марка/модель. Источник не назван производителем. Диапазоны сохранены раздельно; открытые не ограничены2026; двигатели не добавлены.",
   "image_url": "https://static.autotrade.su/nomenclature/wm/b/93/938ed2e11e_1.jpg",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/30ab95a9-9d94-4368-bf88-38e233b161cc",
   "image_note": "Фото одного переднего тормозного диска SATST-51712-D7000 с точной карточки SATparts, визуально проверено.",
   "photo": {
-    "status": "downloaded_exact_verified"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/6d3d3d5a8ce1e99bb316656ec6fd4cc1e1e9f6d28451f115cea00e110b6299b2.webp",
+    "thumbnail_path": "products/optimized/fbb0d12dd475b152464fa8b3defe00a9e812008ef8bc4fe7cbbeaf74f6b380b5.webp",
+    "main_size": [
+      800,
+      600
+    ],
+    "thumbnail_size": [
+      180,
+      135
+    ]
   },
   "checked_sources": [
     {
@@ -180,7 +189,31 @@
   ],
   "next_offer_id": 25196,
   "verification": {
+    "db_verified": true,
+    "ui_verified": true,
+    "photo_visually_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
     "trade_data_unchanged": true,
-    "photo_visually_verified": true
-  }
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T09:12:51.133Z"
+  },
+  "source_sha256": "9a84e49137baa4146413370e28159a9cb4d81f3f4179d320295a9dee42788d99",
+  "main_sha256": "6d3d3d5a8ce1e99bb316656ec6fd4cc1e1e9f6d28451f115cea00e110b6299b2",
+  "main_size": [
+    800,
+    600
+  ],
+  "thumbnail_sha256": "fbb0d12dd475b152464fa8b3defe00a9e812008ef8bc4fe7cbbeaf74f6b380b5",
+  "thumbnail_size": [
+    180,
+    135
+  ],
+  "publication": {
+    "commit": "cd711d8063dc25b30ee190472db94956bff02d0b",
+    "deploy": "dep-dbq313ijnfac739omoi0",
+    "status": "live"
+  },
+  "fitment_status": "saved_db_and_ui_verified"
 }
