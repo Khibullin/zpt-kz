@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 4496,
   "offer_id": 24819,
-  "status": "prepared_photo_and_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://www.aze-tuning.de/Bilstein-B4-Stossdaempfer-hinten-einzeln-fuer-Mitsubishi-L200-HA-H-B4/19-227870",
   "source_label": "AZE-Tuning — независимый каталог продавца",
@@ -84,12 +84,21 @@
   "fitment_note": "Шесть явно расписанных модификаций L200/Triton, месяцы, мощности и 4WD сохранены по строкам продавца. Для строк без обозначения привода привод не выдуман. Фото AZE — возможный образец, не использовано; точное фото взято из отдельной карточки Spareto.",
   "image_source_url": "https://spareto.com/products/bilstein-shock-absorber/19-227870",
   "image_url": "https://cdn.spareto.com/variants/images_webp/001/345/245/medium/19-227870-A2227820.webp?1793023605",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/92aa3f0b-c910-47dd-a26c-77f56afada9c",
   "image_note": "Точный BILSTEIN 19-227870 — реальная фотография одного заднего газового двухтрубного амортизатора с проушинами с обеих сторон; этикетка BILSTEIN видна.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/b0ce4d2d3f03b2ffa373974ca91992b4427454dfde831b1ca4916701c95b15ac.webp",
+    "thumbnail_path": "products/optimized/1e4dc59bfb3a7bb050e22a16e6a58a19fdcb6a2dc4439456eaae4704e05b4ece.webp",
+    "main_size": [
+      360,
+      360
+    ],
+    "thumbnail_size": [
+      180,
+      180
+    ]
   },
-  "fitment_status": "prepared_not_imported",
+  "fitment_status": "saved_db_and_ui_verified",
   "checked_sources": [
     {
       "url": "https://www.aze-tuning.de/Bilstein-B4-Stossdaempfer-hinten-einzeln-fuer-Mitsubishi-L200-HA-H-B4/19-227870",
@@ -102,6 +111,29 @@
   ],
   "next_offer_id": 22992,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T10:19:19.700Z"
+  },
+  "source_sha256": "067378067586081bc2f7cc0fc815e1c386a807bbd0a20de7fc302ffe0921ae63",
+  "main_sha256": "b0ce4d2d3f03b2ffa373974ca91992b4427454dfde831b1ca4916701c95b15ac",
+  "main_size": [
+    360,
+    360
+  ],
+  "thumbnail_sha256": "1e4dc59bfb3a7bb050e22a16e6a58a19fdcb6a2dc4439456eaae4704e05b4ece",
+  "thumbnail_size": [
+    180,
+    180
+  ],
+  "publication": {
+    "commit": "5972845ab163fdf3bc44364404305472c7d8bd49",
+    "deploy": "dep-dbq40p3ncjis73clu9s0",
+    "status": "live"
   }
 }
