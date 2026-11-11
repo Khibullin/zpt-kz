@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T11:36:13.167Z",
+  "checked_at": "2026-11-11T11:37:00.726Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -11798,6 +11798,50 @@
         }
       ],
       "next_offer_id": 25574,
+      "verification": {
+        "trade_data_unchanged": true
+      }
+    },
+    {
+      "article": "SDV1497PN",
+      "brand": "KRAUF",
+      "cost": 3200,
+      "has_fitment": true,
+      "id": 25622,
+      "kaspi_price": 5450,
+      "kaspi_url": "https://kaspi.kz/shop/p/krauf-bendiks-startera-sdv1497pn-136888267/?c=750000000",
+      "main_image": "",
+      "name": "Бендикс стартера Chevrolet",
+      "photo_status": "needs_source",
+      "product_id": 7326,
+      "profit": 1318.75,
+      "stock": "3",
+      "supplier_id": 5,
+      "supplier_thumbnail": "",
+      "task_id": 5299,
+      "offer_id": 25622,
+      "status": "prepared_photo_existing_fitment",
+      "checked_on": "2026-11-11",
+      "source_url": "https://autopiter.kg/goods/sdv1497pn/krauf/id129120735",
+      "source_label": "Автопитер — независимый каталог продавца KRAUF",
+      "source_kind": "retailer_catalogue",
+      "source_article": "SDV1497PN",
+      "fitments": [],
+      "fitment_note": "Существующая применимость сохранена.",
+      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/af919645-bd9a-46b6-9c33-dbacd8a7b7b0",
+      "image_url": "https://autopiter.kg/static2/detailphoto/w2000/P2376/SDV1497PN-1.JPG",
+      "image_note": "Фото одного реального бендикса, логотип KRAUF и полный SDV1497PN нанесены на изображение; точный бренд и артикул проверены в карточке. Существующая применимость сохранена.",
+      "photo": {
+        "status": "downloaded_visually_verified_not_queued"
+      },
+      "fitment_status": "existing_preserved",
+      "checked_sources": [
+        {
+          "url": "https://autopiter.kg/goods/sdv1497pn/krauf/id129120735",
+          "result": "Фото одного реального бендикса, логотип KRAUF и полный SDV1497PN нанесены на изображение; точный бренд и артикул проверены в карточке. Существующая применимость сохранена."
+        }
+      ],
+      "next_offer_id": 25537,
       "verification": {
         "trade_data_unchanged": true
       }
