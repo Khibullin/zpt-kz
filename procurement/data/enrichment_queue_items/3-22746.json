@@ -1,0 +1,43 @@
+{
+  "article": "AS-172",
+  "brand": "AKIKA",
+  "cost": 11218,
+  "has_fitment": false,
+  "id": 22746,
+  "kaspi_price": 19588,
+  "kaspi_url": "https://kaspi.kz/shop/p/akika-perednii-as-172-4851009n91-1-sht-179596719/?c=750000000",
+  "main_image": "",
+  "name": "AKIKA Амортизатор, пер. правый",
+  "photo_status": "needs_source",
+  "product_id": 4477,
+  "profit": 5671.5,
+  "stock": "4",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 2450,
+  "offer_id": 22746,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "unconfirmed_exact_source",
+  "photo": {
+    "status": "exact_source_not_found",
+    "reason": "Новый независимый точный AKIKAAS-172/AS172 не найден в двухпоисках. Ранее отказавший GlobalPartsAS172 не повторялся;ASHIKA/JAPANPARTSMM-AS172неподходят."
+  },
+  "checked_sources": [
+    {
+      "journal": "procurement/data/fitment_source_review_20261111_next50_bilstein_applied.json",
+      "url": "https://shop.globalparts.kz/product/akika/as172",
+      "result": "priornotaccessible,notretried"
+    },
+    {
+      "query": "\"AKIKA\" \"AS-172\" and \"AKIKA AS172\" excludedKaspi/Alta/ASVA",
+      "tool": "system2+system1_search",
+      "result": "No exact independentphoto/fitment"
+    }
+  ],
+  "next_offer_id": 22576,
+  "verification": {
+    "trade_data_unchanged": true
+  }
+}
