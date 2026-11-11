@@ -20,7 +20,7 @@ def stage(apps, schema_editor):
             if not task:
                 continue
             task.source_url = 'https://cart.bilsteinus.com/shock-' + article + '.html'
-            task.status = 'bilstein_shock_ready'
+            task.status = 'shock_ready'
             task.note = 'Точная официальная фотография проверена; ожидает действующего загрузчика.'
             task.evidence = {**(task.evidence or {}), 'review_batch': 'phaeton-next50-bilstein-20261111', 'checked_on': '2026-11-11', 'source_probe': True}
             task.save(update_fields=['source_url', 'status', 'note', 'evidence', 'updated_at'])
