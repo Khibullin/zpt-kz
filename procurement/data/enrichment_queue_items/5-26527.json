@@ -13,7 +13,7 @@
   "supplier_id": 5,
   "task_id": 6094,
   "offer_id": 26527,
-  "status": "prepared_photo",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "fitments": [],
   "fitment_status": "existing_preserved",
@@ -24,10 +24,18 @@
   "fitment_note": "Существующая применимость сохранена.",
   "image_url": "https://www.gm-city.ru/images/r/800x800/catalog/resources/images/details/inside-placeholder-1558464904-pbd1439-disk-tormoznoy-patron.jpg",
   "image_source_url": "https://www.gm-city.ru/catalog/Chevrolet_Captiva/C140/braking_system/disk-tormoznoj-perednij-patron/",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/9970b28b-72d6-4de4-82a5-5c4498c49198",
   "photo": {
-    "status": "downloaded_exact_verified",
-    "reason": "Карточка явно указывает PATRON PBD1439. Визуально проверен один передний тормозной диск; файл с placeholder в имени содержит настоящую фотографию детали."
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/09d9f8246356dc49d345b904b9317e054b53f477e6f091e5ea437934a22a883f.webp",
+    "thumbnail_path": "products/optimized/a0f5a61ce64f013aac2ffd3b8fee90a29c0d5284ad74a70e8a1eaab133a90097.webp",
+    "main_size": [
+      460,
+      350
+    ],
+    "thumbnail_size": [
+      180,
+      137
+    ]
   },
   "image_note": "Фото PATRON PBD1439 из точной карточки независимого продавца GM-City, один диск. Проверено визуально.",
   "checked_sources": [
@@ -38,8 +46,30 @@
   ],
   "next_offer_id": 26299,
   "verification": {
-    "existing_fitment_preserved": true,
+    "db_verified": true,
+    "ui_verified": true,
+    "photo_visually_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
     "trade_data_unchanged": true,
-    "photo_visually_verified": true
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T09:12:40.669Z"
+  },
+  "source_sha256": "32758622276c3f1b090ecbc2bb43ae4cbc3a0854a284584f160791766bd12e26",
+  "main_sha256": "09d9f8246356dc49d345b904b9317e054b53f477e6f091e5ea437934a22a883f",
+  "main_size": [
+    460,
+    350
+  ],
+  "thumbnail_sha256": "a0f5a61ce64f013aac2ffd3b8fee90a29c0d5284ad74a70e8a1eaab133a90097",
+  "thumbnail_size": [
+    180,
+    137
+  ],
+  "publication": {
+    "commit": "cd711d8063dc25b30ee190472db94956bff02d0b",
+    "deploy": "dep-dbq313ijnfac739omoi0",
+    "status": "live"
   }
 }
