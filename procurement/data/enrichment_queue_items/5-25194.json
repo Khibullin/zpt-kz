@@ -1,0 +1,41 @@
+{
+  "article": "546513X050",
+  "brand": "JASHI",
+  "has_fitment": false,
+  "id": 25194,
+  "kaspi_url": "https://kaspi.kz/shop/p/jashi-perednii-546513x050-1-sht-146817918/?c=750000000",
+  "main_image": "",
+  "name": "Амортизатор передний Hyundai",
+  "photo_status": "needs_source",
+  "product_id": 6768,
+  "profit": 4377.5,
+  "stock": "10",
+  "supplier_id": 5,
+  "task_id": 4741,
+  "offer_id": 25194,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "unconfirmed_exact_brand",
+  "photo": {
+    "status": "exact_source_not_found",
+    "reason": "Найдены Hyundai Mobis/BSG/KYB по OEM546513X050; точный JASHI не подтверждён, фото и применимость аналогов не переносились."
+  },
+  "checked_sources": [
+    {
+      "query": "\"JASHI\" \"546513X050\" -site:kaspi.kz -site:alta-karter.com",
+      "tool": "system2_search",
+      "result": "no exact results"
+    },
+    {
+      "query": "\"JASHI\" \"546513X050\" -site:kaspi.kz -site:alta-karter.com",
+      "tool": "system1_search",
+      "result": "only otherbrands/OEM, no exact JASHI fullarticle"
+    }
+  ],
+  "next_offer_id": 25199,
+  "verification": {
+    "existing_fitment_preserved": true,
+    "trade_data_unchanged": true
+  }
+}
