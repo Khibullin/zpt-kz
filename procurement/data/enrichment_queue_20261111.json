@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T07:02:23.108Z",
+  "checked_at": "2026-11-11T07:02:26.160Z",
   "lease": {
     "owner": "enrichment-run-20261111T0652Z",
     "acquired_at": "2026-11-11T06:51:50.447Z",
@@ -9267,7 +9267,7 @@
     }
   ],
   "results": [],
-  "next_offer_id": 25496,
+  "next_offer_id": 25146,
   "batch": {
     "supplier_id": 5,
     "batch_number": 1,
@@ -9373,11 +9373,11 @@
       25184,
       25210
     ],
-    "reviewed": 35,
-    "published_fitments": 12,
-    "published_photos": 16,
+    "reviewed": 36,
+    "published_fitments": 13,
+    "published_photos": 17,
     "unconfirmed": 18,
-    "next_offer_id": 25496,
+    "next_offer_id": 25146,
     "photos_present": 17,
     "fitments_present": 60,
     "both_present": 15
@@ -9399,7 +9399,8 @@
     25138,
     25218,
     25538,
-    25229
+    25229,
+    25496
   ],
   "reviewed_offer_ids": [
     26787,
@@ -9436,19 +9437,20 @@
     25218,
     25558,
     25538,
-    25229
+    25229,
+    25496
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 35,
-    "remaining_unreviewed": 373,
+    "reviewed": 36,
+    "remaining_unreviewed": 372,
     "unconfirmed_reviewed": 18,
-    "remaining_missing_fields": 391,
-    "photo_added": 16,
-    "fitment_added": 12,
-    "make_model_pairs_added": 28,
-    "configurations_added": 29
+    "remaining_missing_fields": 390,
+    "photo_added": 17,
+    "fitment_added": 13,
+    "make_model_pairs_added": 29,
+    "configurations_added": 30
   },
   "prepared_candidate": null,
   "source_limits": [
@@ -9523,46 +9525,5 @@
     "all_seven_ui_images_loaded": true,
     "unchanged_trade_data": true
   },
-  "prepared_candidates": [
-    {
-      "article": "86511L1000",
-      "brand": "JASHI",
-      "has_fitment": false,
-      "id": 25496,
-      "kaspi_url": "https://kaspi.kz/shop/p/jashi-bamper-86511l1000-dlja-hyundai-sonata-2019-2024-119672265/?c=750000000",
-      "main_image": "",
-      "name": "Бампер передний Hyundai",
-      "photo_status": "needs_source",
-      "product_id": 7147,
-      "profit": 4702.5,
-      "stock": "1",
-      "supplier_id": 5,
-      "task_id": 5120,
-      "offer_id": 25496,
-      "status": "prepared_photo_and_fitment",
-      "checked_on": "2026-11-11",
-      "source_url": "https://kaspi.kz/shop/p/jashi-bamper-86511l1000-dlja-hyundai-sonata-2019-2024-119672265/?c=750000000",
-      "source_label": "Характеристики точной карточки Kaspi — продавец",
-      "source_kind": "retailer_listing",
-      "source_article": "86511L1000",
-      "fitments": [
-        {
-          "make": "HYUNDAI",
-          "model": "SONATA",
-          "years": "2019, 2020, 2021, 2022, 2023, 2024",
-          "notes": "Передний бампер, верхняя часть, чёрный, без покрытия. Двигатель и регион в источнике не указаны."
-        }
-      ],
-      "fitment_note": "Точный бренд и полный артикул/OEM совпадают, отдельные перечисленные годы сохранены без расширения. Двигатель не указан.",
-      "image_url": "https://resources.cdn-kaspi.kz/img/m/p/hd0/h47/86080941948958.png?format=gallery-medium",
-      "local_path": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/2a4a81ec-e42e-463d-b389-6b6dc7cc6c32",
-      "checked_sources": [
-        {
-          "url": "https://kaspi.kz/shop/p/jashi-bamper-86511l1000-dlja-hyundai-sonata-2019-2024-119672265/?c=750000000",
-          "result": "exact brand/full article, real bare upper bumper photo and years verified"
-        }
-      ],
-      "next_offer_id": 25146
-    }
-  ]
+  "prepared_candidates": []
 }
