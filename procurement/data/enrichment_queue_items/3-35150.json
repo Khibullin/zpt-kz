@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 14011,
   "offer_id": 35150,
-  "status": "prepared_photo_existing_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://cars245.com/en/item/ngk-48047-ignition-coil/",
   "source_label": "Cars245 — независимый каталог продавца",
@@ -24,11 +24,20 @@
   "source_article": "48047",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/4d91bf2f-b24a-4730-9a0b-b0899150798f",
   "image_url": "https://cars245images.cc/webp/big/ngk/a6/ngk-48047.jpg.webp",
   "image_note": "Точная NGK48047,одна катушка,4контактаSAE;реальное фото карточки продавца визуально проверено.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/d71a252226f21fb0fe1ea8368ae9b2ee13d7cfc1963edc0cc4247c05e272887f.webp",
+    "thumbnail_path": "products/optimized/04375981470c45b47126155cd3668dfa7a031625286c964d45c6a497a2a85482.webp",
+    "main_size": [
+      800,
+      533
+    ],
+    "thumbnail_size": [
+      180,
+      120
+    ]
   },
   "fitment_status": "existing_preserved",
   "checked_sources": [
@@ -39,6 +48,29 @@
   ],
   "next_offer_id": 35147,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T09:48:26.039Z"
+  },
+  "source_sha256": "7f71e708759e997f46eb8dc86133b58cfe7674608dca655b48aace865157296c",
+  "main_sha256": "d71a252226f21fb0fe1ea8368ae9b2ee13d7cfc1963edc0cc4247c05e272887f",
+  "main_size": [
+    800,
+    533
+  ],
+  "thumbnail_sha256": "04375981470c45b47126155cd3668dfa7a031625286c964d45c6a497a2a85482",
+  "thumbnail_size": [
+    180,
+    120
+  ],
+  "publication": {
+    "commit": "6a19252161cb12f233f8123e46324d6c88bf91bd",
+    "deploy": "dep-dbq3hlff3r2c73b7cb3g",
+    "status": "live"
   }
 }
