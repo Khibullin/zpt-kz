@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 5720,
   "offer_id": 26196,
-  "status": "prepared_photo_and_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://satparts.ru/datcik-abs/kia/sportage",
   "source_label": "SATparts — независимый каталог продавца SAT",
@@ -40,12 +40,21 @@
   ],
   "fitment_note": "Точный SAT ST-95670-2S300 присутствует в разделах Kia Sportage и Hyundai Tucson продавца SATparts. Сохранены только модели и переднее левое положение. Общие фильтры поколений не присвоены артикулу.",
   "image_url": "https://static.autotrade.su/nomenclature/wm/b/25/25d19d8579.jpg",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/05e89b57-4020-4b3d-bf6d-e22fb5300ad5",
   "image_note": "Реальный один передний левый датчик ABS с проводом и разъёмом; фото связано с точной строкой ST-95670-2S300. Красная вставка увеличивает разъём, не означает второй товар.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/4ead2eab3aa14485eb6a883fe513e5a1f869693811482b7de9c03bd65b683721.webp",
+    "thumbnail_path": "products/optimized/cf270d1e0a5a05dc15cba1ec00c68343144ebb1e43d99d21393069b6c219ae5f.webp",
+    "main_size": [
+      800,
+      600
+    ],
+    "thumbnail_size": [
+      180,
+      135
+    ]
   },
-  "fitment_status": "prepared_not_imported",
+  "fitment_status": "saved_db_and_ui_verified",
   "checked_sources": [
     {
       "url": "https://satparts.ru/datcik-abs/kia/sportage",
@@ -58,6 +67,29 @@
   ],
   "next_offer_id": 26830,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T11:34:08.796Z"
+  },
+  "source_sha256": "757ef8d47fb90a2f5a1510f3e891a1e79de366e3c6c3df5a9275afdfe99858bf",
+  "main_sha256": "4ead2eab3aa14485eb6a883fe513e5a1f869693811482b7de9c03bd65b683721",
+  "main_size": [
+    800,
+    600
+  ],
+  "thumbnail_sha256": "cf270d1e0a5a05dc15cba1ec00c68343144ebb1e43d99d21393069b6c219ae5f",
+  "thumbnail_size": [
+    180,
+    135
+  ],
+  "publication": {
+    "commit": "67ceb32acec7ee3307f1a9a44c0c779c90797192",
+    "deploy": "dep-dbq53i8473hc73ch8gv0",
+    "status": "live"
   }
 }
