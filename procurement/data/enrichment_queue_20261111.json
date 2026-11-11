@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T10:18:14.010Z",
+  "checked_at": "2026-11-11T10:19:05.270Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -2556,14 +2556,14 @@
       "id": 24797,
       "kaspi_price": 15396,
       "kaspi_url": "https://kaspi.kz/shop/p/aywiparts-stupitsa-aw2220193-165527658/?c=750000000",
-      "main_image": "",
+      "main_image": "products/optimized/ec38f0bf402702800463c0e44f8836ff863a86fbf46e1152a5e807a20732fb7d.webp",
       "name": "AYWIPARTS Ступица задняя",
-      "photo_status": "skipped",
+      "photo_status": "done",
       "product_id": 6502,
       "profit": 2818.5,
       "stock": "1",
       "supplier_id": 3,
-      "supplier_thumbnail": "",
+      "supplier_thumbnail": "products/optimized/321446b1a55b8714d902e1dbd639c2b759db21b8d2a33ed3dcd3e8f74d89828f.webp",
       "task_id": 4475
     },
     {
@@ -11118,7 +11118,7 @@
     }
   ],
   "results": [],
-  "next_offer_id": 24797,
+  "next_offer_id": 35215,
   "batch": {
     "supplier_id": 3,
     "batch_number": 2,
@@ -11224,14 +11224,14 @@
       22758,
       22944
     ],
-    "reviewed": 73,
+    "reviewed": 74,
     "published_fitments": 2,
-    "published_photos": 13,
+    "published_photos": 14,
     "unconfirmed": 60,
-    "next_offer_id": 24797,
-    "photos_present": 15,
+    "next_offer_id": 35215,
+    "photos_present": 16,
     "fitments_present": 55,
-    "both_present": 13,
+    "both_present": 14,
     "created_at": "2026-11-11T09:25:39.710Z",
     "fixed": true
   },
@@ -11277,7 +11277,8 @@
     35135,
     35211,
     35223,
-    24812
+    24812,
+    24797
   ],
   "reviewed_offer_ids": [
     26787,
@@ -11452,16 +11453,17 @@
     23569,
     23016,
     22661,
-    23293
+    23293,
+    24797
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 173,
-    "remaining_unreviewed": 235,
+    "reviewed": 174,
+    "remaining_unreviewed": 234,
     "unconfirmed_reviewed": 131,
-    "remaining_missing_fields": 366,
-    "photo_added": 41,
+    "remaining_missing_fields": 365,
+    "photo_added": 42,
     "fitment_added": 27,
     "make_model_pairs_added": 67,
     "configurations_added": 78
@@ -11526,59 +11528,15 @@
   "next_batch_instruction": "First fixedZakazAuto100 complete. Continue fixedPhaeton100 inbatch.offer_ids order;first23358 then22746. Prior historical exceptions and source denials apply. Afterthis100 supplier5 next100.",
   "technical_notes": "Thisrun56ZakazAuto reviews,8photos+8thumbs,9fitmentoffers23pairs33configs DB/UIverified in2Livepublications. First100 complete:31photo75fit29both,71exceptions. NewPhaeton100 fixed only after first100fullyverified. No pendingpublication.",
   "latest_publication": {
-    "commit": "6d50b89ddbdaea78c8ee72c5f924121782c91caf",
-    "deploy": "dep-dbq3nju7bikc738hoo40",
+    "commit": "5972845ab163fdf3bc44364404305472c7d8bd49",
+    "deploy": "dep-dbq40p3ncjis73clu9s0",
     "status": "live",
-    "checked_photo_and_thumbnail": 8,
-    "checked_fitment_offers": 1,
+    "checked_photo_and_thumbnail": 7,
+    "checked_fitment_offers": 3,
     "ui_images_loaded": true,
     "unchanged_trade_data": true
   },
   "prepared_candidates": [
-    {
-      "article": "AW2220193",
-      "brand": "AYWIPARTS",
-      "cost": 10403,
-      "has_fitment": true,
-      "id": 24797,
-      "kaspi_price": 15396,
-      "kaspi_url": "https://kaspi.kz/shop/p/aywiparts-stupitsa-aw2220193-165527658/?c=750000000",
-      "main_image": "",
-      "name": "AYWIPARTS Ступица задняя",
-      "photo_status": "skipped",
-      "product_id": 6502,
-      "profit": 2818.5,
-      "stock": "1",
-      "supplier_id": 3,
-      "supplier_thumbnail": "",
-      "task_id": 4475,
-      "offer_id": 24797,
-      "status": "prepared_photo_existing_fitment",
-      "checked_on": "2026-11-11",
-      "source_url": "https://aodars.ru/catalog/418/?page=40&q=",
-      "source_label": "Аодарс — независимый каталог продавца",
-      "source_kind": "retailer_catalogue",
-      "source_article": "AW2220193",
-      "fitments": [],
-      "fitment_note": "Существующая применимость сохранена.",
-      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/3ddab53b-8958-4cf9-9cb7-35e67e9dabb7",
-      "image_url": "https://aodars.ru/media/product-img/163/162917.jpg",
-      "image_note": "AYWIPARTSAW2220193,точнаястрока162917,ступицазадняявсборе. Полноефото и бренд/артикулпроверены. Armtekпервыйзапростаймаут(временный),другая карточкаАодарсдоступна.",
-      "photo": {
-        "status": "downloaded_visually_verified_not_queued"
-      },
-      "fitment_status": "existing_preserved",
-      "checked_sources": [
-        {
-          "url": "https://aodars.ru/catalog/418/?page=40&q=",
-          "result": "AYWIPARTSAW2220193,точнаястрока162917,ступицазадняявсборе. Полноефото и бренд/артикулпроверены. Armtekпервыйзапростаймаут(временный),другая карточкаАодарсдоступна."
-        }
-      ],
-      "next_offer_id": 22738,
-      "verification": {
-        "trade_data_unchanged": true
-      }
-    },
     {
       "article": "629-87K",
       "brand": "MOTORAD",
@@ -12429,20 +12387,5 @@
       "publication": "68043a2dd731b06c16a8b6d6e8a33b13bd171d54"
     }
   ],
-  "publication_pending": {
-    "commit": "5972845ab163fdf3bc44364404305472c7d8bd49",
-    "offer_ids": [
-      24797,
-      35215,
-      22534,
-      35144,
-      35221,
-      35199,
-      24819,
-      35151
-    ],
-    "status": "awaiting_deploy",
-    "prepared_photos": 7,
-    "prepared_fitment_offers": 3
-  }
+  "publication_pending": null
 }
