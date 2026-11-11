@@ -1,0 +1,43 @@
+{
+  "article": "SR-H520-M",
+  "brand": "555",
+  "cost": 4589,
+  "has_fitment": true,
+  "id": 22471,
+  "kaspi_price": 6946,
+  "kaspi_url": "https://kaspi.kz/shop/p/555-rulevaja-tjaga-sr-h520-m-174088547/?c=750000000",
+  "main_image": "",
+  "name": "555 Рулевая тяга",
+  "photo_status": "skipped",
+  "product_id": 4205,
+  "profit": 1238.75,
+  "stock": "10",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 2178,
+  "offer_id": 22471,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "SR-H520-M: AUTODOC Sample photo only;Rossko точная карточка,но снимок одиночной тяги без дополнительной гайки исполнения-M. Комплектность-Mпо изображению не подтверждена,фото не сохранено. Существующая применимость сохранена.",
+  "checked_sources": [
+    {
+      "url": "https://rossko.ru/card/555-sr-h520-m-nsii0018328903/",
+      "image": "https://imgs.rossko.ru/DF/4E/NSII0018328903/1.jpg",
+      "result": "Downloaded/visually one rod only; M kit not confirmed"
+    },
+    {
+      "url": "https://www.autodoc.co.uk/555/13056387",
+      "result": "Search explicitly sample photo only"
+    }
+  ],
+  "next_offer_id": 23517,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true
+  }
+}
