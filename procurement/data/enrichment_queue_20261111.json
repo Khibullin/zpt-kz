@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T10:51:25.980Z",
+  "checked_at": "2026-11-11T10:52:42.907Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -11717,6 +11717,54 @@
         }
       ],
       "next_offer_id": 26928,
+      "verification": {
+        "trade_data_unchanged": true
+      }
+    },
+    {
+      "article": "2804100U2402-F011",
+      "brand": "JAC",
+      "cost": 27900,
+      "has_fitment": false,
+      "id": 25363,
+      "kaspi_price": 34900,
+      "kaspi_url": "https://kaspi.kz/shop/p/jac-bamper-2804100u2402-f011-dlja-jac-js6-2023-2024-119277145/?c=750000000",
+      "main_image": "",
+      "name": "Бампер задний JAC",
+      "photo_status": "needs_source",
+      "product_id": 6926,
+      "profit": 2387.5,
+      "stock": "4",
+      "supplier_id": 5,
+      "supplier_thumbnail": "",
+      "task_id": 4899,
+      "offer_id": 25363,
+      "status": "prepared_fitment_photo_unconfirmed",
+      "checked_on": "2026-11-11",
+      "source_url": "https://www.autoopt.ru/catalog/155686-nakladka_bampera_jac_js6_zadnego_nizhnjaja_oe",
+      "source_label": "АвтоАльянс — независимый каталог продавца OE JAC",
+      "source_kind": "retailer_catalogue",
+      "source_article": "2804100U2402-F011",
+      "fitments": [
+        {
+          "make": "JAC",
+          "model": "JS6",
+          "position": "Нижняя накладка заднего бампера",
+          "notes": "Годы/двигатели/цвет в точнойкарточке не указаны."
+        }
+      ],
+      "fitment_note": "ТочныебрендJAC/артикул2804100U2402-F011/назначениеJS6вкарточкеАвтоАльянса. ПолныйсуффиксF011сохранён,другойартикулнеподставлен. Фотодетали вкарточке отсутствует(толькологотипы/баннеры). Годы/двигательневыдуманы.",
+      "photo": {
+        "status": "unconfirmed"
+      },
+      "fitment_status": "prepared_not_imported",
+      "checked_sources": [
+        {
+          "url": "https://www.autoopt.ru/catalog/155686-nakladka_bampera_jac_js6_zadnego_nizhnjaja_oe",
+          "result": "ExactmanufacturerJACfullarticlemodelposition;noactualpartimage"
+        }
+      ],
+      "next_offer_id": 26495,
       "verification": {
         "trade_data_unchanged": true
       }
