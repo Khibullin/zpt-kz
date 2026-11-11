@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 2139,
   "offer_id": 22432,
-  "status": "prepared_photo_existing_fitment",
+  "status": "published_complete_pending_db_audit",
   "checked_on": "2026-11-11",
   "source_url": "https://www.auto-doc.at/555/13056142",
   "source_label": "AUTODOC · независимый каталог продавца",
@@ -24,11 +24,20 @@
   "source_article": "SR-3960",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/9c52e5a0-8557-4aae-8b71-1325b2be7072",
   "image_url": "https://cdn.autodoc.de/thumb?id=13056142&m=0&n=0&lng=de&rev=94078121",
   "image_note": "Точный555SR-3960 безM. Реальное фото одной чёрной рулевой тяги с логотипом555,без доп.шайбы или комплекта. Имеющаяся применимость сохранена. UIналичие6,закупка6176/Kaspi8496 совпадают с очередью.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_ui_verified_db_audit_pending",
+    "main_path": "products/optimized/a0d64c9db8feaaceaa7492574a313c49d77493590e2f659c82ce5ed599e88551.webp",
+    "thumbnail_path": "products/optimized/ff8436efa6e0784f470bfb9b2c693909fbc959e95570f367425aed305002b64a.webp",
+    "main_size": [
+      600,
+      400
+    ],
+    "thumbnail_size": [
+      180,
+      120
+    ]
   },
   "fitment_status": "existing_preserved",
   "checked_sources": [
@@ -39,6 +48,17 @@
   ],
   "next_offer_id": 22123,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": false,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "visible_trade_and_fitment_text_unchanged": true,
+    "existing_metadata_preserved_by_import": true,
+    "checked_at": "2026-11-11T13:27:02.686Z",
+    "db_audit_pending_reason": "Render MCP temporary Internal errors/timeouts; fresh stored row metadata audit pending"
+  },
+  "publication": {
+    "commit": "b83355cd9994f3667e7ee7842b3bbc9cb23ee5a5",
+    "status": "images_visible_on_live_site_render_status_unavailable"
   }
 }
