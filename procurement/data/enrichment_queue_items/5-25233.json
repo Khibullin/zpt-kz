@@ -1,0 +1,35 @@
+{
+  "article": "2905210U3400",
+  "brand": "JASHI",
+  "has_fitment": true,
+  "id": 25233,
+  "kaspi_url": "https://kaspi.kz/shop/p/jashi-perednii-2905210u3400-1-sht-118704092/?c=750000000",
+  "main_image": "",
+  "name": "Амортизатор передний JAC",
+  "photo_status": "needs_source",
+  "product_id": 6948,
+  "profit": 3727.5,
+  "stock": "7",
+  "supplier_id": 5,
+  "task_id": 4921,
+  "offer_id": 25233,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "no_photo_in_exact_catalogue",
+    "reason": "Точная карточка Автопитер JASHI2905210U3400 не содержит фотографии. Существующая применимость сохранена."
+  },
+  "checked_sources": [
+    {
+      "url": "https://autopiter.kz/goods/2905210u3400/jashi/id193309242?orderRef=5",
+      "result": "ExactJASHI,no photograph"
+    }
+  ],
+  "next_offer_id": 25122,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true
+  }
+}
