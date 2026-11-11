@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 2047,
   "offer_id": 22338,
-  "status": "prepared_photo_existing_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://baza.drom.ru/g17589365573.html",
   "source_label": "Auto_nhk125 на Drom — независимый каталог продавца",
@@ -24,11 +24,20 @@
   "source_article": "SL-T770R",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/2856db28-dbf7-4278-a7b8-82d079c88cec",
   "image_url": "https://static.baza.drom.ru/farpost_catalog/1785835220837_default",
   "image_note": "Точная карточка 555 SL-T770R,передняя правая. Фото одной короткой стойки с гайками,синяя метка R,водяной знак555,визуально проверено. SL-T770R-M не использован. Существующая применимость сохранена.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/a3c943d8ebbe1cbee466926dc682340ab93e95adf76c28a9c0e8a3134d10935b.webp",
+    "thumbnail_path": "products/optimized/4751f7085abb229daf30694b4d2e4ff9d6a555a5ef5f6658db1b65d7ed2e5fd2.webp",
+    "main_size": [
+      600,
+      400
+    ],
+    "thumbnail_size": [
+      180,
+      120
+    ]
   },
   "fitment_status": "existing_preserved",
   "checked_sources": [
@@ -39,6 +48,29 @@
   ],
   "next_offer_id": 23231,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T12:10:51.633Z"
+  },
+  "source_sha256": "4ed42a005b71e7b32cb3a132c33275bc4c9ef0c9b7f00d42e6998ecd7beb6a32",
+  "main_sha256": "a3c943d8ebbe1cbee466926dc682340ab93e95adf76c28a9c0e8a3134d10935b",
+  "main_size": [
+    600,
+    400
+  ],
+  "thumbnail_sha256": "4751f7085abb229daf30694b4d2e4ff9d6a555a5ef5f6658db1b65d7ed2e5fd2",
+  "thumbnail_size": [
+    180,
+    120
+  ],
+  "publication": {
+    "commit": "5f2cf5c224c6b6ff8e2dbe7181a5ffc9b33ffd72",
+    "deploy": "dep-dbq5l0e7bikc738kc8fg",
+    "status": "live"
   }
 }
