@@ -1,0 +1,38 @@
+{
+  "article": "AS-191",
+  "brand": "AKIKA",
+  "cost": 15837,
+  "has_fitment": true,
+  "id": 22758,
+  "kaspi_price": 20653,
+  "kaspi_url": "https://kaspi.kz/shop/p/akika-perednii-as-191-1-sht-120962257/?c=750000000",
+  "main_image": "",
+  "name": "AKIKA Амортизатор, пер. левый",
+  "photo_status": "needs_source",
+  "product_id": 4489,
+  "profit": 1984.375,
+  "stock": "1",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 2462,
+  "offer_id": 22758,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "AKIKA AS-191: оба поисковых движка не дали независимой точной карточки с реальным фото; нерелевантные результаты исключены. Существующая применимость сохранена.",
+  "checked_sources": [
+    {
+      "query": "\"AKIKA\" \"AS-191\"",
+      "result": "No exact independent result in bothengines"
+    }
+  ],
+  "next_offer_id": 22944,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true
+  }
+}
