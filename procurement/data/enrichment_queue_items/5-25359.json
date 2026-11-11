@@ -1,0 +1,36 @@
+{
+  "article": "C281F271303-1000",
+  "brand": "JASHI",
+  "has_fitment": true,
+  "id": 25359,
+  "kaspi_url": "https://kaspi.kz/shop/p/jashi-bamper-c281f271303-1000-dlja-changan-uni-v-2022-2024-138045461/?c=750000000",
+  "main_image": "",
+  "name": "Бампер задний Changan",
+  "photo_status": "needs_source",
+  "product_id": 6977,
+  "profit": 3925,
+  "stock": "1",
+  "supplier_id": 5,
+  "task_id": 4950,
+  "offer_id": 25359,
+  "status": "reviewed_photo_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "exact_source_not_found",
+    "reason": "Точное фото JASHI C281F271303-1000 в двух поисках не подтверждено. Имеющаяся применимость сохранена; фото иных артикулов/брендов не переносились."
+  },
+  "checked_sources": [
+    {
+      "query": "\"JASHI\" \"C281F271303-1000\" -site:kaspi.kz -site:alta-karter.com",
+      "tool": "system2+system1_search",
+      "result": "No independent exactphoto. Kaspi origin/CDN notrequested afterprior rejection."
+    }
+  ],
+  "next_offer_id": 25755,
+  "verification": {
+    "existing_fitment_preserved": true,
+    "trade_data_unchanged": true
+  }
+}
