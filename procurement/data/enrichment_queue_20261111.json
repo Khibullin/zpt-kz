@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T09:20:37.063Z",
+  "checked_at": "2026-11-11T09:24:45.405Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -9267,7 +9267,7 @@
     }
   ],
   "results": [],
-  "next_offer_id": 26709,
+  "next_offer_id": 26490,
   "batch": {
     "supplier_id": 5,
     "batch_number": 1,
@@ -9373,13 +9373,13 @@
       25184,
       25210
     ],
-    "reviewed": 97,
-    "published_fitments": 23,
+    "reviewed": 98,
+    "published_fitments": 24,
     "published_photos": 26,
-    "unconfirmed": 70,
-    "next_offer_id": 26709,
+    "unconfirmed": 71,
+    "next_offer_id": 26490,
     "photos_present": 29,
-    "fitments_present": 73,
+    "fitments_present": 74,
     "both_present": 27
   },
   "completed_offer_ids": [
@@ -9508,19 +9508,20 @@
     25182,
     25515,
     25184,
-    25210
+    25210,
+    26709
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 97,
-    "remaining_unreviewed": 311,
-    "unconfirmed_reviewed": 70,
+    "reviewed": 98,
+    "remaining_unreviewed": 310,
+    "unconfirmed_reviewed": 71,
     "remaining_missing_fields": 381,
     "photo_added": 26,
-    "fitment_added": 23,
-    "make_model_pairs_added": 56,
-    "configurations_added": 67
+    "fitment_added": 24,
+    "make_model_pairs_added": 57,
+    "configurations_added": 68
   },
   "prepared_candidate": null,
   "source_limits": [
@@ -9601,56 +9602,6 @@
     "unchanged_trade_data": true
   },
   "prepared_candidates": [
-    {
-      "article": "111.01023.1",
-      "brand": "Автоброня",
-      "has_fitment": false,
-      "id": 26709,
-      "kaspi_url": "https://kaspi.kz/shop/p/avtobronja-111010231-ravon-nexia-r3-2016--101653897/?c=750000000",
-      "main_image": "",
-      "name": "Защита картера Chevrolet",
-      "photo_status": "needs_source",
-      "product_id": 8350,
-      "profit": 3862.5,
-      "stock": "1",
-      "supplier_id": 5,
-      "task_id": 6323,
-      "offer_id": 26709,
-      "status": "prepared_fitment_photo_unconfirmed",
-      "checked_on": "2026-11-11",
-      "source_url": "https://www.mnogofarkopov.ru/zashchita-kartera-aveo/49493-zasshita-kartera-i-kpp-chevrolet-aveo-111010231.html",
-      "source_label": "MnogoFarkopov — независимый каталог продавца",
-      "source_kind": "retailer_catalogue",
-      "source_article": "111.01023.1",
-      "fitments": [
-        {
-          "make": "Chevrolet",
-          "model": "Aveo",
-          "years": "2006–2011",
-          "engine": "1.2L;1.4L",
-          "notes": "Защита картера и КПП Автоброня111.01023.1;крепёжные элементы указаны в комплекте. Регион/КПП источником не уточнены."
-        }
-      ],
-      "fitment_note": "Точная карточка Автоброня111.01023.1,ChevroletAveo2006–2011,1.2/1.4. Другие модели/общаяуниверсальность не выведены. Толщина2мм не импортирована из-за отличия1.8ммв другихисточниках.",
-      "photo": {
-        "status": "sample_excluded",
-        "reason": "Изображение скачано и проверено:типовая иллюстрация с явной подписью «ОБРАЗЕЦ»,не точная фотография артикула. Не импортировано."
-      },
-      "checked_sources": [
-        {
-          "url": "https://www.mnogofarkopov.ru/zashchita-kartera-aveo/49493-zasshita-kartera-i-kpp-chevrolet-aveo-111010231.html",
-          "result": "Exactbrandarticle fitAveo2006-2011engine1.2/1.4; genericOBRAZETSillustrationexcluded"
-        },
-        {
-          "url": "https://www.autofn.ru/zashchita-kartera/chevrolet/aveo/1-restayling/",
-          "result": "Initialreadsuccess,followup403;notretried"
-        }
-      ],
-      "next_offer_id": 25231,
-      "verification": {
-        "trade_data_unchanged": true
-      }
-    },
     {
       "article": "ST-58411-C9500",
       "brand": "SAT",
