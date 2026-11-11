@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 2271,
   "offer_id": 22564,
-  "status": "prepared_photo_existing_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://www.pakwheels.com/accessories-spare-parts/suzuki-swift-2017-2022-akebono-front-brake-pads-an-706wk-6567753",
   "source_label": "PakWheels — независимое предложение продавца",
@@ -24,11 +24,20 @@
   "source_article": "AN-706WK",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/8ef09f7b-87a1-4b85-8f54-60f8960be1e8",
   "image_url": "https://cache4.pakwheels.com/ad_pictures/6316/suzuki-swift-2017-2022-akebono-front-brake-pads-an-706wk-63164669.jpg",
   "image_note": "Точное предложение AKEBONO AN-706WK: реальное фото четырёх тормозных колодок с коробкой AKEBONO; комплект4шт соответствует исходной позиции. Существующая применимость сохранена, региональные периоды продавца её не заменяют.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/ac507468d553d0c9bd76fba727de3f281bbb80b8c6c848a6c8935f19ffc53653.webp",
+    "thumbnail_path": "products/optimized/4bf325e0f33200766d2ebbe56cdf1a4f73e1d27fc094b0726a37d9b4e70ce761.webp",
+    "main_size": [
+      800,
+      600
+    ],
+    "thumbnail_size": [
+      180,
+      135
+    ]
   },
   "fitment_status": "existing_preserved",
   "checked_sources": [
@@ -39,6 +48,29 @@
   ],
   "next_offer_id": 22745,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T10:29:31.148Z"
+  },
+  "source_sha256": "2cba70c4433bce3aea4fa4849b2151acfba13412fa980b28b543cab6f4d6af7d",
+  "main_sha256": "ac507468d553d0c9bd76fba727de3f281bbb80b8c6c848a6c8935f19ffc53653",
+  "main_size": [
+    800,
+    600
+  ],
+  "thumbnail_sha256": "4bf325e0f33200766d2ebbe56cdf1a4f73e1d27fc094b0726a37d9b4e70ce761",
+  "thumbnail_size": [
+    180,
+    135
+  ],
+  "publication": {
+    "commit": "7dec204910db6a8f38f987b3c44771cacb96ea1c",
+    "deploy": "dep-dbq45q5g1s2s739fh1sg",
+    "status": "live"
   }
 }
