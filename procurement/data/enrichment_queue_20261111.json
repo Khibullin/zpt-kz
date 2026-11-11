@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T10:43:36.962Z",
+  "checked_at": "2026-11-11T10:46:21.983Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -12005,6 +12005,72 @@
         }
       ],
       "next_offer_id": 25932,
+      "verification": {
+        "trade_data_unchanged": true
+      }
+    },
+    {
+      "article": "555134h100",
+      "brand": "HYUNDAI-KIA",
+      "cost": 1500,
+      "has_fitment": false,
+      "id": 25932,
+      "kaspi_price": 4999,
+      "kaspi_url": "https://kaspi.kz/shop/p/hyundai-kia-vtulka-stabilizatora-555134h100-165634252/?c=750000000",
+      "main_image": "",
+      "name": "Втулка стабилизатора Hyundai",
+      "photo_status": "needs_source",
+      "product_id": 7470,
+      "profit": 2624.125,
+      "stock": "4",
+      "supplier_id": 5,
+      "supplier_thumbnail": "",
+      "task_id": 5443,
+      "offer_id": 25932,
+      "status": "prepared_photo_and_fitment",
+      "checked_on": "2026-11-11",
+      "source_url": "https://partsouq.com/en/search/all?q=555134H100",
+      "source_label": "PartSouq — независимый каталог оригинальных Hyundai/Kia",
+      "source_kind": "retailer_catalogue",
+      "source_article": "555134H100",
+      "fitments": [
+        {
+          "make": "Hyundai",
+          "model": "Grand Starex",
+          "notes": "Модель указана в Compatibility без периода/двигателя; годы не выдуманы."
+        },
+        {
+          "make": "Hyundai",
+          "model": "H-1",
+          "notes": "CompatibilityH-1/H-1 07 иH-1/GrandStarex; 07—каталожное обозначение,не диапазонлет."
+        },
+        {
+          "make": "Hyundai",
+          "model": "H-1",
+          "years": "2009–2013",
+          "region": "Мексика",
+          "notes": "ТочнаястрокаH-1 07MY(Mexico)(2009-2013). Периоднеперенесён на другие рынки."
+        }
+      ],
+      "fitment_note": "ТочнаяHyundai/Kia555134H100, сохранён исходный555134h100(различиетолькорегистрбуквы). CompatibilityGrandStarex/H-1: алиасыобъединены,неизвестныегоды/двигателине добавлены. 2009–2013относитсятолькокMexico. Фото—однавтулка и оригинальныйпакетHyundaiсэтикеткой55513 4H100.",
+      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/782038b0-1703-4faf-914e-aeb594b2de8e",
+      "image_url": "https://partsouq.com/assets/PartThumbnail/assets/partsimages/Hyundai-/-KIA/555134H100.jpg",
+      "image_note": "Реальная одна втулка заднего стабилизатора рядом с оригинальным пакетом Hyundai; точный55513 4H100читаетсянаэтикетке.",
+      "photo": {
+        "status": "downloaded_visually_verified_not_queued"
+      },
+      "fitment_status": "prepared_not_imported",
+      "checked_sources": [
+        {
+          "url": "https://partsouq.com/en/search/all?q=555134H100",
+          "result": "ExactHyundai/Kiaproductphoto+4Compatibilityaliasesnormalised;Mexico2009–2013keptseparate"
+        },
+        {
+          "url": "https://rafraf.com/en/parts/all/product/Stabilizer-Bar-Bushing-Rear-Right-Or-Left-555134H100",
+          "result": "503ServiceUnavailabletemporary;notpermanentblock;notused"
+        }
+      ],
+      "next_offer_id": 25372,
       "verification": {
         "trade_data_unchanged": true
       }
