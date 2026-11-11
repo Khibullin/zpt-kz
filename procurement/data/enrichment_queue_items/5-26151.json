@@ -1,0 +1,42 @@
+{
+  "article": "1015301GD190",
+  "brand": "JASHI",
+  "cost": 102200,
+  "has_fitment": true,
+  "id": 26151,
+  "kaspi_price": 119120,
+  "kaspi_url": "https://kaspi.kz/shop/p/generator-jashi-1015301gd190-119320613/?c=750000000",
+  "main_image": "",
+  "name": "Генератор в JAC",
+  "photo_status": "needs_source",
+  "product_id": 7674,
+  "profit": 1780,
+  "stock": "16",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 5647,
+  "offer_id": 26151,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "JASHI1015301GD190: точнаяGlobalPartsкарточка используетKaspiCDN,которыйранеезапрещён; новыхнезависимыхфотографийJASHIнет. НайденныегенераторыJACсэтимOEMнеперенесены. Существующаяприменимостьсохранена.",
+  "checked_sources": [
+    {
+      "query": "\"JASHI\" \"1015301GD190\"",
+      "result": "Bothengines:GlobalParts/KaspiorJACdifferentbrand"
+    },
+    {
+      "url": "https://shop.globalparts.kz/catalog/card/191635",
+      "result": "ExactJASHIcardfromsearch;imageunverified,notrequestedrestrictedCDN"
+    }
+  ],
+  "next_offer_id": 26893,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true
+  }
+}
