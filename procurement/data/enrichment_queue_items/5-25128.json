@@ -1,0 +1,42 @@
+{
+  "article": "W349085SA",
+  "brand": "WINKOD",
+  "cost": 5800,
+  "has_fitment": false,
+  "id": 25128,
+  "kaspi_price": 8650,
+  "kaspi_url": "https://kaspi.kz/shop/p/winkod-zadnii-w349085sa-1-sht-100884142/?c=750000000",
+  "main_image": "",
+  "name": "Амортизатор задний Hyundai",
+  "photo_status": "needs_source",
+  "product_id": 6851,
+  "profit": 1518.75,
+  "stock": "4",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 4824,
+  "offer_id": 25128,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "unconfirmed",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "WINKOD W349085SA: поисковый снимок Hoolly связывал артикул с Elantra/Avante, но в актуальной прочитанной категории точного артикула нет. Festima содержит старое объявление без подтверждённых моделей и исполнения фото. Данные из устаревшего снимка не импортированы; точное актуальное подтверждение отсутствует.",
+  "checked_sources": [
+    {
+      "url": "https://hoolly.ru/stoiki-amortizatora/winkod",
+      "result": "Cached search has W349085SA; fresh opened category has no exactarticle text."
+    },
+    {
+      "url": "https://festima.ru/docs/481634661/allrussia/amortizator-zadnii-levprav",
+      "result": "Search snapshot of old exactarticle listing, no model/period evidence."
+    }
+  ],
+  "next_offer_id": 28023,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": false
+  }
+}
