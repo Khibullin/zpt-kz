@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T09:57:58.078Z",
+  "checked_at": "2026-11-11T09:58:28.139Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -11948,6 +11948,50 @@
         }
       ],
       "next_offer_id": 22738,
+      "verification": {
+        "trade_data_unchanged": true
+      }
+    },
+    {
+      "article": "SA-N942L",
+      "brand": "555",
+      "cost": 21140,
+      "has_fitment": true,
+      "id": 21912,
+      "kaspi_price": 27636,
+      "kaspi_url": "https://kaspi.kz/shop/p/555-rychag-podveski-sa-n942l-180205396/?c=750000000",
+      "main_image": "",
+      "name": "555 Рычаг",
+      "photo_status": "skipped",
+      "product_id": 3530,
+      "profit": 2791.5,
+      "stock": "10",
+      "supplier_id": 3,
+      "supplier_thumbnail": "",
+      "task_id": 1504,
+      "offer_id": 21912,
+      "status": "prepared_photo_existing_fitment",
+      "checked_on": "2026-11-11",
+      "source_url": "https://www.fitinpart.sg/v2/en/product/50135877/555-sankei-sa-n942l",
+      "source_label": "Fitinpart — независимый каталог продавца",
+      "source_kind": "retailer_catalogue",
+      "source_article": "SA-N942L",
+      "fitments": [],
+      "fitment_note": "Существующая применимость сохранена.",
+      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/8cfe4d7d-ba08-4ee2-9d26-a676d33270b3",
+      "image_url": "https://cdn.fitinpart.sg/fp/image/cache/data/ts_images/3a/69/50135877_0_3a69b27222b1e66240eed3f690f9afc1.webp",
+      "image_note": "555SankeiSA-N942L,левыйнижнийрычаг,точнаякарточкаFitinpart,полныйартикулпроверен. Существующаяприменимостьнеизменена.",
+      "photo": {
+        "status": "downloaded_visually_verified_not_queued"
+      },
+      "fitment_status": "existing_preserved",
+      "checked_sources": [
+        {
+          "url": "https://www.fitinpart.sg/v2/en/product/50135877/555-sankei-sa-n942l",
+          "result": "555SankeiSA-N942L,левыйнижнийрычаг,точнаякарточкаFitinpart,полныйартикулпроверен. Существующаяприменимостьнеизменена."
+        }
+      ],
+      "next_offer_id": 23192,
       "verification": {
         "trade_data_unchanged": true
       }
