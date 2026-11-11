@@ -1,0 +1,44 @@
+{
+  "article": "SS-4830",
+  "brand": "555",
+  "cost": 12061,
+  "has_fitment": true,
+  "id": 22522,
+  "kaspi_price": 16622,
+  "kaspi_url": "https://kaspi.kz/shop/p/555-tjaga-rulevaja-ss4830-129898585/?c=750000000",
+  "main_image": "",
+  "name": "555 Тяга рулевая",
+  "photo_status": "skipped",
+  "product_id": 4256,
+  "profit": 2233.25,
+  "stock": "10",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 2229,
+  "offer_id": 22522,
+  "status": "prepared_photo_existing_fitment",
+  "checked_on": "2026-11-11",
+  "source_url": "https://evocar.ua/ru/555/ss4830",
+  "source_label": "EVOCAR — независимый каталог продавца",
+  "source_kind": "retailer_catalogue",
+  "source_article": "SS-4830",
+  "fitments": [],
+  "fitment_note": "Существующая применимость сохранена.",
+  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/a9887062-3f12-4904-b363-6a5becca6a63",
+  "image_url": "https://cdn.evocar.ua/9e0dbf942bb775c08ff6773b4ec09024/555-ss4830.jpg",
+  "image_note": "Точная 555 SS-4830: реальная фотография одной поперечной рулевой тяги в сборе с двумя шарнирами, гайками и шплинтами; чужие артикулы/образцы не использованы. Sparetoсодержитnoimageзаглушку, исключена. Существующая применимость сохранена.",
+  "photo": {
+    "status": "downloaded_visually_verified_not_queued"
+  },
+  "fitment_status": "existing_preserved",
+  "checked_sources": [
+    {
+      "url": "https://evocar.ua/ru/555/ss4830",
+      "result": "Точная 555 SS-4830: реальная фотография одной поперечной рулевой тяги в сборе с двумя шарнирами, гайками и шплинтами; чужие артикулы/образцы не использованы. Sparetoсодержитnoimageзаглушку, исключена. Существующая применимость сохранена."
+    }
+  ],
+  "next_offer_id": 35178,
+  "verification": {
+    "trade_data_unchanged": true
+  }
+}
