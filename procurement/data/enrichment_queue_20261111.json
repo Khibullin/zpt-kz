@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T10:48:45.877Z",
+  "checked_at": "2026-11-11T10:48:48.409Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -10040,7 +10040,7 @@
       "article": "18901002",
       "brand": "RIVAL",
       "cost": 11100,
-      "has_fitment": false,
+      "has_fitment": true,
       "id": 26923,
       "kaspi_price": 16259,
       "kaspi_url": "https://kaspi.kz/shop/p/rival-18901002-changan-cs55-plus-uni-s-2022-2024-chernyi-121891341/?c=750000000",
@@ -11198,13 +11198,13 @@
       25789,
       26282
     ],
-    "reviewed": 22,
-    "published_fitments": 1,
+    "reviewed": 23,
+    "published_fitments": 2,
     "published_photos": 2,
-    "unconfirmed": 20,
-    "next_offer_id": 26923,
+    "unconfirmed": 21,
+    "next_offer_id": 26929,
     "photos_present": 2,
-    "fitments_present": 40,
+    "fitments_present": 41,
     "both_present": 2,
     "created_at": "2026-11-11T10:30:05.643Z",
     "fixed": true
@@ -11493,19 +11493,20 @@
     26821,
     25277,
     25190,
-    26101
+    26101,
+    26923
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 222,
-    "remaining_unreviewed": 186,
-    "unconfirmed_reviewed": 162,
+    "reviewed": 223,
+    "remaining_unreviewed": 185,
+    "unconfirmed_reviewed": 163,
     "remaining_missing_fields": 348,
     "photo_added": 59,
-    "fitment_added": 32,
-    "make_model_pairs_added": 83,
-    "configurations_added": 117
+    "fitment_added": 33,
+    "make_model_pairs_added": 85,
+    "configurations_added": 119
   },
   "prepared_candidate": null,
   "source_limits": [
@@ -11577,62 +11578,6 @@
     "unchanged_trade_data": true
   },
   "prepared_candidates": [
-    {
-      "article": "18901002",
-      "brand": "RIVAL",
-      "cost": 11100,
-      "has_fitment": false,
-      "id": 26923,
-      "kaspi_price": 16259,
-      "kaspi_url": "https://kaspi.kz/shop/p/rival-18901002-changan-cs55-plus-uni-s-2022-2024-chernyi-121891341/?c=750000000",
-      "main_image": "",
-      "name": "Ковер багажника Changan",
-      "photo_status": "needs_source",
-      "product_id": 8508,
-      "profit": 2876.625,
-      "stock": "9",
-      "supplier_id": 5,
-      "supplier_thumbnail": "",
-      "task_id": 6481,
-      "offer_id": 26923,
-      "status": "prepared_fitment_photo_unconfirmed",
-      "checked_on": "2026-11-11",
-      "source_url": "https://www.vseinstrumenti.ru/product/kovrik-bagazhnika-dlya-changan-cs55-plus-2022-rival-18901002-13806757/",
-      "source_label": "ВсеИнструменты — независимый каталог продавца",
-      "source_kind": "retailer_catalogue",
-      "source_article": "18901002",
-      "fitments": [
-        {
-          "make": "Changan",
-          "model": "CS55 Plus",
-          "years": "2022–н.в.",
-          "region": "Рынок РФ",
-          "notes": "Коврик в багажник, полиуретан, с бортиком,1шт."
-        },
-        {
-          "make": "Changan",
-          "model": "UNI-S",
-          "years": "2024–н.в.",
-          "region": "Рынок РФ",
-          "notes": "Коврик в багажник, полиуретан, с бортиком,1шт."
-        }
-      ],
-      "fitment_note": "Точная карточкаRIVAL18901002 прочитана черезвебдоCAPTCHA: CS55Plus2022–н.в./UNI-S2024–н.в.,рынокРФ,полиуретан. Годы сохраненыоткрытымпределом, двигательнеуказан. БраузерзапросилCAPTCHA, фото не получено;повтор/обходне выполнялся.",
-      "photo": {
-        "status": "unconfirmed_browser_captcha"
-      },
-      "fitment_status": "prepared_not_imported",
-      "checked_sources": [
-        {
-          "url": "https://www.vseinstrumenti.ru/product/kovrik-bagazhnika-dlya-changan-cs55-plus-2022-rival-18901002-13806757/",
-          "result": "Exactfullcardpre-blockwebtext;browserCaptchaafterordinaryreload,nobypass"
-        }
-      ],
-      "next_offer_id": 26929,
-      "verification": {
-        "trade_data_unchanged": true
-      }
-    },
     {
       "article": "12810002",
       "brand": "RIVAL",
@@ -12171,5 +12116,5 @@
     }
   ],
   "publication_pending": null,
-  "next_offer_id": 26923
+  "next_offer_id": 26929
 }
