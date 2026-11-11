@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 2043,
   "offer_id": 22334,
-  "status": "prepared_photo_existing_fitment",
+  "status": "published_complete_pending_db_audit",
   "checked_on": "2026-11-11",
   "source_url": "https://www.fitinpart.sg/v2/product/43273284/555-sankei-sl-t680",
   "source_label": "Fitinpart — независимый каталог продавца",
@@ -24,11 +24,20 @@
   "source_article": "SL-T680",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/5ac0625d-d662-4103-94b2-bd2a05486a00",
   "image_url": "https://cdn.fitinpart.sg/fp/image/cache/data/products/7d/ec/7deceba46cf0e1e4ded6d28b585619b3.webp",
   "image_note": "Точная карточка555SL-T680,передний стабилизаторL/R. Визуально одна чёрная стойка с одним шаровым шарниром,без дополнительной гайки;неSL-T680-M/B. Существующая применимость сохранена.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_ui_verified_db_audit_pending",
+    "main_path": "products/optimized/32a29d24443556cae606acad78d51bcf64e2cd36f0abf74903ab1e6127c33a0a.webp",
+    "thumbnail_path": "products/optimized/33fadab117d0f49e8386ee1163fea859bd7b91b5e13c59f9e4c15aec619679a6.webp",
+    "main_size": [
+      608,
+      341
+    ],
+    "thumbnail_size": [
+      180,
+      101
+    ]
   },
   "fitment_status": "existing_preserved",
   "checked_sources": [
@@ -39,22 +48,17 @@
   ],
   "next_offer_id": 23256,
   "verification": {
-    "trade_data_unchanged": true,
     "db_verified": false,
-    "ui_verified": false,
-    "db_read_error": "Render MCP Internal error; temporary, no duplicate import",
-    "baseline_ui": {
-      "photo_empty": true,
-      "brand_article_matches": true,
-      "stock": "6",
-      "has_fitment": true,
-      "trade_values_match_queue": true,
-      "checked_at": "2026-11-11T12:50:00Z"
-    }
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "visible_trade_and_fitment_text_unchanged": true,
+    "existing_metadata_preserved_by_import": true,
+    "checked_at": "2026-11-11T13:03:55.655Z",
+    "db_audit_pending_reason": "Render MCP temporary Internal errors/timeouts; fresh row metadata audit pending"
   },
   "publication": {
-    "main_commit": "300589ce14087af5866fa98c82545c9d25c1f691",
-    "status": "waiting_autodeploy_and_actual_save_verification",
-    "checked_at": "2026-11-11T12:54:33.632Z"
+    "commit": "300589ce14087af5866fa98c82545c9d25c1f691",
+    "status": "images_visible_on_live_site_render_status_unavailable"
   }
 }
