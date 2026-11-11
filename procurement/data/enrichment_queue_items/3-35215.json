@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 13995,
   "offer_id": 35215,
-  "status": "prepared_photo_existing_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://cars245.com/en/item/motorad-62987K-thermostat-coolant/",
   "source_label": "Cars245 — независимый каталог продавца",
@@ -24,11 +24,20 @@
   "source_article": "629-87K",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/50343fba-97e7-4e04-a8ca-34e835d36d7b",
   "image_url": "https://cars245images.cc/webp/big/motorad/e9/motorad-62987K.jpg.webp",
   "image_note": "MOTORAD629-87K,87°C,вкорпусе,суплотнением. РеальнаядетальвизуальнопроверенапоточнойкарточкеCars245;применимостьсохранена.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/9c46ec742c51eb6f6b203bdcd23a6e054e8a9907ece7e07e8c3adf3de35bd34f.webp",
+    "thumbnail_path": "products/optimized/db8ee66fe2010a4cdcd8d0d10e0b8a36782760f5e4303593e4cbd0ee0254767b.webp",
+    "main_size": [
+      800,
+      800
+    ],
+    "thumbnail_size": [
+      180,
+      180
+    ]
   },
   "fitment_status": "existing_preserved",
   "checked_sources": [
@@ -39,6 +48,29 @@
   ],
   "next_offer_id": 22534,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T10:19:06.580Z"
+  },
+  "source_sha256": "122843ca464b850034ed008045694bab9a13828868d2bb49d9e5ef2bec785cc0",
+  "main_sha256": "9c46ec742c51eb6f6b203bdcd23a6e054e8a9907ece7e07e8c3adf3de35bd34f",
+  "main_size": [
+    800,
+    800
+  ],
+  "thumbnail_sha256": "db8ee66fe2010a4cdcd8d0d10e0b8a36782760f5e4303593e4cbd0ee0254767b",
+  "thumbnail_size": [
+    180,
+    180
+  ],
+  "publication": {
+    "commit": "5972845ab163fdf3bc44364404305472c7d8bd49",
+    "deploy": "dep-dbq40p3ncjis73clu9s0",
+    "status": "live"
   }
 }
