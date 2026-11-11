@@ -1,0 +1,38 @@
+{
+  "article": "AN-685WK",
+  "brand": "AKEBONO",
+  "cost": 14243,
+  "has_fitment": true,
+  "id": 22557,
+  "kaspi_price": 19404,
+  "kaspi_url": "https://kaspi.kz/shop/p/kolodki-akebono-perednie-an-685wk-174097348/?c=750000000",
+  "main_image": "",
+  "name": "AKEBONO JAPAN Колодки передние",
+  "photo_status": "needs_source",
+  "product_id": 4291,
+  "profit": 2485.5,
+  "stock": "7",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 2264,
+  "offer_id": 22557,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "Точная карточка Fitinpart AKEBONO AN-685WK содержит только контурный чертёж двух колодок с размерами, не фотографию детали; изображение исключено. Существующая применимость сохранена.",
+  "checked_sources": [
+    {
+      "url": "https://www.fitinpart.sg/v2/de-de/product/109704/akebono-an-685wk",
+      "result": "Точная карточка Fitinpart AKEBONO AN-685WK содержит только контурный чертёж двух колодок с размерами, не фотографию детали; изображение исключено. Существующая применимость сохранена."
+    }
+  ],
+  "next_offer_id": 23651,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true
+  }
+}
