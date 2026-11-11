@@ -18,8 +18,8 @@
   "fitments": [],
   "fitment_status": "existing_preserved",
   "photo": {
-    "status": "temporary_image_unavailable",
-    "reason": "Точная карточка Darada подтверждает JAC2200100P31G3,но изображение не загрузилось(naturalWidth0),скачивание завершилось timeout иSiteUnavailable. Фото фактически не сохранено; временная недоступность,не постоянный запрет."
+    "status": "source_access_denied",
+    "reason": "Точная карточка Darada подтверждает JAC2200100P31G3,но изображение не загрузилось(naturalWidth0),скачивание завершилось timeout иSiteUnavailable. Фото фактически не сохранено; временная недоступность,не постоянный запрет. Последующее наблюдение images.satu.kz отклонено site-safety policy;не повторять другимканалом/URL."
   },
   "checked_sources": [
     {
@@ -29,6 +29,10 @@
     {
       "url": "https://images.satu.kz/236321019_w640_h640_2200100p31g3-val-kardannyj.jpg",
       "result": "naturalWidth0;downloadtimeout SiteUnavailable"
+    },
+    {
+      "url": "https://images.satu.kz/236321019_w640_h640_2200100p31g3-val-kardannyj.jpg",
+      "result": "BrowserSecurityPolicyDenied authority toobserve;notAutoReview;no workaround/retry"
     }
   ],
   "next_offer_id": 25358,
