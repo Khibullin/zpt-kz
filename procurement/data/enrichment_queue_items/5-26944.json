@@ -1,0 +1,51 @@
+{
+  "article": "NPA00-T11-740",
+  "brand": "NORPLAST",
+  "cost": 4200,
+  "has_fitment": false,
+  "id": 26944,
+  "kaspi_price": 6630,
+  "kaspi_url": "https://kaspi.kz/shop/p/norplast-npa00-t11-740-chery-tiggo-7-2020-chernyi-118025215/?c=750000000",
+  "main_image": "",
+  "name": "Коврик багажника Chery",
+  "photo_status": "needs_source",
+  "product_id": 8445,
+  "profit": 1351.25,
+  "stock": "2",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 6418,
+  "offer_id": 26944,
+  "status": "prepared_photo_and_fitment",
+  "checked_on": "2026-11-11",
+  "source_url": "https://triabc.ru/catalog/4696/6837684/",
+  "source_label": "ТРИ-АВС — независимый каталог продавца Norplast",
+  "source_kind": "retailer_catalogue",
+  "source_article": "NPA00-T11-740",
+  "fitments": [
+    {
+      "make": "Chery",
+      "model": "Tiggo 7",
+      "years": "2016–н.в.",
+      "notes": "Первое поколение (I); коврик багажника, чёрный полиуретан. Открытый период 2016- указан в разделе «Подходит на»."
+    }
+  ],
+  "fitment_note": "Точный Norplast NPA00-T11-740 для багажника Chery Tiggo 7 I с 2016 года. Чёрный полиуретан; двигатели не указаны.",
+  "image_url": "https://triabc.ru/upload/iblock/8ff/f5102d85_bf40_11e9_819b_00155d0ad253_7ec9061b_d093_11e9_819b_00155d0ad253.jpeg",
+  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/0a38eff7-ec1f-40c8-bb70-fb663ddca4da",
+  "image_note": "Один реальный чёрный коврик багажника Norplast из точной карточки NPA00-T11-740. Общие рекламные фото других артикулов из описания не использованы.",
+  "photo": {
+    "status": "downloaded_visually_verified_not_queued"
+  },
+  "fitment_status": "prepared_not_imported",
+  "checked_sources": [
+    {
+      "url": "https://triabc.ru/catalog/4696/6837684/",
+      "result": "Точный бренд, полный артикул, первое поколение2016-, материал/цвет и главное фото проверены в живом браузере."
+    }
+  ],
+  "next_offer_id": 25574,
+  "verification": {
+    "trade_data_unchanged": true
+  }
+}
