@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T09:01:58.169Z",
+  "checked_at": "2026-11-11T09:03:48.165Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -9619,66 +9619,58 @@
         {
           "make": "Hyundai",
           "model": "Elantra",
-          "year_from": 2011,
-          "year_to": 2013,
           "engine": "DOHC - GDI",
-          "notes": "Независимый каталог HyundaiPartsDeal, точный оригинал461583B600. Опции источника: Coupe - 2Door 5P. Объём двигателя и регион не указаны."
+          "notes": "Независимый каталог HyundaiPartsDeal, точный оригинал461583B600. Опции источника: Coupe - 2Door 5P. Объём двигателя и регион не указаны.",
+          "years": "2011–2013"
         },
         {
           "make": "Hyundai",
           "model": "Elantra GT",
-          "year_from": 2013,
-          "year_to": 2014,
           "engine": "DOHC - GDI",
-          "notes": "Независимый каталог HyundaiPartsDeal, точный оригинал461583B600. Опции источника: Sedan - 5Door 5P. Объём двигателя и регион не указаны."
+          "notes": "Независимый каталог HyundaiPartsDeal, точный оригинал461583B600. Опции источника: Sedan - 5Door 5P. Объём двигателя и регион не указаны.",
+          "years": "2013–2014"
         },
         {
           "make": "Hyundai",
           "model": "Kona",
-          "year_from": 2018,
-          "year_to": 2021,
           "engine": "DOHC - MPI",
-          "notes": "Независимый каталог HyundaiPartsDeal, точный оригинал461583B600. Опции источника: Wagon - 5Door 5P. Объём двигателя и регион не указаны."
+          "notes": "Независимый каталог HyundaiPartsDeal, точный оригинал461583B600. Опции источника: Wagon - 5Door 5P. Объём двигателя и регион не указаны.",
+          "years": "2018–2021"
         },
         {
           "make": "Hyundai",
           "model": "Santa Fe",
-          "year_from": 2009,
-          "year_to": 2012,
           "engine": "DOHC - MPI",
-          "notes": "Независимый каталог HyundaiPartsDeal, точный оригинал461583B600. Опции источника: Wagon - 5Door 5P. Объём двигателя и регион не указаны."
+          "notes": "Независимый каталог HyundaiPartsDeal, точный оригинал461583B600. Опции источника: Wagon - 5Door 5P. Объём двигателя и регион не указаны.",
+          "years": "2009–2012"
         },
         {
           "make": "Hyundai",
           "model": "Santa Fe Sport",
-          "year_from": 2013,
-          "year_to": 2018,
           "engine": "DOHC - GDI",
-          "notes": "Независимый каталог HyundaiPartsDeal, точный оригинал461583B600. Опции источника: Wagon - 5Door 5P. Объём двигателя и регион не указаны."
+          "notes": "Независимый каталог HyundaiPartsDeal, точный оригинал461583B600. Опции источника: Wagon - 5Door 5P. Объём двигателя и регион не указаны.",
+          "years": "2013–2018"
         },
         {
           "make": "Hyundai",
           "model": "Sonata",
-          "year_from": 2009,
-          "year_to": 2019,
           "engine": "DOHC - GDI",
-          "notes": "Независимый каталог HyundaiPartsDeal, точный оригинал461583B600. Опции источника: Sedan - 4Door 5P. Объём двигателя и регион не указаны."
+          "notes": "Независимый каталог HyundaiPartsDeal, точный оригинал461583B600. Опции источника: Sedan - 4Door 5P. Объём двигателя и регион не указаны.",
+          "years": "2009–2019"
         },
         {
           "make": "Hyundai",
           "model": "Tucson",
-          "year_from": 2009,
-          "year_to": 2021,
           "engine": "DOHC - GDI, DOHC - MPI",
-          "notes": "Независимый каталог HyundaiPartsDeal, точный оригинал461583B600. Опции источника: Wagon - 5Door 5P. Объём двигателя и регион не указаны."
+          "notes": "Независимый каталог HyundaiPartsDeal, точный оригинал461583B600. Опции источника: Wagon - 5Door 5P. Объём двигателя и регион не указаны.",
+          "years": "2009–2021"
         },
         {
           "make": "Hyundai",
           "model": "Veloster",
-          "year_from": 2011,
-          "year_to": 2014,
           "engine": "DOHC - TCI/GDI",
-          "notes": "Независимый каталог HyundaiPartsDeal, точный оригинал461583B600. Опции источника: Coupe - 4Door 4P (DR'S 1Door & Pass 2Door). Объём двигателя и регион не указаны."
+          "notes": "Независимый каталог HyundaiPartsDeal, точный оригинал461583B600. Опции источника: Coupe - 4Door 4P (DR'S 1Door & Pass 2Door). Объём двигателя и регион не указаны.",
+          "years": "2011–2014"
         }
       ],
       "fitment_note": "Точный бренд Genuine Hyundai, полный артикул46158-3B600/461583B600.8строк из таблицы VehicleFitment. Годы не обобщены между моделями; двигатель передан только указанной характеристикой DOHC/GDI/MPI без выдуманного объёма.",
@@ -9725,8 +9717,8 @@
         {
           "make": "Hyundai",
           "model": "Elantra",
-          "year_from": 2021,
-          "notes": "VII (CN-7), седан; коврик багажника. Точный RIVAL12301004. Конец диапазона, двигатель и регион не указаны."
+          "notes": "VII (CN-7), седан; коврик багажника. Точный RIVAL12301004. Конец диапазона, двигатель и регион не указаны.",
+          "years": "2021–"
         }
       ],
       "fitment_note": "Точная карточка продавца даёт Elantra VII CN-7,седан,2021-. Открытый диапазон не ограничен текущим годом. Модель Avante не перенесена из неподтверждённой/недоступной карточки.",
@@ -9795,6 +9787,192 @@
         }
       ],
       "next_offer_id": 26528,
+      "verification": {
+        "trade_data_unchanged": true,
+        "photo_visually_verified": true
+      }
+    },
+    {
+      "article": "ST-51712-D7000",
+      "brand": "SAT",
+      "has_fitment": false,
+      "id": 26531,
+      "kaspi_url": "https://kaspi.kz/shop/p/diski-sat-perednie-st-51712-d7000-129778350/?c=750000000",
+      "main_image": "",
+      "name": "Диск тормозной передний правый/левый (вентилируемый) Hyundai Hyundai",
+      "photo_status": "needs_source",
+      "product_id": 8136,
+      "profit": 4090,
+      "stock": "1",
+      "supplier_id": 5,
+      "task_id": 6109,
+      "offer_id": 26531,
+      "status": "prepared_photo_and_fitment",
+      "checked_on": "2026-11-11",
+      "source_url": "https://satparts.ru/product/st-51712-d7000",
+      "source_label": "SATparts.ru — независимый каталог продавца SAT (ИП Спиридонов)",
+      "source_kind": "retailer_catalogue",
+      "source_article": "ST-51712-D7000",
+      "fitments": [
+        {
+          "make": "Hyundai",
+          "model": "Sonata",
+          "generation": "7",
+          "years": "2014–2017",
+          "body": "Седан",
+          "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
+        },
+        {
+          "make": "Hyundai",
+          "model": "Tucson",
+          "generation": "3",
+          "years": "2015–2019",
+          "body": "SUV 5дв.",
+          "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
+        },
+        {
+          "make": "Hyundai",
+          "model": "Tucson",
+          "generation": "3 рест.1",
+          "years": "2018–2021",
+          "body": "SUV 5дв.",
+          "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
+        },
+        {
+          "make": "Kia",
+          "model": "Sportage",
+          "generation": "4",
+          "years": "2015–2019",
+          "body": "SUV 5дв.",
+          "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
+        },
+        {
+          "make": "Kia",
+          "model": "Sportage",
+          "generation": "4 рест.1",
+          "years": "2018–2022",
+          "body": "SUV 5дв.",
+          "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
+        },
+        {
+          "make": "Hyundai",
+          "model": "Tucson",
+          "generation": "4",
+          "years": "2021–",
+          "body": "SUV 5дв.",
+          "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
+        },
+        {
+          "make": "Kia",
+          "model": "Seltos",
+          "generation": "1",
+          "years": "2019–2022",
+          "body": "SUV 5дв.",
+          "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
+        },
+        {
+          "make": "Hyundai",
+          "model": "Kona",
+          "generation": "1",
+          "years": "2017–2021",
+          "body": "SUV 5дв.",
+          "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
+        },
+        {
+          "make": "Hyundai",
+          "model": "Kona",
+          "generation": "1 рест.1",
+          "years": "2020–",
+          "body": "SUV 5дв.",
+          "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
+        },
+        {
+          "make": "Kia",
+          "model": "Seltos",
+          "generation": "1 рест.1",
+          "years": "2022–",
+          "body": "SUV 5дв.",
+          "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
+        },
+        {
+          "make": "Kia",
+          "model": "K5",
+          "generation": "3",
+          "years": "2019–2024",
+          "body": "Седан",
+          "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
+        },
+        {
+          "make": "Hyundai",
+          "model": "Tucson",
+          "generation": "4 рест.1",
+          "years": "2023–",
+          "body": "SUV 5дв.",
+          "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
+        },
+        {
+          "make": "Kia",
+          "model": "K5",
+          "generation": "3 рест.1",
+          "years": "2023–",
+          "body": "Седан",
+          "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
+        },
+        {
+          "make": "Kia",
+          "model": "Ceed",
+          "generation": "3",
+          "years": "2018–2021",
+          "body": "Хэтчбек5дв.",
+          "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
+        },
+        {
+          "make": "Kia",
+          "model": "Ceed",
+          "generation": "3",
+          "years": "2018–2021",
+          "body": "Универсал",
+          "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
+        },
+        {
+          "make": "Kia",
+          "model": "Ceed",
+          "generation": "3 рест.1",
+          "years": "2021–",
+          "body": "Хэтчбек5дв.",
+          "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
+        },
+        {
+          "make": "Kia",
+          "model": "Ceed",
+          "generation": "3 рест.1",
+          "years": "2021–",
+          "body": "Универсал",
+          "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
+        },
+        {
+          "make": "Kia",
+          "model": "Soul",
+          "generation": "3",
+          "years": "2019–2022",
+          "body": "Хэтчбек5дв.",
+          "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
+        }
+      ],
+      "fitment_note": "18конфигураций из точной таблицы продавца,8пар марка/модель. Источник не назван производителем. Диапазоны сохранены раздельно; открытые не ограничены2026; двигатели не добавлены.",
+      "image_url": "https://static.autotrade.su/nomenclature/wm/b/93/938ed2e11e_1.jpg",
+      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/30ab95a9-9d94-4368-bf88-38e233b161cc",
+      "image_note": "Фото одного переднего тормозного диска SATST-51712-D7000 с точной карточки SATparts, визуально проверено.",
+      "photo": {
+        "status": "downloaded_exact_verified"
+      },
+      "checked_sources": [
+        {
+          "url": "https://satparts.ru/product/st-51712-d7000",
+          "result": "ExactSATarticle;18specifictableconfigurations; realphoto downloaded visuallyverified"
+        }
+      ],
+      "next_offer_id": 25196,
       "verification": {
         "trade_data_unchanged": true,
         "photo_visually_verified": true
