@@ -1,0 +1,65 @@
+{
+  "article": "273012B000",
+  "brand": "HYUNDAI-KIA",
+  "cost": 5300,
+  "has_fitment": false,
+  "id": 26830,
+  "kaspi_price": 8000,
+  "kaspi_url": "https://kaspi.kz/shop/p/katushka-zazhiganija-hyundai-kia-273012b000-170510512/?c=750000000",
+  "main_image": "",
+  "name": "Катушка зажигания Hyundai",
+  "photo_status": "needs_source",
+  "product_id": 8396,
+  "profit": 1450,
+  "stock": "8",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 6369,
+  "offer_id": 26830,
+  "status": "prepared_photo_and_fitment",
+  "checked_on": "2026-11-11",
+  "source_url": "https://partsouq.com/shop/product/273012B000-hyundai-kia-coil-assy-ignition/1053546",
+  "source_label": "PartSouq — независимый продавец оригинальных Hyundai / KIA",
+  "source_kind": "retailer_catalogue",
+  "source_article": "273012B000",
+  "fitments": [
+    {
+      "make": "Hyundai",
+      "model": "Avante",
+      "notes": "Раздел Compatibility точного Hyundai / KIA 273012B000: Avante; Elantra/Avante 06: -Oct.2006 (2006-), Nov.2006-. Календарный диапазон неоднозначен, поэтому годы не присвоены."
+    },
+    {
+      "make": "Hyundai",
+      "model": "Elantra",
+      "notes": "Раздел Compatibility точного Hyundai / KIA 273012B000: Elantra 06: -Oct.2006 (2006-), Nov.2006-. Годы и двигатель не присвоены из неоднозначных обозначений каталога."
+    },
+    {
+      "make": "Hyundai",
+      "model": "i30",
+      "notes": "Раздел Compatibility: I30/I30Cw 07 (Japan) (2007-)/I30Cw 07; I30/I30Cw 09 (Czech Plant-Eur) (2009-). Региональные обозначения сохранены буквально; общий период не присвоен."
+    },
+    {
+      "make": "Hyundai",
+      "model": "i30 CW",
+      "notes": "Раздел Compatibility: I30/I30Cw 07 (Japan) (2007-)/I30Cw 07; I30/I30Cw 09 (Czech Plant-Eur) (2009-). Региональные обозначения сохранены буквально; общий период не присвоен."
+    }
+  ],
+  "fitment_note": "Проверен живой раздел Compatibility для точного оригинального Hyundai / KIA 273012B000. Четыре модели сохранены без неоднозначных годов и двигателей. Строки заменителей NGK, SCHNIEDER, AISIN и ASIAN не использованы.",
+  "image_url": "https://partsouq.com/assets/tesseract/assets/partsimages/Hyundai-/-KIA/273012B000.jpg",
+  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/2775c548-891d-4cf7-8894-0cee8848f462",
+  "image_note": "Реальная одна катушка на оригинальной коробке KIA Genuine Parts с читаемой наклейкой 27301 2B000; изображение оригинальной Hyundai / KIA строки, не заменителя.",
+  "photo": {
+    "status": "downloaded_visually_verified_not_queued"
+  },
+  "fitment_status": "prepared_not_imported",
+  "checked_sources": [
+    {
+      "url": "https://partsouq.com/shop/product/273012B000-hyundai-kia-coil-assy-ignition/1053546",
+      "result": "Точная карточка, четыре модели Compatibility и фотография одной оригинальной катушки с коробкой проверены в живом браузере."
+    }
+  ],
+  "next_offer_id": 28161,
+  "verification": {
+    "trade_data_unchanged": true
+  }
+}
