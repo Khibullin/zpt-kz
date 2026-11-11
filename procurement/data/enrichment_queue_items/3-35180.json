@@ -16,19 +16,28 @@
   "supplier_thumbnail": "",
   "task_id": 13961,
   "offer_id": 35180,
-  "status": "prepared_photo_existing_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://eu.motorad.com/part/348-92k/",
   "source_label": "MotoRad — каталог производителя",
-  "source_kind": "retailer_catalogue",
+  "source_kind": "manufacturer_catalogue",
   "source_article": "348-92K",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/af6866ad-d396-46e7-966c-81726dac5208",
   "image_url": "https://images.motorad.com/MotoRad-stills/348-92K_Angle.jpg",
   "image_note": "Точная официальная карточка348-92K. Визуально один металлический корпус с термостатом/пружиной,точный файл348-92K_Angle;не348-92безK. Существующая применимость сохранена.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/df2731ec739903b8e329c47793aae2df512206e1eae1a96076b7a710e786e21a.webp",
+    "thumbnail_path": "products/optimized/aee824909089c83ea8c3b690f70ff39c398b9951dfa7ee0a85de7f46602c8cf7.webp",
+    "main_size": [
+      500,
+      500
+    ],
+    "thumbnail_size": [
+      180,
+      180
+    ]
   },
   "fitment_status": "existing_preserved",
   "checked_sources": [
@@ -39,6 +48,29 @@
   ],
   "next_offer_id": 23198,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T12:39:25.940Z"
+  },
+  "source_sha256": "a7c0fc86988cda1e79e1cb012c1bb8a1296eb88633d70143ed11d08d89728a71",
+  "main_sha256": "df2731ec739903b8e329c47793aae2df512206e1eae1a96076b7a710e786e21a",
+  "main_size": [
+    500,
+    500
+  ],
+  "thumbnail_sha256": "aee824909089c83ea8c3b690f70ff39c398b9951dfa7ee0a85de7f46602c8cf7",
+  "thumbnail_size": [
+    180,
+    180
+  ],
+  "publication": {
+    "commit": "ad43a3c6edc4955b1a623ce66e1a32c1b133be2f",
+    "deploy": "dep-dbq62b5g1s2s739i35ig",
+    "status": "live"
   }
 }
