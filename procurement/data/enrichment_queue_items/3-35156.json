@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 13935,
   "offer_id": 35156,
-  "status": "prepared_photo_existing_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://www.finditparts.com/products/4671300/mahle-lx1481",
   "source_label": "FinditParts — независимый каталог продавца",
@@ -24,11 +24,20 @@
   "source_article": "LX1481",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/a6b26fcf-e74e-4a17-bdce-d7088cf1ea26",
   "image_url": "https://db73q1dut0rlp.cloudfront.net/eyJ3aWR0aCI6NDM1LCJoZWlnaHQiOjQzNSwiZml0IjoiY29udGFpbiIsIndhdGVybWFya2VkIjp0cnVlLCJmb3JtYXQiOiJqcGciLCJrZXkiOiJhc3NldHMvaW1hZ2VzLzE2OTk5MjgwL3Byb2R1Y3QvM2I5YWIyYTE2MzIwYWNhNzNhODQ1ZjhmMDE0N2VkMjMuanBnIiwidmVyc2lvbiI6Mn0=.jpg?s=7b65b2903fdf00831e7b856b45ec1fb67cb2bbf47b96edd6ad0f371b0b688be7",
   "image_note": "Точная MAHLE LX1481: реальная фотография одного прямоугольного воздушного фильтра с оранжевой рамкой. KMotorShopимеетcategory/sampleфото,исключено;существующая применимость сохранена.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/f9fcc0d10af8336d2642bc9f4760cc0f4c6b55228ebbd7e2411b0aadad717af6.webp",
+    "thumbnail_path": "products/optimized/9c96e313f060a721b383893614eac583edc982105e95974d5f162758d98b1b55.webp",
+    "main_size": [
+      435,
+      435
+    ],
+    "thumbnail_size": [
+      180,
+      180
+    ]
   },
   "fitment_status": "existing_preserved",
   "checked_sources": [
@@ -39,6 +48,29 @@
   ],
   "next_offer_id": 22867,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T10:29:24.904Z"
+  },
+  "source_sha256": "ef47758cb300a10c264a09a56521d9433dacab95c30935d5262cb7a3dd634190",
+  "main_sha256": "f9fcc0d10af8336d2642bc9f4760cc0f4c6b55228ebbd7e2411b0aadad717af6",
+  "main_size": [
+    435,
+    435
+  ],
+  "thumbnail_sha256": "9c96e313f060a721b383893614eac583edc982105e95974d5f162758d98b1b55",
+  "thumbnail_size": [
+    180,
+    180
+  ],
+  "publication": {
+    "commit": "7dec204910db6a8f38f987b3c44771cacb96ea1c",
+    "deploy": "dep-dbq45q5g1s2s739fh1sg",
+    "status": "live"
   }
 }
