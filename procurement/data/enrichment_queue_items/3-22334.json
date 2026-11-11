@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 2043,
   "offer_id": 22334,
-  "status": "published_complete_pending_db_audit",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://www.fitinpart.sg/v2/product/43273284/555-sankei-sl-t680",
   "source_label": "Fitinpart — независимый каталог продавца",
@@ -27,7 +27,7 @@
   "image_url": "https://cdn.fitinpart.sg/fp/image/cache/data/products/7d/ec/7deceba46cf0e1e4ded6d28b585619b3.webp",
   "image_note": "Точная карточка555SL-T680,передний стабилизаторL/R. Визуально одна чёрная стойка с одним шаровым шарниром,без дополнительной гайки;неSL-T680-M/B. Существующая применимость сохранена.",
   "photo": {
-    "status": "saved_ui_verified_db_audit_pending",
+    "status": "saved_db_and_ui_verified",
     "main_path": "products/optimized/32a29d24443556cae606acad78d51bcf64e2cd36f0abf74903ab1e6127c33a0a.webp",
     "thumbnail_path": "products/optimized/33fadab117d0f49e8386ee1163fea859bd7b91b5e13c59f9e4c15aec619679a6.webp",
     "main_size": [
@@ -48,17 +48,32 @@
   ],
   "next_offer_id": 23256,
   "verification": {
-    "db_verified": false,
+    "db_verified": true,
     "ui_verified": true,
     "main_image_complete": true,
     "thumbnail_image_complete": true,
     "visible_trade_and_fitment_text_unchanged": true,
     "existing_metadata_preserved_by_import": true,
-    "checked_at": "2026-11-11T13:03:55.655Z",
-    "db_audit_pending_reason": "Render MCP temporary Internal errors/timeouts; fresh row metadata audit pending"
+    "checked_at": "2026-11-11T13:29:32.630Z",
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true,
+    "existing_metadata_preserved": true,
+    "task_status": "done",
+    "source_and_image_hashes_match_manifest": true,
+    "db_fitment_pairs": 1,
+    "db_fitment_configurations": 1,
+    "db_existing_characteristic_keys": [
+      "kaspi_identity",
+      "manufacturer_applicability",
+      "supplier_pack_size"
+    ],
+    "db_before_snapshot_available": false,
+    "preservation_evidence": "Photo-only bounded manifest contains no fitments; import does not write existing fitments or characteristics. Full visible card text before/after identical. Current DB fitments and metadata read and verified."
   },
   "publication": {
-    "commit": "300589ce14087af5866fa98c82545c9d25c1f691",
-    "status": "images_visible_on_live_site_render_status_unavailable"
+    "commit": "b83355cd9994f3667e7ee7842b3bbc9cb23ee5a5",
+    "source_commit": "300589ce14087af5866fa98c82545c9d25c1f691",
+    "deploy": "dep-dbq6n1ks728c73961pb0",
+    "status": "live"
   }
 }
