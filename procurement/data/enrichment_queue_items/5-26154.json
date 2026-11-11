@@ -1,0 +1,22 @@
+{
+  "offer_id": 26154,
+  "brand": "HYUNDAI-KIA",
+  "article": "373002B910",
+  "source_url": "https://www.kia.com/content/dam/kwcms/mu/en/pdf/parts-special-offer/may2024/Cerato-2019-min.pdf",
+  "source_label": "Kia, KIA PARTS OFFERS, CERATO 2019, Mauritius, May 2024",
+  "source_kind": "manufacturer_document",
+  "note": "Официальный документ Kia для Cerato 2019, рынок Маврикия. Страница PDF2, строка GENERATOR ASSY 373002B910. Подтверждён только отдельно указанный 2019 год; двигатели и другие годы не добавлены. Цены документа не импортируются.",
+  "fitments": [
+    {
+      "make": "KIA",
+      "model": "CERATO",
+      "years": "2019",
+      "notes": "Рынок Маврикия; официальный документ KIA CERATO 2019, PDF стр.2, GENERATOR ASSY. Двигатель, поколение и код комплектации не указаны. Подбор по VIN; не универсальная применимость."
+    }
+  ],
+  "supplier_id": 5,
+  "status": "prepared_not_published",
+  "photo": "existing_preserved",
+  "next_offer_id": 25401,
+  "checked_on": "2026-11-11"
+}
