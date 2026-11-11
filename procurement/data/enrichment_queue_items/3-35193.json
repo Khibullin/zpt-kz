@@ -20,7 +20,7 @@
   "checked_on": "2026-11-11",
   "source_url": "https://eu.motorad.com/part/432-77k/",
   "source_label": "MotoRad — каталог производителя",
-  "source_kind": "retailer_catalogue",
+  "source_kind": "manufacturer_catalogue",
   "source_article": "432-77K",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
@@ -39,6 +39,22 @@
   ],
   "next_offer_id": 23324,
   "verification": {
-    "trade_data_unchanged": true
+    "trade_data_unchanged": true,
+    "db_verified": false,
+    "ui_verified": false,
+    "db_read_error": "Render MCP Internal error; temporary, no duplicate import",
+    "baseline_ui": {
+      "photo_empty": true,
+      "brand_article_matches": true,
+      "stock": "2",
+      "has_fitment": true,
+      "trade_values_match_queue": true,
+      "checked_at": "2026-11-11T12:50:00Z"
+    }
+  },
+  "publication": {
+    "main_commit": "300589ce14087af5866fa98c82545c9d25c1f691",
+    "status": "waiting_autodeploy_and_actual_save_verification",
+    "checked_at": "2026-11-11T12:54:32.323Z"
   }
 }
