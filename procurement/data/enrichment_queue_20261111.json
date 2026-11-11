@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T10:48:40.208Z",
+  "checked_at": "2026-11-11T10:48:43.088Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -9932,7 +9932,7 @@
       "article": "202001105AA",
       "brand": "JASHI",
       "cost": 18730,
-      "has_fitment": false,
+      "has_fitment": true,
       "id": 25190,
       "kaspi_price": 25360,
       "kaspi_url": "https://kaspi.kz/shop/p/jashi-perednii-202001105aa-1-sht-130904760/?c=750000000",
@@ -11198,13 +11198,13 @@
       25789,
       26282
     ],
-    "reviewed": 20,
-    "published_fitments": 0,
+    "reviewed": 21,
+    "published_fitments": 1,
     "published_photos": 1,
-    "unconfirmed": 19,
-    "next_offer_id": 25190,
+    "unconfirmed": 20,
+    "next_offer_id": 26101,
     "photos_present": 1,
-    "fitments_present": 39,
+    "fitments_present": 40,
     "both_present": 1,
     "created_at": "2026-11-11T10:30:05.643Z",
     "fixed": true
@@ -11490,19 +11490,20 @@
     25372,
     26185,
     26821,
-    25277
+    25277,
+    25190
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 220,
-    "remaining_unreviewed": 188,
-    "unconfirmed_reviewed": 161,
+    "reviewed": 221,
+    "remaining_unreviewed": 187,
+    "unconfirmed_reviewed": 162,
     "remaining_missing_fields": 349,
     "photo_added": 58,
-    "fitment_added": 31,
-    "make_model_pairs_added": 81,
-    "configurations_added": 115
+    "fitment_added": 32,
+    "make_model_pairs_added": 83,
+    "configurations_added": 117
   },
   "prepared_candidate": null,
   "source_limits": [
@@ -11574,68 +11575,6 @@
     "unchanged_trade_data": true
   },
   "prepared_candidates": [
-    {
-      "article": "202001105AA",
-      "brand": "JASHI",
-      "cost": 18730,
-      "has_fitment": false,
-      "id": 25190,
-      "kaspi_price": 25360,
-      "kaspi_url": "https://kaspi.kz/shop/p/jashi-perednii-202001105aa-1-sht-130904760/?c=750000000",
-      "main_image": "",
-      "name": "Амортизатор передний Chery",
-      "photo_status": "needs_source",
-      "product_id": 6732,
-      "profit": 3210,
-      "stock": "6",
-      "supplier_id": 5,
-      "supplier_thumbnail": "",
-      "task_id": 4705,
-      "offer_id": 25190,
-      "status": "prepared_fitment_photo_unconfirmed",
-      "checked_on": "2026-11-11",
-      "source_url": "https://autopiter.kz/goods/202001105aa",
-      "source_label": "Автопитер — независимый каталог продавца",
-      "source_kind": "retailer_catalogue",
-      "source_article": "202001105AA",
-      "fitments": [
-        {
-          "make": "Chery",
-          "model": "Tiggo 7 Pro",
-          "years": "2020–н.в.",
-          "engine": "1.5L Turbo",
-          "drive": "2WD",
-          "position": "Передний левый амортизатор, без пружины"
-        },
-        {
-          "make": "Chery",
-          "model": "Tiggo 7 Pro Max",
-          "years": "2022–н.в.",
-          "engine": "1.5L Turbo",
-          "drive": "2WD",
-          "position": "Передний левый амортизатор, без пружины"
-        }
-      ],
-      "fitment_note": "Точная строка Jashi202001105AA в списке Автопитера явно разделяет Tiggo7Pro2WD2020–н.в. и7ProMax2WD2022–н.в.,оба1.5LTurbo. Открытыйверхнийпредел сохранёнтекстом. Карточкадеталисмешивает предложениядругихбрендов; ихфото не использовано.",
-      "photo": {
-        "status": "unconfirmed"
-      },
-      "fitment_status": "prepared_not_imported",
-      "checked_sources": [
-        {
-          "url": "https://autopiter.kz/goods/202001105aa",
-          "result": "ExactJashi row,2explicitmodel/period/engine/drive combinations"
-        },
-        {
-          "url": "https://autopiter.kz/goods/202001105aa/jashi/id206512020",
-          "result": "DetailheadernamesJashi butcontainsmixedotherbrandsoffers; noconfirmedphoto"
-        }
-      ],
-      "next_offer_id": 25189,
-      "verification": {
-        "trade_data_unchanged": true
-      }
-    },
     {
       "article": "ST-28150-38010",
       "brand": "SAT",
@@ -12274,5 +12213,5 @@
     }
   ],
   "publication_pending": null,
-  "next_offer_id": 25190
+  "next_offer_id": 26101
 }
