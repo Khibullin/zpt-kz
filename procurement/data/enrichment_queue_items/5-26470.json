@@ -1,0 +1,44 @@
+{
+  "article": "1601200XSY13A",
+  "brand": "HAVAL",
+  "cost": 34600,
+  "has_fitment": true,
+  "id": 26470,
+  "kaspi_price": 41160,
+  "kaspi_url": "https://kaspi.kz/shop/p/haval-disk-stseplenija-1601200xsy13a-130265992/?c=750000000",
+  "main_image": "",
+  "name": "Диск сцепления HAVAL",
+  "photo_status": "needs_source",
+  "product_id": 8029,
+  "profit": 1165,
+  "stock": "2",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 6002,
+  "offer_id": 26470,
+  "status": "prepared_photo_existing_fitment",
+  "checked_on": "2026-11-11",
+  "source_url": "https://gw-store.ru/catalog/haval-jolion-2020-n-v-/disk-stsepleniya-haval-jolion-m6-original-/",
+  "source_label": "GreatWallStore — независимый продавец оригинальных HAVAL",
+  "source_kind": "retailer_catalogue",
+  "source_article": "1601200XSY13A",
+  "fitments": [],
+  "fitment_note": "Существующая применимость сохранена.",
+  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/30aababa-e017-4a0c-8411-4b1a9bc59aa0",
+  "image_url": "https://gw-store.ru/upload/resize_cache/ram.watermark/fa8/dbb/cb6/4071/20240902_135548.webp",
+  "image_note": "Реальный один оригинальный диск с маркировкой1601200XSY13A на детали и наклейке. Комплектность — один ведомый диск; существующая применимость сохранена.",
+  "photo": {
+    "status": "downloaded_visually_verified_not_queued"
+  },
+  "fitment_status": "existing_preserved",
+  "checked_sources": [
+    {
+      "url": "https://gw-store.ru/catalog/haval-jolion-2020-n-v-/disk-stsepleniya-haval-jolion-m6-original-/",
+      "result": "Реальный один оригинальный диск с маркировкой1601200XSY13A на детали и наклейке. Комплектность — один ведомый диск; существующая применимость сохранена."
+    }
+  ],
+  "next_offer_id": 26250,
+  "verification": {
+    "trade_data_unchanged": true
+  }
+}
