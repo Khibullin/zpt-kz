@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T13:11:12.639Z",
+  "checked_at": "2026-11-11T13:11:15.899Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -11156,10 +11156,10 @@
       22123,
       22974
     ],
-    "reviewed": 17,
+    "reviewed": 18,
     "published_fitments": 0,
     "published_photos": 0,
-    "unconfirmed": 17,
+    "unconfirmed": 18,
     "photos_present": 1,
     "fitments_present": 15,
     "both_present": 0,
@@ -11667,14 +11667,15 @@
     23406,
     23100,
     23049,
-    23392
+    23392,
+    23864
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 392,
-    "remaining_unreviewed": 16,
-    "unconfirmed_reviewed": 287,
+    "reviewed": 393,
+    "remaining_unreviewed": 15,
+    "unconfirmed_reviewed": 288,
     "remaining_missing_fields": 303,
     "photo_added": 105,
     "fitment_added": 55,
