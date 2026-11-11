@@ -2,7 +2,11 @@
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
   "checked_at": "2026-11-11T06:36:00Z",
-  "lease": null,
+  "lease": {
+    "owner": "root-20261111-continuation",
+    "expires_at": "2026-11-11T07:30:00Z",
+    "started_at": "2026-11-11T06:39:40.714Z"
+  },
   "next_supplier": 5,
   "batch_size": 100,
   "queue": [
