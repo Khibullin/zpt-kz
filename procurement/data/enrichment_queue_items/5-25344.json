@@ -1,0 +1,42 @@
+{
+  "article": "T15-2810010",
+  "brand": "Chery",
+  "cost": 35500,
+  "has_fitment": true,
+  "id": 25344,
+  "kaspi_price": 44660,
+  "kaspi_url": "https://kaspi.kz/shop/p/chery-balka-perednei-podveski-t15-2810010-170088169/?c=750000000",
+  "main_image": "",
+  "name": "Балка передней Chery",
+  "photo_status": "needs_source",
+  "product_id": 6891,
+  "profit": 3327.5,
+  "stock": "1",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 4864,
+  "offer_id": 25344,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "CheryT15-2810010: GlobalParts использует ранее запрещённый KaspiCDN; изображение не запрашивалось. НезависимаяточнаякарточкаАгатол содержит сравнительныйцветной3DрендерT15-2810010/205000080AA, не реальное фото одной детали, исключён. Существующая применимость сохранена.",
+  "checked_sources": [
+    {
+      "url": "https://shop.globalparts.kz/catalog/card/245483",
+      "result": "Text exactbrandarticle, imageonrestrictedKaspiCDNnotrequested"
+    },
+    {
+      "url": "https://www.agatol.ru/product/t15-2810010-chery-original/",
+      "result": "Visual:comparative3Dillustrationtwodifferentarticles, notphoto"
+    }
+  ],
+  "next_offer_id": 25354,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true
+  }
+}
