@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T10:00:41.122Z",
+  "checked_at": "2026-11-11T10:00:43.609Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -2358,14 +2358,14 @@
       "id": 35138,
       "kaspi_price": 13009,
       "kaspi_url": "https://kaspi.kz/shop/p/mahle-toplivnyi-fil-tr-kc46-165162303/?c=750000000",
-      "main_image": "",
+      "main_image": "products/optimized/14e66e675edd7cf6c42a84f6de33c59cf366c1d9b16912b3abccbd67570c8772.webp",
       "name": "MAHLE фильтр топливный",
-      "photo_status": "needs_source",
+      "photo_status": "done",
       "product_id": 15958,
       "profit": 3032.875,
       "stock": "1",
       "supplier_id": 3,
-      "supplier_thumbnail": "",
+      "supplier_thumbnail": "products/optimized/9164f1a351db8ddf5d00f893fe26ec7816e0f2157ce9c8645816b86ca9ccf8b0.webp",
       "task_id": 13931
     },
     {
@@ -11118,7 +11118,7 @@
     }
   ],
   "results": [],
-  "next_offer_id": 35138,
+  "next_offer_id": 35204,
   "batch": {
     "supplier_id": 3,
     "batch_number": 2,
@@ -11224,14 +11224,14 @@
       22758,
       22944
     ],
-    "reviewed": 49,
+    "reviewed": 50,
     "published_fitments": 1,
-    "published_photos": 7,
+    "published_photos": 8,
     "unconfirmed": 42,
-    "next_offer_id": 35138,
-    "photos_present": 9,
+    "next_offer_id": 35204,
+    "photos_present": 10,
     "fitments_present": 54,
-    "both_present": 7,
+    "both_present": 8,
     "created_at": "2026-11-11T09:25:39.710Z",
     "fixed": true
   },
@@ -11271,7 +11271,8 @@
     35150,
     35147,
     35160,
-    35208
+    35208,
+    35138
   ],
   "reviewed_offer_ids": [
     26787,
@@ -11422,16 +11423,17 @@
     23192,
     21912,
     35160,
-    35208
+    35208,
+    35138
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 149,
-    "remaining_unreviewed": 259,
+    "reviewed": 150,
+    "remaining_unreviewed": 258,
     "unconfirmed_reviewed": 113,
-    "remaining_missing_fields": 372,
-    "photo_added": 35,
+    "remaining_missing_fields": 371,
+    "photo_added": 36,
     "fitment_added": 26,
     "make_model_pairs_added": 59,
     "configurations_added": 70
@@ -11505,50 +11507,6 @@
     "unchanged_trade_data": true
   },
   "prepared_candidates": [
-    {
-      "article": "KC46",
-      "brand": "MAHLE",
-      "cost": 8100,
-      "has_fitment": true,
-      "id": 35138,
-      "kaspi_price": 13009,
-      "kaspi_url": "https://kaspi.kz/shop/p/mahle-toplivnyi-fil-tr-kc46-165162303/?c=750000000",
-      "main_image": "",
-      "name": "MAHLE фильтр топливный",
-      "photo_status": "needs_source",
-      "product_id": 15958,
-      "profit": 3032.875,
-      "stock": "1",
-      "supplier_id": 3,
-      "supplier_thumbnail": "",
-      "task_id": 13931,
-      "offer_id": 35138,
-      "status": "prepared_photo_existing_fitment",
-      "checked_on": "2026-11-11",
-      "source_url": "https://www.kmotorshop.com/cs/article-detail/view/166135/palivovy-filtr-kc46-mahle-0818506-12175055700-14536511",
-      "source_label": "K MOTORSHOP — независимый каталог продавца",
-      "source_kind": "retailer_catalogue",
-      "source_article": "KC46",
-      "fitments": [],
-      "fitment_note": "Существующая применимость сохранена.",
-      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/276c408d-3730-4377-84be-49849679b80a",
-      "image_url": "https://www.kmotorshop.com/document/tecdoc/287/tn_600_53044639.JPG?v=2645",
-      "image_note": "MAHLEKC46:фото фильтра с маркировкойKC46,несколько видов и размерные линии в исходном изображении. Точная карточка производителяMAHLE, полныйартикулKC46; рисунок другогофильтра не использовался.",
-      "photo": {
-        "status": "downloaded_visually_verified_not_queued"
-      },
-      "fitment_status": "existing_preserved",
-      "checked_sources": [
-        {
-          "url": "https://www.kmotorshop.com/cs/article-detail/view/166135/palivovy-filtr-kc46-mahle-0818506-12175055700-14536511",
-          "result": "MAHLEKC46:фото фильтра с маркировкойKC46,несколько видов и размерные линии в исходном изображении. Точная карточка производителяMAHLE, полныйартикулKC46; рисунок другогофильтра не использовался."
-        }
-      ],
-      "next_offer_id": 35204,
-      "verification": {
-        "trade_data_unchanged": true
-      }
-    },
     {
       "article": "568-97",
       "brand": "MOTORAD",
