@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 2241,
   "offer_id": 22534,
-  "status": "prepared_fitment_photo_unconfirmed",
+  "status": "published_fitment_photo_exception",
   "checked_on": "2026-11-11",
   "source_url": "https://japan-cars.com.ua/buy/akebono_AN340K/",
   "source_label": "Japan-cars — независимый каталог продавца",
@@ -68,6 +68,19 @@
   ],
   "next_offer_id": 35144,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": false,
+    "thumbnail_image_complete": false,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T10:19:09.229Z"
+  },
+  "fitment_status": "saved_db_and_ui_verified",
+  "publication": {
+    "commit": "5972845ab163fdf3bc44364404305472c7d8bd49",
+    "deploy": "dep-dbq40p3ncjis73clu9s0",
+    "status": "live"
   }
 }
