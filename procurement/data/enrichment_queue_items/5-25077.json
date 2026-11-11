@@ -1,0 +1,38 @@
+{
+  "article": "2803201U2220",
+  "brand": "JASHI",
+  "cost": 6000,
+  "has_fitment": true,
+  "id": 25077,
+  "kaspi_price": 9530,
+  "kaspi_url": "https://kaspi.kz/shop/p/jashi-napolnitel-absorber-2803201u2220-dlja-jac-s3-2014-2018-119643601/?c=750000000",
+  "main_image": "",
+  "name": "Адсорбер переднего JAC",
+  "photo_status": "needs_source",
+  "product_id": 6738,
+  "profit": 2088.75,
+  "stock": "3",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 4711,
+  "offer_id": 25077,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "JASHI 2803201U2220: Найдено точное наименование GlobalParts в категории, но реальное независимое фото не подтверждено. Существующая применимость сохранена.",
+  "checked_sources": [
+    {
+      "query": "\"JASHI\" \"2803201U2220\"",
+      "result": "Найдено точное наименование GlobalParts в категории, но реальное независимое фото не подтверждено."
+    }
+  ],
+  "next_offer_id": 26954,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true
+  }
+}
