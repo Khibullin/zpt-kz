@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T11:48:36.085Z",
+  "checked_at": "2026-11-11T11:48:38.541Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -11030,7 +11030,7 @@
       "article": "12313002",
       "brand": "RIVAL",
       "cost": 12450,
-      "has_fitment": false,
+      "has_fitment": true,
       "id": 26926,
       "kaspi_price": 15847,
       "kaspi_url": "https://kaspi.kz/shop/p/rival-12313002-hyundai-sonata-2019-2023-chernyi-103087091/?c=750000000",
@@ -11198,13 +11198,13 @@
       25789,
       26282
     ],
-    "reviewed": 72,
-    "published_fitments": 22,
+    "reviewed": 73,
+    "published_fitments": 23,
     "published_photos": 20,
-    "unconfirmed": 53,
-    "next_offer_id": 26926,
+    "unconfirmed": 54,
+    "next_offer_id": 26470,
     "photos_present": 20,
-    "fitments_present": 61,
+    "fitments_present": 62,
     "both_present": 19,
     "created_at": "2026-11-11T10:30:05.643Z",
     "fixed": true
@@ -11560,19 +11560,20 @@
     26944,
     25622,
     26806,
-    26144
+    26144,
+    26926
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 272,
-    "remaining_unreviewed": 136,
-    "unconfirmed_reviewed": 195,
+    "reviewed": 273,
+    "remaining_unreviewed": 135,
+    "unconfirmed_reviewed": 196,
     "remaining_missing_fields": 331,
     "photo_added": 77,
-    "fitment_added": 53,
-    "make_model_pairs_added": 123,
-    "configurations_added": 161
+    "fitment_added": 54,
+    "make_model_pairs_added": 124,
+    "configurations_added": 162
   },
   "prepared_candidate": null,
   "source_limits": [
@@ -11645,54 +11646,6 @@
     "unchanged_trade_data": true
   },
   "prepared_candidates": [
-    {
-      "article": "12313002",
-      "brand": "RIVAL",
-      "cost": 12450,
-      "has_fitment": false,
-      "id": 26926,
-      "kaspi_price": 15847,
-      "kaspi_url": "https://kaspi.kz/shop/p/rival-12313002-hyundai-sonata-2019-2023-chernyi-103087091/?c=750000000",
-      "main_image": "",
-      "name": "Ковер багажника Hyundai",
-      "photo_status": "needs_source",
-      "product_id": 8501,
-      "profit": 1166.125,
-      "stock": "1",
-      "supplier_id": 5,
-      "supplier_thumbnail": "",
-      "task_id": 6474,
-      "offer_id": 26926,
-      "status": "prepared_fitment_photo_unconfirmed",
-      "checked_on": "2026-11-11",
-      "source_url": "https://autopiter.ru/goods/12313002/rival/id145226311",
-      "source_label": "Автопитер — независимый каталог продавца Rival",
-      "source_kind": "retailer_catalogue",
-      "source_article": "12313002",
-      "fitments": [
-        {
-          "make": "Hyundai",
-          "model": "Sonata",
-          "years": "2019–н.в.",
-          "notes": "VIII поколение; коврик багажника. Двигатель и регион не указаны."
-        }
-      ],
-      "fitment_note": "Точный Rival12313002 для багажника HyundaiSonata VIII с2019года. Открытыйпериод указан в точной строке продавца; двигатели не указаны.",
-      "photo": {
-        "status": "unconfirmed"
-      },
-      "fitment_status": "prepared_not_imported",
-      "checked_sources": [
-        {
-          "url": "https://autopiter.ru/goods/12313002/rival/id145226311",
-          "result": "Точная строка Rival12313002,SonataVIII2019- прочитана до ограничения браузера. Затем WAF/Megafon Youareblocked; фото не получено. Не повторять другим URL/доменом/каналом."
-        }
-      ],
-      "next_offer_id": 26470,
-      "verification": {
-        "trade_data_unchanged": true
-      }
-    },
     {
       "article": "1601200XSY13A",
       "brand": "HAVAL",
@@ -12019,5 +11972,5 @@
     }
   ],
   "publication_pending": null,
-  "next_offer_id": 26926
+  "next_offer_id": 26470
 }
