@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 13940,
   "offer_id": 35143,
-  "status": "published_complete_pending_db_audit",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://www.autodoc.parts/mahle-original/7815094",
   "source_label": "AUTODOC · независимый каталог продавца",
@@ -27,7 +27,7 @@
   "image_url": "https://cdn.autodoc.de/thumb?id=7815094&m=0&n=0&lng=en&rev=94078121",
   "image_note": "Точная карточкаMAHLE TI18289=TI18289,89°C,с прокладкой;реальное фото термостата с чёрным корпусом и упаковкойMAHLE/BEHR. Существующая применимость сохранена. UIналичие2,закупка7127/Kaspi9712 совпадают с очередью.",
   "photo": {
-    "status": "saved_ui_verified_db_audit_pending",
+    "status": "saved_db_and_ui_verified",
     "main_path": "products/optimized/e0ca6835fb774820823ef3b517736e64c3807735bc9fad026d092c92cd902a15.webp",
     "thumbnail_path": "products/optimized/b627134b049b527670dca18b0eceeb5a668fa7f47d25ffd96b2276a60488fca4.webp",
     "main_size": [
@@ -48,17 +48,31 @@
   ],
   "next_offer_id": 35182,
   "verification": {
-    "db_verified": false,
+    "db_verified": true,
     "ui_verified": true,
     "main_image_complete": true,
     "thumbnail_image_complete": true,
     "visible_trade_and_fitment_text_unchanged": true,
     "existing_metadata_preserved_by_import": true,
-    "checked_at": "2026-11-11T13:26:43.833Z",
-    "db_audit_pending_reason": "Render MCP temporary Internal errors/timeouts; fresh stored row metadata audit pending"
+    "checked_at": "2026-11-11T13:29:48.271Z",
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true,
+    "existing_metadata_preserved": true,
+    "task_status": "done",
+    "source_and_image_hashes_match_manifest": true,
+    "db_fitment_pairs": 1,
+    "db_fitment_configurations": 5,
+    "db_existing_characteristic_keys": [
+      "supplier_catalogue_applicability",
+      "supplier_pack_size"
+    ],
+    "db_before_snapshot_available": false,
+    "preservation_evidence": "Photo-only bounded manifest contains no fitments; import does not write existing fitments or characteristics. Full visible card text before/after identical. Current DB fitments and metadata read and verified."
   },
   "publication": {
     "commit": "b83355cd9994f3667e7ee7842b3bbc9cb23ee5a5",
-    "status": "images_visible_on_live_site_render_status_unavailable"
+    "source_commit": "b83355cd9994f3667e7ee7842b3bbc9cb23ee5a5",
+    "deploy": "dep-dbq6n1ks728c73961pb0",
+    "status": "live"
   }
 }
