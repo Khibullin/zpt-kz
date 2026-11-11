@@ -1,0 +1,107 @@
+{
+  "article": "19-227870",
+  "brand": "BILSTEIN",
+  "cost": 8583,
+  "has_fitment": false,
+  "id": 24819,
+  "kaspi_price": 12874,
+  "kaspi_url": "https://kaspi.kz/shop/p/bilstein-zadnii-19-227870-1-sht-149851820/?c=750000000",
+  "main_image": "",
+  "name": "Амортизатор",
+  "photo_status": "needs_source",
+  "product_id": 6523,
+  "profit": 2431.75,
+  "stock": "1",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 4496,
+  "offer_id": 24819,
+  "status": "prepared_photo_and_fitment",
+  "checked_on": "2026-11-11",
+  "source_url": "https://www.aze-tuning.de/Bilstein-B4-Stossdaempfer-hinten-einzeln-fuer-Mitsubishi-L200-HA-H-B4/19-227870",
+  "source_label": "AZE-Tuning — независимый каталог продавца",
+  "source_kind": "retailer_catalogue",
+  "source_article": "19-227870",
+  "fitments": [
+    {
+      "make": "Mitsubishi",
+      "model": "L200 / Triton",
+      "years": "08.2007–12.2015",
+      "engine": "2.5 DI-D",
+      "chassis": "KA_T, KB_T",
+      "power": "123 kW / 167 PS",
+      "position": "Задняя ось"
+    },
+    {
+      "make": "Mitsubishi",
+      "model": "L200 / Triton",
+      "years": "04.2010–12.2015",
+      "engine": "2.5 DI-D",
+      "chassis": "KA_T, KB_T",
+      "power": "94 kW / 128 PS",
+      "position": "Задняя ось"
+    },
+    {
+      "make": "Mitsubishi",
+      "model": "L200 / Triton",
+      "years": "11.2005–12.2015",
+      "engine": "2.5 DI-D",
+      "chassis": "KA_T, KB_T",
+      "power": "100 kW / 136 PS",
+      "drive": "4WD",
+      "position": "Задняя ось"
+    },
+    {
+      "make": "Mitsubishi",
+      "model": "L200 / Triton",
+      "years": "10.2007–12.2015",
+      "engine": "2.5 DI-D",
+      "chassis": "KA_T, KB_T",
+      "power": "123 kW / 167 PS",
+      "drive": "4WD",
+      "position": "Задняя ось"
+    },
+    {
+      "make": "Mitsubishi",
+      "model": "L200 / Triton",
+      "years": "04.2010–12.2015",
+      "engine": "2.5 DI-D",
+      "chassis": "KA_T, KB_T",
+      "power": "131 kW / 178 PS",
+      "drive": "4WD",
+      "position": "Задняя ось"
+    },
+    {
+      "make": "Mitsubishi",
+      "model": "L200 / Triton",
+      "years": "11.2005–12.2015",
+      "engine": "2.5 DI-D",
+      "chassis": "KA_T, KB_T",
+      "power": "100 kW / 136 PS",
+      "position": "Задняя ось"
+    }
+  ],
+  "fitment_note": "Шесть явно расписанных модификаций L200/Triton, месяцы, мощности и 4WD сохранены по строкам продавца. Для строк без обозначения привода привод не выдуман. Фото AZE — возможный образец, не использовано; точное фото взято из отдельной карточки Spareto.",
+  "image_source_url": "https://spareto.com/products/bilstein-shock-absorber/19-227870",
+  "image_url": "https://cdn.spareto.com/variants/images_webp/001/345/245/medium/19-227870-A2227820.webp?1793023605",
+  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/92aa3f0b-c910-47dd-a26c-77f56afada9c",
+  "image_note": "Точный BILSTEIN 19-227870 — реальная фотография одного заднего газового двухтрубного амортизатора с проушинами с обеих сторон; этикетка BILSTEIN видна.",
+  "photo": {
+    "status": "downloaded_visually_verified_not_queued"
+  },
+  "fitment_status": "prepared_not_imported",
+  "checked_sources": [
+    {
+      "url": "https://www.aze-tuning.de/Bilstein-B4-Stossdaempfer-hinten-einzeln-fuer-Mitsubishi-L200-HA-H-B4/19-227870",
+      "result": "Exact19-227870 sixclosedfitrows; possiblegenericphotoexcluded"
+    },
+    {
+      "url": "https://spareto.com/products/bilstein-shock-absorber/19-227870",
+      "result": "Exactbrand/fullarticle1pcphoto inspected"
+    }
+  ],
+  "next_offer_id": 22992,
+  "verification": {
+    "trade_data_unchanged": true
+  }
+}
