@@ -551,5 +551,18 @@
     "deploy": "dep-dbpuen59el5s738uslv0",
     "error": "Status marker exceeded existing varchar(16); migration atomic rollback confirmed targets still needs_source. Corrected marker to shock_ready; next deploy succeeded. No schema or tariff changes."
   },
-  "next_steps": "First fresh DB and inspect running queue; no duplicate consumer. Following50 priority file saved. Existing fits/photo skip. General exact brand/article lookup for the22 missing fitments returned0 additional source offers. Continue independent permitted sources for missing photos44/fitments22. MAHLE HC112 new-number PDF found but only makes, no models/years; no fitment imported. All previous unresolved date rows and source restrictions stand. Full task unfinished; automation retained."
+  "next_steps": "First fresh DB and inspect running queue; no duplicate consumer. Following50 priority file saved. Existing fits/photo skip. General exact brand/article lookup for the22 missing fitments returned0 additional source offers. Continue independent permitted sources for missing photos44/fitments22. MAHLE HC112 new-number PDF found but only makes, no models/years; no fitment imported. All previous unresolved date rows and source restrictions stand. Full task unfinished; automation retained.",
+  "public_photo_verification": {
+    "status": 200,
+    "content_type": "image/webp",
+    "main_bytes": [
+      6372,
+      8130
+    ],
+    "urls": [
+      "https://zpt.kz/products/products/optimized/7cc39b183de8db6f634cb89332c5fd3603ed25d618855552600d7d23123715b8.webp",
+      "https://zpt.kz/products/products/optimized/3406b1954bdea42829de27cf9a413bb9e817c48c39ee4cb6764119b2c1a7f2da.webp"
+    ],
+    "active_tasks_after": 0
+  }
 }
