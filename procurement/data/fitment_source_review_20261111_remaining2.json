@@ -1,0 +1,122 @@
+{
+  "checked_on": "2026-11-11",
+  "status": "Prepared; deploy and live verification pending.",
+  "scope": "Two remaining top50 exact photographs and independently sourced retailer fitments, supplier3.",
+  "before": [
+    {
+      "has_fitment": false,
+      "main_image": "",
+      "offer": {
+        "applicability": "",
+        "article": "SAK-3971R",
+        "brand": "555",
+        "category": "",
+        "characteristics": {
+          "kaspi_identity": {
+            "article": "SAK-3971R",
+            "brand": "555",
+            "checked_on": "2026-11-05",
+            "confirmed": true,
+            "method": "article_name_brand_v1",
+            "name_reviewed": true,
+            "reason": "Название и комплектность проверены; артикул и бренд совпадают",
+            "source_date": "2026-11-05",
+            "source_url": "https://kaspi.kz/shop/p/555-rychag-podveski-sak-3971r-174089847/?c=750000000",
+            "title": "555 рычаг подвески SAK-3971R"
+          },
+          "supplier_pack_size": 1
+        },
+        "checked_on": "2026-11-05",
+        "cost": 74896,
+        "created_at": "2026-11-05T05:15:21.12867+00:00",
+        "description": "Сверка Kaspi 05.11.2026: 555 рычаг подвески SAK-3971R. Артикул в источнике: SAK-3971R. Цена — минимум прочитанных предложений Алматы; полная проверка продавцов: да. Продажи неизвестны. Количество в упаковке Фаетона: 1; отдельного поля количества в характеристиках Kaspi нет. ",
+        "evidence_date": null,
+        "evidence_source": "",
+        "id": 21946,
+        "kaspi_price": 231204,
+        "kaspi_price_checked_on": "2026-11-05",
+        "kaspi_url": "https://kaspi.kz/shop/p/555-rychag-podveski-sak-3971r-174089847/?c=750000000",
+        "last_review": null,
+        "lead_days": null,
+        "match_verified": true,
+        "min_order": 1,
+        "name": "555 Рычаг",
+        "photo_url": "",
+        "recent_reviews": null,
+        "review_count": null,
+        "sales_30": null,
+        "stock": "1",
+        "supplier_checked_on": "2026-11-09",
+        "supplier_id": 3,
+        "supplier_url": ""
+      },
+      "product_article": "SAK-3971R",
+      "product_id": 3564,
+      "status": "active",
+      "task_id": 1538,
+      "task_status": "needs_source"
+    },
+    {
+      "has_fitment": false,
+      "main_image": "",
+      "offer": {
+        "applicability": "",
+        "article": "22-229373",
+        "brand": "BILSTEIN",
+        "category": "",
+        "characteristics": {
+          "kaspi_identity": {
+            "article": "22-229373",
+            "brand": "BILSTEIN",
+            "checked_on": "2026-11-06",
+            "confirmed": true,
+            "method": "article_name_brand_v1",
+            "name_reviewed": true,
+            "reason": "Название и комплектность проверены; артикул и бренд совпадают",
+            "source_date": "2026-11-06",
+            "source_url": "https://kaspi.kz/shop/p/bilstein-perednii-22-229373-1-sht-174087264/?c=750000000",
+            "title": "Bilstein передний 22-229373 1 шт"
+          },
+          "supplier_pack_size": 1
+        },
+        "checked_on": "2026-11-05",
+        "cost": 50737,
+        "created_at": "2026-11-06T03:48:12.854845+00:00",
+        "description": "",
+        "evidence_date": null,
+        "evidence_source": "",
+        "id": 24831,
+        "kaspi_price": 66292,
+        "kaspi_price_checked_on": "2026-11-06",
+        "kaspi_url": "https://kaspi.kz/shop/p/bilstein-perednii-22-229373-1-sht-174087264/?c=750000000",
+        "last_review": null,
+        "lead_days": null,
+        "match_verified": true,
+        "min_order": 1,
+        "name": "BILSTEIN Амортизатор",
+        "photo_url": "",
+        "recent_reviews": null,
+        "review_count": null,
+        "sales_30": null,
+        "stock": "2",
+        "supplier_checked_on": "2026-11-09",
+        "supplier_id": 3,
+        "supplier_url": ""
+      },
+      "product_article": "22-229373",
+      "product_id": 6535,
+      "status": "active",
+      "task_id": 4508,
+      "task_status": "needs_source"
+    }
+  ],
+  "review": "Images downloaded HTTP200 without redirect, visually checked exact article labels 22-229373 and SAK-3971R. Images packaged locally with checksum and original aspect ratio. No request to any previously refused source. Dealer data explicitly labelled retailer, no claim of manufacturer provenance or global completeness.",
+  "payload_path": "catalog/data/reviewed_remaining2_20261111.json",
+  "fitment_expected": {
+    "offers": 2,
+    "pairs": 4,
+    "configurations": 8
+  },
+  "next": "Fresh DB; preserve any new manager writes. ASVA0224-084 remains ambiguous in independent listings; leave unfilled.",
+  "restrictions": "Prior manufacturer/PDF refusals and two Kaspi page refusals retained. Do not retry alternative channel/URL. ASVA/Alta-Karter sources not requested."
+}

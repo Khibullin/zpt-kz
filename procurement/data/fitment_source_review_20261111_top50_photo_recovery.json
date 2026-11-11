@@ -32,7 +32,7 @@
     }
   ],
   "verification": "Two SQLite regression tests pass: exact target processing, idempotency, trade and fitment preservation, changed identity, pre-existing photo and foreign source rejected. Packaged images visually inspected.",
-  "status": "Prepared; requires live deploy and DB verification.",
+  "status": "Applied and verified live. Both tasks done2026-11-11T04:58:33Z; do not restage.",
   "restrictions": "All previous source denials retained. No ASVA or Alta-Karter remote requests. No general producer/staging or separate consumer. Existing photos are never overwritten.",
   "remaining_top50": {
     "missing_photos": [
@@ -44,5 +44,105 @@
       "ASVA 0224-084",
       "BILSTEIN 22-229373"
     ]
-  }
+  },
+  "new_restrictions": [
+    {
+      "url": "https://kaspi.kz/shop/p/555-rychag-podveski-sak-3971r-174089847/?c=750000000",
+      "result": "not accessible via this tool; do not retry by alternate URL/protocol/channel"
+    },
+    {
+      "url": "https://kaspi.kz/shop/p/bilstein-perednii-22-229373-1-sht-174087264/?c=750000000",
+      "result": "not accessible via this tool; do not retry by alternate URL/protocol/channel"
+    }
+  ],
+  "independent_next_sources": [
+    {
+      "offer_id": 24831,
+      "brand": "BILSTEIN",
+      "article": "22-229373",
+      "source_url": "https://www.bilstein-shocks.co.uk/products/22-229373",
+      "label": "Sourcefy Ltd, independent UK Bilstein dealer; not manufacturer shop",
+      "status": "Successfully read exact product and seven application lines; not imported. Verify fresh DB before saving. Image link49 not yet inspected.",
+      "fitment_candidates": [
+        {
+          "make": "CHEVROLET",
+          "model": "TRAX",
+          "displacement": "1.4",
+          "engine": "",
+          "years": "2012-",
+          "notes": "AWD; 103kW; Front axle left; Gas pressure suspension strut; exact month start 12/2012; end date absent; engine code absent."
+        },
+        {
+          "make": "CHEVROLET",
+          "model": "TRAX",
+          "displacement": "1.7",
+          "engine": "",
+          "years": "2012-",
+          "notes": "TD AWD; 96kW; Front axle left; Gas pressure suspension strut; exact month start 12/2012; end date absent; engine code absent."
+        },
+        {
+          "make": "OPEL",
+          "model": "MOKKA",
+          "displacement": "1.4",
+          "engine": "",
+          "years": "2012-",
+          "notes": "4x4; 103kW; standard chassis; Front axle left; Gas pressure suspension strut; exact month start 06/2012; end date absent; engine code absent."
+        },
+        {
+          "make": "OPEL",
+          "model": "MOKKA",
+          "displacement": "1.7",
+          "engine": "",
+          "years": "2012-",
+          "notes": "CDTI 4x4; 96kW; standard chassis; Front axle left; Gas pressure suspension strut; exact month start 06/2012; end date absent; engine code absent."
+        },
+        {
+          "make": "OPEL",
+          "model": "MOKKA",
+          "displacement": "1.8",
+          "engine": "",
+          "years": "2013-",
+          "notes": "4x4; 103kW; standard chassis; Front axle left; Gas pressure suspension strut; exact month start 01/2013; end date absent; engine code absent."
+        },
+        {
+          "make": "VAUXHALL",
+          "model": "MOKKA",
+          "displacement": "1.4",
+          "engine": "",
+          "years": "2012-",
+          "notes": "4x4; 103kW; standard chassis; Front axle left; Gas pressure suspension strut; exact month start 06/2012; end date absent; engine code absent."
+        },
+        {
+          "make": "VAUXHALL",
+          "model": "MOKKA",
+          "displacement": "1.7",
+          "engine": "",
+          "years": "2012-",
+          "notes": "CDTI 4x4; 96kW; standard chassis; Front axle left; Gas pressure suspension strut; exact month start 06/2012; end date absent; engine code absent."
+        }
+      ]
+    },
+    {
+      "offer_id": 21946,
+      "brand": "555",
+      "article": "SAK-3971R",
+      "source_url": "https://car789.net/product/%E0%B8%A5%E0%B8%B9%E0%B8%81%E0%B8%AB%E0%B8%A1%E0%B8%B2%E0%B8%81555-%E0%B9%81%E0%B8%97%E0%B9%89",
+      "status": "Successful independent retailer page. Item026426 exact SAK-3971R/555japan; Toyota COMMUTER upper right arm, KDH200-222, OE48066-29215. No years; do not expand chassis range or borrow years from adjacent items. Item link9/image not yet inspected; not imported."
+    }
+  ],
+  "unresolved_asva": "Independent Drom listings found but chassis/model/year tagging appears inconsistent. Do not import from snippet or guess years/engine mappings.",
+  "deploy_id": "dep-dbpvb1dg1s2s7399vqkg",
+  "code_commit": "edb6028c1c176a5d8a34d2f2151b7a1f8f65a25e",
+  "after": {
+    "photos": 19276,
+    "verified_offers": 4353,
+    "top50_photos": 48,
+    "top50_verified": 47,
+    "queue": {
+      "done": 18916,
+      "skipped": 1614,
+      "needs_source": 28963
+    }
+  },
+  "remaining2": "Prepared independent two-item payload in reviewed_remaining2_20261111.json; awaiting separate deployment, not yet applied. Original candidate status text above is pre-review history."
 }
