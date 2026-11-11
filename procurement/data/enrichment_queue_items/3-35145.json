@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 13933,
   "offer_id": 35145,
-  "status": "prepared_photo_and_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://www.autoopt.ru/catalog/416067-filtr_vozdushnyj_salona_ford_fusion_fiesta_ugolnyj_mahle",
   "source_label": "АвтоАльянс / Autoopt — независимый каталог продавца",
@@ -33,13 +33,22 @@
     }
   ],
   "fitment_note": "Продавец АвтоАльянс/Autoopt,точная карточка MAHLE LAK169:Ford Fusion и Fiesta,угольный салонный фильтр. Годы,двигатели,поколения и регион не указаны,не добавлялись; данные аналогов не переносились. Официальный поиск LAK169 не дал результата.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/26e2e2a4-8349-452c-a2d5-445cd3f0213a",
   "image_url": "https://www.autoopt.ru/product_pictures/big/d1f/416067.jpg",
   "image_note": "Визуально фотография одного серого угольного фильтра рядом с коробкойMAHLE Original,полныйLAK169нафильтрeикоробке;нечертёж/неLA169.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/cd32e7d92a7156dd53e47e224211dcf49f645cda1366dc628349c9d08de70618.webp",
+    "thumbnail_path": "products/optimized/188a94b289ce5a279914a0b80dca70cf1de11de92f6fc733df1f489df8460700.webp",
+    "main_size": [
+      800,
+      666
+    ],
+    "thumbnail_size": [
+      180,
+      150
+    ]
   },
-  "fitment_status": "prepared_not_imported",
+  "fitment_status": "saved_db_and_ui_verified",
   "checked_sources": [
     {
       "url": "https://www.autoopt.ru/catalog/416067-filtr_vozdushnyj_salona_ford_fusion_fiesta_ugolnyj_mahle",
@@ -48,6 +57,29 @@
   ],
   "next_offer_id": 22392,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T12:27:08.114Z"
+  },
+  "source_sha256": "1fbf92dbaa0015542337e08b9340f8b2d9f032128ab3b04431a2b09073c154c3",
+  "main_sha256": "cd32e7d92a7156dd53e47e224211dcf49f645cda1366dc628349c9d08de70618",
+  "main_size": [
+    800,
+    666
+  ],
+  "thumbnail_sha256": "188a94b289ce5a279914a0b80dca70cf1de11de92f6fc733df1f489df8460700",
+  "thumbnail_size": [
+    180,
+    150
+  ],
+  "publication": {
+    "commit": "d3c9542cecfd849c5e190b514d72acff618374d0",
+    "deploy": "dep-dbq5rv8ae00c73fr6cmg",
+    "status": "live"
   }
 }
