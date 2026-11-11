@@ -1,0 +1,38 @@
+{
+  "article": "2200400U3400",
+  "brand": "JAC",
+  "cost": 39200,
+  "has_fitment": true,
+  "id": 25762,
+  "kaspi_price": 46950,
+  "kaspi_url": "https://kaspi.kz/shop/p/jac-privod-kolesa-v-sbore-2200400u3400-119833861/?c=750000000",
+  "main_image": "",
+  "name": "Вал приводной JAC",
+  "photo_status": "needs_source",
+  "product_id": 7277,
+  "profit": 1631.25,
+  "stock": "3",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 5250,
+  "offer_id": 25762,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "JAC2200400U3400: оба поисковыхдвижканедалиточнойнезависимойкарточкисреальнымфото. Артикулыдругогосуффикса/бренданеиспользованы;прежняяприменимостьсохранена.",
+  "checked_sources": [
+    {
+      "query": "\"JAC\" \"2200400U3400\"",
+      "result": "Twoengines noexactpublicphoto result"
+    }
+  ],
+  "next_offer_id": 25492,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true
+  }
+}
