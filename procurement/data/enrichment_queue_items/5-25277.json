@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 4901,
   "offer_id": 25277,
-  "status": "prepared_photo_existing_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://www.shindary.com/part-number26/front-strut-assembly-2905100p3010-for-jac-t6.html",
   "source_label": "Shindary — независимый каталог поставщика",
@@ -24,11 +24,20 @@
   "source_article": "2905100P3010",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/39024b11-e04e-43c1-8cb5-48d0efc06cbc",
   "image_url": "https://www.shindary.com/data/upload/20230703/2905100P3010.jpg",
   "image_note": "Точная карточка Brand:JAC, PartNo2905100P3010: реальное фото одной передней стойки в сборе с пружиной. Иной2905010P3010/голыеаналоги исключены. Существующая применимость сохранена. Первоначальныйtimeoutзагрузкивременный; DOMиimgзатемзагрузилисьштатно.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/1b1c7ccf889f583936c798d5981b91eb0d246e280ff2e38049700e8745f2a13a.webp",
+    "thumbnail_path": "products/optimized/5cedab6c2f2ff72f3a5770da0a77baf770952f7dddb68014262fec4a18afbfc4.webp",
+    "main_size": [
+      600,
+      600
+    ],
+    "thumbnail_size": [
+      180,
+      180
+    ]
   },
   "fitment_status": "existing_preserved",
   "checked_sources": [
@@ -39,6 +48,29 @@
   ],
   "next_offer_id": 25190,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T10:48:38.800Z"
+  },
+  "source_sha256": "e7c18caf834ac433a0a03b126a8fe6db55bd108d2c464d6bdaacff825e8eb406",
+  "main_sha256": "1b1c7ccf889f583936c798d5981b91eb0d246e280ff2e38049700e8745f2a13a",
+  "main_size": [
+    600,
+    600
+  ],
+  "thumbnail_sha256": "5cedab6c2f2ff72f3a5770da0a77baf770952f7dddb68014262fec4a18afbfc4",
+  "thumbnail_size": [
+    180,
+    180
+  ],
+  "publication": {
+    "commit": "933ea2ed719154b73e9600a799d432b7e9cf6dfc",
+    "deploy": "dep-dbq4e9m0tbcc73frua30",
+    "status": "live"
   }
 }
