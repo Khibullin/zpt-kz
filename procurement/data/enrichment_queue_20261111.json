@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T11:33:53.834Z",
+  "checked_at": "2026-11-11T11:33:56.322Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -10598,18 +10598,18 @@
       "article": "7122009006",
       "brand": "SsangYong",
       "cost": 21700,
-      "has_fitment": false,
+      "has_fitment": true,
       "id": 26624,
       "kaspi_price": 26998,
       "kaspi_url": "https://kaspi.kz/shop/p/ssang-yong-zamok-7122009006-118155534/?c=750000000",
-      "main_image": "",
+      "main_image": "products/optimized/2218de69fe4eff19b89e28b37b5b01662848619383026092075802d2c989960e.webp",
       "name": "Замок двери SsangYong",
-      "photo_status": "needs_source",
+      "photo_status": "done",
       "product_id": 8332,
       "profit": 1673.25,
       "stock": "1",
       "supplier_id": 5,
-      "supplier_thumbnail": "",
+      "supplier_thumbnail": "products/optimized/7b7f31db754a3f60968314ce556e2319471db7aaa903c43fee43ccc9379f3b80.webp",
       "task_id": 6305
     },
     {
@@ -11198,14 +11198,14 @@
       25789,
       26282
     ],
-    "reviewed": 51,
-    "published_fitments": 12,
-    "published_photos": 11,
+    "reviewed": 52,
+    "published_fitments": 13,
+    "published_photos": 12,
     "unconfirmed": 41,
-    "next_offer_id": 26624,
-    "photos_present": 11,
-    "fitments_present": 51,
-    "both_present": 10,
+    "next_offer_id": 25969,
+    "photos_present": 12,
+    "fitments_present": 52,
+    "both_present": 11,
     "created_at": "2026-11-11T10:30:05.643Z",
     "fixed": true
   },
@@ -11277,7 +11277,8 @@
     25581,
     26893,
     25915,
-    28084
+    28084,
+    26624
   ],
   "reviewed_offer_ids": [
     26787,
@@ -11530,19 +11531,20 @@
     26834,
     28161,
     26258,
-    28084
+    28084,
+    26624
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 251,
-    "remaining_unreviewed": 157,
+    "reviewed": 252,
+    "remaining_unreviewed": 156,
     "unconfirmed_reviewed": 183,
-    "remaining_missing_fields": 340,
-    "photo_added": 68,
-    "fitment_added": 43,
-    "make_model_pairs_added": 106,
-    "configurations_added": 143
+    "remaining_missing_fields": 339,
+    "photo_added": 69,
+    "fitment_added": 44,
+    "make_model_pairs_added": 108,
+    "configurations_added": 145
   },
   "prepared_candidate": null,
   "source_limits": [
@@ -11615,71 +11617,6 @@
     "unchanged_trade_data": true
   },
   "prepared_candidates": [
-    {
-      "article": "7122009006",
-      "brand": "SsangYong",
-      "cost": 21700,
-      "has_fitment": false,
-      "id": 26624,
-      "kaspi_price": 26998,
-      "kaspi_url": "https://kaspi.kz/shop/p/ssang-yong-zamok-7122009006-118155534/?c=750000000",
-      "main_image": "",
-      "name": "Замок двери SsangYong",
-      "photo_status": "needs_source",
-      "product_id": 8332,
-      "profit": 1673.25,
-      "stock": "1",
-      "supplier_id": 5,
-      "supplier_thumbnail": "",
-      "task_id": 6305,
-      "offer_id": 26624,
-      "status": "prepared_photo_and_fitment",
-      "checked_on": "2026-11-11",
-      "source_url": "https://abcparts.com.ua/ua/unit/ssangyong-7122009006",
-      "source_label": "ABCparts — независимый каталог продавца оригинальных SsangYong",
-      "source_kind": "retailer_catalogue",
-      "source_article": "7122009006",
-      "fitments": [
-        {
-          "make": "SsangYong",
-          "model": "Actyon",
-          "position": "Замок передней правой двери",
-          "notes": "Годы/двигатели/поколение не указаны в подтверждённойкарточке."
-        },
-        {
-          "make": "SsangYong",
-          "model": "Kyron",
-          "position": "Замок передней правой двери",
-          "notes": "Годы/двигатели/поколение не указаны в подтверждённойкарточке."
-        }
-      ],
-      "fitment_note": "ТочнаяABCparts7122009006/SSANGYONG/ОригиналпоказываетActyonиKyron,неизвестныегоды/двигателине дописаны. ПериодыActyon/Sportsвдругихпоисковыхснимкахнеоднозначноразделены,неперенесены. AvtoALLзапросилотключитьVPN,обход/изменениенастроек/альтернативныймаршруткнемунеделались. ФотоABCparts—реальныйодинпереднийправыйзамоквсборе.",
-      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/b02dac68-ef7e-454b-b1b3-9cf7ca165152",
-      "image_url": "https://abcparts.com.ua/imgs/ssangyong/7122009006.webp",
-      "image_note": "Реальныйодинзамокпереднейправойдвери с тягами/тросамиизточнойоригинальнойSSANGYONG7122009006карточкиABCparts;фотонеподмененоаналогом.",
-      "photo": {
-        "status": "downloaded_visually_verified_not_queued"
-      },
-      "fitment_status": "prepared_not_imported",
-      "checked_sources": [
-        {
-          "url": "https://abcparts.com.ua/ua/unit/ssangyong-7122009006",
-          "result": "ExactoriginalSsangyong7122009006;2explicitmodels,noassignedperiods;actualassemblyphoto"
-        },
-        {
-          "url": "https://www.avtoall.ru/zamok_dveri_ssangyong_actyon__06___kyron__05___actyon_sport__06__12___peredneiy_pravoiy_oe-928384/",
-          "result": "Site asksdisableVPN;no settingschange/alternate route. Cachedbroadperiodsnotused"
-        },
-        {
-          "url": "https://master.shop/ru/317747",
-          "result": "SearchsnapshotambiguousActyon/Sportsperiodgrouping,photokitwarning;notused"
-        }
-      ],
-      "next_offer_id": 25969,
-      "verification": {
-        "trade_data_unchanged": true
-      }
-    },
     {
       "article": "CVKH-156",
       "brand": "CTR",
@@ -12266,5 +12203,5 @@
     }
   ],
   "publication_pending": null,
-  "next_offer_id": 26624
+  "next_offer_id": 25969
 }
