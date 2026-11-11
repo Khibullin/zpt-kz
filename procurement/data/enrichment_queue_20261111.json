@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T12:39:18.915Z",
+  "checked_at": "2026-11-11T12:39:21.727Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -5094,14 +5094,14 @@
       "id": 35217,
       "kaspi_price": 13322,
       "kaspi_url": "https://kaspi.kz/shop/p/motorad-termostat-662-82k-174078066/?c=750000000",
-      "main_image": "",
+      "main_image": "products/optimized/04361be29cbe8a7b5a7073196662a01d9a97d9e0167e85f4a6b5ce4c43c679f1.webp",
       "name": "Термостат 82°С",
-      "photo_status": "needs_source",
+      "photo_status": "done",
       "product_id": 16024,
       "profit": 1389.75,
       "stock": "5",
       "supplier_id": 3,
-      "supplier_thumbnail": "",
+      "supplier_thumbnail": "products/optimized/8630f51cd0995e7634b7dcb582b76eb058aff5c40707f3388da9490c23b61799.webp",
       "task_id": 13997
     },
     {
@@ -11223,16 +11223,16 @@
       22938,
       23110
     ],
-    "reviewed": 77,
+    "reviewed": 78,
     "published_fitments": 1,
-    "published_photos": 20,
+    "published_photos": 21,
     "unconfirmed": 57,
-    "photos_present": 22,
+    "photos_present": 23,
     "fitments_present": 47,
-    "both_present": 20,
+    "both_present": 21,
     "created_at": "2026-11-11T11:52:47.402Z",
     "fixed": true,
-    "next_offer_id": 35217
+    "next_offer_id": 35172
   },
   "completed_offer_ids": [
     26820,
@@ -11333,7 +11333,8 @@
     35196,
     22113,
     22388,
-    35137
+    35137,
+    35217
   ],
   "reviewed_offer_ids": [
     26787,
@@ -11687,16 +11688,17 @@
     35196,
     22113,
     22388,
-    35137
+    35137,
+    35217
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 352,
-    "remaining_unreviewed": 56,
+    "reviewed": 353,
+    "remaining_unreviewed": 55,
     "unconfirmed_reviewed": 253,
-    "remaining_missing_fields": 309,
-    "photo_added": 99,
+    "remaining_missing_fields": 308,
+    "photo_added": 100,
     "fitment_added": 55,
     "make_model_pairs_added": 126,
     "configurations_added": 164
@@ -11784,50 +11786,6 @@
     "unchanged_trade_data": true
   },
   "prepared_candidates": [
-    {
-      "article": "662-82K",
-      "brand": "MOTORAD",
-      "cost": 10017,
-      "has_fitment": true,
-      "id": 35217,
-      "kaspi_price": 13322,
-      "kaspi_url": "https://kaspi.kz/shop/p/motorad-termostat-662-82k-174078066/?c=750000000",
-      "main_image": "",
-      "name": "Термостат 82°С",
-      "photo_status": "needs_source",
-      "product_id": 16024,
-      "profit": 1389.75,
-      "stock": "5",
-      "supplier_id": 3,
-      "supplier_thumbnail": "",
-      "task_id": 13997,
-      "offer_id": 35217,
-      "status": "prepared_photo_existing_fitment",
-      "checked_on": "2026-11-11",
-      "source_url": "https://cars245.com/en/item/motorad-66282K-thermostat-coolant/",
-      "source_label": "Cars245 — независимый каталог продавца",
-      "source_kind": "retailer_catalogue",
-      "source_article": "662-82K",
-      "fitments": [],
-      "fitment_note": "Существующая применимость сохранена.",
-      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/349ae5ce-d272-4dc0-8676-2a556f5cd6be",
-      "image_url": "https://cars245images.cc/webp/big/motorad/b4/motorad-66282K.jpg.webp",
-      "image_note": "Точная карточкаMOTORAD662-82K,82°C,корпус,OE21200JA10A,для холодного климата. Визуально один термостат в металлическом угловом корпусе,на корпусеMotoRad662;не инойартикул. Существующая применимость сохранена.",
-      "photo": {
-        "status": "downloaded_visually_verified_not_queued"
-      },
-      "fitment_status": "existing_preserved",
-      "checked_sources": [
-        {
-          "url": "https://cars245.com/en/item/motorad-66282K-thermostat-coolant/",
-          "result": "Точная карточкаMOTORAD662-82K,82°C,корпус,OE21200JA10A,для холодного климата. Визуально один термостат в металлическом угловом корпусе,на корпусеMotoRad662;не инойартикул. Существующая применимость сохранена."
-        }
-      ],
-      "next_offer_id": 35172,
-      "verification": {
-        "trade_data_unchanged": true
-      }
-    },
     {
       "article": "281-88K",
       "brand": "MOTORAD",
@@ -12246,5 +12204,5 @@
     }
   ],
   "publication_pending": null,
-  "next_offer_id": 35217
+  "next_offer_id": 35172
 }
