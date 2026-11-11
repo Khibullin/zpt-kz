@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 1884,
   "offer_id": 22174,
-  "status": "published_complete_pending_db_audit",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://frsport.com/products/555-sek8471l-steering-tie-rod-end",
   "source_label": "FR SPORT — независимый каталог продавца",
@@ -27,7 +27,7 @@
   "image_url": "https://frsport.com/cdn/shop/files/4N_SEK8471L_Fro.jpg?v=1787898325&width=1445",
   "image_note": "Точная карточка555SEK8471L,бренд/артикул подтверждены также read-onlyGetProduct. Визуально один чёрный изогнутый наконечник с гайкой и шплинтом,не пара/правый. Существующая применимость сохранена. Drom18416102651страницаненайдена,неповторялась.",
   "photo": {
-    "status": "saved_ui_verified_db_audit_pending",
+    "status": "saved_db_and_ui_verified",
     "main_path": "products/optimized/394028676caef0f059982189cbb010a130fb14f96603b0c51a9a7b5ea5f5530e.webp",
     "thumbnail_path": "products/optimized/0b6edf1ecea547f8225c0c428991cebf513b5e275c2accf1a570cd7a65d76076.webp",
     "main_size": [
@@ -48,17 +48,32 @@
   ],
   "next_offer_id": 23839,
   "verification": {
-    "db_verified": false,
+    "db_verified": true,
     "ui_verified": true,
     "main_image_complete": true,
     "thumbnail_image_complete": true,
     "visible_trade_and_fitment_text_unchanged": true,
     "existing_metadata_preserved_by_import": true,
-    "checked_at": "2026-11-11T13:03:59.010Z",
-    "db_audit_pending_reason": "Render MCP temporary Internal errors/timeouts; fresh row metadata audit pending"
+    "checked_at": "2026-11-11T13:29:29.574Z",
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true,
+    "existing_metadata_preserved": true,
+    "task_status": "done",
+    "source_and_image_hashes_match_manifest": true,
+    "db_fitment_pairs": 1,
+    "db_fitment_configurations": 1,
+    "db_existing_characteristic_keys": [
+      "kaspi_identity",
+      "manufacturer_applicability",
+      "supplier_pack_size"
+    ],
+    "db_before_snapshot_available": false,
+    "preservation_evidence": "Photo-only bounded manifest contains no fitments; import does not write existing fitments or characteristics. Full visible card text before/after identical. Current DB fitments and metadata read and verified."
   },
   "publication": {
-    "commit": "300589ce14087af5866fa98c82545c9d25c1f691",
-    "status": "images_visible_on_live_site_render_status_unavailable"
+    "commit": "b83355cd9994f3667e7ee7842b3bbc9cb23ee5a5",
+    "source_commit": "300589ce14087af5866fa98c82545c9d25c1f691",
+    "deploy": "dep-dbq6n1ks728c73961pb0",
+    "status": "live"
   }
 }
