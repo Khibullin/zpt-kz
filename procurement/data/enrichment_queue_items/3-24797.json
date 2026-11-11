@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 4475,
   "offer_id": 24797,
-  "status": "prepared_photo_existing_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://aodars.ru/catalog/418/?page=40&q=",
   "source_label": "Аодарс — независимый каталог продавца",
@@ -24,11 +24,20 @@
   "source_article": "AW2220193",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/3ddab53b-8958-4cf9-9cb7-35e67e9dabb7",
   "image_url": "https://aodars.ru/media/product-img/163/162917.jpg",
   "image_note": "AYWIPARTSAW2220193,точнаястрока162917,ступицазадняявсборе. Полноефото и бренд/артикулпроверены. Armtekпервыйзапростаймаут(временный),другая карточкаАодарсдоступна.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/ec38f0bf402702800463c0e44f8836ff863a86fbf46e1152a5e807a20732fb7d.webp",
+    "thumbnail_path": "products/optimized/321446b1a55b8714d902e1dbd639c2b759db21b8d2a33ed3dcd3e8f74d89828f.webp",
+    "main_size": [
+      490,
+      400
+    ],
+    "thumbnail_size": [
+      180,
+      147
+    ]
   },
   "fitment_status": "existing_preserved",
   "checked_sources": [
@@ -39,6 +48,29 @@
   ],
   "next_offer_id": 22738,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T10:19:03.964Z"
+  },
+  "source_sha256": "574df9896e54ffc9a5a56877d5dde29bf08c43b3201192ebff6a183237d93c88",
+  "main_sha256": "ec38f0bf402702800463c0e44f8836ff863a86fbf46e1152a5e807a20732fb7d",
+  "main_size": [
+    490,
+    400
+  ],
+  "thumbnail_sha256": "321446b1a55b8714d902e1dbd639c2b759db21b8d2a33ed3dcd3e8f74d89828f",
+  "thumbnail_size": [
+    180,
+    147
+  ],
+  "publication": {
+    "commit": "5972845ab163fdf3bc44364404305472c7d8bd49",
+    "deploy": "dep-dbq40p3ncjis73clu9s0",
+    "status": "live"
   }
 }
