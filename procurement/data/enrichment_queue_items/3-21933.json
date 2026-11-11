@@ -1,0 +1,54 @@
+{
+  "article": "SAB-3852RR",
+  "brand": "555",
+  "cost": 8320,
+  "has_fitment": false,
+  "id": 21933,
+  "kaspi_price": 12463,
+  "kaspi_url": "https://kaspi.kz/shop/p/555-podveska-rychag-nezavisimoi-podveski-kolesa-sab-3852rr-124262052/?c=750000000",
+  "main_image": "",
+  "name": "555 сайлентблок рычага",
+  "photo_status": "needs_source",
+  "product_id": 3551,
+  "profit": 2335.125,
+  "stock": "10",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 1525,
+  "offer_id": 21933,
+  "status": "prepared_fitment_photo_unconfirmed",
+  "checked_on": "2026-11-11",
+  "source_url": "https://jps-osaka.co.jp/wp-content/uploads/2021/12/News-No.-303.pdf",
+  "source_label": "SANKEI INDUSTRY (555), бюллетень №303 — копия у JPS Osaka",
+  "source_kind": "manufacturer_document_on_distributor_site",
+  "source_article": "SAB-3852RR",
+  "fitments": [
+    {
+      "make": "Toyota",
+      "model": "Tundra",
+      "years": "2000–2002",
+      "chassis": "UCK40",
+      "position": "Задняя позиция сайлентблока нижнего рычага",
+      "notes": "Строка SANKEI №303: SAB-3852RR, OEM48655-34010, TUNDRA UCK40 00-02, REAR For Low Arm. Объём двигателя не указан."
+    }
+  ],
+  "fitment_note": "Точная строка бюллетеня производителя №303 на сайте JPS Osaka. REAR относится к позиции сайлентблока нижнего рычага; задняя ось не утверждается. QTY/BOX4 — упаковка каталога, не комплектность розничной позиции. Фото точной детали не подтверждено.",
+  "photo": {
+    "status": "unconfirmed"
+  },
+  "fitment_status": "prepared_not_imported",
+  "checked_sources": [
+    {
+      "url": "https://jps-osaka.co.jp/wp-content/uploads/2021/12/News-No.-303.pdf",
+      "result": "Exactmanufacturerbulletinfullarticle, TUNDRA UCK40 00-02, REAR For Low Arm; no confirmed product photo"
+    },
+    {
+      "query": "\"555\" \"SAB-3852RR\"",
+      "result": "RetailcategoryresultsSequoiaTundranotusedforbroaderfitwithoutindividualexactperiodrow"
+    }
+  ],
+  "next_offer_id": 35153,
+  "verification": {
+    "trade_data_unchanged": true
+  }
+}
