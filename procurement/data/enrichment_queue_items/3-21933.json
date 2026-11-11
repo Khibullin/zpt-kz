@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 1525,
   "offer_id": 21933,
-  "status": "prepared_fitment_photo_unconfirmed",
+  "status": "published_fitment_photo_exception",
   "checked_on": "2026-11-11",
   "source_url": "https://jps-osaka.co.jp/wp-content/uploads/2021/12/News-No.-303.pdf",
   "source_label": "SANKEI INDUSTRY (555), бюллетень №303 — копия у JPS Osaka",
@@ -36,7 +36,7 @@
   "photo": {
     "status": "unconfirmed"
   },
-  "fitment_status": "prepared_not_imported",
+  "fitment_status": "saved_db_and_ui_verified",
   "checked_sources": [
     {
       "url": "https://jps-osaka.co.jp/wp-content/uploads/2021/12/News-No.-303.pdf",
@@ -49,6 +49,18 @@
   ],
   "next_offer_id": 35153,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": false,
+    "thumbnail_image_complete": false,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T10:29:07.807Z"
+  },
+  "publication": {
+    "commit": "7dec204910db6a8f38f987b3c44771cacb96ea1c",
+    "deploy": "dep-dbq45q5g1s2s739fh1sg",
+    "status": "live"
   }
 }
