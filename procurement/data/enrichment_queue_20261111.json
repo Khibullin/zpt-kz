@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T12:00:02.960Z",
+  "checked_at": "2026-11-11T12:00:39.451Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -11821,6 +11821,50 @@
         }
       ],
       "next_offer_id": 23070,
+      "verification": {
+        "trade_data_unchanged": true
+      }
+    },
+    {
+      "article": "48063",
+      "brand": "NGK",
+      "cost": 5960,
+      "has_fitment": true,
+      "id": 35134,
+      "kaspi_price": 9135,
+      "kaspi_url": "https://kaspi.kz/shop/p/ngk-katushka-zazhiganija-48063-131376536/?c=750000000",
+      "main_image": "",
+      "name": "NGK Катушка зажигания U5019",
+      "photo_status": "needs_source",
+      "product_id": 16039,
+      "profit": 1783.125,
+      "stock": "1",
+      "supplier_id": 3,
+      "supplier_thumbnail": "",
+      "task_id": 14012,
+      "offer_id": 35134,
+      "status": "prepared_photo_existing_fitment",
+      "checked_on": "2026-11-11",
+      "source_url": "https://spareto.com/products/ngk-ignition-coil/u5019-48063",
+      "source_label": "Spareto — независимый каталог продавца",
+      "source_kind": "retailer_catalogue",
+      "source_article": "48063",
+      "fitments": [],
+      "fitment_note": "Существующая применимость сохранена.",
+      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/126fe9e6-964d-49b8-8a91-cd9550b60aed",
+      "image_url": "https://cdn.spareto.com/variants/images_webp/000/554/820/large/u5019-48063-9A6D92BD.webp?1793006973",
+      "image_note": "Точная карточка NGK48063/U5019,2контактаSAE,одна катушка. Визуально фото одной длинной чёрной катушки с маркировкой NGK; не комплект. Существующая применимость сохранена.",
+      "photo": {
+        "status": "downloaded_visually_verified_not_queued"
+      },
+      "fitment_status": "existing_preserved",
+      "checked_sources": [
+        {
+          "url": "https://spareto.com/products/ngk-ignition-coil/u5019-48063",
+          "result": "Точная карточка NGK48063/U5019,2контактаSAE,одна катушка. Визуально фото одной длинной чёрной катушки с маркировкой NGK; не комплект. Существующая применимость сохранена."
+        }
+      ],
+      "next_offer_id": 22748,
       "verification": {
         "trade_data_unchanged": true
       }
