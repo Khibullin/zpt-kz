@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 5796,
   "offer_id": 26258,
-  "status": "prepared_photo_fitment_unconfirmed",
+  "status": "published_partial_exception",
   "checked_on": "2026-11-11",
   "source_url": "https://www.dvsavto.ru/catalog/zapchasti_po_proizvoditelyam_i_modelyam/zapchasti_hyundai_kia/zapchasti_dvigateley/zapchasti_dlya_benzinovykh_dvigateley_hyundai/zapchasti_dvigatelya_g4ka_g4kd_2000cc_theta_theta_2/datchik_polozheniya_raspredvala_3935025010_39350_25010_g4na_g4kd_g4ke_g4kj_original/",
   "source_label": "Глобал Авто (DvsAvto) — независимый продавец оригинальных Hyundai/Kia",
@@ -24,11 +24,20 @@
   "source_article": "3935025010",
   "fitments": [],
   "fitment_note": "Применимость не подтверждена; добавляется только точная фотография.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/c149052b-c253-4527-9bca-c45cf8668635",
   "image_url": "https://www.dvsavto.ru/upload/iblock/715/7ieybu1rwnswh857djj70anbq86ibq1b.jpeg",
   "image_note": "Точныйоригинальный3935025010/39350-25010 изразделаHyundai/Kia: реальнаяфотографияодногодатчикараспредваласуплотнением. Применимостькмоделям/периодамнеподтверждена: двигателиG4NA/G4KD/G4KE/G4KJвзаголовкенепривязаныкмоделям;неперенесеныкаквыдуманныеавтомобили. Zarouni—иллюстрация,неиспользована.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/694b49f3ac74540f8e0cded048764cd114005dd9ba6be3a40f002fcaba911c57.webp",
+    "thumbnail_path": "products/optimized/e6542fd2726ea540d8671765051b7dd9d44027e7ed4ff26ef5a6b4782cb94b01.webp",
+    "main_size": [
+      703,
+      600
+    ],
+    "thumbnail_size": [
+      180,
+      154
+    ]
   },
   "fitment_status": "unconfirmed",
   "checked_sources": [
@@ -39,6 +48,29 @@
   ],
   "next_offer_id": 25152,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T11:33:49.936Z"
+  },
+  "source_sha256": "6ae51c79eb28d7f6838081964dda2e84e238801d3d970eb4ee50717b07e0e26a",
+  "main_sha256": "694b49f3ac74540f8e0cded048764cd114005dd9ba6be3a40f002fcaba911c57",
+  "main_size": [
+    703,
+    600
+  ],
+  "thumbnail_sha256": "e6542fd2726ea540d8671765051b7dd9d44027e7ed4ff26ef5a6b4782cb94b01",
+  "thumbnail_size": [
+    180,
+    154
+  ],
+  "publication": {
+    "commit": "67ceb32acec7ee3307f1a9a44c0c779c90797192",
+    "deploy": "dep-dbq53i8473hc73ch8gv0",
+    "status": "live"
   }
 }
