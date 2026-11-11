@@ -13,7 +13,7 @@
   "supplier_id": 5,
   "task_id": 5805,
   "offer_id": 26223,
-  "status": "prepared_photo_and_fitment",
+  "status": "published_db_and_ui_verified",
   "checked_on": "2026-11-11",
   "source_url": "https://www.diesel-dv.ru/catalog/elektrooborudovanie/datchiki/21789589/",
   "source_label": "Дизель — независимый каталог продавца",
@@ -28,7 +28,6 @@
   ],
   "fitment_note": "Точный бренд JAC и полный артикул совпадают в заголовке и таблице характеристик. Применимость аналога AQBP/STARTVOLT не переносилась.",
   "image_url": "https://www.diesel-dv.ru/upload/iblock/199/nxpwghnagchnww5zxo3bzeoqwti5fmgh.jpg",
-  "local_path": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/e2e5a66c-25ee-4fe6-8242-8ed98fd15d51",
   "image_note": "Фото одного точного оригинального датчика JAC1026605GH031 с проводом, разъёмом и измерительной линейкой. Сайт продавца явно указывает бренд и артикул.",
   "checked_sources": [
     {
@@ -44,5 +43,37 @@
       "result": "search result alternate STARTVOLT article; excluded"
     }
   ],
-  "next_offer_id": 26494
+  "next_offer_id": 26494,
+  "publication": {
+    "commit": "08c5ddc32f0a2d0527741382fe3e064c4c21216d",
+    "deploy": "dep-dbq230dg1s2s739cu69g",
+    "status": "live",
+    "checked_photo_and_thumbnail": 3,
+    "checked_fitment_offers": 3,
+    "all_three_ui_images_loaded": true,
+    "unchanged_trade_data": true
+  },
+  "fitment_status": "saved_and_ui_verified",
+  "verification": {
+    "photo": true,
+    "thumbnail": true,
+    "display": true,
+    "source_and_constraints": true,
+    "stock_and_profit_preserved": true,
+    "existing_fitment_preserved": true
+  },
+  "photo": {
+    "status": "saved_and_ui_loaded",
+    "image_url": "https://www.diesel-dv.ru/upload/iblock/199/nxpwghnagchnww5zxo3bzeoqwti5fmgh.jpg",
+    "main_path": "products/optimized/5c35c6b8ce8398133d8837831457c136a519004733952e33fdf22aeee13b9cf7.webp",
+    "thumbnail_path": "products/optimized/ed40fc56038272c7c25515f363c2c09fb61c85b0f60a9239278a2d2c31904258.webp",
+    "main_size": [
+      800,
+      600
+    ],
+    "thumbnail_size": [
+      180,
+      135
+    ]
+  }
 }
