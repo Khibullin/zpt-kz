@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 2096,
   "offer_id": 22388,
-  "status": "prepared_photo_existing_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://baza.drom.ru/g16948353431.html",
   "source_label": "Автотрейд-Иркутск на Drom — независимый каталог продавца",
@@ -24,11 +24,20 @@
   "source_article": "SLK-E040R",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/90cac360-bc22-4fcb-a343-bf9c80fbfdd2",
   "image_url": "https://static.baza.drom.ru/drom/1729129169973_bulletin",
   "image_note": "Точная карточка555SLK-E040R,передняя правая. Визуально фотография одной серебристой стойки с двумя шарнирами/гайками,водяной знакАвтотрейд; не схема/пара. Существующая применимость сохранена.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/6957388ca82d464692a3572f046726dd38b0273c9b260d8dd98e38d8cb209b51.webp",
+    "thumbnail_path": "products/optimized/f06823ca127ea615d4eccc5c05a566373e544700a069259e2695257ba427dc4e.webp",
+    "main_size": [
+      600,
+      450
+    ],
+    "thumbnail_size": [
+      180,
+      135
+    ]
   },
   "fitment_status": "existing_preserved",
   "checked_sources": [
@@ -39,6 +48,29 @@
   ],
   "next_offer_id": 35137,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T12:39:15.059Z"
+  },
+  "source_sha256": "b1ec17267a6278cca9b3343aa9ee48fb717565d29971d04706b8449bacb21c8e",
+  "main_sha256": "6957388ca82d464692a3572f046726dd38b0273c9b260d8dd98e38d8cb209b51",
+  "main_size": [
+    600,
+    450
+  ],
+  "thumbnail_sha256": "f06823ca127ea615d4eccc5c05a566373e544700a069259e2695257ba427dc4e",
+  "thumbnail_size": [
+    180,
+    135
+  ],
+  "publication": {
+    "commit": "ad43a3c6edc4955b1a623ce66e1a32c1b133be2f",
+    "deploy": "dep-dbq62b5g1s2s739i35ig",
+    "status": "live"
   }
 }
