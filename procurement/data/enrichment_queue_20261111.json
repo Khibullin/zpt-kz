@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T08:08:10.902Z",
+  "checked_at": "2026-11-11T08:08:13.859Z",
   "lease": {
     "owner": "enrichment-20261111T0756Z",
     "acquired_at": "2026-11-11T07:56:06.863Z",
@@ -9267,7 +9267,7 @@
     }
   ],
   "results": [],
-  "next_offer_id": 26223,
+  "next_offer_id": 26494,
   "batch": {
     "supplier_id": 5,
     "batch_number": 1,
@@ -9373,11 +9373,11 @@
       25184,
       25210
     ],
-    "reviewed": 41,
-    "published_fitments": 14,
-    "published_photos": 18,
+    "reviewed": 42,
+    "published_fitments": 15,
+    "published_photos": 19,
     "unconfirmed": 22,
-    "next_offer_id": 26223,
+    "next_offer_id": 26494,
     "photos_present": 20,
     "fitments_present": 63,
     "both_present": 18
@@ -9401,7 +9401,8 @@
     25538,
     25229,
     25496,
-    25146
+    25146,
+    26223
   ],
   "reviewed_offer_ids": [
     26787,
@@ -9444,19 +9445,20 @@
     26220,
     26530,
     26229,
-    25099
+    25099,
+    26223
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 41,
-    "remaining_unreviewed": 367,
+    "reviewed": 42,
+    "remaining_unreviewed": 366,
     "unconfirmed_reviewed": 22,
-    "remaining_missing_fields": 389,
-    "photo_added": 18,
-    "fitment_added": 14,
-    "make_model_pairs_added": 33,
-    "configurations_added": 34
+    "remaining_missing_fields": 388,
+    "photo_added": 19,
+    "fitment_added": 15,
+    "make_model_pairs_added": 34,
+    "configurations_added": 35
   },
   "prepared_candidate": null,
   "source_limits": [
@@ -9588,54 +9590,6 @@
         }
       ],
       "next_offer_id": 25099
-    },
-    {
-      "article": "1026605GH031",
-      "brand": "JAC",
-      "has_fitment": false,
-      "id": 26223,
-      "kaspi_url": "https://kaspi.kz/shop/p/datchik-kisloroda-jac-1026605gh031-145082545/?c=750000000",
-      "main_image": "",
-      "name": "Датчик кислорода JAC",
-      "photo_status": "needs_source",
-      "product_id": 7832,
-      "profit": 4552.5,
-      "stock": "2",
-      "supplier_id": 5,
-      "task_id": 5805,
-      "offer_id": 26223,
-      "status": "prepared_photo_and_fitment",
-      "checked_on": "2026-11-11",
-      "source_url": "https://www.diesel-dv.ru/catalog/elektrooborudovanie/datchiki/21789589/",
-      "source_label": "Дизель — независимый каталог продавца",
-      "source_kind": "retailer_catalogue",
-      "source_article": "1026605GH031",
-      "fitments": [
-        {
-          "make": "JAC",
-          "model": "T6",
-          "notes": "Кислородный датчик, оригинал JAC. Модель T6 указана в названии; годы, двигатель, регион и положение не подтверждены данным источником."
-        }
-      ],
-      "fitment_note": "Точный бренд JAC и полный артикул совпадают в заголовке и таблице характеристик. Применимость аналога AQBP/STARTVOLT не переносилась.",
-      "image_url": "https://www.diesel-dv.ru/upload/iblock/199/nxpwghnagchnww5zxo3bzeoqwti5fmgh.jpg",
-      "local_path": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/e2e5a66c-25ee-4fe6-8242-8ed98fd15d51",
-      "image_note": "Фото одного точного оригинального датчика JAC1026605GH031 с проводом, разъёмом и измерительной линейкой. Сайт продавца явно указывает бренд и артикул.",
-      "checked_sources": [
-        {
-          "url": "https://www.diesel-dv.ru/catalog/elektrooborudovanie/datchiki/21789589/",
-          "result": "exact JAC article and real photo; T6 in title. No year/engine inferred."
-        },
-        {
-          "url": "https://shop.globalparts.kz/catalog/card/204541",
-          "result": "search result brand AQBP, not JAC; excluded"
-        },
-        {
-          "url": "https://startvolt.com/catalogue/datchiki-avtomobilnye/datchiki-kisloroda/datchik-kisloroda-dlya-avtomobiley-jac-t6-15-2-0t-posle-katalizatora-vs-os-0205/",
-          "result": "search result alternate STARTVOLT article; excluded"
-        }
-      ],
-      "next_offer_id": 26494
     },
     {
       "article": "51712-2E300",
