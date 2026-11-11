@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 13976,
   "offer_id": 35196,
-  "status": "prepared_photo_existing_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://cars245.com/ru/item/motorad-45888K-thermostat-coolant/",
   "source_label": "Cars245 — независимый каталог продавца",
@@ -24,11 +24,20 @@
   "source_article": "458-88K",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/2a153664-251d-4e0b-8dc2-a0c5c560fd3e",
   "image_url": "https://cars245images.cc/webp/big/motorad/3d/motorad-45888K.jpg.webp",
   "image_note": "Точная карточка MOTORAD458-88K,88°C,EAN4037784012246. Визуально один термостат в металлическом угловом корпусе с уплотнением,фотоCars245; не инойартикул458безK. Существующая применимость сохранена.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/233db536e1de3c2c770e3570ca20579358278d54394e0fd1c927e70d0421a198.webp",
+    "thumbnail_path": "products/optimized/c3e99038bb575a9d9e4f6fa1a9b6819f4ba87e232596305de8d7db7c24ada37b.webp",
+    "main_size": [
+      800,
+      800
+    ],
+    "thumbnail_size": [
+      180,
+      180
+    ]
   },
   "fitment_status": "existing_preserved",
   "checked_sources": [
@@ -39,6 +48,29 @@
   ],
   "next_offer_id": 22113,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T12:39:08.885Z"
+  },
+  "source_sha256": "22701977af7da3d8c7077b9f0178205a9210f1d810e71b618d560fe715930816",
+  "main_sha256": "233db536e1de3c2c770e3570ca20579358278d54394e0fd1c927e70d0421a198",
+  "main_size": [
+    800,
+    800
+  ],
+  "thumbnail_sha256": "c3e99038bb575a9d9e4f6fa1a9b6819f4ba87e232596305de8d7db7c24ada37b",
+  "thumbnail_size": [
+    180,
+    180
+  ],
+  "publication": {
+    "commit": "ad43a3c6edc4955b1a623ce66e1a32c1b133be2f",
+    "deploy": "dep-dbq62b5g1s2s739i35ig",
+    "status": "live"
   }
 }
