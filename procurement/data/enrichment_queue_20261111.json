@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T10:00:48.746Z",
+  "checked_at": "2026-11-11T10:00:51.978Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -2430,14 +2430,14 @@
       "id": 35211,
       "kaspi_price": 9111,
       "kaspi_url": "https://kaspi.kz/shop/p/motorad-termostat-614-77k-174078052/?c=750000000",
-      "main_image": "",
+      "main_image": "products/optimized/303dadcf5fe7b4f9392e763f776ba4e27432b776be4472f7eb181eba34ced4b9.webp",
       "name": "Термостат 77°С",
-      "photo_status": "needs_source",
+      "photo_status": "done",
       "product_id": 16018,
       "profit": 2972.125,
       "stock": "2",
       "supplier_id": 3,
-      "supplier_thumbnail": "",
+      "supplier_thumbnail": "products/optimized/5a53368d8794e8bcceb8d89bf13a07ff42a97dcdeeddf525a98c66305ae9996c.webp",
       "task_id": 13991
     },
     {
@@ -11118,7 +11118,7 @@
     }
   ],
   "results": [],
-  "next_offer_id": 35211,
+  "next_offer_id": 35223,
   "batch": {
     "supplier_id": 3,
     "batch_number": 2,
@@ -11224,14 +11224,14 @@
       22758,
       22944
     ],
-    "reviewed": 52,
+    "reviewed": 53,
     "published_fitments": 1,
-    "published_photos": 10,
+    "published_photos": 11,
     "unconfirmed": 42,
-    "next_offer_id": 35211,
-    "photos_present": 12,
+    "next_offer_id": 35223,
+    "photos_present": 13,
     "fitments_present": 54,
-    "both_present": 10,
+    "both_present": 11,
     "created_at": "2026-11-11T09:25:39.710Z",
     "fixed": true
   },
@@ -11274,7 +11274,8 @@
     35208,
     35138,
     35204,
-    35135
+    35135,
+    35211
   ],
   "reviewed_offer_ids": [
     26787,
@@ -11428,16 +11429,17 @@
     35208,
     35138,
     35204,
-    35135
+    35135,
+    35211
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 152,
-    "remaining_unreviewed": 256,
+    "reviewed": 153,
+    "remaining_unreviewed": 255,
     "unconfirmed_reviewed": 113,
-    "remaining_missing_fields": 369,
-    "photo_added": 38,
+    "remaining_missing_fields": 368,
+    "photo_added": 39,
     "fitment_added": 26,
     "make_model_pairs_added": 59,
     "configurations_added": 70
@@ -11511,50 +11513,6 @@
     "unchanged_trade_data": true
   },
   "prepared_candidates": [
-    {
-      "article": "614-77K",
-      "brand": "MOTORAD",
-      "cost": 4750,
-      "has_fitment": true,
-      "id": 35211,
-      "kaspi_price": 9111,
-      "kaspi_url": "https://kaspi.kz/shop/p/motorad-termostat-614-77k-174078052/?c=750000000",
-      "main_image": "",
-      "name": "Термостат 77°С",
-      "photo_status": "needs_source",
-      "product_id": 16018,
-      "profit": 2972.125,
-      "stock": "2",
-      "supplier_id": 3,
-      "supplier_thumbnail": "",
-      "task_id": 13991,
-      "offer_id": 35211,
-      "status": "prepared_photo_existing_fitment",
-      "checked_on": "2026-11-11",
-      "source_url": "https://cars245.com/en/item/motorad-61477K-thermostat-coolant/",
-      "source_label": "Cars245 — независимый каталог продавца",
-      "source_kind": "retailer_catalogue",
-      "source_article": "614-77K",
-      "fitments": [],
-      "fitment_note": "Существующая применимость сохранена.",
-      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/b6e83fa7-9a7e-4d01-981e-74bc977fc3a0",
-      "image_url": "https://cars245images.cc/webp/big/motorad/c2/motorad-61477K.jpg.webp",
-      "image_note": "MOTORAD614-77K,77°C,безкорпуса,суплотнением и воздушнымклапаном. Точное исполнениеK,реальнаядетальвизуальнопроверена.",
-      "photo": {
-        "status": "downloaded_visually_verified_not_queued"
-      },
-      "fitment_status": "existing_preserved",
-      "checked_sources": [
-        {
-          "url": "https://cars245.com/en/item/motorad-61477K-thermostat-coolant/",
-          "result": "MOTORAD614-77K,77°C,безкорпуса,суплотнением и воздушнымклапаном. Точное исполнениеK,реальнаядетальвизуальнопроверена."
-        }
-      ],
-      "next_offer_id": 24799,
-      "verification": {
-        "trade_data_unchanged": true
-      }
-    },
     {
       "article": "CH5538",
       "brand": "MOTORAD",
