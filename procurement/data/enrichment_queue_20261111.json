@@ -9473,7 +9473,13 @@
     ],
     "prepared_photos": 3,
     "prepared_fitments": 3,
-    "status": "committed_waiting_deploy"
+    "status": "fitments_saved_photos_staged_waiting_deploy",
+    "deploy": "dep-dbq230dg1s2s739cu69g",
+    "fitments_saved": 3,
+    "make_model_pairs_saved": 6,
+    "photo_tasks_staged": 3,
+    "photos_saved": 0,
+    "ui_verified": false
   },
   "superseded_candidates": [
     26720,
