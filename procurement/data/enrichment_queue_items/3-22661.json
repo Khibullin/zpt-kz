@@ -1,0 +1,38 @@
+{
+  "article": "AP-61",
+  "brand": "AKIKA",
+  "cost": 7811,
+  "has_fitment": true,
+  "id": 22661,
+  "kaspi_price": 11803,
+  "kaspi_url": "https://kaspi.kz/shop/p/kolodki-akika-perednie-ap-61-175066847/?c=750000000",
+  "main_image": "",
+  "name": "AKIKA Дисковые тормозные колодки керамические | передние",
+  "photo_status": "needs_source",
+  "product_id": 4394,
+  "profit": 2266.625,
+  "stock": "2",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 2367,
+  "offer_id": 22661,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "AKIKA AP-61: два поисковых движка не дали точной независимой карточки с реальным фото; AP-64/AP-74 и другие похожие артикулы исключены. Существующая применимость сохранена.",
+  "checked_sources": [
+    {
+      "query": "\"AKIKA\" \"AP-61\"",
+      "result": "No exact independent product image in bothsearchengines"
+    }
+  ],
+  "next_offer_id": 23293,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true
+  }
+}
