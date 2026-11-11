@@ -1,0 +1,53 @@
+{
+  "article": "2435025000",
+  "brand": "HYUNDAI-KIA",
+  "has_fitment": false,
+  "id": 26720,
+  "kaspi_url": "https://kaspi.kz/shop/p/hyundai-kia-shesternja-raspredelitel-nogo-vala-2435025000-129261530/?c=750000000",
+  "main_image": "",
+  "name": "Звезда ГРМ Hyundai",
+  "photo_status": "needs_source",
+  "product_id": 8194,
+  "profit": 5200,
+  "stock": "5",
+  "supplier_id": 5,
+  "task_id": 6167,
+  "checked_on": "2026-11-11",
+  "status": "source_verified_not_published",
+  "source_url": "https://www.hyundaipartsdeal.com/genuine/hyundai-cvvt-assy-int~24350-25000.html",
+  "source_label": "HyundaiPartsDeal, retailer OEM catalogue, US region",
+  "source_kind": "retailer_catalogue",
+  "reason": "Exact part number and complete table read; not yet packaged/imported, no photo visually checked.",
+  "fitments": [
+    {
+      "make": "HYUNDAI",
+      "model": "GENESIS COUPE",
+      "years": "2008-2016",
+      "engine": "DOHC - TCI/MPI",
+      "body": "Coupe - 2Door 4P"
+    },
+    {
+      "make": "HYUNDAI",
+      "model": "SANTA FE",
+      "years": "2009-2012",
+      "engine": "DOHC - MPI",
+      "body": "Wagon - 5Door 5P"
+    },
+    {
+      "make": "HYUNDAI",
+      "model": "SONATA",
+      "years": "2005-2010",
+      "engine": "DOHC - MPI",
+      "body": "4 Door Sedan; Sedan - 4Door 5P",
+      "notes": "High Grade; Middle Grade"
+    },
+    {
+      "make": "HYUNDAI",
+      "model": "TUCSON",
+      "years": "2009-2013",
+      "engine": "DOHC - MPI",
+      "body": "Wagon - 5Door 5P"
+    }
+  ],
+  "next_offer_id": 25371
+}
