@@ -2,7 +2,11 @@
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
   "checked_at": "2026-11-11T08:08:46.066Z",
-  "lease": null,
+  "lease": {
+    "owner": "enrichment-20261111T0848Z",
+    "acquired_at": "2026-11-11T08:48:11.994Z",
+    "expires_at": "2026-11-11T09:38:11.995Z"
+  },
   "next_supplier": 5,
   "batch_size": 100,
   "queue": [
