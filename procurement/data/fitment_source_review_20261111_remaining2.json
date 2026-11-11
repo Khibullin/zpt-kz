@@ -1,6 +1,6 @@
 {
   "checked_on": "2026-11-11",
-  "status": "Prepared; deploy and live verification pending.",
+  "status": "APPLIED AND VERIFIED live2026-11-11T05:03:54Z. Do not import/stage these two again.",
   "scope": "Two remaining top50 exact photographs and independently sourced retailer fitments, supplier3.",
   "before": [
     {
@@ -117,6 +117,62 @@
     "pairs": 4,
     "configurations": 8
   },
-  "next": "Fresh DB; preserve any new manager writes. ASVA0224-084 remains ambiguous in independent listings; leave unfilled.",
-  "restrictions": "Prior manufacturer/PDF refusals and two Kaspi page refusals retained. Do not retry alternative channel/URL. ASVA/Alta-Karter sources not requested."
+  "next": "Task not complete. Begin fresh DB. Skip all4 completed photo tasks2990/13929/1538/4508 and both newly filled offers. First reuse shared base for four WINKOD matches recorded below with exact IDs and fresh no-fitment checks. Continue independent source confirmation for last top50ASVA0224-084 without requesting ASVA/Alta-Karter. Then remaining supplier3/5 priorities. Keep automation enabled.",
+  "restrictions": "Prior manufacturer/PDF refusals and two Kaspi page refusals retained. Do not retry alternative channel/URL. ASVA/Alta-Karter sources not requested.",
+  "shared_base_next": {
+    "status": "Read-only live discovery, not applied. Existing fill_from_shared_base can reuse exact validated identities. Recheck fresh DB first.",
+    "supplier_id": 3,
+    "targets": [
+      {
+        "offer_id": 55056,
+        "brand": "WINKOD",
+        "article": "W333516SA",
+        "source_offer": 25270
+      },
+      {
+        "offer_id": 55057,
+        "brand": "WINKOD",
+        "article": "W333517SA",
+        "source_offer": 25218
+      },
+      {
+        "offer_id": 55059,
+        "brand": "WINKOD",
+        "article": "W333519SA",
+        "source_offer": 25195
+      },
+      {
+        "offer_id": 55289,
+        "brand": "WINKOD",
+        "article": "W335624SA",
+        "source_offer": 25273
+      }
+    ]
+  },
+  "last_unfilled_top50": {
+    "offer_id": 23358,
+    "brand": "ASVA",
+    "article": "0224-084",
+    "source_url": "https://baza.drom.ru/krasnoyarsk/sell_spare_parts/rychag-perednij-nizhnij-pravyj-toyota-mark-x-is250-asva-0224-084-g18508367564.html",
+    "status": "Successfully read independent listing. Exact article in title, ASVA, front right lower arm, explicit MARK-X/IS250 in seller description. Broad vehicle tags/engine list contain questionable model associations; do not import those wholesale. Candidate limited models Toyota Mark X / Lexus IS250 need independent confirmation; not imported. No ASVA manufacturer request."
+  },
+  "code_commit": "b096dcb15fbc05b687ae8d36db57ade94c335a59",
+  "deploy_id": "dep-dbpvd3ss728c738sqfeg",
+  "after": {
+    "photos": 19278,
+    "queue": {
+      "done": 18918,
+      "needs_source": 28961,
+      "skipped": 1614
+    },
+    "verified_offers": 4355
+  },
+  "top50_after": {
+    "photos": 50,
+    "verified_offers": 49,
+    "unfilled_fitments": [
+      "ASVA0224-084 offer23358"
+    ]
+  },
+  "live_verification": "All8 configurations/4 pairs match frozen payload exactly with full source URLs. All other offer fields unchanged; pre-existing metadata retained. Both tasks1538/4508done with source/hash evidence and compressed800/180 bounded images. Three SQLite tests passed, idempotent processing. Migration0032 applied, activity5495=2offers4pairs. Existing single consumer saved photos; no separate consumer/producer or manual restart. Recovery earlier in this run added2other photographs; total run+4photos,+2fitment offers."
 }
