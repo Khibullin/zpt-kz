@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T12:27:09.607Z",
+  "checked_at": "2026-11-11T12:28:36.472Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -11696,7 +11696,13 @@
     "2026-11-11 partmall.ru/product/PATRON/PSA343398 not accessible; no alternative path/protocol/channel retry for this item.",
     "2026-11-11 avtoall.ru exact7122009006 browser asks disableVPN; no settings/network change or alternate route for that item. Other independent sources used.",
     "2026-11-11 CTR primary BushCatalogue2020Re02 PDF firstTimeout thenone sameURL retryRedirectLoop; no further/mirror/version download.",
-    "Historical cart.bilsteinus.com/mounting-kit-12-244966.html not accessible; do not retry via other URL/protocol/channel."
+    "Historical cart.bilsteinus.com/mounting-kit-12-244966.html not accessible; do not retry via other URL/protocol/channel.",
+    {
+      "host": "ljapan.ru",
+      "checked_at": "2026-11-11T12:28:36.472Z",
+      "result": "Browser CAPTCHA sliders: Are you sure you are not a robot; no solve, retry or alternative routes.",
+      "url": "https://ljapan.ru/catalog/avtomobilnye_zapchasti/detali_podveski/nakonechniki/nakonechnik_rulevoy_seh501r_555/"
+    }
   ],
   "pending_publication": null,
   "superseded_candidates": [
@@ -11841,6 +11847,50 @@
         }
       ],
       "next_offer_id": 22113,
+      "verification": {
+        "trade_data_unchanged": true
+      }
+    },
+    {
+      "article": "SE-H501R",
+      "brand": "555",
+      "cost": 5467,
+      "has_fitment": true,
+      "id": 22113,
+      "kaspi_price": 8179,
+      "kaspi_url": "https://kaspi.kz/shop/p/555-rulevoi-nakonechnik-se-h501r-174088527/?c=750000000",
+      "main_image": "",
+      "name": "555 Наконечник рулевой тяги",
+      "photo_status": "skipped",
+      "product_id": 3850,
+      "profit": 1439.625,
+      "stock": "10",
+      "supplier_id": 3,
+      "supplier_thumbnail": "",
+      "task_id": 1823,
+      "offer_id": 22113,
+      "status": "prepared_photo_existing_fitment",
+      "checked_on": "2026-11-11",
+      "source_url": "https://www.recambioscoche.es/555-13054704.html",
+      "source_label": "Recambioscoche / AUTODOC — независимый каталог продавца",
+      "source_kind": "retailer_catalogue",
+      "source_article": "SE-H501R",
+      "fitments": [],
+      "fitment_note": "Существующая применимость сохранена.",
+      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/462053e0-adb1-436a-8e1f-8af31aec2670",
+      "image_url": "https://cdn.autoteiledirekt.de/thumb?id=13054704&m=1&n=0&lng=es&rev=94078121",
+      "image_note": "Точная карточка555SE-H501R,внешний правый,13.7мм. Визуально один чёрный наконечник с гайкой и водяным знаком555,не левый/пара. Существующая применимость сохранена. Предыдущий независимый ljapan.ru показал CAPTCHA,не решалась,без повторов/обхода.",
+      "photo": {
+        "status": "downloaded_visually_verified_not_queued"
+      },
+      "fitment_status": "existing_preserved",
+      "checked_sources": [
+        {
+          "url": "https://www.recambioscoche.es/555-13054704.html",
+          "result": "Точная карточка555SE-H501R,внешний правый,13.7мм. Визуально один чёрный наконечник с гайкой и водяным знаком555,не левый/пара. Существующая применимость сохранена. Предыдущий независимый ljapan.ru показал CAPTCHA,не решалась,без повторов/обхода."
+        }
+      ],
+      "next_offer_id": 22703,
       "verification": {
         "trade_data_unchanged": true
       }
