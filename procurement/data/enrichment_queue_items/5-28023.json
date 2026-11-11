@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 6958,
   "offer_id": 28023,
-  "status": "prepared_photo_and_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://www.gmpartsgiant.com/parts/gm-cap-hub-96837065.html",
   "source_label": "GMPartsGiant — независимый продавец оригинальных GM",
@@ -48,12 +48,21 @@
   "fitment_note": "Точные строки GMPartsGiant 96837065 сверены в живом браузере: Orlando 2012–2014 и Trailblazer 2021–2024; три двигателя сохранены отдельно. Общий период заголовка не расширялся. Фото GMPartsGiant показывает четыре колпачка и исключено для позиции на 1 шт.; подходящее фото одного колпачка взято из независимой точной карточки GM Parts Warehouse.",
   "image_source_url": "https://www.gmpartswarehouse.com/oem-parts/gm-center-cap-96837065",
   "image_url": "https://cdn-product-images.revolutionparts.io/assets/ef32aaa51afcf786be2d918e6663857a.webp",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/e073a5a7-4f7e-4c93-85d4-8368ab39628e",
   "image_note": "Реальный один серебристый колпачок с эмблемой Chevrolet из точной оригинальной GM 96837065 карточки. Фото комплекта из четырёх исключено; комплектность 1 шт. сохранена.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/81e9840c4f1a59b61577ed1c5cce22b4cca21b1b04c060861f81db1ee8526405.webp",
+    "thumbnail_path": "products/optimized/4285c9de7e8d6b4b4c002439ec1afec6039bdf05d1da66752403bc17df1f32a1.webp",
+    "main_size": [
+      640,
+      426
+    ],
+    "thumbnail_size": [
+      180,
+      120
+    ]
   },
-  "fitment_status": "prepared_not_imported",
+  "fitment_status": "saved_db_and_ui_verified",
   "checked_sources": [
     {
       "url": "https://www.gmpartsgiant.com/parts/gm-cap-hub-96837065.html",
@@ -66,6 +75,29 @@
   ],
   "next_offer_id": 26834,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T11:34:06.326Z"
+  },
+  "source_sha256": "2d51e0778b5a7dd07635defaaa410764eca0104bed6f4391c2e63505e2b66230",
+  "main_sha256": "81e9840c4f1a59b61577ed1c5cce22b4cca21b1b04c060861f81db1ee8526405",
+  "main_size": [
+    640,
+    426
+  ],
+  "thumbnail_sha256": "4285c9de7e8d6b4b4c002439ec1afec6039bdf05d1da66752403bc17df1f32a1",
+  "thumbnail_size": [
+    180,
+    120
+  ],
+  "publication": {
+    "commit": "67ceb32acec7ee3307f1a9a44c0c779c90797192",
+    "deploy": "dep-dbq53i8473hc73ch8gv0",
+    "status": "live"
   }
 }
