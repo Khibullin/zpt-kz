@@ -13,7 +13,7 @@
   "supplier_id": 5,
   "task_id": 4862,
   "offer_id": 25410,
-  "status": "prepared_photo_and_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://u-parts.ru/shop/detail/chery_602001193aa.html",
   "source_label": "U-Parts — независимый каталог продавца",
@@ -32,10 +32,19 @@
   ],
   "fitment_note": "Точная карточка CHERY602001193AA. Использована конкретная строка модели2021–2024,1.6AMT186л.с.; общее открытое название не расширяет годы.",
   "image_url": "https://u-parts.ru/1C/Images_Lo/chery_602001193aa_11c2d9ce-cd33-4200-a5d6-15c28cdb026a.jpg",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/c09a9d89-478e-4475-b2cd-bbc7439b1e0f",
   "image_note": "Реальная фотография нижней части заднего бампера CHERY602001193AA;полный артикул подписан на фото и в точной карточке U-Parts.",
   "photo": {
-    "status": "downloaded_exact_verified"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/c6bbd051e5e3eba97254ebfbe992e2607d7cf3e03f42caa591641b4801e8fc57.webp",
+    "thumbnail_path": "products/optimized/127fe3f6a62efe9d4c6727d74f378415229d0f419916f1d7f1387759cf339b5b.webp",
+    "main_size": [
+      800,
+      609
+    ],
+    "thumbnail_size": [
+      180,
+      137
+    ]
   },
   "checked_sources": [
     {
@@ -49,7 +58,31 @@
   ],
   "next_offer_id": 26623,
   "verification": {
+    "db_verified": true,
+    "ui_verified": true,
+    "photo_visually_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
     "trade_data_unchanged": true,
-    "photo_visually_verified": true
-  }
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T09:12:57.107Z"
+  },
+  "source_sha256": "95c78d36d146cc400ba152bf610dbb1fb0f2b1c833d56d2d30f7a366ac9dd864",
+  "main_sha256": "c6bbd051e5e3eba97254ebfbe992e2607d7cf3e03f42caa591641b4801e8fc57",
+  "main_size": [
+    800,
+    609
+  ],
+  "thumbnail_sha256": "127fe3f6a62efe9d4c6727d74f378415229d0f419916f1d7f1387759cf339b5b",
+  "thumbnail_size": [
+    180,
+    137
+  ],
+  "publication": {
+    "commit": "cd711d8063dc25b30ee190472db94956bff02d0b",
+    "deploy": "dep-dbq313ijnfac739omoi0",
+    "status": "live"
+  },
+  "fitment_status": "saved_db_and_ui_verified"
 }
