@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 2102,
   "offer_id": 22394,
-  "status": "prepared_photo_existing_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://evocar.ua/555/slke100l",
   "source_label": "EVOCAR — независимый каталог продавца",
@@ -24,11 +24,20 @@
   "source_article": "SLK-E100L",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/3422ecfe-6165-4c16-b191-4398a3a8bc68",
   "image_url": "https://cdn.evocar.ua/ede298d3f8ec61628a8989771c0fe904/555-slke100l.jpg",
   "image_note": "Точная карточка 555SLK-E100L,передняя левая,OEM8E0411317. Визуально одна серебристая стойка с двумя втулками,болтами/гайками; на детали555. Существующая применимость сохранена.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/23eef9e5190857ec644d232166ef4dca2c7a88b5a5ce1e3201de110d3b6efd0c.webp",
+    "thumbnail_path": "products/optimized/c345a5202b5805c7c4bc359233dbccfdd6262b6c3643eafca59e214c0e90ca55.webp",
+    "main_size": [
+      692,
+      429
+    ],
+    "thumbnail_size": [
+      180,
+      112
+    ]
   },
   "fitment_status": "existing_preserved",
   "checked_sources": [
@@ -39,6 +48,29 @@
   ],
   "next_offer_id": 23871,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T12:26:46.658Z"
+  },
+  "source_sha256": "381e69a764906db71a331760d0aea49934c8907cc830d9b0d866be91b76ccfe8",
+  "main_sha256": "23eef9e5190857ec644d232166ef4dca2c7a88b5a5ce1e3201de110d3b6efd0c",
+  "main_size": [
+    692,
+    429
+  ],
+  "thumbnail_sha256": "c345a5202b5805c7c4bc359233dbccfdd6262b6c3643eafca59e214c0e90ca55",
+  "thumbnail_size": [
+    180,
+    112
+  ],
+  "publication": {
+    "commit": "d3c9542cecfd849c5e190b514d72acff618374d0",
+    "deploy": "dep-dbq5rv8ae00c73fr6cmg",
+    "status": "live"
   }
 }
