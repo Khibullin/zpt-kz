@@ -1,0 +1,41 @@
+{
+  "article": "58411-3A300",
+  "brand": "JASHI",
+  "has_fitment": true,
+  "id": 26475,
+  "kaspi_url": "https://kaspi.kz/shop/p/diski-jashi-zadnie-58411-3a300-148268102/?c=750000000",
+  "main_image": "",
+  "name": "Диск тормозной Hyundai",
+  "photo_status": "needs_source",
+  "product_id": 8098,
+  "profit": 4190,
+  "stock": "4",
+  "supplier_id": 5,
+  "task_id": 6071,
+  "offer_id": 26475,
+  "status": "reviewed_photo_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "exact_source_not_found",
+    "reason": "Два независимых поиска не дали точного фото JASHI58411-3A300. Изображения других брендов не переносились."
+  },
+  "checked_sources": [
+    {
+      "query": "\"JASHI\" \"58411-3A300\" -site:kaspi.kz -site:alta-karter.com",
+      "tool": "system2_search",
+      "result": "no exact results"
+    },
+    {
+      "query": "\"JASHI\" \"58411-3A300\" -site:kaspi.kz -site:alta-karter.com",
+      "tool": "system1_search",
+      "result": "no exact results"
+    }
+  ],
+  "next_offer_id": 26527,
+  "verification": {
+    "existing_fitment_preserved": true,
+    "trade_data_unchanged": true
+  }
+}
