@@ -1,0 +1,43 @@
+{
+  "article": "BRSS58",
+  "brand": "BRAVE",
+  "has_fitment": true,
+  "id": 26299,
+  "kaspi_url": "https://kaspi.kz/shop/p/brave-datchik-temperatury-ohlazhdajuschei-zhidkosti-brss58-121438197/?c=750000000",
+  "main_image": "",
+  "name": "Датчик температуры Chevrolet",
+  "photo_status": "needs_source",
+  "product_id": 7797,
+  "profit": 4165,
+  "stock": "1",
+  "supplier_id": 5,
+  "task_id": 5770,
+  "offer_id": 26299,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "exact_photo_unconfirmed",
+    "reason": "Точная карточка Autoopt подтверждает BRAVE BRSS58, но фотографии нет. Optipart временный timeout. Yandex/PARTKOM показал SmartCaptcha; не обходили. Существующая применимость сохранена."
+  },
+  "checked_sources": [
+    {
+      "url": "https://www.autoopt.ru/catalog/073348-datchik_temperatury_chevrolet_cobalt_12__ohlazhdajuschej_zhidkosti_brave",
+      "result": "exactbrand/article no productphoto"
+    },
+    {
+      "url": "https://optipart.ru/catalog/b/brave/47/",
+      "result": "temporaryTimeout"
+    },
+    {
+      "url": "https://market.yandex.uz/card/datchik-temperatury-okhlazhdayushchey-zhidkosti-25186240-br-ss58-cobalt-spark-m300-brave-brss58/4708508443",
+      "result": "SmartCaptcha automatedrequests; no bypass/retry"
+    }
+  ],
+  "next_offer_id": 26943,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true
+  }
+}
