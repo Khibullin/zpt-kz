@@ -1,0 +1,38 @@
+{
+  "article": "8210200U2262",
+  "brand": "JASHI",
+  "cost": 26100,
+  "has_fitment": false,
+  "id": 26737,
+  "kaspi_price": 33860,
+  "kaspi_url": "https://kaspi.kz/shop/p/zerkalo-v-sbore-jashi-8210200u2262-pravoe-dlja-jac-s3-pro-2022-2024-120745050/?c=750000000",
+  "main_image": "",
+  "name": "Зеркало заднего JAC",
+  "photo_status": "needs_source",
+  "product_id": 8252,
+  "profit": 3277.5,
+  "stock": "1",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 6225,
+  "offer_id": 26737,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "unconfirmed",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "JASHI 8210200U2262: Найдено зеркало JAC с этим OEM, но не независимая точная карточка JASHI; бренд не подменён. Ранее запрещённый Kaspi/CDN не запрашивался.",
+  "checked_sources": [
+    {
+      "query": "\"JASHI\" \"8210200U2262\"",
+      "result": "Bothsearchengines reviewed. Найдено зеркало JAC с этим OEM, но не независимая точная карточка JASHI; бренд не подменён."
+    }
+  ],
+  "next_offer_id": 26519,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": false
+  }
+}
