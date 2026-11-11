@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 4489,
   "offer_id": 24812,
-  "status": "prepared_photo_and_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://cart.bilsteinus.com/steering-damper-18-140644.html",
   "source_label": "BILSTEIN USA — каталог производителя",
@@ -75,10 +75,19 @@
   "fitment_note": "Точная карточка BILSTEIN18-140644 содержит явный список8моделей с индивидуальнымигодами. Ограничения иных18-/22-номеров и отклонённыеPDFне запрашивались;моторы не добавлены.",
   "image_source_url": "https://spareto.com/products/bilstein-shock-absorber-steering/18-140644",
   "image_url": "https://cdn.spareto.com/variants/images_webp/001/106/476/medium/18-140644-31626442.webp?1793023352",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/4841b8a1-a086-4438-a232-1e966da2786c",
   "image_note": "Точный BILSTEIN18-140644,одинчёрный рулевойдемпфер,фотоSpareto визуально проверено.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/75e4286e90e816ddee3b53bca756655c29396f61cd463317848cfb4938c5df02.webp",
+    "thumbnail_path": "products/optimized/be96cbadbb68051934cbee3be9ec83271601b344d1a3f15eb0f52d535dfa4e39.webp",
+    "main_size": [
+      360,
+      360
+    ],
+    "thumbnail_size": [
+      180,
+      180
+    ]
   },
   "checked_sources": [
     {
@@ -96,6 +105,30 @@
   ],
   "next_offer_id": 23819,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T10:00:56.487Z"
+  },
+  "fitment_status": "saved_db_and_ui_verified",
+  "source_sha256": "cd5b2f01fe06eff70193c76e8ec709e6b4beb4947c1b8e5899215df84e447f76",
+  "main_sha256": "75e4286e90e816ddee3b53bca756655c29396f61cd463317848cfb4938c5df02",
+  "main_size": [
+    360,
+    360
+  ],
+  "thumbnail_sha256": "be96cbadbb68051934cbee3be9ec83271601b344d1a3f15eb0f52d535dfa4e39",
+  "thumbnail_size": [
+    180,
+    180
+  ],
+  "publication": {
+    "commit": "6d50b89ddbdaea78c8ee72c5f924121782c91caf",
+    "deploy": "dep-dbq3nju7bikc738hoo40",
+    "status": "live"
   }
 }
