@@ -1,0 +1,28 @@
+{
+  "article": "1601100XSY13A",
+  "brand": "HAVAL",
+  "has_fitment": true,
+  "id": 28171,
+  "kaspi_url": "https://kaspi.kz/shop/p/haval-korzina-stseplenija-1601100xsy13a-130265976/?c=750000000",
+  "main_image": "",
+  "name": "Корзина сцепления HAVAL",
+  "photo_status": "needs_source",
+  "product_id": 9171,
+  "profit": 4915,
+  "stock": "2",
+  "supplier_id": 5,
+  "task_id": 7144,
+  "status": "prepared_photo_keep_existing_fitment",
+  "checked_on": "2026-11-11",
+  "source_url": "https://kaspi.kz/shop/p/haval-korzina-stseplenija-1601100xsy13a-130265976/?c=750000000",
+  "source_label": "точная карточка Kaspi",
+  "source_kind": "retailer_listing",
+  "fitments": [],
+  "fitment_note": "Существующая применимость сохраняется. Осмотр: одиночная корзина без диска/выжимного, точный артикул1601100XSY13A. Есть независимый OEM cross Valeo/Trialli.",
+  "photo": {
+    "image_url": "https://resources.cdn-kaspi.kz/img/m/p/p05/pb1/9106745.jpg?format=gallery-medium",
+    "local_path": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/e335eec6-1526-4be2-a31d-bc5b33292345",
+    "status": "downloaded_visually_verified_not_uploaded"
+  },
+  "next_offer_id": 25245
+}
