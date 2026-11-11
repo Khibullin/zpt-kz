@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T10:29:17.223Z",
+  "checked_at": "2026-11-11T10:29:20.268Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -3276,14 +3276,14 @@
       "id": 35178,
       "kaspi_price": 12381,
       "kaspi_url": "https://kaspi.kz/shop/p/motorad-termostat-343-77k-174077905/?c=750000000",
-      "main_image": "",
+      "main_image": "products/optimized/7fa12e52c239760947a126f31c215f1f97b175cd1aff08dd172b6215c02bb5c8.webp",
       "name": "Термостат 77°С",
-      "photo_status": "needs_source",
+      "photo_status": "done",
       "product_id": 15986,
       "profit": 2213.375,
       "stock": "1",
       "supplier_id": 3,
-      "supplier_thumbnail": "",
+      "supplier_thumbnail": "products/optimized/3c49914c079db283a5a8ee564cdda739fed4246bd369f1141992e08a2974f4af.webp",
       "task_id": 13959
     },
     {
@@ -11118,7 +11118,7 @@
     }
   ],
   "results": [],
-  "next_offer_id": 35178,
+  "next_offer_id": 35148,
   "batch": {
     "supplier_id": 3,
     "batch_number": 2,
@@ -11224,14 +11224,14 @@
       22758,
       22944
     ],
-    "reviewed": 94,
+    "reviewed": 95,
     "published_fitments": 6,
-    "published_photos": 23,
+    "published_photos": 24,
     "unconfirmed": 71,
-    "next_offer_id": 35178,
-    "photos_present": 25,
+    "next_offer_id": 35148,
+    "photos_present": 26,
     "fitments_present": 59,
-    "both_present": 23,
+    "both_present": 24,
     "created_at": "2026-11-11T09:25:39.710Z",
     "fixed": true
   },
@@ -11287,7 +11287,8 @@
     35151,
     35153,
     35149,
-    22522
+    22522,
+    35178
   ],
   "reviewed_offer_ids": [
     26787,
@@ -11483,16 +11484,17 @@
     21933,
     35153,
     35149,
-    22522
+    22522,
+    35178
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 194,
-    "remaining_unreviewed": 214,
+    "reviewed": 195,
+    "remaining_unreviewed": 213,
     "unconfirmed_reviewed": 142,
-    "remaining_missing_fields": 356,
-    "photo_added": 51,
+    "remaining_missing_fields": 355,
+    "photo_added": 52,
     "fitment_added": 31,
     "make_model_pairs_added": 81,
     "configurations_added": 115
@@ -11566,50 +11568,6 @@
     "unchanged_trade_data": true
   },
   "prepared_candidates": [
-    {
-      "article": "343-77K",
-      "brand": "MOTORAD",
-      "cost": 8370,
-      "has_fitment": true,
-      "id": 35178,
-      "kaspi_price": 12381,
-      "kaspi_url": "https://kaspi.kz/shop/p/motorad-termostat-343-77k-174077905/?c=750000000",
-      "main_image": "",
-      "name": "Термостат 77°С",
-      "photo_status": "needs_source",
-      "product_id": 15986,
-      "profit": 2213.375,
-      "stock": "1",
-      "supplier_id": 3,
-      "supplier_thumbnail": "",
-      "task_id": 13959,
-      "offer_id": 35178,
-      "status": "prepared_photo_existing_fitment",
-      "checked_on": "2026-11-11",
-      "source_url": "https://spareto.com/products/motorad-thermostat-coolant/343-77k",
-      "source_label": "Spareto — независимый каталог продавца",
-      "source_kind": "retailer_catalogue",
-      "source_article": "343-77K",
-      "fitments": [],
-      "fitment_note": "Существующая применимость сохранена.",
-      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/8f9775a9-dd86-498b-8ede-f1513d06c45d",
-      "image_url": "https://cdn.spareto.com/variants/images_webp/005/602/058/medium/343-77k-203304CF.webp?1793166015",
-      "image_note": "Точная MOTORAD 343-77K: реальная фотография металлического термостата в корпусе; карточка подтверждает77°C и уплотнение. Существующая применимость сохранена.",
-      "photo": {
-        "status": "downloaded_visually_verified_not_queued"
-      },
-      "fitment_status": "existing_preserved",
-      "checked_sources": [
-        {
-          "url": "https://spareto.com/products/motorad-thermostat-coolant/343-77k",
-          "result": "Точная MOTORAD 343-77K: реальная фотография металлического термостата в корпусе; карточка подтверждает77°C и уплотнение. Существующая применимость сохранена."
-        }
-      ],
-      "next_offer_id": 23221,
-      "verification": {
-        "trade_data_unchanged": true
-      }
-    },
     {
       "article": "48041",
       "brand": "NGK",
