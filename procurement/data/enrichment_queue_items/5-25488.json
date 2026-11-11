@@ -13,7 +13,7 @@
   "supplier_id": 5,
   "task_id": 5088,
   "checked_on": "2026-11-11",
-  "status": "prepared_not_published",
+  "status": "published_db_and_ui_verified",
   "source_url": "https://kaspi.kz/shop/p/jashi-bamper-2803101u1556-dlja-jac-s5-2018-2022-119282686/?c=750000000",
   "source_label": "характеристики точной карточки Kaspi; независимая строка Autopiter подтверждает модель/исполнение",
   "source_kind": "retailer_listing",
@@ -30,7 +30,10 @@
   "photo": {
     "image_url": "https://resources.cdn-kaspi.kz/img/m/p/ha2/heb/85990772736030.png?format=gallery-medium",
     "local_path": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/b2928ad8-6bb3-4053-8ab7-15eb1463da85",
-    "status": "downloaded_visually_verified_not_uploaded"
+    "status": "saved_and_ui_loaded"
   },
-  "next_offer_id": 25547
+  "next_offer_id": 25547,
+  "verified_on": "2026-11-11",
+  "commit": "0d263f727887808526c896a78debda20f0161e87",
+  "deploy": "dep-dbq0m83ncjis73ci2tv0"
 }
