@@ -1,0 +1,44 @@
+{
+  "article": "PCI1150",
+  "brand": "PATRON",
+  "cost": 7200,
+  "has_fitment": true,
+  "id": 26829,
+  "kaspi_price": 10746,
+  "kaspi_url": "https://kaspi.kz/shop/p/katushka-zazhiganija-patron-pci1150-114774851/?c=750000000",
+  "main_image": "",
+  "name": "Катушка зажигания Chevrolet",
+  "photo_status": "needs_source",
+  "product_id": 8478,
+  "profit": 1952.75,
+  "stock": "2",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 6451,
+  "offer_id": 26829,
+  "status": "prepared_photo_existing_fitment",
+  "checked_on": "2026-11-11",
+  "source_url": "https://texkom.ru/catalog/katushka-zazhiganiya/katushka-zazhiganiya-patron-pci1150/",
+  "source_label": "Техком — независимый каталог продавца",
+  "source_kind": "retailer_catalogue",
+  "source_article": "PCI1150",
+  "fitments": [],
+  "fitment_note": "Существующая применимость сохранена.",
+  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/38af7e95-9453-471c-9d79-0322b5124684",
+  "image_url": "https://texkom.ru/upload/texkom/catalog/e0a/2799241/460976/322x322/katushka-zazhiganiya-patron-pci1150.jpeg",
+  "image_note": "ТочнаяPATRONPCI1150: реальнаяфотографияоднойкатушкизажиганияспроизводственнымводянымзнакомPATRON,разъёмикреплениевидны. Существующаяприменимостьсохранена.",
+  "photo": {
+    "status": "downloaded_visually_verified_not_queued"
+  },
+  "fitment_status": "existing_preserved",
+  "checked_sources": [
+    {
+      "url": "https://texkom.ru/catalog/katushka-zazhiganiya/katushka-zazhiganiya-patron-pci1150/",
+      "result": "ТочнаяPATRONPCI1150: реальнаяфотографияоднойкатушкизажиганияспроизводственнымводянымзнакомPATRON,разъёмикреплениевидны. Существующаяприменимостьсохранена."
+    }
+  ],
+  "next_offer_id": 26288,
+  "verification": {
+    "trade_data_unchanged": true
+  }
+}
