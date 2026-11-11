@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 13940,
   "offer_id": 35143,
-  "status": "prepared_photo_existing_fitment",
+  "status": "published_complete_pending_db_audit",
   "checked_on": "2026-11-11",
   "source_url": "https://www.autodoc.parts/mahle-original/7815094",
   "source_label": "AUTODOC · независимый каталог продавца",
@@ -24,11 +24,20 @@
   "source_article": "TI18289",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/d43fb6f2-3fef-4022-a131-0d9dfde7a896",
   "image_url": "https://cdn.autodoc.de/thumb?id=7815094&m=0&n=0&lng=en&rev=94078121",
   "image_note": "Точная карточкаMAHLE TI18289=TI18289,89°C,с прокладкой;реальное фото термостата с чёрным корпусом и упаковкойMAHLE/BEHR. Существующая применимость сохранена. UIналичие2,закупка7127/Kaspi9712 совпадают с очередью.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_ui_verified_db_audit_pending",
+    "main_path": "products/optimized/e0ca6835fb774820823ef3b517736e64c3807735bc9fad026d092c92cd902a15.webp",
+    "thumbnail_path": "products/optimized/b627134b049b527670dca18b0eceeb5a668fa7f47d25ffd96b2276a60488fca4.webp",
+    "main_size": [
+      800,
+      800
+    ],
+    "thumbnail_size": [
+      180,
+      180
+    ]
   },
   "fitment_status": "existing_preserved",
   "checked_sources": [
@@ -39,6 +48,17 @@
   ],
   "next_offer_id": 35182,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": false,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "visible_trade_and_fitment_text_unchanged": true,
+    "existing_metadata_preserved_by_import": true,
+    "checked_at": "2026-11-11T13:26:43.833Z",
+    "db_audit_pending_reason": "Render MCP temporary Internal errors/timeouts; fresh stored row metadata audit pending"
+  },
+  "publication": {
+    "commit": "b83355cd9994f3667e7ee7842b3bbc9cb23ee5a5",
+    "status": "images_visible_on_live_site_render_status_unavailable"
   }
 }
