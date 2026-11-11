@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T13:26:55.062Z",
+  "checked_at": "2026-11-11T13:26:57.993Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -6156,14 +6156,14 @@
       "id": 22515,
       "kaspi_price": 6733,
       "kaspi_url": "https://kaspi.kz/shop/p/555-rulevaja-tjaga-srk-8520-174088545/?c=750000000",
-      "main_image": "",
+      "main_image": "products/optimized/8805162f4a0e19d1808a44decbdfdd481d681ad3872a090a20cb87cebf486128.webp",
       "name": "555 Рулевая тяга",
-      "photo_status": "skipped",
+      "photo_status": "ui_verified_db_audit_pending",
       "product_id": 4249,
       "profit": 1034.375,
       "stock": "9",
       "supplier_id": 3,
-      "supplier_thumbnail": "",
+      "supplier_thumbnail": "products/optimized/35647e2c0e33a4234e08897e1e2ee8b6846ffa69984a470db1436c271a2f4c08.webp",
       "task_id": 2222
     },
     {
@@ -11156,16 +11156,16 @@
       22123,
       22974
     ],
-    "reviewed": 29,
+    "reviewed": 30,
     "published_fitments": 0,
-    "published_photos": 6,
+    "published_photos": 7,
     "unconfirmed": 23,
-    "photos_present": 7,
+    "photos_present": 8,
     "fitments_present": 15,
-    "both_present": 6,
+    "both_present": 7,
     "created_at": "2026-11-11T13:04:15.851Z",
     "fixed": true,
-    "next_offer_id": 22515,
+    "next_offer_id": 35142,
     "scope_note": "Final original queue remainder; original saved profit order. Render read temporarily unavailable, verify each offer live UI before source/import; do not change scope."
   },
   "completed_offer_ids": [
@@ -11279,7 +11279,8 @@
     35143,
     35182,
     35176,
-    22494
+    22494,
+    22515
   ],
   "reviewed_offer_ids": [
     26787,
@@ -11685,16 +11686,17 @@
     35143,
     35182,
     35176,
-    22494
+    22494,
+    22515
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 404,
-    "remaining_unreviewed": 4,
+    "reviewed": 405,
+    "remaining_unreviewed": 3,
     "unconfirmed_reviewed": 293,
-    "remaining_missing_fields": 297,
-    "photo_added": 111,
+    "remaining_missing_fields": 296,
+    "photo_added": 112,
     "fitment_added": 55,
     "make_model_pairs_added": 126,
     "configurations_added": 164
@@ -11780,50 +11782,6 @@
     "db_verified": false
   },
   "prepared_candidates": [
-    {
-      "article": "SRK-8520",
-      "brand": "555",
-      "cost": 4607,
-      "has_fitment": true,
-      "id": 22515,
-      "kaspi_price": 6733,
-      "kaspi_url": "https://kaspi.kz/shop/p/555-rulevaja-tjaga-srk-8520-174088545/?c=750000000",
-      "main_image": "",
-      "name": "555 Рулевая тяга",
-      "photo_status": "skipped",
-      "product_id": 4249,
-      "profit": 1034.375,
-      "stock": "9",
-      "supplier_id": 3,
-      "supplier_thumbnail": "",
-      "task_id": 2222,
-      "offer_id": 22515,
-      "status": "prepared_photo_existing_fitment",
-      "checked_on": "2026-11-11",
-      "source_url": "https://www.auto-doc.ie/555/13056557",
-      "source_label": "AUTODOC · независимый каталог продавца",
-      "source_kind": "retailer_catalogue",
-      "source_article": "SRK-8520",
-      "fitments": [],
-      "fitment_note": "Существующая применимость сохранена.",
-      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/ad5fd240-66d6-47f5-9bda-13902b20aff4",
-      "image_url": "https://cdn.autodoc.de/thumb?id=13056557&m=0&n=0&lng=en&rev=94078121",
-      "image_note": "Точная карточка555SRK-8520 безM. Реальное фото одной тяги с гайкой и логотипом555;беззубчатой шайбы/другого комплекта. Существующая применимость сохранена. UIналичие9,закупка4607/Kaspi6733 совпадают.",
-      "photo": {
-        "status": "downloaded_visually_verified_not_queued"
-      },
-      "fitment_status": "existing_preserved",
-      "checked_sources": [
-        {
-          "url": "https://www.auto-doc.ie/555/13056557",
-          "result": "Точная карточка555SRK-8520 безM. Реальное фото одной тяги с гайкой и логотипом555;беззубчатой шайбы/другого комплекта. Существующая применимость сохранена. UIналичие9,закупка4607/Kaspi6733 совпадают."
-        }
-      ],
-      "next_offer_id": 23224,
-      "verification": {
-        "trade_data_unchanged": true
-      }
-    },
     {
       "article": "LX939",
       "brand": "MAHLE",
@@ -12413,7 +12371,7 @@
     }
   ],
   "publication_pending": null,
-  "next_offer_id": 22515,
+  "next_offer_id": 35142,
   "verification_pending": [
     {
       "supplier_id": 3,
@@ -12592,6 +12550,26 @@
         "cost": 5607,
         "stock": "1",
         "kaspi_price": 7895
+      },
+      "reason": "Render MCP temporary Internal errors/timeouts; fresh stored row metadata audit pending"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22515,
+      "commit": "b83355cd9994f3667e7ee7842b3bbc9cb23ee5a5",
+      "main_image": "products/optimized/8805162f4a0e19d1808a44decbdfdd481d681ad3872a090a20cb87cebf486128.webp",
+      "supplier_thumbnail": "products/optimized/35647e2c0e33a4234e08897e1e2ee8b6846ffa69984a470db1436c271a2f4c08.webp",
+      "ui_verified": true,
+      "db_verified": false,
+      "checks_needed": [
+        "stored main+thumbnail",
+        "photo task status/evidence",
+        "trade values and old fitment metadata"
+      ],
+      "baseline_queue": {
+        "cost": 4607,
+        "stock": "9",
+        "kaspi_price": 6733
       },
       "reason": "Render MCP temporary Internal errors/timeouts; fresh stored row metadata audit pending"
     }
