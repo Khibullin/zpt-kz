@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 5950,
   "offer_id": 26260,
-  "status": "prepared_photo_and_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://pnm-parts.ru/catalog/ssang-yong/kg-mobility/1721530428",
   "source_label": "PNM Parts — независимый каталог продавца оригинальных SsangYong",
@@ -34,12 +34,21 @@
   "fitment_note": "Точная карточка SsangYong 1721530428 у PNM Parts подтверждает Actyon с 2012 года, двигатель G20D. Открытый верхний предел сохранён; объём и привод не выдуманы. Фото отдельно проверено в оригинальной карточке Кореиана: один датчик, на корпусе видна маркировка артикула.",
   "image_source_url": "https://koreanaparts.ru/product/datchik-polozheniya-rv-benzin-kgm-ssangyong-1721530428",
   "image_url": "https://image.koreanagroup.ru/original/81d906394130ceb8d9e8e23a6847de99.jpg",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/fb88574e-62b9-4301-ad4c-38258c858608",
   "image_note": "Один реальный оригинальный датчик распредвала из точной карточки SsangYong 1721530428. Разъём, крепление и маркировка видны; аналог не использован.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/86b1cab963e529c0b28eb4f95e5f194905c47b3888213251debd8bbc79723aa1.webp",
+    "thumbnail_path": "products/optimized/fb81e1fe52ed5d2e7070a9fe51c03ccef9497cf494f3e12920b0b6b7d3aecca2.webp",
+    "main_size": [
+      800,
+      800
+    ],
+    "thumbnail_size": [
+      180,
+      180
+    ]
   },
-  "fitment_status": "prepared_not_imported",
+  "fitment_status": "saved_db_and_ui_verified",
   "checked_sources": [
     {
       "url": "https://pnm-parts.ru/catalog/ssang-yong/kg-mobility/1721530428",
@@ -52,6 +61,29 @@
   ],
   "next_offer_id": 25480,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T11:34:00.698Z"
+  },
+  "source_sha256": "4b9b7d854a6c21e175564ce02f8bba357e111413bd2cadaff4de267ab8575306",
+  "main_sha256": "86b1cab963e529c0b28eb4f95e5f194905c47b3888213251debd8bbc79723aa1",
+  "main_size": [
+    800,
+    800
+  ],
+  "thumbnail_sha256": "fb81e1fe52ed5d2e7070a9fe51c03ccef9497cf494f3e12920b0b6b7d3aecca2",
+  "thumbnail_size": [
+    180,
+    180
+  ],
+  "publication": {
+    "commit": "67ceb32acec7ee3307f1a9a44c0c779c90797192",
+    "deploy": "dep-dbq53i8473hc73ch8gv0",
+    "status": "live"
   }
 }
