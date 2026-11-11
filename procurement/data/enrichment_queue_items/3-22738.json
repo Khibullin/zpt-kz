@@ -1,0 +1,38 @@
+{
+  "article": "AS-158",
+  "brand": "AKIKA",
+  "cost": 14835,
+  "has_fitment": true,
+  "id": 22738,
+  "kaspi_price": 20450,
+  "kaspi_url": "https://kaspi.kz/shop/p/akika-perednii-as-158-1-sht-120961699/?c=750000000",
+  "main_image": "",
+  "name": "AKIKA Амортизатор, пер. левый",
+  "photo_status": "needs_source",
+  "product_id": 4469,
+  "profit": 2808.75,
+  "stock": "1",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 2442,
+  "offer_id": 22738,
+  "status": "reviewed_photo_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "exact_source_not_found"
+  },
+  "reason": "Независимое точное фото AKIKAAS-158 не найдено двумяпоисками;прежняяприменимостьсохранена. ДругиеномераAKIKAизвыдачине использованы.",
+  "checked_sources": [
+    {
+      "query": "AKIKA AS158 / AS-158",
+      "tool": "system2+system1_search",
+      "result": "No exact independentphoto"
+    }
+  ],
+  "next_offer_id": 21912,
+  "verification": {
+    "trade_data_unchanged": true
+  }
+}
