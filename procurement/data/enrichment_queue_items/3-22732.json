@@ -1,0 +1,38 @@
+{
+  "article": "AS-150",
+  "brand": "AKIKA",
+  "cost": 15666,
+  "has_fitment": false,
+  "id": 22732,
+  "kaspi_price": 23012,
+  "kaspi_url": "https://kaspi.kz/shop/p/akika-perednii-as-150-1-sht-172115806/?c=750000000",
+  "main_image": "",
+  "name": "AKIKA Амортизатор, пер. правый",
+  "photo_status": "needs_source",
+  "product_id": 4463,
+  "profit": 4219.5,
+  "stock": "1",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 2436,
+  "offer_id": 22732,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "unconfirmed",
+  "photo": {
+    "status": "exact_source_not_found"
+  },
+  "reason": "Точный независимый источник фото и применимости AKIKA AS-150 не найден.",
+  "checked_sources": [
+    {
+      "query": "AKIKA AS-150, with and without series dash",
+      "tool": "system2+system1_search",
+      "result": "No confirmed exact photo/complete fitment source"
+    }
+  ],
+  "next_offer_id": 22854,
+  "verification": {
+    "trade_data_unchanged": true
+  }
+}
