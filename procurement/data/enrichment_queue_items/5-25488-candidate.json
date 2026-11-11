@@ -1,0 +1,30 @@
+{
+  "article": "2803101U1556",
+  "brand": "JASHI",
+  "has_fitment": false,
+  "id": 25488,
+  "kaspi_url": "https://kaspi.kz/shop/p/jashi-bamper-2803101u1556-dlja-jac-s5-2018-2022-119282686/?c=750000000",
+  "main_image": "",
+  "name": "Бампер передний JAC",
+  "photo_status": "not_verified",
+  "product_id": 7115,
+  "profit": 5152.5,
+  "stock": "40",
+  "supplier_id": 5,
+  "task_id": 5088,
+  "checked_on": "2026-11-11",
+  "status": "source_verified_not_published",
+  "source_url": "https://autopiter.kz/goods/2803101u1555/jac/id140672612",
+  "source_label": "Автопитер, только точные строки Jashi 2803101U1556 в таблице",
+  "fitments": [
+    {
+      "make": "JAC",
+      "model": "S5",
+      "years": "2018-2022",
+      "generation": "2",
+      "notes": "Передний бампер, верхняя основная часть; с отверстиями под парктроники. Только строки JASHI 2803101U1556, не фото или параметры заголовка JAC 2803101U1555. Двигатели не указаны."
+    }
+  ],
+  "reason": "Exact manufacturer/article row read in full table, not yet imported. Main requested product is different; no image reuse from header.",
+  "next_offer_id": 25547
+}
