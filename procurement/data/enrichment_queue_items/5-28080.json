@@ -13,7 +13,7 @@
   "supplier_id": 5,
   "task_id": 7165,
   "offer_id": 28080,
-  "status": "prepared_photo_and_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://www.hyundaipartsdeal.com/genuine/hyundai-o-ring-oil-pump~46158-3b600.html",
   "source_label": "HyundaiPartsDeal — независимый каталог оригинальных деталей Hyundai",
@@ -23,74 +23,75 @@
     {
       "make": "Hyundai",
       "model": "Elantra",
-      "year_from": 2011,
-      "year_to": 2013,
       "engine": "DOHC - GDI",
-      "notes": "Независимый каталог HyundaiPartsDeal, точный оригинал461583B600. Опции источника: Coupe - 2Door 5P. Объём двигателя и регион не указаны."
+      "notes": "Независимый каталог HyundaiPartsDeal, точный оригинал461583B600. Опции источника: Coupe - 2Door 5P. Объём двигателя и регион не указаны.",
+      "years": "2011–2013"
     },
     {
       "make": "Hyundai",
       "model": "Elantra GT",
-      "year_from": 2013,
-      "year_to": 2014,
       "engine": "DOHC - GDI",
-      "notes": "Независимый каталог HyundaiPartsDeal, точный оригинал461583B600. Опции источника: Sedan - 5Door 5P. Объём двигателя и регион не указаны."
+      "notes": "Независимый каталог HyundaiPartsDeal, точный оригинал461583B600. Опции источника: Sedan - 5Door 5P. Объём двигателя и регион не указаны.",
+      "years": "2013–2014"
     },
     {
       "make": "Hyundai",
       "model": "Kona",
-      "year_from": 2018,
-      "year_to": 2021,
       "engine": "DOHC - MPI",
-      "notes": "Независимый каталог HyundaiPartsDeal, точный оригинал461583B600. Опции источника: Wagon - 5Door 5P. Объём двигателя и регион не указаны."
+      "notes": "Независимый каталог HyundaiPartsDeal, точный оригинал461583B600. Опции источника: Wagon - 5Door 5P. Объём двигателя и регион не указаны.",
+      "years": "2018–2021"
     },
     {
       "make": "Hyundai",
       "model": "Santa Fe",
-      "year_from": 2009,
-      "year_to": 2012,
       "engine": "DOHC - MPI",
-      "notes": "Независимый каталог HyundaiPartsDeal, точный оригинал461583B600. Опции источника: Wagon - 5Door 5P. Объём двигателя и регион не указаны."
+      "notes": "Независимый каталог HyundaiPartsDeal, точный оригинал461583B600. Опции источника: Wagon - 5Door 5P. Объём двигателя и регион не указаны.",
+      "years": "2009–2012"
     },
     {
       "make": "Hyundai",
       "model": "Santa Fe Sport",
-      "year_from": 2013,
-      "year_to": 2018,
       "engine": "DOHC - GDI",
-      "notes": "Независимый каталог HyundaiPartsDeal, точный оригинал461583B600. Опции источника: Wagon - 5Door 5P. Объём двигателя и регион не указаны."
+      "notes": "Независимый каталог HyundaiPartsDeal, точный оригинал461583B600. Опции источника: Wagon - 5Door 5P. Объём двигателя и регион не указаны.",
+      "years": "2013–2018"
     },
     {
       "make": "Hyundai",
       "model": "Sonata",
-      "year_from": 2009,
-      "year_to": 2019,
       "engine": "DOHC - GDI",
-      "notes": "Независимый каталог HyundaiPartsDeal, точный оригинал461583B600. Опции источника: Sedan - 4Door 5P. Объём двигателя и регион не указаны."
+      "notes": "Независимый каталог HyundaiPartsDeal, точный оригинал461583B600. Опции источника: Sedan - 4Door 5P. Объём двигателя и регион не указаны.",
+      "years": "2009–2019"
     },
     {
       "make": "Hyundai",
       "model": "Tucson",
-      "year_from": 2009,
-      "year_to": 2021,
       "engine": "DOHC - GDI, DOHC - MPI",
-      "notes": "Независимый каталог HyundaiPartsDeal, точный оригинал461583B600. Опции источника: Wagon - 5Door 5P. Объём двигателя и регион не указаны."
+      "notes": "Независимый каталог HyundaiPartsDeal, точный оригинал461583B600. Опции источника: Wagon - 5Door 5P. Объём двигателя и регион не указаны.",
+      "years": "2009–2021"
     },
     {
       "make": "Hyundai",
       "model": "Veloster",
-      "year_from": 2011,
-      "year_to": 2014,
       "engine": "DOHC - TCI/GDI",
-      "notes": "Независимый каталог HyundaiPartsDeal, точный оригинал461583B600. Опции источника: Coupe - 4Door 4P (DR'S 1Door & Pass 2Door). Объём двигателя и регион не указаны."
+      "notes": "Независимый каталог HyundaiPartsDeal, точный оригинал461583B600. Опции источника: Coupe - 4Door 4P (DR'S 1Door & Pass 2Door). Объём двигателя и регион не указаны.",
+      "years": "2011–2014"
     }
   ],
   "fitment_note": "Точный бренд Genuine Hyundai, полный артикул46158-3B600/461583B600.8строк из таблицы VehicleFitment. Годы не обобщены между моделями; двигатель передан только указанной характеристикой DOHC/GDI/MPI без выдуманного объёма.",
   "image_url": "https://www.hyundaipartsdeal.com/resources/encry/actual-picture/hpd/large/e70a02df370192569911dd1725e55c4a/e31bf34d4952dab021a39d04d2dd683d.jpg",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/fcfb124f-2dca-4385-896c-96ca9271bac3",
   "image_note": "Одно оригинальное уплотнительное кольцо масляного насоса Hyundai461583B600 из точной карточки HyundaiPartsDeal. Фото проверено визуально.",
   "photo": {
-    "status": "downloaded_exact_verified"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/6c597ad11487f7fbe7c7ea6adc44b6fa8f7e98cec27a730dd42aa4f645a40161.webp",
+    "thumbnail_path": "products/optimized/53eb562896a26a6a836015d0fa21fed08ceb4147e54b8f1d8f4a1cef579f0165.webp",
+    "main_size": [
+      400,
+      300
+    ],
+    "thumbnail_size": [
+      180,
+      135
+    ]
   },
   "checked_sources": [
     {
@@ -100,7 +101,31 @@
   ],
   "next_offer_id": 26925,
   "verification": {
+    "db_verified": true,
+    "ui_verified": true,
+    "photo_visually_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
     "trade_data_unchanged": true,
-    "photo_visually_verified": true
-  }
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T09:12:43.207Z"
+  },
+  "source_sha256": "6d1f188491f0240e5654662a7e73c07fe4841d9b6bc254a4c07a6a856c66eb13",
+  "main_sha256": "6c597ad11487f7fbe7c7ea6adc44b6fa8f7e98cec27a730dd42aa4f645a40161",
+  "main_size": [
+    400,
+    300
+  ],
+  "thumbnail_sha256": "53eb562896a26a6a836015d0fa21fed08ceb4147e54b8f1d8f4a1cef579f0165",
+  "thumbnail_size": [
+    180,
+    135
+  ],
+  "publication": {
+    "commit": "cd711d8063dc25b30ee190472db94956bff02d0b",
+    "deploy": "dep-dbq313ijnfac739omoi0",
+    "status": "live"
+  },
+  "fitment_status": "saved_db_and_ui_verified"
 }
