@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T10:00:54.735Z",
+  "checked_at": "2026-11-11T10:00:57.817Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -2516,18 +2516,18 @@
       "article": "18-140644",
       "brand": "BILSTEIN",
       "cost": 22560,
-      "has_fitment": false,
+      "has_fitment": true,
       "id": 24812,
       "kaspi_price": 29350,
       "kaspi_url": "https://kaspi.kz/shop/p/bilstein-perednii-18-140644-1-sht-100938761/?c=750000000",
-      "main_image": "",
+      "main_image": "products/optimized/75e4286e90e816ddee3b53bca756655c29396f61cd463317848cfb4938c5df02.webp",
       "name": "BILSTEIN Амортизатор",
-      "photo_status": "needs_source",
+      "photo_status": "done",
       "product_id": 6516,
       "profit": 2871.25,
       "stock": "1",
       "supplier_id": 3,
-      "supplier_thumbnail": "",
+      "supplier_thumbnail": "products/optimized/be96cbadbb68051934cbee3be9ec83271601b344d1a3f15eb0f52d535dfa4e39.webp",
       "task_id": 4489
     },
     {
@@ -11118,7 +11118,7 @@
     }
   ],
   "results": [],
-  "next_offer_id": 24812,
+  "next_offer_id": 24797,
   "batch": {
     "supplier_id": 3,
     "batch_number": 2,
@@ -11224,14 +11224,14 @@
       22758,
       22944
     ],
-    "reviewed": 54,
-    "published_fitments": 1,
-    "published_photos": 12,
+    "reviewed": 55,
+    "published_fitments": 2,
+    "published_photos": 13,
     "unconfirmed": 42,
-    "next_offer_id": 24812,
-    "photos_present": 14,
-    "fitments_present": 54,
-    "both_present": 12,
+    "next_offer_id": 24797,
+    "photos_present": 15,
+    "fitments_present": 55,
+    "both_present": 13,
     "created_at": "2026-11-11T09:25:39.710Z",
     "fixed": true
   },
@@ -11276,7 +11276,8 @@
     35204,
     35135,
     35211,
-    35223
+    35223,
+    24812
   ],
   "reviewed_offer_ids": [
     26787,
@@ -11432,19 +11433,20 @@
     35204,
     35135,
     35211,
-    35223
+    35223,
+    24812
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 154,
-    "remaining_unreviewed": 254,
+    "reviewed": 155,
+    "remaining_unreviewed": 253,
     "unconfirmed_reviewed": 113,
-    "remaining_missing_fields": 367,
-    "photo_added": 40,
-    "fitment_added": 26,
-    "make_model_pairs_added": 59,
-    "configurations_added": 70
+    "remaining_missing_fields": 366,
+    "photo_added": 41,
+    "fitment_added": 27,
+    "make_model_pairs_added": 67,
+    "configurations_added": 78
   },
   "prepared_candidate": null,
   "source_limits": [
@@ -11515,107 +11517,6 @@
     "unchanged_trade_data": true
   },
   "prepared_candidates": [
-    {
-      "article": "18-140644",
-      "brand": "BILSTEIN",
-      "cost": 22560,
-      "has_fitment": false,
-      "id": 24812,
-      "kaspi_price": 29350,
-      "kaspi_url": "https://kaspi.kz/shop/p/bilstein-perednii-18-140644-1-sht-100938761/?c=750000000",
-      "main_image": "",
-      "name": "BILSTEIN Амортизатор",
-      "photo_status": "needs_source",
-      "product_id": 6516,
-      "profit": 2871.25,
-      "stock": "1",
-      "supplier_id": 3,
-      "supplier_thumbnail": "",
-      "task_id": 4489,
-      "offer_id": 24812,
-      "status": "prepared_photo_and_fitment",
-      "checked_on": "2026-11-11",
-      "source_url": "https://cart.bilsteinus.com/steering-damper-18-140644.html",
-      "source_label": "BILSTEIN USA — каталог производителя",
-      "source_kind": "manufacturer_catalogue",
-      "source_article": "18-140644",
-      "fitments": [
-        {
-          "make": "Mercedes-Benz",
-          "model": "300SD",
-          "years": "1992–1993",
-          "notes": "Рулевой демпфер BILSTEIN B4 OE Replacement18-140644. По точной карточке производителяBILSTEINUSA; двигатели и регион применимости не уточнены,не выдуманы."
-        },
-        {
-          "make": "Mercedes-Benz",
-          "model": "300SE",
-          "years": "1992–1993",
-          "notes": "Рулевой демпфер BILSTEIN B4 OE Replacement18-140644. По точной карточке производителяBILSTEINUSA; двигатели и регион применимости не уточнены,не выдуманы."
-        },
-        {
-          "make": "Mercedes-Benz",
-          "model": "400SE",
-          "years": "1992",
-          "notes": "Рулевой демпфер BILSTEIN B4 OE Replacement18-140644. По точной карточке производителяBILSTEINUSA; двигатели и регион применимости не уточнены,не выдуманы."
-        },
-        {
-          "make": "Mercedes-Benz",
-          "model": "500SEL",
-          "years": "1992–1993",
-          "notes": "Рулевой демпфер BILSTEIN B4 OE Replacement18-140644. По точной карточке производителяBILSTEINUSA; двигатели и регион применимости не уточнены,не выдуманы."
-        },
-        {
-          "make": "Mercedes-Benz",
-          "model": "S320",
-          "years": "1994–1999",
-          "notes": "Рулевой демпфер BILSTEIN B4 OE Replacement18-140644. По точной карточке производителяBILSTEINUSA; двигатели и регион применимости не уточнены,не выдуманы."
-        },
-        {
-          "make": "Mercedes-Benz",
-          "model": "S350",
-          "years": "1994–1995",
-          "notes": "Рулевой демпфер BILSTEIN B4 OE Replacement18-140644. По точной карточке производителяBILSTEINUSA; двигатели и регион применимости не уточнены,не выдуманы."
-        },
-        {
-          "make": "Mercedes-Benz",
-          "model": "S420",
-          "years": "1994–1999",
-          "notes": "Рулевой демпфер BILSTEIN B4 OE Replacement18-140644. По точной карточке производителяBILSTEINUSA; двигатели и регион применимости не уточнены,не выдуманы."
-        },
-        {
-          "make": "Mercedes-Benz",
-          "model": "S500",
-          "years": "1994–1999",
-          "notes": "Рулевой демпфер BILSTEIN B4 OE Replacement18-140644. По точной карточке производителяBILSTEINUSA; двигатели и регион применимости не уточнены,не выдуманы."
-        }
-      ],
-      "fitment_note": "Точная карточка BILSTEIN18-140644 содержит явный список8моделей с индивидуальнымигодами. Ограничения иных18-/22-номеров и отклонённыеPDFне запрашивались;моторы не добавлены.",
-      "image_source_url": "https://spareto.com/products/bilstein-shock-absorber-steering/18-140644",
-      "image_url": "https://cdn.spareto.com/variants/images_webp/001/106/476/medium/18-140644-31626442.webp?1793023352",
-      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/4841b8a1-a086-4438-a232-1e966da2786c",
-      "image_note": "Точный BILSTEIN18-140644,одинчёрный рулевойдемпфер,фотоSpareto визуально проверено.",
-      "photo": {
-        "status": "downloaded_visually_verified_not_queued"
-      },
-      "checked_sources": [
-        {
-          "url": "https://cart.bilsteinus.com/steering-damper-18-140644.html",
-          "result": "Primarymanufacturer exact18-140644;8modelspecificyearranges,noengine details"
-        },
-        {
-          "url": "https://bilsteincanada.com/product/b4-oe-replacement-steering-damper-b22-e086/",
-          "result": "IndependentEssexdistributor explicitly not manufacturer affiliate;8fitmentrows corroborate,notprimarysource"
-        },
-        {
-          "url": "https://spareto.com/products/bilstein-shock-absorber-steering/18-140644",
-          "result": "Exactbrand/article andoneactualdamperphoto"
-        }
-      ],
-      "next_offer_id": 23819,
-      "verification": {
-        "trade_data_unchanged": true
-      }
-    },
     {
       "article": "AW2220193",
       "brand": "AYWIPARTS",
