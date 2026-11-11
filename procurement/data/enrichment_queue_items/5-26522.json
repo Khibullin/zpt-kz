@@ -1,0 +1,35 @@
+{
+  "article": "204000081AA",
+  "brand": "JASHI",
+  "has_fitment": false,
+  "id": 26522,
+  "kaspi_url": "https://kaspi.kz/shop/p/diski-jashi-perednie-204000081aa-180541872/?c=750000000",
+  "main_image": "",
+  "name": "Диск тормозной Chery",
+  "photo_status": "needs_source",
+  "product_id": 8061,
+  "profit": 4027.5,
+  "stock": "2",
+  "supplier_id": 5,
+  "task_id": 6034,
+  "offer_id": 26522,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "unconfirmed_exact_brand",
+  "photo": {
+    "status": "exact_brand_unconfirmed",
+    "reason": "Точный JASHI204000081AA не подтверждён; поиск даёт CHERY/KAIYI/KOMTECHNOLOGY и комплекты2шт. Их фото/применимость не перенесены."
+  },
+  "checked_sources": [
+    {
+      "query": "\"JASHI\" \"204000081AA\" -site:kaspi.kz -site:alta-karter.com",
+      "tool": "system2+system1_search",
+      "result": "No exactJASHI,otherbrands/kit2pieces"
+    }
+  ],
+  "next_offer_id": 25242,
+  "verification": {
+    "trade_data_unchanged": true
+  }
+}
