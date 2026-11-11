@@ -1,0 +1,152 @@
+{
+  "checked_on": "2026-11-11",
+  "status": "applied_and_verified",
+  "supplier_id": 3,
+  "targets": {
+    "KC46": 35138,
+    "LX939": 35142
+  },
+  "evidence": {
+    "catalogue": "MAHLE FI-20-26",
+    "url": "https://www.mahle-aftermarket.com/media/local-media-north-america/catalogs-and-lit-pictures/fi-20-26_web.pdf",
+    "pdf_download_bytes": 12844683,
+    "review": "Native PDF downloaded, pdftotext extracted, application rows and filter columns visually verified from locally rendered PDF pages 288,440,441,442,522,523,592.",
+    "regional_scope": "North America only; not complete worldwide applicability.",
+    "pdf_pages_with_printed_numbers": {
+      "288": 290,
+      "440": 442,
+      "441": 443,
+      "442": 444,
+      "522": 524,
+      "523": 525,
+      "592": 594
+    },
+    "pdf_sha256": "1f768e91d9261771815d77e09e4746a69aad0b2df2eb7e9cdf4d8a2644b08705"
+  },
+  "exceptions": [
+    {
+      "source": "https://eu.motorad.com/part/1014-100k/",
+      "status": "HTTP 403",
+      "action": "No alternate URL/protocol/channel retry. MOTORAD photo task13941 not staged."
+    },
+    {
+      "source": "CTR CVKH-150 official PDF fileDownload URL from previous checkpoint",
+      "status": "Web screenshot redirect loop; same original URL download also redirect loop",
+      "action": "No import without visual verification; transient technical issue, not no-fitment evidence."
+    }
+  ],
+  "live_before": {
+    "verified_offers": 4279,
+    "products_with_photos": 19105,
+    "photo_queue": {
+      "done": 18745,
+      "skipped": 1622,
+      "needs_source": 29126
+    }
+  },
+  "best_missing": {
+    "supplier3": 161,
+    "supplier5": 156,
+    "scope": "Current best_candidates_query cost/match/date/profit SQL, no stock/demand screening added; exact shared base matches zero."
+  },
+  "verified_at_utc": "2026-11-11 01:05:21 UTC",
+  "result": {
+    "offers": 2,
+    "make_model_pairs": 7,
+    "configurations": 9,
+    "verified_offers_total": 4281,
+    "products_with_photos": 19105,
+    "photos_added": 0,
+    "photo_queue": {
+      "done": 18745,
+      "skipped": 1622,
+      "needs_source": 29126
+    },
+    "active_photo_tasks": 0
+  },
+  "checks": [
+    {
+      "article": "KC46",
+      "offer_id": 35138,
+      "pairs": 5,
+      "configurations": 7,
+      "exact": true
+    },
+    {
+      "article": "LX939",
+      "offer_id": 35142,
+      "pairs": 2,
+      "configurations": 2,
+      "exact": true
+    }
+  ],
+  "metadata_exact": true,
+  "write": {
+    "reviewed_payload": "procurement/data/fitment_source_review_20261111_mahle2.json",
+    "payload_commit": "453da335ddf752a9109453c1e0a8682443bfc51e",
+    "importer_allowlist_commit": "427e7461e48a559e0c592e62746a19b70d059951",
+    "migration_commit": "0a0d3a447fa8b68d6089f6dd25d7aac9602dbb8f",
+    "migration": "procurement.0022_reviewed_mahle_fitments",
+    "migration_applied_at": "2026-11-11T01:03:24.747577+00:00",
+    "activity_id": 5487,
+    "isolated_wrapper_guard_tests_passed": 4,
+    "python_compile_passed": true
+  },
+  "deployment": {
+    "id": "dep-dbprth8473hc73c6fv1g",
+    "status": "live",
+    "finished_at": "2026-11-11T01:04:51.986626Z",
+    "manual_restart": false,
+    "new_consumer": false,
+    "photo_producer": false
+  },
+  "best_missing_after": {
+    "supplier3": 159,
+    "supplier5": 156,
+    "scope": "Current best_candidates_query cost/match/date/profit SQL, no stock/demand screening added; exact shared base matches zero."
+  },
+  "next": {
+    "not_complete": true,
+    "keep_automation_enabled": true,
+    "skip_filled": true,
+    "photo_motorad_1014_100K": "HTTP403: do not repeat rejected request through another URL, protocol or channel.",
+    "mahle_available_review_candidates": [
+      {
+        "article": "LX793",
+        "offer_id": 35141,
+        "pdf_pages": [
+          81,
+          82,
+          474,
+          647,
+          648,
+          649,
+          751,
+          752,
+          753
+        ]
+      },
+      {
+        "article": "LAK855",
+        "offer_id": 35137,
+        "pdf_pages": [
+          646,
+          647,
+          648,
+          649,
+          751,
+          752,
+          754
+        ]
+      }
+    ],
+    "mahle_not_found_in_this_regional_pdf": [
+      "LAK169",
+      "LX2283",
+      "HC112",
+      "AVE81000P",
+      "TI16105"
+    ],
+    "note": "No match in one regional PDF does not prove lack of applications globally. Additional sources remain independent and permitted. CTR visual verification still pending due technical redirect loop."
+  }
+}
