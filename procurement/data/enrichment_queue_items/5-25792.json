@@ -1,0 +1,38 @@
+{
+  "article": "1308100XGW02A",
+  "brand": "JASHI",
+  "cost": 30800,
+  "has_fitment": true,
+  "id": 25792,
+  "kaspi_price": 38660,
+  "kaspi_url": "https://kaspi.kz/shop/p/jashi-ventiljator-radiatora-1308100xgw02a-135041444/?c=750000000",
+  "main_image": "",
+  "name": "Вентилятор с HAVAL",
+  "photo_status": "needs_source",
+  "product_id": 7296,
+  "profit": 2777.5,
+  "stock": "3",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 5269,
+  "offer_id": 25792,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "JASHI1308100XGW02A: в двух поисковыхдвижках найдены точные OEM-вентиляторы HAVAL и YUNYI, но не реальное фото JASHI. Бренд не подменён; существующая применимость сохранена.",
+  "checked_sources": [
+    {
+      "query": "\"JASHI\" \"1308100XGW02A\"",
+      "result": "ExactOEMotherbrandHAVAL/Yunyi, noverifiedJASHIphoto"
+    }
+  ],
+  "next_offer_id": 25926,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true
+  }
+}
