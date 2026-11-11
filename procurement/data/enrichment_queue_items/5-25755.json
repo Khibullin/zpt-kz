@@ -1,0 +1,39 @@
+{
+  "article": "2200100P31G3",
+  "brand": "JAC",
+  "has_fitment": true,
+  "id": 25755,
+  "kaspi_url": "https://kaspi.kz/shop/p/jac-val-kardannyi-2200100p31g3-147829805/?c=750000000",
+  "main_image": "",
+  "name": "Вал карданный JAC",
+  "photo_status": "needs_source",
+  "product_id": 7274,
+  "profit": 3915,
+  "stock": "1",
+  "supplier_id": 5,
+  "task_id": 5247,
+  "offer_id": 25755,
+  "status": "reviewed_photo_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "temporary_image_unavailable",
+    "reason": "Точная карточка Darada подтверждает JAC2200100P31G3,но изображение не загрузилось(naturalWidth0),скачивание завершилось timeout иSiteUnavailable. Фото фактически не сохранено; временная недоступность,не постоянный запрет."
+  },
+  "checked_sources": [
+    {
+      "url": "https://darada.kz/p120011420-2200100p31g3-val-kardannyj.html",
+      "result": "ExactJACfullarticle neworiginal;imageunavailable temporary"
+    },
+    {
+      "url": "https://images.satu.kz/236321019_w640_h640_2200100p31g3-val-kardannyj.jpg",
+      "result": "naturalWidth0;downloadtimeout SiteUnavailable"
+    }
+  ],
+  "next_offer_id": 25358,
+  "verification": {
+    "existing_fitment_preserved": true,
+    "trade_data_unchanged": true
+  }
+}
