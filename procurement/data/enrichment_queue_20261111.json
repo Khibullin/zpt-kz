@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T11:33:59.623Z",
+  "checked_at": "2026-11-11T11:34:01.968Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -10670,18 +10670,18 @@
       "article": "1721530428",
       "brand": "SsangYong",
       "cost": 11300,
-      "has_fitment": false,
+      "has_fitment": true,
       "id": 26260,
       "kaspi_price": 14989,
       "kaspi_url": "https://kaspi.kz/shop/p/ssang-yong-datchik-polozhenija-raspredvala-1721530428-118878390/?c=750000000",
-      "main_image": "",
+      "main_image": "products/optimized/86b1cab963e529c0b28eb4f95e5f194905c47b3888213251debd8bbc79723aa1.webp",
       "name": "Датчик положения SsangYong",
-      "photo_status": "needs_source",
+      "photo_status": "done",
       "product_id": 7977,
       "profit": 1565.375,
       "stock": "6",
       "supplier_id": 5,
-      "supplier_thumbnail": "",
+      "supplier_thumbnail": "products/optimized/fb81e1fe52ed5d2e7070a9fe51c03ccef9497cf494f3e12920b0b6b7d3aecca2.webp",
       "task_id": 5950
     },
     {
@@ -11198,14 +11198,14 @@
       25789,
       26282
     ],
-    "reviewed": 53,
-    "published_fitments": 13,
-    "published_photos": 13,
+    "reviewed": 54,
+    "published_fitments": 14,
+    "published_photos": 14,
     "unconfirmed": 41,
-    "next_offer_id": 26260,
-    "photos_present": 13,
-    "fitments_present": 52,
-    "both_present": 12,
+    "next_offer_id": 25480,
+    "photos_present": 14,
+    "fitments_present": 53,
+    "both_present": 13,
     "created_at": "2026-11-11T10:30:05.643Z",
     "fixed": true
   },
@@ -11279,7 +11279,8 @@
     25915,
     28084,
     26624,
-    25969
+    25969,
+    26260
   ],
   "reviewed_offer_ids": [
     26787,
@@ -11534,19 +11535,20 @@
     26258,
     28084,
     26624,
-    25969
+    25969,
+    26260
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 253,
-    "remaining_unreviewed": 155,
+    "reviewed": 254,
+    "remaining_unreviewed": 154,
     "unconfirmed_reviewed": 183,
-    "remaining_missing_fields": 338,
-    "photo_added": 70,
-    "fitment_added": 44,
-    "make_model_pairs_added": 108,
-    "configurations_added": 145
+    "remaining_missing_fields": 337,
+    "photo_added": 71,
+    "fitment_added": 45,
+    "make_model_pairs_added": 109,
+    "configurations_added": 146
   },
   "prepared_candidate": null,
   "source_limits": [
@@ -11619,63 +11621,6 @@
     "unchanged_trade_data": true
   },
   "prepared_candidates": [
-    {
-      "article": "1721530428",
-      "brand": "SsangYong",
-      "cost": 11300,
-      "has_fitment": false,
-      "id": 26260,
-      "kaspi_price": 14989,
-      "kaspi_url": "https://kaspi.kz/shop/p/ssang-yong-datchik-polozhenija-raspredvala-1721530428-118878390/?c=750000000",
-      "main_image": "",
-      "name": "Датчик положения SsangYong",
-      "photo_status": "needs_source",
-      "product_id": 7977,
-      "profit": 1565.375,
-      "stock": "6",
-      "supplier_id": 5,
-      "supplier_thumbnail": "",
-      "task_id": 5950,
-      "offer_id": 26260,
-      "status": "prepared_photo_and_fitment",
-      "checked_on": "2026-11-11",
-      "source_url": "https://pnm-parts.ru/catalog/ssang-yong/kg-mobility/1721530428",
-      "source_label": "PNM Parts — независимый каталог продавца оригинальных SsangYong",
-      "source_kind": "retailer_catalogue",
-      "source_article": "1721530428",
-      "fitments": [
-        {
-          "make": "SsangYong",
-          "model": "Actyon",
-          "years": "2012–н.в.",
-          "engine": "G20D",
-          "notes": "Точная строка продавца: Actyon (12-) (G20D) OE. Объём двигателя и привод не указаны."
-        }
-      ],
-      "fitment_note": "Точная карточка SsangYong 1721530428 у PNM Parts подтверждает Actyon с 2012 года, двигатель G20D. Открытый верхний предел сохранён; объём и привод не выдуманы. Фото отдельно проверено в оригинальной карточке Кореиана: один датчик, на корпусе видна маркировка артикула.",
-      "image_source_url": "https://koreanaparts.ru/product/datchik-polozheniya-rv-benzin-kgm-ssangyong-1721530428",
-      "image_url": "https://image.koreanagroup.ru/original/81d906394130ceb8d9e8e23a6847de99.jpg",
-      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/fb88574e-62b9-4301-ad4c-38258c858608",
-      "image_note": "Один реальный оригинальный датчик распредвала из точной карточки SsangYong 1721530428. Разъём, крепление и маркировка видны; аналог не использован.",
-      "photo": {
-        "status": "downloaded_visually_verified_not_queued"
-      },
-      "fitment_status": "prepared_not_imported",
-      "checked_sources": [
-        {
-          "url": "https://pnm-parts.ru/catalog/ssang-yong/kg-mobility/1721530428",
-          "result": "Exact OE brand/article, Actyon12- G20D."
-        },
-        {
-          "url": "https://koreanaparts.ru/product/datchik-polozheniya-rv-benzin-kgm-ssangyong-1721530428",
-          "result": "Exact original Ssangyong article, actual single sensor photo inspected."
-        }
-      ],
-      "next_offer_id": 25480,
-      "verification": {
-        "trade_data_unchanged": true
-      }
-    },
     {
       "article": "2803101S55M0",
       "brand": "JAC",
@@ -12161,5 +12106,5 @@
     }
   ],
   "publication_pending": null,
-  "next_offer_id": 26260
+  "next_offer_id": 25480
 }
