@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T10:39:33.395Z",
+  "checked_at": "2026-11-11T10:41:13.198Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -11816,6 +11816,74 @@
         }
       ],
       "next_offer_id": 25792,
+      "verification": {
+        "trade_data_unchanged": true
+      }
+    },
+    {
+      "article": "555133N300",
+      "brand": "HYUNDAI-KIA",
+      "cost": 2300,
+      "has_fitment": false,
+      "id": 25926,
+      "kaspi_price": 6003,
+      "kaspi_url": "https://kaspi.kz/shop/p/hyundai-kia-vtulka-stabilizatora-555133n300-165636835/?c=750000000",
+      "main_image": "",
+      "name": "Втулка стабилизатора Hyundai",
+      "photo_status": "needs_source",
+      "product_id": 7468,
+      "profit": 2702.625,
+      "stock": "4",
+      "supplier_id": 5,
+      "supplier_thumbnail": "",
+      "task_id": 5441,
+      "offer_id": 25926,
+      "status": "prepared_fitment_photo_unconfirmed",
+      "checked_on": "2026-11-11",
+      "source_url": "https://www.kiapartsnow.com/genuine/kia-bush-stabilizer-bar~555133n300.html",
+      "source_label": "KiaPartsNow — независимый продавец оригинальных деталей Kia",
+      "source_kind": "retailer_catalogue",
+      "source_article": "555133N300",
+      "fitments": [
+        {
+          "make": "Kia",
+          "model": "Niro",
+          "years": "2017–2022",
+          "engine": "1.6L Kappa",
+          "body": "Универсал,5дверей,5мест"
+        },
+        {
+          "make": "Kia",
+          "model": "Niro EV",
+          "years": "2019–2022",
+          "engine": "Электромотор150kW",
+          "body": "Универсал,5дверей,5мест"
+        }
+      ],
+      "fitment_note": "Точные2строкитаблицыKiaPartsNow оригинального555133N300. Периоды/силовые установки сохраненыпо моделям. ОбобщённыйPNMзаголовокi40/ix35/Sportageи неподтверждённыйредиректPartSouqнеперенесены. ФотоKiaPartsNow—схема;Speero—общаяиллюстрациядвухвтулок,исключены.",
+      "photo": {
+        "status": "unconfirmed"
+      },
+      "fitment_status": "prepared_not_imported",
+      "checked_sources": [
+        {
+          "url": "https://www.kiapartsnow.com/genuine/kia-bush-stabilizer-bar~555133n300.html",
+          "result": "ExactgenuineKiapart,2modelperiodenginebodyrows;illustrationnotphoto"
+        },
+        {
+          "url": "https://speero.net/spare-parts/suspension/555133N300/6a565ae1a058fae7b469bfdb",
+          "result": "DownloadedimageAVIF:genericlinedrawingtwobushes,excluded;front/Azera claimsnotused"
+        },
+        {
+          "url": "https://pnm-parts.ru/catalog/hyundaikia/hyundai-motor-company/555133n300",
+          "result": "BroadheadingHyundaii40/ix35/Sportageambiguousperiodsnotused"
+        },
+        {
+          "url": "https://partsouq.com/en/catalog/genuine/locate?c=Hyundai&psq=lb",
+          "result": "OriginalVINcatalogredirectedgeneric;noexactrowproofused"
+        }
+      ],
+      "next_offer_id": 25188,
       "verification": {
         "trade_data_unchanged": true
       }
