@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 5616,
   "offer_id": 26208,
-  "status": "prepared_photo_and_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://www.kiapartsnow.com/genuine/kia-valve-tpms~52933d9100.html",
   "source_label": "KiaPartsNow — независимый продавец оригинальных деталей Kia",
@@ -47,12 +47,21 @@
   ],
   "fitment_note": "Точные2модельныестроки/3конфигурацииKiaPartsNow оригинального52933D9100;разделеныуказанныедвигателиSportage. Другиемодели/регионы/частотыневыдуманы. СуществующийбрендHYUNDAI-KIAсохранён;висточникеKiaи на реальномфотооригинальныеэмблемыHyundai/Kiaиполныйартикул.",
   "image_url": "https://www.kiapartsnow.com/resources/encry/actual-picture/kpn/large/cba82bf44d7543cd91083c5eaf0f10e8/37bca80096cb41be6443205a092e3f25.jpg",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/a067a0a4-7059-4d78-a1a6-e14f4527a18f",
   "image_note": "Реальный один TPMS52933D9100 с вентилем/колпачком; на фото видны артикул и эмблемыHyundai/Kia. Схемы/неоригинальныеаналоги не использованы.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/287d7855bccc347b124354ac13fc38f287e63a5be28b021f30ccdb8379b7f78a.webp",
+    "thumbnail_path": "products/optimized/47fb83df65d8a37148dc6c3e637818188b5848b289f6a87b9a8dacf21496dffd.webp",
+    "main_size": [
+      400,
+      300
+    ],
+    "thumbnail_size": [
+      180,
+      135
+    ]
   },
-  "fitment_status": "prepared_not_imported",
+  "fitment_status": "saved_db_and_ui_verified",
   "checked_sources": [
     {
       "url": "https://www.kiapartsnow.com/genuine/kia-valve-tpms~52933d9100.html",
@@ -65,6 +74,29 @@
   ],
   "next_offer_id": 25932,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T10:48:57.146Z"
+  },
+  "source_sha256": "879cc31af813f2f795cc68f1ea56c281d2837c4b4379a452d3c2938095172263",
+  "main_sha256": "287d7855bccc347b124354ac13fc38f287e63a5be28b021f30ccdb8379b7f78a",
+  "main_size": [
+    400,
+    300
+  ],
+  "thumbnail_sha256": "47fb83df65d8a37148dc6c3e637818188b5848b289f6a87b9a8dacf21496dffd",
+  "thumbnail_size": [
+    180,
+    135
+  ],
+  "publication": {
+    "commit": "933ea2ed719154b73e9600a799d432b7e9cf6dfc",
+    "deploy": "dep-dbq4e9m0tbcc73frua30",
+    "status": "live"
   }
 }
