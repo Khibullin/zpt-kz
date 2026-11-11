@@ -1,0 +1,42 @@
+{
+  "article": "AS-89",
+  "brand": "AKIKA",
+  "cost": 13378,
+  "has_fitment": false,
+  "id": 22854,
+  "kaspi_price": 20335,
+  "kaspi_url": "https://kaspi.kz/shop/p/akika-perednii-as-89-1-sht-172426247/?c=750000000",
+  "main_image": "",
+  "name": "AKIKA Амортизатор, пер. правый",
+  "photo_status": "needs_source",
+  "product_id": 4583,
+  "profit": 4165.125,
+  "stock": "1",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 2556,
+  "offer_id": 22854,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "unconfirmed",
+  "photo": {
+    "status": "exact_source_not_found"
+  },
+  "reason": "Найден только штрихкодный справочник: AKIKA AS-89, NI A32 94–99. Это не каталог применимости с однозначной моделью; фото нет, расшифровка A32 не выдумана.",
+  "checked_sources": [
+    {
+      "query": "AKIKA AS-89, with and without series dash",
+      "tool": "system2+system1_search",
+      "result": "No confirmed exact photo/complete fitment source"
+    },
+    {
+      "url": "https://barcode-list.ru/barcode/RU/Поиск.htm?barcode=Амортизатор",
+      "result": "Search indexed exact AS-89 line; abbreviated NI A32 only, no precise part photograph"
+    }
+  ],
+  "next_offer_id": 22759,
+  "verification": {
+    "trade_data_unchanged": true
+  }
+}
