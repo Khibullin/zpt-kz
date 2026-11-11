@@ -1,0 +1,29 @@
+{
+  "article": "2803102P306A",
+  "brand": "JASHI",
+  "has_fitment": false,
+  "id": 25437,
+  "kaspi_url": "https://kaspi.kz/shop/p/jashi-bamper-2803102p306a-dlja-jac-t8-pro-2025-2024-138239724/?c=750000000",
+  "main_image": "",
+  "name": "Бампер передний JAC",
+  "photo_status": "needs_source",
+  "product_id": 7117,
+  "profit": 5102.5,
+  "stock": "8",
+  "supplier_id": 5,
+  "task_id": 5090,
+  "checked_on": "2026-11-11",
+  "status": "prepared_photo_fitment_unconfirmed",
+  "source_url": "https://kaspi.kz/shop/p/jashi-bamper-2803102p306a-dlja-jac-t8-pro-2025-2024-138239724/?c=750000000",
+  "source_article": "2803102P306A",
+  "source_label": "точная карточка Kaspi",
+  "source_kind": "retailer_listing",
+  "fitments": [],
+  "fitment_note": "Не заполнена: заголовок содержит обратный интервал 2025–2024, таблица 2023,2024,2025 и описание с2023. Нужен независимый источник для разрешения расхождения.",
+  "photo": {
+    "image_url": "https://resources.cdn-kaspi.kz/img/m/p/p6d/p5b/37147118.jpg?format=gallery-medium",
+    "local_path": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/ac5afd64-43aa-437d-a25e-77783da8c6a9",
+    "status": "downloaded_visually_verified_not_uploaded"
+  },
+  "next_offer_id": 25369
+}
