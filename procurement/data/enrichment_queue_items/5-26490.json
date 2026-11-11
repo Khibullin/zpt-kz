@@ -13,7 +13,7 @@
   "supplier_id": 5,
   "task_id": 6111,
   "offer_id": 26490,
-  "status": "prepared_photo_and_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://satparts.ru/product/st-58411-c9500",
   "source_label": "SATparts.ru — независимый каталог продавца SAT (ИП Спиридонов)",
@@ -31,10 +31,19 @@
   ],
   "fitment_note": "Точная таблица карточки SATST-58411-C9500:CretaI2015–2020. Двигатели и4WD из иныхобъявлений не добавлены.",
   "image_url": "https://static.autotrade.su/nomenclature/wm/b/76/765ec77747.jpg",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/d1815c45-e64b-4c43-ab71-359dae64e7a7",
   "image_note": "Реальное фото одного заднего невентилируемого диска SATST-58411-C9500 с точной карточки продавца;визуально проверено.",
   "photo": {
-    "status": "downloaded_exact_verified"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/e6d08c1164257720c6e897931916763a9d02617416abb0942cb5ebfaeddab11f.webp",
+    "thumbnail_path": "products/optimized/1cd6c7cc62adc42eb2e0b2eb3bad8ad19c97dc73d3689b52405894ad99a9dc1d.webp",
+    "main_size": [
+      800,
+      600
+    ],
+    "thumbnail_size": [
+      180,
+      135
+    ]
   },
   "checked_sources": [
     {
@@ -44,7 +53,30 @@
   ],
   "next_offer_id": 26553,
   "verification": {
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
     "trade_data_unchanged": true,
-    "photo_visually_verified": true
-  }
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T09:24:46.753Z"
+  },
+  "source_sha256": "d1d920a44eaa4b120811e38cd5ef35f0e0a76fa1abcfd024f666d68b29a46e2d",
+  "main_sha256": "e6d08c1164257720c6e897931916763a9d02617416abb0942cb5ebfaeddab11f",
+  "main_size": [
+    800,
+    600
+  ],
+  "thumbnail_sha256": "1cd6c7cc62adc42eb2e0b2eb3bad8ad19c97dc73d3689b52405894ad99a9dc1d",
+  "thumbnail_size": [
+    180,
+    135
+  ],
+  "publication": {
+    "commit": "68043a2dd731b06c16a8b6d6e8a33b13bd171d54",
+    "deploy": "dep-dbq36pajnfac739oua1g",
+    "status": "live"
+  },
+  "fitment_status": "saved_db_and_ui_verified"
 }
