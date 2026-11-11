@@ -1,0 +1,691 @@
+{
+  "checked_on": "2026-11-11",
+  "status": "reviewed_pending_application",
+  "supplier_id": 3,
+  "targets": {
+    "LX793": 35141,
+    "LAK855": 35137
+  },
+  "payload": {
+    "checked_on": "2026-11-11",
+    "offers": [
+      {
+        "brand": "MAHLE",
+        "article": "LX793",
+        "source_brand": "MAHLE",
+        "source_article": "LX793",
+        "source_url": "https://www.mahle-aftermarket.com/media/local-media-north-america/catalogs-and-lit-pictures/fi-20-26_web.pdf",
+        "status": "sourced",
+        "note": "Printed exact identifier LX 793 differs only in whitespace from the supplier article. All matching application rows in this North American FI-20-26 PDF were visually reviewed; this is not a claim of global completeness. Source cells, original years and PDF page numbers retained.",
+        "rows": [
+          {
+            "make": "AUDI",
+            "model": "Q7",
+            "years": "2016",
+            "engine": "3.0 V6; CJTB",
+            "pdf_page": "81",
+            "source_years": "2016",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. No high-dust restriction is printed for LX 793 in this row. Engine codes and restrictions are taken only from the LX 793 cell.",
+            "source_row": "Q7 3.0 V6 | 2016 | LX 793 / Engine Designation / CJTB"
+          },
+          {
+            "make": "AUDI",
+            "model": "Q7",
+            "years": "2015",
+            "engine": "3.0 V6; CJTB; CTWA; CTWB",
+            "pdf_page": "81",
+            "source_years": "2015",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. High Dust Conditions only, as printed for LX 793. Engine codes and restrictions are taken only from the LX 793 cell.",
+            "source_row": "Q7 3.0 V6 | 2015 | LX 792 / Engine Designation / CJTB; CTWA; CTWB / Except High Dust / Conditions / LX 793 / Engine Designation / CJTB; CTWA; CTWB / High Dust Conditions"
+          },
+          {
+            "make": "AUDI",
+            "model": "Q7",
+            "years": "2014",
+            "engine": "3.0 V6; CJTB; CTWA; CTWB",
+            "pdf_page": "81",
+            "source_years": "2014",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. High Dust Conditions only, as printed for LX 793. Engine codes and restrictions are taken only from the LX 793 cell.",
+            "source_row": "Q7 3.0 V6 | 2014 | LX 792 / Engine Designation / CJTB; CTWA; CTWB / Except High Dust / Conditions / LX 793 / Engine Designation / CJTB; CTWA; CTWB / High Dust Conditions"
+          },
+          {
+            "make": "AUDI",
+            "model": "Q7",
+            "years": "2013",
+            "engine": "3.0 V6; CTWA; CTWB",
+            "pdf_page": "81",
+            "source_years": "2013",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. High Dust Conditions only, as printed for LX 793. Engine codes and restrictions are taken only from the LX 793 cell.",
+            "source_row": "Q7 3.0 V6 | 2013 | LX 792 / Engine Designation / CTWA; CTWB / Except High Dust / Conditions / LX 793 / Engine Designation / CTWA; CTWB / High Dust Conditions"
+          },
+          {
+            "make": "AUDI",
+            "model": "Q7",
+            "years": "2012",
+            "engine": "3.0 V6; CJWB; CJWE",
+            "pdf_page": "81",
+            "source_years": "2012",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. High Dust Conditions only, as printed for LX 793. Engine codes and restrictions are taken only from the LX 793 cell.",
+            "source_row": "Q7 3.0 V6 | 2012 | LX 792 / Engine Designation / CJWB; CJWE / Except High Dust / Conditions / LX 793 / Engine Designation / CJWB; CJWE / High Dust Conditions"
+          },
+          {
+            "make": "AUDI",
+            "model": "Q7",
+            "years": "2011",
+            "engine": "3.0 V6; CJWB; CJWC",
+            "pdf_page": "81",
+            "source_years": "2011",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. High Dust Conditions only, as printed for LX 793. Engine codes and restrictions are taken only from the LX 793 cell.",
+            "source_row": "Q7 3.0 V6 | 2011 | LX 792 / Engine Designation / CJWB; CJWC / Except High Dust / Conditions / LX 793 / Engine Designation / CJWB; CJWC / High Dust Conditions"
+          },
+          {
+            "make": "AUDI",
+            "model": "Q7",
+            "years": "2016",
+            "engine": "3.0 V6 181",
+            "pdf_page": "82",
+            "source_years": "2016",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. No high-dust restriction is printed for LX 793 in this row. Engine codes and restrictions are taken only from the LX 793 cell.",
+            "source_row": "Q7 3.0 V6 181 | 2016 | LX 793"
+          },
+          {
+            "make": "AUDI",
+            "model": "Q7",
+            "years": "2015",
+            "engine": "3.0 V6 181; CNRB",
+            "pdf_page": "82",
+            "source_years": "2015",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. High Dust Conditions only, as printed for LX 793. Engine codes and restrictions are taken only from the LX 793 cell.",
+            "source_row": "Q7 3.0 V6 181 | 2015 | LX 792 / Engine Designation / CNRB / Except High Dust / Conditions / LX 793 / Engine Designation / CNRB / High Dust Conditions"
+          },
+          {
+            "make": "AUDI",
+            "model": "Q7",
+            "years": "2013–2014",
+            "engine": "3.0 V6 181; CNRB",
+            "pdf_page": "82",
+            "source_years": "2014-2013",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. High Dust Conditions only, as printed for LX 793. Engine codes and restrictions are taken only from the LX 793 cell.",
+            "source_row": "Q7 3.0 V6 181 | 2014-2013 | LX 792 / Engine Designation / CNRB / Except High Dust / Conditions / LX 793 / Engine Designation / CNRB / High Dust Conditions"
+          },
+          {
+            "make": "AUDI",
+            "model": "Q7",
+            "years": "2011–2012; 2009",
+            "engine": "3.0 V6 181; CATA",
+            "pdf_page": "82",
+            "source_years": "2012-2011,2009",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. High Dust Conditions only, as printed for LX 793. Engine codes and restrictions are taken only from the LX 793 cell.",
+            "source_row": "Q7 3.0 V6 181 | 2012-2011,2009 | LX 792 / Engine Designation / CATA / Except High Dust / Conditions / LX 793 / Engine Designation / CATA / High Dust Conditions"
+          },
+          {
+            "make": "AUDI",
+            "model": "Q7",
+            "years": "2010",
+            "engine": "3.0 V6 181; CATA",
+            "pdf_page": "82",
+            "source_years": "2010",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. High Dust Conditions only, as printed for LX 793. Engine codes and restrictions are taken only from the LX 793 cell.",
+            "source_row": "Q7 3.0 V6 181 | 2010 | LX 792 / Engine Designation / CATA / Except High Dust / Conditions / LX 793 / Engine Designation / CATA / High Dust Conditions"
+          },
+          {
+            "make": "AUDI",
+            "model": "Q7",
+            "years": "2007–2010",
+            "engine": "3.6 V6 219; BHK",
+            "pdf_page": "82",
+            "source_years": "2010-2007",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. High Dust Conditions only, as printed for LX 793. Engine codes and restrictions are taken only from the LX 793 cell.",
+            "source_row": "Q7 3.6 V6 219 | 2010-2007 | LX 792 / Engine Designation / BHK / Except High Dust / Conditions / LX 793 / Engine Designation / BHK / High Dust Conditions"
+          },
+          {
+            "make": "AUDI",
+            "model": "Q7",
+            "years": "2007–2010",
+            "engine": "4.2 V8; BAR",
+            "pdf_page": "82",
+            "source_years": "2010-2007",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. High Dust Conditions only, as printed for LX 793. Engine codes and restrictions are taken only from the LX 793 cell.",
+            "source_row": "Q7 4.2 V8 | 2010-2007 | LX 792 / Engine Designation / BAR / Except High Dust / Conditions / LX 793 / Engine Designation / BAR / High Dust Conditions"
+          },
+          {
+            "make": "LAND ROVER",
+            "model": "RANGE ROVER",
+            "years": "2006–2009",
+            "engine": "4.2 V8 256",
+            "pdf_page": "474",
+            "source_years": "2009-2006",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. High Dust Conditions only, as printed for LX 793. Engine codes and restrictions are taken only from the LX 793 cell.",
+            "source_row": "Range Rover 4.2 V8 256 | 2009-2006 | LX 792 / Except High Dust / Conditions / LX 793 / High Dust Conditions"
+          },
+          {
+            "make": "LAND ROVER",
+            "model": "RANGE ROVER",
+            "years": "2006–2009",
+            "engine": "4.4 V8",
+            "pdf_page": "474",
+            "source_years": "2009-2006",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. High Dust Conditions only, as printed for LX 793. Engine codes and restrictions are taken only from the LX 793 cell.",
+            "source_row": "Range Rover 4.4 V8 | 2009-2006 | LX 792 / Except High Dust / Conditions / LX 793 / High Dust Conditions"
+          },
+          {
+            "make": "PORSCHE",
+            "model": "CAYENNE",
+            "years": "2004–2006",
+            "engine": "3.2 V6 195",
+            "pdf_page": "647",
+            "source_years": "2006-2004",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. High Dust Conditions only, as printed for LX 793. Engine codes and restrictions are taken only from the LX 793 cell.",
+            "source_row": "Cayenne 3.2 V6 195 | 2006-2004 | LX 792 / Except High Dust / Conditions / LX 793 / High Dust Conditions"
+          },
+          {
+            "make": "PORSCHE",
+            "model": "CAYENNE",
+            "years": "2008–2010",
+            "engine": "3.6 V6 219; 5501",
+            "pdf_page": "647",
+            "source_years": "2010-2008",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. High Dust Conditions only, as printed for LX 793. Engine codes and restrictions are taken only from the LX 793 cell.",
+            "source_row": "Cayenne 3.6 V6 219 | 2010-2008 | LX 792 / Engine Designation / 5501 / Except High Dust / Conditions / LX 793 / Engine Designation / 5501 / High Dust Conditions"
+          },
+          {
+            "make": "PORSCHE",
+            "model": "CAYENNE",
+            "years": "2003–2006",
+            "engine": "4.5 V8",
+            "pdf_page": "648",
+            "source_years": "2006-2003",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. High Dust Conditions only, as printed for LX 793. Engine codes and restrictions are taken only from the LX 793 cell.",
+            "source_row": "Cayenne 4.5 V8 | 2006-2003 | LX 792 / Except High Dust / Conditions / LX 793 / High Dust Conditions"
+          },
+          {
+            "make": "PORSCHE",
+            "model": "CAYENNE",
+            "years": "2008–2010",
+            "engine": "4.8 V8; 4801; 4851",
+            "pdf_page": "649",
+            "source_years": "2010-2008",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. High Dust Conditions only, as printed for LX 793. Engine codes and restrictions are taken only from the LX 793 cell.",
+            "source_row": "Cayenne 4.8 V8 | 2010-2008 | LX 792 / Engine Designation / 4801; 4851 / Except High Dust / Conditions / LX 793 / Engine Designation / 4801; 4851 / High Dust Conditions"
+          },
+          {
+            "make": "VOLKSWAGEN",
+            "model": "TOUAREG",
+            "years": "2013",
+            "engine": "3.0 V6; CGFA",
+            "pdf_page": "751",
+            "source_years": "2013",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. No high-dust restriction is printed for LX 793 in this row. Engine codes and restrictions are taken only from the LX 793 cell.",
+            "source_row": "Touareg 3.0 V6 | 2013 | LX 793 / Engine Designation / CGFA"
+          },
+          {
+            "make": "VOLKSWAGEN",
+            "model": "TOUAREG",
+            "years": "2013",
+            "engine": "3.0 V6 181; CNRB",
+            "pdf_page": "752",
+            "source_years": "2013",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. No high-dust restriction is printed for LX 793 in this row. Engine codes and restrictions are taken only from the LX 793 cell.",
+            "source_row": "Touareg 3.0 V6 181 | 2013 | LX 793 / Engine Designation / CNRB"
+          },
+          {
+            "make": "VOLKSWAGEN",
+            "model": "TOUAREG",
+            "years": "2009–2010",
+            "engine": "3.0 V6 181; CATA",
+            "pdf_page": "752",
+            "source_years": "2010-2009",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. High Dust Conditions only, as printed for LX 793. Engine codes and restrictions are taken only from the LX 793 cell.",
+            "source_row": "Touareg 3.0 V6 181 | 2010-2009 | LX 792 / Engine Designation / CATA / Except High Dust / Conditions / LX 793 / Engine Designation / CATA / High Dust Conditions"
+          },
+          {
+            "make": "VOLKSWAGEN",
+            "model": "TOUAREG",
+            "years": "2005–2006",
+            "engine": "3.2 V6 195; BMX",
+            "pdf_page": "752",
+            "source_years": "2006-2005",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. High Dust Conditions only, as printed for LX 793. Engine codes and restrictions are taken only from the LX 793 cell.",
+            "source_row": "Touareg 3.2 V6 195 | 2006-2005 | LX 792 / Engine Designation / BMX / Except High Dust / Conditions / LX 793 / Engine Designation / BMX / High Dust Conditions"
+          },
+          {
+            "make": "VOLKSWAGEN",
+            "model": "TOUAREG",
+            "years": "2004",
+            "engine": "3.2 V6 195; BAA",
+            "pdf_page": "752",
+            "source_years": "2004",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. High Dust Conditions only, as printed for LX 793. Engine codes and restrictions are taken only from the LX 793 cell.",
+            "source_row": "Touareg 3.2 V6 195 | 2004 | LX 792 / Engine Designation / BAA / Except High Dust / Conditions / LX 793 / Engine Designation / BAA / High Dust Conditions"
+          },
+          {
+            "make": "VOLKSWAGEN",
+            "model": "TOUAREG",
+            "years": "2007–2010",
+            "engine": "3.6 V6 219; BHK",
+            "pdf_page": "752",
+            "source_years": "2010-2007",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. High Dust Conditions only, as printed for LX 793. Engine codes and restrictions are taken only from the LX 793 cell.",
+            "source_row": "Touareg 3.6 V6 219 | 2010-2007 | LX 792 / Engine Designation / BHK / Except High Dust / Conditions / LX 793 / Engine Designation / BHK / High Dust Conditions"
+          },
+          {
+            "make": "VOLKSWAGEN",
+            "model": "TOUAREG",
+            "years": "2008–2009",
+            "engine": "4.2 V8; BAR",
+            "pdf_page": "753",
+            "source_years": "2009-2008",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. High Dust Conditions only, as printed for LX 793. Engine codes and restrictions are taken only from the LX 793 cell.",
+            "source_row": "Touareg 4.2 V8 | 2009-2008 | LX 792 / Engine Designation / BAR / Except High Dust / Conditions / LX 793 / Engine Designation / BAR / High Dust Conditions"
+          },
+          {
+            "make": "VOLKSWAGEN",
+            "model": "TOUAREG",
+            "years": "2007",
+            "engine": "4.2 V8; AXQ",
+            "pdf_page": "753",
+            "source_years": "2007",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. High Dust Conditions only, as printed for LX 793. Engine codes and restrictions are taken only from the LX 793 cell.",
+            "source_row": "Touareg 4.2 V8 | 2007 | LX 792 / Engine Designation / AXQ / Except High Dust / Conditions / LX 793 / Engine Designation / AXQ / High Dust Conditions"
+          },
+          {
+            "make": "VOLKSWAGEN",
+            "model": "TOUAREG",
+            "years": "2004–2006",
+            "engine": "4.2 V8; AXQ",
+            "pdf_page": "753",
+            "source_years": "2006-2004",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. High Dust Conditions only, as printed for LX 793. Engine codes and restrictions are taken only from the LX 793 cell.",
+            "source_row": "Touareg 4.2 V8 | 2006-2004 | LX 792 / Engine Designation / AXQ / Except High Dust / Conditions / LX 793 / Engine Designation / AXQ / High Dust Conditions"
+          },
+          {
+            "make": "VOLKSWAGEN",
+            "model": "TOUAREG",
+            "years": "2004",
+            "engine": "4.9 V10 300; BKW",
+            "pdf_page": "753",
+            "source_years": "2004",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. High Dust Conditions only, as printed for LX 793. Engine codes and restrictions are taken only from the LX 793 cell.",
+            "source_row": "Touareg 4.9 V10 300 | 2004 | LX 792 / Engine Designation / BKW / Except High Dust / Conditions / LX 793 / Engine Designation / BKW / High Dust Conditions"
+          },
+          {
+            "make": "VOLKSWAGEN",
+            "model": "TOUAREG",
+            "years": "2007–2008",
+            "engine": "5.0 V10 300; BWF",
+            "pdf_page": "753",
+            "source_years": "2008-2007",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. High Dust Conditions only, as printed for LX 793. Engine codes and restrictions are taken only from the LX 793 cell.",
+            "source_row": "Touareg 5.0 V10 300 | 2008-2007 | LX 792 / Engine Designation / BWF / Except High Dust / Conditions / LX 793 / Engine Designation / BWF / High Dust Conditions"
+          },
+          {
+            "make": "VOLKSWAGEN",
+            "model": "TOUAREG",
+            "years": "2006",
+            "engine": "5.0 V10 300; BWF",
+            "pdf_page": "753",
+            "source_years": "2006",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. High Dust Conditions only, as printed for LX 793. Engine codes and restrictions are taken only from the LX 793 cell.",
+            "source_row": "Touareg 5.0 V10 300 | 2006 | LX 792 / Engine Designation / BWF / Except High Dust / Conditions / LX 793 / Engine Designation / BWF / High Dust Conditions"
+          }
+        ]
+      },
+      {
+        "brand": "MAHLE",
+        "article": "LAK855",
+        "source_brand": "MAHLE",
+        "source_article": "LAK855",
+        "source_url": "https://www.mahle-aftermarket.com/media/local-media-north-america/catalogs-and-lit-pictures/fi-20-26_web.pdf",
+        "status": "sourced",
+        "note": "Printed exact identifier LAK 855 differs only in whitespace from the supplier article. All matching application rows in this North American FI-20-26 PDF were visually reviewed; this is not a claim of global completeness. Source cells, original years and PDF page numbers retained.",
+        "rows": [
+          {
+            "make": "PORSCHE",
+            "model": "CAYENNE",
+            "years": "2017–2018",
+            "engine": "3.0 V6",
+            "pdf_page": "646",
+            "source_years": "2018-2017",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. Cabin filter LAK 855. Engine codes and restrictions in adjacent air/oil/fuel filter cells are not assigned to the cabin filter; no engine code is printed in its own cell.",
+            "source_row": "Cayenne 3.0 V6 | 2018-2017 | LA 855 / LAK 855 / LAO 855"
+          },
+          {
+            "make": "PORSCHE",
+            "model": "CAYENNE",
+            "years": "2018",
+            "engine": "3.0 V6 181",
+            "pdf_page": "646",
+            "source_years": "2018",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. Cabin filter LAK 855. Engine codes and restrictions in adjacent air/oil/fuel filter cells are not assigned to the cabin filter; no engine code is printed in its own cell.",
+            "source_row": "Cayenne 3.0 V6 181 | 2018 | LA 855 / LAK 855 / LAO 855"
+          },
+          {
+            "make": "PORSCHE",
+            "model": "CAYENNE",
+            "years": "2017",
+            "engine": "3.0 V6 181",
+            "pdf_page": "646",
+            "source_years": "2017",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. Cabin filter LAK 855. Engine codes and restrictions in adjacent air/oil/fuel filter cells are not assigned to the cabin filter; no engine code is printed in its own cell.",
+            "source_row": "Cayenne 3.0 V6 181 | 2017 | LA 855 / LAK 855 / LAO 855"
+          },
+          {
+            "make": "PORSCHE",
+            "model": "CAYENNE",
+            "years": "2013–2016",
+            "engine": "3.0 V6 181",
+            "pdf_page": "646",
+            "source_years": "2016-2013",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. Cabin filter LAK 855. Engine codes and restrictions in adjacent air/oil/fuel filter cells are not assigned to the cabin filter; no engine code is printed in its own cell.",
+            "source_row": "Cayenne 3.0 V6 181 | 2016-2013 | LA 855 / LAK 855 / LAO 855"
+          },
+          {
+            "make": "PORSCHE",
+            "model": "CAYENNE",
+            "years": "2012–2018",
+            "engine": "3.0 V6 183",
+            "pdf_page": "647",
+            "source_years": "2018-2012",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. Cabin filter LAK 855. Engine codes and restrictions in adjacent air/oil/fuel filter cells are not assigned to the cabin filter; no engine code is printed in its own cell.",
+            "source_row": "Cayenne 3.0 V6 183 | 2018-2012 | LA 855 / LAK 855 / LAO 855"
+          },
+          {
+            "make": "PORSCHE",
+            "model": "CAYENNE",
+            "years": "2011",
+            "engine": "3.0 V6 183",
+            "pdf_page": "647",
+            "source_years": "2011",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. Cabin filter LAK 855. Engine codes and restrictions in adjacent air/oil/fuel filter cells are not assigned to the cabin filter; no engine code is printed in its own cell.",
+            "source_row": "Cayenne 3.0 V6 183 | 2011 | LA 855 / LAK 855 / LAO 855"
+          },
+          {
+            "make": "PORSCHE",
+            "model": "CAYENNE",
+            "years": "2016–2018",
+            "engine": "3.6 V6 219",
+            "pdf_page": "647",
+            "source_years": "2018-2016",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. Cabin filter LAK 855. Engine codes and restrictions in adjacent air/oil/fuel filter cells are not assigned to the cabin filter; no engine code is printed in its own cell.",
+            "source_row": "Cayenne 3.6 V6 219 | 2018-2016 | LA 855 / LAK 855 / LAO 855"
+          },
+          {
+            "make": "PORSCHE",
+            "model": "CAYENNE",
+            "years": "2012–2014",
+            "engine": "3.6 V6 219",
+            "pdf_page": "647",
+            "source_years": "2014-2012",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. Cabin filter LAK 855. Engine codes and restrictions in adjacent air/oil/fuel filter cells are not assigned to the cabin filter; no engine code is printed in its own cell.",
+            "source_row": "Cayenne 3.6 V6 219 | 2014-2012 | LA 855 / LAK 855 / LAO 855"
+          },
+          {
+            "make": "PORSCHE",
+            "model": "CAYENNE",
+            "years": "2011",
+            "engine": "3.6 V6 219",
+            "pdf_page": "647",
+            "source_years": "2011",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. Cabin filter LAK 855. Engine codes and restrictions in adjacent air/oil/fuel filter cells are not assigned to the cabin filter; no engine code is printed in its own cell.",
+            "source_row": "Cayenne 3.6 V6 219 | 2011 | LA 855 / LAK 855 / LAO 855"
+          },
+          {
+            "make": "PORSCHE",
+            "model": "CAYENNE",
+            "years": "2018; 2015–2016",
+            "engine": "3.6 V6 220",
+            "pdf_page": "647",
+            "source_years": "2018, 2016-2015",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. Cabin filter LAK 855. Engine codes and restrictions in adjacent air/oil/fuel filter cells are not assigned to the cabin filter; no engine code is printed in its own cell.",
+            "source_row": "Cayenne 3.6 V6 220 | 2018, 2016-2015 | LA 855 / LAK 855 / LAO 855"
+          },
+          {
+            "make": "PORSCHE",
+            "model": "CAYENNE",
+            "years": "2017",
+            "engine": "3.6 V6 220",
+            "pdf_page": "648",
+            "source_years": "2017",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. Cabin filter LAK 855. Engine codes and restrictions in adjacent air/oil/fuel filter cells are not assigned to the cabin filter; no engine code is printed in its own cell.",
+            "source_row": "Cayenne 3.6 V6 220 | 2017 | LA 855 / LAK 855 / LAO 855"
+          },
+          {
+            "make": "PORSCHE",
+            "model": "CAYENNE",
+            "years": "2017–2018",
+            "engine": "4.8 V8",
+            "pdf_page": "648",
+            "source_years": "2018-2017",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. Cabin filter LAK 855. Engine codes and restrictions in adjacent air/oil/fuel filter cells are not assigned to the cabin filter; no engine code is printed in its own cell.",
+            "source_row": "Cayenne 4.8 V8 | 2018-2017 | LA 855 / LAK 855 / LAO 855"
+          },
+          {
+            "make": "PORSCHE",
+            "model": "CAYENNE",
+            "years": "2016",
+            "engine": "4.8 V8",
+            "pdf_page": "648",
+            "source_years": "2016",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. Cabin filter LAK 855. Engine codes and restrictions in adjacent air/oil/fuel filter cells are not assigned to the cabin filter; no engine code is printed in its own cell.",
+            "source_row": "Cayenne 4.8 V8 | 2016 | LA 855 / LAK 855 / LAO 855"
+          },
+          {
+            "make": "PORSCHE",
+            "model": "CAYENNE",
+            "years": "2015",
+            "engine": "4.8 V8",
+            "pdf_page": "648",
+            "source_years": "2015",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. Cabin filter LAK 855. Engine codes and restrictions in adjacent air/oil/fuel filter cells are not assigned to the cabin filter; no engine code is printed in its own cell.",
+            "source_row": "Cayenne 4.8 V8 | 2015 | LA 855 / LAK 855 / LAO 855"
+          },
+          {
+            "make": "PORSCHE",
+            "model": "CAYENNE",
+            "years": "2011–2014",
+            "engine": "4.8 V8",
+            "pdf_page": "649",
+            "source_years": "2014-2011",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. Cabin filter LAK 855. Engine codes and restrictions in adjacent air/oil/fuel filter cells are not assigned to the cabin filter; no engine code is printed in its own cell.",
+            "source_row": "Cayenne 4.8 V8 | 2014-2011 | LA 855 / LAK 855 / LAO 855"
+          },
+          {
+            "make": "VOLKSWAGEN",
+            "model": "TOUAREG",
+            "years": "2017",
+            "engine": "3.0 V6",
+            "pdf_page": "751",
+            "source_years": "2017",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. Cabin filter LAK 855. Engine codes and restrictions in adjacent air/oil/fuel filter cells are not assigned to the cabin filter; no engine code is printed in its own cell.",
+            "source_row": "Touareg 3.0 V6 | 2017 | LA 855 / LAK 855 / LAO 855"
+          },
+          {
+            "make": "VOLKSWAGEN",
+            "model": "TOUAREG",
+            "years": "2016; 2011–2012",
+            "engine": "3.0 V6",
+            "pdf_page": "751",
+            "source_years": "2016, 2012-2011",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. Cabin filter LAK 855. Engine codes and restrictions in adjacent air/oil/fuel filter cells are not assigned to the cabin filter; no engine code is printed in its own cell.",
+            "source_row": "Touareg 3.0 V6 | 2016, 2012-2011 | LA 855 / LAK 855 / LAO 855"
+          },
+          {
+            "make": "VOLKSWAGEN",
+            "model": "TOUAREG",
+            "years": "2014–2015",
+            "engine": "3.0 V6",
+            "pdf_page": "751",
+            "source_years": "2015-2014",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. Cabin filter LAK 855. Engine codes and restrictions in adjacent air/oil/fuel filter cells are not assigned to the cabin filter; no engine code is printed in its own cell.",
+            "source_row": "Touareg 3.0 V6 | 2015-2014 | LA 855 / LAK 855 / LAO 855"
+          },
+          {
+            "make": "VOLKSWAGEN",
+            "model": "TOUAREG",
+            "years": "2013",
+            "engine": "3.0 V6",
+            "pdf_page": "751",
+            "source_years": "2013",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. Cabin filter LAK 855. Engine codes and restrictions in adjacent air/oil/fuel filter cells are not assigned to the cabin filter; no engine code is printed in its own cell.",
+            "source_row": "Touareg 3.0 V6 | 2013 | LA 855 / LAK 855 / LAO 855"
+          },
+          {
+            "make": "VOLKSWAGEN",
+            "model": "TOUAREG",
+            "years": "2017",
+            "engine": "3.0 V6 181",
+            "pdf_page": "751",
+            "source_years": "2017",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. Cabin filter LAK 855. Engine codes and restrictions in adjacent air/oil/fuel filter cells are not assigned to the cabin filter; no engine code is printed in its own cell.",
+            "source_row": "Touareg 3.0 V6 181 | 2017 | LA 855 / LAK 855 / LAO 855"
+          },
+          {
+            "make": "VOLKSWAGEN",
+            "model": "TOUAREG",
+            "years": "2014–2016",
+            "engine": "3.0 V6 181",
+            "pdf_page": "751",
+            "source_years": "2016-2014",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. Cabin filter LAK 855. Engine codes and restrictions in adjacent air/oil/fuel filter cells are not assigned to the cabin filter; no engine code is printed in its own cell.",
+            "source_row": "Touareg 3.0 V6 181 | 2016-2014 | LA 855 / LAK 855 / LAO 855"
+          },
+          {
+            "make": "VOLKSWAGEN",
+            "model": "TOUAREG",
+            "years": "2013",
+            "engine": "3.0 V6 181",
+            "pdf_page": "752",
+            "source_years": "2013",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. Cabin filter LAK 855. Engine codes and restrictions in adjacent air/oil/fuel filter cells are not assigned to the cabin filter; no engine code is printed in its own cell.",
+            "source_row": "Touareg 3.0 V6 181 | 2013 | LA 855 / LAK 855 / LAO 855"
+          },
+          {
+            "make": "VOLKSWAGEN",
+            "model": "TOUAREG",
+            "years": "2011–2012",
+            "engine": "3.0 V6 181",
+            "pdf_page": "752",
+            "source_years": "2012-2011",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. Cabin filter LAK 855. Engine codes and restrictions in adjacent air/oil/fuel filter cells are not assigned to the cabin filter; no engine code is printed in its own cell.",
+            "source_row": "Touareg 3.0 V6 181 | 2012-2011 | LA 855 / LAK 855 / LAO 855"
+          },
+          {
+            "make": "VOLKSWAGEN",
+            "model": "TOUAREG",
+            "years": "2014–2017",
+            "engine": "3.6 V6 219",
+            "pdf_page": "752",
+            "source_years": "2017-2014",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. Cabin filter LAK 855. Engine codes and restrictions in adjacent air/oil/fuel filter cells are not assigned to the cabin filter; no engine code is printed in its own cell.",
+            "source_row": "Touareg 3.6 V6 219 | 2017-2014 | LA 855 / LAK 855 / LAO 855"
+          },
+          {
+            "make": "VOLKSWAGEN",
+            "model": "TOUAREG",
+            "years": "2012–2013",
+            "engine": "3.6 V6 219",
+            "pdf_page": "752",
+            "source_years": "2013-2012",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. Cabin filter LAK 855. Engine codes and restrictions in adjacent air/oil/fuel filter cells are not assigned to the cabin filter; no engine code is printed in its own cell.",
+            "source_row": "Touareg 3.6 V6 219 | 2013-2012 | LA 855 / LAK 855 / LAO 855"
+          },
+          {
+            "make": "VOLKSWAGEN",
+            "model": "TOUAREG",
+            "years": "2011",
+            "engine": "3.6 V6 219",
+            "pdf_page": "752",
+            "source_years": "2011",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. Cabin filter LAK 855. Engine codes and restrictions in adjacent air/oil/fuel filter cells are not assigned to the cabin filter; no engine code is printed in its own cell.",
+            "source_row": "Touareg 3.6 V6 219 | 2011 | LA 855 / LAK 855 / LAO 855"
+          },
+          {
+            "make": "VOLKSWAGEN",
+            "model": "TOUAREG",
+            "years": "2015–2017; 2011",
+            "engine": "4.2 V8",
+            "pdf_page": "752",
+            "source_years": "2017-2015,2011",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. Cabin filter LAK 855. Engine codes and restrictions in adjacent air/oil/fuel filter cells are not assigned to the cabin filter; no engine code is printed in its own cell.",
+            "source_row": "Touareg 4.2 V8 | 2017-2015,2011 | LA 855 / LAK 855 / LAO 855"
+          },
+          {
+            "make": "VOLKSWAGEN",
+            "model": "TOUAREG",
+            "years": "2012–2014",
+            "engine": "4.2 V8",
+            "pdf_page": "752",
+            "source_years": "2014-2012",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. Cabin filter LAK 855. Engine codes and restrictions in adjacent air/oil/fuel filter cells are not assigned to the cabin filter; no engine code is printed in its own cell.",
+            "source_row": "Touareg 4.2 V8 | 2014-2012 | LA 855 / LAK 855 / LAO 855"
+          },
+          {
+            "make": "VOLKSWAGEN",
+            "model": "TRANSPORTER",
+            "years": "2010–2013",
+            "engine": "2.0 L4 120",
+            "pdf_page": "754",
+            "source_years": "2013-2010",
+            "notes": "MAHLE FI-20-26 North American light vehicle catalogue: regional application only. Cabin filter LAK 855. Engine codes and restrictions in adjacent air/oil/fuel filter cells are not assigned to the cabin filter; no engine code is printed in its own cell.",
+            "source_row": "Transporter 2.0 L4 120 | 2013-2010 | LA 182 / LA 855 / LAK 182 / LAK 855 / LAO 182"
+          }
+        ]
+      }
+    ]
+  },
+  "evidence": {
+    "catalogue": "MAHLE FI-20-26",
+    "source_url": "https://www.mahle-aftermarket.com/media/local-media-north-america/catalogs-and-lit-pictures/fi-20-26_web.pdf",
+    "pdf_sha256": "1f768e91d9261771815d77e09e4746a69aad0b2df2eb7e9cdf4d8a2644b08705",
+    "review": "Visually reviewed every 60 matching application rows from rendered native PDF strips with model/year/product columns. Matching row counts independently reconciled with all PDF occurrences in the application section.",
+    "regional_scope": "North America only; no global completeness claim.",
+    "application_pdf_pages": {
+      "LX793": [
+        81,
+        82,
+        474,
+        647,
+        648,
+        649,
+        751,
+        752,
+        753
+      ],
+      "LAK855": [
+        646,
+        647,
+        648,
+        649,
+        751,
+        752,
+        754
+      ]
+    },
+    "counts": {
+      "LX793": {
+        "pairs": 4,
+        "configurations": 31
+      },
+      "LAK855": {
+        "pairs": 3,
+        "configurations": 29
+      }
+    }
+  },
+  "restrictions": [
+    "High Dust Conditions belongs to LX793 only on the rows explicitly printing it.",
+    "No engine codes copied from adjacent oil/fuel/air filter cells to LAK855.",
+    "Non-contiguous years preserved; original source years retained in each configuration.",
+    "Only exact full article identity with harmless whitespace difference LX 793 / LAK 855."
+  ],
+  "before": {
+    "verified_offers": 4281,
+    "products_with_photos": 19105,
+    "queue": {
+      "done": 18745,
+      "skipped": 1622,
+      "needs_source": 29126
+    }
+  },
+  "next": "Skip if already filled. Prior source/security refusals remain in effect; no photo task staged."
+}
