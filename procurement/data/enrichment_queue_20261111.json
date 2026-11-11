@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T10:14:00.488Z",
+  "checked_at": "2026-11-11T10:14:54.069Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -12113,6 +12113,50 @@
         }
       ],
       "next_offer_id": 22992,
+      "verification": {
+        "trade_data_unchanged": true
+      }
+    },
+    {
+      "article": "48065",
+      "brand": "NGK",
+      "cost": 17100,
+      "has_fitment": true,
+      "id": 35151,
+      "kaspi_price": 22589,
+      "kaspi_url": "https://kaspi.kz/shop/p/katushka-zazhiganija-ngk-48065-100877611/?c=750000000",
+      "main_image": "",
+      "name": "NGK Катушка зажигания U5020",
+      "photo_status": "needs_source",
+      "product_id": 16040,
+      "profit": 2415.375,
+      "stock": "2",
+      "supplier_id": 3,
+      "supplier_thumbnail": "",
+      "task_id": 14013,
+      "offer_id": 35151,
+      "status": "prepared_photo_existing_fitment",
+      "checked_on": "2026-11-11",
+      "source_url": "https://spareto.co.uk/products/ngk-ignition-coil/u5020-48065",
+      "source_label": "Spareto — независимый каталог продавца",
+      "source_kind": "retailer_catalogue",
+      "source_article": "48065",
+      "fitments": [],
+      "fitment_note": "Существующая применимость сохранена.",
+      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/3efc99db-7d73-4955-94fd-b8077ae66047",
+      "image_url": "https://cdn.spareto.com/variants/images_webp/000/553/841/medium/u5020-48065-680C906A.webp?1793006973",
+      "image_note": "Точная NGK 48065/U5020: реальное фото одной катушки с маркировкой NGK, 4 контакта/SAE подтверждены точной карточкой. Конфликтующий заголовок U5024 у другого продавца не использован. Armtek503 отмечен временным.",
+      "photo": {
+        "status": "downloaded_visually_verified_not_queued"
+      },
+      "fitment_status": "existing_preserved",
+      "checked_sources": [
+        {
+          "url": "https://spareto.co.uk/products/ngk-ignition-coil/u5020-48065",
+          "result": "Точная NGK 48065/U5020: реальное фото одной катушки с маркировкой NGK, 4 контакта/SAE подтверждены точной карточкой. Конфликтующий заголовок U5024 у другого продавца не использован. Armtek503 отмечен временным."
+        }
+      ],
+      "next_offer_id": 22970,
       "verification": {
         "trade_data_unchanged": true
       }
