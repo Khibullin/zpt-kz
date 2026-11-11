@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T12:01:17.104Z",
+  "checked_at": "2026-11-11T12:02:00.887Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -11869,6 +11869,50 @@
         }
       ],
       "next_offer_id": 22748,
+      "verification": {
+        "trade_data_unchanged": true
+      }
+    },
+    {
+      "article": "394-95K",
+      "brand": "MOTORAD",
+      "cost": 10390,
+      "has_fitment": true,
+      "id": 35188,
+      "kaspi_price": 14165,
+      "kaspi_url": "https://kaspi.kz/shop/p/motorad-termostat-394-95k-115267622/?c=750000000",
+      "main_image": "",
+      "name": "Термостат 95°С",
+      "photo_status": "needs_source",
+      "product_id": 15996,
+      "profit": 1754.375,
+      "stock": "6",
+      "supplier_id": 3,
+      "supplier_thumbnail": "",
+      "task_id": 13969,
+      "offer_id": 35188,
+      "status": "prepared_photo_existing_fitment",
+      "checked_on": "2026-11-11",
+      "source_url": "https://www.motointegrator.de/artikel/1443897-thermostat-kuehlmittel-motorad-394-95k",
+      "source_label": "Motointegrator — независимый каталог продавца",
+      "source_kind": "retailer_catalogue",
+      "source_article": "394-95K",
+      "fitments": [],
+      "fitment_note": "Существующая применимость сохранена.",
+      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/eab2c351-a469-47cb-aa3e-849b13b96fba",
+      "image_url": "https://ic-files-res.cloudinary.com/image/upload/t_pad_white300x300v1/v1/item/egea8ebwgsrjp95ulzg3.jpg",
+      "image_note": "Карточка MOTORAD394-95K:95°C,корпус и уплотнение. Визуально фотография одного термостата в чёрном угловом корпусе,без дополнительных элементов; не схема/заглушка. Общая оговорка продавца о примерном изображении записана; точная карточка, бренд и комплектность совпадают. Существующая применимость сохранена.",
+      "photo": {
+        "status": "downloaded_visually_verified_not_queued"
+      },
+      "fitment_status": "existing_preserved",
+      "checked_sources": [
+        {
+          "url": "https://www.motointegrator.de/artikel/1443897-thermostat-kuehlmittel-motorad-394-95k",
+          "result": "Карточка MOTORAD394-95K:95°C,корпус и уплотнение. Визуально фотография одного термостата в чёрном угловом корпусе,без дополнительных элементов; не схема/заглушка. Общая оговорка продавца о примерном изображении записана; точная карточка, бренд и комплектность совпадают. Существующая применимость сохранена."
+        }
+      ],
+      "next_offer_id": 23510,
       "verification": {
         "trade_data_unchanged": true
       }
