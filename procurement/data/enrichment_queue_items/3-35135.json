@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 14006,
   "offer_id": 35135,
-  "status": "prepared_photo_existing_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://cars245.com/en/item/ngk-48002-ignition-coil/",
   "source_label": "Cars245 — независимый каталог продавца",
@@ -24,11 +24,20 @@
   "source_article": "48002",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/87670de7-da16-4e23-b72e-d5257e63f7d3",
   "image_url": "https://cars245images.cc/webp/big/ngk/02/ngk-48002.jpg.webp",
   "image_note": "NGK48002,однакатушка,2контактаSAE,полныйартикул и реальнаядеталь в точной карточкеCars245. Прежняя применимость сохранена.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/9e863f71f4e4c89257d242e6b64f37ecab2506b13878fa27569d0eb4976fc6b4.webp",
+    "thumbnail_path": "products/optimized/1e693fdc98ab6b69cbfdeed2118375041cd1bfbc02949fd2d64920c7911ab0fc.webp",
+    "main_size": [
+      800,
+      533
+    ],
+    "thumbnail_size": [
+      180,
+      120
+    ]
   },
   "fitment_status": "existing_preserved",
   "checked_sources": [
@@ -39,6 +48,29 @@
   ],
   "next_offer_id": 23080,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T10:00:47.383Z"
+  },
+  "source_sha256": "8e5266dc1a6748e2c8dec0457e3f071c36522724228ddee79382255ceaf1c85f",
+  "main_sha256": "9e863f71f4e4c89257d242e6b64f37ecab2506b13878fa27569d0eb4976fc6b4",
+  "main_size": [
+    800,
+    533
+  ],
+  "thumbnail_sha256": "1e693fdc98ab6b69cbfdeed2118375041cd1bfbc02949fd2d64920c7911ab0fc",
+  "thumbnail_size": [
+    180,
+    120
+  ],
+  "publication": {
+    "commit": "6d50b89ddbdaea78c8ee72c5f924121782c91caf",
+    "deploy": "dep-dbq3nju7bikc738hoo40",
+    "status": "live"
   }
 }
