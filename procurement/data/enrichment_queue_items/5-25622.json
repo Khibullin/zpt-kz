@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 5299,
   "offer_id": 25622,
-  "status": "prepared_photo_existing_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://autopiter.kg/goods/sdv1497pn/krauf/id129120735",
   "source_label": "Автопитер — независимый каталог продавца KRAUF",
@@ -24,11 +24,20 @@
   "source_article": "SDV1497PN",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/af919645-bd9a-46b6-9c33-dbacd8a7b7b0",
   "image_url": "https://autopiter.kg/static2/detailphoto/w2000/P2376/SDV1497PN-1.JPG",
   "image_note": "Фото одного реального бендикса, логотип KRAUF и полный SDV1497PN нанесены на изображение; точный бренд и артикул проверены в карточке. Существующая применимость сохранена.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/e1935fd409802e40bd08eb2088e65f27fe7e5749c8ef85d738ea502de43999e2.webp",
+    "thumbnail_path": "products/optimized/7b5b0913ff65d63ff15b0bbf981a50a6b15758724841b299c99168754275241e.webp",
+    "main_size": [
+      720,
+      720
+    ],
+    "thumbnail_size": [
+      180,
+      180
+    ]
   },
   "fitment_status": "existing_preserved",
   "checked_sources": [
@@ -39,6 +48,29 @@
   ],
   "next_offer_id": 25537,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T11:48:27.677Z"
+  },
+  "source_sha256": "6e980cbfd8efb25017169ab8a464363443146d136a795a055c51fc6f4d95c9f0",
+  "main_sha256": "e1935fd409802e40bd08eb2088e65f27fe7e5749c8ef85d738ea502de43999e2",
+  "main_size": [
+    720,
+    720
+  ],
+  "thumbnail_sha256": "7b5b0913ff65d63ff15b0bbf981a50a6b15758724841b299c99168754275241e",
+  "thumbnail_size": [
+    180,
+    180
+  ],
+  "publication": {
+    "commit": "4ded4decb82a9095ede0648b4c7dc054989e5f2d",
+    "deploy": "dep-dbq5a8ff3r2c73b9knv0",
+    "status": "live"
   }
 }
