@@ -130,6 +130,8 @@ def process_photo_tasks(limit=10):
     SupplierPhotoTask.objects.filter(status__in=['prepared','maker_ready','web_ready','bilstein_ready','shock_ready']).update(status='pending')
     from .reviewed_top50 import process_reviewed_photos
     done=process_reviewed_photos(limit=limit)
+    from .reviewed_next50 import process_reviewed_photos as process_next50_photos
+    done+=process_next50_photos(limit=max(0,limit-done))
     pending=SupplierPhotoTask.objects.filter(status='pending')
     for host in {urlsplit(row['source_url']).netloc for row in blocked}:
         if host:pending=pending.exclude(source_url__startswith='https://'+host+'/')
@@ -187,4 +189,5 @@ def process_photo_tasks(limit=10):
             if task.status=='blocked':break
         time.sleep(.3)
     return done
+
 
