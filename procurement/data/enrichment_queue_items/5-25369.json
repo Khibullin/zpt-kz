@@ -1,0 +1,35 @@
+{
+  "article": "2804100U2400-F011",
+  "brand": "JAC",
+  "has_fitment": false,
+  "id": 25369,
+  "kaspi_url": "https://kaspi.kz/shop/p/jac-bamper-2804100u2400-f011-dlja-jac-js6-2025-2024-138167162/?c=750000000",
+  "main_image": "",
+  "name": "Бампер задний JAC",
+  "photo_status": "needs_source",
+  "product_id": 6925,
+  "profit": 5100,
+  "stock": "1",
+  "supplier_id": 5,
+  "task_id": 4898,
+  "status": "prepared_not_published",
+  "checked_on": "2026-11-11",
+  "source_url": "https://pablo-auto.at/en/chinese-car-parts/jac-js6-2804100u2400-f011-5885",
+  "source_label": "Pablo Auto, независимый продавец оригинальных деталей JAC",
+  "source_kind": "retailer_catalogue",
+  "fitments": [
+    {
+      "make": "JAC",
+      "model": "JS6",
+      "notes": "Задний бампер, центральная часть, оригинальная деталь 2804100U2400-F011. Источник не указывает годы и двигатель; подбор по VIN. Противоречивые годы заголовка Kaspi не перенесены."
+    }
+  ],
+  "fitment_note": "Модель и исполнение подтверждены независимой точной карточкой Pablo Auto. Годы и двигатели отсутствуют и не добавлены.",
+  "photo": {
+    "image_source_url": "https://kaspi.kz/shop/p/jac-bamper-2804100u2400-f011-dlja-jac-js6-2025-2024-138167162/?c=750000000",
+    "image_url": "https://resources.cdn-kaspi.kz/img/m/p/pfd/pdf/36893137.png?format=gallery-medium",
+    "local_path": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/c6fc9b8b-c14e-421f-9a10-570d62b4ac63",
+    "status": "downloaded_visually_verified_not_uploaded"
+  },
+  "next_offer_id": 25575
+}
