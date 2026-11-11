@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 1504,
   "offer_id": 21912,
-  "status": "prepared_photo_existing_fitment",
+  "status": "reviewed_photo_exception",
   "checked_on": "2026-11-11",
   "source_url": "https://www.fitinpart.sg/v2/en/product/50135877/555-sankei-sa-n942l",
   "source_label": "Fitinpart — независимый каталог продавца",
@@ -24,21 +24,24 @@
   "source_article": "SA-N942L",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/8cfe4d7d-ba08-4ee2-9d26-a676d33270b3",
-  "image_url": "https://cdn.fitinpart.sg/fp/image/cache/data/ts_images/3a/69/50135877_0_3a69b27222b1e66240eed3f690f9afc1.webp",
-  "image_note": "555SankeiSA-N942L,левыйнижнийрычаг,точнаякарточкаFitinpart,полныйартикулпроверен. Существующаяприменимостьнеизменена.",
+  "image_note": "ФотоFitinpart оказалось образцом других рычагов с явной надписью «Изображение является примером»;исключено до любой публикации/постановкифотозадачи.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "generic_sample_excluded_before_staging"
   },
   "fitment_status": "existing_preserved",
   "checked_sources": [
     {
       "url": "https://www.fitinpart.sg/v2/en/product/50135877/555-sankei-sa-n942l",
-      "result": "555SankeiSA-N942L,левыйнижнийрычаг,точнаякарточкаFitinpart,полныйартикулпроверен. Существующаяприменимостьнеизменена."
+      "result": "Exacttext identity butdownloadedimageis genericmultiarmsample,excluded"
+    },
+    {
+      "url": "https://hyperauto.ru/product/rychag-podveski-555-levyy-nizhniy-dlya-nissan-qashqai-art-sa-n942l-301021826/",
+      "result": "400 BadRequest; noalternativechannelretry"
     }
   ],
   "next_offer_id": 23192,
   "verification": {
     "trade_data_unchanged": true
-  }
+  },
+  "reason": "Fitinpart generic example image, not exact single SA-N942L; independent Hyperauto exactpage returned400 BadRequest,no browserretry. Existingfitment preserved."
 }
