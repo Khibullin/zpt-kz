@@ -1,0 +1,37 @@
+{
+  "article": "0121-008",
+  "brand": "ASVA",
+  "cost": 5848,
+  "has_fitment": false,
+  "id": 23081,
+  "kaspi_price": 11422,
+  "kaspi_url": "https://kaspi.kz/shop/p/asva-rulevoi-nakonechnik-0121-008-177988949/?c=750000000",
+  "main_image": "",
+  "name": "НАКОНЕЧНИК РУЛЕВОЙ",
+  "photo_status": "needs_source",
+  "product_id": 4809,
+  "profit": 3896.25,
+  "stock": "2",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 2782,
+  "offer_id": 23081,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "unconfirmed",
+  "photo": {
+    "status": "safety_review_blocked"
+  },
+  "reason": "Открытие независимой карточки Drom для ASVA0121-008 отклонено автоматической проверкой безопасности, трактующей запрет источников ASVA как относящийся к бренду. Другим каналом запрос не повторён; фото/применимость не импортированы.",
+  "checked_sources": [
+    {
+      "url": "https://baza.drom.ru/krasnoyarsk/sell_spare_parts/nakonechnik-rulevoj-camry-4546080005-asva-art-0121-008-g18425074320.html",
+      "result": "Webtext retrieved; subsequent browser request explicitlyauto-review denied due ASVA source restriction. No alternative channel/retry; noimport"
+    }
+  ],
+  "next_offer_id": 22740,
+  "verification": {
+    "trade_data_unchanged": true
+  }
+}
