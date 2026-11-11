@@ -13,7 +13,7 @@
   "supplier_id": 5,
   "task_id": 5153,
   "checked_on": "2026-11-11",
-  "status": "prepared_fitment_photo_pack_unconfirmed",
+  "status": "fitment_published_photo_package_unconfirmed",
   "source_url": "https://kaspi.kz/shop/p/msg-bachok-gur-ss002tank-180081591/?c=750000000",
   "source_label": "характеристики и описание точной карточки Kaspi",
   "source_kind": "retailer_listing",
@@ -68,5 +68,8 @@
     "status": "not_approved_for_upload",
     "reason": "Фотография содержит бачок, два кронштейна и кольцо. Комплектность предложения поставщика не подтверждена; фото не привязывать до проверки."
   },
-  "next_offer_id": 26702
+  "next_offer_id": 26702,
+  "commit": "1d086429578c95f3031f7f780943cdf9b268aa1c",
+  "deploy": "dep-dbq0nqd9el5s7391gu90",
+  "verification": "All sourced configurations match frozen payload exactly in live DB; UI source/models and actual loaded image checked; prices/stock unchanged."
 }
