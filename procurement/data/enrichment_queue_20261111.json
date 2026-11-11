@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T13:27:06.820Z",
+  "checked_at": "2026-11-11T13:27:32.379Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -11778,7 +11778,7 @@
     "checked_at": "2026-11-11T10:30:05.643Z",
     "scope_note": "Fresh live best_candidates+in_stock scope reconciled with all617 original offerIDs; no composition changes."
   },
-  "next_batch_instruction": "Review final fixed 33 Phaeton in saved order. Audit verification_pending after Render read recovers, without republishing those images.",
+  "next_batch_instruction": "All original408 incomplete offers reviewed; no new batches and no repeat sources. Only verify existing 13 verification_pending rows after Render read recovers: source manifests/main commits already published, all main+thumbnail UI verified, DO NOT republish/reimport. Then clear audit list, disable exact automation Automation_53216c82774c819184d7b160c159c83f, release lease and report.",
   "technical_notes": "All200reviewed,57photos31fitmentoffers81pairs115configs cumulative acrossqueue. No pendingpublication. Phaeton100 added29photos6fitoffers23pairs46configs in4livepublications,31photo59fit29both. NewZakazAuto75frozenafterDBUIverification.",
   "latest_publication": {
     "commit": "b83355cd9994f3667e7ee7842b3bbc9cb23ee5a5",
@@ -12237,10 +12237,74 @@
         22334,
         22174
       ]
+    },
+    {
+      "supplier_id": 3,
+      "batch_number": 5,
+      "offer_ids": [
+        35183,
+        23507,
+        22849,
+        22680,
+        23501,
+        23588,
+        23171,
+        23775,
+        22805,
+        23522,
+        23232,
+        23285,
+        35168,
+        22924,
+        35143,
+        35182,
+        23095,
+        35176,
+        23406,
+        23100,
+        23049,
+        23392,
+        23864,
+        22494,
+        23061,
+        24764,
+        22515,
+        23224,
+        35142,
+        23339,
+        22432,
+        22123,
+        22974
+      ],
+      "reviewed": 33,
+      "published_fitments": 0,
+      "published_photos": 10,
+      "unconfirmed": 23,
+      "photos_present": 11,
+      "fitments_present": 15,
+      "both_present": 10,
+      "created_at": "2026-11-11T13:04:15.851Z",
+      "fixed": true,
+      "next_offer_id": null,
+      "scope_note": "Final original queue remainder; original saved profit order. Render read temporarily unavailable, verify each offer live UI before source/import; do not change scope.",
+      "completed_at": "2026-11-11T13:27:32.378Z",
+      "publication": "b83355cd9994f3667e7ee7842b3bbc9cb23ee5a5",
+      "db_audit_pending_offer_ids": [
+        35183,
+        35168,
+        35143,
+        35182,
+        35176,
+        22494,
+        22515,
+        35142,
+        22432,
+        22123
+      ]
     }
   ],
   "publication_pending": null,
-  "next_offer_id": null,
+  "next_offer_id": 35193,
   "verification_pending": [
     {
       "supplier_id": 3,
@@ -12502,5 +12566,264 @@
       },
       "reason": "Render MCP temporary Internal errors/timeouts; fresh stored row metadata audit pending"
     }
-  ]
+  ],
+  "phase": "verification_pending_after_all_sources_reviewed",
+  "ui_baseline_final_batch": {
+    "checked_at": "2026-11-11T13:27:32.379Z",
+    "supplier_id": 3,
+    "offer_ids": [
+      35183,
+      23507,
+      22849,
+      22680,
+      23501,
+      23588,
+      23171,
+      23775,
+      22805,
+      23522,
+      23232,
+      23285,
+      35168,
+      22924,
+      35143,
+      35182,
+      23095,
+      35176,
+      23406,
+      23100,
+      23049,
+      23392,
+      23864,
+      22494,
+      23061,
+      24764,
+      22515,
+      23224,
+      35142,
+      23339,
+      22432,
+      22123,
+      22974
+    ],
+    "trade_values": [
+      [
+        35183,
+        5080,
+        7431,
+        "1"
+      ],
+      [
+        23507,
+        9184,
+        12120,
+        "2"
+      ],
+      [
+        22849,
+        11120,
+        14328,
+        "10"
+      ],
+      [
+        22680,
+        5248,
+        7617,
+        "10"
+      ],
+      [
+        23501,
+        4519,
+        6778,
+        "1"
+      ],
+      [
+        23588,
+        2898,
+        4924,
+        "2"
+      ],
+      [
+        23171,
+        5079,
+        7416,
+        "2"
+      ],
+      [
+        23775,
+        5554,
+        7950,
+        "1"
+      ],
+      [
+        22805,
+        9452,
+        12403,
+        "6"
+      ],
+      [
+        23522,
+        3181,
+        5232,
+        "4"
+      ],
+      [
+        23232,
+        2142,
+        4043,
+        "4"
+      ],
+      [
+        23285,
+        10384,
+        13460,
+        "1"
+      ],
+      [
+        35168,
+        4236,
+        6431,
+        "1"
+      ],
+      [
+        22924,
+        9612,
+        12566,
+        "2"
+      ],
+      [
+        35143,
+        7127,
+        9712,
+        "2"
+      ],
+      [
+        35182,
+        8321,
+        11067,
+        "10"
+      ],
+      [
+        23095,
+        8806,
+        11620,
+        "2"
+      ],
+      [
+        35176,
+        3854,
+        5945,
+        "2"
+      ],
+      [
+        23406,
+        3302,
+        5313,
+        "1"
+      ],
+      [
+        23100,
+        5134,
+        7393,
+        "2"
+      ],
+      [
+        23049,
+        4770,
+        6968,
+        "1"
+      ],
+      [
+        23392,
+        9510,
+        12360,
+        "2"
+      ],
+      [
+        23864,
+        5696,
+        8000,
+        "2"
+      ],
+      [
+        22494,
+        5607,
+        7895,
+        "1"
+      ],
+      [
+        23061,
+        8397,
+        11080,
+        "2"
+      ],
+      [
+        24764,
+        939,
+        2556,
+        "2"
+      ],
+      [
+        22515,
+        4607,
+        6733,
+        "9"
+      ],
+      [
+        23224,
+        14512,
+        18051,
+        "2"
+      ],
+      [
+        35142,
+        6646,
+        9055,
+        "1"
+      ],
+      [
+        23339,
+        3248,
+        5155,
+        "2"
+      ],
+      [
+        22432,
+        6176,
+        8496,
+        "6"
+      ],
+      [
+        22123,
+        5509,
+        7731,
+        "8"
+      ],
+      [
+        22974,
+        526,
+        2035,
+        "5"
+      ]
+    ],
+    "all_trade_values_match_saved_queue": true
+  },
+  "reconciliation": {
+    "original_scope": 617,
+    "initial_incomplete": 408,
+    "reviewed": 408,
+    "unreviewed": 0,
+    "exceptions": 293,
+    "scope_photo": 332,
+    "scope_fitment": 467,
+    "scope_both": 324,
+    "added_photo_and_thumbnail": 115,
+    "added_fitment": 55,
+    "added_make_model_pairs": 126,
+    "added_configurations": 164,
+    "photo_db_and_ui_verified": 102,
+    "photo_ui_verified_db_audit_pending": 13,
+    "checked_at": "2026-11-11T13:27:32.379Z",
+    "scope_note": "Saved original scope reconciled against per-item results. Final33 live UI trade values matched; fresh whole-scope DB check pending Render recovery."
+  }
 }
