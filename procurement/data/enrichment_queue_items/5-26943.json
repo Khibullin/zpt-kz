@@ -1,0 +1,36 @@
+{
+  "article": "ELEMENTA67539V13",
+  "brand": "Novline",
+  "has_fitment": false,
+  "id": 26943,
+  "kaspi_url": "https://kaspi.kz/shop/p/novline-elementa67539v13-jac-js6-2022-2023-chernyi-116187602/?c=750000000",
+  "main_image": "",
+  "name": "Коврик багажника JAC",
+  "photo_status": "needs_source",
+  "product_id": 8469,
+  "profit": 4165,
+  "stock": "1",
+  "supplier_id": 5,
+  "task_id": 6442,
+  "offer_id": 26943,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "unconfirmed",
+  "photo": {
+    "status": "exact_photo_unconfirmed",
+    "reason": "Точный Novline ELEMENTA67539V13 в двух независимых поисках не найден; фото и применимость не подтверждены."
+  },
+  "checked_sources": [
+    {
+      "query": "\"Novline\" \"ELEMENTA67539V13\" -site:kaspi.kz -site:alta-karter.com",
+      "tool": "system2+system1_search",
+      "result": "noexactresults"
+    }
+  ],
+  "next_offer_id": 28080,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true
+  }
+}
