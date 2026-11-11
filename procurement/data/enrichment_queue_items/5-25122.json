@@ -1,0 +1,36 @@
+{
+  "article": "OSMLC7821",
+  "brand": "OSM",
+  "has_fitment": false,
+  "id": 25122,
+  "kaspi_url": "https://kaspi.kz/shop/p/osm-zadnii-osmlc7821-1-sht-121416081/?c=750000000",
+  "main_image": "",
+  "name": "Амортизатор задний Chevrolet",
+  "photo_status": "needs_source",
+  "product_id": 6804,
+  "profit": 3718.75,
+  "stock": "1",
+  "supplier_id": 5,
+  "task_id": 4777,
+  "offer_id": 25122,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "unconfirmed_exact_brand",
+  "photo": {
+    "status": "exact_source_not_found",
+    "reason": "Точный независимый источник фото OSM OSMLC7821 не найден;полный артикул не заменялся близким."
+  },
+  "checked_sources": [
+    {
+      "query": "\"OSM\" \"OSMLC7821\" -site:kaspi.kz -site:alta-karter.com",
+      "tool": "system2+system1_search",
+      "result": "No independent exactphoto;noallowedsource fornewfitment"
+    }
+  ],
+  "next_offer_id": 25234,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true
+  }
+}
