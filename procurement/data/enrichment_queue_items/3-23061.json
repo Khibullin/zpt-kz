@@ -1,0 +1,39 @@
+{
+  "article": "0120120D",
+  "brand": "ASVA",
+  "cost": 8397,
+  "has_fitment": true,
+  "id": 23061,
+  "kaspi_price": 11080,
+  "kaspi_url": "https://kaspi.kz/shop/p/asva-sharnir-nezavisimoi-podveski-povorotnogo-rychaga-0120120d-124264472/?c=750000000",
+  "main_image": "",
+  "name": "ОПОРА ШАРОВАЯ ПЕРЕДНЕГО НИЖНЕГО РЫЧАГА",
+  "photo_status": "skipped",
+  "product_id": 4789,
+  "profit": 1048,
+  "stock": "2",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 2762,
+  "offer_id": 23061,
+  "status": "reviewed_source_restriction",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "not_requested_due_source_restriction"
+  },
+  "reason": "ASVA:автоматическая проверка безопасности отклонила независимую карточку бренда0121-008. Запросы источников ASVA не выполнялись; недостающие данные не выдуманы, существующие сохранены.",
+  "checked_sources": [
+    {
+      "journal": "procurement/data/enrichment_queue_items/3-23081.json",
+      "result": "Current explicit auto-reviewdenial applies toASVA requests; no retries or other channels"
+    }
+  ],
+  "next_offer_id": 24764,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true,
+    "existing_photo_preserved": false
+  }
+}
