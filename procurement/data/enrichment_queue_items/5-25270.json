@@ -12,7 +12,7 @@
   "stock": "1",
   "supplier_id": 5,
   "task_id": 5005,
-  "status": "prepared_photo_keep_existing_fitment",
+  "status": "published_db_and_ui_verified",
   "checked_on": "2026-11-11",
   "source_url": "https://kaspi.kz/shop/p/winkod-perednii-w333516sa-1-sht-114773644/?c=750000000",
   "source_label": "точная карточка Kaspi",
@@ -22,7 +22,20 @@
   "photo": {
     "image_url": "https://resources.cdn-kaspi.kz/img/m/p/pb5/p32/99231351.jpg?format=gallery-medium",
     "local_path": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/550c71b8-efcb-4000-a5e0-9a717a44b628",
-    "status": "downloaded_visually_verified_not_uploaded"
+    "status": "saved_and_ui_loaded"
   },
-  "next_offer_id": 25138
+  "next_offer_id": 25138,
+  "publication": {
+    "commit": "762ba56abbbf10cc51c8ff9c8d5e010871580dbb",
+    "deploy": "dep-dbq0ur2jnfac739ma9j0",
+    "status": "live"
+  },
+  "verification": {
+    "photo": true,
+    "thumbnail": true,
+    "display": true,
+    "source_and_constraints": true,
+    "stock_and_profit_preserved": true,
+    "existing_fitment_preserved": true
+  }
 }
