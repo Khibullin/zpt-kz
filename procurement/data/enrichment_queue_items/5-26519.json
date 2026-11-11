@@ -1,0 +1,38 @@
+{
+  "article": "S203F260301-0300",
+  "brand": "JASHI",
+  "cost": 17800,
+  "has_fitment": false,
+  "id": 26519,
+  "kaspi_price": 24360,
+  "kaspi_url": "https://kaspi.kz/shop/p/diski-jashi-perednie-s203f260301-0300-180100343/?c=750000000",
+  "main_image": "",
+  "name": "Диск тормозной Changan",
+  "photo_status": "needs_source",
+  "product_id": 8105,
+  "profit": 3265,
+  "stock": "2",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 6078,
+  "offer_id": 26519,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "unconfirmed",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "JASHI S203F260301-0300: Оба поисковых движка не дали точной независимой карточки JASHI с фотографией/применимостью. Ранее запрещённый Kaspi/CDN не запрашивался.",
+  "checked_sources": [
+    {
+      "query": "\"JASHI\" \"S203F260301-0300\"",
+      "result": "Bothsearchengines reviewed. Оба поисковых движка не дали точной независимой карточки JASHI с фотографией/применимостью."
+    }
+  ],
+  "next_offer_id": 25418,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": false
+  }
+}
