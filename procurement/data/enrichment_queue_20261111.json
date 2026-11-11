@@ -11587,7 +11587,12 @@
     "2026-11-11 images.satu.kz browser site-safety policy denied observation for25755; no repeat viaotherURLs/channels.",
     "2026-11-11 Drom ASVA0121-008 browser request explicitly rejected by auto-review due user ASVA source restriction interpreted as brand-wide. No ASVA source requests thereafter, no alternative channels.",
     "2026-11-11 vseinstrumenti.ru browser CAPTCHA onRIVAL18901002 afteroneordinaryreload; no furtherrequests/alternateURLs/channels tothissite. Pre-block readfitmenttext retained.",
-    "2026-11-11 parts.chevrolet.com exactGM55353328 browser AccessDenied (edgesuite reference), no alternativeGMURLs/protocols/channels. Botcause notestablished; treatcurrentaccessrestriction."
+    "2026-11-11 parts.chevrolet.com exactGM55353328 browser AccessDenied (edgesuite reference), no alternativeGMURLs/protocols/channels. Botcause notestablished; treatcurrentaccessrestriction.",
+    "2026-11-11 zapchasti.ria.com browser redirected exact1721580103 to Cloudflare /challenge/ Verifyyouarehuman. No further site requests, image routes, other channels or CAPTCHA attempts; pre-block independent PNM fitment retained.",
+    "2026-11-11 autopiter.ru exactRival12313002 browser WAF/Megafon Youareblocked. No alternate URL/domain/channel for this product or further autopiter.ru site requests; pre-block exact fitment retained. autopiter.kg/KZ prior successful separate items remain verified.",
+    "2026-11-11 partmall.ru/product/PATRON/PSA343398 not accessible; no alternative path/protocol/channel retry for this item.",
+    "2026-11-11 avtoall.ru exact7122009006 browser asks disableVPN; no settings/network change or alternate route for that item. Other independent sources used.",
+    "2026-11-11 CTR primary BushCatalogue2020Re02 PDF firstTimeout thenone sameURL retryRedirectLoop; no further/mirror/version download."
   ],
   "pending_publication": null,
   "superseded_candidates": [
