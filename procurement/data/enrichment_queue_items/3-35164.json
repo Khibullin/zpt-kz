@@ -1,0 +1,44 @@
+{
+  "article": "1038-82",
+  "brand": "MOTORAD",
+  "cost": 19990,
+  "has_fitment": true,
+  "id": 35164,
+  "kaspi_price": 27550,
+  "kaspi_url": "https://kaspi.kz/shop/p/motorad-termostat-1038-82-183187605/?c=750000000",
+  "main_image": "",
+  "name": "Термостат 82°С",
+  "photo_status": "needs_source",
+  "product_id": 15971,
+  "profit": 3866.25,
+  "stock": "3",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 13944,
+  "offer_id": 35164,
+  "status": "prepared_photo_existing_fitment",
+  "checked_on": "2026-11-11",
+  "source_url": "https://cars245.com/en/item/motorad-103882-thermostat-coolant/",
+  "source_label": "Cars245 — независимый каталог продавца",
+  "source_kind": "retailer_catalogue",
+  "source_article": "1038-82",
+  "fitments": [],
+  "fitment_note": "Существующая применимость сохранена.",
+  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/09438316-3b13-4f51-a991-b1721f77b868",
+  "image_url": "https://cars245images.cc/webp/big/motorad/2e/motorad-103882.jpg.webp",
+  "image_note": "Точное фото MOTORAD1038-82 в корпусе,82°C,с карточки независимого продавца Cars245; реальная деталь визуально проверена.",
+  "photo": {
+    "status": "downloaded_visually_verified_not_queued"
+  },
+  "fitment_status": "existing_preserved",
+  "checked_sources": [
+    {
+      "url": "https://cars245.com/en/item/motorad-103882-thermostat-coolant/",
+      "result": "Exact MOTORAD1038-82, withhousing82C; realpartphotograph downloaded1000x1000"
+    }
+  ],
+  "next_offer_id": 23117,
+  "verification": {
+    "trade_data_unchanged": true
+  }
+}
