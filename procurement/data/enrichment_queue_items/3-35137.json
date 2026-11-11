@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 13934,
   "offer_id": 35137,
-  "status": "prepared_photo_existing_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://www.fcpeuro.com/products/vw-cabin-air-filter-mahle-lak855",
   "source_label": "FCP Euro — независимый каталог продавца",
@@ -24,11 +24,20 @@
   "source_article": "LAK855",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/86bb6b01-a03a-4e78-bc02-e1a7e584a7ce",
   "image_url": "https://www.fcpeuro.com/public/assets/products/692250/large/MAH-LAK855.jpg?1747309188",
   "image_note": "Точная карточкаMAHLELAK855,UPC04009026929568. Визуально один серый складчатый салонный фильтр,на белой кромке читается MAHLE LAK855,фотоFCPEuro;неLA855. Существующая применимость сохранена.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/134cc618cadd909fd83aac5e047af125381b1fdb001433831779fae31607fe43.webp",
+    "thumbnail_path": "products/optimized/0ef811b18768b4ed4b1543e7aff9b9f4a65511400243b71c482478b3f61bd9db.webp",
+    "main_size": [
+      800,
+      800
+    ],
+    "thumbnail_size": [
+      180,
+      180
+    ]
   },
   "fitment_status": "existing_preserved",
   "checked_sources": [
@@ -39,6 +48,29 @@
   ],
   "next_offer_id": 24768,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T12:39:17.593Z"
+  },
+  "source_sha256": "ba704dfc76edb662415fd036bbabd4d1a268a810fc10f619d6e43f4dd69b6cf3",
+  "main_sha256": "134cc618cadd909fd83aac5e047af125381b1fdb001433831779fae31607fe43",
+  "main_size": [
+    800,
+    800
+  ],
+  "thumbnail_sha256": "0ef811b18768b4ed4b1543e7aff9b9f4a65511400243b71c482478b3f61bd9db",
+  "thumbnail_size": [
+    180,
+    180
+  ],
+  "publication": {
+    "commit": "ad43a3c6edc4955b1a623ce66e1a32c1b133be2f",
+    "deploy": "dep-dbq62b5g1s2s739i35ig",
+    "status": "live"
   }
 }
