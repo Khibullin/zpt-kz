@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T11:46:44.329Z",
+  "checked_at": "2026-11-11T11:48:20.579Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -10778,18 +10778,18 @@
       "article": "273012B000",
       "brand": "HYUNDAI-KIA",
       "cost": 5300,
-      "has_fitment": false,
+      "has_fitment": true,
       "id": 26830,
       "kaspi_price": 8000,
       "kaspi_url": "https://kaspi.kz/shop/p/katushka-zazhiganija-hyundai-kia-273012b000-170510512/?c=750000000",
-      "main_image": "",
+      "main_image": "products/optimized/97d70971c8ef040e2eed82ec7068fa825c21b0e2a8a829d928ae97e14a12cf80.webp",
       "name": "Катушка зажигания Hyundai",
-      "photo_status": "needs_source",
+      "photo_status": "done",
       "product_id": 8396,
       "profit": 1450,
       "stock": "8",
       "supplier_id": 5,
-      "supplier_thumbnail": "",
+      "supplier_thumbnail": "products/optimized/28778de114bd94394d0d22cf95a50f87c9f8662a712a53ee72f036b1ab88ca0e.webp",
       "task_id": 6369
     },
     {
@@ -11198,14 +11198,14 @@
       25789,
       26282
     ],
-    "reviewed": 66,
-    "published_fitments": 17,
-    "published_photos": 16,
+    "reviewed": 67,
+    "published_fitments": 18,
+    "published_photos": 17,
     "unconfirmed": 51,
-    "next_offer_id": 26830,
-    "photos_present": 16,
-    "fitments_present": 56,
-    "both_present": 15,
+    "next_offer_id": 25731,
+    "photos_present": 17,
+    "fitments_present": 57,
+    "both_present": 16,
     "created_at": "2026-11-11T10:30:05.643Z",
     "fixed": true
   },
@@ -11282,7 +11282,8 @@
     25969,
     26260,
     28023,
-    26196
+    26196,
+    26830
   ],
   "reviewed_offer_ids": [
     26787,
@@ -11550,19 +11551,20 @@
     26593,
     25124,
     26250,
-    26282
+    26282,
+    26830
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 266,
-    "remaining_unreviewed": 142,
+    "reviewed": 267,
+    "remaining_unreviewed": 141,
     "unconfirmed_reviewed": 193,
-    "remaining_missing_fields": 335,
-    "photo_added": 73,
-    "fitment_added": 48,
-    "make_model_pairs_added": 114,
-    "configurations_added": 152
+    "remaining_missing_fields": 334,
+    "photo_added": 74,
+    "fitment_added": 49,
+    "make_model_pairs_added": 118,
+    "configurations_added": 156
   },
   "prepared_candidate": null,
   "source_limits": [
@@ -11626,80 +11628,15 @@
   "next_batch_instruction": "FixedPhaeton100complete, all29photos/thumbs6fitoffersDB/UIverified. Continue fixedZakazAuto75 inbatch.offer_ids exactprofitorder. ThenremainingPhaeton100; preserveallpriorcanonicalexceptions/restrictions.",
   "technical_notes": "All200reviewed,57photos31fitmentoffers81pairs115configs cumulative acrossqueue. No pendingpublication. Phaeton100 added29photos6fitoffers23pairs46configs in4livepublications,31photo59fit29both. NewZakazAuto75frozenafterDBUIverification.",
   "latest_publication": {
-    "commit": "67ceb32acec7ee3307f1a9a44c0c779c90797192",
-    "deploy": "dep-dbq53i8473hc73ch8gv0",
+    "commit": "4ded4decb82a9095ede0648b4c7dc054989e5f2d",
+    "deploy": "dep-dbq5a8ff3r2c73b9knv0",
     "status": "live",
-    "checked_photo_and_thumbnail": 7,
+    "checked_photo_and_thumbnail": 5,
     "checked_fitment_offers": 6,
     "ui_images_loaded": true,
     "unchanged_trade_data": true
   },
   "prepared_candidates": [
-    {
-      "article": "273012B000",
-      "brand": "HYUNDAI-KIA",
-      "cost": 5300,
-      "has_fitment": false,
-      "id": 26830,
-      "kaspi_price": 8000,
-      "kaspi_url": "https://kaspi.kz/shop/p/katushka-zazhiganija-hyundai-kia-273012b000-170510512/?c=750000000",
-      "main_image": "",
-      "name": "Катушка зажигания Hyundai",
-      "photo_status": "needs_source",
-      "product_id": 8396,
-      "profit": 1450,
-      "stock": "8",
-      "supplier_id": 5,
-      "supplier_thumbnail": "",
-      "task_id": 6369,
-      "offer_id": 26830,
-      "status": "prepared_photo_and_fitment",
-      "checked_on": "2026-11-11",
-      "source_url": "https://partsouq.com/shop/product/273012B000-hyundai-kia-coil-assy-ignition/1053546",
-      "source_label": "PartSouq — независимый продавец оригинальных Hyundai / KIA",
-      "source_kind": "retailer_catalogue",
-      "source_article": "273012B000",
-      "fitments": [
-        {
-          "make": "Hyundai",
-          "model": "Avante",
-          "notes": "Раздел Compatibility точного Hyundai / KIA 273012B000: Avante; Elantra/Avante 06: -Oct.2006 (2006-), Nov.2006-. Календарный диапазон неоднозначен, поэтому годы не присвоены."
-        },
-        {
-          "make": "Hyundai",
-          "model": "Elantra",
-          "notes": "Раздел Compatibility точного Hyundai / KIA 273012B000: Elantra 06: -Oct.2006 (2006-), Nov.2006-. Годы и двигатель не присвоены из неоднозначных обозначений каталога."
-        },
-        {
-          "make": "Hyundai",
-          "model": "i30",
-          "notes": "Раздел Compatibility: I30/I30Cw 07 (Japan) (2007-)/I30Cw 07; I30/I30Cw 09 (Czech Plant-Eur) (2009-). Региональные обозначения сохранены буквально; общий период не присвоен."
-        },
-        {
-          "make": "Hyundai",
-          "model": "i30 CW",
-          "notes": "Раздел Compatibility: I30/I30Cw 07 (Japan) (2007-)/I30Cw 07; I30/I30Cw 09 (Czech Plant-Eur) (2009-). Региональные обозначения сохранены буквально; общий период не присвоен."
-        }
-      ],
-      "fitment_note": "Проверен живой раздел Compatibility для точного оригинального Hyundai / KIA 273012B000. Четыре модели сохранены без неоднозначных годов и двигателей. Строки заменителей NGK, SCHNIEDER, AISIN и ASIAN не использованы.",
-      "image_url": "https://partsouq.com/assets/tesseract/assets/partsimages/Hyundai-/-KIA/273012B000.jpg",
-      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/2775c548-891d-4cf7-8894-0cee8848f462",
-      "image_note": "Реальная одна катушка на оригинальной коробке KIA Genuine Parts с читаемой наклейкой 27301 2B000; изображение оригинальной Hyundai / KIA строки, не заменителя.",
-      "photo": {
-        "status": "downloaded_visually_verified_not_queued"
-      },
-      "fitment_status": "prepared_not_imported",
-      "checked_sources": [
-        {
-          "url": "https://partsouq.com/shop/product/273012B000-hyundai-kia-coil-assy-ignition/1053546",
-          "result": "Точная карточка, четыре модели Compatibility и фотография одной оригинальной катушки с коробкой проверены в живом браузере."
-        }
-      ],
-      "next_offer_id": 28161,
-      "verification": {
-        "trade_data_unchanged": true
-      }
-    },
     {
       "article": "602000036AA",
       "brand": "Chery",
@@ -12336,22 +12273,6 @@
       "publication": "7dec204910db6a8f38f987b3c44771cacb96ea1c"
     }
   ],
-  "publication_pending": {
-    "batch": "zakaz-resume25-20261111",
-    "commit": "4ded4decb82a9095ede0648b4c7dc054989e5f2d",
-    "offer_ids": [
-      26830,
-      25731,
-      26944,
-      25622,
-      26806,
-      26144,
-      26926,
-      26470
-    ],
-    "status": "committed_waiting_deploy",
-    "photos_prepared": 5,
-    "fitments_prepared": 6
-  },
-  "next_offer_id": 26830
+  "publication_pending": null,
+  "next_offer_id": 25731
 }
