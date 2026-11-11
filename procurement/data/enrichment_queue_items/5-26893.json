@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 6498,
   "offer_id": 26893,
-  "status": "prepared_photo_and_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://pnm-parts.ru/catalog/ssang-yong/kg-mobility/1720500178",
   "source_label": "PNM Parts — независимый каталог продавца оригинальных SsangYong",
@@ -34,12 +34,21 @@
   "fitment_note": "ТочныйOE1720500178/SSANGYONGActyon12-/G20вPNMParts. Верхнийпределоткрытыйпотекстуисточника,непревращёнв2026. ОтдельноефотоYallaSpare:оригинальныйклапан с коробкойSSANGYONGи читаемымполным1720500178; брендпредложенияSsangYongсохранён.",
   "image_source_url": "https://yallaspare.com/products/190",
   "image_url": "https://yallaspare.com/storage/variants/1400/products/94ecdd18-b2d7-443e-bc1a-e2a47b27939b.webp",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/7ba1772c-43b3-4c9d-8652-2b9bf1da394b",
   "image_note": "РеальныйодинклапанCVVTсоригинальнойкоробкойSSANGYONG;этикетка1720500178читается. Источник—YallaSpare,отдельно отприменимостиPNM.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/40511ee5133e8a504812fc6219d2ce3bc8c72dfafd6a505336253b935299d9d9.webp",
+    "thumbnail_path": "products/optimized/8317561cdc68ba2ad6b4be535757cbb1c49be99f4a38085e0bb39c240626925d.webp",
+    "main_size": [
+      800,
+      600
+    ],
+    "thumbnail_size": [
+      180,
+      135
+    ]
   },
-  "fitment_status": "prepared_not_imported",
+  "fitment_status": "saved_db_and_ui_verified",
   "checked_sources": [
     {
       "url": "https://pnm-parts.ru/catalog/ssang-yong/kg-mobility/1720500178",
@@ -52,6 +61,29 @@
   ],
   "next_offer_id": 25915,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T11:06:20.555Z"
+  },
+  "source_sha256": "b92c8c3c29ea60ad10606a629247409ee064e4e776a5831d7236eac818386d03",
+  "main_sha256": "40511ee5133e8a504812fc6219d2ce3bc8c72dfafd6a505336253b935299d9d9",
+  "main_size": [
+    800,
+    600
+  ],
+  "thumbnail_sha256": "8317561cdc68ba2ad6b4be535757cbb1c49be99f4a38085e0bb39c240626925d",
+  "thumbnail_size": [
+    180,
+    135
+  ],
+  "publication": {
+    "commit": "44a99fc6d2aca7ad840396d2d3d5420d4cbea950",
+    "deploy": "dep-dbq4mt7f3r2c73b8rv50",
+    "status": "live"
   }
 }
