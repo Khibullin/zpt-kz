@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T09:12:49.904Z",
+  "checked_at": "2026-11-11T09:12:52.442Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -9267,7 +9267,7 @@
     }
   ],
   "results": [],
-  "next_offer_id": 26531,
+  "next_offer_id": 25550,
   "batch": {
     "supplier_id": 5,
     "batch_number": 1,
@@ -9373,14 +9373,14 @@
       25184,
       25210
     ],
-    "reviewed": 79,
-    "published_fitments": 19,
-    "published_photos": 23,
+    "reviewed": 80,
+    "published_fitments": 20,
+    "published_photos": 24,
     "unconfirmed": 55,
-    "next_offer_id": 26531,
-    "photos_present": 26,
-    "fitments_present": 69,
-    "both_present": 24
+    "next_offer_id": 25550,
+    "photos_present": 27,
+    "fitments_present": 70,
+    "both_present": 25
   },
   "completed_offer_ids": [
     26820,
@@ -9406,7 +9406,8 @@
     26223,
     26527,
     28080,
-    25519
+    25519,
+    26531
   ],
   "reviewed_offer_ids": [
     26787,
@@ -9487,19 +9488,20 @@
     26527,
     28080,
     26925,
-    25519
+    25519,
+    26531
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 79,
-    "remaining_unreviewed": 329,
+    "reviewed": 80,
+    "remaining_unreviewed": 328,
     "unconfirmed_reviewed": 55,
-    "remaining_missing_fields": 384,
-    "photo_added": 23,
-    "fitment_added": 19,
-    "make_model_pairs_added": 45,
-    "configurations_added": 46
+    "remaining_missing_fields": 383,
+    "photo_added": 24,
+    "fitment_added": 20,
+    "make_model_pairs_added": 53,
+    "configurations_added": 64
   },
   "prepared_candidate": null,
   "source_limits": [
@@ -9583,192 +9585,6 @@
     "unchanged_trade_data": true
   },
   "prepared_candidates": [
-    {
-      "article": "ST-51712-D7000",
-      "brand": "SAT",
-      "has_fitment": false,
-      "id": 26531,
-      "kaspi_url": "https://kaspi.kz/shop/p/diski-sat-perednie-st-51712-d7000-129778350/?c=750000000",
-      "main_image": "",
-      "name": "Диск тормозной передний правый/левый (вентилируемый) Hyundai Hyundai",
-      "photo_status": "needs_source",
-      "product_id": 8136,
-      "profit": 4090,
-      "stock": "1",
-      "supplier_id": 5,
-      "task_id": 6109,
-      "offer_id": 26531,
-      "status": "prepared_photo_and_fitment",
-      "checked_on": "2026-11-11",
-      "source_url": "https://satparts.ru/product/st-51712-d7000",
-      "source_label": "SATparts.ru — независимый каталог продавца SAT (ИП Спиридонов)",
-      "source_kind": "retailer_catalogue",
-      "source_article": "ST-51712-D7000",
-      "fitments": [
-        {
-          "make": "Hyundai",
-          "model": "Sonata",
-          "generation": "7",
-          "years": "2014–2017",
-          "body": "Седан",
-          "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
-        },
-        {
-          "make": "Hyundai",
-          "model": "Tucson",
-          "generation": "3",
-          "years": "2015–2019",
-          "body": "SUV 5дв.",
-          "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
-        },
-        {
-          "make": "Hyundai",
-          "model": "Tucson",
-          "generation": "3 рест.1",
-          "years": "2018–2021",
-          "body": "SUV 5дв.",
-          "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
-        },
-        {
-          "make": "Kia",
-          "model": "Sportage",
-          "generation": "4",
-          "years": "2015–2019",
-          "body": "SUV 5дв.",
-          "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
-        },
-        {
-          "make": "Kia",
-          "model": "Sportage",
-          "generation": "4 рест.1",
-          "years": "2018–2022",
-          "body": "SUV 5дв.",
-          "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
-        },
-        {
-          "make": "Hyundai",
-          "model": "Tucson",
-          "generation": "4",
-          "years": "2021–",
-          "body": "SUV 5дв.",
-          "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
-        },
-        {
-          "make": "Kia",
-          "model": "Seltos",
-          "generation": "1",
-          "years": "2019–2022",
-          "body": "SUV 5дв.",
-          "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
-        },
-        {
-          "make": "Hyundai",
-          "model": "Kona",
-          "generation": "1",
-          "years": "2017–2021",
-          "body": "SUV 5дв.",
-          "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
-        },
-        {
-          "make": "Hyundai",
-          "model": "Kona",
-          "generation": "1 рест.1",
-          "years": "2020–",
-          "body": "SUV 5дв.",
-          "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
-        },
-        {
-          "make": "Kia",
-          "model": "Seltos",
-          "generation": "1 рест.1",
-          "years": "2022–",
-          "body": "SUV 5дв.",
-          "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
-        },
-        {
-          "make": "Kia",
-          "model": "K5",
-          "generation": "3",
-          "years": "2019–2024",
-          "body": "Седан",
-          "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
-        },
-        {
-          "make": "Hyundai",
-          "model": "Tucson",
-          "generation": "4 рест.1",
-          "years": "2023–",
-          "body": "SUV 5дв.",
-          "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
-        },
-        {
-          "make": "Kia",
-          "model": "K5",
-          "generation": "3 рест.1",
-          "years": "2023–",
-          "body": "Седан",
-          "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
-        },
-        {
-          "make": "Kia",
-          "model": "Ceed",
-          "generation": "3",
-          "years": "2018–2021",
-          "body": "Хэтчбек5дв.",
-          "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
-        },
-        {
-          "make": "Kia",
-          "model": "Ceed",
-          "generation": "3",
-          "years": "2018–2021",
-          "body": "Универсал",
-          "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
-        },
-        {
-          "make": "Kia",
-          "model": "Ceed",
-          "generation": "3 рест.1",
-          "years": "2021–",
-          "body": "Хэтчбек5дв.",
-          "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
-        },
-        {
-          "make": "Kia",
-          "model": "Ceed",
-          "generation": "3 рест.1",
-          "years": "2021–",
-          "body": "Универсал",
-          "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
-        },
-        {
-          "make": "Kia",
-          "model": "Soul",
-          "generation": "3",
-          "years": "2019–2022",
-          "body": "Хэтчбек5дв.",
-          "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
-        }
-      ],
-      "fitment_note": "18конфигураций из точной таблицы продавца,8пар марка/модель. Источник не назван производителем. Диапазоны сохранены раздельно; открытые не ограничены2026; двигатели не добавлены.",
-      "image_url": "https://static.autotrade.su/nomenclature/wm/b/93/938ed2e11e_1.jpg",
-      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/30ab95a9-9d94-4368-bf88-38e233b161cc",
-      "image_note": "Фото одного переднего тормозного диска SATST-51712-D7000 с точной карточки SATparts, визуально проверено.",
-      "photo": {
-        "status": "downloaded_exact_verified"
-      },
-      "checked_sources": [
-        {
-          "url": "https://satparts.ru/product/st-51712-d7000",
-          "result": "ExactSATarticle;18specifictableconfigurations; realphoto downloaded visuallyverified"
-        }
-      ],
-      "next_offer_id": 25196,
-      "verification": {
-        "trade_data_unchanged": true,
-        "photo_visually_verified": true
-      }
-    },
     {
       "article": "6044131600",
       "brand": "JASHI",
