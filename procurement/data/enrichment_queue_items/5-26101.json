@@ -1,0 +1,44 @@
+{
+  "article": "ST-28150-38010",
+  "brand": "SAT",
+  "cost": 3300,
+  "has_fitment": true,
+  "id": 26101,
+  "kaspi_price": 7559,
+  "kaspi_url": "https://kaspi.kz/shop/p/sat-vtjagivajuschee-rele-startera-st-28150-38010-120181041/?c=750000000",
+  "main_image": "",
+  "name": "Втягивающее реле",
+  "photo_status": "needs_source",
+  "product_id": 7745,
+  "profit": 3064.125,
+  "stock": "1",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 5718,
+  "offer_id": 26101,
+  "status": "prepared_photo_existing_fitment",
+  "checked_on": "2026-11-11",
+  "source_url": "https://satparts.ru/vtiagivaiushhee-rele-startera/lexus/ls",
+  "source_label": "SATparts — каталог продавца SAT",
+  "source_kind": "retailer_catalogue",
+  "source_article": "ST-28150-38010",
+  "fitments": [],
+  "fitment_note": "Существующая применимость сохранена.",
+  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/797099a4-5240-4e5b-9154-af9fab878f6b",
+  "image_url": "https://static.autotrade.su/nomenclature/wm/b/30/306acb67f6.jpg",
+  "image_note": "Точный SAT ST-28150-38010: фотография реального одного втягивающего реле из карточки этого артикула в каталоге SATparts, на источнике Автотрейд. Существующая применимость сохранена.",
+  "photo": {
+    "status": "downloaded_visually_verified_not_queued"
+  },
+  "fitment_status": "existing_preserved",
+  "checked_sources": [
+    {
+      "url": "https://satparts.ru/vtiagivaiushhee-rele-startera/lexus/ls",
+      "result": "Точный SAT ST-28150-38010: фотография реального одного втягивающего реле из карточки этого артикула в каталоге SATparts, на источнике Автотрейд. Существующая применимость сохранена."
+    }
+  ],
+  "next_offer_id": 25397,
+  "verification": {
+    "trade_data_unchanged": true
+  }
+}
