@@ -13,7 +13,7 @@
   "supplier_id": 5,
   "task_id": 6469,
   "offer_id": 26925,
-  "status": "prepared_fitment_photo_unconfirmed",
+  "status": "published_partial_photo_exception",
   "checked_on": "2026-11-11",
   "source_url": "https://autotc.ru/product/kovrik-bagaghnika-dlya-hyundai-elantra-vii-cn-7-sedan-2021-rival-12301004-1001828550",
   "source_label": "АвтоТК/ФаркопРФ — независимый каталог продавца",
@@ -23,8 +23,8 @@
     {
       "make": "Hyundai",
       "model": "Elantra",
-      "year_from": 2021,
-      "notes": "VII (CN-7), седан; коврик багажника. Точный RIVAL12301004. Конец диапазона, двигатель и регион не указаны."
+      "notes": "VII (CN-7), седан; коврик багажника. Точный RIVAL12301004. Конец диапазона, двигатель и регион не указаны.",
+      "years": "2021–"
     }
   ],
   "fitment_note": "Точная карточка продавца даёт Elantra VII CN-7,седан,2021-. Открытый диапазон не ограничен текущим годом. Модель Avante не перенесена из неподтверждённой/недоступной карточки.",
@@ -40,6 +40,20 @@
   ],
   "next_offer_id": 25519,
   "verification": {
-    "trade_data_unchanged": true
-  }
+    "db_verified": true,
+    "ui_verified": true,
+    "photo_visually_verified": false,
+    "main_image_complete": false,
+    "thumbnail_image_complete": false,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T09:12:46.279Z"
+  },
+  "publication": {
+    "commit": "cd711d8063dc25b30ee190472db94956bff02d0b",
+    "deploy": "dep-dbq313ijnfac739omoi0",
+    "status": "live"
+  },
+  "fitment_status": "saved_db_and_ui_verified"
 }
