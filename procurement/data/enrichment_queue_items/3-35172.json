@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 13953,
   "offer_id": 35172,
-  "status": "prepared_photo_existing_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://cars245.com/ru/item/motorad-28188K-thermostat-coolant/",
   "source_label": "Cars245 — независимый каталог продавца",
@@ -24,11 +24,20 @@
   "source_article": "281-88K",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/4c69ddc4-ab6e-44d7-a0e7-e6c04c663d1c",
   "image_url": "https://cars245images.cc/webp/big/motorad/f4/motorad-28188K.jpg.webp",
   "image_note": "Точная карточкаMOTORAD281-88K,88°C,56/29мм,44мм. Визуально один металлический термостат без корпуса;не281-82K/281-77K. Существующая применимость сохранена.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/8caea5d8bff3b02ac9600ea67d83ee26cc35198bc7088ef58d41948afd648a1e.webp",
+    "thumbnail_path": "products/optimized/7487106ee5fc1e59be1ac3e691a2e3dcf64c8a1c0293c379f73d50581cc68285.webp",
+    "main_size": [
+      800,
+      800
+    ],
+    "thumbnail_size": [
+      180,
+      180
+    ]
   },
   "fitment_status": "existing_preserved",
   "checked_sources": [
@@ -39,6 +48,29 @@
   ],
   "next_offer_id": 35180,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T12:39:23.275Z"
+  },
+  "source_sha256": "eeced41348e787792fe09b3779a3b9675f1c0126a8a87dc71c902bd6153edc19",
+  "main_sha256": "8caea5d8bff3b02ac9600ea67d83ee26cc35198bc7088ef58d41948afd648a1e",
+  "main_size": [
+    800,
+    800
+  ],
+  "thumbnail_sha256": "7487106ee5fc1e59be1ac3e691a2e3dcf64c8a1c0293c379f73d50581cc68285",
+  "thumbnail_size": [
+    180,
+    180
+  ],
+  "publication": {
+    "commit": "ad43a3c6edc4955b1a623ce66e1a32c1b133be2f",
+    "deploy": "dep-dbq62b5g1s2s739i35ig",
+    "status": "live"
   }
 }
