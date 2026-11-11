@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T06:54:05.819Z",
+  "checked_at": "2026-11-11T06:55:07.846Z",
   "lease": {
     "owner": "enrichment-run-20261111T0652Z",
     "acquired_at": "2026-11-11T06:51:50.447Z",
@@ -9553,5 +9553,96 @@
     "checked_fitment_offers": 2,
     "all_seven_ui_images_loaded": true,
     "unchanged_trade_data": true
-  }
+  },
+  "prepared_candidates": [
+    {
+      "article": "86511D7500",
+      "brand": "JASHI",
+      "has_fitment": false,
+      "id": 25558,
+      "kaspi_url": "https://kaspi.kz/shop/p/jashi-bamper-86511d7500-dlja-hyundai-tucson-2018-2021-123506478/?c=750000000",
+      "main_image": "",
+      "name": "Бампер передний верхняя часть (панель пластик Hyundai",
+      "photo_status": "needs_source",
+      "product_id": 7146,
+      "profit": 4840,
+      "stock": "5",
+      "supplier_id": 5,
+      "task_id": 5119,
+      "offer_id": 25558,
+      "status": "prepared_fitment_photo_unconfirmed",
+      "checked_on": "2026-11-11",
+      "source_url": "https://autopiter.kz/goods/86511d7500/jashi/id193309009?orderRef=5",
+      "source_label": "Автопитер — независимый каталог продавца",
+      "source_kind": "retailer_catalogue",
+      "source_article": "86511D7500",
+      "fitments": [
+        {
+          "make": "HYUNDAI",
+          "model": "TUCSON",
+          "years": "2018–2021",
+          "engine": "2.0L",
+          "notes": "2WD/4WD. Передний бампер, верхняя часть (пластик), без отверстий омывателя фар."
+        }
+      ],
+      "fitment_note": "Точная строка Jashi 86511D7500 независимого каталога продавца; модель/годы и исполнение также совпадают с точной Kaspi. Регион не указан.",
+      "photo": {
+        "status": "unconfirmed_variant",
+        "image_url": "https://resources.cdn-kaspi.kz/img/m/p/h11/hd7/87107388145694.png?format=gallery-medium",
+        "reason": "На фото видны прямоугольные отверстия в верхних боковых частях; описание точного артикула у двух продавцов — без отверстий омывателя. Исполнение фото неоднозначно, не загружать."
+      },
+      "checked_sources": [
+        {
+          "url": "https://autopiter.kz/goods/86511d7500/jashi/id193309009?orderRef=5",
+          "result": "exact article/brand, fitment and constraints confirmed"
+        },
+        {
+          "url": "https://kaspi.kz/shop/p/jashi-bamper-86511d7500-dlja-hyundai-tucson-2018-2021-123506478/?c=750000000",
+          "result": "exact article/brand and fitment; photo variant ambiguous"
+        }
+      ],
+      "next_offer_id": 25538
+    },
+    {
+      "article": "C281F271301-1501",
+      "brand": "JASHI",
+      "has_fitment": false,
+      "id": 25538,
+      "kaspi_url": "https://kaspi.kz/shop/p/jashi-bamper-c281f271301-1501-dlja-changan-uni-v-2022-2024-130050251/?c=750000000",
+      "main_image": "",
+      "name": "Бампер передний Changan",
+      "photo_status": "needs_source",
+      "product_id": 7157,
+      "profit": 4822.5,
+      "stock": "1",
+      "supplier_id": 5,
+      "task_id": 5130,
+      "offer_id": 25538,
+      "status": "prepared_photo_and_fitment",
+      "checked_on": "2026-11-11",
+      "source_url": "https://kaspi.kz/shop/p/jashi-bamper-c281f271301-1501-dlja-changan-uni-v-2022-2024-130050251/?c=750000000",
+      "source_label": "Характеристики точной карточки Kaspi — продавец",
+      "source_kind": "retailer_listing",
+      "source_article": "C281F271301-1501",
+      "fitments": [
+        {
+          "make": "CHANGAN",
+          "model": "UNI-V",
+          "years": "2022, 2023, 2024",
+          "engine": "1.5L Turbo",
+          "notes": "Передний бампер, основная часть, без покрытия, чёрный. Дополнительное описание «2022–н.в.» не расширяет явно перечисленные годы."
+        }
+      ],
+      "fitment_note": "Точный бренд и полный артикул совпадают. Сохранены явно перечисленные годы, двигатель из дополнительной информации. Регион не указан.",
+      "image_url": "https://resources.cdn-kaspi.kz/img/m/p/p8e/p16/8356909.png?format=gallery-medium",
+      "local_path": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/3a266367-1e5a-4c57-9ff5-925eb49a824f",
+      "checked_sources": [
+        {
+          "url": "https://kaspi.kz/shop/p/jashi-bamper-c281f271301-1501-dlja-changan-uni-v-2022-2024-130050251/?c=750000000",
+          "result": "exact brand/article, photo of bare bumper, years/engine verified"
+        }
+      ],
+      "next_offer_id": 25229
+    }
+  ]
 }
