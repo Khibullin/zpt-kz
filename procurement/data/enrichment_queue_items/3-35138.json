@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 13931,
   "offer_id": 35138,
-  "status": "prepared_photo_existing_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://www.kmotorshop.com/cs/article-detail/view/166135/palivovy-filtr-kc46-mahle-0818506-12175055700-14536511",
   "source_label": "K MOTORSHOP — независимый каталог продавца",
@@ -24,11 +24,20 @@
   "source_article": "KC46",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/276c408d-3730-4377-84be-49849679b80a",
   "image_url": "https://www.kmotorshop.com/document/tecdoc/287/tn_600_53044639.JPG?v=2645",
   "image_note": "MAHLEKC46:фото фильтра с маркировкойKC46,несколько видов и размерные линии в исходном изображении. Точная карточка производителяMAHLE, полныйартикулKC46; рисунок другогофильтра не использовался.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/14e66e675edd7cf6c42a84f6de33c59cf366c1d9b16912b3abccbd67570c8772.webp",
+    "thumbnail_path": "products/optimized/9164f1a351db8ddf5d00f893fe26ec7816e0f2157ce9c8645816b86ca9ccf8b0.webp",
+    "main_size": [
+      283,
+      400
+    ],
+    "thumbnail_size": [
+      127,
+      180
+    ]
   },
   "fitment_status": "existing_preserved",
   "checked_sources": [
@@ -39,6 +48,29 @@
   ],
   "next_offer_id": 35204,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T10:00:42.359Z"
+  },
+  "source_sha256": "bf5ae4bd1603cbf44d1f1d7bd45c7851880272c622aec71b69630365fbfd4574",
+  "main_sha256": "14e66e675edd7cf6c42a84f6de33c59cf366c1d9b16912b3abccbd67570c8772",
+  "main_size": [
+    283,
+    400
+  ],
+  "thumbnail_sha256": "9164f1a351db8ddf5d00f893fe26ec7816e0f2157ce9c8645816b86ca9ccf8b0",
+  "thumbnail_size": [
+    127,
+    180
+  ],
+  "publication": {
+    "commit": "6d50b89ddbdaea78c8ee72c5f924121782c91caf",
+    "deploy": "dep-dbq3nju7bikc738hoo40",
+    "status": "live"
   }
 }
