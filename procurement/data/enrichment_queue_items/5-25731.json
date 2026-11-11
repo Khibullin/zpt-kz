@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 5181,
   "offer_id": 25731,
-  "status": "prepared_photo_and_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://cheryplus.ru/catalog/new_prods/cherm_rus/arka-kolesa-perednego-pravogo-602000036aa_1253941.html",
   "source_label": "CheryPlus — независимый продавец оригинальных Chery",
@@ -36,12 +36,21 @@
   ],
   "fitment_note": "Оригинальный Chery 602000036AA: передний правый брызговичок бампера для Tiggo 8 и Tiggo 8 Pro, обозначения T18/T1A/T1D. Годы и двигатели не указаны.",
   "image_url": "https://cheryplus.ru/upload/iblock/7ca/7ca00cd2ddf3fcf2f6f4abb6a5149503.png",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/033d9c4f-b0a1-47ea-8d2a-7fb04d23a6c2",
   "image_note": "Реальный один чёрный передний правый брызговичок с наклейкой, оригинальная карточка точного Chery602000036AA; не комплект брызговиков.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/7a9ffbcdd8268efae05cd1407e9a9501ba05be96c693b16dd24efa5fea669d31.webp",
+    "thumbnail_path": "products/optimized/7998981270b70a6206e8ab56d121a109f50c2055af2b011ad6f06fef9587147f.webp",
+    "main_size": [
+      463,
+      461
+    ],
+    "thumbnail_size": [
+      180,
+      179
+    ]
   },
-  "fitment_status": "prepared_not_imported",
+  "fitment_status": "saved_db_and_ui_verified",
   "checked_sources": [
     {
       "url": "https://cheryplus.ru/catalog/new_prods/cherm_rus/arka-kolesa-perednego-pravogo-602000036aa_1253941.html",
@@ -54,6 +63,29 @@
   ],
   "next_offer_id": 26944,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T11:48:21.860Z"
+  },
+  "source_sha256": "4074451b4ca14cf4ff541510a7b041e7f9e044ddfdc1ac946e5d33982f01b46a",
+  "main_sha256": "7a9ffbcdd8268efae05cd1407e9a9501ba05be96c693b16dd24efa5fea669d31",
+  "main_size": [
+    463,
+    461
+  ],
+  "thumbnail_sha256": "7998981270b70a6206e8ab56d121a109f50c2055af2b011ad6f06fef9587147f",
+  "thumbnail_size": [
+    180,
+    179
+  ],
+  "publication": {
+    "commit": "4ded4decb82a9095ede0648b4c7dc054989e5f2d",
+    "deploy": "dep-dbq5a8ff3r2c73b9knv0",
+    "status": "live"
   }
 }
