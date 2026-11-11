@@ -1,0 +1,42 @@
+{
+  "article": "111.02343.1CH",
+  "brand": "JASHI",
+  "has_fitment": false,
+  "id": 26702,
+  "kaspi_url": "https://kaspi.kz/shop/p/jashi-111-02343-1ch-hyundai-accent-2010-2014-180101083/?c=750000000",
+  "main_image": "",
+  "name": "Защита картера Hyundai",
+  "photo_status": "needs_source",
+  "product_id": 8212,
+  "profit": 5082.5,
+  "stock": "1",
+  "supplier_id": 5,
+  "task_id": 6185,
+  "status": "prepared_not_published",
+  "checked_on": "2026-11-11",
+  "source_url": "https://kaspi.kz/shop/p/jashi-111-02343-1ch-hyundai-accent-2010-2014-180101083/?c=750000000",
+  "source_label": "характеристики и описание точной карточки Kaspi",
+  "source_kind": "retailer_listing",
+  "fitments": [
+    {
+      "make": "HYUNDAI",
+      "model": "ACCENT",
+      "generation": "4",
+      "years": "2010-2014",
+      "displacement": "1.4 / 1.6L",
+      "notes": "Стальная защита картера ДВС взамен штатного заводского пыльника. Полный артикул 111.02343.1CH, без удаления суффикса CH. Коды двигателей не указаны."
+    },
+    {
+      "make": "HYUNDAI",
+      "model": "SOLARIS",
+      "notes": "Модель явно указана в таблице точной карточки; годы и двигатели отдельно для Solaris не распределены и не добавлены. Стальная защита картера, подбор по VIN."
+    }
+  ],
+  "fitment_note": "Полный артикул с суффиксом CH сохранён. Accent и его параметры подтверждены описанием; для Solaris сохранено только явное упоминание модели без переноса параметров Accent.",
+  "photo": {
+    "image_url": "https://resources.cdn-kaspi.kz/img/m/p/pe8/p0f/189441831.jpg?format=gallery-medium",
+    "local_path": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/cb752ff0-1fac-4c3b-a1b2-361f8ea88264",
+    "status": "downloaded_visually_verified_not_uploaded"
+  },
+  "next_offer_id": 25105
+}
