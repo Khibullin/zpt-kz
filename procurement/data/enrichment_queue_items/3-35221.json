@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 14001,
   "offer_id": 35221,
-  "status": "prepared_photo_existing_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://tto.com.ua/product/termostat-sistemi-oholodzhennya-motorad-822108/p86310",
   "source_label": "TTO — независимый каталог продавца",
@@ -24,11 +24,20 @@
   "source_article": "822-108",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/5d20782d-719e-4b53-b07f-a15e7e23d5b9",
   "image_url": "https://tto.com.ua/imgs/motorad/822108_460x330.jpg",
   "image_note": "MOTORAD822-108:термостат108°Cвкорпусе,точнаякарточкаTTO,фотосдетальюиупаковкойMOTORADпроверено;уплотнение/датчикневыдуманы,применимостьсохранена.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/3f1e84a32d7bb5127c5be3d4aee37bbcc77c2ba6d6a2a6cb344d69d101cfee02.webp",
+    "thumbnail_path": "products/optimized/add3e04bffe943bc94b6e231992b980051a02eeb3758ee4da315df0ff97f3f95.webp",
+    "main_size": [
+      460,
+      274
+    ],
+    "thumbnail_size": [
+      180,
+      107
+    ]
   },
   "fitment_status": "existing_preserved",
   "checked_sources": [
@@ -39,6 +48,29 @@
   ],
   "next_offer_id": 23759,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T10:19:14.715Z"
+  },
+  "source_sha256": "4c96ae9425df12dc7ec7d0fee01de69eecc2826c2379405e7c58699c62a0d8b3",
+  "main_sha256": "3f1e84a32d7bb5127c5be3d4aee37bbcc77c2ba6d6a2a6cb344d69d101cfee02",
+  "main_size": [
+    460,
+    274
+  ],
+  "thumbnail_sha256": "add3e04bffe943bc94b6e231992b980051a02eeb3758ee4da315df0ff97f3f95",
+  "thumbnail_size": [
+    180,
+    107
+  ],
+  "publication": {
+    "commit": "5972845ab163fdf3bc44364404305472c7d8bd49",
+    "deploy": "dep-dbq40p3ncjis73clu9s0",
+    "status": "live"
   }
 }
