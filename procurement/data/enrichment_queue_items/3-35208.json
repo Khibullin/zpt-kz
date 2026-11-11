@@ -1,0 +1,44 @@
+{
+  "article": "599-87K",
+  "brand": "MOTORAD",
+  "cost": 12006,
+  "has_fitment": true,
+  "id": 35208,
+  "kaspi_price": 17751,
+  "kaspi_url": "https://kaspi.kz/shop/p/motorad-termostat-599-87k-136933855/?c=750000000",
+  "main_image": "",
+  "name": "Термостат 87°С",
+  "photo_status": "needs_source",
+  "product_id": 16015,
+  "profit": 3276.125,
+  "stock": "1",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 13988,
+  "offer_id": 35208,
+  "status": "prepared_photo_existing_fitment",
+  "checked_on": "2026-11-11",
+  "source_url": "https://cars245.com/en/item/motorad-59987K-thermostat-coolant/",
+  "source_label": "Cars245 — независимый каталог продавца",
+  "source_kind": "retailer_catalogue",
+  "source_article": "599-87K",
+  "fitments": [],
+  "fitment_note": "Существующая применимость сохранена.",
+  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/b687c774-1546-4c1a-b050-1960e2885f60",
+  "image_url": "https://cars245images.cc/webp/big/motorad/26/motorad-59987K.jpg.webp",
+  "image_note": "MOTORAD599-87K,87°C,вкорпусе,сдатчикомисуплотнением. Точная карточка и реальная деталь визуально проверены; суффиксK сохранён.",
+  "photo": {
+    "status": "downloaded_visually_verified_not_queued"
+  },
+  "fitment_status": "existing_preserved",
+  "checked_sources": [
+    {
+      "url": "https://cars245.com/en/item/motorad-59987K-thermostat-coolant/",
+      "result": "MOTORAD599-87K,87°C,вкорпусе,сдатчикомисуплотнением. Точная карточка и реальная деталь визуально проверены; суффиксK сохранён."
+    }
+  ],
+  "next_offer_id": 23037,
+  "verification": {
+    "trade_data_unchanged": true
+  }
+}
