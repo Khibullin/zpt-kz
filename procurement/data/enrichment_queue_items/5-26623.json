@@ -13,7 +13,7 @@
   "supplier_id": 5,
   "task_id": 6304,
   "offer_id": 26623,
-  "status": "prepared_photo_and_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://www.dvsavto.ru/catalog/zapchasti_po_proizvoditelyam_i_modelyam/zapchasti_ssangyong/detali_kuzova_1/actyon_ii_korando_c/vnutrennyaya_i_vneshnyaya_otdelka/perednie_dveri_otdelka_i_komponenty/zamok_peredney_levoy_dveri_7121034021_ssangyong_new_actyon_original/",
   "source_label": "Глобал Авто (dvsavto.ru) — независимый каталог продавца",
@@ -28,10 +28,19 @@
   ],
   "fitment_note": "Точный SsangYong7121034021. NewActyon однозначно указан в карточке и описании;общие сведенияOEM/другихмоделей не переносились.",
   "image_url": "https://www.dvsavto.ru/upload/iblock/d13/y3nmxbmesm7uj9baf0fqrukw9qg2z1bm.jpeg",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/d4f397ae-5bab-4bf6-b7a3-82dee61c2129",
   "image_note": "Новый оригинальный замок с тросами;на упаковке SSANGYONG MOTOR GENUINEPARTS и точный7121034021. Фото визуально проверено.",
   "photo": {
-    "status": "downloaded_exact_verified"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/a778edc66d3fded35d5e1915594af2b41e0e54435c2e945482a8e4e2397f5e73.webp",
+    "thumbnail_path": "products/optimized/299acce292ed1e0c4f61846c9cb54e75e3bb973a6c24a76fb4181a11f71cb6ce.webp",
+    "main_size": [
+      788,
+      600
+    ],
+    "thumbnail_size": [
+      180,
+      137
+    ]
   },
   "checked_sources": [
     {
@@ -41,7 +50,31 @@
   ],
   "next_offer_id": 25185,
   "verification": {
+    "db_verified": true,
+    "ui_verified": true,
+    "photo_visually_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
     "trade_data_unchanged": true,
-    "photo_visually_verified": true
-  }
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T09:12:59.798Z"
+  },
+  "source_sha256": "640d54d4146a05e505bf666683394e009feacfaf3fdb59f45e30e304f88de829",
+  "main_sha256": "a778edc66d3fded35d5e1915594af2b41e0e54435c2e945482a8e4e2397f5e73",
+  "main_size": [
+    788,
+    600
+  ],
+  "thumbnail_sha256": "299acce292ed1e0c4f61846c9cb54e75e3bb973a6c24a76fb4181a11f71cb6ce",
+  "thumbnail_size": [
+    180,
+    137
+  ],
+  "publication": {
+    "commit": "cd711d8063dc25b30ee190472db94956bff02d0b",
+    "deploy": "dep-dbq313ijnfac739omoi0",
+    "status": "live"
+  },
+  "fitment_status": "saved_db_and_ui_verified"
 }
