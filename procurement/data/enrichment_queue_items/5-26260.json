@@ -1,0 +1,57 @@
+{
+  "article": "1721530428",
+  "brand": "SsangYong",
+  "cost": 11300,
+  "has_fitment": false,
+  "id": 26260,
+  "kaspi_price": 14989,
+  "kaspi_url": "https://kaspi.kz/shop/p/ssang-yong-datchik-polozhenija-raspredvala-1721530428-118878390/?c=750000000",
+  "main_image": "",
+  "name": "Датчик положения SsangYong",
+  "photo_status": "needs_source",
+  "product_id": 7977,
+  "profit": 1565.375,
+  "stock": "6",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 5950,
+  "offer_id": 26260,
+  "status": "prepared_photo_and_fitment",
+  "checked_on": "2026-11-11",
+  "source_url": "https://pnm-parts.ru/catalog/ssang-yong/kg-mobility/1721530428",
+  "source_label": "PNM Parts — независимый каталог продавца оригинальных SsangYong",
+  "source_kind": "retailer_catalogue",
+  "source_article": "1721530428",
+  "fitments": [
+    {
+      "make": "SsangYong",
+      "model": "Actyon",
+      "years": "2012–н.в.",
+      "engine": "G20D",
+      "notes": "Точная строка продавца: Actyon (12-) (G20D) OE. Объём двигателя и привод не указаны."
+    }
+  ],
+  "fitment_note": "Точная карточка SsangYong 1721530428 у PNM Parts подтверждает Actyon с 2012 года, двигатель G20D. Открытый верхний предел сохранён; объём и привод не выдуманы. Фото отдельно проверено в оригинальной карточке Кореиана: один датчик, на корпусе видна маркировка артикула.",
+  "image_source_url": "https://koreanaparts.ru/product/datchik-polozheniya-rv-benzin-kgm-ssangyong-1721530428",
+  "image_url": "https://image.koreanagroup.ru/original/81d906394130ceb8d9e8e23a6847de99.jpg",
+  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/fb88574e-62b9-4301-ad4c-38258c858608",
+  "image_note": "Один реальный оригинальный датчик распредвала из точной карточки SsangYong 1721530428. Разъём, крепление и маркировка видны; аналог не использован.",
+  "photo": {
+    "status": "downloaded_visually_verified_not_queued"
+  },
+  "fitment_status": "prepared_not_imported",
+  "checked_sources": [
+    {
+      "url": "https://pnm-parts.ru/catalog/ssang-yong/kg-mobility/1721530428",
+      "result": "Exact OE brand/article, Actyon12- G20D."
+    },
+    {
+      "url": "https://koreanaparts.ru/product/datchik-polozheniya-rv-benzin-kgm-ssangyong-1721530428",
+      "result": "Exact original Ssangyong article, actual single sensor photo inspected."
+    }
+  ],
+  "next_offer_id": 25480,
+  "verification": {
+    "trade_data_unchanged": true
+  }
+}
