@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 13939,
   "offer_id": 35144,
-  "status": "prepared_photo_and_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://cars245.com/en/item/mahle-TI16105-thermostat-coolant/",
   "source_label": "Cars245 — независимый каталог продавца",
@@ -215,10 +215,19 @@
   ],
   "fitment_note": "Точная карточка MAHLETI16105:11пар/27конфигураций. Противоречивые строки с кодамиAEH/AKL/AFT/AFX/AUR при примечанииEngineCodeAPF исключены;сохраненыAPF и не имеющиеэтогопротиворечия AVU/BFQ/BAG/BLF/BLP. ПовторыBORA/BORAI иPOLOCLASSIC/POLOIIICLASSICобъединены поодинаковомукузову,периодуидвигателю; иныеограниченияне выдуманы.",
   "image_url": "https://cars245images.cc/webp/big/mahle/14/mahle-TI16105_2.jpg.webp",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/19605562-8d28-44bb-a812-35cc3b1561d4",
   "image_note": "КаталожныйснимокMAHLETI16105,2видаоднойдеталибезразмерныхлиний;105°C,суплотнениемпокарточке,точнаяидентичностьпроверена.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/48b6cfd8b31b27c087fc44c7d1ea90b898cf0d15c32310065007f5ae12fe8e3b.webp",
+    "thumbnail_path": "products/optimized/1b715a3315ae50bfeeb773d75a874b0b9ec3cddf5fdf5e8f192ae3f5720d7b3a.webp",
+    "main_size": [
+      566,
+      800
+    ],
+    "thumbnail_size": [
+      127,
+      180
+    ]
   },
   "checked_sources": [
     {
@@ -228,6 +237,30 @@
   ],
   "next_offer_id": 35221,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T10:19:12.321Z"
+  },
+  "fitment_status": "saved_db_and_ui_verified",
+  "source_sha256": "045ce9b5527a4137e9335266dd3509fa5072c9ca20a7a78c7f7845ecf5cecf4d",
+  "main_sha256": "48b6cfd8b31b27c087fc44c7d1ea90b898cf0d15c32310065007f5ae12fe8e3b",
+  "main_size": [
+    566,
+    800
+  ],
+  "thumbnail_sha256": "1b715a3315ae50bfeeb773d75a874b0b9ec3cddf5fdf5e8f192ae3f5720d7b3a",
+  "thumbnail_size": [
+    127,
+    180
+  ],
+  "publication": {
+    "commit": "5972845ab163fdf3bc44364404305472c7d8bd49",
+    "deploy": "dep-dbq40p3ncjis73clu9s0",
+    "status": "live"
   }
 }
