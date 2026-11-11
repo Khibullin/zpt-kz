@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T11:17:44.511Z",
+  "checked_at": "2026-11-11T11:18:51.651Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -11906,6 +11906,54 @@
         }
       ],
       "next_offer_id": 25480,
+      "verification": {
+        "trade_data_unchanged": true
+      }
+    },
+    {
+      "article": "2803101S55M0",
+      "brand": "JAC",
+      "cost": 40700,
+      "has_fitment": false,
+      "id": 25480,
+      "kaspi_price": 48560,
+      "kaspi_url": "https://kaspi.kz/shop/p/jac-bamper-2803101s55m0-dlja-jac-js8-2024-2025-170187225/?c=750000000",
+      "main_image": "",
+      "name": "Бампер передний JAC",
+      "photo_status": "needs_source",
+      "product_id": 7097,
+      "profit": 1540,
+      "stock": "3",
+      "supplier_id": 5,
+      "supplier_thumbnail": "",
+      "task_id": 5070,
+      "offer_id": 25480,
+      "status": "prepared_fitment_photo_unconfirmed",
+      "checked_on": "2026-11-11",
+      "source_url": "https://www.magbossauto.pl/shop/2803101s55m0-gorna-nakladka-przedniego-zderzaka-jac-js8-pro-oem-5930",
+      "source_label": "MAGBOSS — независимый каталог продавца",
+      "source_kind": "retailer_catalogue",
+      "source_article": "2803101S55M0",
+      "fitments": [
+        {
+          "make": "JAC",
+          "model": "JS8 Pro",
+          "years": "2025–2026",
+          "notes": "Версия Standard по точной таблице продавца; верхняя накладка переднего бампера. Двигатель и привод не указаны."
+        }
+      ],
+      "fitment_note": "Точная карточка JAC 2803101S55M0: таблица Brand/Model/Version/Modelyear прочитана в живом браузере. Сохранены только JS8Pro, Standard, 2025–2026. Изображение оказалось логотипом MAGBOSS вместо детали, поэтому исключено.",
+      "photo": {
+        "status": "unconfirmed"
+      },
+      "fitment_status": "prepared_not_imported",
+      "checked_sources": [
+        {
+          "url": "https://www.magbossauto.pl/shop/2803101s55m0-gorna-nakladka-przedniego-zderzaka-jac-js8-pro-oem-5930",
+          "result": "Exact article and live table JAC JS8PRO Standard2025–2026; downloaded AVIF is merchant logo placeholder, excluded."
+        }
+      ],
+      "next_offer_id": 25128,
       "verification": {
         "trade_data_unchanged": true
       }
