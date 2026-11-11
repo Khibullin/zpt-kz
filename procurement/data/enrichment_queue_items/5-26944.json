@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 6418,
   "offer_id": 26944,
-  "status": "prepared_photo_and_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://triabc.ru/catalog/4696/6837684/",
   "source_label": "ТРИ-АВС — независимый каталог продавца Norplast",
@@ -32,12 +32,21 @@
   ],
   "fitment_note": "Точный Norplast NPA00-T11-740 для багажника Chery Tiggo 7 I с 2016 года. Чёрный полиуретан; двигатели не указаны.",
   "image_url": "https://triabc.ru/upload/iblock/8ff/f5102d85_bf40_11e9_819b_00155d0ad253_7ec9061b_d093_11e9_819b_00155d0ad253.jpeg",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/0a38eff7-ec1f-40c8-bb70-fb663ddca4da",
   "image_note": "Один реальный чёрный коврик багажника Norplast из точной карточки NPA00-T11-740. Общие рекламные фото других артикулов из описания не использованы.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/a31faacd6763f88ca4e9327a048d3dd221a16300404a1ae6409fe519d758aa84.webp",
+    "thumbnail_path": "products/optimized/b8037a72779b41dc9292211d2e90e864562be9f632d9385fd808a94fa4f772f3.webp",
+    "main_size": [
+      800,
+      539
+    ],
+    "thumbnail_size": [
+      180,
+      121
+    ]
   },
-  "fitment_status": "prepared_not_imported",
+  "fitment_status": "saved_db_and_ui_verified",
   "checked_sources": [
     {
       "url": "https://triabc.ru/catalog/4696/6837684/",
@@ -46,6 +55,29 @@
   ],
   "next_offer_id": 25574,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T11:48:24.917Z"
+  },
+  "source_sha256": "da5712aea5bf66ec5a5c31850977be426726dc135cc22656c4d5908359ee528c",
+  "main_sha256": "a31faacd6763f88ca4e9327a048d3dd221a16300404a1ae6409fe519d758aa84",
+  "main_size": [
+    800,
+    539
+  ],
+  "thumbnail_sha256": "b8037a72779b41dc9292211d2e90e864562be9f632d9385fd808a94fa4f772f3",
+  "thumbnail_size": [
+    180,
+    121
+  ],
+  "publication": {
+    "commit": "4ded4decb82a9095ede0648b4c7dc054989e5f2d",
+    "deploy": "dep-dbq5a8ff3r2c73b9knv0",
+    "status": "live"
   }
 }
