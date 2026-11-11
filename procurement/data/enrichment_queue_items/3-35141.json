@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 13937,
   "offer_id": 35141,
-  "status": "prepared_photo_existing_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://www.wpdusa.com/products/109204/Engine-Air-Filter-Mahle-LX793-Audi-7L0129620A-Porsche-95511013110",
   "source_label": "WPDUSA — независимый каталог продавца",
@@ -24,11 +24,20 @@
   "source_article": "LX793",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/06a1f316-8de3-4994-8684-8e7d7e90a9c1",
   "image_url": "https://www.wpdusa.com/Media/74559/Large/Mahle-LX793-Audi-7L0129620A-Porsche-95511013110.jpg",
   "image_note": "Точная карточка MAHLE LX793,OEM7L0129620A/95511013110. Визуально одна прямоугольная бумажная вставка с оранжевым уплотнителем,фото WPDUSA,не схема. Существующая применимость сохранена.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/422f0c79be1f5cf3c3dc6e97fc49622b5ae6b6500e6a96996078a5f441eee1bb.webp",
+    "thumbnail_path": "products/optimized/5576f1c52cf8425201558a2ac2a8710a73286dde804b326110dd151c7253e10a.webp",
+    "main_size": [
+      800,
+      485
+    ],
+    "thumbnail_size": [
+      180,
+      109
+    ]
   },
   "fitment_status": "existing_preserved",
   "checked_sources": [
@@ -39,6 +48,29 @@
   ],
   "next_offer_id": 22338,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T12:10:49.228Z"
+  },
+  "source_sha256": "270a0ca9e23de9e0d5d2a4f70cc85a6c98091e7cb8f66d43f20acc9ec4b36712",
+  "main_sha256": "422f0c79be1f5cf3c3dc6e97fc49622b5ae6b6500e6a96996078a5f441eee1bb",
+  "main_size": [
+    800,
+    485
+  ],
+  "thumbnail_sha256": "5576f1c52cf8425201558a2ac2a8710a73286dde804b326110dd151c7253e10a",
+  "thumbnail_size": [
+    180,
+    109
+  ],
+  "publication": {
+    "commit": "5f2cf5c224c6b6ff8e2dbe7181a5ffc9b33ffd72",
+    "deploy": "dep-dbq5l0e7bikc738kc8fg",
+    "status": "live"
   }
 }
