@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T12:39:06.612Z",
+  "checked_at": "2026-11-11T12:39:10.207Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -4896,14 +4896,14 @@
       "id": 35196,
       "kaspi_price": 9951,
       "kaspi_url": "https://kaspi.kz/shop/p/motorad-termostat-458-88k-113702346/?c=750000000",
-      "main_image": "",
+      "main_image": "products/optimized/233db536e1de3c2c770e3570ca20579358278d54394e0fd1c927e70d0421a198.webp",
       "name": "Термостат 88°С",
-      "photo_status": "needs_source",
+      "photo_status": "done",
       "product_id": 16003,
       "profit": 1442.125,
       "stock": "4",
       "supplier_id": 3,
-      "supplier_thumbnail": "",
+      "supplier_thumbnail": "products/optimized/c3e99038bb575a9d9e4f6fa1a9b6819f4ba87e232596305de8d7db7c24ada37b.webp",
       "task_id": 13976
     },
     {
@@ -11223,16 +11223,16 @@
       22938,
       23110
     ],
-    "reviewed": 73,
+    "reviewed": 74,
     "published_fitments": 1,
-    "published_photos": 16,
+    "published_photos": 17,
     "unconfirmed": 57,
-    "photos_present": 18,
+    "photos_present": 19,
     "fitments_present": 47,
-    "both_present": 16,
+    "both_present": 17,
     "created_at": "2026-11-11T11:52:47.402Z",
     "fixed": true,
-    "next_offer_id": 35196
+    "next_offer_id": 22113
   },
   "completed_offer_ids": [
     26820,
@@ -11329,7 +11329,8 @@
     22458,
     35189,
     35145,
-    35187
+    35187,
+    35196
   ],
   "reviewed_offer_ids": [
     26787,
@@ -11679,16 +11680,17 @@
     35140,
     22800,
     22640,
-    35187
+    35187,
+    35196
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 348,
-    "remaining_unreviewed": 60,
+    "reviewed": 349,
+    "remaining_unreviewed": 59,
     "unconfirmed_reviewed": 253,
-    "remaining_missing_fields": 313,
-    "photo_added": 95,
+    "remaining_missing_fields": 312,
+    "photo_added": 96,
     "fitment_added": 55,
     "make_model_pairs_added": 126,
     "configurations_added": 164
@@ -11776,50 +11778,6 @@
     "unchanged_trade_data": true
   },
   "prepared_candidates": [
-    {
-      "article": "458-88K",
-      "brand": "MOTORAD",
-      "cost": 7015,
-      "has_fitment": true,
-      "id": 35196,
-      "kaspi_price": 9951,
-      "kaspi_url": "https://kaspi.kz/shop/p/motorad-termostat-458-88k-113702346/?c=750000000",
-      "main_image": "",
-      "name": "Термостат 88°С",
-      "photo_status": "needs_source",
-      "product_id": 16003,
-      "profit": 1442.125,
-      "stock": "4",
-      "supplier_id": 3,
-      "supplier_thumbnail": "",
-      "task_id": 13976,
-      "offer_id": 35196,
-      "status": "prepared_photo_existing_fitment",
-      "checked_on": "2026-11-11",
-      "source_url": "https://cars245.com/ru/item/motorad-45888K-thermostat-coolant/",
-      "source_label": "Cars245 — независимый каталог продавца",
-      "source_kind": "retailer_catalogue",
-      "source_article": "458-88K",
-      "fitments": [],
-      "fitment_note": "Существующая применимость сохранена.",
-      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/2a153664-251d-4e0b-8dc2-a0c5c560fd3e",
-      "image_url": "https://cars245images.cc/webp/big/motorad/3d/motorad-45888K.jpg.webp",
-      "image_note": "Точная карточка MOTORAD458-88K,88°C,EAN4037784012246. Визуально один термостат в металлическом угловом корпусе с уплотнением,фотоCars245; не инойартикул458безK. Существующая применимость сохранена.",
-      "photo": {
-        "status": "downloaded_visually_verified_not_queued"
-      },
-      "fitment_status": "existing_preserved",
-      "checked_sources": [
-        {
-          "url": "https://cars245.com/ru/item/motorad-45888K-thermostat-coolant/",
-          "result": "Точная карточка MOTORAD458-88K,88°C,EAN4037784012246. Визуально один термостат в металлическом угловом корпусе с уплотнением,фотоCars245; не инойартикул458безK. Существующая применимость сохранена."
-        }
-      ],
-      "next_offer_id": 22113,
-      "verification": {
-        "trade_data_unchanged": true
-      }
-    },
     {
       "article": "SE-H501R",
       "brand": "555",
@@ -12414,5 +12372,5 @@
     }
   ],
   "publication_pending": null,
-  "next_offer_id": 35196
+  "next_offer_id": 22113
 }
