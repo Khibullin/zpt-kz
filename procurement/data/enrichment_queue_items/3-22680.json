@@ -1,0 +1,42 @@
+{
+  "article": "AP-89",
+  "brand": "AKIKA",
+  "cost": 5248,
+  "has_fitment": true,
+  "id": 22680,
+  "kaspi_price": 7617,
+  "kaspi_url": "https://kaspi.kz/shop/p/kolodki-akika-perednie-ap-89-174097366/?c=750000000",
+  "main_image": "",
+  "name": "AKIKA Дисковые тормозные колодки керамические | передние",
+  "photo_status": "needs_source",
+  "product_id": 4413,
+  "profit": 1166.875,
+  "stock": "10",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 2386,
+  "offer_id": 22680,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "AKIKA AP-89: точное фото не найдено в двух поисковых индексах; результаты ведут к AP-85/AP90 и общим штрихкодам, исполнения не совпадают. Существующая применимость сохранена.",
+  "checked_sources": [
+    {
+      "query": "\"AKIKA\" \"AP-89\"",
+      "result": "system2: no exact automotive card"
+    },
+    {
+      "query": "\"AKIKA\" \"AP-89\" запчасти",
+      "result": "system1: other articles AP-85/AP90 and barcode list; no confirmed exact photo"
+    }
+  ],
+  "next_offer_id": 23501,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true
+  }
+}
