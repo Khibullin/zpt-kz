@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 14008,
   "offer_id": 35154,
-  "status": "prepared_photo_existing_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://spareto.com/products/ngk-ignition-coil/u2008-48027",
   "source_label": "Spareto — независимый каталог продавца",
@@ -24,11 +24,20 @@
   "source_article": "48027",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/4c80ea9b-44d6-46ff-8579-10e1e6f1a39d",
   "image_url": "https://cdn.spareto.com/variants/images_webp/000/527/196/large/u2008-48027-F16D0823.webp?1793006951",
   "image_note": "Точная карточка NGK48027/U2008,3контакта,4выходаM4. Визуально один чёрный модуль катушки с четырьмя винтами и логотипомNGK; комплектность соответствует. Существующая применимость сохранена.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/5414150910b4953e29c47ab8a78d9ac295483e52a787770508464d19ccd91650.webp",
+    "thumbnail_path": "products/optimized/1c5b45ca487aee237c997f4da469a3180ff59ff745e21be9f7b079ae17aaac43.webp",
+    "main_size": [
+      720,
+      720
+    ],
+    "thumbnail_size": [
+      180,
+      180
+    ]
   },
   "fitment_status": "existing_preserved",
   "checked_sources": [
@@ -39,6 +48,29 @@
   ],
   "next_offer_id": 23850,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T12:26:49.237Z"
+  },
+  "source_sha256": "adb11be776281cc00dee3bd6a7b7a4e40ba1e19396aa20e0b5d22b1e436695d9",
+  "main_sha256": "5414150910b4953e29c47ab8a78d9ac295483e52a787770508464d19ccd91650",
+  "main_size": [
+    720,
+    720
+  ],
+  "thumbnail_sha256": "1c5b45ca487aee237c997f4da469a3180ff59ff745e21be9f7b079ae17aaac43",
+  "thumbnail_size": [
+    180,
+    180
+  ],
+  "publication": {
+    "commit": "d3c9542cecfd849c5e190b514d72acff618374d0",
+    "deploy": "dep-dbq5rv8ae00c73fr6cmg",
+    "status": "live"
   }
 }
