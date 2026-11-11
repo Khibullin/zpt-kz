@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T10:29:23.547Z",
+  "checked_at": "2026-11-11T10:29:26.065Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -3348,14 +3348,14 @@
       "id": 35156,
       "kaspi_price": 11597,
       "kaspi_url": "https://kaspi.kz/shop/p/mahle-vozdushnyi-fil-tr-lx1481-124290683/?c=750000000",
-      "main_image": "",
+      "main_image": "products/optimized/f9fcc0d10af8336d2642bc9f4760cc0f4c6b55228ebbd7e2411b0aadad717af6.webp",
       "name": "MAHLE фильтр воздушный",
-      "photo_status": "needs_source",
+      "photo_status": "done",
       "product_id": 15962,
       "profit": 2155.375,
       "stock": "1",
       "supplier_id": 3,
-      "supplier_thumbnail": "",
+      "supplier_thumbnail": "products/optimized/9c96e313f060a721b383893614eac583edc982105e95974d5f162758d98b1b55.webp",
       "task_id": 13935
     },
     {
@@ -11118,7 +11118,7 @@
     }
   ],
   "results": [],
-  "next_offer_id": 35156,
+  "next_offer_id": 35197,
   "batch": {
     "supplier_id": 3,
     "batch_number": 2,
@@ -11224,14 +11224,14 @@
       22758,
       22944
     ],
-    "reviewed": 96,
+    "reviewed": 97,
     "published_fitments": 6,
-    "published_photos": 25,
+    "published_photos": 26,
     "unconfirmed": 71,
-    "next_offer_id": 35156,
-    "photos_present": 27,
+    "next_offer_id": 35197,
+    "photos_present": 28,
     "fitments_present": 59,
-    "both_present": 25,
+    "both_present": 26,
     "created_at": "2026-11-11T09:25:39.710Z",
     "fixed": true
   },
@@ -11289,7 +11289,8 @@
     35149,
     22522,
     35178,
-    35148
+    35148,
+    35156
   ],
   "reviewed_offer_ids": [
     26787,
@@ -11487,16 +11488,17 @@
     35149,
     22522,
     35178,
-    35148
+    35148,
+    35156
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 196,
-    "remaining_unreviewed": 212,
+    "reviewed": 197,
+    "remaining_unreviewed": 211,
     "unconfirmed_reviewed": 142,
-    "remaining_missing_fields": 354,
-    "photo_added": 53,
+    "remaining_missing_fields": 353,
+    "photo_added": 54,
     "fitment_added": 31,
     "make_model_pairs_added": 81,
     "configurations_added": 115
@@ -11570,50 +11572,6 @@
     "unchanged_trade_data": true
   },
   "prepared_candidates": [
-    {
-      "article": "LX1481",
-      "brand": "MAHLE",
-      "cost": 7742,
-      "has_fitment": true,
-      "id": 35156,
-      "kaspi_price": 11597,
-      "kaspi_url": "https://kaspi.kz/shop/p/mahle-vozdushnyi-fil-tr-lx1481-124290683/?c=750000000",
-      "main_image": "",
-      "name": "MAHLE фильтр воздушный",
-      "photo_status": "needs_source",
-      "product_id": 15962,
-      "profit": 2155.375,
-      "stock": "1",
-      "supplier_id": 3,
-      "supplier_thumbnail": "",
-      "task_id": 13935,
-      "offer_id": 35156,
-      "status": "prepared_photo_existing_fitment",
-      "checked_on": "2026-11-11",
-      "source_url": "https://www.finditparts.com/products/4671300/mahle-lx1481",
-      "source_label": "FinditParts — независимый каталог продавца",
-      "source_kind": "retailer_catalogue",
-      "source_article": "LX1481",
-      "fitments": [],
-      "fitment_note": "Существующая применимость сохранена.",
-      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/a6b26fcf-e74e-4a17-bdce-d7088cf1ea26",
-      "image_url": "https://db73q1dut0rlp.cloudfront.net/eyJ3aWR0aCI6NDM1LCJoZWlnaHQiOjQzNSwiZml0IjoiY29udGFpbiIsIndhdGVybWFya2VkIjp0cnVlLCJmb3JtYXQiOiJqcGciLCJrZXkiOiJhc3NldHMvaW1hZ2VzLzE2OTk5MjgwL3Byb2R1Y3QvM2I5YWIyYTE2MzIwYWNhNzNhODQ1ZjhmMDE0N2VkMjMuanBnIiwidmVyc2lvbiI6Mn0=.jpg?s=7b65b2903fdf00831e7b856b45ec1fb67cb2bbf47b96edd6ad0f371b0b688be7",
-      "image_note": "Точная MAHLE LX1481: реальная фотография одного прямоугольного воздушного фильтра с оранжевой рамкой. KMotorShopимеетcategory/sampleфото,исключено;существующая применимость сохранена.",
-      "photo": {
-        "status": "downloaded_visually_verified_not_queued"
-      },
-      "fitment_status": "existing_preserved",
-      "checked_sources": [
-        {
-          "url": "https://www.finditparts.com/products/4671300/mahle-lx1481",
-          "result": "Точная MAHLE LX1481: реальная фотография одного прямоугольного воздушного фильтра с оранжевой рамкой. KMotorShopимеетcategory/sampleфото,исключено;существующая применимость сохранена."
-        }
-      ],
-      "next_offer_id": 22867,
-      "verification": {
-        "trade_data_unchanged": true
-      }
-    },
     {
       "article": "467-97K",
       "brand": "MOTORAD",
