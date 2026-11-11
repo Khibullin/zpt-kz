@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T12:20:43.065Z",
+  "checked_at": "2026-11-11T12:22:20.777Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -12430,6 +12430,22 @@
       "publication": "453d5a997c729421b1a1f705ead7a96e239d5e6e"
     }
   ],
-  "publication_pending": null,
+  "publication_pending": {
+    "commit": "d3c9542cecfd849c5e190b514d72acff618374d0",
+    "offer_ids": [
+      22394,
+      35154,
+      35152,
+      22112,
+      22504,
+      22458,
+      35189,
+      35145
+    ],
+    "photos": 8,
+    "fitments": 1,
+    "prepared": true,
+    "queued": false
+  },
   "next_offer_id": 22394
 }
