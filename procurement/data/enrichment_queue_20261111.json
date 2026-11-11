@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T10:48:48.409Z",
+  "checked_at": "2026-11-11T10:48:50.980Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -10058,7 +10058,7 @@
       "article": "12810002",
       "brand": "RIVAL",
       "cost": 10300,
-      "has_fitment": false,
+      "has_fitment": true,
       "id": 26929,
       "kaspi_price": 15340,
       "kaspi_url": "https://kaspi.kz/shop/p/rival-12810002-kia-seltos-2020-2026-chernyi-119908554/?c=750000000",
@@ -11198,13 +11198,13 @@
       25789,
       26282
     ],
-    "reviewed": 23,
-    "published_fitments": 2,
+    "reviewed": 24,
+    "published_fitments": 3,
     "published_photos": 2,
-    "unconfirmed": 21,
-    "next_offer_id": 26929,
+    "unconfirmed": 22,
+    "next_offer_id": 25926,
     "photos_present": 2,
-    "fitments_present": 41,
+    "fitments_present": 42,
     "both_present": 2,
     "created_at": "2026-11-11T10:30:05.643Z",
     "fixed": true
@@ -11494,19 +11494,20 @@
     25277,
     25190,
     26101,
-    26923
+    26923,
+    26929
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 223,
-    "remaining_unreviewed": 185,
-    "unconfirmed_reviewed": 163,
+    "reviewed": 224,
+    "remaining_unreviewed": 184,
+    "unconfirmed_reviewed": 164,
     "remaining_missing_fields": 348,
     "photo_added": 59,
-    "fitment_added": 33,
-    "make_model_pairs_added": 85,
-    "configurations_added": 119
+    "fitment_added": 34,
+    "make_model_pairs_added": 86,
+    "configurations_added": 120
   },
   "prepared_candidate": null,
   "source_limits": [
@@ -11578,54 +11579,6 @@
     "unchanged_trade_data": true
   },
   "prepared_candidates": [
-    {
-      "article": "12810002",
-      "brand": "RIVAL",
-      "cost": 10300,
-      "has_fitment": false,
-      "id": 26929,
-      "kaspi_price": 15340,
-      "kaspi_url": "https://kaspi.kz/shop/p/rival-12810002-kia-seltos-2020-2026-chernyi-119908554/?c=750000000",
-      "main_image": "",
-      "name": "Ковер багажника Kia",
-      "photo_status": "needs_source",
-      "product_id": 8505,
-      "profit": 2872.5,
-      "stock": "5",
-      "supplier_id": 5,
-      "supplier_thumbnail": "",
-      "task_id": 6478,
-      "offer_id": 26929,
-      "status": "prepared_fitment_photo_unconfirmed",
-      "checked_on": "2026-11-11",
-      "source_url": "https://avto-center.kz/parts/Rival/12810002",
-      "source_label": "Avto-center.kz — независимый каталог продавца",
-      "source_kind": "retailer_catalogue",
-      "source_article": "12810002",
-      "fitments": [
-        {
-          "make": "Kia",
-          "model": "Seltos",
-          "years": "2020–н.в.",
-          "notes": "Коврик в багажник; только исполнение без сабвуфера. Другие ограничения/сборка/двигатель не указаны."
-        }
-      ],
-      "fitment_note": "Точное наименованиеRival12810002 вкарточкеAvto-center: KiaSeltosбезсабвуфера2020-. Верхнийпределсохранёнотрытым. Первоепромоизображениеизолированногоковрикаиллюстративное, следующеерекламноесдругимрисунком: фактическаяфотография точногоковрика не подтверждена. ВсеИнструменты ранееCAPTCHA,повторне выполнялся.",
-      "photo": {
-        "status": "unconfirmed_illustrative_images_excluded"
-      },
-      "fitment_status": "prepared_not_imported",
-      "checked_sources": [
-        {
-          "url": "https://avto-center.kz/parts/Rival/12810002",
-          "result": "Exactbrandarticlefit/title;1stpromovisual and2ndgenericdifferentpatternexcluded"
-        }
-      ],
-      "next_offer_id": 25792,
-      "verification": {
-        "trade_data_unchanged": true
-      }
-    },
     {
       "article": "555133N300",
       "brand": "HYUNDAI-KIA",
@@ -12116,5 +12069,5 @@
     }
   ],
   "publication_pending": null,
-  "next_offer_id": 26929
+  "next_offer_id": 25926
 }
