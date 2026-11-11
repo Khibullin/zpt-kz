@@ -1,0 +1,44 @@
+{
+  "article": "SR-7960",
+  "brand": "555",
+  "cost": 4352,
+  "has_fitment": true,
+  "id": 22458,
+  "kaspi_price": 6957,
+  "kaspi_url": "https://kaspi.kz/shop/p/555-rulevaja-tjaga-sr-7960-177618192/?c=750000000",
+  "main_image": "",
+  "name": "555 Рулевая тяга",
+  "photo_status": "skipped",
+  "product_id": 4192,
+  "profit": 1485.375,
+  "stock": "10",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 2165,
+  "offer_id": 22458,
+  "status": "prepared_photo_existing_fitment",
+  "checked_on": "2026-11-11",
+  "source_url": "https://www.auto-doc.at/555/13056289",
+  "source_label": "AUTODOC — независимый каталог продавца",
+  "source_kind": "retailer_catalogue",
+  "source_article": "SR-7960",
+  "fitments": [],
+  "fitment_note": "Существующая применимость сохранена.",
+  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/94a1875f-0f54-4ad3-b0dd-c098fb09302e",
+  "image_url": "https://cdn.autodoc.de/thumb?id=13056289&m=0&n=0&lng=de&rev=94078121",
+  "image_note": "Точная карточка 555SR-7960,резьбаM16x1.5/M12x1.25. Визуально одна рулевая тяга с водяным знаком555; не схема/пара. Существующая применимость сохранена.",
+  "photo": {
+    "status": "downloaded_visually_verified_not_queued"
+  },
+  "fitment_status": "existing_preserved",
+  "checked_sources": [
+    {
+      "url": "https://www.auto-doc.at/555/13056289",
+      "result": "Точная карточка 555SR-7960,резьбаM16x1.5/M12x1.25. Визуально одна рулевая тяга с водяным знаком555; не схема/пара. Существующая применимость сохранена."
+    }
+  ],
+  "next_offer_id": 22665,
+  "verification": {
+    "trade_data_unchanged": true
+  }
+}
