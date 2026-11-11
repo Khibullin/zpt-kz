@@ -1,0 +1,42 @@
+{
+  "article": "2804101XKN04A",
+  "brand": "JASHI",
+  "cost": 18100,
+  "has_fitment": false,
+  "id": 25418,
+  "kaspi_price": 24660,
+  "kaspi_url": "https://kaspi.kz/shop/p/jashi-bamper-2804101xkn04a-dlja-haval-dargo-2022-2024-135058500/?c=750000000",
+  "main_image": "",
+  "name": "Бампер задний HAVAL",
+  "photo_status": "needs_source",
+  "product_id": 6934,
+  "profit": 3227.5,
+  "stock": "1",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 4907,
+  "offer_id": 25418,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "unconfirmed",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "JASHI2804101XKN04A: точные найденные карточки Haval/б/у не подтверждают фотографию JASHI. В Автопитере Jashi присутствует в общем списке производителей, но прочитанная строка точного артикула относится к Haval; общей метки бренда недостаточно. Фото/применимость не перенесены.",
+  "checked_sources": [
+    {
+      "query": "\"JASHI\" \"2804101XKN04A\"",
+      "result": "Bothengines:otherbrandOEMorused"
+    },
+    {
+      "url": "https://autopiter.kz/goods/задний%20бампер%20haval%20dargo",
+      "result": "Jashi inmanufacturerfilteronly; exactrowHaval notJashi"
+    }
+  ],
+  "next_offer_id": 25277,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": false
+  }
+}
