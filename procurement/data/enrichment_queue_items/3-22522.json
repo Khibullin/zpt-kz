@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 2229,
   "offer_id": 22522,
-  "status": "prepared_photo_existing_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://evocar.ua/ru/555/ss4830",
   "source_label": "EVOCAR — независимый каталог продавца",
@@ -24,11 +24,20 @@
   "source_article": "SS-4830",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/a9887062-3f12-4904-b363-6a5becca6a63",
   "image_url": "https://cdn.evocar.ua/9e0dbf942bb775c08ff6773b4ec09024/555-ss4830.jpg",
   "image_note": "Точная 555 SS-4830: реальная фотография одной поперечной рулевой тяги в сборе с двумя шарнирами, гайками и шплинтами; чужие артикулы/образцы не использованы. Sparetoсодержитnoimageзаглушку, исключена. Существующая применимость сохранена.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/72cd3c1c9f3b6a9fc2d6af5f6281d521112ed0375991116bdca059dcb46062fa.webp",
+    "thumbnail_path": "products/optimized/f696dfd06d0b723521b2b6efc914a1e608c2cdd0ab77a1f093fde6052ccf6e0a.webp",
+    "main_size": [
+      720,
+      200
+    ],
+    "thumbnail_size": [
+      180,
+      50
+    ]
   },
   "fitment_status": "existing_preserved",
   "checked_sources": [
@@ -39,6 +48,29 @@
   ],
   "next_offer_id": 35178,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T10:29:15.773Z"
+  },
+  "source_sha256": "e7b66dd3f04b2c0abd10ea599b83151ea99b61818a5ee6543150f6221bf24459",
+  "main_sha256": "72cd3c1c9f3b6a9fc2d6af5f6281d521112ed0375991116bdca059dcb46062fa",
+  "main_size": [
+    720,
+    200
+  ],
+  "thumbnail_sha256": "f696dfd06d0b723521b2b6efc914a1e608c2cdd0ab77a1f093fde6052ccf6e0a",
+  "thumbnail_size": [
+    180,
+    50
+  ],
+  "publication": {
+    "commit": "7dec204910db6a8f38f987b3c44771cacb96ea1c",
+    "deploy": "dep-dbq45q5g1s2s739fh1sg",
+    "status": "live"
   }
 }
