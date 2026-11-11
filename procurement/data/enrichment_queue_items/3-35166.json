@@ -1,0 +1,40 @@
+{
+  "article": "1115-82",
+  "brand": "MOTORAD",
+  "cost": 18760,
+  "has_fitment": false,
+  "id": 35166,
+  "kaspi_price": 26640,
+  "kaspi_url": "https://kaspi.kz/shop/p/motorad-termostat-1115-82-174077975/?c=750000000",
+  "main_image": "products/optimized/9b087d4484b0feda847b5db3e618809a98fc2011a6b91c2be67405e10d44dbd7.webp",
+  "name": "Термостат 82°С",
+  "photo_status": "done",
+  "product_id": 15974,
+  "profit": 4300,
+  "stock": "1",
+  "supplier_id": 3,
+  "supplier_thumbnail": "products/optimized/be09a93c42fbaed7c5764f48d2d5669bdadd830faaefab39e58165d6966f82e0.webp",
+  "task_id": 13947,
+  "offer_id": 35166,
+  "status": "reviewed_existing_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "unconfirmed_prior_review",
+  "photo": {
+    "status": "existing_preserved",
+    "main_path": "products/optimized/9b087d4484b0feda847b5db3e618809a98fc2011a6b91c2be67405e10d44dbd7.webp",
+    "thumbnail_path": "products/optimized/be09a93c42fbaed7c5764f48d2d5669bdadd830faaefab39e58165d6966f82e0.webp"
+  },
+  "reason": "Историческое исключение MOTORAD1115-82:каталог ранее явно не дал применимости. Без нового источника запрос не повторялся.",
+  "checked_sources": [
+    {
+      "journal": "procurement/data/fitment_source_review_20261110_batch68.json",
+      "result": "1115-82 previously noapplicationsfound"
+    }
+  ],
+  "next_offer_id": 22771,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_photo_preserved": true
+  }
+}
