@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 13949,
   "offer_id": 35168,
-  "status": "published_complete_pending_db_audit",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://eu.motorad.com/part/251-79k/",
   "source_label": "MOTORAD · каталог производителя",
@@ -27,7 +27,7 @@
   "image_url": "https://images.motorad.com/MotoRad-stills/251-79K_Angle.jpg",
   "image_note": "Точный полный артикул251-79K на сайте производителя;79°C,без корпуса. Реальное фото отдельного металлического термостата,не схема. Существующая применимость не изменяется;UIналичие1/закупка4236/Kaspi6431 совпадают с очередью.",
   "photo": {
-    "status": "saved_ui_verified_db_audit_pending",
+    "status": "saved_db_and_ui_verified",
     "main_path": "products/optimized/4f695201a268346f2df7fb60c4a00ac52b6963930eff3caa69d7ec576a588e5f.webp",
     "thumbnail_path": "products/optimized/cb65d274e9c567ba0aa8562d289ffcf13977c4d716e579a0e52b29cbecf104ba.webp",
     "main_size": [
@@ -48,17 +48,31 @@
   ],
   "next_offer_id": 22924,
   "verification": {
-    "db_verified": false,
+    "db_verified": true,
     "ui_verified": true,
     "main_image_complete": true,
     "thumbnail_image_complete": true,
     "visible_trade_and_fitment_text_unchanged": true,
     "existing_metadata_preserved_by_import": true,
-    "checked_at": "2026-11-11T13:26:41.111Z",
-    "db_audit_pending_reason": "Render MCP temporary Internal errors/timeouts; fresh stored row metadata audit pending"
+    "checked_at": "2026-11-11T13:29:51.369Z",
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true,
+    "existing_metadata_preserved": true,
+    "task_status": "done",
+    "source_and_image_hashes_match_manifest": true,
+    "db_fitment_pairs": 8,
+    "db_fitment_configurations": 69,
+    "db_existing_characteristic_keys": [
+      "manufacturer_applicability",
+      "supplier_pack_size"
+    ],
+    "db_before_snapshot_available": false,
+    "preservation_evidence": "Photo-only bounded manifest contains no fitments; import does not write existing fitments or characteristics. Full visible card text before/after identical. Current DB fitments and metadata read and verified."
   },
   "publication": {
     "commit": "b83355cd9994f3667e7ee7842b3bbc9cb23ee5a5",
-    "status": "images_visible_on_live_site_render_status_unavailable"
+    "source_commit": "b83355cd9994f3667e7ee7842b3bbc9cb23ee5a5",
+    "deploy": "dep-dbq6n1ks728c73961pb0",
+    "status": "live"
   }
 }
