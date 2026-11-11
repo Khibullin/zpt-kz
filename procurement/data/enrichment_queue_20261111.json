@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T12:09:21.943Z",
+  "checked_at": "2026-11-11T12:10:37.395Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -3708,14 +3708,14 @@
       "id": 22168,
       "kaspi_price": 9783,
       "kaspi_url": "https://kaspi.kz/shop/p/555-rulevoi-nakonechnik-sek-8141l-174088525/?c=750000000",
-      "main_image": "",
+      "main_image": "products/optimized/4f0d0ab8d68c37630d0749d8758d709acee2b3520aaaac84bcfe834f7e6f8e83.webp",
       "name": "555 Наконечник рулевой тяги",
-      "photo_status": "skipped",
+      "photo_status": "done",
       "product_id": 3905,
       "profit": 1910.125,
       "stock": "1",
       "supplier_id": 3,
-      "supplier_thumbnail": "",
+      "supplier_thumbnail": "products/optimized/5a07d7b52cb482021b567c4a280d6e9d78c0ec515803a6d89a65c6b375955eba.webp",
       "task_id": 1878
     },
     {
@@ -11223,16 +11223,16 @@
       22938,
       23110
     ],
-    "reviewed": 39,
+    "reviewed": 40,
     "published_fitments": 0,
-    "published_photos": 0,
+    "published_photos": 1,
     "unconfirmed": 39,
-    "photos_present": 2,
+    "photos_present": 3,
     "fitments_present": 46,
-    "both_present": 0,
+    "both_present": 1,
     "created_at": "2026-11-11T11:52:47.402Z",
     "fixed": true,
-    "next_offer_id": 22168
+    "next_offer_id": 35206
   },
   "completed_offer_ids": [
     26820,
@@ -11313,7 +11313,8 @@
     26944,
     25622,
     26470,
-    25789
+    25789,
+    22168
   ],
   "reviewed_offer_ids": [
     26787,
@@ -11629,16 +11630,17 @@
     22995,
     23506,
     23850,
-    23868
+    23868,
+    22168
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 314,
-    "remaining_unreviewed": 94,
+    "reviewed": 315,
+    "remaining_unreviewed": 93,
     "unconfirmed_reviewed": 235,
-    "remaining_missing_fields": 329,
-    "photo_added": 79,
+    "remaining_missing_fields": 328,
+    "photo_added": 80,
     "fitment_added": 54,
     "make_model_pairs_added": 124,
     "configurations_added": 162
@@ -11711,59 +11713,15 @@
   "next_batch_instruction": "FixedPhaeton100complete, all29photos/thumbs6fitoffersDB/UIverified. Continue fixedZakazAuto75 inbatch.offer_ids exactprofitorder. ThenremainingPhaeton100; preserveallpriorcanonicalexceptions/restrictions.",
   "technical_notes": "All200reviewed,57photos31fitmentoffers81pairs115configs cumulative acrossqueue. No pendingpublication. Phaeton100 added29photos6fitoffers23pairs46configs in4livepublications,31photo59fit29both. NewZakazAuto75frozenafterDBUIverification.",
   "latest_publication": {
-    "commit": "453d5a997c729421b1a1f705ead7a96e239d5e6e",
-    "deploy": "dep-dbq5cfl9el5s73974so0",
+    "commit": "5f2cf5c224c6b6ff8e2dbe7181a5ffc9b33ffd72",
+    "deploy": "dep-dbq5l0e7bikc738kc8fg",
     "status": "live",
-    "checked_photo_and_thumbnail": 1,
+    "checked_photo_and_thumbnail": 7,
     "checked_fitment_offers": 0,
     "ui_images_loaded": true,
     "unchanged_trade_data": true
   },
   "prepared_candidates": [
-    {
-      "article": "SEK-8141L",
-      "brand": "555",
-      "cost": 6400,
-      "has_fitment": true,
-      "id": 22168,
-      "kaspi_price": 9783,
-      "kaspi_url": "https://kaspi.kz/shop/p/555-rulevoi-nakonechnik-sek-8141l-174088525/?c=750000000",
-      "main_image": "",
-      "name": "555 Наконечник рулевой тяги",
-      "photo_status": "skipped",
-      "product_id": 3905,
-      "profit": 1910.125,
-      "stock": "1",
-      "supplier_id": 3,
-      "supplier_thumbnail": "",
-      "task_id": 1878,
-      "offer_id": 22168,
-      "status": "prepared_photo_existing_fitment",
-      "checked_on": "2026-11-11",
-      "source_url": "https://cartex.kz/part/sek8141l-555",
-      "source_label": "Cartex — независимый каталог продавца",
-      "source_kind": "retailer_catalogue",
-      "source_article": "SEK-8141L",
-      "fitments": [],
-      "fitment_note": "Существующая применимость сохранена.",
-      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/4a0a23f1-922b-497b-973f-936106741395",
-      "image_url": "https://img.cartex.kz/4010/d22eb47f932d7b3c479ea36290e2faa5d9d4008e.webp",
-      "image_note": "Точная карточка 555 SEK8141L, внешний левый, OEM56820-3X000. Визуально фотография одного чёрного наконечника с гайкой и водяным знаком 555; без пары/другой комплектности. Существующая применимость сохранена; противоречивые широкие fitment-списки продавца не переносились.",
-      "photo": {
-        "status": "downloaded_visually_verified_not_queued"
-      },
-      "fitment_status": "existing_preserved",
-      "checked_sources": [
-        {
-          "url": "https://cartex.kz/part/sek8141l-555",
-          "result": "Точная карточка 555 SEK8141L, внешний левый, OEM56820-3X000. Визуально фотография одного чёрного наконечника с гайкой и водяным знаком 555; без пары/другой комплектности. Существующая применимость сохранена; противоречивые широкие fitment-списки продавца не переносились."
-        }
-      ],
-      "next_offer_id": 35206,
-      "verification": {
-        "trade_data_unchanged": true
-      }
-    },
     {
       "article": "578-87K",
       "brand": "MOTORAD",
@@ -12445,21 +12403,6 @@
       "publication": "453d5a997c729421b1a1f705ead7a96e239d5e6e"
     }
   ],
-  "publication_pending": {
-    "commit": "5f2cf5c224c6b6ff8e2dbe7181a5ffc9b33ffd72",
-    "offer_ids": [
-      22168,
-      35206,
-      22492,
-      35134,
-      35188,
-      35141,
-      22338
-    ],
-    "photos": 7,
-    "fitments": 0,
-    "prepared": true,
-    "queued": false
-  },
-  "next_offer_id": 22168
+  "publication_pending": null,
+  "next_offer_id": 35206
 }
