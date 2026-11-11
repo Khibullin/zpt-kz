@@ -13,7 +13,7 @@
   "supplier_id": 5,
   "task_id": 5651,
   "offer_id": 26220,
-  "status": "prepared_fitment_photo_unconfirmed",
+  "status": "published_fitment_photo_exception",
   "checked_on": "2026-11-11",
   "source_url": "https://kaspi.kz/shop/p/datchik-kisloroda-jashi-1026605ge-119312095/",
   "source_label": "Характеристики точной карточки Kaspi — извлечённая поиском копия продавца",
@@ -60,5 +60,23 @@
       "result": "Exact article; manufacturer header JAC vs description JASHI, placeholder photo. Not used for enrichment."
     }
   ],
-  "next_offer_id": 26530
+  "next_offer_id": 26530,
+  "publication": {
+    "commit": "08c5ddc32f0a2d0527741382fe3e064c4c21216d",
+    "deploy": "dep-dbq230dg1s2s739cu69g",
+    "status": "live",
+    "checked_photo_and_thumbnail": 3,
+    "checked_fitment_offers": 3,
+    "all_three_ui_images_loaded": true,
+    "unchanged_trade_data": true
+  },
+  "fitment_status": "saved_and_ui_verified",
+  "verification": {
+    "photo": false,
+    "thumbnail": false,
+    "display": true,
+    "source_and_constraints": true,
+    "stock_and_profit_preserved": true,
+    "existing_fitment_preserved": true
+  }
 }
