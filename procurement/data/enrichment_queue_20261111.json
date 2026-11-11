@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T09:07:08.038Z",
+  "checked_at": "2026-11-11T09:08:30.017Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -9498,7 +9498,23 @@
     "All historical ASVA / Alta-Karter / refused MOTORAD / BILSTEIN / PATRON restrictions remain.",
     "2026-11-11 current browser auto-review denied kaspi.kz origin for26220 and resources.cdn-kaspi.kz image for26530; no retries or other routes. Independent sources unaffected."
   ],
-  "pending_publication": null,
+  "pending_publication": {
+    "commit": "cd711d8063dc25b30ee190472db94956bff02d0b",
+    "offer_ids": [
+      26527,
+      28080,
+      26925,
+      25519,
+      26531,
+      25550,
+      25410,
+      26623
+    ],
+    "photos_prepared": 6,
+    "fitment_offers_prepared": 7,
+    "status": "committed_waiting_deploy",
+    "checked_at": "2026-11-11T09:08:30.017Z"
+  },
   "superseded_candidates": [
     26720,
     25488
