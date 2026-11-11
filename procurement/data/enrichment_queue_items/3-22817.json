@@ -1,0 +1,42 @@
+{
+  "article": "AS-31",
+  "brand": "AKIKA",
+  "cost": 8448,
+  "has_fitment": false,
+  "id": 22817,
+  "kaspi_price": 11949,
+  "kaspi_url": "https://kaspi.kz/shop/p/akika-zadnii-as-31-1-sht-172339697/?c=750000000",
+  "main_image": "",
+  "name": "AKIKA Амортизатор, зад. левый&правый",
+  "photo_status": "needs_source",
+  "product_id": 4546,
+  "profit": 1757.375,
+  "stock": "10",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 2519,
+  "offer_id": 22817,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "unconfirmed",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "Точное независимое фото и применимость AKIKA AS-31/AS31 не подтверждены: результаты других артикулов либо пусто. Данные аналогов не использованы.",
+  "checked_sources": [
+    {
+      "query": "\"AKIKA\" \"AS-31\"",
+      "result": "No exact independent result"
+    },
+    {
+      "query": "\"AKIKA\" \"AS31\"",
+      "result": "No results"
+    }
+  ],
+  "next_offer_id": 23109,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": false
+  }
+}
