@@ -1,0 +1,35 @@
+{
+  "article": "3500330U3400",
+  "brand": "JASHI",
+  "has_fitment": true,
+  "id": 26528,
+  "kaspi_url": "https://kaspi.kz/shop/p/diski-jashi-perednie-3500330u3400-149051486/?c=750000000",
+  "main_image": "",
+  "name": "Диск тормозной JAC",
+  "photo_status": "needs_source",
+  "product_id": 8079,
+  "profit": 4102.5,
+  "stock": "4",
+  "supplier_id": 5,
+  "task_id": 6052,
+  "offer_id": 26528,
+  "status": "reviewed_photo_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "no_photo_in_exact_catalogue",
+    "reason": "Точная карточка Автопитер JASHI3500330U3400 не имеет фотографии. Аналоги Jac/другие бренды не перенесены."
+  },
+  "checked_sources": [
+    {
+      "url": "https://autopiter.ru/goods/3500330u3400/jashi/id193309256?orderRef=5",
+      "result": "Exactbrand/article; noimage. Existingfitmentpreserved"
+    }
+  ],
+  "next_offer_id": 26531,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true
+  }
+}
