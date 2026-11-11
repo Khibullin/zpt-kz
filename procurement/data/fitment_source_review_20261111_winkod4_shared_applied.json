@@ -1,0 +1,104 @@
+{
+  "checked_on": "2026-11-11",
+  "status": "applied_and_verified",
+  "scope": "Four exact WINKOD identities copied from the existing reviewed shared base to supplier3. No remote source requests or photo staging.",
+  "targets": {
+    "55056": {
+      "article": "W333516SA",
+      "source_offer": 25270
+    },
+    "55057": {
+      "article": "W333517SA",
+      "source_offer": 25218
+    },
+    "55059": {
+      "article": "W333519SA",
+      "source_offer": 25195
+    },
+    "55289": {
+      "article": "W335624SA",
+      "source_offer": 25273
+    }
+  },
+  "expected": {
+    "offers": 4,
+    "pairs": 6,
+    "configurations": 18
+  },
+  "checks": [
+    {
+      "offer_id": 55056,
+      "source_offer": 25270,
+      "exact_fitments": true,
+      "pairs": 1,
+      "configurations": 7,
+      "other_fields_unchanged": true,
+      "original_metadata_preserved": true
+    },
+    {
+      "offer_id": 55057,
+      "source_offer": 25218,
+      "exact_fitments": true,
+      "pairs": 2,
+      "configurations": 2,
+      "other_fields_unchanged": true,
+      "original_metadata_preserved": true
+    },
+    {
+      "offer_id": 55059,
+      "source_offer": 25195,
+      "exact_fitments": true,
+      "pairs": 1,
+      "configurations": 7,
+      "other_fields_unchanged": true,
+      "original_metadata_preserved": true
+    },
+    {
+      "offer_id": 55289,
+      "source_offer": 25273,
+      "exact_fitments": true,
+      "pairs": 2,
+      "configurations": 2,
+      "other_fields_unchanged": true,
+      "original_metadata_preserved": true
+    }
+  ],
+  "exceptions": [
+    "Office browser Page.navigate timed out before any POST; no duplicate submission. Existing shared-fitment function called by bounded migration0033 instead.",
+    "ASVA0224-084 remains unconfirmed. Independent Drom seller descriptions agree on Mark X/IS250 but broad tags contain questionable chassis/model associations. No years/engines or broad tags imported. Searches yielded no stronger independent catalogue.",
+    "All prior source refusals retained; no requests sent to ASVA or Alta-Karter.",
+    "Fresh normal web retrievals of https://shop.globalparts.kz/product/akika/as172, https://shop.globalparts.kz/product/akika/as01 and https://shop.globalparts.kz/product/akika/as04 returned not accessible via this tool. No alternative URL/protocol/channel retries."
+  ],
+  "next": "Do not reimport four completed WINKOD targets. First fresh DB. Priority top50 photos50/50 and fitment49/50: ASVA0224-084 remains unresolved without reliable independent evidence. Then next supplier3/5 batches by profitKZT, skip existing. Global shared-base exact join now0 matches; research independent permitted sources. Regional MAHLE PDF candidates from mahle60 checkpoint remain available for full visual review. All past source refusals retained. Job incomplete; keep automation enabled.",
+  "after": {
+    "verified_offers": 4359,
+    "products_with_photos": 19278,
+    "queue": {
+      "done": 18918,
+      "skipped": 1614,
+      "needs_source": 28961
+    },
+    "active": 0,
+    "top50": {
+      "photos": 50,
+      "verified_fitment": 49,
+      "total": 50
+    }
+  },
+  "deployment": {
+    "commit": "4f72e59ac739ca1474e69819c95969b11f04674c",
+    "id": "dep-dbq05nlg1s2s739asfvg",
+    "status": "live",
+    "finished_at": "2026-11-11T05:55:16.742274Z",
+    "manual_restart": false,
+    "new_consumer": false
+  },
+  "activity": {
+    "id": 5496,
+    "offers": 4,
+    "pairs": 6,
+    "conflicts": 0
+  },
+  "tests": "Nine tests passed with Django6.0.5; full exact configuration/source comparison and other offer field/metadata preservation verified in live DB.",
+  "shared_base_remaining": "Fresh exact brand/article join for all unfilled supplier3/5 offers returned0 further reviewed shared-base matches after the four copies."
+}
