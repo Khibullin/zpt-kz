@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T13:20:06.009Z",
+  "checked_at": "2026-11-11T13:26:39.321Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -5652,14 +5652,14 @@
       "id": 35183,
       "kaspi_price": 7431,
       "kaspi_url": "https://kaspi.kz/shop/p/motorad-termostat-353-87k-173041012/?c=750000000",
-      "main_image": "",
+      "main_image": "products/optimized/7b922927c80efd4e9a7512d58b6bd1fd3cdf5bb126cac7369cd9fdb761d991e1.webp",
       "name": "Термостат 87°С",
-      "photo_status": "needs_source",
+      "photo_status": "ui_verified_db_audit_pending",
       "product_id": 15991,
       "profit": 1172.125,
       "stock": "1",
       "supplier_id": 3,
-      "supplier_thumbnail": "",
+      "supplier_thumbnail": "products/optimized/d54c24fe342a5dfc723049a737daa54b3b609724c4007a418a6f8f88031c140b.webp",
       "task_id": 13964
     },
     {
@@ -11156,16 +11156,16 @@
       22123,
       22974
     ],
-    "reviewed": 23,
+    "reviewed": 24,
     "published_fitments": 0,
-    "published_photos": 0,
+    "published_photos": 1,
     "unconfirmed": 23,
-    "photos_present": 1,
+    "photos_present": 2,
     "fitments_present": 15,
-    "both_present": 0,
+    "both_present": 1,
     "created_at": "2026-11-11T13:04:15.851Z",
     "fixed": true,
-    "next_offer_id": 35183,
+    "next_offer_id": 35168,
     "scope_note": "Final original queue remainder; original saved profit order. Render read temporarily unavailable, verify each offer live UI before source/import; do not change scope."
   },
   "completed_offer_ids": [
@@ -11273,7 +11273,8 @@
     35180,
     35193,
     22334,
-    22174
+    22174,
+    35183
   ],
   "reviewed_offer_ids": [
     26787,
@@ -11673,16 +11674,17 @@
     24764,
     23224,
     23339,
-    22974
+    22974,
+    35183
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 398,
-    "remaining_unreviewed": 10,
+    "reviewed": 399,
+    "remaining_unreviewed": 9,
     "unconfirmed_reviewed": 293,
-    "remaining_missing_fields": 303,
-    "photo_added": 105,
+    "remaining_missing_fields": 302,
+    "photo_added": 106,
     "fitment_added": 55,
     "make_model_pairs_added": 126,
     "configurations_added": 164
@@ -11761,57 +11763,13 @@
   "next_batch_instruction": "Review final fixed 33 Phaeton in saved order. Audit verification_pending after Render read recovers, without republishing those images.",
   "technical_notes": "All200reviewed,57photos31fitmentoffers81pairs115configs cumulative acrossqueue. No pendingpublication. Phaeton100 added29photos6fitoffers23pairs46configs in4livepublications,31photo59fit29both. NewZakazAuto75frozenafterDBUIverification.",
   "latest_publication": {
-    "commit": "300589ce14087af5866fa98c82545c9d25c1f691",
+    "commit": "b83355cd9994f3667e7ee7842b3bbc9cb23ee5a5",
     "status": "images_visible_on_live_site_render_status_unavailable",
-    "checked_photo_and_thumbnail": 3,
+    "checked_photo_and_thumbnail": 10,
     "ui_images_loaded": true,
     "db_verified": false
   },
   "prepared_candidates": [
-    {
-      "article": "353-87K",
-      "brand": "MOTORAD",
-      "cost": 5080,
-      "has_fitment": true,
-      "id": 35183,
-      "kaspi_price": 7431,
-      "kaspi_url": "https://kaspi.kz/shop/p/motorad-termostat-353-87k-173041012/?c=750000000",
-      "main_image": "",
-      "name": "Термостат 87°С",
-      "photo_status": "needs_source",
-      "product_id": 15991,
-      "profit": 1172.125,
-      "stock": "1",
-      "supplier_id": 3,
-      "supplier_thumbnail": "",
-      "task_id": 13964,
-      "offer_id": 35183,
-      "status": "prepared_photo_existing_fitment",
-      "checked_on": "2026-11-11",
-      "source_url": "https://cars245.com/en/item/motorad-35387K-thermostat-coolant/",
-      "source_label": "Cars245 · независимый каталог продавца",
-      "source_kind": "retailer_catalogue",
-      "source_article": "353-87K",
-      "fitments": [],
-      "fitment_note": "Существующая применимость сохранена.",
-      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/92f9647c-a529-4e06-97a5-15e86de972cc",
-      "image_url": "https://cars245images.cc/webp/big/motorad/6f/motorad-35387K.jpg.webp",
-      "image_note": "Точная карточка MOTORAD 353-87K,87°C,с корпусом. Проверено реальное фото металлического корпуса с термостатом,не схема. Существующая применимость производителя сохранена. UI: пустое фото,наличие1,закупка5080/Kaspi7431,данные совпадают с очередью.",
-      "photo": {
-        "status": "downloaded_visually_verified_not_queued"
-      },
-      "fitment_status": "existing_preserved",
-      "checked_sources": [
-        {
-          "url": "https://cars245.com/en/item/motorad-35387K-thermostat-coolant/",
-          "result": "Точная карточка MOTORAD 353-87K,87°C,с корпусом. Проверено реальное фото металлического корпуса с термостатом,не схема. Существующая применимость производителя сохранена. UI: пустое фото,наличие1,закупка5080/Kaspi7431,данные совпадают с очередью."
-        }
-      ],
-      "next_offer_id": 23507,
-      "verification": {
-        "trade_data_unchanged": true
-      }
-    },
     {
       "article": "251-79K",
       "brand": "MOTORAD",
@@ -12668,27 +12626,8 @@
       ]
     }
   ],
-  "publication_pending": {
-    "commit": "b83355cd9994f3667e7ee7842b3bbc9cb23ee5a5",
-    "offer_ids": [
-      35183,
-      35168,
-      35143,
-      35182,
-      35176,
-      22494,
-      22515,
-      35142,
-      22432,
-      22123
-    ],
-    "photo_count": 10,
-    "fitment_count": 0,
-    "status": "main_published_waiting_actual_save_and_ui_db_verification",
-    "render_read_status": "temporarily_unavailable",
-    "checked_at": "2026-11-11T13:20:06.009Z"
-  },
-  "next_offer_id": 35183,
+  "publication_pending": null,
+  "next_offer_id": 35168,
   "verification_pending": [
     {
       "supplier_id": 3,
@@ -12749,6 +12688,26 @@
         "kaspi_price": 9527
       },
       "reason": "Render MCP temporary Internal errors/timeouts; fresh row metadata audit pending"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 35183,
+      "commit": "b83355cd9994f3667e7ee7842b3bbc9cb23ee5a5",
+      "main_image": "products/optimized/7b922927c80efd4e9a7512d58b6bd1fd3cdf5bb126cac7369cd9fdb761d991e1.webp",
+      "supplier_thumbnail": "products/optimized/d54c24fe342a5dfc723049a737daa54b3b609724c4007a418a6f8f88031c140b.webp",
+      "ui_verified": true,
+      "db_verified": false,
+      "checks_needed": [
+        "stored main+thumbnail",
+        "photo task status/evidence",
+        "trade values and old fitment metadata"
+      ],
+      "baseline_queue": {
+        "cost": 5080,
+        "stock": "1",
+        "kaspi_price": 7431
+      },
+      "reason": "Render MCP temporary Internal errors/timeouts; fresh stored row metadata audit pending"
     }
   ]
 }
