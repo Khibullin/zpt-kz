@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T09:48:19.810Z",
+  "checked_at": "2026-11-11T09:48:22.156Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -1926,14 +1926,14 @@
       "id": 35200,
       "kaspi_price": 27120,
       "kaspi_url": "https://kaspi.kz/shop/p/motorad-termostat-506-88k-128396402/?c=750000000",
-      "main_image": "",
+      "main_image": "products/optimized/aed8b9291daacb69c8fbe3e8a6e9ac1b2b8f1247e454624731ed040f5378d23e.webp",
       "name": "Термостат 88°С",
-      "photo_status": "needs_source",
+      "photo_status": "done",
       "product_id": 16007,
       "profit": 3730,
       "stock": "5",
       "supplier_id": 3,
-      "supplier_thumbnail": "",
+      "supplier_thumbnail": "products/optimized/1ffcbaa32432c81720ecfaf0cb368256881c7123d680c03b086bb5a5724dfe0d.webp",
       "task_id": 13980
     },
     {
@@ -11118,7 +11118,7 @@
     }
   ],
   "results": [],
-  "next_offer_id": 35200,
+  "next_offer_id": 24798,
   "batch": {
     "supplier_id": 3,
     "batch_number": 2,
@@ -11224,14 +11224,14 @@
       22758,
       22944
     ],
-    "reviewed": 30,
+    "reviewed": 31,
     "published_fitments": 1,
-    "published_photos": 1,
+    "published_photos": 2,
     "unconfirmed": 29,
-    "next_offer_id": 35200,
-    "photos_present": 3,
+    "next_offer_id": 24798,
+    "photos_present": 4,
     "fitments_present": 54,
-    "both_present": 1,
+    "both_present": 2,
     "created_at": "2026-11-11T09:25:39.710Z",
     "fixed": true
   },
@@ -11265,7 +11265,8 @@
     26623,
     26490,
     26466,
-    35164
+    35164,
+    35200
   ],
   "reviewed_offer_ids": [
     26787,
@@ -11397,16 +11398,17 @@
     23713,
     23046,
     22692,
-    35164
+    35164,
+    35200
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 130,
-    "remaining_unreviewed": 278,
+    "reviewed": 131,
+    "remaining_unreviewed": 277,
     "unconfirmed_reviewed": 100,
-    "remaining_missing_fields": 378,
-    "photo_added": 29,
+    "remaining_missing_fields": 377,
+    "photo_added": 30,
     "fitment_added": 26,
     "make_model_pairs_added": 59,
     "configurations_added": 70
@@ -11480,50 +11482,6 @@
     "unchanged_trade_data": true
   },
   "prepared_candidates": [
-    {
-      "article": "506-88K",
-      "brand": "MOTORAD",
-      "cost": 19750,
-      "has_fitment": true,
-      "id": 35200,
-      "kaspi_price": 27120,
-      "kaspi_url": "https://kaspi.kz/shop/p/motorad-termostat-506-88k-128396402/?c=750000000",
-      "main_image": "",
-      "name": "Термостат 88°С",
-      "photo_status": "needs_source",
-      "product_id": 16007,
-      "profit": 3730,
-      "stock": "5",
-      "supplier_id": 3,
-      "supplier_thumbnail": "",
-      "task_id": 13980,
-      "offer_id": 35200,
-      "status": "prepared_photo_existing_fitment",
-      "checked_on": "2026-11-11",
-      "source_url": "https://cars245.com/en/item/motorad-50688K-thermostat-coolant/",
-      "source_label": "Cars245 — независимый каталог продавца",
-      "source_kind": "retailer_catalogue",
-      "source_article": "506-88K",
-      "fitments": [],
-      "fitment_note": "Существующая применимость сохранена.",
-      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/6c1c1e6f-3245-4f80-a306-6f90897ba511",
-      "image_url": "https://cars245images.cc/webp/big/motorad/9e/motorad-50688K.jpg.webp",
-      "image_note": "Точное фото MOTORAD506-88K:термостат в корпусе88°C,бездатчика,с уплотнениями по карточке Cars245. СуффиксK проверен, изображение506-88безK не использовалось.",
-      "photo": {
-        "status": "downloaded_visually_verified_not_queued"
-      },
-      "fitment_status": "existing_preserved",
-      "checked_sources": [
-        {
-          "url": "https://cars245.com/en/item/motorad-50688K-thermostat-coolant/",
-          "result": "Exact MOTORAD506-88K withhousing and seals; actualpartphoto"
-        }
-      ],
-      "next_offer_id": 23219,
-      "verification": {
-        "trade_data_unchanged": true
-      }
-    },
     {
       "article": "AW2220258",
       "brand": "AYWIPARTS",
