@@ -1,0 +1,44 @@
+{
+  "article": "3935025010",
+  "brand": "HYUNDAI-KIA",
+  "cost": 4700,
+  "has_fitment": false,
+  "id": 26258,
+  "kaspi_price": 7630,
+  "kaspi_url": "https://kaspi.kz/shop/p/hyundai-kia-datchik-polozhenija-raspredelitel-nogo-vala-3935025010-129470625/?c=750000000",
+  "main_image": "",
+  "name": "Датчик положения Hyundai",
+  "photo_status": "needs_source",
+  "product_id": 7823,
+  "profit": 1726.25,
+  "stock": "2",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 5796,
+  "offer_id": 26258,
+  "status": "prepared_photo_fitment_unconfirmed",
+  "checked_on": "2026-11-11",
+  "source_url": "https://www.dvsavto.ru/catalog/zapchasti_po_proizvoditelyam_i_modelyam/zapchasti_hyundai_kia/zapchasti_dvigateley/zapchasti_dlya_benzinovykh_dvigateley_hyundai/zapchasti_dvigatelya_g4ka_g4kd_2000cc_theta_theta_2/datchik_polozheniya_raspredvala_3935025010_39350_25010_g4na_g4kd_g4ke_g4kj_original/",
+  "source_label": "Глобал Авто (DvsAvto) — независимый продавец оригинальных Hyundai/Kia",
+  "source_kind": "retailer_catalogue",
+  "source_article": "3935025010",
+  "fitments": [],
+  "fitment_note": "Применимость не подтверждена; добавляется только точная фотография.",
+  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/c149052b-c253-4527-9bca-c45cf8668635",
+  "image_url": "https://www.dvsavto.ru/upload/iblock/715/7ieybu1rwnswh857djj70anbq86ibq1b.jpeg",
+  "image_note": "Точныйоригинальный3935025010/39350-25010 изразделаHyundai/Kia: реальнаяфотографияодногодатчикараспредваласуплотнением. Применимостькмоделям/периодамнеподтверждена: двигателиG4NA/G4KD/G4KE/G4KJвзаголовкенепривязаныкмоделям;неперенесеныкаквыдуманныеавтомобили. Zarouni—иллюстрация,неиспользована.",
+  "photo": {
+    "status": "downloaded_visually_verified_not_queued"
+  },
+  "fitment_status": "unconfirmed",
+  "checked_sources": [
+    {
+      "url": "https://www.dvsavto.ru/catalog/zapchasti_po_proizvoditelyam_i_modelyam/zapchasti_hyundai_kia/zapchasti_dvigateley/zapchasti_dlya_benzinovykh_dvigateley_hyundai/zapchasti_dvigatelya_g4ka_g4kd_2000cc_theta_theta_2/datchik_polozheniya_raspredvala_3935025010_39350_25010_g4na_g4kd_g4ke_g4kj_original/",
+      "result": "Точныйоригинальный3935025010/39350-25010 изразделаHyundai/Kia: реальнаяфотографияодногодатчикараспредваласуплотнением. Применимостькмоделям/периодамнеподтверждена: двигателиG4NA/G4KD/G4KE/G4KJвзаголовкенепривязаныкмоделям;неперенесеныкаквыдуманныеавтомобили. Zarouni—иллюстрация,неиспользована."
+    }
+  ],
+  "next_offer_id": 25152,
+  "verification": {
+    "trade_data_unchanged": true
+  }
+}
