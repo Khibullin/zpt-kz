@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T11:07:22.794Z",
+  "checked_at": "2026-11-11T11:09:08.235Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -11545,7 +11545,8 @@
     "2026-11-11 BRAVE BRSS58 Yandexmarket.yandex.uz SmartCaptcha; no bypass/retry. AutoFN111.01023.1 categoryfollowup403;do not retryotherroute.",
     "2026-11-11 images.satu.kz browser site-safety policy denied observation for25755; no repeat viaotherURLs/channels.",
     "2026-11-11 Drom ASVA0121-008 browser request explicitly rejected by auto-review due user ASVA source restriction interpreted as brand-wide. No ASVA source requests thereafter, no alternative channels.",
-    "2026-11-11 vseinstrumenti.ru browser CAPTCHA onRIVAL18901002 afteroneordinaryreload; no furtherrequests/alternateURLs/channels tothissite. Pre-block readfitmenttext retained."
+    "2026-11-11 vseinstrumenti.ru browser CAPTCHA onRIVAL18901002 afteroneordinaryreload; no furtherrequests/alternateURLs/channels tothissite. Pre-block readfitmenttext retained.",
+    "2026-11-11 parts.chevrolet.com exactGM55353328 browser AccessDenied (edgesuite reference), no alternativeGMURLs/protocols/channels. Botcause notestablished; treatcurrentaccessrestriction."
   ],
   "pending_publication": null,
   "superseded_candidates": [
