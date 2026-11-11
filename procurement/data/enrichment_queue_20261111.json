@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T10:19:05.270Z",
+  "checked_at": "2026-11-11T10:19:07.915Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -2772,14 +2772,14 @@
       "id": 35215,
       "kaspi_price": 14381,
       "kaspi_url": "https://kaspi.kz/shop/p/motorad-termostat-ohlazhdajuschaja-zhidkost-62987k-131371578/?c=750000000",
-      "main_image": "",
+      "main_image": "products/optimized/9c46ec742c51eb6f6b203bdcd23a6e054e8a9907ece7e07e8c3adf3de35bd34f.webp",
       "name": "Термостат 87°С",
-      "photo_status": "needs_source",
+      "photo_status": "done",
       "product_id": 16022,
       "profit": 2603.375,
       "stock": "6",
       "supplier_id": 3,
-      "supplier_thumbnail": "",
+      "supplier_thumbnail": "products/optimized/db8ee66fe2010a4cdcd8d0d10e0b8a36782760f5e4303593e4cbd0ee0254767b.webp",
       "task_id": 13995
     },
     {
@@ -11118,7 +11118,7 @@
     }
   ],
   "results": [],
-  "next_offer_id": 35215,
+  "next_offer_id": 22534,
   "batch": {
     "supplier_id": 3,
     "batch_number": 2,
@@ -11224,14 +11224,14 @@
       22758,
       22944
     ],
-    "reviewed": 74,
+    "reviewed": 75,
     "published_fitments": 2,
-    "published_photos": 14,
+    "published_photos": 15,
     "unconfirmed": 60,
-    "next_offer_id": 35215,
-    "photos_present": 16,
+    "next_offer_id": 22534,
+    "photos_present": 17,
     "fitments_present": 55,
-    "both_present": 14,
+    "both_present": 15,
     "created_at": "2026-11-11T09:25:39.710Z",
     "fixed": true
   },
@@ -11278,7 +11278,8 @@
     35211,
     35223,
     24812,
-    24797
+    24797,
+    35215
   ],
   "reviewed_offer_ids": [
     26787,
@@ -11454,16 +11455,17 @@
     23016,
     22661,
     23293,
-    24797
+    24797,
+    35215
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 174,
-    "remaining_unreviewed": 234,
+    "reviewed": 175,
+    "remaining_unreviewed": 233,
     "unconfirmed_reviewed": 131,
-    "remaining_missing_fields": 365,
-    "photo_added": 42,
+    "remaining_missing_fields": 364,
+    "photo_added": 43,
     "fitment_added": 27,
     "make_model_pairs_added": 67,
     "configurations_added": 78
@@ -11537,50 +11539,6 @@
     "unchanged_trade_data": true
   },
   "prepared_candidates": [
-    {
-      "article": "629-87K",
-      "brand": "MOTORAD",
-      "cost": 9730,
-      "has_fitment": true,
-      "id": 35215,
-      "kaspi_price": 14381,
-      "kaspi_url": "https://kaspi.kz/shop/p/motorad-termostat-ohlazhdajuschaja-zhidkost-62987k-131371578/?c=750000000",
-      "main_image": "",
-      "name": "Термостат 87°С",
-      "photo_status": "needs_source",
-      "product_id": 16022,
-      "profit": 2603.375,
-      "stock": "6",
-      "supplier_id": 3,
-      "supplier_thumbnail": "",
-      "task_id": 13995,
-      "offer_id": 35215,
-      "status": "prepared_photo_existing_fitment",
-      "checked_on": "2026-11-11",
-      "source_url": "https://cars245.com/en/item/motorad-62987K-thermostat-coolant/",
-      "source_label": "Cars245 — независимый каталог продавца",
-      "source_kind": "retailer_catalogue",
-      "source_article": "629-87K",
-      "fitments": [],
-      "fitment_note": "Существующая применимость сохранена.",
-      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/50343fba-97e7-4e04-a8ca-34e835d36d7b",
-      "image_url": "https://cars245images.cc/webp/big/motorad/e9/motorad-62987K.jpg.webp",
-      "image_note": "MOTORAD629-87K,87°C,вкорпусе,суплотнением. РеальнаядетальвизуальнопроверенапоточнойкарточкеCars245;применимостьсохранена.",
-      "photo": {
-        "status": "downloaded_visually_verified_not_queued"
-      },
-      "fitment_status": "existing_preserved",
-      "checked_sources": [
-        {
-          "url": "https://cars245.com/en/item/motorad-62987K-thermostat-coolant/",
-          "result": "MOTORAD629-87K,87°C,вкорпусе,суплотнением. РеальнаядетальвизуальнопроверенапоточнойкарточкеCars245;применимостьсохранена."
-        }
-      ],
-      "next_offer_id": 22534,
-      "verification": {
-        "trade_data_unchanged": true
-      }
-    },
     {
       "article": "AN-340K",
       "brand": "AKEBONO",
