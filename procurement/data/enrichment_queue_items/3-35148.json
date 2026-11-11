@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 14009,
   "offer_id": 35148,
-  "status": "prepared_photo_existing_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://spareto.com/products/ngk-ignition-coil/u5014-48041",
   "source_label": "Spareto — независимый каталог продавца",
@@ -24,11 +24,20 @@
   "source_article": "48041",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/fa8b4882-d425-4154-8182-ae8b1b0dc734",
   "image_url": "https://cdn.spareto.com/variants/images_webp/000/564/888/medium/u5014-48041-99E801D2.webp?1793006972",
   "image_note": "Точная NGK48041/U5014: реальное фото одной катушки с красным разъёмом, 4контактаSAE; существующая применимость сохранена.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/839d7b17fd9ec50e7aa3c6b464a156e9b985f239bd37fa3edcf8e726ab87396f.webp",
+    "thumbnail_path": "products/optimized/ecec1f9655a81cfd4570302a7e9e6ded1cbf24cfeae6a7d34d752253d707ee52.webp",
+    "main_size": [
+      360,
+      360
+    ],
+    "thumbnail_size": [
+      180,
+      180
+    ]
   },
   "fitment_status": "existing_preserved",
   "checked_sources": [
@@ -39,6 +48,29 @@
   ],
   "next_offer_id": 22928,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T10:29:21.593Z"
+  },
+  "source_sha256": "67b6f49fb521c5c07020a024c479df9332bdeac41870e2d74f050dc0000e32df",
+  "main_sha256": "839d7b17fd9ec50e7aa3c6b464a156e9b985f239bd37fa3edcf8e726ab87396f",
+  "main_size": [
+    360,
+    360
+  ],
+  "thumbnail_sha256": "ecec1f9655a81cfd4570302a7e9e6ded1cbf24cfeae6a7d34d752253d707ee52",
+  "thumbnail_size": [
+    180,
+    180
+  ],
+  "publication": {
+    "commit": "7dec204910db6a8f38f987b3c44771cacb96ea1c",
+    "deploy": "dep-dbq45q5g1s2s739fh1sg",
+    "status": "live"
   }
 }
