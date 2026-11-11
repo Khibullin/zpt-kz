@@ -1,0 +1,41 @@
+{
+  "article": "1311100V5070",
+  "brand": "JASHI",
+  "has_fitment": false,
+  "id": 25591,
+  "kaspi_url": "https://kaspi.kz/shop/p/jashi-rasshiritel-nyi-bachok-1311100v5070-120249563/?c=750000000",
+  "main_image": "",
+  "name": "Бачок расширительный JAC",
+  "photo_status": "needs_source",
+  "product_id": 7110,
+  "profit": 4190,
+  "stock": "1",
+  "supplier_id": 5,
+  "task_id": 5083,
+  "offer_id": 25591,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "unconfirmed_exact_brand",
+  "photo": {
+    "status": "exact_source_not_found",
+    "reason": "Два независимых поиска не дали точного бренда JASHI и полного артикула. Фото и применимость похожих/OEMдеталей не переносились."
+  },
+  "checked_sources": [
+    {
+      "query": "\"JASHI\" \"1311100V5070\" -site:kaspi.kz -site:alta-karter.com",
+      "tool": "system2_search",
+      "result": "empty"
+    },
+    {
+      "query": "\"JASHI\" \"1311100V5070\" -site:kaspi.kz -site:alta-karter.com",
+      "tool": "system1_search",
+      "result": "empty"
+    }
+  ],
+  "next_offer_id": 26475,
+  "verification": {
+    "existing_fitment_preserved": true,
+    "trade_data_unchanged": true
+  }
+}
