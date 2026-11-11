@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T12:10:48.089Z",
+  "checked_at": "2026-11-11T12:10:50.439Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -4212,14 +4212,14 @@
       "id": 35141,
       "kaspi_price": 7811,
       "kaspi_url": "https://kaspi.kz/shop/p/mahle-vozdushnyi-fil-tr-lx793-165402440/?c=750000000",
-      "main_image": "",
+      "main_image": "products/optimized/422f0c79be1f5cf3c3dc6e97fc49622b5ae6b6500e6a96996078a5f441eee1bb.webp",
       "name": "MAHLE фильтр воздушный",
-      "photo_status": "needs_source",
+      "photo_status": "done",
       "product_id": 15964,
       "profit": 1653.625,
       "stock": "1",
       "supplier_id": 3,
-      "supplier_thumbnail": "",
+      "supplier_thumbnail": "products/optimized/5576f1c52cf8425201558a2ac2a8710a73286dde804b326110dd151c7253e10a.webp",
       "task_id": 13937
     },
     {
@@ -11223,16 +11223,16 @@
       22938,
       23110
     ],
-    "reviewed": 44,
+    "reviewed": 45,
     "published_fitments": 0,
-    "published_photos": 5,
+    "published_photos": 6,
     "unconfirmed": 39,
-    "photos_present": 7,
+    "photos_present": 8,
     "fitments_present": 46,
-    "both_present": 5,
+    "both_present": 6,
     "created_at": "2026-11-11T11:52:47.402Z",
     "fixed": true,
-    "next_offer_id": 35141
+    "next_offer_id": 22338
   },
   "completed_offer_ids": [
     26820,
@@ -11318,7 +11318,8 @@
     35206,
     22492,
     35134,
-    35188
+    35188,
+    35141
   ],
   "reviewed_offer_ids": [
     26787,
@@ -11639,16 +11640,17 @@
     35206,
     22492,
     35134,
-    35188
+    35188,
+    35141
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 319,
-    "remaining_unreviewed": 89,
+    "reviewed": 320,
+    "remaining_unreviewed": 88,
     "unconfirmed_reviewed": 235,
-    "remaining_missing_fields": 324,
-    "photo_added": 84,
+    "remaining_missing_fields": 323,
+    "photo_added": 85,
     "fitment_added": 54,
     "make_model_pairs_added": 124,
     "configurations_added": 162
@@ -11730,50 +11732,6 @@
     "unchanged_trade_data": true
   },
   "prepared_candidates": [
-    {
-      "article": "LX793",
-      "brand": "MAHLE",
-      "cost": 4931,
-      "has_fitment": true,
-      "id": 35141,
-      "kaspi_price": 7811,
-      "kaspi_url": "https://kaspi.kz/shop/p/mahle-vozdushnyi-fil-tr-lx793-165402440/?c=750000000",
-      "main_image": "",
-      "name": "MAHLE фильтр воздушный",
-      "photo_status": "needs_source",
-      "product_id": 15964,
-      "profit": 1653.625,
-      "stock": "1",
-      "supplier_id": 3,
-      "supplier_thumbnail": "",
-      "task_id": 13937,
-      "offer_id": 35141,
-      "status": "prepared_photo_existing_fitment",
-      "checked_on": "2026-11-11",
-      "source_url": "https://www.wpdusa.com/products/109204/Engine-Air-Filter-Mahle-LX793-Audi-7L0129620A-Porsche-95511013110",
-      "source_label": "WPDUSA — независимый каталог продавца",
-      "source_kind": "retailer_catalogue",
-      "source_article": "LX793",
-      "fitments": [],
-      "fitment_note": "Существующая применимость сохранена.",
-      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/06a1f316-8de3-4994-8684-8e7d7e90a9c1",
-      "image_url": "https://www.wpdusa.com/Media/74559/Large/Mahle-LX793-Audi-7L0129620A-Porsche-95511013110.jpg",
-      "image_note": "Точная карточка MAHLE LX793,OEM7L0129620A/95511013110. Визуально одна прямоугольная бумажная вставка с оранжевым уплотнителем,фото WPDUSA,не схема. Существующая применимость сохранена.",
-      "photo": {
-        "status": "downloaded_visually_verified_not_queued"
-      },
-      "fitment_status": "existing_preserved",
-      "checked_sources": [
-        {
-          "url": "https://www.wpdusa.com/products/109204/Engine-Air-Filter-Mahle-LX793-Audi-7L0129620A-Porsche-95511013110",
-          "result": "Точная карточка MAHLE LX793,OEM7L0129620A/95511013110. Визуально одна прямоугольная бумажная вставка с оранжевым уплотнителем,фото WPDUSA,не схема. Существующая применимость сохранена."
-        }
-      ],
-      "next_offer_id": 22338,
-      "verification": {
-        "trade_data_unchanged": true
-      }
-    },
     {
       "article": "SL-T770R",
       "brand": "555",
@@ -12236,5 +12194,5 @@
     }
   ],
   "publication_pending": null,
-  "next_offer_id": 35141
+  "next_offer_id": 22338
 }
