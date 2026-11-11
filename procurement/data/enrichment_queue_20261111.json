@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T10:49:36.878Z",
+  "checked_at": "2026-11-11T10:51:23.731Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -11646,6 +11646,76 @@
         }
       ],
       "next_offer_id": 25372,
+      "verification": {
+        "trade_data_unchanged": true
+      }
+    },
+    {
+      "article": "956701R000",
+      "brand": "HYUNDAI-KIA",
+      "cost": 5000,
+      "has_fitment": false,
+      "id": 26195,
+      "kaspi_price": 8900,
+      "kaspi_url": "https://kaspi.kz/shop/p/hyundai-kia-datchik-abs-956701r000-165397772/?c=750000000",
+      "main_image": "",
+      "name": "Датчик ABS Hyundai",
+      "photo_status": "needs_source",
+      "product_id": 7663,
+      "profit": 2537.5,
+      "stock": "6",
+      "supplier_id": 5,
+      "supplier_thumbnail": "",
+      "task_id": 5636,
+      "offer_id": 26195,
+      "status": "prepared_fitment_photo_unconfirmed",
+      "checked_on": "2026-11-11",
+      "source_url": "https://www.hyundaipartsdeal.com/genuine/hyundai-sensor-assy-abs-fr-w~95670-1r000.html",
+      "source_label": "HyundaiPartsDeal — независимый продавец оригинальных Hyundai",
+      "source_kind": "retailer_catalogue",
+      "source_article": "956701R000",
+      "fitments": [
+        {
+          "make": "Hyundai",
+          "model": "Accent",
+          "years": "2011–2017",
+          "engine": "DOHC GDI",
+          "body": "Sedan -4Door5P (обозначение источника)",
+          "position": "Передний левый датчик ABS"
+        },
+        {
+          "make": "Hyundai",
+          "model": "Accent",
+          "years": "2011–2017",
+          "engine": "DOHC GDI",
+          "body": "Sedan -5Door5P (обозначение источника)",
+          "position": "Передний левый датчик ABS"
+        }
+      ],
+      "fitment_note": "ТочнаятаблицаHyundaiPartsDeal95670-1R000/956701R000. Дефисвкаталожномформатировании не меняетполныйартикул. Объёмдвигателя/регионнеуказаны. Кузоваобозначеныдословнопоисточнику;неисправлялисьпредположениями. ФотоHyundaiPartsDeal—схема,Partsro—общаязаглушкастартикулом,исключены. Uniparts403иPartSouqnotaccessibleнеобходились.",
+      "photo": {
+        "status": "unconfirmed"
+      },
+      "fitment_status": "prepared_not_imported",
+      "checked_sources": [
+        {
+          "url": "https://www.hyundaipartsdeal.com/genuine/hyundai-sensor-assy-abs-fr-w~95670-1r000.html",
+          "result": "ExactgenuinepartAccent2011–2017DOHCGDI4/5Door5P;illustrationexcluded"
+        },
+        {
+          "url": "https://partsro.com/product/%EC%84%BC%EC%84%9C-abs-%ED%94%84%EB%A1%A0%ED%8A%B8-%ED%9C%A0-%EC%A2%8C%EC%B8%A1-956701r000-%EC%97%91%EC%84%BC%ED%8A%B8-rb/686075/",
+          "result": "ExactMobispart;downloadedmainisgenericplaceholdertext956701R000withcar/assortedparts,excluded"
+        },
+        {
+          "url": "https://uniparts.kz/parts/info/HYUNDAI%2FKIA/956701R000",
+          "result": "403Forbidden,noalternativepath/channel"
+        },
+        {
+          "url": "https://partsouq.com/en/search/all?q=956701R000",
+          "result": "Notaccessibleweb;sameURLrepeatreadalsofailed,noalternativechannel"
+        }
+      ],
+      "next_offer_id": 26928,
       "verification": {
         "trade_data_unchanged": true
       }
