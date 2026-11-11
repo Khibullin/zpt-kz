@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T11:33:51.406Z",
+  "checked_at": "2026-11-11T11:33:53.834Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -10580,18 +10580,18 @@
       "article": "55353328",
       "brand": "GM",
       "cost": 400,
-      "has_fitment": false,
+      "has_fitment": true,
       "id": 28084,
       "kaspi_price": 2705,
       "kaspi_url": "https://kaspi.kz/shop/p/gm-kol-tso-uplotnitel-noe-55353328-121233104/?c=750000000",
-      "main_image": "",
+      "main_image": "products/optimized/ac8921fe7dfc20777ca9dd35ac5b56115669c7550c002e07a4eb0a451aa2d3cf.webp",
       "name": "Кольцо уплотнительное Chevrolet",
-      "photo_status": "needs_source",
+      "photo_status": "done",
       "product_id": 9164,
       "profit": 1716.875,
       "stock": "45",
       "supplier_id": 5,
-      "supplier_thumbnail": "",
+      "supplier_thumbnail": "products/optimized/097de358467f5d012c7114057668ba22654fa3b81332c82246914a006f0a8173.webp",
       "task_id": 7137
     },
     {
@@ -11198,14 +11198,14 @@
       25789,
       26282
     ],
-    "reviewed": 50,
-    "published_fitments": 11,
-    "published_photos": 10,
+    "reviewed": 51,
+    "published_fitments": 12,
+    "published_photos": 11,
     "unconfirmed": 41,
-    "next_offer_id": 28084,
-    "photos_present": 10,
-    "fitments_present": 50,
-    "both_present": 9,
+    "next_offer_id": 26624,
+    "photos_present": 11,
+    "fitments_present": 51,
+    "both_present": 10,
     "created_at": "2026-11-11T10:30:05.643Z",
     "fixed": true
   },
@@ -11276,7 +11276,8 @@
     26288,
     25581,
     26893,
-    25915
+    25915,
+    28084
   ],
   "reviewed_offer_ids": [
     26787,
@@ -11528,19 +11529,20 @@
     25128,
     26834,
     28161,
-    26258
+    26258,
+    28084
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 250,
-    "remaining_unreviewed": 158,
+    "reviewed": 251,
+    "remaining_unreviewed": 157,
     "unconfirmed_reviewed": 183,
-    "remaining_missing_fields": 341,
-    "photo_added": 67,
-    "fitment_added": 42,
-    "make_model_pairs_added": 100,
-    "configurations_added": 137
+    "remaining_missing_fields": 340,
+    "photo_added": 68,
+    "fitment_added": 43,
+    "make_model_pairs_added": 106,
+    "configurations_added": 143
   },
   "prepared_candidate": null,
   "source_limits": [
@@ -11613,97 +11615,6 @@
     "unchanged_trade_data": true
   },
   "prepared_candidates": [
-    {
-      "article": "55353328",
-      "brand": "GM",
-      "cost": 400,
-      "has_fitment": false,
-      "id": 28084,
-      "kaspi_price": 2705,
-      "kaspi_url": "https://kaspi.kz/shop/p/gm-kol-tso-uplotnitel-noe-55353328-121233104/?c=750000000",
-      "main_image": "",
-      "name": "Кольцо уплотнительное Chevrolet",
-      "photo_status": "needs_source",
-      "product_id": 9164,
-      "profit": 1716.875,
-      "stock": "45",
-      "supplier_id": 5,
-      "supplier_thumbnail": "",
-      "task_id": 7137,
-      "offer_id": 28084,
-      "status": "prepared_photo_and_fitment",
-      "checked_on": "2026-11-11",
-      "source_url": "https://www.gmpartsgiant.com/parts/gm-seal-55353328.html",
-      "source_label": "GMPartsGiant — независимый продавец оригинальных GM",
-      "source_kind": "retailer_catalogue",
-      "source_article": "55353328",
-      "fitments": [
-        {
-          "make": "Chevrolet",
-          "model": "Aveo",
-          "years": "2009–2011",
-          "engine": "4 Cyl 1.6L",
-          "notes": "Кузова/комплектации по строке источника: 4 DOOR HATCHBACK;4 DOOR NOTCHBACK/SEDAN;LS4DOORHATCHBACK;LS4DOORNOTCHBACK/SEDAN;LT4DOORHATCHBACK;LT4DOORNOTCHBACK/SEDAN"
-        },
-        {
-          "make": "Chevrolet",
-          "model": "Cruze",
-          "years": "2011–2016",
-          "engine": "4 Cyl 1.8L",
-          "notes": "Кузова/комплектации по строке источника: LS4DOORNOTCHBACK;LT/LTZ4DOORNOTCHBACK;LT4DOORNOTCHBACK"
-        },
-        {
-          "make": "Chevrolet",
-          "model": "Sonic",
-          "years": "2012–2018",
-          "engine": "4 Cyl 1.8L",
-          "notes": "Кузова/комплектации по строке источника: 4DOORHATCHBACK;4DOORNOTCHBACK;LS4DOORNOTCHBACK/SEDAN;LS5DOORHATCHBACK;LT4DOORNOTCHBACK/SEDAN;LT5DOORHATCHBACK;LTZ4DOORNOTCHBACK/SEDAN;LTZ5DOORHATCHBACK"
-        },
-        {
-          "make": "Chevrolet",
-          "model": "Trax",
-          "years": "2015–2020",
-          "engine": "4 Cyl 1.8L",
-          "notes": "Кузова/комплектации по строке источника: LS4DOORSPORTUTILITY;LT4DOORSPORTUTILITY;LTZ4DOORSPORTUTILITY"
-        },
-        {
-          "make": "Pontiac",
-          "model": "G3",
-          "years": "2009–2010",
-          "engine": "4 Cyl 1.6L",
-          "notes": "Кузова/комплектации по строке источника: 4DOORHATCHBACK;4DOORNOTCHBACK/SEDAN;BASE4DOORHATCHBACK;BASE4DOORNOTCHBACK/SEDAN;MIDLEVEL4DOORHATCHBACK;MIDLEVEL4DOORNOTCHBACK;UPLEVEL4DOORHATCHBACK;UPLEVEL4DOORNOTCHBACK"
-        },
-        {
-          "make": "Saturn",
-          "model": "Astra",
-          "years": "2008–2009",
-          "engine": "4 Cyl 1.8L",
-          "notes": "Кузова/комплектации по строке источника: 2DOORCOUPEXR;4DOORSEDANXE;4DOORSEDANXR"
-        }
-      ],
-      "fitment_note": "Точные6индивидуальныхстроктаблицыGMPartsGiant,проверенывживомDOM. Периоды/двигатели/кузовныеограниченияпо каждоймоделисохранены,нерасширялисьобщими2008–2020иззаголовка. Неизвестныйрегионневыдуман. ПервичныйChevroletкаталогAccessDenied,необходился. РеальноефотоодногоGM55353328,нечертёж.",
-      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/7b2ac4b2-6e5c-4ba1-bdf3-478adb193cd0",
-      "image_url": "https://www.gmpartsgiant.com/resources/encry/actual-picture/gpg/large/0bbd72a8329be448720beeeff10da31e/cc4f6fbba9b3a76d3f1026b822a42a20.jpg",
-      "image_note": "Одна реальная кольцевая прокладкаизточнойGenuineGM55353328карточки;иллюстрациянеиспользована.",
-      "photo": {
-        "status": "downloaded_visually_verified_not_queued"
-      },
-      "fitment_status": "prepared_not_imported",
-      "checked_sources": [
-        {
-          "url": "https://www.gmpartsgiant.com/parts/gm-seal-55353328.html",
-          "result": "ExactgenuineGM55353328actualphoto+6rowsliveDOMverified"
-        },
-        {
-          "url": "https://parts.chevrolet.com/product/gm-genuine-parts-engine-oil-cooler-inlet-pipe-seal-55353328",
-          "result": "PrimarycatalogbrowserAccessDenied;noalternateGMsourceURLs/protocols/channels"
-        }
-      ],
-      "next_offer_id": 26624,
-      "verification": {
-        "trade_data_unchanged": true
-      }
-    },
     {
       "article": "7122009006",
       "brand": "SsangYong",
@@ -12355,5 +12266,5 @@
     }
   ],
   "publication_pending": null,
-  "next_offer_id": 28084
+  "next_offer_id": 26624
 }
