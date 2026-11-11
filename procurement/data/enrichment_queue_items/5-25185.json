@@ -1,0 +1,36 @@
+{
+  "article": "2905901XGW02A",
+  "brand": "JASHI",
+  "has_fitment": true,
+  "id": 25185,
+  "kaspi_url": "https://kaspi.kz/shop/p/jashi-perednii-2905901xgw02a-1-sht-133567802/?c=750000000",
+  "main_image": "",
+  "name": "Амортизатор передний HAVAL",
+  "photo_status": "needs_source",
+  "product_id": 6748,
+  "profit": 3952.5,
+  "stock": "1",
+  "supplier_id": 5,
+  "task_id": 4721,
+  "offer_id": 25185,
+  "status": "reviewed_photo_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "exact_source_not_found",
+    "reason": "Точное фото JASHI 2905901XGW02A в двух поисках не подтверждено. Имеющаяся применимость сохранена; фото иных артикулов/брендов не переносились."
+  },
+  "checked_sources": [
+    {
+      "query": "\"JASHI\" \"2905901XGW02A\" -site:kaspi.kz -site:alta-karter.com",
+      "tool": "system2+system1_search",
+      "result": "No independent exactphoto. Kaspi origin/CDN notrequested afterprior rejection."
+    }
+  ],
+  "next_offer_id": 25271,
+  "verification": {
+    "existing_fitment_preserved": true,
+    "trade_data_unchanged": true
+  }
+}
