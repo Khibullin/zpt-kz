@@ -80,6 +80,7 @@ class Tests(unittest.TestCase):
     def test_bounded_write_preserves_trade_data_and_repeats_without_duplicates(self):
         mod.stage_review(self.apps,self.schema)
         self.assertEqual(VehicleFitment.objects.count(),1);self.assertEqual(SupplierPhotoTask.objects.count(),1)
+        for task in SupplierPhotoTask.objects.all():task.full_clean()
         self.assertEqual(mod.process_reviewed_photos(1),1);self.assertEqual(mod.process_reviewed_photos(10),0)
         self.assertEqual(mod.process_reviewed_photos(10),0)
         for o in self.offers:
