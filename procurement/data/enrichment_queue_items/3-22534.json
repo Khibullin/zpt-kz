@@ -1,0 +1,73 @@
+{
+  "article": "AN-340K",
+  "brand": "AKEBONO",
+  "cost": 10417,
+  "has_fitment": false,
+  "id": 22534,
+  "kaspi_price": 15151,
+  "kaspi_url": "https://kaspi.kz/shop/p/kolodki-akebono-zadnie-an-340k-174072248/?c=750000000",
+  "main_image": "",
+  "name": "AKEBONO JAPAN Колодки задние",
+  "photo_status": "needs_source",
+  "product_id": 4268,
+  "profit": 2590.125,
+  "stock": "10",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 2241,
+  "offer_id": 22534,
+  "status": "prepared_fitment_photo_unconfirmed",
+  "checked_on": "2026-11-11",
+  "source_url": "https://japan-cars.com.ua/buy/akebono_AN340K/",
+  "source_label": "Japan-cars — независимый каталог продавца",
+  "source_kind": "retailer_catalogue",
+  "source_article": "AN-340K",
+  "fitments": [
+    {
+      "make": "Toyota",
+      "model": "Previa",
+      "years": "05.1990–08.2000",
+      "engine": "2.4 бензин, 2TZ-FE",
+      "body": "минивэн",
+      "chassis": "TCR11_, TCR10_",
+      "notes": "132л.с.(97кВт). По точной строке независимого продавца."
+    },
+    {
+      "make": "Toyota",
+      "model": "Previa",
+      "years": "01.1990–08.2000",
+      "engine": "2.4 бензин, 2TZ-FE",
+      "body": "минивэн",
+      "chassis": "TCR21_, TCR20_",
+      "drive": "4WD",
+      "notes": "132л.с.(97кВт). По точной строке независимого продавца."
+    },
+    {
+      "make": "Toyota",
+      "model": "Previa",
+      "years": "09.1993–12.1997",
+      "engine": "2.4 бензин, 2TZ-FZE",
+      "body": "минивэн",
+      "chassis": "TCR10_",
+      "notes": "160л.с.(118кВт). По точной строке независимого продавца."
+    }
+  ],
+  "fitment_note": "ТочныебрендAKEBONO/AN-340K и3индивидуальные строкиToyotaPreviaвтаблице Japan-cars. Периоды сохранены с месяцами; другие модели/двигателине добавлены.",
+  "photo": {
+    "status": "browser_verification_required_not_bypassed"
+  },
+  "checked_sources": [
+    {
+      "url": "https://japan-cars.com.ua/buy/akebono_AN340K/",
+      "result": "WebHTMLreadexactAN-340Kbrandand3Previarows; browserCloudflareJustamoment preventedphotoretrieval,no bypass"
+    },
+    {
+      "journal": "procurement/data/fitment_source_review_20261111_akebono3.json",
+      "result": "Earlier NissanPDFnoexactmatch; didnotrequeryNissanPDF; newToyotaindependentsourceused"
+    }
+  ],
+  "next_offer_id": 35144,
+  "verification": {
+    "trade_data_unchanged": true
+  }
+}
