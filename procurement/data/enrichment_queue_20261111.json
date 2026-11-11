@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T13:29:30.710Z",
+  "checked_at": "2026-11-11T13:29:33.821Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -5438,7 +5438,7 @@
       "kaspi_url": "https://kaspi.kz/shop/p/555-stoika-stabilizatora-sl-t680-174068966/?c=750000000",
       "main_image": "products/optimized/32a29d24443556cae606acad78d51bcf64e2cd36f0abf74903ab1e6127c33a0a.webp",
       "name": "555 Стойка стабилизатора",
-      "photo_status": "ui_verified_db_audit_pending",
+      "photo_status": "done",
       "product_id": 4070,
       "profit": 1225.375,
       "stock": "6",
@@ -12330,26 +12330,6 @@
     },
     {
       "supplier_id": 3,
-      "offer_id": 22334,
-      "commit": "300589ce14087af5866fa98c82545c9d25c1f691",
-      "main_image": "products/optimized/32a29d24443556cae606acad78d51bcf64e2cd36f0abf74903ab1e6127c33a0a.webp",
-      "supplier_thumbnail": "products/optimized/33fadab117d0f49e8386ee1163fea859bd7b91b5e13c59f9e4c15aec619679a6.webp",
-      "ui_verified": true,
-      "db_verified": false,
-      "checks_needed": [
-        "photo task status/evidence",
-        "stored main+thumbnail",
-        "trade data and old fitments/metadata"
-      ],
-      "baseline_queue": {
-        "cost": 3772,
-        "stock": "6",
-        "kaspi_price": 5997
-      },
-      "reason": "Render MCP temporary Internal errors/timeouts; fresh row metadata audit pending"
-    },
-    {
-      "supplier_id": 3,
       "offer_id": 35183,
       "commit": "b83355cd9994f3667e7ee7842b3bbc9cb23ee5a5",
       "main_image": "products/optimized/7b922927c80efd4e9a7512d58b6bd1fd3cdf5bb126cac7369cd9fdb761d991e1.webp",
@@ -12783,8 +12763,8 @@
     "added_fitment": 55,
     "added_make_model_pairs": 126,
     "added_configurations": 164,
-    "photo_db_and_ui_verified": 104,
-    "photo_ui_verified_db_audit_pending": 11,
+    "photo_db_and_ui_verified": 105,
+    "photo_ui_verified_db_audit_pending": 10,
     "checked_at": "2026-11-11T13:27:32.379Z",
     "scope_note": "Saved original scope reconciled against per-item results. Final33 live UI trade values matched; fresh whole-scope DB check pending Render recovery."
   }
