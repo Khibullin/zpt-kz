@@ -1,0 +1,39 @@
+{
+  "article": "AS-50",
+  "brand": "AKIKA",
+  "cost": 22519,
+  "has_fitment": true,
+  "id": 22824,
+  "kaspi_price": 31140,
+  "kaspi_url": "https://kaspi.kz/shop/p/akika-perednii-as-50-1-sht-120977943/?c=750000000",
+  "main_image": "",
+  "name": "AKIKA Амортизатор, пер. левый",
+  "photo_status": "needs_source",
+  "product_id": 4553,
+  "profit": 4478.5,
+  "stock": "3",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 2526,
+  "offer_id": 22824,
+  "status": "reviewed_photo_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "exact_source_not_found",
+    "reason": "Новый независимый источник точного фото AKIKA AS-50 не найден в двухпоисках;изображения других ASномеров/брендов не использованы."
+  },
+  "checked_sources": [
+    {
+      "query": "\"AKIKA\" \"AS50\" excludedKaspi/Alta/ASVA",
+      "tool": "system2+system1_search",
+      "result": "No exactindependentphoto"
+    }
+  ],
+  "next_offer_id": 35166,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true
+  }
+}
