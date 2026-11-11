@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T11:48:41.444Z",
+  "checked_at": "2026-11-11T11:52:36.951Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -11088,14 +11088,14 @@
       "id": 25789,
       "kaspi_price": 94820,
       "kaspi_url": "https://kaspi.kz/shop/p/jac-diffuzor-radiatora-1308010p31f0-147774740/?c=750000000",
-      "main_image": "",
+      "main_image": "products/optimized/b58b2beca09d74ad8fc0de1285f05fb0431bf34d8fb3eb3a5d81b477261a5a3a.webp",
       "name": "Вентилятор охлаждения JAC",
-      "photo_status": "needs_source",
+      "photo_status": "done",
       "product_id": 7271,
       "profit": 1117.5,
       "stock": "2",
       "supplier_id": 5,
-      "supplier_thumbnail": "",
+      "supplier_thumbnail": "products/optimized/185d5acd163f0133c6ee1dd727e34ebd543cfec87e7459535ba9b2af357bd0c4.webp",
       "task_id": 5244
     },
     {
@@ -11198,14 +11198,13 @@
       25789,
       26282
     ],
-    "reviewed": 74,
+    "reviewed": 75,
     "published_fitments": 23,
-    "published_photos": 21,
+    "published_photos": 22,
     "unconfirmed": 54,
-    "next_offer_id": 25789,
-    "photos_present": 21,
+    "photos_present": 22,
     "fitments_present": 62,
-    "both_present": 20,
+    "both_present": 21,
     "created_at": "2026-11-11T10:30:05.643Z",
     "fixed": true
   },
@@ -11287,7 +11286,8 @@
     25731,
     26944,
     25622,
-    26470
+    26470,
+    25789
   ],
   "reviewed_offer_ids": [
     26787,
@@ -11563,16 +11563,17 @@
     26806,
     26144,
     26926,
-    26470
+    26470,
+    25789
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 274,
-    "remaining_unreviewed": 134,
+    "reviewed": 275,
+    "remaining_unreviewed": 133,
     "unconfirmed_reviewed": 196,
-    "remaining_missing_fields": 330,
-    "photo_added": 78,
+    "remaining_missing_fields": 329,
+    "photo_added": 79,
     "fitment_added": 54,
     "make_model_pairs_added": 124,
     "configurations_added": 162
@@ -11644,60 +11645,15 @@
   "next_batch_instruction": "FixedPhaeton100complete, all29photos/thumbs6fitoffersDB/UIverified. Continue fixedZakazAuto75 inbatch.offer_ids exactprofitorder. ThenremainingPhaeton100; preserveallpriorcanonicalexceptions/restrictions.",
   "technical_notes": "All200reviewed,57photos31fitmentoffers81pairs115configs cumulative acrossqueue. No pendingpublication. Phaeton100 added29photos6fitoffers23pairs46configs in4livepublications,31photo59fit29both. NewZakazAuto75frozenafterDBUIverification.",
   "latest_publication": {
-    "commit": "4ded4decb82a9095ede0648b4c7dc054989e5f2d",
-    "deploy": "dep-dbq5a8ff3r2c73b9knv0",
+    "commit": "453d5a997c729421b1a1f705ead7a96e239d5e6e",
+    "deploy": "dep-dbq5cfl9el5s73974so0",
     "status": "live",
-    "checked_photo_and_thumbnail": 5,
-    "checked_fitment_offers": 6,
+    "checked_photo_and_thumbnail": 1,
+    "checked_fitment_offers": 0,
     "ui_images_loaded": true,
     "unchanged_trade_data": true
   },
-  "prepared_candidates": [
-    {
-      "article": "1308010P31F0",
-      "brand": "JAC",
-      "cost": 81600,
-      "has_fitment": true,
-      "id": 25789,
-      "kaspi_price": 94820,
-      "kaspi_url": "https://kaspi.kz/shop/p/jac-diffuzor-radiatora-1308010p31f0-147774740/?c=750000000",
-      "main_image": "",
-      "name": "Вентилятор охлаждения JAC",
-      "photo_status": "needs_source",
-      "product_id": 7271,
-      "profit": 1117.5,
-      "stock": "2",
-      "supplier_id": 5,
-      "supplier_thumbnail": "",
-      "task_id": 5244,
-      "offer_id": 25789,
-      "status": "prepared_photo_existing_fitment",
-      "checked_on": "2026-11-11",
-      "source_url": "https://asiautos.net/products/ja8100-jac-t8-t8-pro-electric-fan-assembly-1308010p31f0-2023-2-0t-engine-cooling-high-quality-jac-spare-parts-asiautos-net",
-      "source_label": "ASIAUTOS — независимый каталог продавца JAC",
-      "source_kind": "retailer_catalogue",
-      "source_article": "1308010P31F0",
-      "fitments": [],
-      "fitment_note": "Существующая применимость сохранена.",
-      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/e306eb1c-8b6a-4943-9628-9f153d801438",
-      "image_url": "https://asiautos.net/cdn/shop/files/1308010P31F0.jpg?v=1770678822&width=1946",
-      "image_note": "Реальный один вентилятор в кожухе из точной карточки1308010P31F0; таблица указывает Brand:JAC и OEMwarranty. Существующая применимость сохранена, разные модели/годы других источников не переносились.",
-      "photo": {
-        "status": "downloaded_visually_verified_not_queued"
-      },
-      "fitment_status": "existing_preserved",
-      "checked_sources": [
-        {
-          "url": "https://asiautos.net/products/ja8100-jac-t8-t8-pro-electric-fan-assembly-1308010p31f0-2023-2-0t-engine-cooling-high-quality-jac-spare-parts-asiautos-net",
-          "result": "Реальный один вентилятор в кожухе из точной карточки1308010P31F0; таблица указывает Brand:JAC и OEMwarranty. Существующая применимость сохранена, разные модели/годы других источников не переносились."
-        }
-      ],
-      "next_offer_id": 26282,
-      "verification": {
-        "trade_data_unchanged": true
-      }
-    }
-  ],
+  "prepared_candidates": [],
   "batch_history": [
     {
       "supplier_id": 5,
@@ -11934,15 +11890,5 @@
       "publication": "7dec204910db6a8f38f987b3c44771cacb96ea1c"
     }
   ],
-  "publication_pending": {
-    "batch": "zakaz-resume26-20261111",
-    "commit": "453d5a997c729421b1a1f705ead7a96e239d5e6e",
-    "offer_ids": [
-      25789
-    ],
-    "status": "committed_waiting_deploy",
-    "photos_prepared": 1,
-    "fitments_prepared": 0
-  },
-  "next_offer_id": 25789
+  "publication_pending": null
 }
