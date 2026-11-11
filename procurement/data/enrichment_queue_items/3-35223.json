@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 14003,
   "offer_id": 35223,
-  "status": "prepared_photo_existing_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://spareto.com/products/motorad-coolant-flange/ch5538",
   "source_label": "Spareto — независимый каталог продавца",
@@ -24,11 +24,20 @@
   "source_article": "CH5538",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/c7430d0e-cef5-4137-ad6e-6e95b17f9dba",
   "image_url": "https://cdn.spareto.com/variants/images/003/536/978/medium/ch5538.jpg?1737736020",
   "image_note": "MOTORADCH5538:точнаякарточка корпуса/фланцасистемыохлаждения. Однадеталь с уплотнениемпо карточке,реальноеизображениепроверено. Прежние44конфигурации производителя не изменены.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/fb08cc9cc416f4924d3ccef990535d43d29c7c82436e4ec700f365552db86ab8.webp",
+    "thumbnail_path": "products/optimized/4d997cf1a0615ffb09d477a3b24abec5cd01c80261c247f247460317aa0e8b30.webp",
+    "main_size": [
+      360,
+      360
+    ],
+    "thumbnail_size": [
+      180,
+      180
+    ]
   },
   "fitment_status": "existing_preserved",
   "checked_sources": [
@@ -39,6 +48,29 @@
   ],
   "next_offer_id": 23164,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T10:00:53.397Z"
+  },
+  "source_sha256": "a7c8b8e7cff20a6a17561336fa855869966bf7c11ed40eee9d52a8e84b623e93",
+  "main_sha256": "fb08cc9cc416f4924d3ccef990535d43d29c7c82436e4ec700f365552db86ab8",
+  "main_size": [
+    360,
+    360
+  ],
+  "thumbnail_sha256": "4d997cf1a0615ffb09d477a3b24abec5cd01c80261c247f247460317aa0e8b30",
+  "thumbnail_size": [
+    180,
+    180
+  ],
+  "publication": {
+    "commit": "6d50b89ddbdaea78c8ee72c5f924121782c91caf",
+    "deploy": "dep-dbq3nju7bikc738hoo40",
+    "status": "live"
   }
 }
