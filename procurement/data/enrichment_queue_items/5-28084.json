@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 7137,
   "offer_id": 28084,
-  "status": "prepared_photo_and_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://www.gmpartsgiant.com/parts/gm-seal-55353328.html",
   "source_label": "GMPartsGiant — независимый продавец оригинальных GM",
@@ -67,13 +67,22 @@
     }
   ],
   "fitment_note": "Точные6индивидуальныхстроктаблицыGMPartsGiant,проверенывживомDOM. Периоды/двигатели/кузовныеограниченияпо каждоймоделисохранены,нерасширялисьобщими2008–2020иззаголовка. Неизвестныйрегионневыдуман. ПервичныйChevroletкаталогAccessDenied,необходился. РеальноефотоодногоGM55353328,нечертёж.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/7b2ac4b2-6e5c-4ba1-bdf3-478adb193cd0",
   "image_url": "https://www.gmpartsgiant.com/resources/encry/actual-picture/gpg/large/0bbd72a8329be448720beeeff10da31e/cc4f6fbba9b3a76d3f1026b822a42a20.jpg",
   "image_note": "Одна реальная кольцевая прокладкаизточнойGenuineGM55353328карточки;иллюстрациянеиспользована.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/ac8921fe7dfc20777ca9dd35ac5b56115669c7550c002e07a4eb0a451aa2d3cf.webp",
+    "thumbnail_path": "products/optimized/097de358467f5d012c7114057668ba22654fa3b81332c82246914a006f0a8173.webp",
+    "main_size": [
+      400,
+      300
+    ],
+    "thumbnail_size": [
+      180,
+      135
+    ]
   },
-  "fitment_status": "prepared_not_imported",
+  "fitment_status": "saved_db_and_ui_verified",
   "checked_sources": [
     {
       "url": "https://www.gmpartsgiant.com/parts/gm-seal-55353328.html",
@@ -86,6 +95,29 @@
   ],
   "next_offer_id": 26624,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T11:33:52.718Z"
+  },
+  "source_sha256": "7346c847a5b5c3eebd62c5958601e5d049ed3bcfc2ee7810eb1c8b4763d7a8b3",
+  "main_sha256": "ac8921fe7dfc20777ca9dd35ac5b56115669c7550c002e07a4eb0a451aa2d3cf",
+  "main_size": [
+    400,
+    300
+  ],
+  "thumbnail_sha256": "097de358467f5d012c7114057668ba22654fa3b81332c82246914a006f0a8173",
+  "thumbnail_size": [
+    180,
+    135
+  ],
+  "publication": {
+    "commit": "67ceb32acec7ee3307f1a9a44c0c779c90797192",
+    "deploy": "dep-dbq53i8473hc73ch8gv0",
+    "status": "live"
   }
 }
