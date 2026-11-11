@@ -13,7 +13,7 @@
   "supplier_id": 5,
   "task_id": 5114,
   "offer_id": 25550,
-  "status": "prepared_fitment_photo_unconfirmed",
+  "status": "published_partial_photo_exception",
   "checked_on": "2026-11-11",
   "source_url": "https://autopiter.kz/goods/6044131600/jashi/id244695317?orderRef=5",
   "source_label": "Автопитер — независимый каталог продавца",
@@ -45,6 +45,20 @@
   ],
   "next_offer_id": 26522,
   "verification": {
-    "trade_data_unchanged": true
-  }
+    "db_verified": true,
+    "ui_verified": true,
+    "photo_visually_verified": false,
+    "main_image_complete": false,
+    "thumbnail_image_complete": false,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T09:12:54.315Z"
+  },
+  "publication": {
+    "commit": "cd711d8063dc25b30ee190472db94956bff02d0b",
+    "deploy": "dep-dbq313ijnfac739omoi0",
+    "status": "live"
+  },
+  "fitment_status": "saved_db_and_ui_verified"
 }
