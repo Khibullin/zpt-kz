@@ -1,11 +1,8 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T06:11:00Z",
-  "lease": {
-    "owner": "inline-root-28349c39cf95",
-    "expires_at": "2026-11-11T06:50:00Z"
-  },
+  "checked_at": "2026-11-11T06:36:00Z",
+  "lease": null,
   "next_supplier": 5,
   "batch_size": 100,
   "queue": [
@@ -9373,14 +9370,23 @@
       25210
     ],
     "reviewed": 25,
-    "published_fitments": 2,
-    "published_photos": 0,
-    "unconfirmed": 13,
-    "next_offer_id": 25415
+    "published_fitments": 8,
+    "published_photos": 7,
+    "unconfirmed": 17,
+    "next_offer_id": 25415,
+    "photos_present": 10,
+    "fitments_present": 58,
+    "both_present": 8
   },
   "completed_offer_ids": [
     26820,
-    26154
+    26154,
+    26720,
+    25488,
+    25547,
+    25369,
+    26702,
+    25105
   ],
   "reviewed_offer_ids": [
     26787,
@@ -9412,34 +9418,66 @@
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "remaining_unreviewed": 393,
-    "unconfirmed_reviewed": 13,
-    "remaining_missing_fields": 406,
-    "photo_added": 0,
-    "fitment_added": 2,
-    "make_model_pairs_added": 3
+    "reviewed": 25,
+    "remaining_unreviewed": 383,
+    "unconfirmed_reviewed": 17,
+    "remaining_missing_fields": 400,
+    "photo_added": 7,
+    "fitment_added": 8,
+    "make_model_pairs_added": 18,
+    "configurations_added": 19
   },
-  "prepared_candidate": {
-    "offer_id": 26720,
-    "path": "procurement/data/enrichment_queue_items/5-26720-candidate.json",
-    "status": "not_published"
-  },
+  "prepared_candidate": null,
   "source_limits": [
     "Exact refused Kaspi URLs in item records must not be retried by alternative routes.",
     "shop.globalparts.kz/product/jashi/8402010u226ke; /product/bort/b334501; /product/patron/pbd4855; /product/jac/2804100s4500-f011 returned not accessible. Do not retry via other routes.",
     "All historical ASVA / Alta-Karter / refused MOTORAD / BILSTEIN / PATRON restrictions remain."
   ],
-  "pending_publication": {
-    "commit": "1d086429578c95f3031f7f780943cdf9b268aa1c",
-    "offer_ids": [
-      26702,
-      25105,
-      25575
+  "pending_publication": null,
+  "superseded_candidates": [
+    26720,
+    25488
+  ],
+  "actual_stats": {
+    "all_fitment_offers": 4367,
+    "all_photos": 19285,
+    "batch": {
+      "both": 8,
+      "fitments": 58,
+      "photos": 10,
+      "total": 100
+    },
+    "photo_queue": [
+      {
+        "count": 28954,
+        "status": "needs_source"
+      },
+      {
+        "count": 1614,
+        "status": "skipped"
+      },
+      {
+        "count": 18925,
+        "status": "done"
+      }
     ],
-    "photo_offer_ids": [
-      26702,
-      25105
-    ],
-    "note": "Only verify before counting. MSG photo intentionally excluded."
-  }
+    "scope": [
+      {
+        "both": 116,
+        "fitments": 230,
+        "photos": 121,
+        "supplier_id": 3,
+        "total": 349
+      },
+      {
+        "both": 101,
+        "fitments": 190,
+        "photos": 103,
+        "supplier_id": 5,
+        "total": 268
+      }
+    ]
+  },
+  "next_batch_instruction": "Continue remaining75 of this fixed ZakazAuto100; then100Phaeton. Skip reviewed exceptions unless new sources.",
+  "technical_notes": "Failed bumper build due17-char status rolled back. Fixed with bump4_ready11chars and task.full_clean regression test. Newest release Live, all7newphoto tasks done; no active photo tasks. No duplicate producer/consumer or manual restart."
 }
