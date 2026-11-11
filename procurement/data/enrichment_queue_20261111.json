@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T06:58:42.564Z",
+  "checked_at": "2026-11-11T07:02:16.705Z",
   "lease": {
     "owner": "enrichment-run-20261111T0652Z",
     "acquired_at": "2026-11-11T06:51:50.447Z",
@@ -9267,7 +9267,7 @@
     }
   ],
   "results": [],
-  "next_offer_id": 25558,
+  "next_offer_id": 25538,
   "batch": {
     "supplier_id": 5,
     "batch_number": 1,
@@ -9373,11 +9373,11 @@
       25184,
       25210
     ],
-    "reviewed": 32,
-    "published_fitments": 10,
+    "reviewed": 33,
+    "published_fitments": 11,
     "published_photos": 14,
-    "unconfirmed": 17,
-    "next_offer_id": 25558,
+    "unconfirmed": 18,
+    "next_offer_id": 25538,
     "photos_present": 17,
     "fitments_present": 60,
     "both_present": 15
@@ -9431,68 +9431,22 @@
     25245,
     25270,
     25138,
-    25218
+    25218,
+    25558
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 32,
-    "remaining_unreviewed": 376,
-    "unconfirmed_reviewed": 17,
+    "reviewed": 33,
+    "remaining_unreviewed": 375,
+    "unconfirmed_reviewed": 18,
     "remaining_missing_fields": 393,
     "photo_added": 14,
-    "fitment_added": 10,
-    "make_model_pairs_added": 26,
-    "configurations_added": 27
+    "fitment_added": 11,
+    "make_model_pairs_added": 27,
+    "configurations_added": 28
   },
-  "prepared_candidate": {
-    "article": "86511D7500",
-    "brand": "JASHI",
-    "has_fitment": false,
-    "id": 25558,
-    "kaspi_url": "https://kaspi.kz/shop/p/jashi-bamper-86511d7500-dlja-hyundai-tucson-2018-2021-123506478/?c=750000000",
-    "main_image": "",
-    "name": "Бампер передний верхняя часть (панель пластик Hyundai",
-    "photo_status": "needs_source",
-    "product_id": 7146,
-    "profit": 4840,
-    "stock": "5",
-    "supplier_id": 5,
-    "task_id": 5119,
-    "offer_id": 25558,
-    "status": "prepared_fitment_photo_unconfirmed",
-    "checked_on": "2026-11-11",
-    "source_url": "https://autopiter.kz/goods/86511d7500/jashi/id193309009?orderRef=5",
-    "source_label": "Автопитер — независимый каталог продавца",
-    "source_kind": "retailer_catalogue",
-    "source_article": "86511D7500",
-    "fitments": [
-      {
-        "make": "HYUNDAI",
-        "model": "TUCSON",
-        "years": "2018–2021",
-        "engine": "2.0L",
-        "notes": "2WD/4WD. Передний бампер, верхняя часть (пластик), без отверстий омывателя фар."
-      }
-    ],
-    "fitment_note": "Точная строка Jashi 86511D7500 независимого каталога продавца; модель/годы и исполнение также совпадают с точной Kaspi. Регион не указан.",
-    "photo": {
-      "status": "unconfirmed_variant",
-      "image_url": "https://resources.cdn-kaspi.kz/img/m/p/h11/hd7/87107388145694.png?format=gallery-medium",
-      "reason": "На фото видны прямоугольные отверстия в верхних боковых частях; описание точного артикула у двух продавцов — без отверстий омывателя. Исполнение фото неоднозначно, не загружать."
-    },
-    "checked_sources": [
-      {
-        "url": "https://autopiter.kz/goods/86511d7500/jashi/id193309009?orderRef=5",
-        "result": "exact article/brand, fitment and constraints confirmed"
-      },
-      {
-        "url": "https://kaspi.kz/shop/p/jashi-bamper-86511d7500-dlja-hyundai-tucson-2018-2021-123506478/?c=750000000",
-        "result": "exact article/brand and fitment; photo variant ambiguous"
-      }
-    ],
-    "next_offer_id": 25538
-  },
+  "prepared_candidate": null,
   "source_limits": [
     "Exact refused Kaspi URLs in item records must not be retried by alternative routes.",
     "shop.globalparts.kz/product/jashi/8402010u226ke; /product/bort/b334501; /product/patron/pbd4855; /product/jac/2804100s4500-f011 returned not accessible. Do not retry via other routes.",
@@ -9566,54 +9520,6 @@
     "unchanged_trade_data": true
   },
   "prepared_candidates": [
-    {
-      "article": "86511D7500",
-      "brand": "JASHI",
-      "has_fitment": false,
-      "id": 25558,
-      "kaspi_url": "https://kaspi.kz/shop/p/jashi-bamper-86511d7500-dlja-hyundai-tucson-2018-2021-123506478/?c=750000000",
-      "main_image": "",
-      "name": "Бампер передний верхняя часть (панель пластик Hyundai",
-      "photo_status": "needs_source",
-      "product_id": 7146,
-      "profit": 4840,
-      "stock": "5",
-      "supplier_id": 5,
-      "task_id": 5119,
-      "offer_id": 25558,
-      "status": "prepared_fitment_photo_unconfirmed",
-      "checked_on": "2026-11-11",
-      "source_url": "https://autopiter.kz/goods/86511d7500/jashi/id193309009?orderRef=5",
-      "source_label": "Автопитер — независимый каталог продавца",
-      "source_kind": "retailer_catalogue",
-      "source_article": "86511D7500",
-      "fitments": [
-        {
-          "make": "HYUNDAI",
-          "model": "TUCSON",
-          "years": "2018–2021",
-          "engine": "2.0L",
-          "notes": "2WD/4WD. Передний бампер, верхняя часть (пластик), без отверстий омывателя фар."
-        }
-      ],
-      "fitment_note": "Точная строка Jashi 86511D7500 независимого каталога продавца; модель/годы и исполнение также совпадают с точной Kaspi. Регион не указан.",
-      "photo": {
-        "status": "unconfirmed_variant",
-        "image_url": "https://resources.cdn-kaspi.kz/img/m/p/h11/hd7/87107388145694.png?format=gallery-medium",
-        "reason": "На фото видны прямоугольные отверстия в верхних боковых частях; описание точного артикула у двух продавцов — без отверстий омывателя. Исполнение фото неоднозначно, не загружать."
-      },
-      "checked_sources": [
-        {
-          "url": "https://autopiter.kz/goods/86511d7500/jashi/id193309009?orderRef=5",
-          "result": "exact article/brand, fitment and constraints confirmed"
-        },
-        {
-          "url": "https://kaspi.kz/shop/p/jashi-bamper-86511d7500-dlja-hyundai-tucson-2018-2021-123506478/?c=750000000",
-          "result": "exact article/brand and fitment; photo variant ambiguous"
-        }
-      ],
-      "next_offer_id": 25538
-    },
     {
       "article": "C281F271301-1501",
       "brand": "JASHI",
