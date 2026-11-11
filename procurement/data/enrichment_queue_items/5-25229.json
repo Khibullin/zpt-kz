@@ -1,0 +1,34 @@
+{
+  "article": "2905220AKZ16A",
+  "brand": "HAVAL",
+  "has_fitment": true,
+  "id": 25229,
+  "kaspi_url": "https://kaspi.kz/shop/p/haval-perednii-2905220akz16a-1-sht-155476268/?c=750000000",
+  "main_image": "",
+  "name": "Амортизатор передний HAVAL",
+  "photo_status": "needs_source",
+  "product_id": 6910,
+  "profit": 4750,
+  "stock": "1",
+  "supplier_id": 5,
+  "task_id": 4883,
+  "offer_id": 25229,
+  "status": "prepared_photo_preserve_fitment",
+  "checked_on": "2026-11-11",
+  "source_url": "https://kaspi.kz/shop/p/haval-perednii-2905220akz16a-1-sht-155476268/?c=750000000",
+  "source_label": "Точная карточка Kaspi — продавец",
+  "source_kind": "retailer_listing",
+  "source_article": "2905220AKZ16A",
+  "fitments": [],
+  "fitment_note": "Существующая применимость сохранена.",
+  "image_url": "https://resources.cdn-kaspi.kz/img/m/p/p7d/pf9/155182850.bin?format=gallery-medium",
+  "local_path": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/708b57ad-8c68-41fd-9f91-76266f5f52a7",
+  "image_note": "Фото точного переднего правого HAVAL2905220AKZ16A1шт; второй слайд с автомобилем не использован.",
+  "checked_sources": [
+    {
+      "url": "https://kaspi.kz/shop/p/haval-perednii-2905220akz16a-1-sht-155476268/?c=750000000",
+      "result": "exact brand/full article, photo1 front right 1piece inspected; existing fitment untouched"
+    }
+  ],
+  "next_offer_id": 25496
+}
