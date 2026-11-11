@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T13:10:01.631Z",
+  "checked_at": "2026-11-11T13:11:01.152Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -11930,6 +11930,54 @@
         }
       ],
       "next_offer_id": 23095,
+      "verification": {
+        "trade_data_unchanged": true
+      }
+    },
+    {
+      "article": "298-82K",
+      "brand": "MOTORAD",
+      "cost": 3854,
+      "has_fitment": true,
+      "id": 35176,
+      "kaspi_price": 5945,
+      "kaspi_url": "https://kaspi.kz/shop/p/motorad-termostat-298-82k-174077988/?c=750000000",
+      "main_image": "",
+      "name": "Термостат 82°С",
+      "photo_status": "needs_source",
+      "product_id": 15984,
+      "profit": 1097.875,
+      "stock": "2",
+      "supplier_id": 3,
+      "supplier_thumbnail": "",
+      "task_id": 13957,
+      "offer_id": 35176,
+      "status": "prepared_photo_existing_fitment",
+      "checked_on": "2026-11-11",
+      "source_url": "https://spareto.com/products/motorad-thermostat-coolant/298-82k",
+      "source_label": "Spareto · независимый каталог продавца",
+      "source_kind": "retailer_catalogue",
+      "source_article": "298-82K",
+      "fitments": [],
+      "fitment_note": "Существующая применимость сохранена.",
+      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/eccebbe2-facd-4afc-b5e1-741ab9206cc5",
+      "image_url": "https://cdn.spareto.com/variants/images_webp/005/601/811/large/298-82k-85C5F77C.webp?1793165854",
+      "image_note": "Точная карточка и бренд MOTORAD298-82K,82°C,без корпуса;реальное фото термостата без датчика,не схема. Имеющаяся применимость сохранена. UIналичие2,закупка3854/Kaspi5945 совпадают. Карточка производителя298-82kнедоступна черезweb,не повторялась.",
+      "photo": {
+        "status": "downloaded_visually_verified_not_queued"
+      },
+      "fitment_status": "existing_preserved",
+      "checked_sources": [
+        {
+          "url": "https://spareto.com/products/motorad-thermostat-coolant/298-82k",
+          "result": "Точная карточка и бренд MOTORAD298-82K,82°C,без корпуса;реальное фото термостата без датчика,не схема. Имеющаяся применимость сохранена. UIналичие2,закупка3854/Kaspi5945 совпадают. Карточка производителя298-82kнедоступна черезweb,не повторялась."
+        },
+        {
+          "url": "https://eu.motorad.com/part/298-82k/",
+          "result": "Not accessible via web tool; no retries through another channel"
+        }
+      ],
+      "next_offer_id": 23406,
       "verification": {
         "trade_data_unchanged": true
       }
