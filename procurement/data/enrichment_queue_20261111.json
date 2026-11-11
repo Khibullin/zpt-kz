@@ -11929,6 +11929,15 @@
       "publication": "7dec204910db6a8f38f987b3c44771cacb96ea1c"
     }
   ],
-  "publication_pending": null,
+  "publication_pending": {
+    "batch": "zakaz-resume26-20261111",
+    "commit": "453d5a997c729421b1a1f705ead7a96e239d5e6e",
+    "offer_ids": [
+      25789
+    ],
+    "status": "committed_waiting_deploy",
+    "photos_prepared": 1,
+    "fitments_prepared": 0
+  },
   "next_offer_id": 25789
 }
