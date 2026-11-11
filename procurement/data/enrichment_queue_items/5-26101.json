@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 5718,
   "offer_id": 26101,
-  "status": "prepared_photo_existing_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://satparts.ru/vtiagivaiushhee-rele-startera/lexus/ls",
   "source_label": "SATparts — каталог продавца SAT",
@@ -24,11 +24,20 @@
   "source_article": "ST-28150-38010",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/797099a4-5240-4e5b-9154-af9fab878f6b",
   "image_url": "https://static.autotrade.su/nomenclature/wm/b/30/306acb67f6.jpg",
   "image_note": "Точный SAT ST-28150-38010: фотография реального одного втягивающего реле из карточки этого артикула в каталоге SATparts, на источнике Автотрейд. Существующая применимость сохранена.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/12f36b2abf60a4663e0a6b341a7a3998cccf1596f768f35751627bb3a331497a.webp",
+    "thumbnail_path": "products/optimized/9ecb47f8a7b95e20f75dde6f83e1a597c4244d6b90cd5e8b2405cdeccb8021fd.webp",
+    "main_size": [
+      800,
+      600
+    ],
+    "thumbnail_size": [
+      180,
+      135
+    ]
   },
   "fitment_status": "existing_preserved",
   "checked_sources": [
@@ -39,6 +48,29 @@
   ],
   "next_offer_id": 25397,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T10:48:44.589Z"
+  },
+  "source_sha256": "d79148b40a8dff9fce7bf224c32c641394e1cf2a8beea862ef8aa7d7859af3ca",
+  "main_sha256": "12f36b2abf60a4663e0a6b341a7a3998cccf1596f768f35751627bb3a331497a",
+  "main_size": [
+    800,
+    600
+  ],
+  "thumbnail_sha256": "9ecb47f8a7b95e20f75dde6f83e1a597c4244d6b90cd5e8b2405cdeccb8021fd",
+  "thumbnail_size": [
+    180,
+    135
+  ],
+  "publication": {
+    "commit": "933ea2ed719154b73e9600a799d432b7e9cf6dfc",
+    "deploy": "dep-dbq4e9m0tbcc73frua30",
+    "status": "live"
   }
 }
