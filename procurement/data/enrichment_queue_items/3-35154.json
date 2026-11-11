@@ -1,0 +1,44 @@
+{
+  "article": "48027",
+  "brand": "NGK",
+  "cost": 10350,
+  "has_fitment": true,
+  "id": 35154,
+  "kaspi_price": 13924,
+  "kaspi_url": "https://kaspi.kz/shop/p/svecha-zazhiganija-ngk-48027-124241884/?c=750000000",
+  "main_image": "",
+  "name": "NGK Катушка зажигания U2008",
+  "photo_status": "needs_source",
+  "product_id": 16035,
+  "profit": 1583.5,
+  "stock": "2",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 14008,
+  "offer_id": 35154,
+  "status": "prepared_photo_existing_fitment",
+  "checked_on": "2026-11-11",
+  "source_url": "https://spareto.com/products/ngk-ignition-coil/u2008-48027",
+  "source_label": "Spareto — независимый каталог продавца",
+  "source_kind": "retailer_catalogue",
+  "source_article": "48027",
+  "fitments": [],
+  "fitment_note": "Существующая применимость сохранена.",
+  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/4c80ea9b-44d6-46ff-8579-10e1e6f1a39d",
+  "image_url": "https://cdn.spareto.com/variants/images_webp/000/527/196/large/u2008-48027-F16D0823.webp?1793006951",
+  "image_note": "Точная карточка NGK48027/U2008,3контакта,4выходаM4. Визуально один чёрный модуль катушки с четырьмя винтами и логотипомNGK; комплектность соответствует. Существующая применимость сохранена.",
+  "photo": {
+    "status": "downloaded_visually_verified_not_queued"
+  },
+  "fitment_status": "existing_preserved",
+  "checked_sources": [
+    {
+      "url": "https://spareto.com/products/ngk-ignition-coil/u2008-48027",
+      "result": "Точная карточка NGK48027/U2008,3контакта,4выходаM4. Визуально один чёрный модуль катушки с четырьмя винтами и логотипомNGK; комплектность соответствует. Существующая применимость сохранена."
+    }
+  ],
+  "next_offer_id": 23850,
+  "verification": {
+    "trade_data_unchanged": true
+  }
+}
