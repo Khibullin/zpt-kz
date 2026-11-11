@@ -1,0 +1,22 @@
+{
+  "article": "1601200V5070",
+  "brand": "JASHI",
+  "has_fitment": true,
+  "id": 26467,
+  "kaspi_url": "https://kaspi.kz/shop/p/jashi-disk-stseplenija-1601200v5070-118631627/?c=750000000",
+  "main_image": "",
+  "name": "Диск сцепления JAC",
+  "photo_status": "needs_source",
+  "product_id": 8060,
+  "profit": 5277.5,
+  "stock": "1",
+  "supplier_id": 5,
+  "task_id": 6033,
+  "checked_on": "2026-11-11",
+  "status": "unconfirmed",
+  "sources_checked": [
+    "https://kaspi.kz/shop/p/jashi-disk-stseplenija-1601200v5070-118631627/?c=750000000"
+  ],
+  "reason": "Exact Kaspi card not accessible via retrieval. No retry via alternate URL or channel. Independent source still needed. Existing fields retained.",
+  "next_offer_id": 25212
+}
