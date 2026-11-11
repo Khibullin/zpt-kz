@@ -1,0 +1,101 @@
+{
+  "article": "18-140644",
+  "brand": "BILSTEIN",
+  "cost": 22560,
+  "has_fitment": false,
+  "id": 24812,
+  "kaspi_price": 29350,
+  "kaspi_url": "https://kaspi.kz/shop/p/bilstein-perednii-18-140644-1-sht-100938761/?c=750000000",
+  "main_image": "",
+  "name": "BILSTEIN Амортизатор",
+  "photo_status": "needs_source",
+  "product_id": 6516,
+  "profit": 2871.25,
+  "stock": "1",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 4489,
+  "offer_id": 24812,
+  "status": "prepared_photo_and_fitment",
+  "checked_on": "2026-11-11",
+  "source_url": "https://cart.bilsteinus.com/steering-damper-18-140644.html",
+  "source_label": "BILSTEIN USA — каталог производителя",
+  "source_kind": "manufacturer_catalogue",
+  "source_article": "18-140644",
+  "fitments": [
+    {
+      "make": "Mercedes-Benz",
+      "model": "300SD",
+      "years": "1992–1993",
+      "notes": "Рулевой демпфер BILSTEIN B4 OE Replacement18-140644. По точной карточке производителяBILSTEINUSA; двигатели и регион применимости не уточнены,не выдуманы."
+    },
+    {
+      "make": "Mercedes-Benz",
+      "model": "300SE",
+      "years": "1992–1993",
+      "notes": "Рулевой демпфер BILSTEIN B4 OE Replacement18-140644. По точной карточке производителяBILSTEINUSA; двигатели и регион применимости не уточнены,не выдуманы."
+    },
+    {
+      "make": "Mercedes-Benz",
+      "model": "400SE",
+      "years": "1992",
+      "notes": "Рулевой демпфер BILSTEIN B4 OE Replacement18-140644. По точной карточке производителяBILSTEINUSA; двигатели и регион применимости не уточнены,не выдуманы."
+    },
+    {
+      "make": "Mercedes-Benz",
+      "model": "500SEL",
+      "years": "1992–1993",
+      "notes": "Рулевой демпфер BILSTEIN B4 OE Replacement18-140644. По точной карточке производителяBILSTEINUSA; двигатели и регион применимости не уточнены,не выдуманы."
+    },
+    {
+      "make": "Mercedes-Benz",
+      "model": "S320",
+      "years": "1994–1999",
+      "notes": "Рулевой демпфер BILSTEIN B4 OE Replacement18-140644. По точной карточке производителяBILSTEINUSA; двигатели и регион применимости не уточнены,не выдуманы."
+    },
+    {
+      "make": "Mercedes-Benz",
+      "model": "S350",
+      "years": "1994–1995",
+      "notes": "Рулевой демпфер BILSTEIN B4 OE Replacement18-140644. По точной карточке производителяBILSTEINUSA; двигатели и регион применимости не уточнены,не выдуманы."
+    },
+    {
+      "make": "Mercedes-Benz",
+      "model": "S420",
+      "years": "1994–1999",
+      "notes": "Рулевой демпфер BILSTEIN B4 OE Replacement18-140644. По точной карточке производителяBILSTEINUSA; двигатели и регион применимости не уточнены,не выдуманы."
+    },
+    {
+      "make": "Mercedes-Benz",
+      "model": "S500",
+      "years": "1994–1999",
+      "notes": "Рулевой демпфер BILSTEIN B4 OE Replacement18-140644. По точной карточке производителяBILSTEINUSA; двигатели и регион применимости не уточнены,не выдуманы."
+    }
+  ],
+  "fitment_note": "Точная карточка BILSTEIN18-140644 содержит явный список8моделей с индивидуальнымигодами. Ограничения иных18-/22-номеров и отклонённыеPDFне запрашивались;моторы не добавлены.",
+  "image_source_url": "https://spareto.com/products/bilstein-shock-absorber-steering/18-140644",
+  "image_url": "https://cdn.spareto.com/variants/images_webp/001/106/476/medium/18-140644-31626442.webp?1793023352",
+  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/4841b8a1-a086-4438-a232-1e966da2786c",
+  "image_note": "Точный BILSTEIN18-140644,одинчёрный рулевойдемпфер,фотоSpareto визуально проверено.",
+  "photo": {
+    "status": "downloaded_visually_verified_not_queued"
+  },
+  "checked_sources": [
+    {
+      "url": "https://cart.bilsteinus.com/steering-damper-18-140644.html",
+      "result": "Primarymanufacturer exact18-140644;8modelspecificyearranges,noengine details"
+    },
+    {
+      "url": "https://bilsteincanada.com/product/b4-oe-replacement-steering-damper-b22-e086/",
+      "result": "IndependentEssexdistributor explicitly not manufacturer affiliate;8fitmentrows corroborate,notprimarysource"
+    },
+    {
+      "url": "https://spareto.com/products/bilstein-shock-absorber-steering/18-140644",
+      "result": "Exactbrand/article andoneactualdamperphoto"
+    }
+  ],
+  "next_offer_id": 23819,
+  "verification": {
+    "trade_data_unchanged": true
+  }
+}
