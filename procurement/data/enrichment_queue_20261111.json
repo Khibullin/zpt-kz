@@ -12025,5 +12025,18 @@
       "publication": "68043a2dd731b06c16a8b6d6e8a33b13bd171d54"
     }
   ],
-  "publication_pending": null
+  "publication_pending": {
+    "commit": "6d50b89ddbdaea78c8ee72c5f924121782c91caf",
+    "offers": [
+      35160,
+      35208,
+      35138,
+      35204,
+      35135,
+      35211,
+      35223,
+      24812
+    ],
+    "status": "published_to_main_awaiting_render_and_db_ui_verification"
+  }
 }
