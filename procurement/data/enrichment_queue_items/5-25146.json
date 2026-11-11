@@ -13,7 +13,7 @@
   "supplier_id": 5,
   "task_id": 4795,
   "offer_id": 25146,
-  "status": "prepared_photo_preserve_fitment",
+  "status": "published_db_and_ui_verified",
   "checked_on": "2026-11-11",
   "source_url": "https://ugkorea.com/products/00003092",
   "source_label": "Автоцентр Южная Корея — независимый каталог продавца",
@@ -22,7 +22,6 @@
   "fitments": [],
   "fitment_note": "Существующая применимость сохраняется.",
   "image_url": "https://ugkorea.com/pictures/product/big/40075_big.JPG",
-  "local_path": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/b9a90431-8864-4518-b3f5-dbcae2de8451",
   "image_note": "Реальное фото одного амортизатора с коробкой PATRON; точный полный артикул PSA534002 и бренд в заголовке и поле производителя независимого продавца.",
   "checked_sources": [
     {
@@ -34,5 +33,37 @@
       "result": "exact article in title, PATRON manufacturer, real photo inspected"
     }
   ],
-  "next_offer_id": 26220
+  "next_offer_id": 26220,
+  "publication": {
+    "commit": "08c5ddc32f0a2d0527741382fe3e064c4c21216d",
+    "deploy": "dep-dbq230dg1s2s739cu69g",
+    "status": "live",
+    "checked_photo_and_thumbnail": 3,
+    "checked_fitment_offers": 3,
+    "all_three_ui_images_loaded": true,
+    "unchanged_trade_data": true
+  },
+  "fitment_status": "existing_preserved",
+  "verification": {
+    "photo": true,
+    "thumbnail": true,
+    "display": true,
+    "source_and_constraints": true,
+    "stock_and_profit_preserved": true,
+    "existing_fitment_preserved": true
+  },
+  "photo": {
+    "status": "saved_and_ui_loaded",
+    "image_url": "https://ugkorea.com/pictures/product/big/40075_big.JPG",
+    "main_path": "products/optimized/15fa0f56689f6c2c83c5beb81de35de13af0c88360c08d9102fd015988589ddf.webp",
+    "thumbnail_path": "products/optimized/dba91e6d985ea52d1ff6a97bf0a0cb02f786df13f3a1c28fbc7b7d3813f3edba.webp",
+    "main_size": [
+      800,
+      600
+    ],
+    "thumbnail_size": [
+      180,
+      135
+    ]
+  }
 }
