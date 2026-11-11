@@ -1,12 +1,8 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T06:36:00Z",
-  "lease": {
-    "owner": "root-20261111-continuation",
-    "expires_at": "2026-11-11T07:30:00Z",
-    "started_at": "2026-11-11T06:39:40.714Z"
-  },
+  "checked_at": "2026-11-11T06:50:00Z",
+  "lease": null,
   "next_supplier": 5,
   "batch_size": 100,
   "queue": [
@@ -9374,13 +9370,13 @@
       25210
     ],
     "reviewed": 32,
-    "published_fitments": 8,
-    "published_photos": 7,
+    "published_fitments": 10,
+    "published_photos": 14,
     "unconfirmed": 17,
     "next_offer_id": 25558,
-    "photos_present": 10,
-    "fitments_present": 58,
-    "both_present": 8
+    "photos_present": 17,
+    "fitments_present": 60,
+    "both_present": 15
   },
   "completed_offer_ids": [
     26820,
@@ -9390,7 +9386,14 @@
     25547,
     25369,
     26702,
-    25105
+    25105,
+    25415,
+    26230,
+    28171,
+    25245,
+    25270,
+    25138,
+    25218
   ],
   "reviewed_offer_ids": [
     26787,
@@ -9429,14 +9432,14 @@
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 25,
-    "remaining_unreviewed": 383,
+    "reviewed": 32,
+    "remaining_unreviewed": 376,
     "unconfirmed_reviewed": 17,
-    "remaining_missing_fields": 400,
-    "photo_added": 7,
-    "fitment_added": 8,
-    "make_model_pairs_added": 18,
-    "configurations_added": 19
+    "remaining_missing_fields": 393,
+    "photo_added": 14,
+    "fitment_added": 10,
+    "make_model_pairs_added": 26,
+    "configurations_added": 27
   },
   "prepared_candidate": null,
   "source_limits": [
@@ -9444,15 +9447,7 @@
     "shop.globalparts.kz/product/jashi/8402010u226ke; /product/bort/b334501; /product/patron/pbd4855; /product/jac/2804100s4500-f011 returned not accessible. Do not retry via other routes.",
     "All historical ASVA / Alta-Karter / refused MOTORAD / BILSTEIN / PATRON restrictions remain."
   ],
-  "pending_publication": [
-    25415,
-    26230,
-    28171,
-    25245,
-    25270,
-    25138,
-    25218
-  ],
+  "pending_publication": null,
   "superseded_candidates": [
     26720,
     25488
@@ -9498,5 +9493,14 @@
     ]
   },
   "next_batch_instruction": "Continue remaining75 of this fixed ZakazAuto100; then100Phaeton. Skip reviewed exceptions unless new sources.",
-  "technical_notes": "Failed bumper build due17-char status rolled back. Fixed with bump4_ready11chars and task.full_clean regression test. Newest release Live, all7newphoto tasks done; no active photo tasks. No duplicate producer/consumer or manual restart."
+  "technical_notes": "Failed bumper build due17-char status rolled back. Fixed with bump4_ready11chars and task.full_clean regression test. Newest release Live, all7newphoto tasks done; no active photo tasks. No duplicate producer/consumer or manual restart.",
+  "latest_publication": {
+    "commit": "762ba56abbbf10cc51c8ff9c8d5e010871580dbb",
+    "deploy": "dep-dbq0ur2jnfac739ma9j0",
+    "status": "live",
+    "checked_photo_and_thumbnail": 7,
+    "checked_fitment_offers": 2,
+    "all_seven_ui_images_loaded": true,
+    "unchanged_trade_data": true
+  }
 }
