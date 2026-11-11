@@ -28,7 +28,7 @@ def valid_page(url,brand):
     if p.scheme!='https' or p.fragment:return False
     brand=brand.strip().upper()
     if p.netloc=='cart.bilsteinus.com' and brand=='BILSTEIN':
-        return not p.query and bool(re.fullmatch(r'/strut-\d{2}-\d{6}\.html',p.path))
+        return not p.query and bool(re.fullmatch(r'/(?:strut-22|shock-19)-\d{6}\.html',p.path))
     if p.netloc=='febest.com.ua' and brand=='FEBEST':
         q=parse_qs(p.query,keep_blank_values=True)
         return p.path=='/catalogue/' and set(q)=={'product'} and len(q['product'])==1 and bool(re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9.-]{0,119}',q['product'][0]))
@@ -49,7 +49,8 @@ def matching_manufacturer_image(html,url,brand,article):
     p=urlsplit(url);expected=article.strip().upper();tags=Tags(html).tags
     if not expected:return ''
     if p.netloc=='cart.bilsteinus.com':
-        if p.path!='/strut-'+expected.lower()+'.html':return ''
+        kind = 'strut' if expected.startswith('22-') else 'shock' if expected.startswith('19-') else ''
+        if not kind or p.path!='/'+kind+'-'+expected.lower()+'.html':return ''
         identities=[attrs.get('value') for tag,attrs in tags if tag=='input' and attrs.get('id')=='pro_part_number']
         if identities!=[expected]:return ''
         for tag,attrs in tags:
@@ -98,4 +99,5 @@ def matching_manufacturer_image(html,url,brand,article):
             if params and not (set(params)=={'v'} and len(params['v'])==1 and params['v'][0].isdigit()):continue
             if target.scheme=='https' and target.netloc==p.netloc and not target.fragment and re.fullmatch(r'/newfolder/product_image/'+re.escape(expected)+r'\.(?:jpg|jpeg|png|webp)',target.path,re.I):return src
     return ''
+
 

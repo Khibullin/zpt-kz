@@ -1,0 +1,40 @@
+{
+  "checked_on": "2026-11-11",
+  "scope": "Following 50 Phaeton items ranked by net profit KZT, ranks51-100. Preserved previous top50.",
+  "before": {
+    "photos": 19143,
+    "verified_offers": 4297,
+    "queue": {
+      "done": 18783,
+      "skipped": 1619,
+      "needs_source": 29091
+    }
+  },
+  "photo_targets": [
+    {
+      "article": "19-135021",
+      "offer_id": 24816,
+      "product_id": 6520,
+      "task_id": 4493,
+      "source_url": "https://cart.bilsteinus.com/shock-19-135021.html",
+      "image_url": "https://cart.bilsteinus.com/media/catalog/product/a/p/apa_19-135021_1_20261103121715.jpg"
+    },
+    {
+      "article": "19-246390",
+      "offer_id": 24821,
+      "product_id": 6525,
+      "task_id": 4498,
+      "source_url": "https://cart.bilsteinus.com/shock-19-246390.html",
+      "image_url": "https://cart.bilsteinus.com/media/catalog/product/a/p/apa_19-246390_1_20261103123135.jpg"
+    }
+  ],
+  "verification": "Both exact official pages and images HTTP200; pro_part_number and pdpMainImg exact. Images 1500x1500 visually inspected; actual shocks. Existing fits11/1 left intact. Existing consumer compression800/180 and source evidence retained.",
+  "new_restrictions": [
+    {
+      "url": "https://eu.motorad.com/part/385-87k/",
+      "result": "Direct standard request HTTP403. No further requests to this page or alternate image/channel; do not bypass."
+    }
+  ],
+  "previous_restrictions": "All earlier denials and ASVA/Alta-Karter restriction retained. Search incidentally returned Alta-Karter snippets; no direct request or use.",
+  "status": "Prepared; after deployment inspect task4493/4498 and write applied checkpoint; do not claim uploaded until done."
+}
