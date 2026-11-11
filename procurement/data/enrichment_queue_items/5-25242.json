@@ -1,0 +1,36 @@
+{
+  "article": "202001683AA",
+  "brand": "JASHI",
+  "has_fitment": true,
+  "id": 25242,
+  "kaspi_url": "https://kaspi.kz/shop/p/jashi-perednii-202001683aa-1-sht-130904662/?c=750000000",
+  "main_image": "",
+  "name": "Амортизатор передний Chery",
+  "photo_status": "needs_source",
+  "product_id": 6931,
+  "profit": 4015,
+  "stock": "2",
+  "supplier_id": 5,
+  "task_id": 4904,
+  "offer_id": 25242,
+  "status": "reviewed_photo_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "exact_source_not_found",
+    "reason": "Точное фото JASHI 202001683AA в двух независимых поисках не подтверждено; похожие артикулы/бренды не использованы."
+  },
+  "checked_sources": [
+    {
+      "query": "\"JASHI\" \"202001683AA\" -site:kaspi.kz -site:alta-karter.com",
+      "tool": "system2+system1_search",
+      "result": "No exactphoto. Differentarticles excluded."
+    }
+  ],
+  "next_offer_id": 26520,
+  "verification": {
+    "existing_fitment_preserved": true,
+    "trade_data_unchanged": true
+  }
+}
