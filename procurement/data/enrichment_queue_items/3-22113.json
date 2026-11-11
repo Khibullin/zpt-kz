@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 1823,
   "offer_id": 22113,
-  "status": "prepared_photo_existing_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://www.recambioscoche.es/555-13054704.html",
   "source_label": "Recambioscoche / AUTODOC — независимый каталог продавца",
@@ -24,11 +24,20 @@
   "source_article": "SE-H501R",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/462053e0-adb1-436a-8e1f-8af31aec2670",
   "image_url": "https://cdn.autoteiledirekt.de/thumb?id=13054704&m=1&n=0&lng=es&rev=94078121",
   "image_note": "Точная карточка555SE-H501R,внешний правый,13.7мм. Визуально один чёрный наконечник с гайкой и водяным знаком555,не левый/пара. Существующая применимость сохранена. Предыдущий независимый ljapan.ru показал CAPTCHA,не решалась,без повторов/обхода.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/2c77323e28bf4e08f4b20b4a3b77c0bd06c8fbafea6486c57db9ca5762811326.webp",
+    "thumbnail_path": "products/optimized/be86e7215d20f0e517648cdb317a36259deda5745cb5a4721d547c033b9b0871.webp",
+    "main_size": [
+      283,
+      283
+    ],
+    "thumbnail_size": [
+      180,
+      180
+    ]
   },
   "fitment_status": "existing_preserved",
   "checked_sources": [
@@ -39,6 +48,29 @@
   ],
   "next_offer_id": 22703,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T12:39:11.555Z"
+  },
+  "source_sha256": "fd5dacaa941f0ea64cbead7b7ed40e29f54446efeb81eac13e2e369cb62fef1c",
+  "main_sha256": "2c77323e28bf4e08f4b20b4a3b77c0bd06c8fbafea6486c57db9ca5762811326",
+  "main_size": [
+    283,
+    283
+  ],
+  "thumbnail_sha256": "be86e7215d20f0e517648cdb317a36259deda5745cb5a4721d547c033b9b0871",
+  "thumbnail_size": [
+    180,
+    180
+  ],
+  "publication": {
+    "commit": "ad43a3c6edc4955b1a623ce66e1a32c1b133be2f",
+    "deploy": "dep-dbq62b5g1s2s739i35ig",
+    "status": "live"
   }
 }
