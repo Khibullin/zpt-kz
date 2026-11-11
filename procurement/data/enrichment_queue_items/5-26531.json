@@ -1,0 +1,186 @@
+{
+  "article": "ST-51712-D7000",
+  "brand": "SAT",
+  "has_fitment": false,
+  "id": 26531,
+  "kaspi_url": "https://kaspi.kz/shop/p/diski-sat-perednie-st-51712-d7000-129778350/?c=750000000",
+  "main_image": "",
+  "name": "Диск тормозной передний правый/левый (вентилируемый) Hyundai Hyundai",
+  "photo_status": "needs_source",
+  "product_id": 8136,
+  "profit": 4090,
+  "stock": "1",
+  "supplier_id": 5,
+  "task_id": 6109,
+  "offer_id": 26531,
+  "status": "prepared_photo_and_fitment",
+  "checked_on": "2026-11-11",
+  "source_url": "https://satparts.ru/product/st-51712-d7000",
+  "source_label": "SATparts.ru — независимый каталог продавца SAT (ИП Спиридонов)",
+  "source_kind": "retailer_catalogue",
+  "source_article": "ST-51712-D7000",
+  "fitments": [
+    {
+      "make": "Hyundai",
+      "model": "Sonata",
+      "generation": "7",
+      "years": "2014–2017",
+      "body": "Седан",
+      "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
+    },
+    {
+      "make": "Hyundai",
+      "model": "Tucson",
+      "generation": "3",
+      "years": "2015–2019",
+      "body": "SUV 5дв.",
+      "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
+    },
+    {
+      "make": "Hyundai",
+      "model": "Tucson",
+      "generation": "3 рест.1",
+      "years": "2018–2021",
+      "body": "SUV 5дв.",
+      "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
+    },
+    {
+      "make": "Kia",
+      "model": "Sportage",
+      "generation": "4",
+      "years": "2015–2019",
+      "body": "SUV 5дв.",
+      "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
+    },
+    {
+      "make": "Kia",
+      "model": "Sportage",
+      "generation": "4 рест.1",
+      "years": "2018–2022",
+      "body": "SUV 5дв.",
+      "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
+    },
+    {
+      "make": "Hyundai",
+      "model": "Tucson",
+      "generation": "4",
+      "years": "2021–",
+      "body": "SUV 5дв.",
+      "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
+    },
+    {
+      "make": "Kia",
+      "model": "Seltos",
+      "generation": "1",
+      "years": "2019–2022",
+      "body": "SUV 5дв.",
+      "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
+    },
+    {
+      "make": "Hyundai",
+      "model": "Kona",
+      "generation": "1",
+      "years": "2017–2021",
+      "body": "SUV 5дв.",
+      "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
+    },
+    {
+      "make": "Hyundai",
+      "model": "Kona",
+      "generation": "1 рест.1",
+      "years": "2020–",
+      "body": "SUV 5дв.",
+      "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
+    },
+    {
+      "make": "Kia",
+      "model": "Seltos",
+      "generation": "1 рест.1",
+      "years": "2022–",
+      "body": "SUV 5дв.",
+      "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
+    },
+    {
+      "make": "Kia",
+      "model": "K5",
+      "generation": "3",
+      "years": "2019–2024",
+      "body": "Седан",
+      "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
+    },
+    {
+      "make": "Hyundai",
+      "model": "Tucson",
+      "generation": "4 рест.1",
+      "years": "2023–",
+      "body": "SUV 5дв.",
+      "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
+    },
+    {
+      "make": "Kia",
+      "model": "K5",
+      "generation": "3 рест.1",
+      "years": "2023–",
+      "body": "Седан",
+      "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
+    },
+    {
+      "make": "Kia",
+      "model": "Ceed",
+      "generation": "3",
+      "years": "2018–2021",
+      "body": "Хэтчбек5дв.",
+      "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
+    },
+    {
+      "make": "Kia",
+      "model": "Ceed",
+      "generation": "3",
+      "years": "2018–2021",
+      "body": "Универсал",
+      "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
+    },
+    {
+      "make": "Kia",
+      "model": "Ceed",
+      "generation": "3 рест.1",
+      "years": "2021–",
+      "body": "Хэтчбек5дв.",
+      "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
+    },
+    {
+      "make": "Kia",
+      "model": "Ceed",
+      "generation": "3 рест.1",
+      "years": "2021–",
+      "body": "Универсал",
+      "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
+    },
+    {
+      "make": "Kia",
+      "model": "Soul",
+      "generation": "3",
+      "years": "2019–2022",
+      "body": "Хэтчбек5дв.",
+      "notes": "Передний вентилируемый диск,305мм. ИсточникSATparts;двигатель/регион не указаны."
+    }
+  ],
+  "fitment_note": "18конфигураций из точной таблицы продавца,8пар марка/модель. Источник не назван производителем. Диапазоны сохранены раздельно; открытые не ограничены2026; двигатели не добавлены.",
+  "image_url": "https://static.autotrade.su/nomenclature/wm/b/93/938ed2e11e_1.jpg",
+  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/30ab95a9-9d94-4368-bf88-38e233b161cc",
+  "image_note": "Фото одного переднего тормозного диска SATST-51712-D7000 с точной карточки SATparts, визуально проверено.",
+  "photo": {
+    "status": "downloaded_exact_verified"
+  },
+  "checked_sources": [
+    {
+      "url": "https://satparts.ru/product/st-51712-d7000",
+      "result": "ExactSATarticle;18specifictableconfigurations; realphoto downloaded visuallyverified"
+    }
+  ],
+  "next_offer_id": 25196,
+  "verification": {
+    "trade_data_unchanged": true,
+    "photo_visually_verified": true
+  }
+}
