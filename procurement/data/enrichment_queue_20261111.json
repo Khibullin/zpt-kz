@@ -9267,7 +9267,7 @@
     }
   ],
   "results": [],
-  "next_offer_id": 25138,
+  "next_offer_id": 25218,
   "batch": {
     "supplier_id": 5,
     "batch_number": 1,
@@ -9373,11 +9373,11 @@
       25184,
       25210
     ],
-    "reviewed": 30,
+    "reviewed": 31,
     "published_fitments": 8,
     "published_photos": 7,
     "unconfirmed": 17,
-    "next_offer_id": 25138,
+    "next_offer_id": 25218,
     "photos_present": 10,
     "fitments_present": 58,
     "both_present": 8
@@ -9422,7 +9422,8 @@
     26230,
     28171,
     25245,
-    25270
+    25270,
+    25138
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
@@ -9447,7 +9448,8 @@
     26230,
     28171,
     25245,
-    25270
+    25270,
+    25138
   ],
   "superseded_candidates": [
     26720,
