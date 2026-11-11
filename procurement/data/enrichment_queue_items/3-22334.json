@@ -39,6 +39,22 @@
   ],
   "next_offer_id": 23256,
   "verification": {
-    "trade_data_unchanged": true
+    "trade_data_unchanged": true,
+    "db_verified": false,
+    "ui_verified": false,
+    "db_read_error": "Render MCP Internal error; temporary, no duplicate import",
+    "baseline_ui": {
+      "photo_empty": true,
+      "brand_article_matches": true,
+      "stock": "6",
+      "has_fitment": true,
+      "trade_values_match_queue": true,
+      "checked_at": "2026-11-11T12:50:00Z"
+    }
+  },
+  "publication": {
+    "main_commit": "300589ce14087af5866fa98c82545c9d25c1f691",
+    "status": "waiting_autodeploy_and_actual_save_verification",
+    "checked_at": "2026-11-11T12:54:33.632Z"
   }
 }
