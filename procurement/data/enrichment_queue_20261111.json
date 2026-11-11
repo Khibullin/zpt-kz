@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T12:39:21.727Z",
+  "checked_at": "2026-11-11T12:39:24.837Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -5112,14 +5112,14 @@
       "id": 35172,
       "kaspi_price": 6783,
       "kaspi_url": "https://kaspi.kz/shop/p/motorad-termostat-281-88k-174077954/?c=750000000",
-      "main_image": "",
+      "main_image": "products/optimized/8caea5d8bff3b02ac9600ea67d83ee26cc35198bc7088ef58d41948afd648a1e.webp",
       "name": "Термостат 88°С",
-      "photo_status": "needs_source",
+      "photo_status": "done",
       "product_id": 15980,
       "profit": 1385.125,
       "stock": "3",
       "supplier_id": 3,
-      "supplier_thumbnail": "",
+      "supplier_thumbnail": "products/optimized/7487106ee5fc1e59be1ac3e691a2e3dcf64c8a1c0293c379f73d50581cc68285.webp",
       "task_id": 13953
     },
     {
@@ -11223,16 +11223,16 @@
       22938,
       23110
     ],
-    "reviewed": 78,
+    "reviewed": 79,
     "published_fitments": 1,
-    "published_photos": 21,
+    "published_photos": 22,
     "unconfirmed": 57,
-    "photos_present": 23,
+    "photos_present": 24,
     "fitments_present": 47,
-    "both_present": 21,
+    "both_present": 22,
     "created_at": "2026-11-11T11:52:47.402Z",
     "fixed": true,
-    "next_offer_id": 35172
+    "next_offer_id": 35180
   },
   "completed_offer_ids": [
     26820,
@@ -11334,7 +11334,8 @@
     22113,
     22388,
     35137,
-    35217
+    35217,
+    35172
   ],
   "reviewed_offer_ids": [
     26787,
@@ -11689,16 +11690,17 @@
     22113,
     22388,
     35137,
-    35217
+    35217,
+    35172
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 353,
-    "remaining_unreviewed": 55,
+    "reviewed": 354,
+    "remaining_unreviewed": 54,
     "unconfirmed_reviewed": 253,
-    "remaining_missing_fields": 308,
-    "photo_added": 100,
+    "remaining_missing_fields": 307,
+    "photo_added": 101,
     "fitment_added": 55,
     "make_model_pairs_added": 126,
     "configurations_added": 164
@@ -11786,50 +11788,6 @@
     "unchanged_trade_data": true
   },
   "prepared_candidates": [
-    {
-      "article": "281-88K",
-      "brand": "MOTORAD",
-      "cost": 4300,
-      "has_fitment": true,
-      "id": 35172,
-      "kaspi_price": 6783,
-      "kaspi_url": "https://kaspi.kz/shop/p/motorad-termostat-281-88k-174077954/?c=750000000",
-      "main_image": "",
-      "name": "Термостат 88°С",
-      "photo_status": "needs_source",
-      "product_id": 15980,
-      "profit": 1385.125,
-      "stock": "3",
-      "supplier_id": 3,
-      "supplier_thumbnail": "",
-      "task_id": 13953,
-      "offer_id": 35172,
-      "status": "prepared_photo_existing_fitment",
-      "checked_on": "2026-11-11",
-      "source_url": "https://cars245.com/ru/item/motorad-28188K-thermostat-coolant/",
-      "source_label": "Cars245 — независимый каталог продавца",
-      "source_kind": "retailer_catalogue",
-      "source_article": "281-88K",
-      "fitments": [],
-      "fitment_note": "Существующая применимость сохранена.",
-      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/4c69ddc4-ab6e-44d7-a0e7-e6c04c663d1c",
-      "image_url": "https://cars245images.cc/webp/big/motorad/f4/motorad-28188K.jpg.webp",
-      "image_note": "Точная карточкаMOTORAD281-88K,88°C,56/29мм,44мм. Визуально один металлический термостат без корпуса;не281-82K/281-77K. Существующая применимость сохранена.",
-      "photo": {
-        "status": "downloaded_visually_verified_not_queued"
-      },
-      "fitment_status": "existing_preserved",
-      "checked_sources": [
-        {
-          "url": "https://cars245.com/ru/item/motorad-28188K-thermostat-coolant/",
-          "result": "Точная карточкаMOTORAD281-88K,88°C,56/29мм,44мм. Визуально один металлический термостат без корпуса;не281-82K/281-77K. Существующая применимость сохранена."
-        }
-      ],
-      "next_offer_id": 35180,
-      "verification": {
-        "trade_data_unchanged": true
-      }
-    },
     {
       "article": "348-92K",
       "brand": "MOTORAD",
@@ -12204,5 +12162,5 @@
     }
   ],
   "publication_pending": null,
-  "next_offer_id": 35172
+  "next_offer_id": 35180
 }
