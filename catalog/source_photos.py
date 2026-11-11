@@ -134,6 +134,8 @@ def process_photo_tasks(limit=10):
     done+=process_zakaz100_photos(limit=max(0,limit-done))
     from .reviewed_zakaz_cvvt import process_reviewed_photos as process_cvvt_photos
     done+=process_cvvt_photos(limit=max(0,limit-done))
+    from .reviewed_zakaz_bumpers4 import process_reviewed_photos as process_bumper_photos
+    done+=process_bumper_photos(limit=max(0,limit-done))
     from .reviewed_top50 import process_reviewed_photos
     done+=process_reviewed_photos(limit=max(0,limit-done))
     from .reviewed_next50 import process_reviewed_photos as process_next50_photos
