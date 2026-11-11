@@ -128,8 +128,10 @@ def process_photo_tasks(limit=10):
     # Prepared work is activated by the deployed consumer, not the old process
     # while Render runs schema/data migrations for the next release.
     SupplierPhotoTask.objects.filter(status__in=['prepared','maker_ready','web_ready','bilstein_ready','shock_ready']).update(status='pending')
+    from .reviewed_zakaz100 import process_reviewed_photos as process_zakaz100_photos
+    done=process_zakaz100_photos(limit=limit)
     from .reviewed_top50 import process_reviewed_photos
-    done=process_reviewed_photos(limit=limit)
+    done+=process_reviewed_photos(limit=max(0,limit-done))
     from .reviewed_next50 import process_reviewed_photos as process_next50_photos
     done+=process_next50_photos(limit=max(0,limit-done))
     from .reviewed_next50_extra import process_reviewed_photos as process_extra_photos
