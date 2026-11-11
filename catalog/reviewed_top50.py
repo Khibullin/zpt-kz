@@ -101,12 +101,12 @@ def process_reviewed_photos(limit=10):
     from procurement.models import Offer, RetailListing
     from catalog.source_photos import save_shared_image
     manifest = {row['offer_id']: row for row in reviewed_rows() if row.get('main_b64')}
-    task_ids = list(SupplierPhotoTask.objects.filter(status='reviewed50_ready',
+    task_ids = list(SupplierPhotoTask.objects.filter(status__in=['reviewed50_ready', 'top50_v2_ready'],
         evidence__reviewed_batch=BATCH).order_by('pk').values_list('pk', flat=True)[:max(0, limit)])
     done = 0
     for task_id in task_ids:
         with transaction.atomic():
-            task = SupplierPhotoTask.objects.select_for_update(skip_locked=True, of=('self',)).select_related('offer', 'product').filter(pk=task_id, status='reviewed50_ready').first()
+            task = SupplierPhotoTask.objects.select_for_update(skip_locked=True, of=('self',)).select_related('offer', 'product').filter(pk=task_id, status__in=['reviewed50_ready', 'top50_v2_ready']).first()
             if task is None:
                 continue
             row = manifest.get(task.offer_id)

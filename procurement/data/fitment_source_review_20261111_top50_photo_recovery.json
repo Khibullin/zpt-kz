@@ -1,0 +1,48 @@
+{
+  "checked_on": "2026-11-11",
+  "scope": "Recover only task2990/product5017/offer23292 ASVA0212-008 and task13929/product15956/offer35146 MAHLEAVE81000P from cached-manifest rejection. No new external requests; existing checksum-verified same-day Kaspi photographs.",
+  "before": {
+    "verified_offers": 4353,
+    "photos": 19274,
+    "queue": {
+      "done": 18914,
+      "skipped": 1616,
+      "needs_source": 28963
+    },
+    "top50": {
+      "photos": 46,
+      "verified_offers": 47
+    }
+  },
+  "diagnosis": "Both skipped tasks still match exact live offer/product/listing/source/manifest. Earlier worker likely cached the old manifest while migration0026 staged the updated manifest. Unique top50_v2_ready marker is ignored by old consumer.",
+  "targets": [
+    {
+      "task_id": 2990,
+      "product_id": 5017,
+      "offer_id": 23292,
+      "brand": "ASVA",
+      "article": "0212-008"
+    },
+    {
+      "task_id": 13929,
+      "product_id": 15956,
+      "offer_id": 35146,
+      "brand": "MAHLE",
+      "article": "AVE81000P"
+    }
+  ],
+  "verification": "Two SQLite regression tests pass: exact target processing, idempotency, trade and fitment preservation, changed identity, pre-existing photo and foreign source rejected. Packaged images visually inspected.",
+  "status": "Prepared; requires live deploy and DB verification.",
+  "restrictions": "All previous source denials retained. No ASVA or Alta-Karter remote requests. No general producer/staging or separate consumer. Existing photos are never overwritten.",
+  "remaining_top50": {
+    "missing_photos": [
+      "555 SAK-3971R",
+      "BILSTEIN 22-229373"
+    ],
+    "missing_fitments": [
+      "555 SAK-3971R",
+      "ASVA 0224-084",
+      "BILSTEIN 22-229373"
+    ]
+  }
+}
