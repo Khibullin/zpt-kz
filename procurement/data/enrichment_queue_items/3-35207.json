@@ -23,11 +23,15 @@
   "photo": {
     "status": "unconfirmed_or_excluded"
   },
-  "reason": "Точная карточка MOTORAD596-105K наCars245 содержит общую инструкцию GeneralCoolingSystemMaintenanceGuidelines вместофотографиидетали. Изображениеисключено;прежняяприменимость сохранена.",
+  "reason": "Точная карточка MOTORAD596-105K наCars245 содержит общую инструкцию GeneralCoolingSystemMaintenanceGuidelines вместофотографиидетали. Изображениеисключено;прежняяприменимость сохранена. Новый независимый Sparetoпроверен: на фото зелёный датчикоподобный разъём, хотя карточка указывает withoutsensor; противоречие комплектности, фотография исключена.",
   "checked_sources": [
     {
       "url": "https://cars245.com/en/item/motorad-596105K-thermostat-coolant/",
       "result": "Exactarticle mainimage downloadedandvisuallyidentified asgenericmaintenanceinstructions,notpartphoto"
+    },
+    {
+      "url": "https://spareto.com/products/motorad-thermostat-coolant/596-105k",
+      "result": "New exact independent source inspected. Photo shows green sensor-like connector while specifications explicitly say without sensor; kit completeness conflict, photo not imported."
     }
   ],
   "next_offer_id": 35215,
