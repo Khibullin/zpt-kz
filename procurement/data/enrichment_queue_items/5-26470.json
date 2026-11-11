@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 6002,
   "offer_id": 26470,
-  "status": "prepared_photo_existing_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://gw-store.ru/catalog/haval-jolion-2020-n-v-/disk-stsepleniya-haval-jolion-m6-original-/",
   "source_label": "GreatWallStore — независимый продавец оригинальных HAVAL",
@@ -24,11 +24,20 @@
   "source_article": "1601200XSY13A",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/30aababa-e017-4a0c-8411-4b1a9bc59aa0",
   "image_url": "https://gw-store.ru/upload/resize_cache/ram.watermark/fa8/dbb/cb6/4071/20240902_135548.webp",
   "image_note": "Реальный один оригинальный диск с маркировкой1601200XSY13A на детали и наклейке. Комплектность — один ведомый диск; существующая применимость сохранена.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/1caaa5f5a16a0c7e168a7f908c4e092161da16c17b0b85d3145c395e96125bb6.webp",
+    "thumbnail_path": "products/optimized/9129cb0d28b6bfa95e3ff2307f7bed935b6c0fdf1733f6acb0bb6cec8e101f43.webp",
+    "main_size": [
+      800,
+      562
+    ],
+    "thumbnail_size": [
+      180,
+      126
+    ]
   },
   "fitment_status": "existing_preserved",
   "checked_sources": [
@@ -39,6 +48,29 @@
   ],
   "next_offer_id": 26250,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T11:48:39.678Z"
+  },
+  "source_sha256": "196f0746f698548f6ea49887069d6953372cca5f46313dcee8d442157aaa527c",
+  "main_sha256": "1caaa5f5a16a0c7e168a7f908c4e092161da16c17b0b85d3145c395e96125bb6",
+  "main_size": [
+    800,
+    562
+  ],
+  "thumbnail_sha256": "9129cb0d28b6bfa95e3ff2307f7bed935b6c0fdf1733f6acb0bb6cec8e101f43",
+  "thumbnail_size": [
+    180,
+    126
+  ],
+  "publication": {
+    "commit": "4ded4decb82a9095ede0648b4c7dc054989e5f2d",
+    "deploy": "dep-dbq5a8ff3r2c73b9knv0",
+    "status": "live"
   }
 }
