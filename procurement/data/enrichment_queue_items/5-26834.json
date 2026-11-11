@@ -1,0 +1,42 @@
+{
+  "article": "1026102GD150",
+  "brand": "JASHI",
+  "cost": 7300,
+  "has_fitment": true,
+  "id": 26834,
+  "kaspi_price": 10330,
+  "kaspi_url": "https://kaspi.kz/shop/p/katushka-zazhiganija-jashi-1026102gd150-119322564/?c=750000000",
+  "main_image": "",
+  "name": "Катушка зажигания JAC",
+  "photo_status": "needs_source",
+  "product_id": 8420,
+  "profit": 1488.75,
+  "stock": "3",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 6393,
+  "offer_id": 26834,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "JASHI 1026102GD150: ATCT использует одно и то же изображение для четырёх разных вариантов — наконечника, катушки без наконечника, JASHI и AQBP. Фото точного бренда и исполнения не подтверждено, общее изображение исключено. Существующая применимость сохранена.",
+  "checked_sources": [
+    {
+      "url": "https://atct.kz/katushka-zazhiganiya-s5",
+      "result": "Same cdn.abcp.ru/f/569448 image for four distinct articles/brands/variants; not exact photo evidence."
+    },
+    {
+      "query": "\"JASHI\" \"1026102GD150\"",
+      "result": "Other search results YM/Kaspi, restricted source images not requested."
+    }
+  ],
+  "next_offer_id": 26196,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true
+  }
+}
