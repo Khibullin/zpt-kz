@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 13969,
   "offer_id": 35188,
-  "status": "prepared_photo_existing_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://www.motointegrator.de/artikel/1443897-thermostat-kuehlmittel-motorad-394-95k",
   "source_label": "Motointegrator — независимый каталог продавца",
@@ -24,11 +24,20 @@
   "source_article": "394-95K",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/eab2c351-a469-47cb-aa3e-849b13b96fba",
   "image_url": "https://ic-files-res.cloudinary.com/image/upload/t_pad_white300x300v1/v1/item/egea8ebwgsrjp95ulzg3.jpg",
   "image_note": "Карточка MOTORAD394-95K:95°C,корпус и уплотнение. Визуально фотография одного термостата в чёрном угловом корпусе,без дополнительных элементов; не схема/заглушка. Общая оговорка продавца о примерном изображении записана; точная карточка, бренд и комплектность совпадают. Существующая применимость сохранена.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/901bbb326243fac25b94c0bc8fc10b6a8c2053191533c9164198ca4dd9acef66.webp",
+    "thumbnail_path": "products/optimized/eae77c56b4e0f84caab41cfa7662d988f48baf9d5d405ddacc6c577bc786d086.webp",
+    "main_size": [
+      300,
+      300
+    ],
+    "thumbnail_size": [
+      180,
+      180
+    ]
   },
   "fitment_status": "existing_preserved",
   "checked_sources": [
@@ -39,6 +48,29 @@
   ],
   "next_offer_id": 23510,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T12:10:46.810Z"
+  },
+  "source_sha256": "9563c3e6fbc93d2e66a9af1c8486b7be799a839d516d76bba1c00980eb58fe5f",
+  "main_sha256": "901bbb326243fac25b94c0bc8fc10b6a8c2053191533c9164198ca4dd9acef66",
+  "main_size": [
+    300,
+    300
+  ],
+  "thumbnail_sha256": "eae77c56b4e0f84caab41cfa7662d988f48baf9d5d405ddacc6c577bc786d086",
+  "thumbnail_size": [
+    180,
+    180
+  ],
+  "publication": {
+    "commit": "5f2cf5c224c6b6ff8e2dbe7181a5ffc9b33ffd72",
+    "deploy": "dep-dbq5l0e7bikc738kc8fg",
+    "status": "live"
   }
 }
