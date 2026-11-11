@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T10:19:21.445Z",
+  "checked_at": "2026-11-11T10:19:24.040Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -2988,14 +2988,14 @@
       "id": 35151,
       "kaspi_price": 22589,
       "kaspi_url": "https://kaspi.kz/shop/p/katushka-zazhiganija-ngk-48065-100877611/?c=750000000",
-      "main_image": "",
+      "main_image": "products/optimized/00333312e5b966010df8f9ed3987b1bae19d91e03bf23791c73f680acac80290.webp",
       "name": "NGK Катушка зажигания U5020",
-      "photo_status": "needs_source",
+      "photo_status": "done",
       "product_id": 16040,
       "profit": 2415.375,
       "stock": "2",
       "supplier_id": 3,
-      "supplier_thumbnail": "",
+      "supplier_thumbnail": "products/optimized/0eec19d67d56deff9100142553e676d9a8994563392558b0eb00b85210a676c6.webp",
       "task_id": 14013
     },
     {
@@ -11118,7 +11118,7 @@
     }
   ],
   "results": [],
-  "next_offer_id": 35151,
+  "next_offer_id": 21933,
   "batch": {
     "supplier_id": 3,
     "batch_number": 2,
@@ -11224,14 +11224,14 @@
       22758,
       22944
     ],
-    "reviewed": 80,
+    "reviewed": 81,
     "published_fitments": 5,
-    "published_photos": 19,
+    "published_photos": 20,
     "unconfirmed": 61,
-    "next_offer_id": 35151,
-    "photos_present": 21,
+    "next_offer_id": 21933,
+    "photos_present": 22,
     "fitments_present": 58,
-    "both_present": 19,
+    "both_present": 20,
     "created_at": "2026-11-11T09:25:39.710Z",
     "fixed": true
   },
@@ -11283,7 +11283,8 @@
     35144,
     35221,
     35199,
-    24819
+    24819,
+    35151
   ],
   "reviewed_offer_ids": [
     26787,
@@ -11465,16 +11466,17 @@
     35144,
     35221,
     35199,
-    24819
+    24819,
+    35151
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 180,
-    "remaining_unreviewed": 228,
+    "reviewed": 181,
+    "remaining_unreviewed": 227,
     "unconfirmed_reviewed": 132,
-    "remaining_missing_fields": 360,
-    "photo_added": 47,
+    "remaining_missing_fields": 359,
+    "photo_added": 48,
     "fitment_added": 30,
     "make_model_pairs_added": 80,
     "configurations_added": 114
@@ -11548,50 +11550,6 @@
     "unchanged_trade_data": true
   },
   "prepared_candidates": [
-    {
-      "article": "48065",
-      "brand": "NGK",
-      "cost": 17100,
-      "has_fitment": true,
-      "id": 35151,
-      "kaspi_price": 22589,
-      "kaspi_url": "https://kaspi.kz/shop/p/katushka-zazhiganija-ngk-48065-100877611/?c=750000000",
-      "main_image": "",
-      "name": "NGK Катушка зажигания U5020",
-      "photo_status": "needs_source",
-      "product_id": 16040,
-      "profit": 2415.375,
-      "stock": "2",
-      "supplier_id": 3,
-      "supplier_thumbnail": "",
-      "task_id": 14013,
-      "offer_id": 35151,
-      "status": "prepared_photo_existing_fitment",
-      "checked_on": "2026-11-11",
-      "source_url": "https://spareto.co.uk/products/ngk-ignition-coil/u5020-48065",
-      "source_label": "Spareto — независимый каталог продавца",
-      "source_kind": "retailer_catalogue",
-      "source_article": "48065",
-      "fitments": [],
-      "fitment_note": "Существующая применимость сохранена.",
-      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/3efc99db-7d73-4955-94fd-b8077ae66047",
-      "image_url": "https://cdn.spareto.com/variants/images_webp/000/553/841/medium/u5020-48065-680C906A.webp?1793006973",
-      "image_note": "Точная NGK 48065/U5020: реальное фото одной катушки с маркировкой NGK, 4 контакта/SAE подтверждены точной карточкой. Конфликтующий заголовок U5024 у другого продавца не использован. Armtek503 отмечен временным.",
-      "photo": {
-        "status": "downloaded_visually_verified_not_queued"
-      },
-      "fitment_status": "existing_preserved",
-      "checked_sources": [
-        {
-          "url": "https://spareto.co.uk/products/ngk-ignition-coil/u5020-48065",
-          "result": "Точная NGK 48065/U5020: реальное фото одной катушки с маркировкой NGK, 4 контакта/SAE подтверждены точной карточкой. Конфликтующий заголовок U5024 у другого продавца не использован. Armtek503 отмечен временным."
-        }
-      ],
-      "next_offer_id": 22970,
-      "verification": {
-        "trade_data_unchanged": true
-      }
-    },
     {
       "article": "SAB-3852RR",
       "brand": "555",
