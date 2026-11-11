@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T09:12:45.038Z",
+  "checked_at": "2026-11-11T09:12:47.475Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -9267,7 +9267,7 @@
     }
   ],
   "results": [],
-  "next_offer_id": 26925,
+  "next_offer_id": 25519,
   "batch": {
     "supplier_id": 5,
     "batch_number": 1,
@@ -9373,13 +9373,13 @@
       25184,
       25210
     ],
-    "reviewed": 77,
-    "published_fitments": 17,
+    "reviewed": 78,
+    "published_fitments": 18,
     "published_photos": 22,
-    "unconfirmed": 54,
-    "next_offer_id": 26925,
+    "unconfirmed": 55,
+    "next_offer_id": 25519,
     "photos_present": 25,
-    "fitments_present": 67,
+    "fitments_present": 68,
     "both_present": 23
   },
   "completed_offer_ids": [
@@ -9484,19 +9484,20 @@
     25358,
     28173,
     26527,
-    28080
+    28080,
+    26925
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 77,
-    "remaining_unreviewed": 331,
-    "unconfirmed_reviewed": 54,
+    "reviewed": 78,
+    "remaining_unreviewed": 330,
+    "unconfirmed_reviewed": 55,
     "remaining_missing_fields": 385,
     "photo_added": 22,
-    "fitment_added": 17,
-    "make_model_pairs_added": 43,
-    "configurations_added": 44
+    "fitment_added": 18,
+    "make_model_pairs_added": 44,
+    "configurations_added": 45
   },
   "prepared_candidate": null,
   "source_limits": [
@@ -9580,51 +9581,6 @@
     "unchanged_trade_data": true
   },
   "prepared_candidates": [
-    {
-      "article": "12301004",
-      "brand": "RIVAL",
-      "has_fitment": false,
-      "id": 26925,
-      "kaspi_url": "https://kaspi.kz/shop/p/rival-12301004-hyundai-elantra-2021-2024-chernyi-117451247/?c=750000000",
-      "main_image": "",
-      "name": "Ковер багажника Hyundai",
-      "photo_status": "needs_source",
-      "product_id": 8496,
-      "profit": 4152.5,
-      "stock": "3",
-      "supplier_id": 5,
-      "task_id": 6469,
-      "offer_id": 26925,
-      "status": "prepared_fitment_photo_unconfirmed",
-      "checked_on": "2026-11-11",
-      "source_url": "https://autotc.ru/product/kovrik-bagaghnika-dlya-hyundai-elantra-vii-cn-7-sedan-2021-rival-12301004-1001828550",
-      "source_label": "АвтоТК/ФаркопРФ — независимый каталог продавца",
-      "source_kind": "retailer_catalogue",
-      "source_article": "12301004",
-      "fitments": [
-        {
-          "make": "Hyundai",
-          "model": "Elantra",
-          "notes": "VII (CN-7), седан; коврик багажника. Точный RIVAL12301004. Конец диапазона, двигатель и регион не указаны.",
-          "years": "2021–"
-        }
-      ],
-      "fitment_note": "Точная карточка продавца даёт Elantra VII CN-7,седан,2021-. Открытый диапазон не ограничен текущим годом. Модель Avante не перенесена из неподтверждённой/недоступной карточки.",
-      "photo": {
-        "status": "placeholder_excluded",
-        "reason": "Файл1001828550.webp скачан и проверен визуально:заглушка,не фотография коврика. Не импортирован."
-      },
-      "checked_sources": [
-        {
-          "url": "https://autotc.ru/product/kovrik-bagaghnika-dlya-hyundai-elantra-vii-cn-7-sedan-2021-rival-12301004-1001828550",
-          "result": "exactbrand/article,ElantraVII CN7sedan2021-, imageisplaceholderexcluded"
-        }
-      ],
-      "next_offer_id": 25519,
-      "verification": {
-        "trade_data_unchanged": true
-      }
-    },
     {
       "article": "602001263AA",
       "brand": "Chery",
