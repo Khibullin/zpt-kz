@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T11:06:19.153Z",
+  "checked_at": "2026-11-11T11:06:22.105Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -10508,18 +10508,18 @@
       "article": "1720500178",
       "brand": "SsangYong",
       "cost": 11100,
-      "has_fitment": false,
+      "has_fitment": true,
       "id": 26893,
       "kaspi_price": 14990,
       "kaspi_url": "https://kaspi.kz/shop/p/ssang-yong-klapan-elektromagnitnyi-1720500178-137291159/?c=750000000",
-      "main_image": "",
+      "main_image": "products/optimized/40511ee5133e8a504812fc6219d2ce3bc8c72dfafd6a505336253b935299d9d9.webp",
       "name": "Клапан электромагнитный SsangYong",
-      "photo_status": "needs_source",
+      "photo_status": "done",
       "product_id": 8525,
       "profit": 1766.25,
       "stock": "1",
       "supplier_id": 5,
-      "supplier_thumbnail": "",
+      "supplier_thumbnail": "products/optimized/8317561cdc68ba2ad6b4be535757cbb1c49be99f4a38085e0bb39c240626925d.webp",
       "task_id": 6498
     },
     {
@@ -11198,14 +11198,14 @@
       25789,
       26282
     ],
-    "reviewed": 41,
-    "published_fitments": 9,
-    "published_photos": 7,
+    "reviewed": 42,
+    "published_fitments": 10,
+    "published_photos": 8,
     "unconfirmed": 34,
-    "next_offer_id": 26893,
-    "photos_present": 7,
-    "fitments_present": 48,
-    "both_present": 7,
+    "next_offer_id": 25915,
+    "photos_present": 8,
+    "fitments_present": 49,
+    "both_present": 8,
     "created_at": "2026-11-11T10:30:05.643Z",
     "fixed": true
   },
@@ -11274,7 +11274,8 @@
     25932,
     26829,
     26288,
-    25581
+    25581,
+    26893
   ],
   "reviewed_offer_ids": [
     26787,
@@ -11517,19 +11518,20 @@
     25363,
     26829,
     26288,
-    25581
+    25581,
+    26893
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 241,
-    "remaining_unreviewed": 167,
+    "reviewed": 242,
+    "remaining_unreviewed": 166,
     "unconfirmed_reviewed": 176,
-    "remaining_missing_fields": 343,
-    "photo_added": 64,
-    "fitment_added": 40,
-    "make_model_pairs_added": 95,
-    "configurations_added": 132
+    "remaining_missing_fields": 342,
+    "photo_added": 65,
+    "fitment_added": 41,
+    "make_model_pairs_added": 96,
+    "configurations_added": 133
   },
   "prepared_candidate": null,
   "source_limits": [
@@ -11601,63 +11603,6 @@
     "unchanged_trade_data": true
   },
   "prepared_candidates": [
-    {
-      "article": "1720500178",
-      "brand": "SsangYong",
-      "cost": 11100,
-      "has_fitment": false,
-      "id": 26893,
-      "kaspi_price": 14990,
-      "kaspi_url": "https://kaspi.kz/shop/p/ssang-yong-klapan-elektromagnitnyi-1720500178-137291159/?c=750000000",
-      "main_image": "",
-      "name": "Клапан электромагнитный SsangYong",
-      "photo_status": "needs_source",
-      "product_id": 8525,
-      "profit": 1766.25,
-      "stock": "1",
-      "supplier_id": 5,
-      "supplier_thumbnail": "",
-      "task_id": 6498,
-      "offer_id": 26893,
-      "status": "prepared_photo_and_fitment",
-      "checked_on": "2026-11-11",
-      "source_url": "https://pnm-parts.ru/catalog/ssang-yong/kg-mobility/1720500178",
-      "source_label": "PNM Parts — независимый каталог продавца оригинальных SsangYong",
-      "source_kind": "retailer_catalogue",
-      "source_article": "1720500178",
-      "fitments": [
-        {
-          "make": "SsangYong",
-          "model": "Actyon",
-          "years": "2012–н.в.",
-          "engine": "G20",
-          "notes": "ТочнаяформулировкапродавцаActyon(12-)(G20). Рабочийобъём/приводнереконструированы."
-        }
-      ],
-      "fitment_note": "ТочныйOE1720500178/SSANGYONGActyon12-/G20вPNMParts. Верхнийпределоткрытыйпотекстуисточника,непревращёнв2026. ОтдельноефотоYallaSpare:оригинальныйклапан с коробкойSSANGYONGи читаемымполным1720500178; брендпредложенияSsangYongсохранён.",
-      "image_source_url": "https://yallaspare.com/products/190",
-      "image_url": "https://yallaspare.com/storage/variants/1400/products/94ecdd18-b2d7-443e-bc1a-e2a47b27939b.webp",
-      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/7ba1772c-43b3-4c9d-8652-2b9bf1da394b",
-      "image_note": "РеальныйодинклапанCVVTсоригинальнойкоробкойSSANGYONG;этикетка1720500178читается. Источник—YallaSpare,отдельно отприменимостиPNM.",
-      "photo": {
-        "status": "downloaded_visually_verified_not_queued"
-      },
-      "fitment_status": "prepared_not_imported",
-      "checked_sources": [
-        {
-          "url": "https://pnm-parts.ru/catalog/ssang-yong/kg-mobility/1720500178",
-          "result": "ExactoriginalbrandarticleActyon12- G20"
-        },
-        {
-          "url": "https://yallaspare.com/products/190",
-          "result": "ExactOEM1720500178Ssangyong/KGM genuine;actualvalve+labelledboxphoto"
-        }
-      ],
-      "next_offer_id": 25915,
-      "verification": {
-        "trade_data_unchanged": true
-      }
-    },
     {
       "article": "CVKH-150",
       "brand": "CTR",
@@ -11973,5 +11918,5 @@
     }
   ],
   "publication_pending": null,
-  "next_offer_id": 26893
+  "next_offer_id": 25915
 }
