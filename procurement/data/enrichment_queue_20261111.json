@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T10:04:33.634Z",
+  "checked_at": "2026-11-11T10:06:23.770Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -11680,6 +11680,239 @@
         }
       ],
       "next_offer_id": 35144,
+      "verification": {
+        "trade_data_unchanged": true
+      }
+    },
+    {
+      "article": "TI16105",
+      "brand": "MAHLE",
+      "cost": 19954,
+      "has_fitment": false,
+      "id": 35144,
+      "kaspi_price": 26046,
+      "kaspi_url": "https://kaspi.kz/shop/p/mahle-termostat-ti16105-133318206/?c=750000000",
+      "main_image": "",
+      "name": "MAHLE Термостат",
+      "photo_status": "needs_source",
+      "product_id": 15966,
+      "profit": 2586.25,
+      "stock": "6",
+      "supplier_id": 3,
+      "supplier_thumbnail": "",
+      "task_id": 13939,
+      "offer_id": 35144,
+      "status": "prepared_photo_and_fitment",
+      "checked_on": "2026-11-11",
+      "source_url": "https://cars245.com/en/item/mahle-TI16105-thermostat-coolant/",
+      "source_label": "Cars245 — независимый каталог продавца",
+      "source_kind": "retailer_catalogue",
+      "source_article": "TI16105",
+      "fitments": [
+        {
+          "make": "Audi",
+          "model": "A3 (8L1)",
+          "years": "1996–2003",
+          "engine": "1.6 бензин, APF",
+          "notes": "101л.с.;дляAPF. Строки с другимкодомдвигателя припримечанииEngineCodeAPFисключены."
+        },
+        {
+          "make": "Audi",
+          "model": "A3 (8L1)",
+          "years": "2000–2003",
+          "engine": "1.6 бензин, AVU",
+          "notes": "102л.с.;по индивидуальнойстрокеCars245."
+        },
+        {
+          "make": "Audi",
+          "model": "A3 (8L1)",
+          "years": "2000–2003",
+          "engine": "1.6 бензин, BFQ",
+          "notes": "102л.с.;по индивидуальнойстрокеCars245."
+        },
+        {
+          "make": "Skoda",
+          "model": "Octavia I (1U2)",
+          "years": "2000–2010",
+          "engine": "1.6 бензин, AVU",
+          "notes": "102л.с.;по индивидуальнойстрокеCars245."
+        },
+        {
+          "make": "Skoda",
+          "model": "Octavia I (1U2)",
+          "years": "2000–2010",
+          "engine": "1.6 бензин, BFQ",
+          "notes": "102л.с.;по индивидуальнойстрокеCars245."
+        },
+        {
+          "make": "Skoda",
+          "model": "Octavia I Combi (1U5)",
+          "years": "2000–2010",
+          "engine": "1.6 бензин, AVU",
+          "notes": "102л.с.;по индивидуальнойстрокеCars245."
+        },
+        {
+          "make": "Skoda",
+          "model": "Octavia I Combi (1U5)",
+          "years": "2000–2010",
+          "engine": "1.6 бензин, BFQ",
+          "notes": "102л.с.;по индивидуальнойстрокеCars245."
+        },
+        {
+          "make": "Volkswagen",
+          "model": "Bora I (1J2)",
+          "years": "1998–2005",
+          "engine": "1.6 бензин, APF",
+          "notes": "101л.с.;дляAPF. Строки с другимкодомдвигателя припримечанииEngineCodeAPFисключены."
+        },
+        {
+          "make": "Volkswagen",
+          "model": "Bora I (1J2)",
+          "years": "2000–2005",
+          "engine": "1.6 бензин, AVU",
+          "notes": "102л.с.;по индивидуальнойстрокеCars245."
+        },
+        {
+          "make": "Volkswagen",
+          "model": "Bora I (1J2)",
+          "years": "2000–2005",
+          "engine": "1.6 бензин, BFQ",
+          "notes": "102л.с.;по индивидуальнойстрокеCars245."
+        },
+        {
+          "make": "Volkswagen",
+          "model": "Bora Variant (1J6)",
+          "years": "1999–2005",
+          "engine": "1.6 бензин, APF",
+          "notes": "100л.с.;дляAPF. Строки с другимкодомдвигателя припримечанииEngineCodeAPFисключены."
+        },
+        {
+          "make": "Volkswagen",
+          "model": "Bora Variant (1J6)",
+          "years": "2000–2005",
+          "engine": "1.6 бензин, AVU",
+          "notes": "102л.с.;по индивидуальнойстрокеCars245."
+        },
+        {
+          "make": "Volkswagen",
+          "model": "Bora Variant (1J6)",
+          "years": "2000–2005",
+          "engine": "1.6 бензин, BFQ",
+          "notes": "102л.с.;по индивидуальнойстрокеCars245."
+        },
+        {
+          "make": "Volkswagen",
+          "model": "Golf IV (1J1)",
+          "years": "1997–2004",
+          "engine": "1.6 бензин, APF",
+          "notes": "100л.с.;дляAPF. Строки с другимкодомдвигателя припримечанииEngineCodeAPFисключены."
+        },
+        {
+          "make": "Volkswagen",
+          "model": "Golf IV (1J1)",
+          "years": "2000–2005",
+          "engine": "1.6 бензин, AVU",
+          "notes": "102л.с.;по индивидуальнойстрокеCars245."
+        },
+        {
+          "make": "Volkswagen",
+          "model": "Golf IV (1J1)",
+          "years": "2000–2005",
+          "engine": "1.6 бензин, BFQ",
+          "notes": "102л.с.;по индивидуальнойстрокеCars245."
+        },
+        {
+          "make": "Volkswagen",
+          "model": "Golf IV Variant (1J5)",
+          "years": "1999–2002",
+          "engine": "1.6 бензин, APF",
+          "notes": "101л.с.;дляAPF. Строки с другимкодомдвигателя припримечанииEngineCodeAPFисключены."
+        },
+        {
+          "make": "Volkswagen",
+          "model": "Golf IV Variant (1J5)",
+          "years": "2000–2006",
+          "engine": "1.6 бензин, AVU",
+          "notes": "102л.с.;по индивидуальнойстрокеCars245."
+        },
+        {
+          "make": "Volkswagen",
+          "model": "Golf IV Variant (1J5)",
+          "years": "2000–2006",
+          "engine": "1.6 бензин, BFQ",
+          "notes": "102л.с.;по индивидуальнойстрокеCars245."
+        },
+        {
+          "make": "Volkswagen",
+          "model": "Golf V (1K1)",
+          "years": "2003–2008",
+          "engine": "1.6 бензин, BAG",
+          "notes": "115л.с.;по индивидуальнойстрокеCars245."
+        },
+        {
+          "make": "Volkswagen",
+          "model": "Golf V (1K1)",
+          "years": "2003–2008",
+          "engine": "1.6 бензин, BLF",
+          "notes": "115л.с.;по индивидуальнойстрокеCars245."
+        },
+        {
+          "make": "Volkswagen",
+          "model": "Golf V (1K1)",
+          "years": "2003–2008",
+          "engine": "1.6 бензин, BLP",
+          "notes": "115л.с.;по индивидуальнойстрокеCars245."
+        },
+        {
+          "make": "Volkswagen",
+          "model": "Polo III Classic (6V2)",
+          "years": "1995–2001",
+          "engine": "1.6 бензин, APF",
+          "notes": "100л.с.;дляAPF. Строки с другимкодомдвигателя припримечанииEngineCodeAPFисключены."
+        },
+        {
+          "make": "Volkswagen",
+          "model": "Polo Variant (6V5)",
+          "years": "1997–2001",
+          "engine": "1.6 бензин, APF",
+          "notes": "101л.с.;дляAPF. Строки с другимкодомдвигателя припримечанииEngineCodeAPFисключены."
+        },
+        {
+          "make": "Volkswagen",
+          "model": "Touran (1T1, 1T2)",
+          "years": "2003–2007",
+          "engine": "1.6 бензин, BAG",
+          "notes": "115л.с.;по индивидуальнойстрокеCars245."
+        },
+        {
+          "make": "Volkswagen",
+          "model": "Touran (1T1, 1T2)",
+          "years": "2003–2007",
+          "engine": "1.6 бензин, BLF",
+          "notes": "115л.с.;по индивидуальнойстрокеCars245."
+        },
+        {
+          "make": "Volkswagen",
+          "model": "Touran (1T1, 1T2)",
+          "years": "2003–2007",
+          "engine": "1.6 бензин, BLP",
+          "notes": "115л.с.;по индивидуальнойстрокеCars245."
+        }
+      ],
+      "fitment_note": "Точная карточка MAHLETI16105:11пар/27конфигураций. Противоречивые строки с кодамиAEH/AKL/AFT/AFX/AUR при примечанииEngineCodeAPF исключены;сохраненыAPF и не имеющиеэтогопротиворечия AVU/BFQ/BAG/BLF/BLP. ПовторыBORA/BORAI иPOLOCLASSIC/POLOIIICLASSICобъединены поодинаковомукузову,периодуидвигателю; иныеограниченияне выдуманы.",
+      "image_url": "https://cars245images.cc/webp/big/mahle/14/mahle-TI16105_2.jpg.webp",
+      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/19605562-8d28-44bb-a812-35cc3b1561d4",
+      "image_note": "КаталожныйснимокMAHLETI16105,2видаоднойдеталибезразмерныхлиний;105°C,суплотнениемпокарточке,точнаяидентичностьпроверена.",
+      "photo": {
+        "status": "downloaded_visually_verified_not_queued"
+      },
+      "checked_sources": [
+        {
+          "url": "https://cars245.com/en/item/mahle-TI16105-thermostat-coolant/",
+          "result": "ExactMAHLETI16105,fullfitmenttable read;conflictingenginecode rows excluded,27configs11pairs; secondimageactualpart2views"
+        }
+      ],
+      "next_offer_id": 35221,
       "verification": {
         "trade_data_unchanged": true
       }
