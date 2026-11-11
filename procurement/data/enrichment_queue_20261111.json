@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T11:34:10.063Z",
+  "checked_at": "2026-11-11T11:35:11.700Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -11687,6 +11687,65 @@
         }
       ],
       "next_offer_id": 28161,
+      "verification": {
+        "trade_data_unchanged": true
+      }
+    },
+    {
+      "article": "602000036AA",
+      "brand": "Chery",
+      "cost": 2100,
+      "has_fitment": false,
+      "id": 25731,
+      "kaspi_price": 4230,
+      "kaspi_url": "https://kaspi.kz/shop/p/chery-602000036aa-dlja-chery-tiggo-8-pro-tiggo-8-pro-max-2021-2024-130743103/?c=750000000",
+      "main_image": "",
+      "name": "Брызговик передний Chery",
+      "photo_status": "needs_source",
+      "product_id": 7208,
+      "profit": 1351.25,
+      "stock": "4",
+      "supplier_id": 5,
+      "supplier_thumbnail": "",
+      "task_id": 5181,
+      "offer_id": 25731,
+      "status": "prepared_photo_and_fitment",
+      "checked_on": "2026-11-11",
+      "source_url": "https://cheryplus.ru/catalog/new_prods/cherm_rus/arka-kolesa-perednego-pravogo-602000036aa_1253941.html",
+      "source_label": "CheryPlus — независимый продавец оригинальных Chery",
+      "source_kind": "retailer_catalogue",
+      "source_article": "602000036AA",
+      "fitments": [
+        {
+          "make": "Chery",
+          "model": "Tiggo 8",
+          "notes": "Передний правый брызговичок бампера; обозначения источника T18/T1A/T1D."
+        },
+        {
+          "make": "Chery",
+          "model": "Tiggo 8 Pro",
+          "notes": "Передний правый брызговичок бампера; обозначения источника T18/T1A/T1D."
+        }
+      ],
+      "fitment_note": "Оригинальный Chery 602000036AA: передний правый брызговичок бампера для Tiggo 8 и Tiggo 8 Pro, обозначения T18/T1A/T1D. Годы и двигатели не указаны.",
+      "image_url": "https://cheryplus.ru/upload/iblock/7ca/7ca00cd2ddf3fcf2f6f4abb6a5149503.png",
+      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/033d9c4f-b0a1-47ea-8d2a-7fb04d23a6c2",
+      "image_note": "Реальный один чёрный передний правый брызговичок с наклейкой, оригинальная карточка точного Chery602000036AA; не комплект брызговиков.",
+      "photo": {
+        "status": "downloaded_visually_verified_not_queued"
+      },
+      "fitment_status": "prepared_not_imported",
+      "checked_sources": [
+        {
+          "url": "https://cheryplus.ru/catalog/new_prods/cherm_rus/arka-kolesa-perednego-pravogo-602000036aa_1253941.html",
+          "result": "Точный артикул, оригинал, Tiggo8/8Pro и фото одной детали проверены."
+        },
+        {
+          "url": "https://rem.ru/catalog/parts/602000036aa-19128992/",
+          "result": "Временный TimeoutError; постоянной блокировкой не объявлен."
+        }
+      ],
+      "next_offer_id": 26944,
       "verification": {
         "trade_data_unchanged": true
       }
