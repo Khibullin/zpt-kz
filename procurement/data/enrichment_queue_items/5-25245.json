@@ -1,0 +1,28 @@
+{
+  "article": "546613X050",
+  "brand": "JASHI",
+  "has_fitment": true,
+  "id": 25245,
+  "kaspi_url": "https://kaspi.kz/shop/p/jashi-perednii-546613x050-1-sht-146870239/?c=750000000",
+  "main_image": "",
+  "name": "Амортизатор передний Hyundai",
+  "photo_status": "needs_source",
+  "product_id": 6967,
+  "profit": 4902.5,
+  "stock": "2",
+  "supplier_id": 5,
+  "task_id": 4940,
+  "status": "prepared_photo_keep_existing_fitment",
+  "checked_on": "2026-11-11",
+  "source_url": "https://kaspi.kz/shop/p/jashi-perednii-546613x050-1-sht-146870239/?c=750000000",
+  "source_label": "точная карточка Kaspi; независимо GlobalParts card210536",
+  "source_kind": "retailer_listing",
+  "fitments": [],
+  "fitment_note": "Существующая применимость сохраняется. Подтверждены передний правый амортизатор 1шт без пружины. https://shop.globalparts.kz/catalog/card/210536",
+  "photo": {
+    "image_url": "https://resources.cdn-kaspi.kz/img/m/p/p4e/pd2/68846841.png?format=gallery-medium",
+    "local_path": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/0933e422-569f-4619-a662-51fe8ec0c22a",
+    "status": "downloaded_visually_verified_not_uploaded"
+  },
+  "next_offer_id": 25270
+}
