@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T08:08:05.473Z",
+  "checked_at": "2026-11-11T08:08:10.902Z",
   "lease": {
     "owner": "enrichment-20261111T0756Z",
     "acquired_at": "2026-11-11T07:56:06.863Z",
@@ -9267,7 +9267,7 @@
     }
   ],
   "results": [],
-  "next_offer_id": 25494,
+  "next_offer_id": 26223,
   "batch": {
     "supplier_id": 5,
     "batch_number": 1,
@@ -9373,11 +9373,11 @@
       25184,
       25210
     ],
-    "reviewed": 40,
+    "reviewed": 41,
     "published_fitments": 14,
     "published_photos": 18,
-    "unconfirmed": 21,
-    "next_offer_id": 25494,
+    "unconfirmed": 22,
+    "next_offer_id": 26223,
     "photos_present": 20,
     "fitments_present": 63,
     "both_present": 18
@@ -9443,14 +9443,15 @@
     25146,
     26220,
     26530,
-    26229
+    26229,
+    25099
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 40,
-    "remaining_unreviewed": 368,
-    "unconfirmed_reviewed": 21,
+    "reviewed": 41,
+    "remaining_unreviewed": 367,
+    "unconfirmed_reviewed": 22,
     "remaining_missing_fields": 389,
     "photo_added": 18,
     "fitment_added": 14,
@@ -9587,45 +9588,6 @@
         }
       ],
       "next_offer_id": 25099
-    },
-    {
-      "article": "2915110U7300",
-      "brand": "JASHI",
-      "has_fitment": true,
-      "id": 25099,
-      "kaspi_url": "https://kaspi.kz/shop/p/jashi-zadnii-2915110u7300-1-sht-118704137/",
-      "main_image": "",
-      "name": "Амортизатор задней JAC",
-      "photo_status": "needs_source",
-      "product_id": 6753,
-      "profit": 4552.5,
-      "stock": "9",
-      "supplier_id": 5,
-      "task_id": 4726,
-      "offer_id": 25099,
-      "status": "reviewed_photo_unconfirmed",
-      "checked_on": "2026-11-11",
-      "source_url": "https://atct.kz/amortizator-zadnii-j7",
-      "source_label": "ATCT — каталог продавца",
-      "source_kind": "retailer_catalogue",
-      "source_article": "2915110U7300",
-      "fitments": [],
-      "fitment_note": "Существующая применимость сохранена.",
-      "photo": {
-        "status": "unconfirmed_brand",
-        "reason": "У ATCT общая заглушка и заголовки JAC при описании JASHI; RenoShop даёт Jac без подтверждения JASHI. Фото другого бренда не переносить."
-      },
-      "checked_sources": [
-        {
-          "url": "https://atct.kz/amortizator-zadnii-j7",
-          "result": "exact article in JASHI description; generic placeholder, manufacturer headings JAC"
-        },
-        {
-          "url": "https://reno-shop.kz/product-category/zapchasti-jac/",
-          "result": "Search result exact article but Jac, not confirmed JASHI; not used."
-        }
-      ],
-      "next_offer_id": 26223
     },
     {
       "article": "1026605GH031",
