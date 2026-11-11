@@ -1,0 +1,42 @@
+{
+  "article": "SLK-E080L",
+  "brand": "555",
+  "cost": 4515,
+  "has_fitment": true,
+  "id": 22392,
+  "kaspi_price": 7107,
+  "kaspi_url": "https://kaspi.kz/shop/p/555-stoika-stabilizatora-slk-e080l-174095185/?c=750000000",
+  "main_image": "",
+  "name": "555 Стойка стабилизатора",
+  "photo_status": "skipped",
+  "product_id": 4127,
+  "profit": 1453.625,
+  "stock": "10",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 2100,
+  "offer_id": 22392,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "В точной карточке555SLK-E080L/SLKE080L Cartex фотография отсутствует (текстовая55); остальные результаты — списки применимости и аналоги других брендов,не фото точной детали. Существующая применимость сохранена.",
+  "checked_sources": [
+    {
+      "url": "https://cartex.kz/part/slke080l-555",
+      "result": "Live exact catalogue, no product image"
+    },
+    {
+      "query": "\"555\" \"SLK-E080L\" / \"SLKE080L\"",
+      "result": "Mainly cross references and applications"
+    }
+  ],
+  "next_offer_id": 22826,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true
+  }
+}
