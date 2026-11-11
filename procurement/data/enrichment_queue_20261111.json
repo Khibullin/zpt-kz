@@ -9267,7 +9267,7 @@
     }
   ],
   "results": [],
-  "next_offer_id": 25415,
+  "next_offer_id": 26230,
   "batch": {
     "supplier_id": 5,
     "batch_number": 1,
@@ -9373,11 +9373,11 @@
       25184,
       25210
     ],
-    "reviewed": 25,
+    "reviewed": 26,
     "published_fitments": 8,
     "published_photos": 7,
     "unconfirmed": 17,
-    "next_offer_id": 25415,
+    "next_offer_id": 26230,
     "photos_present": 10,
     "fitments_present": 58,
     "both_present": 8
@@ -9417,7 +9417,8 @@
     25369,
     25575,
     26702,
-    25105
+    25105,
+    25415
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
@@ -9437,7 +9438,9 @@
     "shop.globalparts.kz/product/jashi/8402010u226ke; /product/bort/b334501; /product/patron/pbd4855; /product/jac/2804100s4500-f011 returned not accessible. Do not retry via other routes.",
     "All historical ASVA / Alta-Karter / refused MOTORAD / BILSTEIN / PATRON restrictions remain."
   ],
-  "pending_publication": null,
+  "pending_publication": [
+    25415
+  ],
   "superseded_candidates": [
     26720,
     25488
