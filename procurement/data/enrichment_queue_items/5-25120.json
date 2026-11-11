@@ -1,0 +1,46 @@
+{
+  "article": "PSA343398",
+  "brand": "PATRON",
+  "cost": 6900,
+  "has_fitment": true,
+  "id": 25120,
+  "kaspi_price": 9599,
+  "kaspi_url": "https://kaspi.kz/shop/p/patron-zadnii-psa343398-1-sht-171918052/?c=750000000",
+  "main_image": "",
+  "name": "Амортизатор задний Hyundai",
+  "photo_status": "needs_source",
+  "product_id": 6817,
+  "profit": 1249.125,
+  "stock": "5",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 4790,
+  "offer_id": 25120,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "Точная карточка AutoTC PATRONPSA343398 показывает стандартную заглушку вместо детали; загруженное изображение исключено. PartMall точныйURL недоступен данным инструментом, другим каналом не повторялся. Существующая применимость сохранена.",
+  "checked_sources": [
+    {
+      "url": "https://autotc.ru/product/amortizator-podveski-zadn-hyundai-getz-1-1-1-61-5crdi-02-patron-psa343398-1001025056",
+      "result": "Точныйбренд иартикул; image_nosort/1001025056.webp заглушка, визуально проверена."
+    },
+    {
+      "url": "https://partmall.ru/product/PATRON/PSA343398",
+      "result": "URLnotaccessible; не повторять другим URL/каналом."
+    },
+    {
+      "url": "https://www.vseinstrumenti.ru/product/amortizator-podveski-zadnij-hyundai-getz-1-1-1-6-1-5crdi-02-patron-psa343398-10297172/",
+      "result": "Не запрашивался из-за действующего ограничения сайта; поисковый результат прямо называет фото условным."
+    }
+  ],
+  "next_offer_id": 26144,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true
+  }
+}
