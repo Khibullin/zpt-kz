@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 5388,
   "offer_id": 25969,
-  "status": "prepared_photo_existing_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://www.farpost.ru/ni/krasnodar/zapchasti/vtulka-stabilizatora-zadnego-lev-prav-hyundai-h1-starex-ctr-gv0181-cvkh-156-ctr-gv0181-g18446685902.html",
   "source_label": "Автотека на FarPost — независимое предложение продавца",
@@ -24,11 +24,20 @@
   "source_article": "CVKH-156",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/d023b1e4-3a19-445b-8adf-9dcda4741e10",
   "image_url": "https://static.baza.farpost.ru/v/1781047322893_bulletin?ni=yes",
   "image_note": "Одна реальнаязадняявтулкастабилизатораизточнойкарточкиCTR:GV0181(=CVKH-156)явноуказано;полныйисходныйартикулсохранён. НовуюкодировкуподтверждаетиндексируемаястрокатаблицыCTR;загрузкаотказавшегоPDFнеповторялась. Существующаяприменимостьсохранена.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/22dabbfc947f50ef0437afde452d05f276edf4fb797d6aedaef7c7062b5121b9.webp",
+    "thumbnail_path": "products/optimized/d5e768a2201f8a78dc2a23a9e663973c1259d141c2fbeef6666d30c9bcedf9e0.webp",
+    "main_size": [
+      640,
+      640
+    ],
+    "thumbnail_size": [
+      180,
+      180
+    ]
   },
   "fitment_status": "existing_preserved",
   "checked_sources": [
@@ -39,6 +48,29 @@
   ],
   "next_offer_id": 25762,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T11:33:58.163Z"
+  },
+  "source_sha256": "c013c20742a84516d7577e16fbb58e824c1329e21f934451e0e86a2186c06935",
+  "main_sha256": "22dabbfc947f50ef0437afde452d05f276edf4fb797d6aedaef7c7062b5121b9",
+  "main_size": [
+    640,
+    640
+  ],
+  "thumbnail_sha256": "d5e768a2201f8a78dc2a23a9e663973c1259d141c2fbeef6666d30c9bcedf9e0",
+  "thumbnail_size": [
+    180,
+    180
+  ],
+  "publication": {
+    "commit": "67ceb32acec7ee3307f1a9a44c0c779c90797192",
+    "deploy": "dep-dbq53i8473hc73ch8gv0",
+    "status": "live"
   }
 }
