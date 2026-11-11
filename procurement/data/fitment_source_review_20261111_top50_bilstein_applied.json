@@ -1,0 +1,586 @@
+{
+  "checked_on": "2026-11-11",
+  "payload": {
+    "checked_on": "2026-11-11",
+    "offers": [
+      {
+        "brand": "BILSTEIN",
+        "article": "22-119261",
+        "source_brand": "BILSTEIN",
+        "source_article": "22-119261",
+        "source_url": "https://cart.bilsteinus.com/strut-22-119261.html",
+        "status": "sourced",
+        "note": "Exact official US table; all source options and notes retained. No global completeness assertion.",
+        "rows": [
+          {
+            "make": "BMW",
+            "model": "X5",
+            "years": "2000",
+            "engine": "",
+            "options": "SubModel:4.4i; Position:Front Right",
+            "notes": "",
+            "region": "North America; manufacturer US catalogue"
+          },
+          {
+            "make": "BMW",
+            "model": "X5",
+            "years": "2001",
+            "engine": "",
+            "options": "SubModel:3.0i; Position:Front Right",
+            "notes": "",
+            "region": "North America; manufacturer US catalogue"
+          },
+          {
+            "make": "BMW",
+            "model": "X5",
+            "years": "2001",
+            "engine": "",
+            "options": "SubModel:4.4i; Position:Front Right",
+            "notes": "",
+            "region": "North America; manufacturer US catalogue"
+          },
+          {
+            "make": "BMW",
+            "model": "X5",
+            "years": "2002",
+            "engine": "",
+            "options": "SubModel:3.0i; Position:Front Right",
+            "notes": "",
+            "region": "North America; manufacturer US catalogue"
+          },
+          {
+            "make": "BMW",
+            "model": "X5",
+            "years": "2002",
+            "engine": "",
+            "options": "SubModel:4.4i; Position:Front Right",
+            "notes": "",
+            "region": "North America; manufacturer US catalogue"
+          },
+          {
+            "make": "BMW",
+            "model": "X5",
+            "years": "2002",
+            "engine": "",
+            "options": "SubModel:4.6is; Position:Front Right",
+            "notes": "",
+            "region": "North America; manufacturer US catalogue"
+          },
+          {
+            "make": "BMW",
+            "model": "X5",
+            "years": "2003",
+            "engine": "",
+            "options": "SubModel:3.0i; Position:Front Right",
+            "notes": "",
+            "region": "North America; manufacturer US catalogue"
+          },
+          {
+            "make": "BMW",
+            "model": "X5",
+            "years": "2003",
+            "engine": "",
+            "options": "SubModel:4.4i; Position:Front Right",
+            "notes": "",
+            "region": "North America; manufacturer US catalogue"
+          },
+          {
+            "make": "BMW",
+            "model": "X5",
+            "years": "2003",
+            "engine": "",
+            "options": "SubModel:4.6is; Position:Front Right",
+            "notes": "",
+            "region": "North America; manufacturer US catalogue"
+          },
+          {
+            "make": "BMW",
+            "model": "X5",
+            "years": "2004",
+            "engine": "",
+            "options": "SubModel:3.0i; Position:Front Right",
+            "notes": "",
+            "region": "North America; manufacturer US catalogue"
+          },
+          {
+            "make": "BMW",
+            "model": "X5",
+            "years": "2004",
+            "engine": "",
+            "options": "SubModel:4.4i; Position:Front Right",
+            "notes": "",
+            "region": "North America; manufacturer US catalogue"
+          },
+          {
+            "make": "BMW",
+            "model": "X5",
+            "years": "2005",
+            "engine": "",
+            "options": "SubModel:3.0i; Position:Front Right",
+            "notes": "",
+            "region": "North America; manufacturer US catalogue"
+          },
+          {
+            "make": "BMW",
+            "model": "X5",
+            "years": "2005",
+            "engine": "",
+            "options": "SubModel:4.4i; Position:Front Right",
+            "notes": "",
+            "region": "North America; manufacturer US catalogue"
+          },
+          {
+            "make": "BMW",
+            "model": "X5",
+            "years": "2006",
+            "engine": "",
+            "options": "SubModel:3.0i; Position:Front Right",
+            "notes": "",
+            "region": "North America; manufacturer US catalogue"
+          },
+          {
+            "make": "BMW",
+            "model": "X5",
+            "years": "2006",
+            "engine": "",
+            "options": "SubModel:4.4i; Position:Front Right",
+            "notes": "",
+            "region": "North America; manufacturer US catalogue"
+          }
+        ]
+      },
+      {
+        "brand": "BILSTEIN",
+        "article": "22-240675",
+        "source_brand": "BILSTEIN",
+        "source_article": "22-240675",
+        "source_url": "https://cart.bilsteinus.com/strut-22-240675.html",
+        "status": "sourced",
+        "note": "Exact official US table; all source options and notes retained. No global completeness assertion.",
+        "rows": [
+          {
+            "make": "Mercedes-Benz",
+            "model": "C250",
+            "years": "2012",
+            "engine": "",
+            "options": "SubModel:Base; Position:Front",
+            "notes": "Sport Suspension",
+            "region": "North America; manufacturer US catalogue"
+          },
+          {
+            "make": "Mercedes-Benz",
+            "model": "C250",
+            "years": "2012",
+            "engine": "",
+            "options": "SubModel:Sport; Position:Front",
+            "notes": "",
+            "region": "North America; manufacturer US catalogue"
+          },
+          {
+            "make": "Mercedes-Benz",
+            "model": "C250",
+            "years": "2013",
+            "engine": "",
+            "options": "SubModel:Base; Position:Front",
+            "notes": "Sport Suspension",
+            "region": "North America; manufacturer US catalogue"
+          },
+          {
+            "make": "Mercedes-Benz",
+            "model": "C250",
+            "years": "2013",
+            "engine": "",
+            "options": "SubModel:Sport; Position:Front",
+            "notes": "",
+            "region": "North America; manufacturer US catalogue"
+          },
+          {
+            "make": "Mercedes-Benz",
+            "model": "C250",
+            "years": "2014",
+            "engine": "",
+            "options": "SubModel:Base; Position:Front",
+            "notes": "Sport Suspension",
+            "region": "North America; manufacturer US catalogue"
+          },
+          {
+            "make": "Mercedes-Benz",
+            "model": "C250",
+            "years": "2014",
+            "engine": "",
+            "options": "SubModel:Sport; Position:Front",
+            "notes": "",
+            "region": "North America; manufacturer US catalogue"
+          },
+          {
+            "make": "Mercedes-Benz",
+            "model": "C250",
+            "years": "2015",
+            "engine": "",
+            "options": "SubModel:Base; Position:Front",
+            "notes": "Sport Suspension",
+            "region": "North America; manufacturer US catalogue"
+          },
+          {
+            "make": "Mercedes-Benz",
+            "model": "C300",
+            "years": "2008",
+            "engine": "",
+            "options": "SubModel:Sport; Position:Front",
+            "notes": "",
+            "region": "North America; manufacturer US catalogue"
+          },
+          {
+            "make": "Mercedes-Benz",
+            "model": "C300",
+            "years": "2009",
+            "engine": "",
+            "options": "SubModel:Sport; Position:Front",
+            "notes": "",
+            "region": "North America; manufacturer US catalogue"
+          },
+          {
+            "make": "Mercedes-Benz",
+            "model": "C300",
+            "years": "2010",
+            "engine": "",
+            "options": "SubModel:Sport; Position:Front",
+            "notes": "",
+            "region": "North America; manufacturer US catalogue"
+          },
+          {
+            "make": "Mercedes-Benz",
+            "model": "C300",
+            "years": "2011",
+            "engine": "",
+            "options": "SubModel:Sport; Position:Front",
+            "notes": "",
+            "region": "North America; manufacturer US catalogue"
+          },
+          {
+            "make": "Mercedes-Benz",
+            "model": "C350",
+            "years": "2008",
+            "engine": "",
+            "options": "SubModel:Sport; Position:Front",
+            "notes": "",
+            "region": "North America; manufacturer US catalogue"
+          },
+          {
+            "make": "Mercedes-Benz",
+            "model": "C350",
+            "years": "2009",
+            "engine": "",
+            "options": "SubModel:Sport; Position:Front",
+            "notes": "",
+            "region": "North America; manufacturer US catalogue"
+          },
+          {
+            "make": "Mercedes-Benz",
+            "model": "C350",
+            "years": "2010",
+            "engine": "",
+            "options": "SubModel:Sport; Position:Front",
+            "notes": "",
+            "region": "North America; manufacturer US catalogue"
+          },
+          {
+            "make": "Mercedes-Benz",
+            "model": "C350",
+            "years": "2011",
+            "engine": "",
+            "options": "SubModel:Sport; Position:Front",
+            "notes": "",
+            "region": "North America; manufacturer US catalogue"
+          },
+          {
+            "make": "Mercedes-Benz",
+            "model": "C350",
+            "years": "2012",
+            "engine": "",
+            "options": "SubModel:Base; Position:Front",
+            "notes": "",
+            "region": "North America; manufacturer US catalogue"
+          },
+          {
+            "make": "Mercedes-Benz",
+            "model": "C350",
+            "years": "2012",
+            "engine": "",
+            "options": "SubModel:Sport; Position:Front",
+            "notes": "",
+            "region": "North America; manufacturer US catalogue"
+          },
+          {
+            "make": "Mercedes-Benz",
+            "model": "C350",
+            "years": "2013",
+            "engine": "",
+            "options": "SubModel:Base; Position:Front",
+            "notes": "",
+            "region": "North America; manufacturer US catalogue"
+          },
+          {
+            "make": "Mercedes-Benz",
+            "model": "C350",
+            "years": "2013",
+            "engine": "",
+            "options": "SubModel:Sport; Position:Front",
+            "notes": "",
+            "region": "North America; manufacturer US catalogue"
+          },
+          {
+            "make": "Mercedes-Benz",
+            "model": "C350",
+            "years": "2014",
+            "engine": "",
+            "options": "SubModel:Base; Position:Front",
+            "notes": "",
+            "region": "North America; manufacturer US catalogue"
+          },
+          {
+            "make": "Mercedes-Benz",
+            "model": "C350",
+            "years": "2014",
+            "engine": "",
+            "options": "SubModel:Sport; Position:Front",
+            "notes": "",
+            "region": "North America; manufacturer US catalogue"
+          },
+          {
+            "make": "Mercedes-Benz",
+            "model": "C350",
+            "years": "2015",
+            "engine": "",
+            "options": "SubModel:Base; Position:Front",
+            "notes": "",
+            "region": "North America; manufacturer US catalogue"
+          },
+          {
+            "make": "Mercedes-Benz",
+            "model": "E350",
+            "years": "2010",
+            "engine": "",
+            "options": "SubModel:Base; Position:Front",
+            "notes": "Sport Suspension without Appearance Package",
+            "region": "North America; manufacturer US catalogue"
+          },
+          {
+            "make": "Mercedes-Benz",
+            "model": "E350",
+            "years": "2011",
+            "engine": "",
+            "options": "SubModel:Base; Position:Front",
+            "notes": "Sport Suspension without Appearance Package",
+            "region": "North America; manufacturer US catalogue"
+          },
+          {
+            "make": "Mercedes-Benz",
+            "model": "E350",
+            "years": "2012",
+            "engine": "",
+            "options": "SubModel:Base; Position:Front",
+            "notes": "Sport Suspension without Appearance Package",
+            "region": "North America; manufacturer US catalogue"
+          },
+          {
+            "make": "Mercedes-Benz",
+            "model": "E350",
+            "years": "2013",
+            "engine": "",
+            "options": "SubModel:Base; Position:Front",
+            "notes": "Sport Suspension without Appearance Package",
+            "region": "North America; manufacturer US catalogue"
+          },
+          {
+            "make": "Mercedes-Benz",
+            "model": "E350",
+            "years": "2014",
+            "engine": "",
+            "options": "SubModel:Base; Position:Front",
+            "notes": "Sport Suspension without Appearance Package",
+            "region": "North America; manufacturer US catalogue"
+          },
+          {
+            "make": "Mercedes-Benz",
+            "model": "E400",
+            "years": "2015",
+            "engine": "",
+            "options": "SubModel:Base; Position:Front",
+            "notes": "Sport Suspension",
+            "region": "North America; manufacturer US catalogue"
+          },
+          {
+            "make": "Mercedes-Benz",
+            "model": "E400",
+            "years": "2016",
+            "engine": "",
+            "options": "SubModel:Base; Position:Front",
+            "notes": "Sport Suspension",
+            "region": "North America; manufacturer US catalogue"
+          },
+          {
+            "make": "Mercedes-Benz",
+            "model": "E400",
+            "years": "2017",
+            "engine": "",
+            "options": "SubModel:Base; Position:Front",
+            "notes": "Sport Suspension",
+            "region": "North America; manufacturer US catalogue"
+          }
+        ]
+      }
+    ]
+  },
+  "status": "applied_and_verified",
+  "priority": "Owner-selected 50 Phaeton products ranked by profit in KZT; resume this subset first.",
+  "targets": {
+    "22-119261": {
+      "offer_id": 24826,
+      "product_id": 6530,
+      "task_id": 4503
+    },
+    "22-240675": {
+      "offer_id": 24832,
+      "product_id": 6536,
+      "task_id": 4509
+    }
+  },
+  "before": {
+    "verified_offers": 4283,
+    "products_with_photos": 19105,
+    "done": 18745,
+    "skipped": 1622,
+    "needs_source": 29126,
+    "active": 0
+  },
+  "review": "All 45 official US table rows read in full, including submodel, position, sport suspension and package exclusions. Engines blank in source, retained blank. Photos visually verified; exact full article identity checked in official page hidden product field and image filename. No global application completeness assertion.",
+  "tests": {
+    "parser_assertions": 10,
+    "migration_guard_tests": 4,
+    "compile": "passed"
+  },
+  "exceptions": [
+    "ASVA and Alta-Karter not contacted; prior restrictions retained.",
+    "SAK-3971R restricted source not retried.",
+    "22-229373 official cart page returned not accessible via this tool; do not retry this rejected URL through another channel/URL/protocol. Independent official PDF returned content length too large; not interpreted as absence or source block.",
+    "Automatic approval review explicitly rejected direct urllib retrieval of BILSTEIN_Program-2020_EN.pdf as retry of a previously rejected resource through another channel. Do not repeat the PDF via any alternative URL/protocol/channel. No further access or use of that retrieval attempted."
+  ],
+  "next": "Priority remains owner-selected 50 Phaeton items in procurement/data/phaeton_top50_priority_20261111.json. Photos 10/50, missing40; verified fitment35/50, missing15. Top50 missing exact identities have0 additional shared-base matches. Skip these two completed items. Fresh DB first; preserve all prior source refusals. Overall job not complete; automation remains enabled.",
+  "evidence": {
+    "22-119261": {
+      "page_sha256": "41e5a328b2bea42f2d96a2335bf226180e109d7ddec2ab61437f88107f935866",
+      "image_sha256": "980f8a82c9972637e0560aa2cd539a23de09057465636837dc840372c2eafae0"
+    },
+    "22-240675": {
+      "page_sha256": "1620dec559ea71866d2e3e4e2511a5b2227d566f024b0318f05e202861a3e12a",
+      "image_sha256": "9cdb2f053643eba05cf136086756c4092ca903ee42b61825246bdd1632b569d6"
+    }
+  },
+  "result": {
+    "products_with_photos": 19107,
+    "queue": {
+      "done": 18747,
+      "needs_source": 29124,
+      "skipped": 1622
+    },
+    "top50": {
+      "total": 50,
+      "with_fitment": 35,
+      "with_photo": 10
+    },
+    "verified_offers": 4285,
+    "photos_added": 2,
+    "offers_added": 2,
+    "configurations_added": 45,
+    "make_model_pairs_added": 6
+  },
+  "checks": [
+    {
+      "id": 24826,
+      "rows": 15,
+      "pairs": 1,
+      "exact_rows": true,
+      "other_fields_unchanged": true,
+      "other_metadata_unchanged": true
+    },
+    {
+      "id": 24832,
+      "rows": 30,
+      "pairs": 5,
+      "exact_rows": true,
+      "other_fields_unchanged": true,
+      "other_metadata_unchanged": true
+    }
+  ],
+  "photos": [
+    {
+      "evidence": {
+        "article": "22-119261",
+        "batch": "full-catalogue-20261110",
+        "brand": "BILSTEIN",
+        "bytes": 13340,
+        "checked_at": "2026-11-11T02:57:08.972450+00:00",
+        "free_disk_bytes": 415084544,
+        "image_url": "https://cart.bilsteinus.com/media/catalog/product/a/p/apa_22-119261_1_20261103145119.jpg",
+        "main_bytes": 11896,
+        "main_path": "products/optimized/3a64cbf21fd9792024b4dac2f908904693f6333e3bb87ae7234479411dcd3268.webp",
+        "main_size": [
+          800,
+          800
+        ],
+        "source_bytes": 164751,
+        "source_url": "https://cart.bilsteinus.com/strut-22-119261.html",
+        "thumbnail_bytes": 1444,
+        "thumbnail_path": "products/optimized/c7efd46a70ceb6ec6c8ad41b3ba8f1a7ad750c62ce1801338ddc6cb68bfa271d.webp",
+        "thumbnail_size": [
+          180,
+          180
+        ]
+      },
+      "id": 4503,
+      "main_image": "products/optimized/3a64cbf21fd9792024b4dac2f908904693f6333e3bb87ae7234479411dcd3268.webp",
+      "note": "Фотография точного товара из подтверждённого открытого каталога.",
+      "status": "done",
+      "supplier_thumbnail": "products/optimized/c7efd46a70ceb6ec6c8ad41b3ba8f1a7ad750c62ce1801338ddc6cb68bfa271d.webp"
+    },
+    {
+      "evidence": {
+        "article": "22-240675",
+        "batch": "full-catalogue-20261110",
+        "brand": "BILSTEIN",
+        "bytes": 12732,
+        "checked_at": "2026-11-11T02:57:10.654100+00:00",
+        "free_disk_bytes": 415068160,
+        "image_url": "https://cart.bilsteinus.com/media/catalog/product/a/p/apa_22-240675_1_20261103145724.jpg",
+        "main_bytes": 11256,
+        "main_path": "products/optimized/54f69093d7c636e0ab81e048448c7af4025c4d0598ad23de07b0e163bbfa97a5.webp",
+        "main_size": [
+          800,
+          800
+        ],
+        "source_bytes": 325817,
+        "source_url": "https://cart.bilsteinus.com/strut-22-240675.html",
+        "thumbnail_bytes": 1476,
+        "thumbnail_path": "products/optimized/13fbd42b75577b40834721eec05876374c10f9643f09b918e67eebc1cec96dee.webp",
+        "thumbnail_size": [
+          180,
+          180
+        ]
+      },
+      "id": 4509,
+      "main_image": "products/optimized/54f69093d7c636e0ab81e048448c7af4025c4d0598ad23de07b0e163bbfa97a5.webp",
+      "note": "Фотография точного товара из подтверждённого открытого каталога.",
+      "status": "done",
+      "supplier_thumbnail": "products/optimized/13fbd42b75577b40834721eec05876374c10f9643f09b918e67eebc1cec96dee.webp"
+    }
+  ],
+  "deployment": {
+    "id": "dep-dbpthvd9el5s738tvns0",
+    "commit": "952a4e075d36074fb24abda7380ddb8a82ae9da7",
+    "status": "live",
+    "finished_at": "2026-11-11T02:57:04.555388Z",
+    "manual_restart": false,
+    "new_consumer": false
+  }
+}
