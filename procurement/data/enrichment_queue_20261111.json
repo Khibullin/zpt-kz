@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T09:48:27.399Z",
+  "checked_at": "2026-11-11T09:48:30.058Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -2070,14 +2070,14 @@
       "id": 35147,
       "kaspi_price": 22500,
       "kaspi_url": "https://kaspi.kz/shop/p/katushka-zazhiganija-ngk-48000-107923990/?c=750000000",
-      "main_image": "",
+      "main_image": "products/optimized/ac2e8a8cfa2f7f92b6a8f0a3d07c41f4282405a9b6fd5455cf102d9b6adc02a7.webp",
       "name": "NGK Катушка зажигания",
-      "photo_status": "needs_source",
+      "photo_status": "done",
       "product_id": 16032,
       "profit": 3517.5,
       "stock": "5",
       "supplier_id": 3,
-      "supplier_thumbnail": "",
+      "supplier_thumbnail": "products/optimized/71bb5168f9948906a799c3c7478a6b3ad769cfaa9ff2cafa9819669ef0ec1258.webp",
       "task_id": 14005
     },
     {
@@ -11118,7 +11118,7 @@
     }
   ],
   "results": [],
-  "next_offer_id": 35147,
+  "next_offer_id": 35160,
   "batch": {
     "supplier_id": 3,
     "batch_number": 2,
@@ -11224,14 +11224,14 @@
       22758,
       22944
     ],
-    "reviewed": 33,
+    "reviewed": 34,
     "published_fitments": 1,
-    "published_photos": 4,
+    "published_photos": 5,
     "unconfirmed": 29,
-    "next_offer_id": 35147,
-    "photos_present": 6,
+    "next_offer_id": 35160,
+    "photos_present": 7,
     "fitments_present": 54,
-    "both_present": 4,
+    "both_present": 5,
     "created_at": "2026-11-11T09:25:39.710Z",
     "fixed": true
   },
@@ -11268,7 +11268,8 @@
     35164,
     35200,
     24798,
-    35150
+    35150,
+    35147
   ],
   "reviewed_offer_ids": [
     26787,
@@ -11403,16 +11404,17 @@
     35164,
     35200,
     24798,
-    35150
+    35150,
+    35147
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 133,
-    "remaining_unreviewed": 275,
+    "reviewed": 134,
+    "remaining_unreviewed": 274,
     "unconfirmed_reviewed": 100,
-    "remaining_missing_fields": 375,
-    "photo_added": 32,
+    "remaining_missing_fields": 374,
+    "photo_added": 33,
     "fitment_added": 26,
     "make_model_pairs_added": 59,
     "configurations_added": 70
@@ -11486,50 +11488,6 @@
     "unchanged_trade_data": true
   },
   "prepared_candidates": [
-    {
-      "article": "48000",
-      "brand": "NGK",
-      "cost": 15920,
-      "has_fitment": true,
-      "id": 35147,
-      "kaspi_price": 22500,
-      "kaspi_url": "https://kaspi.kz/shop/p/katushka-zazhiganija-ngk-48000-107923990/?c=750000000",
-      "main_image": "",
-      "name": "NGK Катушка зажигания",
-      "photo_status": "needs_source",
-      "product_id": 16032,
-      "profit": 3517.5,
-      "stock": "5",
-      "supplier_id": 3,
-      "supplier_thumbnail": "",
-      "task_id": 14005,
-      "offer_id": 35147,
-      "status": "prepared_photo_existing_fitment",
-      "checked_on": "2026-11-11",
-      "source_url": "https://spareto.com/products/ngk-ignition-coil/u1001-48000",
-      "source_label": "Spareto — независимый каталог продавца",
-      "source_kind": "retailer_catalogue",
-      "source_article": "48000",
-      "fitments": [],
-      "fitment_note": "Существующая применимость сохранена.",
-      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/a5441c5a-ea85-4d7b-aa03-edd85eff412a",
-      "image_url": "https://cdn.spareto.com/variants/images_webp/000/525/628/medium/u1001-48000-B5C3326E.webp?1793006937",
-      "image_note": "NGK48000(U1001),3контактаM4,катушка для распределителя;одна деталь,точная карточка Spareto.",
-      "photo": {
-        "status": "downloaded_visually_verified_not_queued"
-      },
-      "fitment_status": "existing_preserved",
-      "checked_sources": [
-        {
-          "url": "https://spareto.com/products/ngk-ignition-coil/u1001-48000",
-          "result": "NGK48000(U1001),3контактаM4,катушка для распределителя;одна деталь,точная карточка Spareto."
-        }
-      ],
-      "next_offer_id": 23717,
-      "verification": {
-        "trade_data_unchanged": true
-      }
-    },
     {
       "article": "1069-87K",
       "brand": "MOTORAD",
