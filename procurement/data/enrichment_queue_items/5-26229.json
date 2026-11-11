@@ -13,7 +13,7 @@
   "supplier_id": 5,
   "task_id": 5830,
   "offer_id": 26229,
-  "status": "reviewed_photo_unconfirmed",
+  "status": "reviewed_photo_exception",
   "checked_on": "2026-11-11",
   "source_url": "https://shop.globalparts.kz/catalog/card/191629",
   "source_label": "Global Parts — каталог продавца",
@@ -31,5 +31,23 @@
       "result": "Exact brand/article; image points to resources.cdn-kaspi.kz. Do not request CDN after denial. Existing fitment kept."
     }
   ],
-  "next_offer_id": 25494
+  "next_offer_id": 25494,
+  "publication": {
+    "commit": "08c5ddc32f0a2d0527741382fe3e064c4c21216d",
+    "deploy": "dep-dbq230dg1s2s739cu69g",
+    "status": "live",
+    "checked_photo_and_thumbnail": 3,
+    "checked_fitment_offers": 3,
+    "all_three_ui_images_loaded": true,
+    "unchanged_trade_data": true
+  },
+  "fitment_status": "existing_preserved",
+  "verification": {
+    "photo": false,
+    "thumbnail": false,
+    "display": false,
+    "source_and_constraints": true,
+    "stock_and_profit_preserved": true,
+    "existing_fitment_preserved": true
+  }
 }
