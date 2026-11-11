@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T08:07:56.014Z",
+  "checked_at": "2026-11-11T08:07:59.297Z",
   "lease": {
     "owner": "enrichment-20261111T0756Z",
     "acquired_at": "2026-11-11T07:56:06.863Z",
@@ -9267,7 +9267,7 @@
     }
   ],
   "results": [],
-  "next_offer_id": 26220,
+  "next_offer_id": 26530,
   "batch": {
     "supplier_id": 5,
     "batch_number": 1,
@@ -9373,11 +9373,11 @@
       25184,
       25210
     ],
-    "reviewed": 37,
-    "published_fitments": 13,
+    "reviewed": 38,
+    "published_fitments": 14,
     "published_photos": 18,
-    "unconfirmed": 18,
-    "next_offer_id": 26220,
+    "unconfirmed": 19,
+    "next_offer_id": 26530,
     "photos_present": 20,
     "fitments_present": 63,
     "both_present": 18
@@ -9440,19 +9440,20 @@
     25538,
     25229,
     25496,
-    25146
+    25146,
+    26220
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 37,
-    "remaining_unreviewed": 371,
-    "unconfirmed_reviewed": 18,
+    "reviewed": 38,
+    "remaining_unreviewed": 370,
+    "unconfirmed_reviewed": 19,
     "remaining_missing_fields": 389,
     "photo_added": 18,
-    "fitment_added": 13,
-    "make_model_pairs_added": 29,
-    "configurations_added": 30
+    "fitment_added": 14,
+    "make_model_pairs_added": 33,
+    "configurations_added": 34
   },
   "prepared_candidate": null,
   "source_limits": [
@@ -9541,70 +9542,6 @@
     "unchanged_trade_data": true
   },
   "prepared_candidates": [
-    {
-      "article": "1026605GE",
-      "brand": "JASHI",
-      "has_fitment": false,
-      "id": 26220,
-      "kaspi_url": "https://kaspi.kz/shop/p/datchik-kisloroda-jashi-1026605ge-119312095/?c=750000000",
-      "main_image": "",
-      "name": "Датчик кислорода JAC",
-      "photo_status": "needs_source",
-      "product_id": 7678,
-      "profit": 4677.5,
-      "stock": "3",
-      "supplier_id": 5,
-      "task_id": 5651,
-      "offer_id": 26220,
-      "status": "prepared_fitment_photo_unconfirmed",
-      "checked_on": "2026-11-11",
-      "source_url": "https://kaspi.kz/shop/p/datchik-kisloroda-jashi-1026605ge-119312095/",
-      "source_label": "Характеристики точной карточки Kaspi — извлечённая поиском копия продавца",
-      "source_kind": "retailer_listing",
-      "source_article": "1026605GE",
-      "fitments": [
-        {
-          "make": "JAC",
-          "model": "S3",
-          "notes": "Модель явно указана в точной карточке JASHI 1026605GE. Общий список годов для нескольких моделей неоднозначен; годы и двигатели не распределены."
-        },
-        {
-          "make": "JAC",
-          "model": "S5",
-          "notes": "Модель явно указана в точной карточке JASHI 1026605GE. Общий список годов для нескольких моделей неоднозначен; годы и двигатели не распределены."
-        },
-        {
-          "make": "JAC",
-          "model": "J7",
-          "notes": "Модель явно указана в точной карточке JASHI 1026605GE. Общий список годов для нескольких моделей неоднозначен; годы и двигатели не распределены."
-        },
-        {
-          "make": "JAC",
-          "model": "S3 Pro",
-          "notes": "Модель явно указана в точной карточке JASHI 1026605GE. Общий список годов для нескольких моделей неоднозначен; годы и двигатели не распределены."
-        }
-      ],
-      "fitment_note": "Извлечённые поиском характеристики точной карточки Kaspi (снимок индексирован в прошлом месяце). Марки/модели сохранены без общих годов. ATCT: заголовок производителя JAC, описание JASHI; конфликт марки, сведения о двигателях оттуда не перенесены.",
-      "photo": {
-        "status": "unconfirmed",
-        "reason": "Фото не получено. Браузерное открытие Kaspi автоматически отклонено; повторов нет. ATCT показывает общее изображение-заглушку."
-      },
-      "checked_sources": [
-        {
-          "url": "https://kaspi.kz/shop/p/datchik-kisloroda-jashi-1026605ge-119312095/",
-          "result": "Search returned exact JASHI article/OEM and4models; common2014..2024 years not allocated."
-        },
-        {
-          "url": "https://kaspi.kz/shop/p/datchik-kisloroda-jashi-1026605ge-119312095/?c=750000000",
-          "result": "Browser auto-review denied origin authority; do not retry via other routes."
-        },
-        {
-          "url": "https://atct.kz/elektrika-dvigatelya-datchiki-s5",
-          "result": "Exact article; manufacturer header JAC vs description JASHI, placeholder photo. Not used for enrichment."
-        }
-      ],
-      "next_offer_id": 26530
-    },
     {
       "article": "51712-C1000",
       "brand": "JASHI",
