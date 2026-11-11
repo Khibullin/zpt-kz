@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T13:26:51.978Z",
+  "checked_at": "2026-11-11T13:26:55.062Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -6102,14 +6102,14 @@
       "id": 22494,
       "kaspi_price": 7895,
       "kaspi_url": "https://kaspi.kz/shop/p/555-rulevaja-tjaga-sr-t270-177618199/?c=750000000",
-      "main_image": "",
+      "main_image": "products/optimized/d057a2ee7af24f2a90942df422354a651a87fe308a3572d32167aebd8fb2e19e.webp",
       "name": "555 Рулевая тяга",
-      "photo_status": "skipped",
+      "photo_status": "ui_verified_db_audit_pending",
       "product_id": 4228,
       "profit": 1051.125,
       "stock": "1",
       "supplier_id": 3,
-      "supplier_thumbnail": "",
+      "supplier_thumbnail": "products/optimized/e2c2d2d38d1a9996456e28654480889b7f7cc0357a5f9b70cf188ac1f5d55b09.webp",
       "task_id": 2201
     },
     {
@@ -11156,16 +11156,16 @@
       22123,
       22974
     ],
-    "reviewed": 28,
+    "reviewed": 29,
     "published_fitments": 0,
-    "published_photos": 5,
+    "published_photos": 6,
     "unconfirmed": 23,
-    "photos_present": 6,
+    "photos_present": 7,
     "fitments_present": 15,
-    "both_present": 5,
+    "both_present": 6,
     "created_at": "2026-11-11T13:04:15.851Z",
     "fixed": true,
-    "next_offer_id": 22494,
+    "next_offer_id": 22515,
     "scope_note": "Final original queue remainder; original saved profit order. Render read temporarily unavailable, verify each offer live UI before source/import; do not change scope."
   },
   "completed_offer_ids": [
@@ -11278,7 +11278,8 @@
     35168,
     35143,
     35182,
-    35176
+    35176,
+    22494
   ],
   "reviewed_offer_ids": [
     26787,
@@ -11683,16 +11684,17 @@
     35168,
     35143,
     35182,
-    35176
+    35176,
+    22494
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 403,
-    "remaining_unreviewed": 5,
+    "reviewed": 404,
+    "remaining_unreviewed": 4,
     "unconfirmed_reviewed": 293,
-    "remaining_missing_fields": 298,
-    "photo_added": 110,
+    "remaining_missing_fields": 297,
+    "photo_added": 111,
     "fitment_added": 55,
     "make_model_pairs_added": 126,
     "configurations_added": 164
@@ -11778,50 +11780,6 @@
     "db_verified": false
   },
   "prepared_candidates": [
-    {
-      "article": "SR-T270",
-      "brand": "555",
-      "cost": 5607,
-      "has_fitment": true,
-      "id": 22494,
-      "kaspi_price": 7895,
-      "kaspi_url": "https://kaspi.kz/shop/p/555-rulevaja-tjaga-sr-t270-177618199/?c=750000000",
-      "main_image": "",
-      "name": "555 Рулевая тяга",
-      "photo_status": "skipped",
-      "product_id": 4228,
-      "profit": 1051.125,
-      "stock": "1",
-      "supplier_id": 3,
-      "supplier_thumbnail": "",
-      "task_id": 2201,
-      "offer_id": 22494,
-      "status": "prepared_photo_existing_fitment",
-      "checked_on": "2026-11-11",
-      "source_url": "https://www.autodoc.parts/555/13056483",
-      "source_label": "AUTODOC · независимый каталог продавца",
-      "source_kind": "retailer_catalogue",
-      "source_article": "SR-T270",
-      "fitments": [],
-      "fitment_note": "Существующая применимость сохранена.",
-      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/1bf8a352-2ee1-4e56-973e-18fd2bb769c1",
-      "image_url": "https://cdn.autodoc.de/thumb?id=13056483&m=0&n=0&lng=en&rev=94078121",
-      "image_note": "Точный555SR-T270 безM. Реальное фото одной чёрной рулевой тяги с логотипом555,без зубчатой шайбы/дополнительного комплекта. Существующая применимость не меняется. UIналичие1,закупка5607/Kaspi7895 совпадают.",
-      "photo": {
-        "status": "downloaded_visually_verified_not_queued"
-      },
-      "fitment_status": "existing_preserved",
-      "checked_sources": [
-        {
-          "url": "https://www.autodoc.parts/555/13056483",
-          "result": "Точный555SR-T270 безM. Реальное фото одной чёрной рулевой тяги с логотипом555,без зубчатой шайбы/дополнительного комплекта. Существующая применимость не меняется. UIналичие1,закупка5607/Kaspi7895 совпадают."
-        }
-      ],
-      "next_offer_id": 23061,
-      "verification": {
-        "trade_data_unchanged": true
-      }
-    },
     {
       "article": "SRK-8520",
       "brand": "555",
@@ -12455,7 +12413,7 @@
     }
   ],
   "publication_pending": null,
-  "next_offer_id": 22494,
+  "next_offer_id": 22515,
   "verification_pending": [
     {
       "supplier_id": 3,
@@ -12614,6 +12572,26 @@
         "cost": 3854,
         "stock": "2",
         "kaspi_price": 5945
+      },
+      "reason": "Render MCP temporary Internal errors/timeouts; fresh stored row metadata audit pending"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22494,
+      "commit": "b83355cd9994f3667e7ee7842b3bbc9cb23ee5a5",
+      "main_image": "products/optimized/d057a2ee7af24f2a90942df422354a651a87fe308a3572d32167aebd8fb2e19e.webp",
+      "supplier_thumbnail": "products/optimized/e2c2d2d38d1a9996456e28654480889b7f7cc0357a5f9b70cf188ac1f5d55b09.webp",
+      "ui_verified": true,
+      "db_verified": false,
+      "checks_needed": [
+        "stored main+thumbnail",
+        "photo task status/evidence",
+        "trade values and old fitment metadata"
+      ],
+      "baseline_queue": {
+        "cost": 5607,
+        "stock": "1",
+        "kaspi_price": 7895
       },
       "reason": "Render MCP temporary Internal errors/timeouts; fresh stored row metadata audit pending"
     }
