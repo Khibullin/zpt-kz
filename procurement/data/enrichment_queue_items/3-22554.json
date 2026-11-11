@@ -1,0 +1,39 @@
+{
+  "article": "AN-663WK",
+  "brand": "AKEBONO",
+  "cost": 6800,
+  "has_fitment": true,
+  "id": 22554,
+  "kaspi_price": 9938,
+  "kaspi_url": "https://kaspi.kz/shop/p/kolodki-akebono-perednie-an-663wk-173887079/?c=750000000",
+  "main_image": "",
+  "name": "AKEBONO JAPAN Колодки передние",
+  "photo_status": "needs_source",
+  "product_id": 4288,
+  "profit": 1645.75,
+  "stock": "1",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 2261,
+  "offer_id": 22554,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "В точной карточке AKEBONO AN-663WK размещён размерный чертёж одной колодки, не фотография комплекта; изображение отклонено. Существующая применимость сохранена.",
+  "checked_sources": [
+    {
+      "url": "https://theoparts.com/en/brake-pad-set-disc-brake/3411638-akebono-an-663wk-brake-pad-set-disc-brake-3664598020740.html",
+      "image": "https://media.bovsoft.com/TAF_24/img/4024/AN-663WK.JPG",
+      "result": "Visually inspected technical dimension drawing; excluded"
+    }
+  ],
+  "next_offer_id": 23562,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true
+  }
+}
