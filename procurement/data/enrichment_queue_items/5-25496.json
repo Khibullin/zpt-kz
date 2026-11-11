@@ -13,7 +13,7 @@
   "supplier_id": 5,
   "task_id": 5120,
   "offer_id": 25496,
-  "status": "prepared_photo_and_fitment",
+  "status": "published_db_and_ui_verified",
   "checked_on": "2026-11-11",
   "source_url": "https://kaspi.kz/shop/p/jashi-bamper-86511l1000-dlja-hyundai-sonata-2019-2024-119672265/?c=750000000",
   "source_label": "Характеристики точной карточки Kaspi — продавец",
@@ -29,12 +29,32 @@
   ],
   "fitment_note": "Точный бренд и полный артикул/OEM совпадают, отдельные перечисленные годы сохранены без расширения. Двигатель не указан.",
   "image_url": "https://resources.cdn-kaspi.kz/img/m/p/hd0/h47/86080941948958.png?format=gallery-medium",
-  "local_path": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/2a4a81ec-e42e-463d-b389-6b6dc7cc6c32",
   "checked_sources": [
     {
       "url": "https://kaspi.kz/shop/p/jashi-bamper-86511l1000-dlja-hyundai-sonata-2019-2024-119672265/?c=750000000",
       "result": "exact brand/full article, real bare upper bumper photo and years verified"
     }
   ],
-  "next_offer_id": 25146
+  "next_offer_id": 25146,
+  "publication": {
+    "commit": "69ae517ffa2eef6247cbfb986ba982c1d64791c1",
+    "deploy": "dep-dbq148ks728c738up320",
+    "status": "live",
+    "checked_photo_and_thumbnail": 3,
+    "checked_fitment_offers": 3,
+    "all_three_ui_images_loaded": true,
+    "unchanged_trade_data": true
+  },
+  "verification": {
+    "photo": true,
+    "thumbnail": true,
+    "display": true,
+    "source_and_constraints": true,
+    "stock_and_profit_preserved": true,
+    "existing_fitment_preserved": true
+  },
+  "photo": {
+    "status": "saved_and_ui_loaded",
+    "image_url": "https://resources.cdn-kaspi.kz/img/m/p/hd0/h47/86080941948958.png?format=gallery-medium"
+  }
 }
