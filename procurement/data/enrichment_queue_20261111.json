@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T10:22:51.046Z",
+  "checked_at": "2026-11-11T10:23:26.298Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -11869,6 +11869,50 @@
         }
       ],
       "next_offer_id": 22867,
+      "verification": {
+        "trade_data_unchanged": true
+      }
+    },
+    {
+      "article": "467-97K",
+      "brand": "MOTORAD",
+      "cost": 18159,
+      "has_fitment": true,
+      "id": 35197,
+      "kaspi_price": 23409,
+      "kaspi_url": "https://kaspi.kz/shop/p/motorad-termostat-467-97k-115736431/?c=750000000",
+      "main_image": "",
+      "name": "Термостат в корпусе 97°С",
+      "photo_status": "needs_source",
+      "product_id": 16004,
+      "profit": 2073.875,
+      "stock": "8",
+      "supplier_id": 3,
+      "supplier_thumbnail": "",
+      "task_id": 13977,
+      "offer_id": 35197,
+      "status": "prepared_photo_existing_fitment",
+      "checked_on": "2026-11-11",
+      "source_url": "https://spareto.com/products/motorad-thermostat-coolant/467-97k",
+      "source_label": "Spareto — независимый каталог продавца",
+      "source_kind": "retailer_catalogue",
+      "source_article": "467-97K",
+      "fitments": [],
+      "fitment_note": "Существующая применимость сохранена.",
+      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/4a4b0c7e-84b8-49ba-b1eb-73226a2f0bdb",
+      "image_url": "https://cdn.spareto.com/variants/images_webp/005/602/597/medium/467-97k-5456D99A.webp?1793166360",
+      "image_note": "Точная MOTORAD467-97K: реальный термостат97°C в чёрном пластиковом корпусе с уплотнениями, без датчика, электрическое управление по карточке. Существующая применимость сохранена.",
+      "photo": {
+        "status": "downloaded_visually_verified_not_queued"
+      },
+      "fitment_status": "existing_preserved",
+      "checked_sources": [
+        {
+          "url": "https://spareto.com/products/motorad-thermostat-coolant/467-97k",
+          "result": "Точная MOTORAD467-97K: реальный термостат97°C в чёрном пластиковом корпусе с уплотнениями, без датчика, электрическое управление по карточке. Существующая применимость сохранена."
+        }
+      ],
+      "next_offer_id": 23013,
       "verification": {
         "trade_data_unchanged": true
       }
