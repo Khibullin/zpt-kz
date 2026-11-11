@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 2222,
   "offer_id": 22515,
-  "status": "prepared_photo_existing_fitment",
+  "status": "published_complete_pending_db_audit",
   "checked_on": "2026-11-11",
   "source_url": "https://www.auto-doc.ie/555/13056557",
   "source_label": "AUTODOC · независимый каталог продавца",
@@ -24,11 +24,20 @@
   "source_article": "SRK-8520",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/ad5fd240-66d6-47f5-9bda-13902b20aff4",
   "image_url": "https://cdn.autodoc.de/thumb?id=13056557&m=0&n=0&lng=en&rev=94078121",
   "image_note": "Точная карточка555SRK-8520 безM. Реальное фото одной тяги с гайкой и логотипом555;беззубчатой шайбы/другого комплекта. Существующая применимость сохранена. UIналичие9,закупка4607/Kaspi6733 совпадают.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_ui_verified_db_audit_pending",
+    "main_path": "products/optimized/8805162f4a0e19d1808a44decbdfdd481d681ad3872a090a20cb87cebf486128.webp",
+    "thumbnail_path": "products/optimized/35647e2c0e33a4234e08897e1e2ee8b6846ffa69984a470db1436c271a2f4c08.webp",
+    "main_size": [
+      600,
+      400
+    ],
+    "thumbnail_size": [
+      180,
+      120
+    ]
   },
   "fitment_status": "existing_preserved",
   "checked_sources": [
@@ -39,6 +48,17 @@
   ],
   "next_offer_id": 23224,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": false,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "visible_trade_and_fitment_text_unchanged": true,
+    "existing_metadata_preserved_by_import": true,
+    "checked_at": "2026-11-11T13:26:56.670Z",
+    "db_audit_pending_reason": "Render MCP temporary Internal errors/timeouts; fresh stored row metadata audit pending"
+  },
+  "publication": {
+    "commit": "b83355cd9994f3667e7ee7842b3bbc9cb23ee5a5",
+    "status": "images_visible_on_live_site_render_status_unavailable"
   }
 }
