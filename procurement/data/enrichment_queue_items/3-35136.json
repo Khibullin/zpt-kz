@@ -1,0 +1,44 @@
+{
+  "article": "48089",
+  "brand": "NGK",
+  "cost": 12570,
+  "has_fitment": true,
+  "id": 35136,
+  "kaspi_price": 16920,
+  "kaspi_url": "https://kaspi.kz/shop/p/katushka-zazhiganija-ngk-48089-100877604/?c=750000000",
+  "main_image": "",
+  "name": "NGK Катушка зажигания U5025",
+  "photo_status": "needs_source",
+  "product_id": 16041,
+  "profit": 1985,
+  "stock": "4",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 14014,
+  "offer_id": 35136,
+  "status": "prepared_photo_existing_fitment",
+  "checked_on": "2026-11-11",
+  "source_url": "https://spareto.com/products/ngk-ignition-coil/u5025-48089",
+  "source_label": "Spareto — независимый каталог продавца",
+  "source_kind": "retailer_catalogue",
+  "source_article": "48089",
+  "fitments": [],
+  "fitment_note": "Существующая применимость сохранена.",
+  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/f0c12de4-2d9a-482c-9960-e047b0723778",
+  "image_url": "https://cdn.spareto.com/variants/images_webp/000/571/874/medium/u5025-48089-8E2C4829.webp?1793006974",
+  "image_note": "Точная NGK48089/U5025: реальная фотография одной катушки NGK с 3контактамиSAE по карточке; существующая применимость сохранена.",
+  "photo": {
+    "status": "downloaded_visually_verified_not_queued"
+  },
+  "fitment_status": "existing_preserved",
+  "checked_sources": [
+    {
+      "url": "https://spareto.com/products/ngk-ignition-coil/u5025-48089",
+      "result": "Точная NGK48089/U5025: реальная фотография одной катушки NGK с 3контактамиSAE по карточке; существующая применимость сохранена."
+    }
+  ],
+  "next_offer_id": 22758,
+  "verification": {
+    "trade_data_unchanged": true
+  }
+}
