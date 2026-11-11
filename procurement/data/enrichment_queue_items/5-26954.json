@@ -1,0 +1,42 @@
+{
+  "article": "NPA00-T31-736",
+  "brand": "NORPLAST",
+  "cost": 10800,
+  "has_fitment": false,
+  "id": 26954,
+  "kaspi_price": 14999,
+  "kaspi_url": "https://kaspi.kz/shop/p/norplast-npa00-t31-736-hyundai-tucson-2021-2025-chernyi-118775597/?c=750000000",
+  "main_image": "",
+  "name": "Коврик багажника Hyundai",
+  "photo_status": "needs_source",
+  "product_id": 8448,
+  "profit": 2074.125,
+  "stock": "5",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 6421,
+  "offer_id": 26954,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "unconfirmed",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "NORPLASTNPA00-T31-736: поисковыйснимокИмперия-Картерсодержалточныйартикул,ноактуальнаяпрочитаннаястраницаеговженесодержит; найденыдругиеNPA00-T31-734/NPA11-C31-736-CM,которыенеиспользованы. Каталогпроизводителяпоточномуартикулуне найден, реальноефото/актуальнаяточнаякарточканеподтверждены. Данныеизустаревшегоснимканевыдавалисьзаживые.",
+  "checked_sources": [
+    {
+      "url": "https://imperiya-karter.ru/kovriki-v-salon-i-bagajnik/hyundai/tucson",
+      "result": "SearchcachedexactT31-736;freshpage/findmissingexactarticle,differentT31-734andNPA11-C31-736-CMexcluded"
+    },
+    {
+      "query": "site:norplast.ru \"NPA00-T31-736\"",
+      "result": "Noexactmanufacturercatalogueresult;restrictedKaspisourcesnotrequested"
+    }
+  ],
+  "next_offer_id": 26271,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": false
+  }
+}
