@@ -7,7 +7,7 @@ from functools import lru_cache
 from pathlib import Path
 
 BATCH = 'phaeton-top50-20261111'
-MANIFEST_SHA256 = 'b75c58dbadebe3a79721f050f650e4d9380f23d13dbd2366a12651c65ce5160c'
+MANIFEST_SHA256 = '1d4b8c9836b41753324199c65f7fcd15f9f608d57179a0bfdef2f0bc30535381'
 
 
 @lru_cache(maxsize=1)
@@ -75,7 +75,7 @@ def stage_review(apps, schema_editor):
             if task is None:
                 task = Task(product_id=listing.product_id, offer_id=offer.pk)
             task.offer_id = offer.pk
-            task.source_url = row['source_url']
+            task.source_url = row.get('image_source_url', row['source_url'])
             task.status = 'reviewed50_ready'
             task.note = 'Точное фото проверено и загружено; ожидает локального сохранения.'
             task.evidence = {**(task.evidence or {}), 'reviewed_batch': BATCH,
@@ -114,7 +114,7 @@ def process_reviewed_photos(limit=10):
             product = Product.objects.select_for_update().get(pk=task.product_id)
             if (not row or not listing or not exact_offer(task.offer, row)
                     or product.article != row['article'] or product.status != 'active'
-                    or task.source_url != row['source_url']
+                    or task.source_url != row.get('image_source_url', row['source_url'])
                     or task.evidence.get('reviewed_manifest_sha256') != MANIFEST_SHA256):
                 task.status = 'skipped'
                 task.note = 'Карточка изменилась; адресное добавление отменено.'
@@ -137,8 +137,8 @@ def process_reviewed_photos(limit=10):
                     product.save(update_fields=['main_image', 'supplier_thumbnail', 'updated_at'])
                     Offer.objects.filter(pk=task.offer_id, photo_url__in=['', row['image_url']]).update(photo_url=product.main_image.url)
                     task.status = 'done'
-                    task.note = 'Точное фото производителя проверено и сохранено вместе с миниатюрой.'
-                    task.evidence = {**task.evidence, 'source_url': row['source_url'],
+                    task.note = row.get('image_note', 'Точное фото производителя проверено и сохранено вместе с миниатюрой.')
+                    task.evidence = {**task.evidence, 'source_url': row.get('image_source_url', row['source_url']),
                         'image_url': row['image_url'], 'brand': row['brand'], 'article': row['article'],
                         'source_sha256': row['source_sha256'], 'main_path': product.main_image.name,
                         'thumbnail_path': product.supplier_thumbnail.name,

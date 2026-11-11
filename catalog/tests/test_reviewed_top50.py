@@ -12,7 +12,7 @@ class ReviewedTop50Tests(SimpleTestCase):
         rows = reviewed_rows()
         self.assertEqual(len(rows), 38)
         self.assertEqual(len({r['offer_id'] for r in rows}), 38)
-        self.assertEqual(sum(bool(r.get('main_b64')) for r in rows), 36)
+        self.assertEqual(sum(bool(r.get('main_b64')) for r in rows), 38)
         self.assertEqual(sum(bool(r.get('fitments')) for r in rows), 12)
         for row in rows:
             if not row.get('main_b64'):
