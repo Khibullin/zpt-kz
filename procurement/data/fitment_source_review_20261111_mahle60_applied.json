@@ -1,0 +1,287 @@
+{
+  "checked_on": "2026-11-11",
+  "status": "applied_and_verified",
+  "supplier_id": 3,
+  "targets": {
+    "LX793": 35141,
+    "LAK855": 35137
+  },
+  "evidence": {
+    "catalogue": "MAHLE FI-20-26",
+    "source_url": "https://www.mahle-aftermarket.com/media/local-media-north-america/catalogs-and-lit-pictures/fi-20-26_web.pdf",
+    "pdf_sha256": "1f768e91d9261771815d77e09e4746a69aad0b2df2eb7e9cdf4d8a2644b08705",
+    "review": "Visually reviewed every 60 matching application rows from rendered native PDF strips with model/year/product columns. Matching row counts independently reconciled with all PDF occurrences in the application section.",
+    "regional_scope": "North America only; no global completeness claim.",
+    "application_pdf_pages": {
+      "LX793": [
+        81,
+        82,
+        474,
+        647,
+        648,
+        649,
+        751,
+        752,
+        753
+      ],
+      "LAK855": [
+        646,
+        647,
+        648,
+        649,
+        751,
+        752,
+        754
+      ]
+    },
+    "counts": {
+      "LX793": {
+        "pairs": 4,
+        "configurations": 31
+      },
+      "LAK855": {
+        "pairs": 3,
+        "configurations": 29
+      }
+    }
+  },
+  "restrictions": [
+    "High Dust Conditions belongs to LX793 only on the rows explicitly printing it.",
+    "No engine codes copied from adjacent oil/fuel/air filter cells to LAK855.",
+    "Non-contiguous years preserved; original source years retained in each configuration.",
+    "Only exact full article identity with harmless whitespace difference LX 793 / LAK 855."
+  ],
+  "before": {
+    "verified_offers": 4281,
+    "products_with_photos": 19105,
+    "queue": {
+      "done": 18745,
+      "skipped": 1622,
+      "needs_source": 29126
+    }
+  },
+  "next": "Continue independent permitted sources. Current two MAHLE offers are complete for the reviewed regional PDF; skip filled. No global completeness assertion. Task is not complete; keep existing automation enabled.",
+  "verified_at_utc": "2026-11-11 02:02:06 UTC",
+  "result": {
+    "offers": 2,
+    "make_model_pairs": 7,
+    "configurations": 60,
+    "verified_offers_total": 4283,
+    "products_with_photos": 19105,
+    "photos_added": 0,
+    "photo_queue": {
+      "done": 18745,
+      "skipped": 1622,
+      "needs_source": 29126
+    },
+    "active_photo_tasks": 0
+  },
+  "checks": [
+    {
+      "article": "LX793",
+      "offer_id": 35141,
+      "pairs": 4,
+      "configurations": 31,
+      "exact": true,
+      "other_offer_fields_unchanged": true,
+      "metadata_exact": true
+    },
+    {
+      "article": "LAK855",
+      "offer_id": 35137,
+      "pairs": 3,
+      "configurations": 29,
+      "exact": true,
+      "other_offer_fields_unchanged": true,
+      "metadata_exact": true
+    }
+  ],
+  "write": {
+    "payload": "procurement/data/fitment_source_review_20261111_mahle60.json",
+    "payload_commit": "99cb051c707b183e09600effe06fd6d6f803267c",
+    "migration": "procurement.0023_reviewed_mahle60_fitments",
+    "migration_commit": "85af55adee9087cb5b54df12c84075e0166e6256",
+    "applied_at": "2026-11-11T01:59:25.752946+00:00",
+    "activity_id": 5488,
+    "isolated_guard_tests_passed": 4,
+    "python_compile_passed": true,
+    "other_offer_fields_identical_before_and_after": true
+  },
+  "deployment": {
+    "id": "dep-dbpsnq67bikc7389qn2g",
+    "status": "live",
+    "finished_at": "2026-11-11T02:01:09.202275Z",
+    "manual_restart": false,
+    "new_consumer": false,
+    "photo_producer": false
+  },
+  "best_missing_after": {
+    "supplier3": 157,
+    "supplier5": 156,
+    "scope": "same best_candidates_query price/date/match/profit predicate as previous checkpoint"
+  },
+  "additional_missing_shared_identity_matches": 0,
+  "photo_exception": {
+    "brand": "PATRON",
+    "article": "PBD1433",
+    "task_id": 6093,
+    "product_id": 8120,
+    "offer_id": 26512,
+    "source_url": "https://patron.ru/ru/catalog/%D0%9F%D0%BE%D0%B8%D1%81%D0%BA%20%D0%BF%D0%BE%20%D0%BD%D0%BE%D0%BC%D0%B5%D1%80%D1%83/PBD1433/part/PBD1433?searchText=PBD1433&pageNumber=1&alt=%D0%94%D0%B8%D1%81%D0%BA%20%D1%82%D0%BE%D1%80%D0%BC%D0%BE%D0%B7%D0%BD%D0%BE%D0%B9&alternateImg=&id=10460677&image=24085%2F240857730_1.jpg&name=%D0%94%D0%B8%D1%81%D0%BA%20%D1%82%D0%BE%D1%80%D0%BC%D0%BE%D0%B7%D0%BD%D0%BE%D0%B9&number=PBD1433",
+    "result": "HTTP403 on direct ordinary request; no image staged, no alternative URL/protocol/channel retry.",
+    "existing_previously_rejected_sources": "All previous source/security restrictions retained."
+  },
+  "next_candidates": [
+    {
+      "article": "LA216",
+      "id": 47941,
+      "name": "MAHLE фильтр салонный",
+      "supplier_id": 3,
+      "printed_article": "LA 216",
+      "application_pdf_pages": [
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        408,
+        409,
+        410,
+        411,
+        412,
+        413,
+        414,
+        416,
+        417,
+        418
+      ],
+      "status": "candidate_not_visually_reviewed_or_imported"
+    },
+    {
+      "article": "LA307",
+      "id": 47942,
+      "name": "MAHLE фильтр салонный",
+      "supplier_id": 3,
+      "printed_article": "LA 307",
+      "application_pdf_pages": [
+        296,
+        297,
+        355,
+        356,
+        576,
+        577,
+        718,
+        719
+      ],
+      "status": "candidate_not_visually_reviewed_or_imported"
+    },
+    {
+      "article": "LA395",
+      "id": 47943,
+      "name": "MAHLE фильтр салонный",
+      "supplier_id": 3,
+      "printed_article": "LA 395",
+      "application_pdf_pages": [
+        475,
+        477,
+        478,
+        479,
+        480,
+        481,
+        482,
+        483,
+        484,
+        487,
+        488,
+        636,
+        668,
+        669,
+        677,
+        678,
+        679,
+        680,
+        688,
+        689,
+        690,
+        691,
+        693,
+        694,
+        695,
+        697,
+        698,
+        699,
+        700,
+        702,
+        703,
+        704,
+        705,
+        706,
+        708,
+        709,
+        710
+      ],
+      "status": "candidate_not_visually_reviewed_or_imported"
+    },
+    {
+      "article": "LA44",
+      "id": 47944,
+      "name": "MAHLE Фильтр салонный",
+      "supplier_id": 3,
+      "printed_article": "LA 44",
+      "application_pdf_pages": [
+        740,
+        741,
+        742
+      ],
+      "status": "candidate_not_visually_reviewed_or_imported"
+    },
+    {
+      "article": "LAO241",
+      "id": 47946,
+      "name": "MAHLE Фильтр салона CareMetix®",
+      "supplier_id": 3,
+      "printed_article": "LAO 241",
+      "application_pdf_pages": [
+        303,
+        304
+      ],
+      "status": "candidate_not_visually_reviewed_or_imported"
+    },
+    {
+      "article": "LX2098",
+      "id": 47947,
+      "name": "MAHLE фильтр воздушный",
+      "supplier_id": 3,
+      "printed_article": "LX 2098",
+      "application_pdf_pages": [
+        152,
+        153
+      ],
+      "status": "candidate_not_visually_reviewed_or_imported"
+    },
+    {
+      "article": "LX2612",
+      "id": 47949,
+      "name": "MAHLE фильтр воздушный",
+      "supplier_id": 3,
+      "printed_article": "LX 2612",
+      "application_pdf_pages": [
+        684
+      ],
+      "status": "candidate_not_visually_reviewed_or_imported"
+    },
+    {
+      "article": "LX593/1",
+      "id": 47950,
+      "name": "MAHLE фильтр воздушный",
+      "supplier_id": 3,
+      "printed_article": "LX 593/1",
+      "application_pdf_pages": [
+        741
+      ],
+      "status": "candidate_not_visually_reviewed_or_imported"
+    }
+  ],
+  "next_candidate_warning": "Only text occurrence candidates, not visually verified and not imported. Verify whole exact item cell, all suffixes, regional scope and fresh DB before use. LAK490 intentionally excluded until distinction from LAK490A is resolved. No application inferred from replacement mentions."
+}
