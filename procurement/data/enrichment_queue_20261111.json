@@ -1,11 +1,11 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T08:02:48.675Z",
+  "checked_at": "2026-11-11T08:04:17.164Z",
   "lease": {
     "owner": "enrichment-20261111T0756Z",
     "acquired_at": "2026-11-11T07:56:06.863Z",
-    "expires_at": "2026-11-11T08:46:06.864Z"
+    "expires_at": "2026-11-11T08:44:17.164Z"
   },
   "next_supplier": 5,
   "batch_size": 100,
@@ -9456,9 +9456,25 @@
   "source_limits": [
     "Exact refused Kaspi URLs in item records must not be retried by alternative routes.",
     "shop.globalparts.kz/product/jashi/8402010u226ke; /product/bort/b334501; /product/patron/pbd4855; /product/jac/2804100s4500-f011 returned not accessible. Do not retry via other routes.",
-    "All historical ASVA / Alta-Karter / refused MOTORAD / BILSTEIN / PATRON restrictions remain."
+    "All historical ASVA / Alta-Karter / refused MOTORAD / BILSTEIN / PATRON restrictions remain.",
+    "2026-11-11 current browser auto-review denied kaspi.kz origin for26220 and resources.cdn-kaspi.kz image for26530; no retries or other routes. Independent sources unaffected."
   ],
-  "pending_publication": null,
+  "pending_publication": {
+    "commit": "08c5ddc32f0a2d0527741382fe3e064c4c21216d",
+    "offer_ids": [
+      25146,
+      26220,
+      26530,
+      26229,
+      25494,
+      25099,
+      26223,
+      26494
+    ],
+    "prepared_photos": 3,
+    "prepared_fitments": 3,
+    "status": "committed_waiting_deploy"
+  },
   "superseded_candidates": [
     26720,
     25488
