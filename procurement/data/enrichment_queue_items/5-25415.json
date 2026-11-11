@@ -1,0 +1,36 @@
+{
+  "article": "602001283AA",
+  "brand": "JASHI",
+  "has_fitment": false,
+  "id": 25415,
+  "kaspi_url": "https://kaspi.kz/shop/p/jashi-bamper-602001283aa-dlja-chery-tiggo-4-pro-2020-2024-130942774/?c=750000000",
+  "main_image": "",
+  "name": "Бампер задний Chery",
+  "photo_status": "needs_source",
+  "product_id": 6970,
+  "profit": 4965,
+  "stock": "4",
+  "supplier_id": 5,
+  "task_id": 4943,
+  "status": "prepared_not_published",
+  "checked_on": "2026-11-11",
+  "source_url": "https://kaspi.kz/shop/p/jashi-bamper-602001283aa-dlja-chery-tiggo-4-pro-2020-2024-130942774/?c=750000000",
+  "source_label": "характеристики и описание точной карточки Kaspi",
+  "source_kind": "retailer_listing",
+  "fitments": [
+    {
+      "make": "CHERY",
+      "model": "TIGGO 4 PRO",
+      "years": "2020-2024",
+      "displacement": "1.5L Turbo / 1.5L атмосферный",
+      "notes": "Задний бампер, основная нижняя часть без покрытия. Только явно перечисленные 2020,2021,2022,2023,2024; код двигателя не указан, подбор по VIN."
+    }
+  ],
+  "fitment_note": "Точная карточка JASHI602001283AA; более поздние годы не добавлены.",
+  "photo": {
+    "image_url": "https://resources.cdn-kaspi.kz/img/m/p/p56/pa3/11511633.png?format=gallery-medium",
+    "local_path": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/5e7aa6c8-8472-4f3e-a80f-5f8f338bab29",
+    "status": "downloaded_visually_verified_not_uploaded"
+  },
+  "next_offer_id": 26230
+}
