@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T09:05:03.955Z",
+  "checked_at": "2026-11-11T09:06:40.698Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -10030,6 +10030,61 @@
       "next_offer_id": 26522,
       "verification": {
         "trade_data_unchanged": true
+      }
+    },
+    {
+      "article": "602001193AA",
+      "brand": "Chery",
+      "has_fitment": false,
+      "id": 25410,
+      "kaspi_url": "https://kaspi.kz/shop/p/chery-bamper-602001193aa-dlja-chery-tiggo-8-pro-2021-2024-130421627/?c=750000000",
+      "main_image": "",
+      "name": "Бампер задний Chery",
+      "photo_status": "needs_source",
+      "product_id": 6889,
+      "profit": 3977.5,
+      "stock": "1",
+      "supplier_id": 5,
+      "task_id": 4862,
+      "offer_id": 25410,
+      "status": "prepared_photo_and_fitment",
+      "checked_on": "2026-11-11",
+      "source_url": "https://u-parts.ru/shop/detail/chery_602001193aa.html",
+      "source_label": "U-Parts — независимый каталог продавца",
+      "source_kind": "retailer_catalogue",
+      "source_article": "602001193AA",
+      "fitments": [
+        {
+          "make": "Chery",
+          "model": "Tiggo 8 Pro",
+          "generation": "I",
+          "years": "2021–2024",
+          "engine": "1.6,186л.с.",
+          "transmission": "AMT",
+          "notes": "Нижняя часть заднего бампера. Точная строка применимости U-Parts. Регион не указан."
+        }
+      ],
+      "fitment_note": "Точная карточка CHERY602001193AA. Использована конкретная строка модели2021–2024,1.6AMT186л.с.; общее открытое название не расширяет годы.",
+      "image_url": "https://u-parts.ru/1C/Images_Lo/chery_602001193aa_11c2d9ce-cd33-4200-a5d6-15c28cdb026a.jpg",
+      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/c09a9d89-478e-4475-b2cd-bbc7439b1e0f",
+      "image_note": "Реальная фотография нижней части заднего бампера CHERY602001193AA;полный артикул подписан на фото и в точной карточке U-Parts.",
+      "photo": {
+        "status": "downloaded_exact_verified"
+      },
+      "checked_sources": [
+        {
+          "url": "https://u-parts.ru/shop/detail/chery_602001193aa.html",
+          "result": "ExactCherybrand/article; specificmodelyearenginegearboxrow,realphoto visuallyverified"
+        },
+        {
+          "url": "https://rem.ru/catalog/parts/602001193aa-19565728/",
+          "result": "temporaryTimeout twice,notpermanentblock"
+        }
+      ],
+      "next_offer_id": 26623,
+      "verification": {
+        "trade_data_unchanged": true,
+        "photo_visually_verified": true
       }
     }
   ]
