@@ -1,0 +1,42 @@
+{
+  "article": "1308100U00A5",
+  "brand": "JAC",
+  "cost": 39300,
+  "has_fitment": true,
+  "id": 25786,
+  "kaspi_price": 49060,
+  "kaspi_url": "https://kaspi.kz/shop/p/jac-diffuzor-radiatora-1308100u00a5-147774619/?c=750000000",
+  "main_image": "",
+  "name": "Вентилятор охлаждения JAC",
+  "photo_status": "needs_source",
+  "product_id": 7272,
+  "profit": 3377.5,
+  "stock": "2",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 5245,
+  "offer_id": 25786,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "JAC1308100U00A5: точная карточка КитЗапчасти подтверждает вентилятор в сборе, но не содержит фотографии. Другие найденные предложения показывают комплект радиаторов или отдельный мотор/диффузор б/у — комплектность не совпадает. Существующая применимость сохранена.",
+  "checked_sources": [
+    {
+      "url": "https://kitzapchasti.ru/catalog/JAC/JAC-JS6/dvigatel/ohlazhdenie-otoplenie-ventilyaciya/1308100U00A5-ventilyator-sistemy-ohlazhdeniya-dvigatelya-v-sbore-JAC-JS6-1308100U00A5.html",
+      "result": "Exactcard no product photo"
+    },
+    {
+      "query": "JAC 1308100U00A5 photo",
+      "result": "Radiatorkit/usedfanmotor/diffuserexcluded kitmismatch"
+    }
+  ],
+  "next_offer_id": 26143,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true
+  }
+}
