@@ -1,0 +1,36 @@
+{
+  "article": "2905200S4500",
+  "brand": "JASHI",
+  "has_fitment": false,
+  "id": 25231,
+  "kaspi_url": "https://kaspi.kz/shop/p/jashi-perednii-2905200s4500-1-sht-142621181/?c=750000000",
+  "main_image": "",
+  "name": "Амортизатор передний JAC",
+  "photo_status": "needs_source",
+  "product_id": 6944,
+  "profit": 3852.5,
+  "stock": "2",
+  "supplier_id": 5,
+  "task_id": 4917,
+  "offer_id": 25231,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "unconfirmed_exact_brand",
+  "photo": {
+    "status": "exact_source_not_found",
+    "reason": "Точный JASHI 2905200S4500 не найден в двух независимых поисках. Аналоги и близкиеартикулы не использованы."
+  },
+  "checked_sources": [
+    {
+      "query": "\"JASHI\" \"2905200S4500\" -site:kaspi.kz -site:alta-karter.com",
+      "tool": "system2+system1_search",
+      "result": "empty"
+    }
+  ],
+  "next_offer_id": 25380,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true
+  }
+}
