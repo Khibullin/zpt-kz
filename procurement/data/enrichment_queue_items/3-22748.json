@@ -1,0 +1,42 @@
+{
+  "article": "AS-174",
+  "brand": "AKIKA",
+  "cost": 12031,
+  "has_fitment": true,
+  "id": 22748,
+  "kaspi_price": 16063,
+  "kaspi_url": "https://kaspi.kz/shop/p/akika-zadnii-as-174-1-sht-120959009/?c=750000000",
+  "main_image": "",
+  "name": "AKIKA Амортизатор, зад. правый",
+  "photo_status": "needs_source",
+  "product_id": 4479,
+  "profit": 1774.125,
+  "stock": "4",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 2452,
+  "offer_id": 22748,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "Точная независимая фотография AKIKA AS-174/AS174 не найдена двумя поисковыми системами; AS-14/AS-176 и другие артикулы исключены. Существующая применимость сохранена.",
+  "checked_sources": [
+    {
+      "query": "\"AKIKA\" \"AS-174\"",
+      "result": "No exact independent result"
+    },
+    {
+      "query": "\"AKIKA\" \"AS174\"",
+      "result": "No results"
+    }
+  ],
+  "next_offer_id": 23377,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true
+  }
+}
