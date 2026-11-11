@@ -1,0 +1,38 @@
+{
+  "article": "2804119XST01A",
+  "brand": "JASHI",
+  "cost": 21500,
+  "has_fitment": false,
+  "id": 25354,
+  "kaspi_price": 28630,
+  "kaspi_url": "https://kaspi.kz/shop/p/jashi-bamper-2804119xst01a-dlja-haval-jolion-2024-2023-138167173/?c=750000000",
+  "main_image": "",
+  "name": "Бампер задний HAVAL",
+  "photo_status": "needs_source",
+  "product_id": 6937,
+  "profit": 3301.25,
+  "stock": "1",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 4910,
+  "offer_id": 25354,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "unconfirmed",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "JASHI 2804119XST01A: Найдены точные OEM-карточки GWM/Haval, но не JASHI; фотографии и применимость чужого бренда не перенесены. Ранее запрещённый Kaspi/CDN не запрашивался.",
+  "checked_sources": [
+    {
+      "query": "\"JASHI\" \"2804119XST01A\"",
+      "result": "Bothsearchengines reviewed. Найдены точные OEM-карточки GWM/Haval, но не JASHI; фотографии и применимость чужого бренда не перенесены."
+    }
+  ],
+  "next_offer_id": 26737,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": false
+  }
+}
