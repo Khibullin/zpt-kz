@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T11:34:05.025Z",
+  "checked_at": "2026-11-11T11:34:07.472Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -10724,18 +10724,18 @@
       "article": "96837065",
       "brand": "GM",
       "cost": 1700,
-      "has_fitment": false,
+      "has_fitment": true,
       "id": 28023,
       "kaspi_price": 3960,
       "kaspi_url": "https://kaspi.kz/shop/p/gm-96837065-zaglushka-seryi-1-sht-dlja-legkovogo-avtomobilja-121605477/?c=750000000",
-      "main_image": "",
+      "main_image": "products/optimized/81e9840c4f1a59b61577ed1c5cce22b4cca21b1b04c060861f81db1ee8526405.webp",
       "name": "Колпак (заглушка) Chevrolet",
-      "photo_status": "needs_source",
+      "photo_status": "done",
       "product_id": 8985,
       "profit": 1515,
       "stock": "2",
       "supplier_id": 5,
-      "supplier_thumbnail": "",
+      "supplier_thumbnail": "products/optimized/4285c9de7e8d6b4b4c002439ec1afec6039bdf05d1da66752403bc17df1f32a1.webp",
       "task_id": 6958
     },
     {
@@ -11198,14 +11198,14 @@
       25789,
       26282
     ],
-    "reviewed": 55,
-    "published_fitments": 15,
-    "published_photos": 14,
+    "reviewed": 56,
+    "published_fitments": 16,
+    "published_photos": 15,
     "unconfirmed": 42,
-    "next_offer_id": 28023,
-    "photos_present": 14,
-    "fitments_present": 54,
-    "both_present": 13,
+    "next_offer_id": 26196,
+    "photos_present": 15,
+    "fitments_present": 55,
+    "both_present": 14,
     "created_at": "2026-11-11T10:30:05.643Z",
     "fixed": true
   },
@@ -11280,7 +11280,8 @@
     28084,
     26624,
     25969,
-    26260
+    26260,
+    28023
   ],
   "reviewed_offer_ids": [
     26787,
@@ -11537,19 +11538,20 @@
     26624,
     25969,
     26260,
-    25480
+    25480,
+    28023
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 255,
-    "remaining_unreviewed": 153,
+    "reviewed": 256,
+    "remaining_unreviewed": 152,
     "unconfirmed_reviewed": 184,
-    "remaining_missing_fields": 337,
-    "photo_added": 71,
-    "fitment_added": 46,
-    "make_model_pairs_added": 110,
-    "configurations_added": 147
+    "remaining_missing_fields": 336,
+    "photo_added": 72,
+    "fitment_added": 47,
+    "make_model_pairs_added": 112,
+    "configurations_added": 150
   },
   "prepared_candidate": null,
   "source_limits": [
@@ -11622,77 +11624,6 @@
     "unchanged_trade_data": true
   },
   "prepared_candidates": [
-    {
-      "article": "96837065",
-      "brand": "GM",
-      "cost": 1700,
-      "has_fitment": false,
-      "id": 28023,
-      "kaspi_price": 3960,
-      "kaspi_url": "https://kaspi.kz/shop/p/gm-96837065-zaglushka-seryi-1-sht-dlja-legkovogo-avtomobilja-121605477/?c=750000000",
-      "main_image": "",
-      "name": "Колпак (заглушка) Chevrolet",
-      "photo_status": "needs_source",
-      "product_id": 8985,
-      "profit": 1515,
-      "stock": "2",
-      "supplier_id": 5,
-      "supplier_thumbnail": "",
-      "task_id": 6958,
-      "offer_id": 28023,
-      "status": "prepared_photo_and_fitment",
-      "checked_on": "2026-11-11",
-      "source_url": "https://www.gmpartsgiant.com/parts/gm-cap-hub-96837065.html",
-      "source_label": "GMPartsGiant — независимый продавец оригинальных GM",
-      "source_kind": "retailer_catalogue",
-      "source_article": "96837065",
-      "fitments": [
-        {
-          "make": "Chevrolet",
-          "model": "Orlando",
-          "years": "2012–2014",
-          "engine": "4 Cyl 2.4L",
-          "notes": "Комплектации по источнику: LT / LTZ 4 DOOR HIGH ROOF WAGON."
-        },
-        {
-          "make": "Chevrolet",
-          "model": "Trailblazer",
-          "years": "2021–2024",
-          "engine": "3 Cyl 1.2L",
-          "notes": "Опции по источнику: 4 DOOR EXT; LEVEL II / III / IV / V 4 DOOR EXTENDED."
-        },
-        {
-          "make": "Chevrolet",
-          "model": "Trailblazer",
-          "years": "2021–2024",
-          "engine": "3 Cyl 1.3L",
-          "notes": "Опции по источнику: 4 DOOR EXT; LEVEL II / III / IV / V 4 DOOR EXTENDED."
-        }
-      ],
-      "fitment_note": "Точные строки GMPartsGiant 96837065 сверены в живом браузере: Orlando 2012–2014 и Trailblazer 2021–2024; три двигателя сохранены отдельно. Общий период заголовка не расширялся. Фото GMPartsGiant показывает четыре колпачка и исключено для позиции на 1 шт.; подходящее фото одного колпачка взято из независимой точной карточки GM Parts Warehouse.",
-      "image_source_url": "https://www.gmpartswarehouse.com/oem-parts/gm-center-cap-96837065",
-      "image_url": "https://cdn-product-images.revolutionparts.io/assets/ef32aaa51afcf786be2d918e6663857a.webp",
-      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/e073a5a7-4f7e-4c93-85d4-8368ab39628e",
-      "image_note": "Реальный один серебристый колпачок с эмблемой Chevrolet из точной оригинальной GM 96837065 карточки. Фото комплекта из четырёх исключено; комплектность 1 шт. сохранена.",
-      "photo": {
-        "status": "downloaded_visually_verified_not_queued"
-      },
-      "fitment_status": "prepared_not_imported",
-      "checked_sources": [
-        {
-          "url": "https://www.gmpartsgiant.com/parts/gm-cap-hub-96837065.html",
-          "result": "Exact original GM article, live2modelrows3configs; photo4caps excluded."
-        },
-        {
-          "url": "https://www.gmpartswarehouse.com/oem-parts/gm-center-cap-96837065",
-          "result": "ExactGM96837065, actualphoto ofonecap inspected."
-        }
-      ],
-      "next_offer_id": 26834,
-      "verification": {
-        "trade_data_unchanged": true
-      }
-    },
     {
       "article": "ST-95670-2S300",
       "brand": "SAT",
@@ -12059,5 +11990,5 @@
     }
   ],
   "publication_pending": null,
-  "next_offer_id": 28023
+  "next_offer_id": 26196
 }
