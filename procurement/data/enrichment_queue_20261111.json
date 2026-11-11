@@ -1,12 +1,8 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T08:08:16.798Z",
-  "lease": {
-    "owner": "enrichment-20261111T0756Z",
-    "acquired_at": "2026-11-11T07:56:06.863Z",
-    "expires_at": "2026-11-11T08:44:17.164Z"
-  },
+  "checked_at": "2026-11-11T08:08:46.066Z",
+  "lease": null,
   "next_supplier": 5,
   "batch_size": 100,
   "queue": [
@@ -9373,14 +9369,14 @@
       25184,
       25210
     ],
-    "reviewed": 43,
-    "published_fitments": 15,
-    "published_photos": 19,
+    "reviewed": 44,
+    "published_fitments": 16,
+    "published_photos": 20,
     "unconfirmed": 23,
     "next_offer_id": 25201,
-    "photos_present": 20,
-    "fitments_present": 63,
-    "both_present": 18
+    "photos_present": 23,
+    "fitments_present": 66,
+    "both_present": 21
   },
   "completed_offer_ids": [
     26820,
@@ -9402,6 +9398,7 @@
     25229,
     25496,
     25146,
+    25494,
     26223
   ],
   "reviewed_offer_ids": [
@@ -9445,6 +9442,7 @@
     26220,
     26530,
     26229,
+    25494,
     25099,
     26223,
     26494
@@ -9452,14 +9450,14 @@
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 43,
-    "remaining_unreviewed": 365,
+    "reviewed": 44,
+    "remaining_unreviewed": 364,
     "unconfirmed_reviewed": 23,
-    "remaining_missing_fields": 388,
-    "photo_added": 19,
-    "fitment_added": 15,
-    "make_model_pairs_added": 34,
-    "configurations_added": 35
+    "remaining_missing_fields": 387,
+    "photo_added": 20,
+    "fitment_added": 16,
+    "make_model_pairs_added": 35,
+    "configurations_added": 36
   },
   "prepared_candidate": null,
   "source_limits": [
@@ -9468,44 +9466,23 @@
     "All historical ASVA / Alta-Karter / refused MOTORAD / BILSTEIN / PATRON restrictions remain.",
     "2026-11-11 current browser auto-review denied kaspi.kz origin for26220 and resources.cdn-kaspi.kz image for26530; no retries or other routes. Independent sources unaffected."
   ],
-  "pending_publication": {
-    "commit": "08c5ddc32f0a2d0527741382fe3e064c4c21216d",
-    "offer_ids": [
-      25146,
-      26220,
-      26530,
-      26229,
-      25494,
-      25099,
-      26223,
-      26494
-    ],
-    "prepared_photos": 3,
-    "prepared_fitments": 3,
-    "status": "fitments_saved_photos_staged_waiting_deploy",
-    "deploy": "dep-dbq230dg1s2s739cu69g",
-    "fitments_saved": 3,
-    "make_model_pairs_saved": 6,
-    "photo_tasks_staged": 3,
-    "photos_saved": 0,
-    "ui_verified": false
-  },
+  "pending_publication": null,
   "superseded_candidates": [
     26720,
     25488
   ],
   "actual_stats": {
-    "all_fitment_offers": 4372,
-    "all_photos": 19295,
+    "all_fitment_offers": 4375,
+    "all_photos": 19298,
     "batch": {
-      "total": 100,
-      "photos": 20,
-      "fitments": 63,
-      "both": 18
+      "both": 21,
+      "fitments": 66,
+      "photos": 23,
+      "total": 100
     },
     "photo_queue": [
       {
-        "count": 28944,
+        "count": 28941,
         "status": "needs_source"
       },
       {
@@ -9513,7 +9490,7 @@
         "status": "skipped"
       },
       {
-        "count": 18935,
+        "count": 18938,
         "status": "done"
       }
     ],
@@ -9533,64 +9510,19 @@
         "total": 268
       }
     ],
-    "checked_at": "2026-11-11T07:03:22.367Z",
+    "checked_at": "2026-11-11T08:08:46.066Z",
     "scope_note": "scope field is historical; fixed batch and explicit offer records are authoritative"
   },
-  "next_batch_instruction": "Continue64 remaining offers of fixed ZakazAuto100, next25146 PATRON PSA534002, then26220 and batch.offer_ids unchanged. Do not switch toPhaeton before completing this100. Do not repeat reviewed exceptions without new sources.",
-  "technical_notes": "69ae517 Live dep-dbq148ks728c738up320.3photos+3thumbs saved by existing soleconsumer and loaded inUI;3fitments saved,1existing unchanged.Trade data unchanged.No pending prepared/publication.New25558photo exception:exactKaspi photo visibly has rectangular openings,descriptions specify withoutwasheropenings;do notimport/retrywithoutnewsource.",
+  "next_batch_instruction": "Continue56 remaining fixedZakazAuto100, next25201 then25198 inbatch.offer_ids. NoPhaeton before first100 complete. No repeat reviewed exceptions withoutnewsource.",
+  "technical_notes": "08c5ddc Live dep-dbq230dg1s2s739cu69g.3independentphotos+thumbs saved and UIloaded;3fitments/6pairs/6configs saved;5existingfitments unchanged.Trade data unchanged.5newphotoexceptions recorded.No pending work.Missing25494 checkpoint after409 staleSHA reconciled from canonical publisheditem using freshSHA;no repeateddataimport.",
   "latest_publication": {
-    "commit": "69ae517ffa2eef6247cbfb986ba982c1d64791c1",
-    "deploy": "dep-dbq148ks728c738up320",
+    "commit": "08c5ddc32f0a2d0527741382fe3e064c4c21216d",
+    "deploy": "dep-dbq230dg1s2s739cu69g",
     "status": "live",
     "checked_photo_and_thumbnail": 3,
     "checked_fitment_offers": 3,
     "all_three_ui_images_loaded": true,
     "unchanged_trade_data": true
   },
-  "prepared_candidates": [
-    {
-      "article": "2803102XKN04A",
-      "brand": "HAVAL",
-      "has_fitment": false,
-      "id": 25494,
-      "kaspi_url": "https://kaspi.kz/shop/p/haval-bamper-2803102xkn04a-dlja-haval-dargo-2022-2024-130189400/?c=750000000",
-      "main_image": "",
-      "name": "Бампер передний HAVAL",
-      "photo_status": "needs_source",
-      "product_id": 7058,
-      "profit": 4565,
-      "stock": "5",
-      "supplier_id": 5,
-      "task_id": 5031,
-      "offer_id": 25494,
-      "status": "prepared_photo_and_fitment",
-      "checked_on": "2026-11-11",
-      "source_url": "https://moward.ru/haval-dargo-bamper-perednij-verh-chast/",
-      "source_label": "Moward — независимый каталог продавца",
-      "source_kind": "retailer_catalogue",
-      "source_article": "2803102XKN04A",
-      "fitments": [
-        {
-          "make": "HAVAL",
-          "model": "DARGO",
-          "notes": "Передний бампер, верхняя часть; новая оригинальная деталь (OEM). Источник просит уточнять совместимость. Годы, двигатели и регион не подтверждены и не добавлены."
-        }
-      ],
-      "fitment_note": "Точный полный артикул и производитель HAVAL совпадают. Общая фраза «все года (уточняйте совместимость)» не превращена в диапазон или универсальность.",
-      "image_url": "https://moward.ru/wp-content/uploads/2026/04/mg_1123-scaled-1200x800.jpg",
-      "local_path": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/a1911087-6c69-4ed2-a256-6a6683437483",
-      "image_note": "Собственная фотография новой верхней части бампера HAVAL DARGO с точным артикулом на странице продавца; фото повреждённого б/у товара другого продавца исключено.",
-      "checked_sources": [
-        {
-          "url": "https://moward.ru/haval-dargo-bamper-perednij-verh-chast/",
-          "result": "exact brand/article/OEM,new upper bumper, real photograph inspected"
-        },
-        {
-          "url": "https://www.farpost.ru/sankt-peterburg/zapchasti/bamper-perednij-haval-dargo-2803102xkn04a-g18492345391.html",
-          "result": "search result:used damaged bumper; not used for photo or fitment"
-        }
-      ],
-      "next_offer_id": 25099
-    }
-  ]
+  "prepared_candidates": []
 }
