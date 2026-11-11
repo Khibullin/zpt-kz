@@ -1,0 +1,61 @@
+{
+  "offer_id": 26720,
+  "brand": "HYUNDAI-KIA",
+  "article": "2435025000",
+  "source_url": "https://www.hyundaipartsdeal.com/genuine/hyundai-cvvt-assy-int~24350-25000.html",
+  "source_label": "HyundaiPartsDeal, каталог продавца оригинальных деталей Hyundai",
+  "source_kind": "retailer_catalogue",
+  "note": "Регион каталога США. Источник прямо указывает 2435025000 и 24350-25000 как одну деталь. Перенесена только таблица Vehicle Fitment. Не замена 24350-2G600; фото и другие поля не меняются.",
+  "fitments": [
+    {
+      "make": "HYUNDAI",
+      "model": "GENESIS COUPE",
+      "years": "2008-2016",
+      "engine": "DOHC - TCI/MPI",
+      "body": "Coupe - 2Door 4P",
+      "notes": "Каталог США; подбор по VIN, объём/код двигателя не указаны."
+    },
+    {
+      "make": "HYUNDAI",
+      "model": "SANTA FE",
+      "years": "2009-2012",
+      "engine": "DOHC - MPI",
+      "body": "Wagon - 5Door 5P",
+      "notes": "Каталог США; подбор по VIN, объём/код двигателя не указаны."
+    },
+    {
+      "make": "HYUNDAI",
+      "model": "SONATA",
+      "years": "2005-2010",
+      "engine": "DOHC - MPI",
+      "body": "4 Door Sedan; Sedan - 4Door 5P",
+      "notes": "High Grade; Middle Grade. Каталог США; подбор по VIN, объём/код двигателя не указаны."
+    },
+    {
+      "make": "HYUNDAI",
+      "model": "TUCSON",
+      "years": "2009-2013",
+      "engine": "DOHC - MPI",
+      "body": "Wagon - 5Door 5P",
+      "notes": "Каталог США; подбор по VIN, объём/код двигателя не указаны."
+    }
+  ],
+  "supplier_id": 5,
+  "checked_on": "2026-11-11",
+  "status": "deploy_submitted_not_yet_verified",
+  "commit": "04bf296e9af09ad54645b2697bd564204978c085",
+  "photo": {
+    "source_url": "https://www.hyundaipartsdeal.com/genuine/hyundai-cvvt-assy-int~24350-25000.html",
+    "image_url": "https://www.hyundaipartsdeal.com/resources/encry/actual-picture/hpd/large/29f72a38b4defebf2db84e08da1b0026/a1acf081876447fab5bcd74e0cbec782.jpg",
+    "main_size": [
+      400,
+      300
+    ],
+    "thumbnail_size": [
+      180,
+      135
+    ],
+    "status": "prepared_not_confirmed_on_site"
+  },
+  "next_offer_id": 25371
+}
