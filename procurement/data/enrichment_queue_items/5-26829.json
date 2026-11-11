@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 6451,
   "offer_id": 26829,
-  "status": "prepared_photo_existing_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://texkom.ru/catalog/katushka-zazhiganiya/katushka-zazhiganiya-patron-pci1150/",
   "source_label": "Техком — независимый каталог продавца",
@@ -24,11 +24,20 @@
   "source_article": "PCI1150",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/38af7e95-9453-471c-9d79-0322b5124684",
   "image_url": "https://texkom.ru/upload/texkom/catalog/e0a/2799241/460976/322x322/katushka-zazhiganiya-patron-pci1150.jpeg",
   "image_note": "ТочнаяPATRONPCI1150: реальнаяфотографияоднойкатушкизажиганияспроизводственнымводянымзнакомPATRON,разъёмикреплениевидны. Существующаяприменимостьсохранена.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/e9a141b793a092770e4a21abc914723482eea2f8ca80fb4a4bcf16bb56d130e8.webp",
+    "thumbnail_path": "products/optimized/580fb67ed90cb1cfa5be37451df6cd17d72dd950f0d9c832740acf1d5b72c6b4.webp",
+    "main_size": [
+      450,
+      450
+    ],
+    "thumbnail_size": [
+      180,
+      180
+    ]
   },
   "fitment_status": "existing_preserved",
   "checked_sources": [
@@ -39,6 +48,29 @@
   ],
   "next_offer_id": 26288,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T11:06:11.850Z"
+  },
+  "source_sha256": "5bedd6025ed091e950ef0ca000f1e97233cda8d37a1daec76af4f7f24dc53bc0",
+  "main_sha256": "e9a141b793a092770e4a21abc914723482eea2f8ca80fb4a4bcf16bb56d130e8",
+  "main_size": [
+    450,
+    450
+  ],
+  "thumbnail_sha256": "580fb67ed90cb1cfa5be37451df6cd17d72dd950f0d9c832740acf1d5b72c6b4",
+  "thumbnail_size": [
+    180,
+    180
+  ],
+  "publication": {
+    "commit": "44a99fc6d2aca7ad840396d2d3d5420d4cbea950",
+    "deploy": "dep-dbq4mt7f3r2c73b8rv50",
+    "status": "live"
   }
 }
