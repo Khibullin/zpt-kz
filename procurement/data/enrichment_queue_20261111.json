@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T12:34:47.004Z",
+  "checked_at": "2026-11-11T12:34:49.369Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -11223,10 +11223,10 @@
       22938,
       23110
     ],
-    "reviewed": 68,
+    "reviewed": 69,
     "published_fitments": 1,
     "published_photos": 15,
-    "unconfirmed": 53,
+    "unconfirmed": 54,
     "photos_present": 17,
     "fitments_present": 47,
     "both_present": 15,
@@ -11673,14 +11673,15 @@
     22700,
     22270,
     24768,
-    23270
+    23270,
+    23198
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 343,
-    "remaining_unreviewed": 65,
-    "unconfirmed_reviewed": 249,
+    "reviewed": 344,
+    "remaining_unreviewed": 64,
+    "unconfirmed_reviewed": 250,
     "remaining_missing_fields": 314,
     "photo_added": 94,
     "fitment_added": 55,
@@ -12100,7 +12101,7 @@
       "checked_on": "2026-11-11",
       "source_url": "https://eu.motorad.com/part/348-92k/",
       "source_label": "MotoRad — каталог производителя",
-      "source_kind": "retailer_catalogue",
+      "source_kind": "manufacturer_catalogue",
       "source_article": "348-92K",
       "fitments": [],
       "fitment_note": "Существующая применимость сохранена.",
