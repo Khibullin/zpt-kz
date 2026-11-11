@@ -1,0 +1,32 @@
+{
+  "offer_id": 26820,
+  "brand": "HYUNDAI-KIA",
+  "article": "273012B100",
+  "source_url": "https://www.hyundaipartsdeal.com/genuine/hyundai-coil-assy-ignition~27301-2b100.html",
+  "source_label": "HyundaiPartsDeal, каталог продавца оригинальных деталей Hyundai",
+  "source_kind": "retailer_catalogue",
+  "note": "Регион каталога США. Источник явно указывает 273012B100 и 27301-2B100 как одну деталь. Ограниченный список из таблицы Vehicle Fitment; не утверждает глобальную полноту. Не использован смешанный список моделей и разрозненных лет Kaspi.",
+  "fitments": [
+    {
+      "make": "HYUNDAI",
+      "model": "ACCENT",
+      "years": "2011-2022",
+      "engine": "DOHC - GDI",
+      "body": "Sedan - 4Door 5P; Sedan - 5Door 5P",
+      "notes": "Рынок США, таблица продавца оригинальных деталей. Код и объём двигателя не указаны; подтвердить VIN."
+    },
+    {
+      "make": "HYUNDAI",
+      "model": "VELOSTER",
+      "years": "2011-2017",
+      "engine": "DOHC - GDI",
+      "body": "Coupe - 4Door 4P (DR'S 1Door & Pass 2Door)",
+      "notes": "Рынок США, таблица продавца оригинальных деталей. Код и объём двигателя не указаны; подтвердить VIN."
+    }
+  ],
+  "supplier_id": 5,
+  "status": "prepared_not_published",
+  "photo": "existing_preserved",
+  "next_offer_id": 26154,
+  "checked_on": "2026-11-11"
+}
