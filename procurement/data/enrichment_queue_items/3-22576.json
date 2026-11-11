@@ -1,0 +1,46 @@
+{
+  "article": "AN-768WK",
+  "brand": "AKEBONO",
+  "cost": 8834,
+  "has_fitment": true,
+  "id": 22576,
+  "kaspi_price": 16120,
+  "kaspi_url": "https://kaspi.kz/shop/p/kolodki-akebono-an-768wk-130796446/?c=750000000",
+  "main_image": "",
+  "name": "AKEBONO JAPAN Колодки задние",
+  "photo_status": "needs_source",
+  "product_id": 4310,
+  "profit": 5021,
+  "stock": "10",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 2283,
+  "offer_id": 22576,
+  "status": "reviewed_photo_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "exact_photo_unconfirmed",
+    "reason": "ForwardAuto: временный upstream protocolerror,обычный запрос повторёнпослепаузы одинраз,тотжесбой. PlentyParts:типоваяSVGзаглушка с артикулом,не фото;исключена. Hyperauto400BadRequestнеперезапрашивался. Существующая применимость сохранена."
+  },
+  "checked_sources": [
+    {
+      "url": "https://forwardauto.ru/catalog/product_akebono-an768wk-kolodki-tormoznye-zadnie-an654wk-an745wk-044608h385-440608h385-440609n00b-44060al585/",
+      "result": "Webtextsuccess;browserupstream protocolerror twice temporary"
+    },
+    {
+      "url": "https://plenty.parts/parts/akebono/braking-system/akebono-an768wk-brake-pads-nissan-juke-infiniti-fx-p5527154",
+      "result": "ExactAkebonoAN-768WK,SVGplaceholdervisuallyverified"
+    },
+    {
+      "url": "https://hyperauto.ru/product/kolodki-tormoznye-diskovye-akebono-zadnie-komplekt-na-os-4-sht-art-an-768wk-007362227/",
+      "result": "400BadRequest noalternativeretry"
+    }
+  ],
+  "next_offer_id": 22692,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true
+  }
+}
