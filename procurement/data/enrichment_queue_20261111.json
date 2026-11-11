@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T13:29:36.754Z",
+  "checked_at": "2026-11-11T13:29:39.584Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -6104,7 +6104,7 @@
       "kaspi_url": "https://kaspi.kz/shop/p/555-rulevaja-tjaga-sr-t270-177618199/?c=750000000",
       "main_image": "products/optimized/d057a2ee7af24f2a90942df422354a651a87fe308a3572d32167aebd8fb2e19e.webp",
       "name": "555 Рулевая тяга",
-      "photo_status": "ui_verified_db_audit_pending",
+      "photo_status": "done",
       "product_id": 4228,
       "profit": 1051.125,
       "stock": "1",
@@ -12430,26 +12430,6 @@
     },
     {
       "supplier_id": 3,
-      "offer_id": 22494,
-      "commit": "b83355cd9994f3667e7ee7842b3bbc9cb23ee5a5",
-      "main_image": "products/optimized/d057a2ee7af24f2a90942df422354a651a87fe308a3572d32167aebd8fb2e19e.webp",
-      "supplier_thumbnail": "products/optimized/e2c2d2d38d1a9996456e28654480889b7f7cc0357a5f9b70cf188ac1f5d55b09.webp",
-      "ui_verified": true,
-      "db_verified": false,
-      "checks_needed": [
-        "stored main+thumbnail",
-        "photo task status/evidence",
-        "trade values and old fitment metadata"
-      ],
-      "baseline_queue": {
-        "cost": 5607,
-        "stock": "1",
-        "kaspi_price": 7895
-      },
-      "reason": "Render MCP temporary Internal errors/timeouts; fresh stored row metadata audit pending"
-    },
-    {
-      "supplier_id": 3,
       "offer_id": 22515,
       "commit": "b83355cd9994f3667e7ee7842b3bbc9cb23ee5a5",
       "main_image": "products/optimized/8805162f4a0e19d1808a44decbdfdd481d681ad3872a090a20cb87cebf486128.webp",
@@ -12743,8 +12723,8 @@
     "added_fitment": 55,
     "added_make_model_pairs": 126,
     "added_configurations": 164,
-    "photo_db_and_ui_verified": 106,
-    "photo_ui_verified_db_audit_pending": 9,
+    "photo_db_and_ui_verified": 107,
+    "photo_ui_verified_db_audit_pending": 8,
     "checked_at": "2026-11-11T13:27:32.379Z",
     "scope_note": "Saved original scope reconciled against per-item results. Final33 live UI trade values matched; fresh whole-scope DB check pending Render recovery."
   }
