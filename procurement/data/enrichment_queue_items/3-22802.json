@@ -1,0 +1,42 @@
+{
+  "article": "AS-269",
+  "brand": "AKIKA",
+  "cost": 8016,
+  "has_fitment": true,
+  "id": 22802,
+  "kaspi_price": 11194,
+  "kaspi_url": "https://kaspi.kz/shop/p/akika-perednii-as-269-1-sht-120871546/?c=750000000",
+  "main_image": "",
+  "name": "AKIKA Амортизатор, пер. левый&правый",
+  "photo_status": "needs_source",
+  "product_id": 4532,
+  "profit": 1528.75,
+  "stock": "10",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 2505,
+  "offer_id": 22802,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "Точное независимое фото AKIKA AS-269/AS269 не найдено: поиски дают AS261/AS229 либо нерелевантные результаты. Существующая применимость сохранена.",
+  "checked_sources": [
+    {
+      "query": "\"AKIKA\" \"AS269\"",
+      "result": "Other articles only"
+    },
+    {
+      "query": "\"AKIKA\" \"AS-269\"",
+      "result": "No relevant result"
+    }
+  ],
+  "next_offer_id": 23271,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true
+  }
+}
