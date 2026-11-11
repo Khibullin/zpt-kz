@@ -15,8 +15,11 @@
     }
   ],
   "supplier_id": 5,
-  "status": "prepared_not_published",
+  "status": "published_db_and_ui_verified",
   "photo": "existing_preserved",
   "next_offer_id": 25401,
-  "checked_on": "2026-11-11"
+  "checked_on": "2026-11-11",
+  "commit": "299c065ec2f65db3effa9db0992a376fdc34a215",
+  "deploy": "dep-dbq0ccks728c738tt0ig",
+  "actual_fitment_pairs": 1
 }
