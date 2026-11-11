@@ -1,11 +1,11 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T13:03:53.879Z",
+  "checked_at": "2026-11-11T13:03:57.500Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
-    "expires_at": "2026-11-11T13:53:53.879Z"
+    "expires_at": "2026-11-11T13:53:57.500Z"
   },
   "next_supplier": 3,
   "batch_size": 100,
@@ -5436,14 +5436,14 @@
       "id": 22334,
       "kaspi_price": 5997,
       "kaspi_url": "https://kaspi.kz/shop/p/555-stoika-stabilizatora-sl-t680-174068966/?c=750000000",
-      "main_image": "",
+      "main_image": "products/optimized/32a29d24443556cae606acad78d51bcf64e2cd36f0abf74903ab1e6127c33a0a.webp",
       "name": "555 Стойка стабилизатора",
-      "photo_status": "skipped",
+      "photo_status": "ui_verified_db_audit_pending",
       "product_id": 4070,
       "profit": 1225.375,
       "stock": "6",
       "supplier_id": 3,
-      "supplier_thumbnail": "",
+      "supplier_thumbnail": "products/optimized/33fadab117d0f49e8386ee1163fea859bd7b91b5e13c59f9e4c15aec619679a6.webp",
       "task_id": 2043
     },
     {
@@ -11223,16 +11223,16 @@
       22938,
       23110
     ],
-    "reviewed": 98,
+    "reviewed": 99,
     "published_fitments": 1,
-    "published_photos": 24,
+    "published_photos": 25,
     "unconfirmed": 74,
-    "photos_present": 26,
+    "photos_present": 27,
     "fitments_present": 47,
-    "both_present": 24,
+    "both_present": 25,
     "created_at": "2026-11-11T11:52:47.402Z",
     "fixed": true,
-    "next_offer_id": 22334
+    "next_offer_id": 22174
   },
   "completed_offer_ids": [
     26820,
@@ -11337,7 +11337,8 @@
     35217,
     35172,
     35180,
-    35193
+    35193,
+    22334
   ],
   "reviewed_offer_ids": [
     26787,
@@ -11712,16 +11713,17 @@
     22818,
     22938,
     23110,
-    35193
+    35193,
+    22334
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 373,
-    "remaining_unreviewed": 35,
+    "reviewed": 374,
+    "remaining_unreviewed": 34,
     "unconfirmed_reviewed": 270,
-    "remaining_missing_fields": 305,
-    "photo_added": 103,
+    "remaining_missing_fields": 304,
+    "photo_added": 104,
     "fitment_added": 55,
     "make_model_pairs_added": 126,
     "configurations_added": 164
@@ -11807,50 +11809,6 @@
     "db_verified": false
   },
   "prepared_candidates": [
-    {
-      "article": "SL-T680",
-      "brand": "555",
-      "cost": 3772,
-      "has_fitment": true,
-      "id": 22334,
-      "kaspi_price": 5997,
-      "kaspi_url": "https://kaspi.kz/shop/p/555-stoika-stabilizatora-sl-t680-174068966/?c=750000000",
-      "main_image": "",
-      "name": "555 Стойка стабилизатора",
-      "photo_status": "skipped",
-      "product_id": 4070,
-      "profit": 1225.375,
-      "stock": "6",
-      "supplier_id": 3,
-      "supplier_thumbnail": "",
-      "task_id": 2043,
-      "offer_id": 22334,
-      "status": "prepared_photo_existing_fitment",
-      "checked_on": "2026-11-11",
-      "source_url": "https://www.fitinpart.sg/v2/product/43273284/555-sankei-sl-t680",
-      "source_label": "Fitinpart — независимый каталог продавца",
-      "source_kind": "retailer_catalogue",
-      "source_article": "SL-T680",
-      "fitments": [],
-      "fitment_note": "Существующая применимость сохранена.",
-      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/5ac0625d-d662-4103-94b2-bd2a05486a00",
-      "image_url": "https://cdn.fitinpart.sg/fp/image/cache/data/products/7d/ec/7deceba46cf0e1e4ded6d28b585619b3.webp",
-      "image_note": "Точная карточка555SL-T680,передний стабилизаторL/R. Визуально одна чёрная стойка с одним шаровым шарниром,без дополнительной гайки;неSL-T680-M/B. Существующая применимость сохранена.",
-      "photo": {
-        "status": "downloaded_visually_verified_not_queued"
-      },
-      "fitment_status": "existing_preserved",
-      "checked_sources": [
-        {
-          "url": "https://www.fitinpart.sg/v2/product/43273284/555-sankei-sl-t680",
-          "result": "Точная карточка555SL-T680,передний стабилизаторL/R. Визуально одна чёрная стойка с одним шаровым шарниром,без дополнительной гайки;неSL-T680-M/B. Существующая применимость сохранена."
-        }
-      ],
-      "next_offer_id": 23256,
-      "verification": {
-        "trade_data_unchanged": true
-      }
-    },
     {
       "article": "SEK-8471L",
       "brand": "555",
@@ -12225,7 +12183,7 @@
     }
   ],
   "publication_pending": null,
-  "next_offer_id": 22334,
+  "next_offer_id": 22174,
   "verification_pending": [
     {
       "supplier_id": 3,
@@ -12244,6 +12202,26 @@
         "cost": 5400,
         "stock": "2",
         "kaspi_price": 7937
+      },
+      "reason": "Render MCP temporary Internal errors/timeouts; fresh row metadata audit pending"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 22334,
+      "commit": "300589ce14087af5866fa98c82545c9d25c1f691",
+      "main_image": "products/optimized/32a29d24443556cae606acad78d51bcf64e2cd36f0abf74903ab1e6127c33a0a.webp",
+      "supplier_thumbnail": "products/optimized/33fadab117d0f49e8386ee1163fea859bd7b91b5e13c59f9e4c15aec619679a6.webp",
+      "ui_verified": true,
+      "db_verified": false,
+      "checks_needed": [
+        "photo task status/evidence",
+        "stored main+thumbnail",
+        "trade data and old fitments/metadata"
+      ],
+      "baseline_queue": {
+        "cost": 3772,
+        "stock": "6",
+        "kaspi_price": 5997
       },
       "reason": "Render MCP temporary Internal errors/timeouts; fresh row metadata audit pending"
     }
