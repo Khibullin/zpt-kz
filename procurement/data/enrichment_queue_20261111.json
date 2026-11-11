@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T11:09:08.235Z",
+  "checked_at": "2026-11-11T11:10:39.346Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -11647,6 +11647,97 @@
         }
       ],
       "next_offer_id": 25152,
+      "verification": {
+        "trade_data_unchanged": true
+      }
+    },
+    {
+      "article": "55353328",
+      "brand": "GM",
+      "cost": 400,
+      "has_fitment": false,
+      "id": 28084,
+      "kaspi_price": 2705,
+      "kaspi_url": "https://kaspi.kz/shop/p/gm-kol-tso-uplotnitel-noe-55353328-121233104/?c=750000000",
+      "main_image": "",
+      "name": "Кольцо уплотнительное Chevrolet",
+      "photo_status": "needs_source",
+      "product_id": 9164,
+      "profit": 1716.875,
+      "stock": "45",
+      "supplier_id": 5,
+      "supplier_thumbnail": "",
+      "task_id": 7137,
+      "offer_id": 28084,
+      "status": "prepared_photo_and_fitment",
+      "checked_on": "2026-11-11",
+      "source_url": "https://www.gmpartsgiant.com/parts/gm-seal-55353328.html",
+      "source_label": "GMPartsGiant — независимый продавец оригинальных GM",
+      "source_kind": "retailer_catalogue",
+      "source_article": "55353328",
+      "fitments": [
+        {
+          "make": "Chevrolet",
+          "model": "Aveo",
+          "years": "2009–2011",
+          "engine": "4 Cyl 1.6L",
+          "notes": "Кузова/комплектации по строке источника: 4 DOOR HATCHBACK;4 DOOR NOTCHBACK/SEDAN;LS4DOORHATCHBACK;LS4DOORNOTCHBACK/SEDAN;LT4DOORHATCHBACK;LT4DOORNOTCHBACK/SEDAN"
+        },
+        {
+          "make": "Chevrolet",
+          "model": "Cruze",
+          "years": "2011–2016",
+          "engine": "4 Cyl 1.8L",
+          "notes": "Кузова/комплектации по строке источника: LS4DOORNOTCHBACK;LT/LTZ4DOORNOTCHBACK;LT4DOORNOTCHBACK"
+        },
+        {
+          "make": "Chevrolet",
+          "model": "Sonic",
+          "years": "2012–2018",
+          "engine": "4 Cyl 1.8L",
+          "notes": "Кузова/комплектации по строке источника: 4DOORHATCHBACK;4DOORNOTCHBACK;LS4DOORNOTCHBACK/SEDAN;LS5DOORHATCHBACK;LT4DOORNOTCHBACK/SEDAN;LT5DOORHATCHBACK;LTZ4DOORNOTCHBACK/SEDAN;LTZ5DOORHATCHBACK"
+        },
+        {
+          "make": "Chevrolet",
+          "model": "Trax",
+          "years": "2015–2020",
+          "engine": "4 Cyl 1.8L",
+          "notes": "Кузова/комплектации по строке источника: LS4DOORSPORTUTILITY;LT4DOORSPORTUTILITY;LTZ4DOORSPORTUTILITY"
+        },
+        {
+          "make": "Pontiac",
+          "model": "G3",
+          "years": "2009–2010",
+          "engine": "4 Cyl 1.6L",
+          "notes": "Кузова/комплектации по строке источника: 4DOORHATCHBACK;4DOORNOTCHBACK/SEDAN;BASE4DOORHATCHBACK;BASE4DOORNOTCHBACK/SEDAN;MIDLEVEL4DOORHATCHBACK;MIDLEVEL4DOORNOTCHBACK;UPLEVEL4DOORHATCHBACK;UPLEVEL4DOORNOTCHBACK"
+        },
+        {
+          "make": "Saturn",
+          "model": "Astra",
+          "years": "2008–2009",
+          "engine": "4 Cyl 1.8L",
+          "notes": "Кузова/комплектации по строке источника: 2DOORCOUPEXR;4DOORSEDANXE;4DOORSEDANXR"
+        }
+      ],
+      "fitment_note": "Точные6индивидуальныхстроктаблицыGMPartsGiant,проверенывживомDOM. Периоды/двигатели/кузовныеограниченияпо каждоймоделисохранены,нерасширялисьобщими2008–2020иззаголовка. Неизвестныйрегионневыдуман. ПервичныйChevroletкаталогAccessDenied,необходился. РеальноефотоодногоGM55353328,нечертёж.",
+      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/7b2ac4b2-6e5c-4ba1-bdf3-478adb193cd0",
+      "image_url": "https://www.gmpartsgiant.com/resources/encry/actual-picture/gpg/large/0bbd72a8329be448720beeeff10da31e/cc4f6fbba9b3a76d3f1026b822a42a20.jpg",
+      "image_note": "Одна реальная кольцевая прокладкаизточнойGenuineGM55353328карточки;иллюстрациянеиспользована.",
+      "photo": {
+        "status": "downloaded_visually_verified_not_queued"
+      },
+      "fitment_status": "prepared_not_imported",
+      "checked_sources": [
+        {
+          "url": "https://www.gmpartsgiant.com/parts/gm-seal-55353328.html",
+          "result": "ExactgenuineGM55353328actualphoto+6rowsliveDOMverified"
+        },
+        {
+          "url": "https://parts.chevrolet.com/product/gm-genuine-parts-engine-oil-cooler-inlet-pipe-seal-55353328",
+          "result": "PrimarycatalogbrowserAccessDenied;noalternateGMsourceURLs/protocols/channels"
+        }
+      ],
+      "next_offer_id": 26624,
       "verification": {
         "trade_data_unchanged": true
       }
