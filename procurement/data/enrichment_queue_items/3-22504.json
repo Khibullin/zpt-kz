@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 2211,
   "offer_id": 22504,
-  "status": "prepared_photo_existing_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://baza.drom.ru/nakhodka/sell_spare_parts/tjaga-rulevaja-555-555-sr-t840-g18315083922.html",
   "source_label": "Auto_nhk125 на Drom — независимый каталог продавца",
@@ -24,11 +24,20 @@
   "source_article": "SR-T840",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/698e09c6-09c1-4d00-8668-6e0b398cf6e0",
   "image_url": "https://static.baza.drom.ru/farpost_catalog/1785835577488_default",
   "image_note": "Точная карточка 555SR-T840,OEM4550339165. Визуально одна длинная чёрная рулевая тяга,водяной знак555; не комплект/аналогSR-T840-M. Существующая применимость сохранена.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/9945e9e179103424d88891cd737906871f0409a19b24da7242a5ee540cd00439.webp",
+    "thumbnail_path": "products/optimized/cc5470719dab866c10bf13bf94fa167779c82454a07a6d6e3b49043b77e83aa1.webp",
+    "main_size": [
+      600,
+      400
+    ],
+    "thumbnail_size": [
+      180,
+      120
+    ]
   },
   "fitment_status": "existing_preserved",
   "checked_sources": [
@@ -39,6 +48,29 @@
   ],
   "next_offer_id": 22458,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T12:26:58.939Z"
+  },
+  "source_sha256": "3a3afeefaf3731855cf200dc55e7a395e0042397dd16d00b62e29b2e4b4dc787",
+  "main_sha256": "9945e9e179103424d88891cd737906871f0409a19b24da7242a5ee540cd00439",
+  "main_size": [
+    600,
+    400
+  ],
+  "thumbnail_sha256": "cc5470719dab866c10bf13bf94fa167779c82454a07a6d6e3b49043b77e83aa1",
+  "thumbnail_size": [
+    180,
+    120
+  ],
+  "publication": {
+    "commit": "d3c9542cecfd849c5e190b514d72acff618374d0",
+    "deploy": "dep-dbq5rv8ae00c73fr6cmg",
+    "status": "live"
   }
 }
