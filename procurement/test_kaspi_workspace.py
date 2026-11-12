@@ -46,6 +46,7 @@ class KaspiPurchasedWorkspaceTests(TestCase):
         before = (StockDocument.objects.count(), StockEntry.objects.count(), Draft.objects.count(), Activity.objects.count())
         response = self.page()
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['selected_supplier'], self.supplier)
         batch = response.context['batch']
         self.assertEqual((batch['positions'], batch['quantity'], batch['total']), (1, 2, Decimal('11212')))
         row = response.context['active']
