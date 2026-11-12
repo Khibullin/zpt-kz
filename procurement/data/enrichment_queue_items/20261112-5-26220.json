@@ -1,0 +1,27 @@
+{
+  "article": "1026605GE",
+  "brand": "JASHI",
+  "cost": 10700,
+  "has_fitment": true,
+  "id": 26220,
+  "kaspi_price": 17860,
+  "kaspi_url": "https://kaspi.kz/shop/p/datchik-kisloroda-jashi-1026605ge-119312095/?c=750000000",
+  "main_image": "",
+  "name": "Датчик кислорода JAC",
+  "photo_status": "needs_source",
+  "product_id": 7678,
+  "profit": 4677.5,
+  "stock": "3",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 5651,
+  "checked_at": "2026-11-12T02:29:33.126314+00:00",
+  "previous_journal": "procurement/data/enrichment_queue_items/5-26220.json",
+  "publication_status": "not_published",
+  "offer_id": 26220,
+  "status": "no_new_exact_photo",
+  "new_sources": [
+    "https://atct.kz/elektrika-dvigatelya-datchiki-s5"
+  ],
+  "reason": "New result has exact JASHI in description but no individually verified image. Source service atct.kz had ordinary read timeout on separate J7 page; no retries or substitute image. Existing fitment retained."
+}

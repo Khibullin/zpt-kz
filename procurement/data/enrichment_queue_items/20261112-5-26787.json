@@ -1,0 +1,27 @@
+{
+  "article": "8402010U226KE",
+  "brand": "JASHI",
+  "cost": 92500,
+  "has_fitment": true,
+  "id": 26787,
+  "kaspi_price": 141720,
+  "kaspi_url": "https://kaspi.kz/shop/p/jashi-kapot-8402010u226ke-dlja-jac-s3-pro-2022-2025-145082558/?c=750000000",
+  "main_image": "",
+  "name": "Капот JAC JAC",
+  "photo_status": "needs_source",
+  "product_id": 8260,
+  "profit": 31255,
+  "stock": "7",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 6233,
+  "checked_at": "2026-11-12T02:26:23.523731+00:00",
+  "previous_journal": "procurement/data/enrichment_queue_items/5-26787.json",
+  "publication_status": "not_published",
+  "offer_id": 26787,
+  "status": "no_new_exact_source",
+  "new_sources": [
+    "https://www.mercadolibre.cl/capot-para-jac-js3/up/MLCU3449193185?pdp_filters=seller_id%3A1590572156"
+  ],
+  "reason": "New exact-number listing is JAC, not JASHI. No exact-brand photograph. Existing fitment retained; previous rejected photographs not reused."
+}

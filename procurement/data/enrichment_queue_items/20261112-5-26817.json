@@ -1,0 +1,70 @@
+{
+  "article": "3705100XEN01",
+  "brand": "HAVAL",
+  "cost": 13400,
+  "has_fitment": false,
+  "id": 26817,
+  "kaspi_price": 20560,
+  "kaspi_url": "https://kaspi.kz/shop/p/katushka-zazhiganija-haval-3705100xen01-130359487/?c=750000000",
+  "main_image": "",
+  "name": "Катушка зажигания HAVAL",
+  "photo_status": "needs_source",
+  "product_id": 8192,
+  "profit": 4340,
+  "stock": "1",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 6165,
+  "checked_at": "2026-11-12T02:30:55.897111+00:00",
+  "previous_journal": "procurement/data/enrichment_queue_items/5-26817.json",
+  "publication_status": "not_published",
+  "offer_id": 26817,
+  "status": "prepared_photo_fitment",
+  "new_sources": [
+    "https://gw-store.ru/catalog/haval-dargo-2022-n-v-/katushka-zazhiganiya-haval-dargo-dargo-x-f7-ii-pokolenie-h7-tank-500-urban-gibrid-original-bosch-f-0/"
+  ],
+  "prepared_photo": true,
+  "reason": "Exact seller page manufacturer HAVAL and article3705100XEN01. Two photographs downloaded and inspected: genuine GWM label on BOSCH box explicitly3705100XEN01, one ignition coil. Retain watermark. Not substitute Startvolt/Kortex cross-reference photo.",
+  "prepared_fitments": [
+    {
+      "make": "HAVAL",
+      "model": "DARGO",
+      "years": "2022–",
+      "notes": "Оригинальная катушка 3705100XEN01; точный каталог GW-Store. Двигатель не указан."
+    },
+    {
+      "make": "HAVAL",
+      "model": "DARGO X",
+      "years": "2022–",
+      "notes": "Оригинальная катушка 3705100XEN01; точный каталог GW-Store. Двигатель не указан."
+    },
+    {
+      "make": "HAVAL",
+      "model": "F7",
+      "generation": "II",
+      "years": "2024–",
+      "notes": "Только II поколение по точному каталогу GW-Store; двигатель не указан."
+    },
+    {
+      "make": "HAVAL",
+      "model": "F7X",
+      "generation": "II",
+      "years": "2024–",
+      "notes": "Только II поколение по точному каталогу GW-Store; двигатель не указан."
+    },
+    {
+      "make": "HAVAL",
+      "model": "H7",
+      "years": "2025–",
+      "notes": "Оригинальная катушка 3705100XEN01; точный каталог GW-Store. Двигатель не указан."
+    },
+    {
+      "make": "TANK",
+      "model": "500",
+      "notes": "Только Urban, гибрид, как прямо указано в названии точной карточки GW-Store. Годы и двигатель не указаны."
+    }
+  ],
+  "source_url": "https://gw-store.ru/catalog/haval-dargo-2022-n-v-/katushka-zazhiganiya-haval-dargo-dargo-x-f7-ii-pokolenie-h7-tank-500-urban-gibrid-original-bosch-f-0/",
+  "source_label": "Great Wall Store — каталог продавца оригинальных запчастей HAVAL",
+  "source_kind": "retailer_catalogue"
+}

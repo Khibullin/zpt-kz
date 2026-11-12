@@ -1,0 +1,27 @@
+{
+  "article": "2915110U7300",
+  "brand": "JASHI",
+  "cost": 11000,
+  "has_fitment": true,
+  "id": 25099,
+  "kaspi_price": 18060,
+  "kaspi_url": "https://kaspi.kz/shop/p/jashi-zadnii-2915110u7300-1-sht-118704137/",
+  "main_image": "",
+  "name": "Амортизатор задней JAC",
+  "photo_status": "needs_source",
+  "product_id": 6753,
+  "profit": 4552.5,
+  "stock": "9",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 4726,
+  "checked_at": "2026-11-12T02:29:33.169654+00:00",
+  "previous_journal": "procurement/data/enrichment_queue_items/5-25099.json",
+  "publication_status": "not_published",
+  "offer_id": 25099,
+  "status": "temporary_source_timeout",
+  "new_sources": [
+    "https://atct.kz/amortizator-zadnii-j7"
+  ],
+  "reason": "New exact JASHI article appears in description; headings label JAC. Page GET timed out. No photo verified, no cross-brand substitution; existing fitment retained."
+}

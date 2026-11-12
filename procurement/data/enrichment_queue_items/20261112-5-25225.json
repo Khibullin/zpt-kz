@@ -1,0 +1,38 @@
+{
+  "article": "S111F260204-0103",
+  "brand": "Changan",
+  "cost": 29300,
+  "has_fitment": false,
+  "id": 25225,
+  "kaspi_price": 43000,
+  "kaspi_url": "https://kaspi.kz/shop/p/changan-perednii-s111f260204-0103-1-sht-130189442/?c=750000000",
+  "main_image": "products/optimized/88d89b2484fbb5ec9b678ee5dda98fe0e57a4bfa668244fc4c20dc23cf68a710.webp",
+  "name": "Амортизатор передний Changan",
+  "photo_status": "done",
+  "product_id": 6877,
+  "profit": 8075,
+  "stock": "1",
+  "supplier_id": 5,
+  "supplier_thumbnail": "products/optimized/46eebb2e91993a71a535ea19b761494c94959f5a3419d69d78443bd2ffde08af.webp",
+  "task_id": 4850,
+  "checked_at": "2026-11-12T02:26:23.748724+00:00",
+  "previous_journal": "procurement/data/enrichment_queue_items/5-25225.json",
+  "publication_status": "not_published",
+  "offer_id": 25225,
+  "status": "prepared_fitment",
+  "new_sources": [
+    "https://chats.chinamobil.ru/files/changan-team/applicationpdf/Spare%20Part%20List%20Retail%20at%207th%20Sep%202021.pdf",
+    "https://www.cigmaglobal.com/products/changan-cs35-plus-amortiguador-del.html"
+  ],
+  "reason": "Newly inspected PDF page157 explicitly identifies exact full article as front LH strut; resolves previous side conflict. Cigma exact CHANGAN article independently identifies CS35 PLUS. Years and engines not established.",
+  "prepared_fitments": [
+    {
+      "make": "CHANGAN",
+      "model": "CS35 PLUS",
+      "notes": "Передняя левая стойка. Модель подтверждена точным каталогом Cigma; сторона LH — прайс-лист Changan от 07.09.2021, стр.157. Годы и двигатель не указаны. Противоречивые характеристики Kaspi не использованы."
+    }
+  ],
+  "source_url": "https://www.cigmaglobal.com/products/changan-cs35-plus-amortiguador-del.html",
+  "source_label": "Cigma — каталог продавца; прайс-лист Changan 07.09.2021, стр.157",
+  "source_kind": "retailer_catalogue"
+}

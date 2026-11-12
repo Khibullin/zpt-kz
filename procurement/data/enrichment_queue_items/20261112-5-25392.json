@@ -1,0 +1,27 @@
+{
+  "article": "2804100S4500-F011",
+  "brand": "JAC",
+  "cost": 47500,
+  "has_fitment": true,
+  "id": 25392,
+  "kaspi_price": 63320,
+  "kaspi_url": "https://kaspi.kz/shop/p/jac-bamper-2804100s4500-f011-dlja-jac-js5-2024-2025-147066753/?c=750000000",
+  "main_image": "",
+  "name": "Бампер задний JAC",
+  "photo_status": "needs_source",
+  "product_id": 6923,
+  "profit": 7655,
+  "stock": "6",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 4896,
+  "checked_at": "2026-11-12T02:26:23.799561+00:00",
+  "previous_journal": "procurement/data/enrichment_queue_items/5-25392.json",
+  "publication_status": "not_published",
+  "offer_id": 25392,
+  "status": "no_new_exact_photo",
+  "new_sources": [
+    "https://www.shindary.com/news/shindary-productsspare-parts-numbers-for-body-parts-53.html"
+  ],
+  "reason": "New source lists exact number but no individually verified photograph of JAC full article. Existing fitment retained."
+}
