@@ -59,7 +59,8 @@ def apply_filters(qs, selected, omit=()):
         model=CarModel.objects.filter(pk=selected['model']).values('brand_id','brand__country_id').first()
         if not model or (selected['brand'] and 'brand' not in omit and str(model['brand_id'])!=selected['brand']) or (selected['country'] and 'country' not in omit and str(model['brand__country_id'])!=selected['country']):
             return qs.none()
-    structured, legacy = {}, Product.objects.filter(fitment_reviewed_on__isnull=True).order_by()
+    structured, legacy_ids = {}, None
+    legacy_allowed=not ((selected['year'] and 'year' not in omit) or (selected['engine'] and 'engine' not in omit))
     vehicle = False
     for key in ('country','brand','model'):
         value = selected[key] if key not in omit else ''
@@ -69,11 +70,14 @@ def apply_filters(qs, selected, omit=()):
             return qs.none()
         vehicle = True
         structured[FITMENT_PATHS[key].removeprefix('fitments__')+'__pk'] = value
-        paths = [Product.objects.filter(**{path+'__pk':value}).order_by().values('pk')
-                 for path in VEHICLE_PATHS[key]]
-        # One set operation permits a semi-join instead of repeated OR
-        # subplans over the entire catalogue (especially with small work_mem).
-        legacy = legacy.filter(pk__in=paths[0].union(*paths[1:]))
+        if legacy_allowed:
+            paths = [Product.objects.filter(**{path+'__pk':value}).order_by().values_list('pk',flat=True)
+                     for path in VEHICLE_PATHS[key]]
+            # Materialize narrow relationship IDs before the ownership filter.
+            # Otherwise PostgreSQL overestimates the UNION cardinality and scans
+            # the whole wide Product table for each country/brand selection.
+            ids=set(paths[0].union(*paths[1:]))
+            legacy_ids=ids if legacy_ids is None else legacy_ids & ids
     if selected['year'] and 'year' not in omit:
         value=selected['year']
         if not value.isdecimal() or not 1900 <= int(value) <= 2100:
@@ -83,20 +87,22 @@ def apply_filters(qs, selected, omit=()):
         structured['year_from__lte']=year
         # Closed periods or open periods checked in this year or later.
         period=Q(year_to__gte=year)|Q(year_to__isnull=True,verified_on__year__gte=year)
-        legacy=legacy.none()
+        legacy_allowed=False
     else:
         period=Q()
     if selected['engine'] and 'engine' not in omit:
         vehicle=True
         engine=Q(engine_code=selected['engine'])|Q(engine_policy='independent')
-        legacy=legacy.none()
+        legacy_allowed=False
     else:
         engine=Q()
     if vehicle:
         rows=ProductFitment.objects.filter(status='confirmed',**structured).filter(period&engine)
-        confirmed=Product.objects.filter(fitment_reviewed_on__isnull=False,
-            pk__in=rows.values('product_id')).order_by().values('pk')
-        qs=qs.filter(pk__in=confirmed.union(legacy.values('pk')))
+        matching_ids=set(rows.filter(product__fitment_reviewed_on__isnull=False).order_by().values_list('product_id',flat=True))
+        if legacy_allowed and legacy_ids:
+            matching_ids.update(Product.objects.filter(fitment_reviewed_on__isnull=True,
+                pk__in=legacy_ids).order_by().values_list('pk',flat=True))
+        qs=qs.filter(pk__in=matching_ids)
     if any(selected[key] and key not in omit for key in ('subgroup','maker')):
         qs=retail_annotations(qs)
     for key,field in [('category','category_id'),('subgroup','retail_subgroup'),('maker','retail_maker')]:
