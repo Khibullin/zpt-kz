@@ -2,7 +2,7 @@
 from functools import wraps
 from uuid import uuid4
 
-from django.core.cache import cache
+from django.core.cache import caches
 from django.db import transaction, connection
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
@@ -11,6 +11,8 @@ from .models import Offer, VehicleFitment
 
 
 REVISION_KEY = 'procurement:filter-options:revision'
+cache = caches['procurement_options']
+OPTIONS_TTL = 600
 
 
 def invalidate_options():
@@ -21,7 +23,13 @@ def invalidate_options():
 @receiver(post_delete, sender=Offer)
 @receiver(post_save, sender=VehicleFitment)
 @receiver(post_delete, sender=VehicleFitment)
-def changed_options(**kwargs):
+def changed_options(sender, update_fields=None, **kwargs):
+    # Photos, prices and stock do not change the filter dictionaries. Frequent
+    # enrichment writes must not force every visitor to rescan the catalogue.
+    fields = {'category', 'supplier', 'supplier_id'} if sender is Offer else {
+        'offer', 'offer_id', 'make', 'model', 'verified', 'configurations'}
+    if update_fields is not None and fields.isdisjoint(update_fields):
+        return
     invalidate_options()
     transaction.on_commit(invalidate_options)
 
@@ -57,13 +65,14 @@ def supplier_options(supplier_id):
             models.setdefault(make, []).append(model)
         result = (categories, models)
         if use_cache:
-            cache.set(key, result, timeout=30)
+            cache.set(key, result, timeout=OPTIONS_TTL)
     return result
 
 
 def supplier_years(supplier_id):
     from .fitment_filters import configuration_years
-    key = f'procurement:years:v1:{cache.get(REVISION_KEY, "0")}:{supplier_id or "all"}'
+    from django.utils import timezone
+    key = f'procurement:years:v2:{timezone.localdate().year}:{cache.get(REVISION_KEY, "0")}:{supplier_id or "all"}'
     result = cache.get(key) if options_cache_allowed() else None
     if result is None:
         query = VehicleFitment.objects.filter(verified=True)
@@ -73,12 +82,10 @@ def supplier_years(supplier_id):
         if connection.vendor == 'postgresql':
             # Extract distinct year ranges in PostgreSQL, without transferring
             # hundreds of thousands of full configurations to the web worker.
-            sql, params = query.order_by().values('pk').query.sql_with_params()
-            table = connection.ops.quote_name(VehicleFitment._meta.db_table)
+            sql, params = query.order_by().values('configurations').distinct().query.sql_with_params()
             with connection.cursor() as cursor:
-                cursor.execute(f"SELECT DISTINCT item->>'years' FROM {table} vf "
-                               f"CROSS JOIN LATERAL jsonb_array_elements(vf.configurations) item "
-                               f"WHERE vf.id IN ({sql})", params)
+                cursor.execute(f"SELECT DISTINCT item->>'years' FROM ({sql}) vf "
+                               f"CROSS JOIN LATERAL jsonb_array_elements(vf.configurations) item", params)
                 values.update(str(row[0] or '') for row in cursor.fetchall())
         else:
             for configs in query.values_list('configurations', flat=True).iterator(chunk_size=100):
@@ -87,5 +94,26 @@ def supplier_years(supplier_id):
                         values.add(str(config.get('years', '')))
         result = sorted({year for value in values for year in configuration_years(value)}, reverse=True)
         if options_cache_allowed():
-            cache.set(key, result, timeout=300)
+            cache.set(key, result, timeout=OPTIONS_TTL)
+    return result
+
+
+def supplier_generations(supplier_id, make, model):
+    if not make or not model:
+        return []
+    from hashlib import sha256
+    scope = sha256(f'{supplier_id}:{make}:{model}'.encode()).hexdigest()
+    key = f'procurement:generations:v1:{cache.get(REVISION_KEY, "0")}:{scope}'
+    use_cache = options_cache_allowed()
+    result = cache.get(key) if use_cache else None
+    if result is None:
+        query = VehicleFitment.objects.filter(verified=True, make=make, model=model)
+        if supplier_id:
+            query = query.filter(offer__supplier_id=supplier_id)
+        result = sorted({config['generation']
+                         for configs in query.order_by().values_list('configurations', flat=True).distinct().iterator(chunk_size=100)
+                         for config in configs
+                         if isinstance(config, dict) and config.get('generation')})
+        if use_cache:
+            cache.set(key, result, timeout=OPTIONS_TTL)
     return result

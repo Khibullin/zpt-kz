@@ -2,8 +2,7 @@ from django import forms
 from django.forms import formset_factory
 from .models import Preferences, Draft, Membership, Supplier, Offer, VehicleFitment, PurchaseOrder
 
-from .filter_options import supplier_options, supplier_years
-from .fitment_filters import configuration_years
+from .filter_options import supplier_options, supplier_years, supplier_generations
 from .categories import OMEGA_CATEGORIES
 from core.models import Country
 from .vehicle_countries import country_makes
@@ -51,15 +50,11 @@ class SelectionFilterForm(forms.Form):
             if value not in categories:
                 categories.append(value)
         self.fields['category'].choices = [('', 'Все категории')] + [(x, x) for x in categories]
-        fitments = VehicleFitment.objects.filter(verified=True)
-        if supplier_id:
-            fitments = fitments.filter(offer__supplier_id=supplier_id)
         self.fields['vehicle_country'].queryset = Country.objects.order_by('name')
         selected_country = self.data.get('vehicle_country', '') if self.is_bound else ''
         allowed_makes = None
         if str(selected_country).isdigit():
             allowed_makes = set(country_makes(selected_country))
-            fitments = fitments.filter(make__in=allowed_makes)
         self.vehicle_models = {make: models for make, models in models_by_make.items()
                                if allowed_makes is None or make in allowed_makes}
         makes = list(self.vehicle_models)
@@ -68,22 +63,7 @@ class SelectionFilterForm(forms.Form):
         models = self.vehicle_models.get(selected_make, [])
         self.fields['vehicle_model'].choices = [('', 'Все модели' if selected_make else 'Сначала выберите марку')] + [(x, x) for x in models]
         selected_model = self.data.get('vehicle_model', '') if self.is_bound else ''
-        configurations = fitments if selected_make and selected_model else fitments.none()
-        if selected_make:
-            configurations = configurations.filter(make=selected_make)
-        if selected_model:
-            configurations = configurations.filter(model=selected_model)
-        generations, year_values = set(), set()
-        selected_generation = self.data.get('vehicle_generation', '') if self.is_bound else ''
-        # Stream large supplier fitment JSON instead of retaining every configuration.
-        for values in configurations.values_list('configurations', flat=True).iterator(chunk_size=20):
-            for config in values:
-                if not isinstance(config, dict):
-                    continue
-                if config.get('generation'):
-                    generations.add(config['generation'])
-                if not selected_generation or config.get('generation') == selected_generation:
-                    year_values.add(str(config.get('years', '')))
+        generations = supplier_generations(supplier_id, selected_make, selected_model)
         self.fields['vehicle_generation'].choices = [('', 'Все поколения' if selected_make and selected_model else 'Сначала выберите модель')] + [(x, x) for x in sorted(generations)]
         years = supplier_years(supplier_id)
         choices = [(str(x), str(x)) for x in years]
