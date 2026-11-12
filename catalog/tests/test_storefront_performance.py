@@ -33,3 +33,16 @@ class StorefrontPerformanceTests(TestCase):
         self.assertEqual(response.context['products'][0].price, 8900)
         self.assertFalse(response.context['products'][0].public_stock['can_buy'])
         self.assertFalse(any('COUNT(' in q['sql'] and 'catalog_product' in q['sql'] for q in queries))
+
+    def test_country_snapshot_avoids_matching_and_keeps_prices_stock_live(self):
+        from catalog.storefront import refresh_country_facets
+        from catalog.models import Product
+        self.assertTrue(refresh_country_facets())
+        Product.objects.filter(pk=self.product.pk).update(price=4500,stock_qty=0)
+        with patch('catalog.storefront.apply_filters',side_effect=AssertionError('No matching in country navigation')), patch('catalog.storefront.photo_ordered_products',side_effect=AssertionError('No global sorting')):
+            response=self.client.get('/',{'country':self.country.pk})
+        self.assertEqual(response.context['result_count'],1)
+        self.assertEqual(response.context['products'][0].price,4500)
+        self.assertFalse(response.context['products'][0].public_stock['can_buy'])
+        # Availability and other combinations must still use live filters.
+        self.assertEqual(self.client.get('/',{'country':self.country.pk,'stock':'in'}).context['result_count'],0)

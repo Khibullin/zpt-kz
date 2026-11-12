@@ -250,6 +250,49 @@ def refresh_home_facets(force=False):
     return True
 
 
+def refresh_country_facets():
+    """Prepare one public country selection, using the existing idle consumer."""
+    from datetime import timedelta
+    from django.db import transaction
+    from django.utils import timezone
+    from .models import Country, StorefrontFacetSnapshot
+    cutoff=timezone.now()-timedelta(minutes=5)
+    ready=set(StorefrontFacetSnapshot.objects.filter(key__startswith='country:',
+        built_at__gte=cutoff).values_list('key',flat=True))
+    country_id=next((pk for pk in Country.objects.order_by('pk').values_list('pk',flat=True)
+                     if f'country:{pk}' not in ready),None)
+    if country_id is None:
+        return False
+    key=f'country:{country_id}'
+    StorefrontFacetSnapshot.objects.get_or_create(pk=key)
+    with transaction.atomic():
+        snapshot=StorefrontFacetSnapshot.objects.select_for_update(skip_locked=True).filter(pk=key).first()
+        if snapshot is None or (snapshot.built_at and snapshot.built_at>=cutoff):
+            return False
+        base=retail_products()
+        selected={k:'' for k in KEYS}
+        selected['country']=str(country_id)
+        ids=set(apply_filters(base,selected).order_by().values_list('pk',flat=True))
+        scope=Product.objects.filter(pk__in=ids)
+        root=load_home_facets()
+        values,labels=root.get('brand',({},{}))
+        allowed={str(pk) for pk in Brand.objects.filter(country_id=country_id).values_list('pk',flat=True)}
+        facets={'country':root['country'],
+                'brand':({pk:count for pk,count in values.items() if pk in allowed},labels)}
+        for facet in ('category','subgroup','maker'):
+            facets[facet]=facet_values(facet,base,selected,selected,scope=scope)
+        root_ids=(root.get('_home_order') or {}).get('ids',[])
+        ordered=[pk for pk in root_ids if pk in ids]
+        missing=ids-set(ordered)
+        if missing:
+            ordered.extend(photo_ordered_products(scope.filter(pk__in=missing)).values_list('pk',flat=True))
+        snapshot.payload={'version':1,'facets':facets,
+            'home_order':dict(ids=ordered,count=len(ordered),full_order=True)}
+        snapshot.built_at=timezone.now()
+        snapshot.save(update_fields=['payload','built_at'])
+    return True
+
+
 def storefront(request):
     started=perf_counter()
     base=retail_products()
@@ -266,6 +309,14 @@ def storefront(request):
         return '/?'+urlencode(params) if params else '/'
     common=not any(selected[k] for k in KEYS if k!='sort')
     home_facets=load_home_facets()
+    country_snapshot=False
+    if (selected['country'].isdecimal() and
+            not any(selected[k] for k in KEYS if k not in ('country','sort'))):
+        from .models import StorefrontFacetSnapshot
+        payload=StorefrontFacetSnapshot.objects.filter(pk='country:'+selected['country']).values_list('payload',flat=True).first()
+        if payload and payload.get('version')==1 and 'home_order' in payload:
+            home_facets={**payload['facets'],'_home_order':payload['home_order']}
+            country_snapshot=True
     scopes={}
     def scope_for(omit=()):
         effective={k:('' if k in omit else v) for k,v in filter_selection.items()}
@@ -285,7 +336,7 @@ def storefront(request):
         omit=(key,*RESET.get(key,()))
         effective={k:selected[k] for k in KEYS if k!='sort' and k not in omit}
         cache_key='v3:'+key+':'+sha256(urlencode(effective).encode()).hexdigest()
-        if not any(effective.values()):
+        if country_snapshot or not any(effective.values()):
             values,labels=home_facets.get(key, ({},{}))
             return facet_options(key,values,labels)
         # Filter-specific counters retain their short, bounded cache.
@@ -304,12 +355,13 @@ def storefront(request):
                 for v,count in sorted(values.items(),key=lambda item:labels.get(item[0],item[0]).casefold())]
     facets={k:facet(k) for k in ('country','brand','model','year','engine','category','subgroup','maker')}
     facets_finished=perf_counter()
-    found=(base if common else scope_for()).select_related('seller_profile','brand','car_model__brand','category').prefetch_related('kaspi_listings','selected_models__brand','selected_brands','fitments__car_model__brand')
+    found=(base.filter(pk__in=home_facets['_home_order']['ids']) if country_snapshot else
+           base if common else scope_for()).select_related('seller_profile','brand','car_model__brand','category').prefetch_related('kaspi_listings','selected_models__brand','selected_brands','fitments__car_model__brand')
     order={'price':F('price').asc(nulls_last=True),'-price':F('price').desc(nulls_last=True),'title':'title'}.get(selected['sort'])
     page_key='home-page-v1:'+str(request.GET.get('page','1'))[:12]
     page_cache=caches['storefront_common']
     cached_page=page_cache.get(page_key) if common and order is None else None
-    if common and order is None:
+    if (common or country_snapshot) and order is None:
         # The shared page ordering survives process restarts. This contains only IDs
         # and counters; actual card data is always loaded from the live DB.
         cached_page=home_facets.get('_home_order') or cached_page

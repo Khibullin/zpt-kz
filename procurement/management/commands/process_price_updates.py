@@ -30,6 +30,7 @@ class Command(BaseCommand):
         while running:
             close_old_connections()
             photo_progress = 0
+            facet_progress = False
             try:
                 query = PriceUpdate.objects.filter(status__in=['ready', 'running']).order_by('pk')
                 if options['batch']:
@@ -50,9 +51,10 @@ class Command(BaseCommand):
                         retail_run = advance_publication(retail_run.pk)
                     self.stdout.write(f'Retail publication {retail_run.pk}: {retail_run.processed}/{retail_run.total}')
                 if options['watch'] and running:
-                    from catalog.storefront import refresh_home_facets
+                    from catalog.storefront import refresh_home_facets, refresh_country_facets
                     if refresh_home_facets():
                         self.stdout.write('Public storefront filter snapshot refreshed')
+                    facet_progress=refresh_country_facets()
                     from core.seo_views import refresh_sitemap_snapshots
                     if refresh_sitemap_snapshots():
                         self.stdout.write('Public sitemap snapshots refreshed')
@@ -74,7 +76,7 @@ class Command(BaseCommand):
                 logger.exception('Price update paused; committed progress is retained')
             # Polling delays are for an idle queue. Recheck price jobs and other
             # work between photo batches, then keep draining staged photos.
-            if options['watch'] and photo_progress:
+            if options['watch'] and (photo_progress or facet_progress):
                 continue
             if not options['watch']:
                 break
