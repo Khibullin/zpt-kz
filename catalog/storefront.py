@@ -43,6 +43,17 @@ def retail_annotations(qs):
             default=F('category__name'),output_field=CharField()))
 
 
+def photo_ordered_products(qs):
+    """Stable category rotation, also prepared by the existing snapshot consumer."""
+    return qs.annotate(storefront_photo_rank=Case(
+        When(Q(main_image__isnull=True)|Q(main_image=''),then=Value(1)),
+        default=Value(0),output_field=IntegerField())).annotate(
+        storefront_category_row=Window(expression=RowNumber(),
+            partition_by=[F('category_id'),F('storefront_photo_rank')],
+            order_by=[F('title').asc(),F('pk').asc()])).order_by(
+                'storefront_photo_rank','storefront_category_row','category__name','title','pk')
+
+
 def apply_filters(qs, selected, omit=()):
     if selected['model'].isdecimal() and 'model' not in omit:
         model=CarModel.objects.filter(pk=selected['model']).values('brand_id','brand__country_id').first()
@@ -190,7 +201,7 @@ def load_home_facets():
     from .models import StorefrontFacetSnapshot, Country, Category
     payload=StorefrontFacetSnapshot.objects.filter(pk='home').values_list('payload',flat=True).first()
     if payload and payload.get('version')==1:
-        return payload['facets']
+        return {**payload['facets'], '_home_order':payload.get('home_order')}
     # Fast first-deploy fallback. The existing consumer builds counts shortly;
     # options without a count remain usable and never pretend there are 0 items.
     def options(rows):
@@ -206,8 +217,10 @@ def build_home_facets():
     base=retail_products()
     selected={key:'' for key in KEYS}
     rows=root_vehicle_facet_counts(base)
+    ordered_ids=list(photo_ordered_products(base).values_list('pk',flat=True))
     return {'version':1,'facets':{key:facet_values(key,base,selected,selected,rows)
-        for key in ('country','brand','category','subgroup','maker')}}
+        for key in ('country','brand','category','subgroup','maker')},
+        'home_order':dict(ids=ordered_ids,count=len(ordered_ids),full_order=True)}
 
 
 def refresh_home_facets(force=False):
@@ -222,7 +235,8 @@ def refresh_home_facets(force=False):
         snapshot=StorefrontFacetSnapshot.objects.select_for_update(skip_locked=True).filter(pk='home').first()
         if snapshot is None:
             return False
-        if not force and snapshot.built_at and timezone.now()-snapshot.built_at<timedelta(minutes=5):
+        if (not force and snapshot.payload.get('home_order') is not None and snapshot.built_at
+                and timezone.now()-snapshot.built_at<timedelta(minutes=5)):
             return False
         snapshot.payload=build_home_facets()
         snapshot.built_at=timezone.now()
@@ -286,30 +300,32 @@ def storefront(request):
     facets_finished=perf_counter()
     found=(base if common else scope_for()).select_related('seller_profile','brand','car_model__brand','category').prefetch_related('kaspi_listings','selected_models__brand','selected_brands','fitments__car_model__brand')
     order={'price':F('price').asc(nulls_last=True),'-price':F('price').desc(nulls_last=True),'title':'title'}.get(selected['sort'])
+    page_key='home-page-v1:'+str(request.GET.get('page','1'))[:12]
+    page_cache=caches['storefront_common']
+    cached_page=page_cache.get(page_key) if common and order is None else None
+    if common and order is None:
+        # The shared page ordering survives process restarts. This contains only IDs
+        # and counters; actual card data is always loaded from the live DB.
+        cached_page=home_facets.get('_home_order') or cached_page
     if order is None:
-        # Keep all products searchable; photos lead the default catalogue order.
-        found=found.annotate(storefront_photo_rank=Case(
-            When(Q(main_image__isnull=True)|Q(main_image=''),then=Value(1)),
-            default=Value(0),output_field=IntegerField()))
-        # Take one photographed product per category before its second product.
-        # Keep the ranking in SQL so the full catalogue is never loaded.
-        found=found.annotate(storefront_category_row=Window(
-            expression=RowNumber(),
-            partition_by=[F('category_id'),F('storefront_photo_rank')],
-            order_by=[F('title').asc(),F('pk').asc()]))
-        ordering=('storefront_photo_rank','storefront_category_row','category__name','title','pk')
+        if cached_page is None:
+            found=photo_ordered_products(found)
+            ordering=found.query.order_by
+        else:
+            ordering=('pk',)
     else:
         ordering=(order,'pk')
     # Sort a narrow ID projection; evaluate costly annotations and load related
     # data only for the current 24 cards, not the entire catalogue.
-    page_key='home-page-v1:'+str(request.GET.get('page','1'))[:12]
-    page_cache=caches['storefront_common']
-    cached_page=page_cache.get(page_key) if common and order is None else None
     paginator=Paginator(found.order_by(*ordering).values_list('pk',flat=True),24)
     if cached_page is not None:
         paginator.count=cached_page['count']
     page=paginator.get_page(request.GET.get('page'))
-    page_ids=cached_page['ids'] if cached_page is not None else list(page.object_list)
+    if cached_page is not None:
+        page_ids=(cached_page['ids'][page.start_index()-1:page.end_index()]
+                  if cached_page.get('full_order') else cached_page['ids'])
+    else:
+        page_ids=list(page.object_list)
     if common and order is None and cached_page is None:
         # Cache only ordering IDs and the display count for 30 seconds.
         # Hydrate through the live active/seller scope below on every visit.

@@ -42,3 +42,13 @@ class StorefrontSnapshotTests(TestCase):
         with patch('catalog.storefront.build_home_facets',side_effect=RuntimeError('Source unavailable')):
             with self.assertRaises(RuntimeError):refresh_home_facets(force=True)
         self.assertEqual(StorefrontFacetSnapshot.objects.get(pk='home').payload,before)
+
+    def test_first_screen_survives_restart_without_catalogue_sort(self):
+        refresh_home_facets(force=True)
+        for alias in ('storefront_common','storefront_facets'):
+            caches[alias].clear()
+        # Building the queryset is cheap; evaluating its global window is not.
+        with patch('catalog.storefront.photo_ordered_products',side_effect=AssertionError('No global sort on first screen')):
+            response=self.client.get('/')
+        self.assertEqual(response.status_code,200)
+        self.assertEqual([p.pk for p in response.context['products']],[self.p.pk])
