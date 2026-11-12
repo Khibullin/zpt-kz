@@ -6,9 +6,11 @@ from inventory.purchase_receiving import receive_purchase
 from .auth import WorkspaceLoginView
 from .invitations import invite_manager, accept_invitation, activate_invitation
 from .retail_views import retail_workspace, retail_excel
+from .kaspi_workspace import kaspi_products
 
 app_name = 'procurement'
 urlpatterns = [
+    path('kaspi-products/', kaspi_products, name='kaspi_products'),
     path('fitments/refresh/', views.refresh_shared_fitments, name='refresh_shared_fitments'),
     path('price-updates/<int:pk>/retry-kaspi/', price_update_views.retry_kaspi, name='price_update_retry_kaspi'),
     path('price-updates/', price_update_views.updates, name='price_updates'),

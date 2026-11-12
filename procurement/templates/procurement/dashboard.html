@@ -8,6 +8,7 @@
 <nav class="compact-tabs" aria-label="Разделы товаров">
 <a class="button catalog-tab" href="{% querystring mode=None page=None download=None %}" {% if mode != 'best' %}aria-current="page"{% endif %}>Все товары · {{ catalogue_total }}</a>
 <a class="button teal" href="{% querystring mode='best' page=None download=None kaspi_status=None kaspi_presence=None verified=None sort=None %}" {% if mode == 'best' %}aria-current="page"{% endif %}>Выгодные к закупке · {% if preliminary %}{{ preliminary_total }}{% elif mode == 'best' %}{{ total }}{% else %}→{% endif %}</a>
+<a class="button" href="{% url 'procurement:kaspi_products' %}" style="background:#3563a9;color:#fff;border-color:#3563a9">Товары для Kaspi</a>
 </nav>
 <section class="catalog-filters{% if mode == 'best' %} best-filters{% endif %}" aria-label="Фильтры товаров">
 <form method="get" class="selection-filters">
