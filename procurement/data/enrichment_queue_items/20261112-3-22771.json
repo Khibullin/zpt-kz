@@ -1,0 +1,28 @@
+{
+  "article": "AS-22",
+  "brand": "AKIKA",
+  "cost": 12827,
+  "has_fitment": true,
+  "id": 22771,
+  "kaspi_price": 19807,
+  "kaspi_url": "https://kaspi.kz/shop/p/akika-perednii-as-22-1-sht-174104867/?c=750000000",
+  "main_image": "",
+  "name": "AKIKA Амортизатор, пер. левый",
+  "photo_status": "needs_source",
+  "product_id": 4502,
+  "profit": 4254.125,
+  "stock": "3",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 2475,
+  "checked_at": "2026-11-12T02:52:29.820335+00:00",
+  "previous_journal": "procurement/data/enrichment_queue_items/3-22771.json",
+  "publication_status": "not_published",
+  "offer_id": 22771,
+  "status": "source_ambiguous",
+  "new_sources": [
+    "https://barcode-list.ru/barcode/RU/%D0%9F%D0%BE%D0%B8%D1%81%D0%BA.htm?barcode=%D0%90%D0%BC%D0%BE%D1%80%D1%82%D0%B8%D0%B7%D0%B0%D1%82%D0%BE%D1%80"
+  ],
+  "reason": "В новом поиске найдена строка учёта штрихкодов с сокращениями марки/шасси. Она не подтверждает полную модель автомобиля и точное фото; названия моделей не выводились из сокращений.",
+  "search_query": "\"AKIKA\" \"AS-22\" -site:kaspi.kz -site:alta-karter.com -site:autopiter.ru -site:asva-trading.com"
+}

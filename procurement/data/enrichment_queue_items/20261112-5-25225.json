@@ -17,7 +17,7 @@
   "task_id": 4850,
   "checked_at": "2026-11-12T02:26:23.748724+00:00",
   "previous_journal": "procurement/data/enrichment_queue_items/5-25225.json",
-  "publication_status": "not_published",
+  "publication_status": "saved_db_and_ui_verified",
   "offer_id": 25225,
   "status": "prepared_fitment",
   "new_sources": [
@@ -34,5 +34,10 @@
   ],
   "source_url": "https://www.cigmaglobal.com/products/changan-cs35-plus-amortiguador-del.html",
   "source_label": "Cigma — каталог продавца; прайс-лист Changan 07.09.2021, стр.157",
-  "source_kind": "retailer_catalogue"
+  "source_kind": "retailer_catalogue",
+  "publication": {
+    "commit": "ac34a7d3b5e6022233692b10b533e4b2e5782748",
+    "deploy": "dep-dbqigdkfi03s73d27640"
+  },
+  "trade_data_unchanged": true
 }

@@ -17,7 +17,7 @@
   "task_id": 6123,
   "checked_at": "2026-11-12T02:26:23.897832+00:00",
   "previous_journal": "procurement/data/enrichment_queue_items/5-26477.json",
-  "publication_status": "not_published",
+  "publication_status": "saved_db_and_ui_verified",
   "offer_id": 26477,
   "status": "prepared_fitment",
   "new_sources": [
@@ -34,5 +34,10 @@
   ],
   "source_url": "https://autopiter.kg/service-parts/ssangyong/new-actyon-(korando)-855/20-e-xdi-4wd-5206",
   "source_label": "Автопитер — оригинальный каталог ТО продавца",
-  "source_kind": "retailer_catalogue"
+  "source_kind": "retailer_catalogue",
+  "publication": {
+    "commit": "ac34a7d3b5e6022233692b10b533e4b2e5782748",
+    "deploy": "dep-dbqigdkfi03s73d27640"
+  },
+  "trade_data_unchanged": true
 }

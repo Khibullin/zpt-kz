@@ -1,0 +1,28 @@
+{
+  "article": "AN-685WK",
+  "brand": "AKEBONO",
+  "cost": 14243,
+  "has_fitment": true,
+  "id": 22557,
+  "kaspi_price": 19404,
+  "kaspi_url": "https://kaspi.kz/shop/p/kolodki-akebono-perednie-an-685wk-174097348/?c=750000000",
+  "main_image": "",
+  "name": "AKEBONO JAPAN Колодки передние",
+  "photo_status": "needs_source",
+  "product_id": 4291,
+  "profit": 2485.5,
+  "stock": "7",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 2264,
+  "checked_at": "2026-11-12T02:52:30.578710+00:00",
+  "previous_journal": "procurement/data/enrichment_queue_items/3-22557.json",
+  "publication_status": "not_published",
+  "offer_id": 22557,
+  "status": "source_access_refused",
+  "new_sources": [
+    "https://plenty.parts/parts/akebono/braking-system/akebono-an685wk-brake-pads-honda-civic-ballade-city-p2915789"
+  ],
+  "reason": "Новая точная карточка Plenty.partsAN-685WK вернула HTTP403. Другие URL/каналы этого источника не запрашивались. Старый размерный чертёж Fitinpart не используется.",
+  "search_query": "\"AKEBONO\" \"AN-685WK\" -site:kaspi.kz -site:alta-karter.com -site:autopiter.ru -site:asva-trading.com"
+}

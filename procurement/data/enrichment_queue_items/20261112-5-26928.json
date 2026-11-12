@@ -35,7 +35,12 @@
   "source_kind": "retailer_catalogue",
   "image_url": "https://img.tachka.ru/sQap-md82iypqOJtiyIGu9B_Ulc=/trim:top-left:50/fit-in/640x800/brand/rival/12805005.jpg",
   "reason": "Точный бренд и полный артикул, исполнение и комплектность сверены по карточке источника; фото и миниатюра визуально проверены. Водяной знак сохранён.",
-  "publication_status": "not_published",
+  "publication_status": "saved_db_and_ui_verified",
   "checked_at": "2026-11-12",
-  "previous_journal": "procurement/data/enrichment_queue_items/5-26928.json"
+  "previous_journal": "procurement/data/enrichment_queue_items/5-26928.json",
+  "publication": {
+    "commit": "ac34a7d3b5e6022233692b10b533e4b2e5782748",
+    "deploy": "dep-dbqigdkfi03s73d27640"
+  },
+  "trade_data_unchanged": true
 }

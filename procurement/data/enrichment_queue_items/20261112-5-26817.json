@@ -17,7 +17,7 @@
   "task_id": 6165,
   "checked_at": "2026-11-12T02:30:55.897111+00:00",
   "previous_journal": "procurement/data/enrichment_queue_items/5-26817.json",
-  "publication_status": "not_published",
+  "publication_status": "saved_db_and_ui_verified",
   "offer_id": 26817,
   "status": "prepared_photo_fitment",
   "new_sources": [
@@ -66,5 +66,10 @@
   ],
   "source_url": "https://gw-store.ru/catalog/haval-dargo-2022-n-v-/katushka-zazhiganiya-haval-dargo-dargo-x-f7-ii-pokolenie-h7-tank-500-urban-gibrid-original-bosch-f-0/",
   "source_label": "Great Wall Store — каталог продавца оригинальных запчастей HAVAL",
-  "source_kind": "retailer_catalogue"
+  "source_kind": "retailer_catalogue",
+  "publication": {
+    "commit": "ac34a7d3b5e6022233692b10b533e4b2e5782748",
+    "deploy": "dep-dbqigdkfi03s73d27640"
+  },
+  "trade_data_unchanged": true
 }

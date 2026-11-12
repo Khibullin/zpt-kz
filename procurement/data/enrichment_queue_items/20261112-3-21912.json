@@ -1,0 +1,32 @@
+{
+  "article": "SA-N942L",
+  "brand": "555",
+  "cost": 21140,
+  "has_fitment": true,
+  "id": 21912,
+  "kaspi_price": 27636,
+  "kaspi_url": "https://kaspi.kz/shop/p/555-rychag-podveski-sa-n942l-180205396/?c=750000000",
+  "main_image": "",
+  "name": "555 Рычаг",
+  "photo_status": "skipped",
+  "product_id": 3530,
+  "profit": 2791.5,
+  "stock": "10",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 1504,
+  "checked_at": "2026-11-12T02:52:30.365890+00:00",
+  "previous_journal": "procurement/data/enrichment_queue_items/3-21912.json",
+  "publication_status": "not_published",
+  "offer_id": 21912,
+  "status": "placeholder_excluded",
+  "new_sources": [
+    "https://www.fitinpart.sg/v2/en/product/50135877/555-sankei-sa-n942l",
+    "https://tachka.ru/rychag-peredney-podveski/nissan/qashqai/555?brand=555",
+    "https://lynxauto.info/C5675L.html",
+    "https://jikiu.jp/catalogue/630366",
+    "https://www.motointegrator.de/artikel/2109649-radaufhaengung-trw-jtc2706"
+  ],
+  "reason": "Новая карточка точного артикула Тачка.ру прочитана. В соответствующей товарной строке явный data-no-photo и текст Нет фото. Общие изображения категории не использовать.",
+  "search_query": "\"555\" \"SA-N942L\" -site:kaspi.kz -site:alta-karter.com -site:autopiter.ru -site:asva-trading.com"
+}

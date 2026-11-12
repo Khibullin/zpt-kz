@@ -17,7 +17,7 @@
   "task_id": 5297,
   "checked_at": "2026-11-12T02:26:23.883507+00:00",
   "previous_journal": "procurement/data/enrichment_queue_items/5-25630.json",
-  "publication_status": "not_published",
+  "publication_status": "saved_db_and_ui_verified",
   "offer_id": 25630,
   "status": "prepared_universal",
   "new_sources": [
@@ -28,5 +28,10 @@
   "source_url": "https://autopiter.kz/goods/sc100n/artway/id130730650?orderRef=5",
   "source_label": "Автопитер — каталог продавца, точная строка Jashi SC100NJASHI",
   "source_kind": "retailer_catalogue",
-  "universal_note": "Универсальный блок согласования для фаркопов; комплект: 7-контактная розетка и блок согласования. Совместимость электрической схемы проверять перед установкой; конкретные модели, годы и двигатели источником не перечислены."
+  "universal_note": "Универсальный блок согласования для фаркопов; комплект: 7-контактная розетка и блок согласования. Совместимость электрической схемы проверять перед установкой; конкретные модели, годы и двигатели источником не перечислены.",
+  "publication": {
+    "commit": "ac34a7d3b5e6022233692b10b533e4b2e5782748",
+    "deploy": "dep-dbqigdkfi03s73d27640"
+  },
+  "trade_data_unchanged": true
 }

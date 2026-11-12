@@ -1,0 +1,33 @@
+{
+  "article": "AN-663WK",
+  "brand": "AKEBONO",
+  "cost": 6800,
+  "has_fitment": true,
+  "id": 22554,
+  "kaspi_price": 9938,
+  "kaspi_url": "https://kaspi.kz/shop/p/kolodki-akebono-perednie-an-663wk-173887079/?c=750000000",
+  "main_image": "",
+  "name": "AKEBONO JAPAN Колодки передние",
+  "photo_status": "needs_source",
+  "product_id": 4288,
+  "profit": 1645.75,
+  "stock": "1",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 2261,
+  "checked_at": "2026-11-12T02:52:31.360016+00:00",
+  "previous_journal": "procurement/data/enrichment_queue_items/3-22554.json",
+  "publication_status": "not_published",
+  "offer_id": 22554,
+  "status": "no_new_exact_source",
+  "new_sources": [
+    "https://www.akebono-brake.com/product_technology/aftermarket/docs/pf05_honda.pdf",
+    "https://www.spk.sg/brake-pad/387-an-663wk-brake-pad-front.html",
+    "https://theoparts.com/en/brand/1609-akebono",
+    "https://plenty.parts/parts/akebono/braking-system/akebono-an663wk-brake-pads-honda-cr-v-honda-element-p2915777",
+    "https://hyperauto.ru/product/kolodki-tormoznye-diskovye-akebono-komplekt-na-os-4-sht-art-an-663wk-000175811/",
+    "https://www.farpost.ru/krasnoyarsk/zapchasti/kolodki-tormoznye-speredi-honda-accord-02-08-civic-11-19-akebono-art-an-663wk-perednij-g17924464531.html"
+  ],
+  "reason": "Новый поиск дал текстовую каталожную/кросс-номерную строку, но не подтвердил точное фото данного бренда, артикула и комплекта. Ранее сохранённая применимость не менялась; чужие фотографии и ранее исключённые источники не использовались.",
+  "search_query": "\"AKEBONO\" \"AN-663WK\" -site:kaspi.kz -site:alta-karter.com -site:autopiter.ru -site:asva-trading.com"
+}

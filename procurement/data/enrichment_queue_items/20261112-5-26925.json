@@ -27,7 +27,12 @@
   "source_kind": "retailer_catalogue",
   "image_url": "https://halykmarket.kz/s3/product/1211910071/product/product-1211910071-1211910071-1-1.jpg",
   "reason": "Точный бренд и полный артикул, исполнение и комплектность сверены по карточке источника; фото и миниатюра визуально проверены. Водяной знак сохранён.",
-  "publication_status": "not_published",
+  "publication_status": "saved_db_and_ui_verified",
   "checked_at": "2026-11-12",
-  "previous_journal": "procurement/data/enrichment_queue_items/5-26925.json"
+  "previous_journal": "procurement/data/enrichment_queue_items/5-26925.json",
+  "publication": {
+    "commit": "ac34a7d3b5e6022233692b10b533e4b2e5782748",
+    "deploy": "dep-dbqigdkfi03s73d27640"
+  },
+  "trade_data_unchanged": true
 }

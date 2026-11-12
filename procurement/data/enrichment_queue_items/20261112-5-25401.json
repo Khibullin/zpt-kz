@@ -17,7 +17,7 @@
   "task_id": 4856,
   "checked_at": "2026-11-12T02:26:23.843808+00:00",
   "previous_journal": "procurement/data/enrichment_queue_items/5-25401.json",
-  "publication_status": "not_published",
+  "publication_status": "saved_db_and_ui_verified",
   "offer_id": 25401,
   "status": "prepared_fitment",
   "new_sources": [
@@ -42,5 +42,10 @@
   ],
   "source_url": "https://www.shindary.com/news/shindary-productsspare-parts-numbers-for-chery-tiggo-4-pro.html",
   "source_label": "Shindary — каталог поставщика, регион Уругвай",
-  "source_kind": "supplier_catalogue"
+  "source_kind": "supplier_catalogue",
+  "publication": {
+    "commit": "ac34a7d3b5e6022233692b10b533e4b2e5782748",
+    "deploy": "dep-dbqigdkfi03s73d27640"
+  },
+  "trade_data_unchanged": true
 }
