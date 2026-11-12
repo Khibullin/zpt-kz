@@ -84,7 +84,7 @@
       document.dispatchEvent(new CustomEvent('zpt:products-added', {detail: content}));
       status.textContent = content.querySelector('#results-title').textContent.trim();
     } catch (error) {
-      if (error.name !== 'AbortError') location.assign(url);
+      if (pending === controller && error.name !== 'AbortError') location.assign(url);
     } finally {
       if (pending === controller) {
         root()?.removeAttribute('aria-busy');

@@ -24,3 +24,13 @@ class StorefrontPerformanceTests(TestCase):
         counts = [q['sql'] for q in queries if 'COUNT(' in q['sql'] and 'catalog_product' in q['sql']]
         self.assertTrue(counts)
         self.assertTrue(all('procurement_offer' not in sql for sql in counts))
+
+    def test_repeated_home_reuses_order_but_reads_live_price_and_stock(self):
+        from catalog.models import Product
+        self.client.get('/')
+        Product.objects.filter(pk=self.product.pk).update(price=8900, stock_qty=0)
+        with CaptureQueriesContext(connection) as queries:
+            response = self.client.get('/')
+        self.assertEqual(response.context['products'][0].price, 8900)
+        self.assertFalse(response.context['products'][0].public_stock['can_buy'])
+        self.assertFalse(any('COUNT(' in q['sql'] and 'catalog_product' in q['sql'] for q in queries))

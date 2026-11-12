@@ -2,6 +2,7 @@
 from collections import defaultdict
 from hashlib import sha256
 from time import perf_counter
+import logging
 from django.core.cache import caches
 from urllib.parse import urlencode
 from django.core.paginator import Paginator
@@ -282,6 +283,7 @@ def storefront(request):
                      logo=LOGOS.get(labels.get(v,v).casefold(),''))
                 for v,count in sorted(values.items(),key=lambda item:labels.get(item[0],item[0]).casefold())]
     facets={k:facet(k) for k in ('country','brand','model','year','engine','category','subgroup','maker')}
+    facets_finished=perf_counter()
     found=(base if common else scope_for()).select_related('seller_profile','brand','car_model__brand','category').prefetch_related('kaspi_listings','selected_models__brand','selected_brands','fitments__car_model__brand')
     order={'price':F('price').asc(nulls_last=True),'-price':F('price').desc(nulls_last=True),'title':'title'}.get(selected['sort'])
     if order is None:
@@ -300,12 +302,23 @@ def storefront(request):
         ordering=(order,'pk')
     # Sort a narrow ID projection; evaluate costly annotations and load related
     # data only for the current 24 cards, not the entire catalogue.
-    page=Paginator(found.order_by(*ordering).values_list('pk',flat=True),24).get_page(request.GET.get('page'))
-    page_ids=list(page.object_list)
+    page_key='home-page-v1:'+str(request.GET.get('page','1'))[:12]
+    page_cache=caches['storefront_common']
+    cached_page=page_cache.get(page_key) if common and order is None else None
+    paginator=Paginator(found.order_by(*ordering).values_list('pk',flat=True),24)
+    if cached_page is not None:
+        paginator.count=cached_page['count']
+    page=paginator.get_page(request.GET.get('page'))
+    page_ids=cached_page['ids'] if cached_page is not None else list(page.object_list)
+    if common and order is None and cached_page is None:
+        # Cache only ordering IDs and the display count for 30 seconds.
+        # Hydrate through the live active/seller scope below on every visit.
+        page_cache.set(page_key,dict(ids=page_ids,count=paginator.count),30)
     # Hydration must retain the global page order: recomputing the window on
     # only these IDs would restart each category's row numbers on every page.
     cards={product.pk:product for product in retail_annotations(found.filter(pk__in=page_ids).order_by())}
-    page.object_list=[cards[pk] for pk in page_ids]
+    page.object_list=[cards[pk] for pk in page_ids if pk in cards]
+    cards_finished=perf_counter()
     for product in page:
         product.public_stock=public_stock_status(product)
         product.has_public_wholesale=False
@@ -320,5 +333,11 @@ def storefront(request):
         next_url=url(page=page.next_page_number()) if page.has_next() else '',
         filter_groups=[dict(key=k,title=t,options=facets[k]) for k,t in [('category','Категория'),('subgroup','Подгруппа'),('brand','Марка авто'),('model','Модель'),('maker','Производитель')]]))
 
-    response["Server-Timing"]=f"catalog;dur={(perf_counter()-started)*1000:.1f}"
+    elapsed=perf_counter()-started
+    response["Server-Timing"]=f"catalog;dur={elapsed*1000:.1f}"
+    if elapsed>1:
+        logging.getLogger(__name__).warning(
+            'Storefront seconds total=%.3f facets=%.3f cards=%.3f render=%.3f',
+            elapsed,facets_finished-started,cards_finished-facets_finished,
+            perf_counter()-cards_finished)
     return response
