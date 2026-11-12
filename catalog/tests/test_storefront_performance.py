@@ -93,3 +93,15 @@ class StorefrontPerformanceTests(TestCase):
             response=self.client.get('/',{'country':self.country.pk,'brand':self.brand.pk,'model':self.model.pk})
         self.assertEqual(response.context['result_count'],1)
         self.assertNotIn('model',[call.args[0] for call in aggregate.call_args_list])
+
+    def test_preloaded_navigation_contains_only_prepared_public_options(self):
+        from catalog.storefront import refresh_brand_facets
+        self.assertTrue(refresh_brand_facets())
+        response=self.client.get('/')
+        data=response.context['vehicle_navigation'][str(self.brand.pk)]
+        self.assertEqual(data['country'],str(self.country.pk))
+        self.assertEqual(data['models'][0]['value'],str(self.model.pk))
+        self.assertEqual(set(data),{'name','country','count','logo','models'})
+        self.assertContains(response,'id="vehicle-navigation"')
+        response=self.client.get('/',{'q':'AG-101'})
+        self.assertIsNone(response.context['vehicle_navigation'])

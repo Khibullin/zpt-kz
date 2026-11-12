@@ -47,3 +47,6 @@ body.zpt-storefront .vehicle-picker>.region-pills{margin:12px 0}
 
 .retail-update-status:not([hidden]){position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:1000;background:#fff;color:#173d43;padding:12px 20px;border:1px solid #c8dcda;border-radius:10px;box-shadow:0 4px 20px #0002;max-width:90vw;text-align:center}
 .retail-home[aria-busy="true"] .vehicle-picker{opacity:.65;cursor:progress}
+
+.retail-home[aria-busy="true"] .vehicle-picker[data-instant-picker]{opacity:1;cursor:auto}
+.retail-home[aria-busy="true"] .retail-results{opacity:.6}

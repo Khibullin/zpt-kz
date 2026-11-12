@@ -4,6 +4,8 @@
   const groups = () => Array.from(document.querySelectorAll('[data-filter-key]'));
   const stateKey = 'zptStorefront';
   let pending;
+  let navigation;
+  try { navigation=JSON.parse(document.getElementById('vehicle-navigation')?.textContent || 'null'); } catch (_) {}
   history.scrollRestoration = 'manual';
   const status = document.createElement('span');
   status.setAttribute('role', 'status');
@@ -54,19 +56,85 @@
   function remember(state) {
     history.replaceState({...history.state, [stateKey]: state}, '', location.href);
   }
+  function pickerHref(target, key, value) {
+    const url = new URL(target);
+    const resets = {country:['brand','model','year','engine'],brand:['model','year','engine'],model:['year','engine']};
+    (resets[key] || []).forEach(name => url.searchParams.delete(name));
+    value ? url.searchParams.set(key,value) : url.searchParams.delete(key);
+    url.searchParams.delete('page');
+    const active = ['country','brand','model','year','engine','category','subgroup','maker','stock','q'].some(name => url.searchParams.get(name));
+    active ? url.searchParams.set('picker','1') : url.searchParams.delete('picker');
+    return url.pathname + url.search + url.hash;
+  }
+  function showPickerImmediately(target) {
+    if (!navigation) return;
+    const url = new URL(target);
+    if (['q','stock','category','subgroup','maker'].some(key => url.searchParams.get(key)) || url.searchParams.get('model')) return;
+    const brandId = url.searchParams.get('brand');
+    const country = url.searchParams.get('country') || '';
+    if (brandId && (!navigation[brandId] || (country && navigation[brandId].country !== country))) return;
+    const options = brandId ? navigation[brandId].models : Object.entries(navigation)
+      .filter(([,brand]) => !country || brand.country === country)
+      .map(([value,brand]) => ({value,label:brand.name,count:brand.count,logo:brand.logo}))
+      .sort((a,b) => { const x=a.label.toLocaleLowerCase(), y=b.label.toLocaleLowerCase(); return x<y ? -1 : x>y ? 1 : 0; });
+    if (!options?.length) return;
+    const picker = root().querySelector('.vehicle-picker');
+    if (!picker) return;
+    Array.from(picker.children).forEach(child => {
+      if (!child.matches('h2, p, nav.region-pills')) child.remove();
+    });
+    picker.querySelectorAll('[data-picker-country]').forEach(link => {
+      const value = link.dataset.pickerCountry;
+      value === country ? link.setAttribute('aria-current','true') : link.removeAttribute('aria-current');
+      link.href = pickerHref(target,'country',value === country ? '' : value);
+    });
+    const grid = document.createElement('div');
+    grid.className = 'vehicle-grid';
+    options.forEach((option,index) => {
+      const link = document.createElement('a');
+      link.className = 'vehicle-card';
+      link.href = pickerHref(target,brandId ? 'model' : 'brand',option.value);
+      link.rel = 'nofollow';
+      link.hidden = index >= 7;
+      if (option.logo) {
+        const logo = document.createElement('img');
+        logo.src = option.logo; logo.alt=''; logo.width=44; logo.height=44;
+        logo.loading='lazy'; logo.decoding='async'; logo.addEventListener('error',() => { logo.hidden=true; }); link.append(logo);
+      }
+      const text = document.createElement('span');
+      const name = document.createElement('span');
+      name.className='vehicle-name'; name.textContent=option.label; text.append(name);
+      if (option.count != null) {
+        const count = document.createElement('small');
+        count.textContent='Товаров: '+Number(option.count).toLocaleString('ru-RU'); text.append(count);
+      }
+      link.append(text); grid.append(link);
+    });
+    picker.append(grid);
+    picker.dataset.instantPicker='';
+    if (options.length > 7) {
+      const expand = document.createElement('button');
+      expand.type='button'; expand.className='show-options'; expand.dataset.expand='';
+      expand.textContent=brandId ? 'Показать все модели' : 'Показать все марки'; picker.append(expand);
+    }
+  }
   async function update(url, anchorKey, historyState, label) {
     pending?.abort();
     const controller = new AbortController();
     pending = controller;
     remember(snapshot());
     root().setAttribute('aria-busy', 'true');
+    const oldResults=root().querySelector('.retail-results');
+    if (oldResults) oldResults.inert=true;
     status.hidden = false;
-    status.textContent = 'Обновляем подбор и товары…';
+    status.textContent = 'Обновляем товары…';
+    if (!historyState) showPickerImmediately(url);
     try {
       const response = await fetch(url, {signal: controller.signal, credentials: 'same-origin'});
       if (!response.ok) throw new Error('Storefront response failed');
       const next = new DOMParser().parseFromString(await response.text(), 'text/html');
       const content = next.querySelector('.retail-home');
+      if (!navigation) { try { navigation=JSON.parse(next.getElementById('vehicle-navigation')?.textContent || 'null'); } catch (_) {} }
       if (!content || new URL(response.url).origin !== location.origin) throw new Error('Invalid storefront');
       if (controller.signal.aborted) return;
       const saved = historyState || snapshot(anchorKey);
@@ -88,6 +156,8 @@
     } finally {
       if (pending === controller) {
         root()?.removeAttribute('aria-busy');
+        const results=root()?.querySelector('.retail-results');
+        if (results) results.inert=false;
         status.hidden = true;
         pending = null;
       }

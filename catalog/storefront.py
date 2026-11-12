@@ -347,6 +347,30 @@ def refresh_brand_facets():
     return True
 
 
+def vehicle_navigation():
+    """Compact public picker options only: no products, prices or user data."""
+    from django.templatetags.static import static
+    from .models import StorefrontFacetSnapshot
+    cache=caches['storefront_common']
+    data=cache.get('vehicle-navigation-v1')
+    if data is not None:
+        return data
+    rows=StorefrontFacetSnapshot.objects.filter(key__startswith='brand:').values_list(
+        'key','payload__facets__model','payload__home_order__count')
+    snapshots={key.split(':',1)[1]:(models,count) for key,models,count in rows if models}
+    data={}
+    for brand in Brand.objects.filter(pk__in=snapshots).values('pk','name','country_id'):
+        model_data,count=snapshots[str(brand['pk'])]
+        values,labels=model_data
+        logo=LOGOS.get(brand['name'].casefold(),'')
+        data[str(brand['pk'])]=dict(name=brand['name'],country=str(brand['country_id']),
+            count=count,logo=static(logo) if logo else '',
+            models=[dict(value=value,label=labels.get(value,value),count=total)
+                    for value,total in sorted(values.items(),key=lambda row:labels.get(row[0],row[0]).casefold())])
+    cache.set('vehicle-navigation-v1',data,60)
+    return data
+
+
 def storefront(request):
     started=perf_counter()
     base=retail_products()
@@ -480,6 +504,7 @@ def storefront(request):
             label=next((o['label'] for o in facets.get(key,[]) if o['value']==selected[key]),selected[key])
             chips.append(dict(label=label,url=url(**{key:'',**{r:'' for r in RESET.get(key,())}})))
     response=render(request,'catalog/interface/storefront.html',dict(interface_home=True,hide_product_search=True,
+        vehicle_navigation=(vehicle_navigation() if not any(selected[k] for k in ('q','stock','category','subgroup','maker')) else None),
         facets=facets,selected=selected,chips=chips,filters_pending=bool(common and 'maker' not in home_facets),products=page,result_count=page.paginator.count,
         previous_url=url(page=page.previous_page_number()) if page.has_previous() else '',
         next_url=url(page=page.next_page_number()) if page.has_next() else '',
