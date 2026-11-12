@@ -58,7 +58,12 @@ def catalog_page(query, preferences, filters, mode, number, today):
     else:
         query = query.order_by(F('_catalog_roi').desc(nulls_last=True), Coalesce('_catalog_difference', Value(Decimal(0))).desc(), 'pk')
     # Sort narrow IDs, not large offer/JSON rows from the joined tables.
-    page = Paginator(query.values_list('pk', flat=True), 40).get_page(number)
+    paginator = Paginator(query.values_list('pk', flat=True), 40)
+    # The status aggregation already counted the exact filtered scope. Avoid
+    # repeating the same joins just to compute the page count.
+    selected_statuses = set(filters.get('kaspi_status') or counts)
+    paginator.count = sum(counts.get(status, 0) for status in selected_statuses)
+    page = paginator.get_page(number)
     ids = list(page.object_list)
     offers = {offer.pk: offer for offer in query.filter(pk__in=ids).order_by()}
     page.object_list = [offers[pk] for pk in ids]

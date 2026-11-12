@@ -68,6 +68,7 @@ class Offer(models.Model):
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=['supplier', 'brand', 'article'], name='procurement_supplier_article')]
+        indexes = [models.Index(fields=['supplier', 'category'], name='proc_offer_supplier_category')]
         ordering = ['brand', 'article', 'pk']
 
 
@@ -144,6 +145,7 @@ class VehicleFitment(models.Model):
 
     class Meta:
         ordering = ['make', 'model', 'pk']
+        indexes = [models.Index(fields=['verified', 'make', 'model', 'offer'], name='proc_fitment_filter_options')]
         constraints = [models.UniqueConstraint(fields=['offer', 'make', 'model', 'details'], name='procurement_vehicle_fitment')]
 
     def __str__(self):
