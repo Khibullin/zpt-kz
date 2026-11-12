@@ -139,6 +139,19 @@
       if (controller.signal.aborted) return;
       const saved = historyState || snapshot(anchorKey);
       if (!historyState) remember(snapshot());
+      const expanded = root().querySelector('.vehicle-picker [data-expand][hidden]');
+      const previousGrid = expanded?.previousElementSibling;
+      const nextExpand = content.querySelector('.vehicle-picker [data-expand]');
+      const nextGrid = nextExpand?.previousElementSibling;
+      const gridKey = grid => {
+        const href=grid?.querySelector('a')?.getAttribute('href');
+        if (!href) return '';
+        const value=new URL(href,location.href); value.searchParams.sort(); return value.href;
+      };
+      if (previousGrid && nextGrid && gridKey(previousGrid) === gridKey(nextGrid)) {
+        nextGrid.querySelectorAll('[hidden]').forEach(card => card.hidden=false);
+        nextExpand.hidden=true;
+      }
       root().replaceWith(content);
       document.title = next.title;
       if (!historyState) history.pushState(null, '', url);
