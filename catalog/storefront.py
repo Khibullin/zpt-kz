@@ -55,14 +55,25 @@ def photo_ordered_products(qs):
 
 
 def apply_filters(qs, selected, omit=()):
+    model=None
     if selected['model'].isdecimal() and 'model' not in omit:
         model=CarModel.objects.filter(pk=selected['model']).values('brand_id','brand__country_id').first()
         if not model or (selected['brand'] and 'brand' not in omit and str(model['brand_id'])!=selected['brand']) or (selected['country'] and 'country' not in omit and str(model['brand__country_id'])!=selected['country']):
             return qs.none()
+    brand_in_country=False
+    if (model is None and selected['country'].isdecimal() and selected['brand'].isdecimal()
+            and 'country' not in omit and 'brand' not in omit):
+        brand_country=Brand.objects.filter(pk=selected['brand']).values_list('country_id',flat=True).first()
+        brand_in_country=str(brand_country)==selected['country']
     structured, legacy_ids = {}, None
     legacy_allowed=not ((selected['year'] and 'year' not in omit) or (selected['engine'] and 'engine' not in omit))
     vehicle = False
     for key in ('country','brand','model'):
+        # A model relationship already implies its brand and country; a
+        # brand implies its own country. The validation above preserves
+        # mismatched selections, including legacy multi-brand products.
+        if (model is not None and key in ('country','brand')) or (brand_in_country and key=='country'):
+            continue
         value = selected[key] if key not in omit else ''
         if not value:
             continue
@@ -310,13 +321,15 @@ def storefront(request):
     common=not any(selected[k] for k in KEYS if k!='sort')
     home_facets=load_home_facets()
     country_snapshot=False
-    if (selected['country'].isdecimal() and
-            not any(selected[k] for k in KEYS if k not in ('country','sort'))):
+    prepared_country=None
+    if selected['country'].isdecimal():
         from .models import StorefrontFacetSnapshot
         payload=StorefrontFacetSnapshot.objects.filter(pk='country:'+selected['country']).values_list('payload',flat=True).first()
         if payload and payload.get('version')==1 and 'home_order' in payload:
-            home_facets={**payload['facets'],'_home_order':payload['home_order']}
-            country_snapshot=True
+            prepared_country=payload
+            if not any(selected[k] for k in KEYS if k not in ('country','sort')):
+                home_facets={**payload['facets'],'_home_order':payload['home_order']}
+                country_snapshot=True
     scopes={}
     def scope_for(omit=()):
         effective={k:('' if k in omit else v) for k,v in filter_selection.items()}
@@ -338,6 +351,12 @@ def storefront(request):
         cache_key='v3:'+key+':'+sha256(urlencode(effective).encode()).hexdigest()
         if country_snapshot or not any(effective.values()):
             values,labels=home_facets.get(key, ({},{}))
+            return facet_options(key,values,labels)
+        if (prepared_country is not None and
+                {k for k,v in effective.items() if v}=={'country'} and
+                key in prepared_country['facets']):
+            # Selecting a child must not rebuild its unchanged parent facet.
+            values,labels=prepared_country['facets'][key]
             return facet_options(key,values,labels)
         # Filter-specific counters retain their short, bounded cache.
         facet_cache=caches['storefront_common' if common else 'storefront_facets']

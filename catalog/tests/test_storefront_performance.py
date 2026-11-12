@@ -46,3 +46,23 @@ class StorefrontPerformanceTests(TestCase):
         self.assertFalse(response.context['products'][0].public_stock['can_buy'])
         # Availability and other combinations must still use live filters.
         self.assertEqual(self.client.get('/',{'country':self.country.pk,'stock':'in'}).context['result_count'],0)
+
+    def test_brand_and_model_reuse_prepared_country_parent_counts(self):
+        from catalog.storefront import refresh_country_facets, facet_values
+        self.assertTrue(refresh_country_facets())
+        for selection in ({'country':self.country.pk,'brand':self.brand.pk},
+                          {'country':self.country.pk,'brand':self.brand.pk,'model':self.model.pk}):
+            with patch('catalog.storefront.facet_values',wraps=facet_values) as aggregate:
+                response=self.client.get('/',selection)
+            self.assertEqual(response.context['result_count'],1)
+            self.assertEqual(response.context['facets']['brand'][0]['count'],1)
+            self.assertNotIn('brand',[call.args[0] for call in aggregate.call_args_list])
+
+    def test_legacy_cross_country_brand_relationships_remain_supported(self):
+        from catalog.models import Country, Brand
+        other=Brand.objects.create(name='Other',country=Country.objects.create(name='Other country'))
+        self.product.selected_brands.add(other)
+        response=self.client.get('/',{'country':self.country.pk,'brand':other.pk})
+        self.assertEqual(response.context['result_count'],1)
+        response=self.client.get('/',{'country':self.country.pk,'brand':other.pk,'model':self.model.pk})
+        self.assertEqual(response.context['result_count'],0)
