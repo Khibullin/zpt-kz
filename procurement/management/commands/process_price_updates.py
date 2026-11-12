@@ -51,10 +51,16 @@ class Command(BaseCommand):
                         retail_run = advance_publication(retail_run.pk)
                     self.stdout.write(f'Retail publication {retail_run.pk}: {retail_run.processed}/{retail_run.total}')
                 if options['watch'] and running:
-                    from catalog.storefront import refresh_home_facets, refresh_country_facets
+                    from catalog.storefront import refresh_home_facets, refresh_country_facets, refresh_brand_facets
                     if refresh_home_facets():
                         self.stdout.write('Public storefront filter snapshot refreshed')
                     facet_progress=refresh_country_facets()
+                    # Fill public make/model snapshots in bounded batches before
+                    # resuming other idle work; price uploads stay first.
+                    for _ in range(8):
+                        if not running or not refresh_brand_facets():
+                            break
+                        facet_progress=True
                     from core.seo_views import refresh_sitemap_snapshots
                     if refresh_sitemap_snapshots():
                         self.stdout.write('Public sitemap snapshots refreshed')

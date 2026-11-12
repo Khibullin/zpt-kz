@@ -66,3 +66,30 @@ class StorefrontPerformanceTests(TestCase):
         self.assertEqual(response.context['result_count'],1)
         response=self.client.get('/',{'country':self.country.pk,'brand':other.pk,'model':self.model.pk})
         self.assertEqual(response.context['result_count'],0)
+
+    def test_first_make_selection_survives_cache_loss_without_aggregation(self):
+        from catalog.storefront import refresh_brand_facets, refresh_country_facets
+        from catalog.models import Product
+        from django.core.cache import caches
+        self.assertTrue(refresh_country_facets())
+        self.assertTrue(refresh_brand_facets())
+        for alias in ('storefront_common','storefront_facets'):caches[alias].clear()
+        Product.objects.filter(pk=self.product.pk).update(price=5700,stock_qty=0)
+        for selection in ({'brand':self.brand.pk},{'country':self.country.pk,'brand':self.brand.pk}):
+            with patch('catalog.storefront.apply_filters',side_effect=AssertionError('No matching')), patch('catalog.storefront.facet_values',side_effect=AssertionError('No aggregation')), patch('catalog.storefront.photo_ordered_products',side_effect=AssertionError('No sorting')):
+                response=self.client.get('/',{**selection,'picker':'1'})
+            self.assertEqual(response.status_code,200)
+            self.assertEqual(response.context['result_count'],1)
+            self.assertEqual(response.context['products'][0].price,5700)
+            self.assertFalse(response.context['products'][0].public_stock['can_buy'])
+            self.assertEqual(response.context['facets']['model'][0]['value'],str(self.model.pk))
+        self.assertEqual(self.client.get('/',{'brand':self.brand.pk,'stock':'in'}).context['result_count'],0)
+
+    def test_model_reuses_prepared_make_model_list(self):
+        from catalog.storefront import refresh_brand_facets, refresh_country_facets, facet_values
+        self.assertTrue(refresh_country_facets())
+        self.assertTrue(refresh_brand_facets())
+        with patch('catalog.storefront.facet_values',wraps=facet_values) as aggregate:
+            response=self.client.get('/',{'country':self.country.pk,'brand':self.brand.pk,'model':self.model.pk})
+        self.assertEqual(response.context['result_count'],1)
+        self.assertNotIn('model',[call.args[0] for call in aggregate.call_args_list])
