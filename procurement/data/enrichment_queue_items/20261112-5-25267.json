@@ -1,0 +1,27 @@
+{
+  "article": "54661A7400",
+  "brand": "JASHI",
+  "cost": 14600,
+  "has_fitment": true,
+  "id": 25267,
+  "kaspi_price": 21760,
+  "kaspi_url": "https://kaspi.kz/shop/p/jashi-perednii-54661a7400-1-sht-146877341/?c=750000000",
+  "main_image": "",
+  "name": "Амортизатор передний Kia",
+  "photo_status": "needs_source",
+  "product_id": 6968,
+  "profit": 4190,
+  "stock": "1",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 4941,
+  "checked_at": "2026-11-12T02:39:58.854707+00:00",
+  "previous_journal": "procurement/data/enrichment_queue_items/5-25267.json",
+  "publication_status": "not_published",
+  "offer_id": 25267,
+  "status": "new_source_brand_mismatch",
+  "new_sources": [
+    "https://baza.drom.ru/moskva/sell_spare_parts/amortizator-kia-cerato-2014-54661a7400-yd-g4fg-perednij-pravyj-g15016390702.html"
+  ],
+  "reason": "New search gives used original Hyundai/Kia, not exact JASHI. Existing fitment preserved; cross-brand photo excluded."
+}

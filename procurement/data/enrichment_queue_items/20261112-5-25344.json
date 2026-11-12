@@ -1,0 +1,28 @@
+{
+  "article": "T15-2810010",
+  "brand": "Chery",
+  "cost": 35500,
+  "has_fitment": true,
+  "id": 25344,
+  "kaspi_price": 44660,
+  "kaspi_url": "https://kaspi.kz/shop/p/chery-balka-perednei-podveski-t15-2810010-170088169/?c=750000000",
+  "main_image": "",
+  "name": "Балка передней Chery",
+  "photo_status": "needs_source",
+  "product_id": 6891,
+  "profit": 3327.5,
+  "stock": "1",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 4864,
+  "checked_at": "2026-11-12T02:43:04.299858+00:00",
+  "previous_journal": "procurement/data/enrichment_queue_items/5-25344.json",
+  "publication_status": "not_published",
+  "offer_id": 25344,
+  "status": "no_new_exact_photo",
+  "new_sources": [
+    "https://shop.globalparts.kz/catalog/card/245483",
+    "https://www.qiwintrade.com/assets/pdf/chery-catalogue.pdf"
+  ],
+  "reason": "New exact-number supplier catalogue candidate, but original CHERY photograph/finish is not independently verified. Generic manufacturer catalogue pictures not substituted. Existing fitment retained."
+}

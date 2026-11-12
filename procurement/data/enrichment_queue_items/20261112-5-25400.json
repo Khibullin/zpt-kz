@@ -1,0 +1,28 @@
+{
+  "article": "602000931AADQJ",
+  "brand": "Chery",
+  "cost": 31800,
+  "has_fitment": true,
+  "id": 25400,
+  "kaspi_price": 39660,
+  "kaspi_url": "https://kaspi.kz/shop/p/chery-bamper-602000931aadqj-dlja-chery-tiggo-7-pro-2024-162549015/?c=750000000",
+  "main_image": "",
+  "name": "Бампер задний Chery",
+  "photo_status": "needs_source",
+  "product_id": 6884,
+  "profit": 2652.5,
+  "stock": "2",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 4857,
+  "checked_at": "2026-11-12T02:43:04.454521+00:00",
+  "previous_journal": "procurement/data/enrichment_queue_items/5-25400.json",
+  "publication_status": "not_published",
+  "offer_id": 25400,
+  "status": "no_new_exact_photo",
+  "new_sources": [
+    "https://www.qiwintrade.com/assets/pdf/chery-catalogue.pdf",
+    "https://www.car-total.ru/0/3622.pdf"
+  ],
+  "reason": "New supplier catalogue lists exact number but original-brand photograph not independently verified. Used dismantler result describes torn/deformed part and excluded. Existing fitment retained."
+}

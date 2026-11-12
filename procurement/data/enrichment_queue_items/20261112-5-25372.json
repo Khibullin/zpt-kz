@@ -1,0 +1,27 @@
+{
+  "article": "CD569F271303-1901",
+  "brand": "JASHI",
+  "cost": 23100,
+  "has_fitment": false,
+  "id": 25372,
+  "kaspi_price": 29660,
+  "kaspi_url": "https://kaspi.kz/shop/p/jashi-bamper-cd569f271303-1901-dlja-changan-uni-k-2020-2026-180077368/?c=750000000",
+  "main_image": "",
+  "name": "Бампер задний Changan",
+  "photo_status": "needs_source",
+  "product_id": 6978,
+  "profit": 2602.5,
+  "stock": "1",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 4951,
+  "checked_at": "2026-11-12T02:43:04.466162+00:00",
+  "previous_journal": "procurement/data/enrichment_queue_items/5-25372.json",
+  "publication_status": "not_published",
+  "offer_id": 25372,
+  "status": "new_source_brand_mismatch",
+  "new_sources": [
+    "https://shop.globalparts.kz/catalog/car-body-parts/car-bumpers"
+  ],
+  "reason": "New exact article result explicitly CHANGAN, not JASHI; no cross-brand image or fitment substituted."
+}

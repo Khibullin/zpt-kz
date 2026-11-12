@@ -1,0 +1,27 @@
+{
+  "article": "956701R000",
+  "brand": "HYUNDAI-KIA",
+  "cost": 5000,
+  "has_fitment": true,
+  "id": 26195,
+  "kaspi_price": 8900,
+  "kaspi_url": "https://kaspi.kz/shop/p/hyundai-kia-datchik-abs-956701r000-165397772/?c=750000000",
+  "main_image": "",
+  "name": "Датчик ABS Hyundai",
+  "photo_status": "needs_source",
+  "product_id": 7663,
+  "profit": 2537.5,
+  "stock": "6",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 5636,
+  "checked_at": "2026-11-12T02:43:04.490205+00:00",
+  "previous_journal": "procurement/data/enrichment_queue_items/5-26195.json",
+  "publication_status": "not_published",
+  "offer_id": 26195,
+  "status": "no_new_exact_photo",
+  "new_sources": [
+    "https://uniparts.kz/parts/info/HYUNDAI%2FKIA/956701R000"
+  ],
+  "reason": "New exact retailer result explicitly states part information absent; no independently verified product photograph. Existing fitment retained."
+}

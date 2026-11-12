@@ -1,0 +1,33 @@
+{
+  "article": "111.01023.1",
+  "brand": "Автоброня",
+  "cost": 13300,
+  "has_fitment": true,
+  "id": 26709,
+  "kaspi_price": 19900,
+  "kaspi_url": "https://kaspi.kz/shop/p/avtobronja-111010231-ravon-nexia-r3-2016--101653897/?c=750000000",
+  "main_image": "",
+  "name": "Защита картера Chevrolet",
+  "photo_status": "needs_source",
+  "product_id": 8350,
+  "profit": 3862.5,
+  "stock": "1",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 6323,
+  "offer_id": 26709,
+  "status": "prepared_photo",
+  "prepared_photo": true,
+  "prepared_fitments": [],
+  "new_sources": [
+    "https://tachka.ru/zashita-kartera/ravon/nexia/st/avtobronja-111.01023.1-3289"
+  ],
+  "source_url": "https://tachka.ru/zashita-kartera/ravon/nexia/st/avtobronja-111.01023.1-3289",
+  "source_label": "Тачка.ру — каталог продавца",
+  "source_kind": "retailer_catalogue",
+  "image_url": "https://img.tachka.ru/g23EUp8UeWk-FLWwnd8asyQYQFY=/trim:top-left:50/fit-in/640x800/brand/avtobronja/111.01023.1.jpg",
+  "reason": "Точный бренд и полный артикул, исполнение и комплектность сверены по карточке источника; фото и миниатюра визуально проверены. Водяной знак сохранён.",
+  "publication_status": "not_published",
+  "checked_at": "2026-11-12",
+  "previous_journal": "procurement/data/enrichment_queue_items/5-26709.json"
+}

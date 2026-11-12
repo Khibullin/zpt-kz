@@ -1,0 +1,33 @@
+{
+  "article": "12301004",
+  "brand": "RIVAL",
+  "cost": 12450,
+  "has_fitment": true,
+  "id": 26925,
+  "kaspi_price": 19260,
+  "kaspi_url": "https://kaspi.kz/shop/p/rival-12301004-hyundai-elantra-2021-2024-chernyi-117451247/?c=750000000",
+  "main_image": "",
+  "name": "Ковер багажника Hyundai",
+  "photo_status": "needs_source",
+  "product_id": 8496,
+  "profit": 4152.5,
+  "stock": "3",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 6469,
+  "offer_id": 26925,
+  "status": "prepared_photo",
+  "prepared_photo": true,
+  "prepared_fitments": [],
+  "new_sources": [
+    "https://halykmarket.kz/astana/category/kovriki-dlja-avtomobilja/rival-12301004-hyundai-elantra-2020-2025-chernyj"
+  ],
+  "source_url": "https://halykmarket.kz/astana/category/kovriki-dlja-avtomobilja/rival-12301004-hyundai-elantra-2020-2025-chernyj",
+  "source_label": "Halyk Market — точная карточка RIVAL12301004",
+  "source_kind": "retailer_catalogue",
+  "image_url": "https://halykmarket.kz/s3/product/1211910071/product/product-1211910071-1211910071-1-1.jpg",
+  "reason": "Точный бренд и полный артикул, исполнение и комплектность сверены по карточке источника; фото и миниатюра визуально проверены. Водяной знак сохранён.",
+  "publication_status": "not_published",
+  "checked_at": "2026-11-12",
+  "previous_journal": "procurement/data/enrichment_queue_items/5-26925.json"
+}

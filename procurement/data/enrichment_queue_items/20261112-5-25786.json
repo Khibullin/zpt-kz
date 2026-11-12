@@ -1,0 +1,27 @@
+{
+  "article": "1308100U00A5",
+  "brand": "JAC",
+  "cost": 39300,
+  "has_fitment": true,
+  "id": 25786,
+  "kaspi_price": 49060,
+  "kaspi_url": "https://kaspi.kz/shop/p/jac-diffuzor-radiatora-1308100u00a5-147774619/?c=750000000",
+  "main_image": "",
+  "name": "Вентилятор охлаждения JAC",
+  "photo_status": "needs_source",
+  "product_id": 7272,
+  "profit": 3377.5,
+  "stock": "2",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 5245,
+  "checked_at": "2026-11-12T02:39:59.086107+00:00",
+  "previous_journal": "procurement/data/enrichment_queue_items/5-25786.json",
+  "publication_status": "not_published",
+  "offer_id": 25786,
+  "status": "temporary_source_error",
+  "new_sources": [
+    "https://kitzapchasti.ru/catalog/JAC/JAC-JS6/dvigatel/ohlazhdenie-otoplenie-ventilyaciya/1308100U00A5-ventilyator-sistemy-ohlazhdeniya-dvigatelya-v-sbore-JAC-JS6-1308100U00A5.html"
+  ],
+  "reason": "New exact JAC1308100U00A5 seller page GET returned HTTP503, no photograph retrieved. Existing fitment retained."
+}

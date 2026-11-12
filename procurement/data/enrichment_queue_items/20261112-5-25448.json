@@ -1,0 +1,28 @@
+{
+  "article": "2803101U7300",
+  "brand": "JASHI",
+  "cost": 19400,
+  "has_fitment": false,
+  "id": 25448,
+  "kaspi_price": 27260,
+  "kaspi_url": "https://kaspi.kz/shop/p/jashi-bamper-2803101u7300-dlja-jac-j7-2020-2024-119282687/?c=750000000",
+  "main_image": "",
+  "name": "Бампер передний JAC",
+  "photo_status": "needs_source",
+  "product_id": 7116,
+  "profit": 4202.5,
+  "stock": "40",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 5089,
+  "checked_at": "2026-11-12T02:39:58.837734+00:00",
+  "previous_journal": "procurement/data/enrichment_queue_items/5-25448.json",
+  "publication_status": "not_published",
+  "offer_id": 25448,
+  "status": "new_source_brand_mismatch",
+  "new_sources": [
+    "https://atct.kz/bamper-perednii-j7",
+    "https://reno-shop.kz/product-tag/jac-j7/"
+  ],
+  "reason": "Read full ATCT new source: 2803101U7300 manufacturer JAC and generic repeated placeholder; JASHI label belongs to neighbouring 2803106U7300. Reno names analogue without JASHI manufacturer. No photo or fitment inferred for this exact JASHI offer."
+}

@@ -1,0 +1,27 @@
+{
+  "article": "555133N300",
+  "brand": "HYUNDAI-KIA",
+  "cost": 2300,
+  "has_fitment": true,
+  "id": 25926,
+  "kaspi_price": 6003,
+  "kaspi_url": "https://kaspi.kz/shop/p/hyundai-kia-vtulka-stabilizatora-555133n300-165636835/?c=750000000",
+  "main_image": "",
+  "name": "Втулка стабилизатора Hyundai",
+  "photo_status": "needs_source",
+  "product_id": 7468,
+  "profit": 2702.625,
+  "stock": "4",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 5441,
+  "checked_at": "2026-11-12T02:43:04.429618+00:00",
+  "previous_journal": "procurement/data/enrichment_queue_items/5-25926.json",
+  "publication_status": "not_published",
+  "offer_id": 25926,
+  "status": "no_new_exact_photo",
+  "new_sources": [
+    "https://pnm-parts.ru/catalog/hyundaikia/hyundai-motor-company/555133n300"
+  ],
+  "reason": "New exact OEM search finds textual retailer candidate without a visually verified image. RIA source previously challenged and not retried. Existing fitment retained."
+}

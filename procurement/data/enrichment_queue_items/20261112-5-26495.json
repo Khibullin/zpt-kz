@@ -1,0 +1,33 @@
+{
+  "article": "ST-51712-3K160",
+  "brand": "SAT",
+  "cost": 11000,
+  "has_fitment": true,
+  "id": 26495,
+  "kaspi_price": 15400,
+  "kaspi_url": "https://kaspi.kz/shop/p/diski-sat-perednie-st-51712-3k160-102346041/?c=750000000",
+  "main_image": "",
+  "name": "Диск тормозной Hyundai",
+  "photo_status": "needs_source",
+  "product_id": 8135,
+  "profit": 2225,
+  "stock": "1",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 6108,
+  "offer_id": 26495,
+  "status": "prepared_photo",
+  "prepared_photo": true,
+  "prepared_fitments": [],
+  "new_sources": [
+    "https://satparts.ru/index.php/product/st-51712-3k160"
+  ],
+  "source_url": "https://satparts.ru/index.php/product/st-51712-3k160",
+  "source_label": "SATparts — каталог продавца SAT, вторая фотография",
+  "source_kind": "retailer_catalogue",
+  "image_url": "https://static.autotrade.su/nomenclature/wm/b/0e/0ed427ff9e_1.jpg",
+  "reason": "Точный бренд и полный артикул, исполнение и комплектность сверены по карточке источника; фото и миниатюра визуально проверены. Водяной знак сохранён.",
+  "publication_status": "not_published",
+  "checked_at": "2026-11-12",
+  "previous_journal": "procurement/data/enrichment_queue_items/5-26495.json"
+}

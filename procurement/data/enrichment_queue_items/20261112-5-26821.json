@@ -1,0 +1,27 @@
+{
+  "article": "PCI1212",
+  "brand": "PATRON",
+  "cost": 5500,
+  "has_fitment": true,
+  "id": 26821,
+  "kaspi_price": 9500,
+  "kaspi_url": "https://kaspi.kz/shop/p/katushka-zazhiganija-patron-pci1212-151088128/?c=750000000",
+  "main_image": "",
+  "name": "Катушка зажигания Hyundai",
+  "photo_status": "needs_source",
+  "product_id": 8480,
+  "profit": 2562.5,
+  "stock": "2",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 6453,
+  "checked_at": "2026-11-12T02:43:04.478086+00:00",
+  "previous_journal": "procurement/data/enrichment_queue_items/5-26821.json",
+  "publication_status": "not_published",
+  "offer_id": 26821,
+  "status": "no_new_exact_photo",
+  "new_sources": [
+    "https://tachka.ru/katushka-zazhiganiya/hyundai/i40/1"
+  ],
+  "reason": "New catalogue page read successfully; no exact PCI1212 product image found. Existing fitment preserved."
+}

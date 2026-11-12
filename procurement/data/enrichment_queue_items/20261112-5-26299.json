@@ -1,0 +1,27 @@
+{
+  "article": "BRSS58",
+  "brand": "BRAVE",
+  "cost": 2900,
+  "has_fitment": true,
+  "id": 26299,
+  "kaspi_price": 8360,
+  "kaspi_url": "https://kaspi.kz/shop/p/brave-datchik-temperatury-ohlazhdajuschei-zhidkosti-brss58-121438197/?c=750000000",
+  "main_image": "",
+  "name": "Датчик температуры Chevrolet",
+  "photo_status": "needs_source",
+  "product_id": 7797,
+  "profit": 4165,
+  "stock": "1",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 5770,
+  "checked_at": "2026-11-12T02:39:58.871010+00:00",
+  "previous_journal": "procurement/data/enrichment_queue_items/5-26299.json",
+  "publication_status": "not_published",
+  "offer_id": 26299,
+  "status": "no_new_exact_photo",
+  "new_sources": [
+    "https://www.autoopt.ru/catalog/073348-datchik_temperatury_chevrolet_cobalt_12__ohlazhdajuschej_zhidkosti_brave/pdf"
+  ],
+  "reason": "New search returns same Autoopt item (previously no photograph) and already recorded Optipart candidate. Do not repeat old pages or CAPTCHA source. Existing fitment retained."
+}
