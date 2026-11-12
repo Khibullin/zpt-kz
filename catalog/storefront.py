@@ -26,7 +26,13 @@ LOGOS = {'acura': 'interface/brands/acura.webp', 'audi': 'interface/brands/audi.
 
 def retail_products():
     seller = SellerProfile.objects.filter(slug='ag-parts').first()
-    return Product.objects.filter(status='active').owned_by_seller(seller).annotate(
+    return Product.objects.filter(status='active').owned_by_seller(seller)
+
+
+def retail_annotations(qs):
+    # Add supplier/title expressions only where their values are used. Keeping
+    # them on the base queryset forces supplier joins into every COUNT/facet.
+    return qs.annotate(
         retail_maker=Case(When(omega_listing__offer__brand__gt='',then=F('omega_listing__offer__brand')),When(title__icontains='AG Parts',then=Value('AG Parts')),default=Value('Не указан'),output_field=CharField()),
         retail_subgroup=Case(
             When(title__iregex=r'фильтр.*масл|маслян.*фильтр',then=Value('Фильтры масляные')),
@@ -41,7 +47,7 @@ def apply_filters(qs, selected, omit=()):
         model=CarModel.objects.filter(pk=selected['model']).values('brand_id','brand__country_id').first()
         if not model or (selected['brand'] and 'brand' not in omit and str(model['brand_id'])!=selected['brand']) or (selected['country'] and 'country' not in omit and str(model['brand__country_id'])!=selected['country']):
             return qs.none()
-    structured, legacy = {}, Q()
+    structured, legacy = {}, Product.objects.filter(fitment_reviewed_on__isnull=True).order_by()
     vehicle = False
     for key in ('country','brand','model'):
         value = selected[key] if key not in omit else ''
@@ -51,10 +57,11 @@ def apply_filters(qs, selected, omit=()):
             return qs.none()
         vehicle = True
         structured[FITMENT_PATHS[key].removeprefix('fitments__')+'__pk'] = value
-        clause = Q()
-        for path in VEHICLE_PATHS[key]:
-            clause |= Q(pk__in=Product.objects.filter(**{path+'__pk':value}).values('pk'))
-        legacy &= clause
+        paths = [Product.objects.filter(**{path+'__pk':value}).order_by().values('pk')
+                 for path in VEHICLE_PATHS[key]]
+        # One set operation permits a semi-join instead of repeated OR
+        # subplans over the entire catalogue (especially with small work_mem).
+        legacy = legacy.filter(pk__in=paths[0].union(*paths[1:]))
     if selected['year'] and 'year' not in omit:
         value=selected['year']
         if not value.isdecimal() or not 1900 <= int(value) <= 2100:
@@ -64,19 +71,22 @@ def apply_filters(qs, selected, omit=()):
         structured['year_from__lte']=year
         # Closed periods or open periods checked in this year or later.
         period=Q(year_to__gte=year)|Q(year_to__isnull=True,verified_on__year__gte=year)
-        legacy=Q(pk__in=[])
+        legacy=legacy.none()
     else:
         period=Q()
     if selected['engine'] and 'engine' not in omit:
         vehicle=True
         engine=Q(engine_code=selected['engine'])|Q(engine_policy='independent')
-        legacy=Q(pk__in=[])
+        legacy=legacy.none()
     else:
         engine=Q()
     if vehicle:
         rows=ProductFitment.objects.filter(status='confirmed',**structured).filter(period&engine)
-        confirmed=Q(fitment_reviewed_on__isnull=False,pk__in=rows.values('product_id'))
-        qs=qs.filter(confirmed | (Q(fitment_reviewed_on__isnull=True)&legacy))
+        confirmed=Product.objects.filter(fitment_reviewed_on__isnull=False,
+            pk__in=rows.values('product_id')).order_by().values('pk')
+        qs=qs.filter(pk__in=confirmed.union(legacy.values('pk')))
+    if any(selected[key] and key not in omit for key in ('subgroup','maker')):
+        qs=retail_annotations(qs)
     for key,field in [('category','category_id'),('subgroup','retail_subgroup'),('maker','retail_maker')]:
         if selected[key] and key not in omit:
             if key=='category' and not selected[key].isdecimal():
@@ -128,8 +138,9 @@ def root_vehicle_facet_counts(base):
         return cursor.fetchall()
 
 
-def facet_values(key, base, selected, filter_selection, root_rows=None):
-    scope=apply_filters(base,filter_selection,(key,*RESET.get(key,())))
+def facet_values(key, base, selected, filter_selection, root_rows=None, scope=None):
+    if scope is None:
+        scope=apply_filters(base,filter_selection,(key,*RESET.get(key,())))
     values=defaultdict(set)
     labels={}
     if key in ('country','brand') and not any(selected[k] for k in KEYS if k!='sort'):
@@ -155,6 +166,8 @@ def facet_values(key, base, selected, filter_selection, root_rows=None):
                 end=row.year_to or (row.verified_on.year if row.verified_on else row.year_from)
                 for year in range(row.year_from,min(end,2100)+1):values[str(year)].add(row.product_id)
     else:
+        if key in ('subgroup','maker'):
+            scope=retail_annotations(scope)
         field={'category':'category_id','subgroup':'retail_subgroup','maker':'retail_maker'}[key]
         fields=(field,'category__name') if key=='category' else (field,)
         for row in scope.order_by().values(*fields).annotate(_facet_count=Count('pk',distinct=True)):
@@ -231,14 +244,27 @@ def storefront(request):
             params['picker']='1'
         return '/?'+urlencode(params) if params else '/'
     common=not any(selected[k] for k in KEYS if k!='sort')
-    home_facets=load_home_facets() if common else None
+    home_facets=load_home_facets()
+    scopes={}
+    def scope_for(omit=()):
+        effective={k:('' if k in omit else v) for k,v in filter_selection.items()}
+        scope_key=tuple(effective.items())
+        if scope_key not in scopes:
+            # Resolve vehicle relationships once per distinct filter scope in
+            # this request. Facets and pagination reuse these narrow IDs; all
+            # prices/availability are still read fresh when hydrating cards.
+            ids=list(apply_filters(base,effective).order_by().values_list('pk',flat=True))
+            scopes[scope_key]=Product.objects.filter(pk__in=ids)
+        return scopes[scope_key]
     def facet(key):
         if key=='model' and not selected['brand']:
             return []
         if key in ('year','engine') and not selected['model']:
             return []
-        cache_key='v1:'+key+':'+sha256(urlencode({k:selected[k] for k in KEYS if k!='sort'}).encode()).hexdigest()
-        if common:
+        omit=(key,*RESET.get(key,()))
+        effective={k:selected[k] for k in KEYS if k!='sort' and k not in omit}
+        cache_key='v3:'+key+':'+sha256(urlencode(effective).encode()).hexdigest()
+        if not any(effective.values()):
             values,labels=home_facets.get(key, ({},{}))
             return facet_options(key,values,labels)
         # Filter-specific counters retain their short, bounded cache.
@@ -247,7 +273,7 @@ def storefront(request):
         if cached is not None:
             values,labels=cached
         else:
-            values,labels=facet_values(key,base,selected,filter_selection)
+            values,labels=facet_values(key,base,selected,filter_selection,scope=scope_for(omit))
             facet_cache.set(cache_key,(values,labels),120)
         return facet_options(key,values,labels)
     def facet_options(key,values,labels):
@@ -256,7 +282,7 @@ def storefront(request):
                      logo=LOGOS.get(labels.get(v,v).casefold(),''))
                 for v,count in sorted(values.items(),key=lambda item:labels.get(item[0],item[0]).casefold())]
     facets={k:facet(k) for k in ('country','brand','model','year','engine','category','subgroup','maker')}
-    found=apply_filters(base,filter_selection).select_related('seller_profile','brand','car_model__brand','category').prefetch_related('kaspi_listings','selected_models__brand','selected_brands','fitments__car_model__brand')
+    found=(base if common else scope_for()).select_related('seller_profile','brand','car_model__brand','category').prefetch_related('kaspi_listings','selected_models__brand','selected_brands','fitments__car_model__brand')
     order={'price':F('price').asc(nulls_last=True),'-price':F('price').desc(nulls_last=True),'title':'title'}.get(selected['sort'])
     if order is None:
         # Keep all products searchable; photos lead the default catalogue order.
@@ -278,7 +304,7 @@ def storefront(request):
     page_ids=list(page.object_list)
     # Hydration must retain the global page order: recomputing the window on
     # only these IDs would restart each category's row numbers on every page.
-    cards={product.pk:product for product in found.filter(pk__in=page_ids).order_by()}
+    cards={product.pk:product for product in retail_annotations(found.filter(pk__in=page_ids).order_by())}
     page.object_list=[cards[pk] for pk in page_ids]
     for product in page:
         product.public_stock=public_stock_status(product)

@@ -8,7 +8,8 @@
   const status = document.createElement('span');
   status.setAttribute('role', 'status');
   status.setAttribute('aria-live', 'polite');
-  status.style.cssText = 'position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)';
+  status.className = 'retail-update-status';
+  status.hidden = true;
   root().after(status);
 
   function search(input) {
@@ -59,7 +60,8 @@
     pending = controller;
     remember(snapshot());
     root().setAttribute('aria-busy', 'true');
-    status.textContent = 'Обновляем товары…';
+    status.hidden = false;
+    status.textContent = 'Обновляем подбор и товары…';
     try {
       const response = await fetch(url, {signal: controller.signal, credentials: 'same-origin'});
       if (!response.ok) throw new Error('Storefront response failed');
@@ -86,6 +88,7 @@
     } finally {
       if (pending === controller) {
         root()?.removeAttribute('aria-busy');
+        status.hidden = true;
         pending = null;
       }
     }
@@ -101,12 +104,12 @@
       expand.hidden = true;
       return;
     }
-    const link = event.target.closest('.retail-filters a.filter-option');
+    const link = event.target.closest('.retail-filters a.filter-option, .vehicle-picker a, .selection-chips a, .retail-pages a');
     if (!link || event.defaultPrevented || event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
     const url = new URL(link.href);
     if (url.origin !== location.origin || url.pathname !== location.pathname) return;
     event.preventDefault();
-    update(url.href, link.closest('[data-filter-key]').dataset.filterKey, undefined, link.children[1]?.textContent);
+    update(url.href, link.closest('[data-filter-key]')?.dataset.filterKey, undefined, link.children[1]?.textContent);
   });
   document.addEventListener('submit', event => {
     const form = event.target;
