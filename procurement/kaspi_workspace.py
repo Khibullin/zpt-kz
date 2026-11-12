@@ -17,7 +17,7 @@ from django.views.decorators.http import require_http_methods
 from inventory.models import CashEntry, GoodsDocument, StockDocument, StockEntry, SupplierItem
 from inventory.permissions import can_access_accounting
 from .forms import DraftForm
-from .models import Activity, Draft, Offer, PurchaseOrder, VehicleFitment
+from .models import Activity, Draft, Offer, PurchaseOrder, Supplier, VehicleFitment
 from .views import access, context
 
 
@@ -84,7 +84,6 @@ def source_rows(batch, user):
         supplier_id = next(iter(supplier_ids)) if len(supplier_ids) == 1 else None
         # The original Omega document uses the Russian legal name.
         if supplier_id is None and obj.counterparty.strip().casefold() in ('омега', 'omega'):
-            from .models import Supplier
             supplier_id = Supplier.objects.filter(name__iexact='Omega').values_list('pk', flat=True).first()
     batch['positions'] = len(rows)
     batch['quantity'] = sum(r['quantity'] for r in rows)
@@ -152,8 +151,10 @@ def kaspi_products(request):
     active = None
     form = None
     events = []
+    source_supplier = None
     if batch:
         rows, files, supplier_id = source_rows(batch, request.user)
+        source_supplier = Supplier.objects.filter(pk=supplier_id).first() if supplier_id else None
         enrich_rows(batch, rows, supplier_id)
         token = signing.dumps({'batch': batch['key'], 'source': source_signature(batch, rows)}, salt='kaspi-workspace')
         try:
@@ -231,6 +232,10 @@ def kaspi_products(request):
             'purchase_created': 'Заказ создан', 'purchase_stock_received': 'Принято на склад', 'purchase_listing': 'Зафиксировано состояние продажи'}
         for event in events:
             event.label = labels.get(event.action, 'Изменение закупки')
+            field_labels = {'title': 'Название', 'description': 'Описание', 'photo_url': 'Фотография',
+                'category': 'Категория', 'characteristics': 'Характеристики'}
+            event.card_fields = [(field_labels.get(key, key), value)
+                for key, value in event.details.get('after', {}).items()]
         batch['source_token'] = token
     elif request.method == 'POST':
         raise Http404
@@ -244,7 +249,7 @@ def kaspi_products(request):
     term = request.GET.get('q', '').strip()
     if term:
         shown = [r for r in shown if term.casefold() in f"{r['name']} {r['brand']} {r['article']}".casefold()]
-    return render(request, 'procurement/kaspi_products.html', context(request, batches=batches, batch=batch,
+    return render(request, 'procurement/kaspi_products.html', context(request, supplier=source_supplier, batches=batches, batch=batch,
         rows=shown, active=active, card_form=form, tab=tab, q=term, state=state,
         collected=sum(r['status_code'] == 'collected' for r in rows), missing=sum(r['status_code'] == 'missing' for r in rows),
         files=files, events=events), status=400 if request.method == 'POST' else 200)
