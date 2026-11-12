@@ -7,7 +7,7 @@ from functools import lru_cache
 from pathlib import Path
 
 BATCH = 'new12a-20261112'
-MANIFEST_SHA256 = 'dee041b6b7b4faa734da011fbe0965aa418c82bf412e17cb482234c62d25fb50'
+MANIFEST_SHA256 = '48d0e967d5a7da23642bcc2b24ae91ef7056900394b79c194b20bbdaa387822a'
 
 
 @lru_cache(maxsize=1)
@@ -16,7 +16,7 @@ def reviewed_rows():
     if hashlib.sha256(raw).hexdigest() != MANIFEST_SHA256:
         raise ValueError('Reviewed new12a manifest changed')
     payload = json.loads(raw)
-    if payload['checked_on'] != '2026-11-12' or len(payload['sources']) != 5:
+    if payload['checked_on'] != '2026-11-12' or len(payload['sources']) != 11:
         raise ValueError('Unexpected reviewed source batch')
     rows = payload['sources']
     if len({r['offer_id'] for r in rows}) != len(rows):
@@ -45,7 +45,7 @@ def stage_review(apps, schema_editor):
     Task = apps.get_model('catalog', 'SupplierPhotoTask')
     Activity = apps.get_model('procurement', 'Activity')
     Supplier = apps.get_model('procurement', 'Supplier')
-    if not Supplier.objects.filter(pk=5, name='ЗаказАвто').exists():
+    if not Supplier.objects.filter(pk=5, name='ZakazAuto — Костанай').exists():
         return
     counts = {'fitment_offers': 0, 'make_model_pairs': 0, 'photo_tasks': 0, 'universal_offers': 0}
     with transaction.atomic():

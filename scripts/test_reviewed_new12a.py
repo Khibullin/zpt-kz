@@ -66,7 +66,7 @@ class Tests(unittest.TestCase):
     def setUp(self):
         with connection.cursor() as c:
             for m in reversed(MODELS): c.execute('DELETE FROM '+m._meta.db_table)
-        Supplier.objects.create(pk=5,name='ЗаказАвто')
+        Supplier.objects.create(pk=5,name='ZakazAuto — Костанай')
         Supplier.objects.create(pk=4,name='Other')
         self.apps=types.SimpleNamespace(get_model=lambda app,name:next(m for m in MODELS if m.__name__==name))
         self.schema=types.SimpleNamespace(connection=connection)
@@ -78,8 +78,8 @@ class Tests(unittest.TestCase):
         patcher=patch.dict(sys.modules,{'catalog.models':types.SimpleNamespace(Product=Product,SupplierPhotoTask=SupplierPhotoTask),'procurement.models':types.SimpleNamespace(Offer=Offer,RetailListing=RetailListing),'catalog.source_photos':types.SimpleNamespace(save_shared_image=save_shared)})
         patcher.start();self.addCleanup(patcher.stop)
     def test_exact_addressed_items(self):
-        self.assertEqual({r['offer_id'] for r in manifest},{26817,25225,25401,25630,26477})
-        self.assertEqual(sum(bool(r.get('main_b64')) for r in manifest),1)
+        self.assertEqual({r['offer_id'] for r in manifest},{26817,25225,25401,25630,26477,26925,26495,26929,26923,26928,26709})
+        self.assertEqual(sum(bool(r.get('main_b64')) for r in manifest),7)
     def test_save_and_idempotence_preserve_trade_metadata_and_fitment(self):
         fit=list(VehicleFitment.objects.values())
         mod.stage_review(self.apps,self.schema)
@@ -115,7 +115,7 @@ class AdditionalTests(Tests):
             Offer.objects.create(pk=row['offer_id'],supplier_id=5,brand=row['brand'],article=row['article'],cost=row['cost'],stock=row['stock'],kaspi_price=row['kaspi_price'],characteristics={'keep':True})
         trade=list(Offer.objects.order_by('pk').values_list('pk','cost','stock','kaspi_price'))
         mod.stage_review(self.apps,self.schema)
-        self.assertEqual(VehicleFitment.objects.count(),10)
+        self.assertEqual(VehicleFitment.objects.count(),11)
         universal=Offer.objects.get(pk=25630)
         self.assertEqual(universal.characteristics['reviewed_applicability']['status'],'verified_universal')
         self.assertFalse(VehicleFitment.objects.filter(offer_id=25630).exists())
@@ -124,7 +124,7 @@ class AdditionalTests(Tests):
         configurations=list(VehicleFitment.objects.filter(offer_id=25401).values_list('configurations',flat=True))
         self.assertIn('chery-tiggo-4.html',configurations[1][0]['source_url'])
         mod.stage_review(self.apps,self.schema)
-        self.assertEqual(VehicleFitment.objects.count(),10)
+        self.assertEqual(VehicleFitment.objects.count(),11)
         self.assertEqual(list(Offer.objects.order_by('pk').values_list('pk','cost','stock','kaspi_price')),trade)
     def test_universal_template(self):
         from django.template import Engine, Context
