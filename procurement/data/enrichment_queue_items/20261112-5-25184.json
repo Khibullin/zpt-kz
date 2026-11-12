@@ -23,5 +23,13 @@
   "new_sources": [
     "https://market.yandex.uz/uz/card/amortizator-peredniy-levyy-haval-art-2905381xgw02a/5880001076"
   ],
-  "reason": "New indexed result manufacturer WAYTEKO, not JASHI. Yandex Market prior CAPTCHA restriction respected; no direct request made."
+  "reason": "New indexed result manufacturer WAYTEKO, not JASHI. Yandex Market prior CAPTCHA restriction respected; no direct request made.",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": false,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 25210
 }

@@ -28,5 +28,13 @@
     "https://www.motointegrator.de/artikel/2109649-radaufhaengung-trw-jtc2706"
   ],
   "reason": "Новая карточка точного артикула Тачка.ру прочитана. В соответствующей товарной строке явный data-no-photo и текст Нет фото. Общие изображения категории не использовать.",
-  "search_query": "\"555\" \"SA-N942L\" -site:kaspi.kz -site:alta-karter.com -site:autopiter.ru -site:asva-trading.com"
+  "search_query": "\"555\" \"SA-N942L\" -site:kaspi.kz -site:alta-karter.com -site:autopiter.ru -site:asva-trading.com",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "skipped",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 23192
 }

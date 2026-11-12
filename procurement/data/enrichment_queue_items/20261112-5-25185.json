@@ -24,5 +24,13 @@
     "https://chinacars.ru/2905901xgw02a",
     "https://cars.marshall.parts/product/m8011741/"
   ],
-  "reason": "New source manufacturers GW HAVAL and MARSHALL M8011741; no exact JASHI photograph. Existing fitment retained."
+  "reason": "New source manufacturers GW HAVAL and MARSHALL M8011741; no exact JASHI photograph. Existing fitment retained.",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 25271
 }

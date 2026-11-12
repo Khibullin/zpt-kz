@@ -1,0 +1,41 @@
+{
+  "article": "SR-H520-M",
+  "brand": "555",
+  "cost": 4589,
+  "has_fitment": true,
+  "id": 22471,
+  "kaspi_price": 6946,
+  "kaspi_url": "https://kaspi.kz/shop/p/555-rulevaja-tjaga-sr-h520-m-174088547/?c=750000000",
+  "main_image": "",
+  "name": "555 Рулевая тяга",
+  "photo_status": "skipped",
+  "product_id": 4205,
+  "profit": 1238.75,
+  "stock": "10",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 2178,
+  "checked_at": "2026-11-12T03:12:03.239600+00:00",
+  "previous_journal": "procurement/data/enrichment_queue_items/3-22471.json",
+  "publication_status": "not_published",
+  "offer_id": 22471,
+  "status": "no_new_confirmed_source",
+  "new_queries": [
+    "555 SR-H520-M точный артикул фото применимость"
+  ],
+  "reason": "Новый поиск не подтвердил недостающие поля точной позиции. Результаты по другим брендам, похожим артикулам, общим категориям и неподтверждённой комплектности исключены. Существующие корректные данные сохранены. Ограниченные ранее источники повторно не запрашивались.",
+  "new_sources": [
+    "https://firstautomotive.eu/FirstAutomotive_RangeGapAnalysis.pdf",
+    "https://www.jikiu.com/catalogue/45702702",
+    "https://rossko.ru/card/555-sr-h520-m-nsii0018328903/",
+    "https://www.autodoc.co.uk/555/13056387"
+  ],
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "skipped",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 23517
+}

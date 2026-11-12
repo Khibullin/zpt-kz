@@ -23,5 +23,13 @@
   "new_sources": [
     "https://tachka.ru/katushka-zazhiganiya/hyundai/i40/1"
   ],
-  "reason": "New catalogue page read successfully; no exact PCI1212 product image found. Existing fitment preserved."
+  "reason": "New catalogue page read successfully; no exact PCI1212 product image found. Existing fitment preserved.",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 26195
 }

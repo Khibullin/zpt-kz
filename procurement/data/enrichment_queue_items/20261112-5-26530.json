@@ -21,5 +21,13 @@
   "offer_id": 26530,
   "status": "no_new_exact_photo",
   "new_sources": [],
-  "reason": "New exact query did not establish an independent image outside restricted Kaspi CDN. CDN refusal respected, no request made."
+  "reason": "New exact query did not establish an independent image outside restricted Kaspi CDN. CDN refusal respected, no request made.",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 26229
 }

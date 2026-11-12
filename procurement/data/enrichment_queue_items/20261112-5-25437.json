@@ -21,5 +21,13 @@
   "offer_id": 25437,
   "status": "no_new_exact_fitment",
   "new_sources": [],
-  "reason": "New exact JASHI query produces old Kaspi source only. Earlier side/year ambiguity retained; existing photo preserved."
+  "reason": "New exact JASHI query produces old Kaspi source only. Earlier side/year ambiguity retained; existing photo preserved.",
+  "current_state": {
+    "main_image": "products/optimized/45446a49438abd3e94d5eec5a42a9dcda1cbb8e4f8b73ddfb5686fc669a014aa.webp",
+    "supplier_thumbnail": "products/optimized/d32ce3fe807fd8969e2f9272a2aa05f17ffa23f306be7ad0701a5b5bcc74653d.webp",
+    "has_fitment": false,
+    "photo_status": "done",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 25575
 }

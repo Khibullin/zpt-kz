@@ -23,5 +23,13 @@
   "new_sources": [
     "https://rossko.ru/catalog/toyota/tundra/sailentblok-rychaga-podveski/"
   ],
-  "reason": "New Rossko exact article/category page read successfully. Returned HTML has no individually bound SAB-3852RR photograph; generic category images not used. Previously checked JPS bulletin not repeated; existing fitment preserved."
+  "reason": "New Rossko exact article/category page read successfully. Returned HTML has no individually bound SAB-3852RR photograph; generic category images not used. Previously checked JPS bulletin not repeated; existing fitment preserved.",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 23569
 }

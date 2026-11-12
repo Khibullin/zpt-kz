@@ -22,5 +22,13 @@
   "status": "no_new_exact_source",
   "search_query": "\"OSM\" \"OSMLC7821\" -site:kaspi.kz -site:alta-karter.com -site:autopiter.ru",
   "new_sources": [],
-  "reason": "Новый точный поиск не дал независимого подтверждения недостающих полей вне уже проверенных/ограниченных источников. Полный артикул, суффиксы и бренд сохранены; ранее заполненные поля не изменены."
+  "reason": "Новый точный поиск не дал независимого подтверждения недостающих полей вне уже проверенных/ограниченных источников. Полный артикул, суффиксы и бренд сохранены; ранее заполненные поля не изменены.",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": false,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 25234
 }

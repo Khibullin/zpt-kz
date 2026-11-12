@@ -1,0 +1,39 @@
+{
+  "article": "3774200U1532A",
+  "brand": "JASHI",
+  "cost": 5900,
+  "has_fitment": true,
+  "id": 28154,
+  "kaspi_price": 8530,
+  "kaspi_url": "https://kaspi.kz/shop/p/podrulevoi-shleif-jashi-3774200u1532a-128586078/?c=750000000",
+  "main_image": "",
+  "name": "Контакт рулевого JAC",
+  "photo_status": "needs_source",
+  "product_id": 9232,
+  "profit": 1313.75,
+  "stock": "55",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 7205,
+  "checked_at": "2026-11-12T03:12:02.146033+00:00",
+  "previous_journal": "procurement/data/enrichment_queue_items/5-28154.json",
+  "publication_status": "not_published",
+  "offer_id": 28154,
+  "status": "no_new_confirmed_source",
+  "new_queries": [
+    "JASHI 3774200U1532A точный артикул фото применимость"
+  ],
+  "reason": "Новый поиск не подтвердил недостающие поля точной позиции. Результаты по другим брендам, похожим артикулам, общим категориям и неподтверждённой комплектности исключены. Существующие корректные данные сохранены. Ограниченные ранее источники повторно не запрашивались.",
+  "new_sources": [
+    "https://m.integration.vs.market.yandex.net/card/datchik-abs-peredniy-pravyy-jac-s3-15-16v-5mt-vnedorozhnik-3550200u2230/4694008211",
+    "https://kaspi.kz/shop/p/podrulevoi-shleif-jashi-3774200u1532a-128586078/"
+  ],
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 26806
+}

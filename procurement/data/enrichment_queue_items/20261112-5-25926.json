@@ -23,5 +23,13 @@
   "new_sources": [
     "https://pnm-parts.ru/catalog/hyundaikia/hyundai-motor-company/555133n300"
   ],
-  "reason": "New exact OEM search finds textual retailer candidate without a visually verified image. RIA source previously challenged and not retried. Existing fitment retained."
+  "reason": "New exact OEM search finds textual retailer candidate without a visually verified image. RIA source previously challenged and not retried. Existing fitment retained.",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 25188
 }

@@ -23,5 +23,13 @@
   "new_sources": [
     "https://reno-shop.kz/product-tag/jac-j7/"
   ],
-  "reason": "Exact number found in Reno Shop, but listing does not establish brand JASHI. Cross-brand photograph excluded. Existing fitment retained."
+  "reason": "Exact number found in Reno Shop, but listing does not establish brand JASHI. Cross-brand photograph excluded. Existing fitment retained.",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 25212
 }

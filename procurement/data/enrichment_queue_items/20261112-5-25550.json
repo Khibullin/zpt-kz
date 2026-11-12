@@ -23,5 +23,13 @@
   "new_sources": [
     "https://baza.drom.ru/g18250806647.html"
   ],
-  "reason": "New exact JASHI6044131600 result fetched once: HTTP404. No product photograph available; existing sourced fitment retained."
+  "reason": "New exact JASHI6044131600 result fetched once: HTTP404. No product photograph available; existing sourced fitment retained.",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 26522
 }

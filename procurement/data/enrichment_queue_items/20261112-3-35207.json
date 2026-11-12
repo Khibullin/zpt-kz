@@ -24,5 +24,13 @@
     "https://www.trodo.com/thermostat-coolant-motorad-596-105k"
   ],
   "reason": "Новая точная карточка Trodo596-105K вернула HTTP403. Другие URL/каналы этого источника не запрашивались. Старые исключения фотографий Cars245 и Spareto сохранены.",
-  "search_query": "\"MOTORAD\" \"596-105K\" -site:kaspi.kz -site:alta-karter.com -site:autopiter.ru -site:asva-trading.com"
+  "search_query": "\"MOTORAD\" \"596-105K\" -site:kaspi.kz -site:alta-karter.com -site:autopiter.ru -site:asva-trading.com",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 22534
 }

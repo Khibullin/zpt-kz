@@ -24,5 +24,13 @@
     "https://shop.globalparts.kz/catalog/card/245483",
     "https://www.qiwintrade.com/assets/pdf/chery-catalogue.pdf"
   ],
-  "reason": "New exact-number supplier catalogue candidate, but original CHERY photograph/finish is not independently verified. Generic manufacturer catalogue pictures not substituted. Existing fitment retained."
+  "reason": "New exact-number supplier catalogue candidate, but original CHERY photograph/finish is not independently verified. Generic manufacturer catalogue pictures not substituted. Existing fitment retained.",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 25354
 }

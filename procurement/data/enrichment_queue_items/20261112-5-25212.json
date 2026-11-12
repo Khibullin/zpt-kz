@@ -23,5 +23,13 @@
   "new_sources": [
     "https://shop.globalparts.kz/catalog/car-chassis/car-dampers?page=9"
   ],
-  "reason": "New catalogue result shows similar 54661-D3500 and 54651-D3000, not exact 54651-D3500. No substitute allowed; existing fitment retained."
+  "reason": "New catalogue result shows similar 54661-D3500 and 54651-D3000, not exact 54651-D3500. No substitute allowed; existing fitment retained.",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 25365
 }

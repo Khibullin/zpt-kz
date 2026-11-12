@@ -23,5 +23,13 @@
   "new_sources": [
     "https://shop.globalparts.kz/catalog/card/258402"
   ],
-  "reason": "Exact JASHI86512L1100 page read; product image uses denied resources.cdn-kaspi.kz. No request to denied origin or alternate route. Existing fitment retained."
+  "reason": "Exact JASHI86512L1100 page read; product image uses denied resources.cdn-kaspi.kz. No request to denied origin or alternate route. Existing fitment retained.",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 26553
 }

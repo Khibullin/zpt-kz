@@ -23,5 +23,13 @@
   "new_sources": [
     "https://www.autoopt.ru/catalog/073348-datchik_temperatury_chevrolet_cobalt_12__ohlazhdajuschej_zhidkosti_brave/pdf"
   ],
-  "reason": "New search returns same Autoopt item (previously no photograph) and already recorded Optipart candidate. Do not repeat old pages or CAPTCHA source. Existing fitment retained."
+  "reason": "New search returns same Autoopt item (previously no photograph) and already recorded Optipart candidate. Do not repeat old pages or CAPTCHA source. Existing fitment retained.",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 26943
 }

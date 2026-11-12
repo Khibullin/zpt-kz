@@ -23,5 +23,13 @@
   "new_sources": [
     "https://ym.kg/product/jashi-bamper-f01-2804501nb-dq-dlja-jetour-x70-2020-2024-160213323/"
   ],
-  "reason": "New exact page read. Product image served through /pr/img/m/p/... proxy identical to previously restricted Kaspi image path. Did not fetch proxy or direct CDN. Existing fitment retained."
+  "reason": "New exact page read. Product image served through /pr/img/m/p/... proxy identical to previously restricted Kaspi image path. Did not fetch proxy or direct CDN. Existing fitment retained.",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 26923
 }

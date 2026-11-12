@@ -47,5 +47,13 @@
     "commit": "ac34a7d3b5e6022233692b10b533e4b2e5782748",
     "deploy": "dep-dbqigdkfi03s73d27640"
   },
-  "trade_data_unchanged": true
+  "trade_data_unchanged": true,
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 25630
 }

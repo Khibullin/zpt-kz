@@ -23,5 +23,13 @@
   "new_sources": [
     "https://www.mercadolibre.cl/capot-para-jac-js3/up/MLCU3449193185?pdp_filters=seller_id%3A1590572156"
   ],
-  "reason": "New exact-number listing is JAC, not JASHI. No exact-brand photograph. Existing fitment retained; previous rejected photographs not reused."
+  "reason": "New exact-number listing is JAC, not JASHI. No exact-brand photograph. Existing fitment retained; previous rejected photographs not reused.",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 25193
 }

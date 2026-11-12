@@ -1,0 +1,49 @@
+{
+  "article": "SL-N285R",
+  "brand": "555",
+  "cost": 5418,
+  "has_fitment": true,
+  "id": 22301,
+  "kaspi_price": 8216,
+  "kaspi_url": "https://kaspi.kz/shop/p/555-stoika-stabilizatora-sl-n285r-174095147/?c=750000000",
+  "main_image": "",
+  "name": "555 Стойка стабилизатора",
+  "photo_status": "skipped",
+  "product_id": 4037,
+  "profit": 1521,
+  "stock": "3",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 2010,
+  "checked_at": "2026-11-12T03:12:02.828808+00:00",
+  "previous_journal": "procurement/data/enrichment_queue_items/3-22301.json",
+  "publication_status": "not_published",
+  "offer_id": 22301,
+  "status": "no_new_confirmed_source",
+  "new_queries": [
+    "555 SL-N285R точный артикул фото применимость"
+  ],
+  "reason": "В точной карточке продавца изображён узел с гайками. Комплектность SL-N285R относительно версии -M не подтверждена; фотография не опубликована.",
+  "new_sources": [
+    "https://aywiparts.ru/",
+    "https://www.tmy-net.co.jp/wp_en/wp-content/uploads/2026/02/NEWS-366-555.pdf",
+    "https://tachka.ru/555/SL-N285R",
+    "https://jps-osaka.co.jp/wp-content/uploads/2026/02/NEWS36626.02.pdf",
+    "https://www.avto-imperia.com/brands/68/",
+    "https://www.auto-imperia.com/catalog/link_sl_n285r_cln_34_56261_ea510_555.html",
+    "https://www.monotaro.com/p/8113/6310/",
+    "https://ic24.lt/produktai/G0N9XL-sarnyro-stabilizatorius-555-sl-n285r",
+    "https://renix.ua/part/555/sln285r/",
+    "https://baleros-bisa.com/catalogos/pdf/BALEROS_BISA_UNMcbWhFgwNu9Or_1698198987.pdf",
+    "https://elartcom.eu/brand/555/opel/astra",
+    "https://www.jikiu.jp/catalogue/38525586"
+  ],
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "skipped",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 22665
+}

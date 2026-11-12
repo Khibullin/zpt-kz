@@ -25,5 +25,13 @@
     "https://www.iparts.pl/czesc/klocki-hamulcowe-komplet-a-b-s-36734%2C0-206-36734-434657.html"
   ],
   "reason": "Новый поиск дал текстовую каталожную/кросс-номерную строку, но не подтвердил точное фото данного бренда, артикула и комплекта. Ранее сохранённая применимость не менялась; чужие фотографии и ранее исключённые источники не использовались.",
-  "search_query": "\"AKEBONO\" \"AN-340K\" -site:kaspi.kz -site:alta-karter.com -site:autopiter.ru -site:asva-trading.com"
+  "search_query": "\"AKEBONO\" \"AN-340K\" -site:kaspi.kz -site:alta-karter.com -site:autopiter.ru -site:asva-trading.com",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 23759
 }

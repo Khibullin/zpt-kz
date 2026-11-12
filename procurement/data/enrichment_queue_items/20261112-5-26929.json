@@ -34,5 +34,13 @@
     "commit": "ac34a7d3b5e6022233692b10b533e4b2e5782748",
     "deploy": "dep-dbqigdkfi03s73d27640"
   },
-  "trade_data_unchanged": true
+  "trade_data_unchanged": true,
+  "current_state": {
+    "main_image": "products/optimized/9565a156922ba8d0ed2712240429887c55df6f2994ec4274f6e160d82ec0c743.webp",
+    "supplier_thumbnail": "products/optimized/485317905edcae065fb6b80ca3dcb9a337a2becb59f31653c0c9820b2e6b980b.webp",
+    "has_fitment": true,
+    "photo_status": "done",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 25792
 }

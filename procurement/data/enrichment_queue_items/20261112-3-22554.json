@@ -29,5 +29,13 @@
     "https://www.farpost.ru/krasnoyarsk/zapchasti/kolodki-tormoznye-speredi-honda-accord-02-08-civic-11-19-akebono-art-an-663wk-perednij-g17924464531.html"
   ],
   "reason": "Новый поиск дал текстовую каталожную/кросс-номерную строку, но не подтвердил точное фото данного бренда, артикула и комплекта. Ранее сохранённая применимость не менялась; чужие фотографии и ранее исключённые источники не использовались.",
-  "search_query": "\"AKEBONO\" \"AN-663WK\" -site:kaspi.kz -site:alta-karter.com -site:autopiter.ru -site:asva-trading.com"
+  "search_query": "\"AKEBONO\" \"AN-663WK\" -site:kaspi.kz -site:alta-karter.com -site:autopiter.ru -site:asva-trading.com",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 23562
 }

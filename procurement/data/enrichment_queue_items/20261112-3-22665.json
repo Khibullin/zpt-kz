@@ -1,0 +1,38 @@
+{
+  "article": "AP-69",
+  "brand": "AKIKA",
+  "cost": 4148,
+  "has_fitment": false,
+  "id": 22665,
+  "kaspi_price": 6715,
+  "kaspi_url": "https://kaspi.kz/shop/p/kolodki-akika-perednie-ap-69-4-sht-118794985/?c=750000000",
+  "main_image": "",
+  "name": "AKIKA Дисковые тормозные колодки керамические | передние",
+  "photo_status": "needs_source",
+  "product_id": 4398,
+  "profit": 1477.625,
+  "stock": "10",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 2371,
+  "checked_at": "2026-11-12T03:12:02.845168+00:00",
+  "previous_journal": "procurement/data/enrichment_queue_items/3-22665.json",
+  "publication_status": "not_published",
+  "offer_id": 22665,
+  "status": "no_new_confirmed_source",
+  "new_queries": [
+    "AKIKA AP-69 точный артикул фото применимость"
+  ],
+  "reason": "Новый поиск не подтвердил недостающие поля точной позиции. Результаты по другим брендам, похожим артикулам, общим категориям и неподтверждённой комплектности исключены. Существующие корректные данные сохранены. Ограниченные ранее источники повторно не запрашивались.",
+  "new_sources": [
+    "https://armtek.ru/brand/akika-7699"
+  ],
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": false,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 22392
+}

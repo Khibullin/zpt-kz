@@ -23,5 +23,13 @@
   "new_sources": [
     "https://atct.kz/amortizator-zadnii-j7"
   ],
-  "reason": "New exact JASHI article appears in description; headings label JAC. Page GET timed out. No photo verified, no cross-brand substitution; existing fitment retained."
+  "reason": "New exact JASHI article appears in description; headings label JAC. Page GET timed out. No photo verified, no cross-brand substitution; existing fitment retained.",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 26494
 }

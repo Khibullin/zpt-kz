@@ -23,5 +23,13 @@
   "new_sources": [
     "https://kospares.com/product/hyundai-546504h055-strut-assy-fr-lh/"
   ],
-  "reason": "New full article OEM listing HYUNDAI, not JASHI. CTR catalogue describes GY1625G cross-reference, not this brand; no substitute photo."
+  "reason": "New full article OEM listing HYUNDAI, not JASHI. CTR catalogue describes GY1625G cross-reference, not this brand; no substitute photo.",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": false,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 25786
 }

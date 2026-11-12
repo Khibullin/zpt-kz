@@ -24,5 +24,13 @@
     "https://darada.kz/p104369201-disk-tormoznoj-perednij.html",
     "https://www.autoopt.ru/catalog/473927-disk_tormoznoj_jac_sunray_sollers_atlant_perednij_1sht__movelex/pdf"
   ],
-  "reason": "New sources explicitly JAC and MOVELEX, not exact JASHI. Do not substitute OEM photograph or suffix-MX variant. Existing fitment retained."
+  "reason": "New sources explicitly JAC and MOVELEX, not exact JASHI. Do not substitute OEM photograph or suffix-MX variant. Existing fitment retained.",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 25185
 }

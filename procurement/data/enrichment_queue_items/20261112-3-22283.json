@@ -24,5 +24,13 @@
     "https://tachka.ru/555/SL-H025L"
   ],
   "reason": "Новая точная карточка Тачка.ру прочитана, фото скачано и проверено: две гайки. Ранее каталог555 различал SL-H025L и SL-H025L-M с гайками. Противоречие комплектности не разрешено, фото не загружать.",
-  "search_query": "\"555\" \"SL-H025L\" -site:kaspi.kz -site:alta-karter.com -site:autopiter.ru -site:asva-trading.com"
+  "search_query": "\"555\" \"SL-H025L\" -site:kaspi.kz -site:alta-karter.com -site:autopiter.ru -site:asva-trading.com",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "skipped",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 22749
 }

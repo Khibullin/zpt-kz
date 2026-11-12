@@ -23,5 +23,13 @@
   "new_sources": [
     "https://kemerovo.ambcomplekt.com/media/uploads/catalog/catalogue_BORT.pdf"
   ],
-  "reason": "New search yields a BORT catalogue candidate, not a verified photograph for exact B334501. Existing fitment retained; technical drawing excluded."
+  "reason": "New search yields a BORT catalogue candidate, not a verified photograph for exact B334501. Existing fitment retained; technical drawing excluded.",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 26493
 }

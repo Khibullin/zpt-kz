@@ -43,5 +43,13 @@
   "publication": {
     "commit": "26fe334d66a8f67825013c8897c6b72dada50d76",
     "deploy": "dep-dbqilbrsuf0c7385trr0"
-  }
+  },
+  "current_state": {
+    "main_image": "products/optimized/9b087d4484b0feda847b5db3e618809a98fc2011a6b91c2be67405e10d44dbd7.webp",
+    "supplier_thumbnail": "products/optimized/be09a93c42fbaed7c5764f48d2d5669bdadd830faaefab39e58165d6966f82e0.webp",
+    "has_fitment": true,
+    "photo_status": "done",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 22771
 }

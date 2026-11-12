@@ -1,0 +1,49 @@
+{
+  "article": "LX2283",
+  "brand": "MAHLE",
+  "cost": 5166,
+  "has_fitment": false,
+  "id": 35140,
+  "kaspi_price": 7732,
+  "kaspi_url": "https://kaspi.kz/shop/p/mahle-fil-tr-vozdushnyi-lx2283-124373361/?c=750000000",
+  "main_image": "",
+  "name": "MAHLE фильтр воздушный",
+  "photo_status": "needs_source",
+  "product_id": 15963,
+  "profit": 1349.5,
+  "stock": "2",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 13936,
+  "checked_at": "2026-11-12T03:12:03.076297+00:00",
+  "previous_journal": "procurement/data/enrichment_queue_items/3-35140.json",
+  "publication_status": "not_published",
+  "offer_id": 35140,
+  "status": "no_new_confirmed_source",
+  "new_queries": [
+    "MAHLE LX2283 точный артикул фото применимость"
+  ],
+  "reason": "Новые результаты относятся к заменителю фильтра другого бренда либо кросс-таблице. Фото точного MAHLE LX2283 и подтверждённый список модификаций не установлены.",
+  "new_sources": [
+    "https://inlinefilters.co.uk/FilterCrossReference/MahleKnecht/LX2283/",
+    "https://www.vollerfilters.co.uk/VOLLER-PRODUCT-CATALOG.pdf",
+    "https://www.kmotorshop.com/en/article-detail/view/167657/air-filter-lx2283-mahle",
+    "https://vollerfilters.co.uk/VOLLER-PRODUCT-CATALOG.pdf",
+    "https://www.vollerfilters.de/VOLLER-PRODUCT-CATALOG.pdf",
+    "https://automotriz.premiumfilters.com.co/PDFFilters/AIP-682.pdf",
+    "https://premium-vozduh.ru/product/lx2283/",
+    "https://saudifilter.com/product/paf44570",
+    "https://merttrade.com/urunler/8971786090-p-isuzu-d-max-oval-tip-hava-filtresi-p-p-blueprint-ref-adz92214-p-p-filtron-ref-ar302-1-p-p-strong-isuzu-d-max-i-pickup-tfr-tfs-year-of-construction-05-2002-06-2012-101-131-ps-diesel-strong-p-p-strong-isuzu-trooper-iii-off-road-year-of-construction-05-1998-08-2004-160-ps-diesel-strong-p-p-strong-isuzu-trooper-iii-off-road-convertible-year-of-construction-04-2000-08-2004-160-ps-diesel-strong-p-p-nbsp-p-2",
+    "https://www.motointegrator.at/artikel/201835-luftfilter-filtron-ar3021",
+    "https://www.kmotorshop.com/de/article-detail/view/167657/luftfilter-lx2283-mahle",
+    "https://www.autodoc24.fr/mahle-original/2680331"
+  ],
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": false,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 22800
+}

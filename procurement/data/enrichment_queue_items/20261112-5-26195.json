@@ -23,5 +23,13 @@
   "new_sources": [
     "https://uniparts.kz/parts/info/HYUNDAI%2FKIA/956701R000"
   ],
-  "reason": "New exact retailer result explicitly states part information absent; no independently verified product photograph. Existing fitment retained."
+  "reason": "New exact retailer result explicitly states part information absent; no independently verified product photograph. Existing fitment retained.",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 26928
 }

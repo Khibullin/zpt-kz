@@ -1,0 +1,36 @@
+{
+  "article": "KSA073STD",
+  "brand": "KORTEX",
+  "cost": 7200,
+  "has_fitment": true,
+  "id": 25152,
+  "kaspi_price": 10480,
+  "kaspi_url": "https://kaspi.kz/shop/p/kortex-zadnii-ksa073std-1-sht-116134790/?c=750000000",
+  "main_image": "",
+  "name": "Амортизатор задний Hyundai",
+  "photo_status": "needs_source",
+  "product_id": 6795,
+  "profit": 1720,
+  "stock": "1",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 4768,
+  "checked_at": "2026-11-12T03:12:01.992587+00:00",
+  "previous_journal": "procurement/data/enrichment_queue_items/5-25152.json",
+  "publication_status": "not_published",
+  "offer_id": 25152,
+  "status": "no_new_confirmed_source",
+  "new_queries": [
+    "KORTEX KSA073STD точный артикул фото применимость"
+  ],
+  "reason": "Новый поиск не подтвердил недостающие поля точной позиции. Результаты по другим брендам, похожим артикулам, общим категориям и неподтверждённой комплектности исключены. Существующие корректные данные сохранены. Ограниченные ранее источники повторно не запрашивались.",
+  "new_sources": [],
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 25762
+}

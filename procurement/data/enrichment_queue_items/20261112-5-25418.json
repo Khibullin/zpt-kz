@@ -23,5 +23,13 @@
   "new_sources": [
     "https://autopiter.kz/goods/задний бампер haval dargo?rangeEnd=40&rangeStart=30"
   ],
-  "reason": "New search mixes original/used Haval and otherbrands with exact number; no individual JASHI2804101XKN04A photograph or unambiguous exact-brand fitment verified."
+  "reason": "New search mixes original/used Haval and otherbrands with exact number; no individual JASHI2804101XKN04A photograph or unambiguous exact-brand fitment verified.",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": false,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 25190
 }

@@ -24,5 +24,13 @@
     "https://www.qiwintrade.com/assets/pdf/chery-catalogue.pdf",
     "https://www.car-total.ru/0/3622.pdf"
   ],
-  "reason": "New supplier catalogue lists exact number but original-brand photograph not independently verified. Used dismantler result describes torn/deformed part and excluded. Existing fitment retained."
+  "reason": "New supplier catalogue lists exact number but original-brand photograph not independently verified. Used dismantler result describes torn/deformed part and excluded. Existing fitment retained.",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 25513
 }

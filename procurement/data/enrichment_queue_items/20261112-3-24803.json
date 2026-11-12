@@ -24,5 +24,13 @@
     "https://avtokach.ru/catalog/aywiparts?page=53"
   ],
   "reason": "Новый каталог AvtoKach прочитан. Точного изображения AW2220478 в HTML нет, og:image — логотип магазина. Ранее отказавший производитель и CAPTCHA Мегамаркета не перезапрашивались.",
-  "search_query": "\"AYWIPARTS\" \"AW2220478\" -site:kaspi.kz -site:alta-karter.com -site:autopiter.ru -site:asva-trading.com"
+  "search_query": "\"AYWIPARTS\" \"AW2220478\" -site:kaspi.kz -site:alta-karter.com -site:autopiter.ru -site:asva-trading.com",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "skipped",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 23015
 }

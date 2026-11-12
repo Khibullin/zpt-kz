@@ -22,5 +22,13 @@
   "status": "no_new_exact_source",
   "new_sources": [],
   "reason": "Новый точный поиск не подтвердил недостающие поля за пределами ранее проверенных/ограниченных источников. Существующие данные сохранены.",
-  "search_query": "\"AKIKA\" \"AS-04\" -site:kaspi.kz -site:alta-karter.com -site:autopiter.ru -site:asva-trading.com"
+  "search_query": "\"AKIKA\" \"AS-04\" -site:kaspi.kz -site:alta-karter.com -site:autopiter.ru -site:asva-trading.com",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 22760
 }

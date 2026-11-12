@@ -22,5 +22,13 @@
   "status": "prior_restriction_preserved",
   "new_sources": [],
   "reason": "Повторная обработка без нового разрешённого источника пропущена. Сохранено действующее ограничение на запросы ASVA из общего и поштучного журналов; запросов бренда и обходов отказа не было.",
-  "search_query": null
+  "search_query": null,
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": false,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 23325
 }

@@ -1,0 +1,41 @@
+{
+  "article": "SYC-23",
+  "brand": "Valeo",
+  "cost": 32750,
+  "has_fitment": true,
+  "id": 28161,
+  "kaspi_price": 39299,
+  "kaspi_url": "https://kaspi.kz/shop/p/valeo-korzina-stseplenija-syc-23-135225799/?c=750000000",
+  "main_image": "",
+  "name": "Корзина сцепления SsangYong",
+  "photo_status": "needs_source",
+  "product_id": 9311,
+  "profit": 1386.625,
+  "stock": "2",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 7284,
+  "checked_at": "2026-11-12T03:12:02.101765+00:00",
+  "previous_journal": "procurement/data/enrichment_queue_items/5-28161.json",
+  "publication_status": "not_published",
+  "offer_id": 28161,
+  "status": "no_new_confirmed_source",
+  "new_queries": [
+    "Valeo SYC-23 точный артикул фото применимость"
+  ],
+  "reason": "Новый поиск не подтвердил недостающие поля точной позиции. Результаты по другим брендам, похожим артикулам, общим категориям и неподтверждённой комплектности исключены. Существующие корректные данные сохранены. Ограниченные ранее источники повторно не запрашивались.",
+  "new_sources": [
+    "https://shop.globalparts.kz/catalog/transmission/clutch-elements?page=2",
+    "https://impocali.com/wp-content/uploads/2020-2021-Clutch-Catalogue.pdf",
+    "https://www.autoopt.ru/catalog?PAGEN_1=19381&arrFilter_pf%5BMODEL_ID%5D%5B0%5D=1168&direction=asc&set_filter=Y&sort=article",
+    "https://ym.kg/product/jashi-bamper-f01-2803501na-dq-dlja-jetour-x70-2020-2024-160215149/"
+  ],
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 25574
+}

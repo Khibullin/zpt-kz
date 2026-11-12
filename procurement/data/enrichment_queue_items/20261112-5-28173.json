@@ -23,5 +23,13 @@
   "new_sources": [
     "https://reno-shop.kz/product-tag/jac-j7/"
   ],
-  "reason": "New listing confirms article for JAC J7 but not manufacturer JASHI; no exact-brand photograph established. Existing fitment retained."
+  "reason": "New listing confirms article for JAC J7 but not manufacturer JASHI; no exact-brand photograph established. Existing fitment retained.",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 26709
 }

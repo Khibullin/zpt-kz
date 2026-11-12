@@ -21,5 +21,13 @@
   "offer_id": 25191,
   "status": "no_new_exact_photo",
   "new_sources": [],
-  "reason": "New exact JASHI article 202001682AA search returned empty results."
+  "reason": "New exact JASHI article 202001682AA search returned empty results.",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 25194
 }

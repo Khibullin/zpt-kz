@@ -24,5 +24,13 @@
     "https://plenty.parts/parts/akebono/braking-system/akebono-an685wk-brake-pads-honda-civic-ballade-city-p2915789"
   ],
   "reason": "Новая точная карточка Plenty.partsAN-685WK вернула HTTP403. Другие URL/каналы этого источника не запрашивались. Старый размерный чертёж Fitinpart не используется.",
-  "search_query": "\"AKEBONO\" \"AN-685WK\" -site:kaspi.kz -site:alta-karter.com -site:autopiter.ru -site:asva-trading.com"
+  "search_query": "\"AKEBONO\" \"AN-685WK\" -site:kaspi.kz -site:alta-karter.com -site:autopiter.ru -site:asva-trading.com",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 23651
 }

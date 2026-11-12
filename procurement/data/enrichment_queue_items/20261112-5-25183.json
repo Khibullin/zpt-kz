@@ -23,5 +23,13 @@
   "new_sources": [
     "https://atct.kz/amortizator-perednii-s5"
   ],
-  "reason": "New indexed ATCT result heading manufacturerJAC while description saysJASHI; no individually verified exact-brand product photograph. Existing fitment retained."
+  "reason": "New indexed ATCT result heading manufacturerJAC while description saysJASHI; no individually verified exact-brand product photograph. Existing fitment retained.",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 25344
 }

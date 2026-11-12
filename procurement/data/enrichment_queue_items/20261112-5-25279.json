@@ -23,5 +23,13 @@
   "new_sources": [
     "https://mosautoshina.com/catalog/zapchasti/part-one/"
   ],
-  "reason": "New catalogue index lists exact article without independently verified product photograph. Certification lists not a product-image source; existing fitment retained."
+  "reason": "New catalogue index lists exact article without independently verified product photograph. Certification lists not a product-image source; existing fitment retained.",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 25363
 }

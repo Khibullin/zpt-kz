@@ -23,5 +23,13 @@
   "new_sources": [
     "https://shop.globalparts.kz/catalog/car-body-parts/car-bumpers"
   ],
-  "reason": "New exact article result explicitly CHANGAN, not JASHI; no cross-brand image or fitment substituted."
+  "reason": "New exact article result explicitly CHANGAN, not JASHI; no cross-brand image or fitment substituted.",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": false,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 26185
 }

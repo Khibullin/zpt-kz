@@ -21,5 +21,13 @@
   "offer_id": 25354,
   "status": "no_new_exact_source",
   "new_sources": [],
-  "reason": "New exact JASHI/fullarticle query did not yield independent unambiguous photograph or applicable configuration outside old/restricted sources."
+  "reason": "New exact JASHI/fullarticle query did not yield independent unambiguous photograph or applicable configuration outside old/restricted sources.",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": false,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 26737
 }

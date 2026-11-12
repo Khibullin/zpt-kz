@@ -22,5 +22,13 @@
   "status": "prior_restriction_preserved",
   "new_sources": [],
   "reason": "Повторная обработка без нового разрешённого источника пропущена. Сохранено действующее ограничение на запросы ASVA из общего и поштучного журналов; запросов бренда и обходов отказа не было.",
-  "search_query": null
+  "search_query": null,
+  "current_state": {
+    "main_image": "products/optimized/3ef760b08775798fdda8b9ffa40c6d1c652a6ed82e6919cc43988cdf837cd006.webp",
+    "supplier_thumbnail": "products/optimized/241d237abe02369eaf3e872ef444662cbf62ac88203daff789aba5a7f25705a7.webp",
+    "has_fitment": false,
+    "photo_status": "done",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 22746
 }

@@ -25,5 +25,13 @@
     "https://ngn-parts.com/52-1370.html"
   ],
   "reason": "Новый поиск дал текстовую каталожную/кросс-номерную строку, но не подтвердил точное фото данного бренда, артикула и комплекта. Ранее сохранённая применимость не менялась; чужие фотографии и ранее исключённые источники не использовались.",
-  "search_query": "\"AYWIPARTS\" \"AW2220442\" -site:kaspi.kz -site:alta-karter.com -site:autopiter.ru -site:asva-trading.com"
+  "search_query": "\"AYWIPARTS\" \"AW2220442\" -site:kaspi.kz -site:alta-karter.com -site:autopiter.ru -site:asva-trading.com",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "skipped",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 23308
 }

@@ -23,5 +23,13 @@
   "new_sources": [
     "https://autopiter.kz/goods/202001105aa"
   ],
-  "reason": "Exact number list includes many manufacturers and similar variants. No individually verified JASHI photograph; existing fitment retained."
+  "reason": "Exact number list includes many manufacturers and similar variants. No individually verified JASHI photograph; existing fitment retained.",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 25189
 }

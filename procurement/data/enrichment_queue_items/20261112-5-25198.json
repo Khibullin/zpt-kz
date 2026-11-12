@@ -21,5 +21,13 @@
   "offer_id": 25198,
   "status": "no_new_exact_photo",
   "new_sources": [],
-  "reason": "New exact JASHI full article 96858479.GAS search returned empty results. Suffix preserved."
+  "reason": "New exact JASHI full article 96858479.GAS search returned empty results. Suffix preserved.",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 25249
 }

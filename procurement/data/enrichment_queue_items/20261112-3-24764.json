@@ -1,0 +1,39 @@
+{
+  "article": "AW1910063Y",
+  "brand": "AYWIPARTS",
+  "cost": 939,
+  "has_fitment": false,
+  "id": 24764,
+  "kaspi_price": 2556,
+  "kaspi_url": "https://kaspi.kz/shop/p/aywiparts-aw1910063y-galogennaja-hb1-1-sht-175148370/?c=750000000",
+  "main_image": "products/optimized/7db48a9af75b5c8743c9d80818b6ac8bc1709890407a21365ed6fe3f8cfb2c36.webp",
+  "name": "AYWIPARTS Лампа галогеновая HB1 9004 12V 65/45W P29T YELLOW",
+  "photo_status": "done",
+  "product_id": 6470,
+  "profit": 1047.5,
+  "stock": "2",
+  "supplier_id": 3,
+  "supplier_thumbnail": "products/optimized/3e7664d95c526e535ae59ebbf72c59e6dd7ab5743765f9a370b24e3168013530.webp",
+  "task_id": 4443,
+  "checked_at": "2026-11-12T03:12:03.833633+00:00",
+  "previous_journal": "procurement/data/enrichment_queue_items/3-24764.json",
+  "publication_status": "not_published",
+  "offer_id": 24764,
+  "status": "no_new_confirmed_source",
+  "new_queries": [
+    "AYWIPARTS AW1910063Y точный артикул фото применимость"
+  ],
+  "reason": "Подтверждены лишь характеристики лампы HB1/9004; универсальность или список моделей не подтверждены. Тип цоколя не принят за применимость.",
+  "new_sources": [
+    "https://linkpart.ru/catalog/narva/480043000",
+    "https://megamarket.ru/catalog/avtolampy/brand-aywiparts/"
+  ],
+  "current_state": {
+    "main_image": "products/optimized/7db48a9af75b5c8743c9d80818b6ac8bc1709890407a21365ed6fe3f8cfb2c36.webp",
+    "supplier_thumbnail": "products/optimized/3e7664d95c526e535ae59ebbf72c59e6dd7ab5743765f9a370b24e3168013530.webp",
+    "has_fitment": false,
+    "photo_status": "done",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 23224
+}

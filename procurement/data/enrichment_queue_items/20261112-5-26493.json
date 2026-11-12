@@ -24,5 +24,13 @@
     "https://ultraprice.by/product/patron-pbd4855",
     "https://baza.drom.ru/g18377733655.html"
   ],
-  "reason": "ULTRAPRICE exact article image downloaded and visually inspected: explicitly marked ОБРАЗЕЦ / Вид товара ... может отличаться. Rejected. Drom item is used and has no readable exact product photo; no substitute uploaded. Existing fitment retained."
+  "reason": "ULTRAPRICE exact article image downloaded and visually inspected: explicitly marked ОБРАЗЕЦ / Вид товара ... может отличаться. Rejected. Drom item is used and has no readable exact product photo; no substitute uploaded. Existing fitment retained.",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 25225
 }

@@ -1,0 +1,45 @@
+{
+  "article": "2803105U226K",
+  "brand": "JAC",
+  "cost": 1400,
+  "has_fitment": false,
+  "id": 26593,
+  "kaspi_price": 3280,
+  "kaspi_url": "https://kaspi.kz/shop/p/jac-zaglushka-2803105u226k-jac-s3-pro-120498171/?c=750000000",
+  "main_image": "",
+  "name": "Заглушка отверстия JAC",
+  "photo_status": "needs_source",
+  "product_id": 8046,
+  "profit": 1220,
+  "stock": "17",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 6019,
+  "checked_at": "2026-11-12T03:12:02.228118+00:00",
+  "previous_journal": "procurement/data/enrichment_queue_items/5-26593.json",
+  "publication_status": "not_published",
+  "offer_id": 26593,
+  "status": "no_new_confirmed_source",
+  "new_queries": [
+    "JAC 2803105U226K точный артикул фото применимость"
+  ],
+  "reason": "Новый результат АвтоALL перенаправил на /vpn/. Доступ не обходился. Фото и применимость точного бренда/артикула не подтверждены.",
+  "new_sources": [
+    "https://b2b.autorus.ru/get_brand_full_info?brandName=SSANG+YONG&source=brandslist&start=140",
+    "https://kaspi.kz/shop/p/jac-zaglushka-2803105u226k-jac-s3-pro-120544348/",
+    "https://kaspi.kz/shop/p/jac-zaglushka-2803105u226k-jac-s3-pro-120498171/",
+    "https://optipart.ru/catalog/j/jac/67/",
+    "https://www.avtoall.ru/zaglushka_jac_kryuka_buksirovochnogo_bampera_perednego_oe-711186/",
+    "https://www.autoopt.ru/catalog?PAGEN_1=5799&direction=asc&sort=price",
+    "https://www.tcrossa.ru/catalog/jac/zapchasti/zaglushka-buksirovochnogo-kryuka",
+    "https://www.avtoall.ru"
+  ],
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": false,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 25124
+}

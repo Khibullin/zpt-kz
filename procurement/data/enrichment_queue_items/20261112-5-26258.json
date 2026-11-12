@@ -1,0 +1,98 @@
+{
+  "article": "3935025010",
+  "brand": "HYUNDAI-KIA",
+  "cost": 4700,
+  "has_fitment": false,
+  "id": 26258,
+  "kaspi_price": 7630,
+  "kaspi_url": "https://kaspi.kz/shop/p/hyundai-kia-datchik-polozhenija-raspredelitel-nogo-vala-3935025010-129470625/?c=750000000",
+  "main_image": "products/optimized/694b49f3ac74540f8e0cded048764cd114005dd9ba6be3a40f002fcaba911c57.webp",
+  "name": "Датчик положения Hyundai",
+  "photo_status": "done",
+  "product_id": 7823,
+  "profit": 1726.25,
+  "stock": "2",
+  "supplier_id": 5,
+  "supplier_thumbnail": "products/optimized/e6542fd2726ea540d8671765051b7dd9d44027e7ed4ff26ef5a6b4782cb94b01.webp",
+  "task_id": 5796,
+  "checked_at": "2026-11-12T03:12:01.964745+00:00",
+  "previous_journal": "procurement/data/enrichment_queue_items/5-26258.json",
+  "publication_status": "saved_db_and_ui_verified",
+  "offer_id": 26258,
+  "status": "prepared_new_exact_sources",
+  "new_queries": [
+    "HYUNDAI-KIA 3935025010 точный артикул фото применимость"
+  ],
+  "reason": "Применимость переписана только из списка Compatible Car Models точной карточки PartSouq 3935025010. Это описание продавца, не EPC и не подтверждение производителя. Два периода Santa Fe сохранены раздельно; 2011 год не добавлен. Двигатели не выводились из кросс-номеров. Существующее фото сохранено.",
+  "new_sources": [
+    "https://partsouq.com/ru/shop/product/3935025010-HYUNDAI-KIA-SENSOR-CAMSHAFT-POSITION/13914140"
+  ],
+  "prepared_photo": false,
+  "prepared_fitments": [
+    {
+      "make": "HYUNDAI",
+      "model": "SANTA FE",
+      "notes": "Указано в разделе Compatible Car Models описания PartSouq: Santa Fe 10. Сведения продавца, не подтверждение каталога производителя. Двигатель не указан.",
+      "years": "2009–2010"
+    },
+    {
+      "make": "HYUNDAI",
+      "model": "SANTA FE",
+      "notes": "Указано в разделе Compatible Car Models описания PartSouq: Santa Fe 12. Сведения продавца, не подтверждение каталога производителя. Двигатель не указан.",
+      "years": "2012–2016"
+    },
+    {
+      "make": "HYUNDAI",
+      "model": "SONATA",
+      "notes": "Указано в разделе Compatible Car Models описания PartSouq: Sonata 10. Сведения продавца, не подтверждение каталога производителя. Двигатель не указан.",
+      "years": "2010–2014"
+    },
+    {
+      "make": "HYUNDAI",
+      "model": "IX35",
+      "notes": "Указано в разделе Compatible Car Models описания PartSouq: Ix35 10. Сведения продавца, не подтверждение каталога производителя. Двигатель не указан.",
+      "years": "2012–2013"
+    },
+    {
+      "make": "HYUNDAI",
+      "model": "GENESIS COUPE",
+      "notes": "Указано в разделе Compatible Car Models описания PartSouq: Genesis Coupe 08. Сведения продавца, не подтверждение каталога производителя. Двигатель не указан.",
+      "years": "2008–"
+    },
+    {
+      "make": "HYUNDAI",
+      "model": "AZERA",
+      "notes": "Указано в разделе Compatible Car Models описания PartSouq: Azera 11. Сведения продавца, не подтверждение каталога производителя. Двигатель не указан.",
+      "years": "2011–2014"
+    },
+    {
+      "make": "HYUNDAI",
+      "model": "TUCSON",
+      "notes": "Указано в разделе Compatible Car Models описания PartSouq: Tucson 10. Сведения продавца, не подтверждение каталога производителя. Двигатель не указан.",
+      "years": "2009–2013"
+    },
+    {
+      "make": "HYUNDAI",
+      "model": "GRANDEUR",
+      "notes": "Указано в разделе Compatible Car Models описания PartSouq: Grandeur Hybrid. Сведения продавца, не подтверждение каталога производителя. Двигатель не указан. Только Hybrid, годы не указаны.",
+      "fuel": "Гибрид"
+    }
+  ],
+  "source_url": "https://partsouq.com/ru/shop/product/3935025010-HYUNDAI-KIA-SENSOR-CAMSHAFT-POSITION/13914140",
+  "source_label": "PartSouq — описание точной карточки HYUNDAI/KIA 3935025010",
+  "publication": {
+    "commit": "ac502e32921593bf8c9f8352da8a2697eb46106d",
+    "deploy": "dep-dbqisoijnfac73bjkkl0",
+    "db_verified": true,
+    "ui_verified": true,
+    "main_and_thumbnail_verified": true
+  },
+  "current_state": {
+    "main_image": "products/optimized/694b49f3ac74540f8e0cded048764cd114005dd9ba6be3a40f002fcaba911c57.webp",
+    "supplier_thumbnail": "products/optimized/e6542fd2726ea540d8671765051b7dd9d44027e7ed4ff26ef5a6b4782cb94b01.webp",
+    "has_fitment": true,
+    "photo_status": "done",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 25152
+}

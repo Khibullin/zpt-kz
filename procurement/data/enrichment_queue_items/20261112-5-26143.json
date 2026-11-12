@@ -23,5 +23,13 @@
   "new_sources": [
     "https://ym.kg/product/jashi-shkiv-generatora-373222g500-147980062/"
   ],
-  "reason": "New search yields related-product entry for13579666, not a verified individually read product photo. Site product-image proxy uses same Kaspi-style path; no alternative route to denied images used."
+  "reason": "New search yields related-product entry for13579666, not a verified individually read product photo. Site product-image proxy uses same Kaspi-style path; no alternative route to denied images used.",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 25183
 }

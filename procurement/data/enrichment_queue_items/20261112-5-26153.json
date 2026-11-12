@@ -23,5 +23,13 @@
   "new_sources": [
     "https://shop.globalparts.kz/catalog/card/193773"
   ],
-  "reason": "Exact JASHI/full-article page read; image source is the previously restricted resources.cdn-kaspi.kz. No image request or alternative CDN route attempted. Existing fitment retained."
+  "reason": "Exact JASHI/full-article page read; image source is the previously restricted resources.cdn-kaspi.kz. No image request or alternative CDN route attempted. Existing fitment retained.",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 25154
 }

@@ -23,5 +23,13 @@
   "new_sources": [
     "https://autopiter.kz/goods/chery arrizo амортизатор передний левый"
   ],
-  "reason": "New search contains exact JASHI text but no individually verified photograph; existing fitment retained."
+  "reason": "New search contains exact JASHI text but no individually verified photograph; existing fitment retained.",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 25400
 }

@@ -21,5 +21,13 @@
   "offer_id": 25365,
   "status": "no_new_exact_source",
   "new_sources": [],
-  "reason": "New exact brand/article query did not yield independent evidence outside the prior Kaspi result. Original restricted source not retried."
+  "reason": "New exact brand/article query did not yield independent evidence outside the prior Kaspi result. Original restricted source not retried.",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": false,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 25371
 }

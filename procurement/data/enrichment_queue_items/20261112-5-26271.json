@@ -1,0 +1,39 @@
+{
+  "article": "3550040P3010",
+  "brand": "JAC",
+  "cost": 6400,
+  "has_fitment": true,
+  "id": 26271,
+  "kaspi_price": 9930,
+  "kaspi_url": "https://kaspi.kz/shop/p/jac-datchik-abs-3550040p3010-119301326/?c=750000000",
+  "main_image": "",
+  "name": "Датчик системы JAC",
+  "photo_status": "needs_source",
+  "product_id": 7838,
+  "profit": 2038.75,
+  "stock": "7",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 5811,
+  "checked_at": "2026-11-12T03:12:01.934346+00:00",
+  "previous_journal": "procurement/data/enrichment_queue_items/5-26271.json",
+  "publication_status": "not_published",
+  "offer_id": 26271,
+  "status": "no_new_confirmed_source",
+  "new_queries": [
+    "JAC 3550040P3010 точный артикул фото применимость"
+  ],
+  "reason": "Новый поиск не подтвердил недостающие поля точной позиции. Результаты по другим брендам, похожим артикулам, общим категориям и неподтверждённой комплектности исключены. Существующие корректные данные сохранены. Ограниченные ранее источники повторно не запрашивались.",
+  "new_sources": [
+    "https://jac-parts.spb.ru/products/Datchik-ABS-zadniy-pravyy-3550040P3010",
+    "https://jac-parts.ru/catalog/elektrika?page=all"
+  ],
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 26151
+}

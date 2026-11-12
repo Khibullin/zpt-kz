@@ -21,5 +21,13 @@
   "offer_id": 25194,
   "status": "no_new_exact_source",
   "new_sources": [],
-  "reason": "New exact JASHI article 546513X050 search returned empty results. Neither photo nor fitment inferred from OEM cross-reference."
+  "reason": "New exact JASHI article 546513X050 search returned empty results. Neither photo nor fitment inferred from OEM cross-reference.",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": false,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 25199
 }

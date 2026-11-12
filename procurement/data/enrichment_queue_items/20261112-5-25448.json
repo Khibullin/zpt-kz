@@ -24,5 +24,13 @@
     "https://atct.kz/bamper-perednii-j7",
     "https://reno-shop.kz/product-tag/jac-j7/"
   ],
-  "reason": "Read full ATCT new source: 2803101U7300 manufacturer JAC and generic repeated placeholder; JASHI label belongs to neighbouring 2803106U7300. Reno names analogue without JASHI manufacturer. No photo or fitment inferred for this exact JASHI offer."
+  "reason": "Read full ATCT new source: 2803101U7300 manufacturer JAC and generic repeated placeholder; JASHI label belongs to neighbouring 2803106U7300. Reno names analogue without JASHI manufacturer. No photo or fitment inferred for this exact JASHI offer.",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": false,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 26235
 }

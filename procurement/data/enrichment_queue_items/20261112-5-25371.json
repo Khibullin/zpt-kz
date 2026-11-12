@@ -23,5 +23,13 @@
   "new_sources": [
     "https://kitzapchasti.ru/catalog/Changan/Changan-CS35-Plus-NEW/kuzov/bampera-reshetka-radiatora-usilitel-emblemy/910044DCR-verhnyaya-chast-zadnego-bampera-Changan-CS35-Plus-NEW-S111F271303-0202-DoCar.html"
   ],
-  "reason": "New result is DoCar910044DCR cross-reference, not original Changan S111F271303-0202. Prior Reformauto candidate already documented; not repeated without new exact photo evidence."
+  "reason": "New result is DoCar910044DCR cross-reference, not original Changan S111F271303-0202. Prior Reformauto candidate already documented; not repeated without new exact photo evidence.",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 25437
 }

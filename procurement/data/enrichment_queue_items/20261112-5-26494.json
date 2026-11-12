@@ -23,5 +23,13 @@
   "new_sources": [
     "https://shop.globalparts.kz/catalog/brake-system/brake-discs"
   ],
-  "reason": "New exact article appears in catalogue list, but no individual photograph independently verified. Existing fitment retained."
+  "reason": "New exact article appears in catalogue list, but no individual photograph independently verified. Existing fitment retained.",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 25201
 }

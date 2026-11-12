@@ -21,5 +21,13 @@
   "offer_id": 25544,
   "status": "no_new_exact_source",
   "new_sources": [],
-  "reason": "Exact brand/full-article search produced no new independent JASHI source outside previously restricted or already reviewed sources. No photo or fitment invented."
+  "reason": "Exact brand/full-article search produced no new independent JASHI source outside previously restricted or already reviewed sources. No photo or fitment invented.",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": false,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 25366
 }

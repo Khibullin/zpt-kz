@@ -23,5 +23,13 @@
   "new_sources": [
     "https://autopiter.kz/goods/амортизатор передний москвич м-2141?rangeEnd=50&rangeStart=40"
   ],
-  "reason": "New search contains exact JASHI2905210U3400 mixed with suffix-MX variants and other manufacturers. No exact individually verified photo; existing fitment retained."
+  "reason": "New search contains exact JASHI2905210U3400 mixed with suffix-MX variants and other manufacturers. No exact individually verified photo; existing fitment retained.",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 25122
 }

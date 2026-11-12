@@ -1,0 +1,40 @@
+{
+  "article": "AW1930016L",
+  "brand": "AYWIPARTS",
+  "cost": 7397,
+  "has_fitment": false,
+  "id": 24769,
+  "kaspi_price": 10096,
+  "kaspi_url": "https://kaspi.kz/shop/p/aywiparts-aw1930016l-ksenonovaja-d2s-1-sht-166941663/?c=750000000",
+  "main_image": "products/optimized/b1cbfe455ca3613ad342162fad5b914e7e90f979ee1f30fdf68e6a1c5f02a989.webp",
+  "name": "AYWIPARTS Лампа газоразрядная D2S 12V 35W P32d-2 6000K",
+  "photo_status": "done",
+  "product_id": 6475,
+  "profit": 1187,
+  "stock": "1",
+  "supplier_id": 3,
+  "supplier_thumbnail": "products/optimized/66640eaf60b43f36a6c907f252e6d0fa008dce7b7684eaec862d3bc2dca8ea56.webp",
+  "task_id": 4448,
+  "checked_at": "2026-11-12T03:12:03.383245+00:00",
+  "previous_journal": "procurement/data/enrichment_queue_items/3-24769.json",
+  "publication_status": "not_published",
+  "offer_id": 24769,
+  "status": "no_new_confirmed_source",
+  "new_queries": [
+    "AYWIPARTS AW1930016L точный артикул фото применимость"
+  ],
+  "reason": "Подтверждены лишь электрические характеристики D2S; универсальность и применимость к моделям не подтверждены. Не выводились из типа цоколя.",
+  "new_sources": [
+    "https://plenty.parts/parts/aywiparts/all/p-7",
+    "https://kz.alta-karter.com/lampy-avtomobilniye/d2s/12v",
+    "https://zapchasti.ria.com/lampa-kseonovaya-d2s-xenon-35w-p32d-2---pr-vo-bosch-175738993.html"
+  ],
+  "current_state": {
+    "main_image": "products/optimized/b1cbfe455ca3613ad342162fad5b914e7e90f979ee1f30fdf68e6a1c5f02a989.webp",
+    "supplier_thumbnail": "products/optimized/66640eaf60b43f36a6c907f252e6d0fa008dce7b7684eaec862d3bc2dca8ea56.webp",
+    "has_fitment": false,
+    "photo_status": "done",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 22571
+}

@@ -24,5 +24,13 @@
     "https://col.kz/p116778706-bamper-perednij-tucson.html",
     "https://www.reformauto.ru/catalog/86511D7500/"
   ],
-  "reason": "New listings are Jorden and HYUNDAI/KIA, not JASHI. Prior exact Autopiter source already saved; uncertain washer holes not resolved. Existing fitment retained."
+  "reason": "New listings are Jorden and HYUNDAI/KIA, not JASHI. Prior exact Autopiter source already saved; uncertain washer holes not resolved. Existing fitment retained.",
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 26220
 }

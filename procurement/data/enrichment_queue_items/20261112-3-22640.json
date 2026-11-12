@@ -1,0 +1,38 @@
+{
+  "article": "AP-24",
+  "brand": "AKIKA",
+  "cost": 3968,
+  "has_fitment": true,
+  "id": 22640,
+  "kaspi_price": 6343,
+  "kaspi_url": "https://kaspi.kz/shop/p/kolodki-akika-zadnie-ap-24-174072241/?c=750000000",
+  "main_image": "",
+  "name": "AKIKA Дисковые тормозные колодки керамические | задние",
+  "photo_status": "needs_source",
+  "product_id": 4374,
+  "profit": 1332.125,
+  "stock": "10",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 2347,
+  "checked_at": "2026-11-12T03:12:03.107704+00:00",
+  "previous_journal": "procurement/data/enrichment_queue_items/3-22640.json",
+  "publication_status": "not_published",
+  "offer_id": 22640,
+  "status": "no_new_confirmed_source",
+  "new_queries": [
+    "AKIKA AP-24 точный артикул фото применимость"
+  ],
+  "reason": "Новый поиск не подтвердил недостающие поля точной позиции. Результаты по другим брендам, похожим артикулам, общим категориям и неподтверждённой комплектности исключены. Существующие корректные данные сохранены. Ограниченные ранее источники повторно не запрашивались.",
+  "new_sources": [
+    "https://barcode-list.ru/barcode/RU/%D0%9F%D0%BE%D0%B8%D1%81%D0%BA.htm?barcode=%D0%9A%D0%BE%D0%BB%D0%BE%D0%B4%D0%BA%D0%B8"
+  ],
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 23324
+}
