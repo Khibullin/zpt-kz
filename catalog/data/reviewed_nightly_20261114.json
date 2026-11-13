@@ -1,0 +1,58 @@
+{
+  "checked_on": "2026-11-13",
+  "scope": "Exact positive-stock ZakazAuto fitments prepared in the 2026-11-14 night; no price, stock, profit, or Kaspi fields",
+  "sources": [
+    {
+      "offer_id": 25628,
+      "product_id": 7268,
+      "supplier_id": 5,
+      "brand": "HYUNDAI-KIA",
+      "article": "914102S222",
+      "name": "Блок предохранителей Hyundai",
+      "stock": "1",
+      "cost": "44600.00",
+      "source_label": "PartSouq Hyundai OEM catalogue",
+      "source_kind": "independent_oem_catalogue",
+      "source_url": "https://partsouq.com/en/catalog/genuine/parts?c=HYUNDAI202404&gid=704&q=&vid=1546409837",
+      "fitment_note": "Точная строка 914102S222 каталога Hyundai Tucson 2009–2013. Сохранены только перечисленные годы и ограничения конфигурации; полнота для всех рынков не утверждается.",
+      "fitments": [
+        {
+          "make": "HYUNDAI",
+          "model": "Tucson",
+          "years": [2009, 2010, 2011, 2012, 2013],
+          "engine": "2.0 CRDi (R)",
+          "transmission": "6-speed automatic",
+          "drive": "4WD",
+          "restrictions": ["ESC", "conventional-clear cluster"],
+          "source_scope": "Exact catalogue row; option-code applicability is VIN-specific"
+        }
+      ]
+    },
+    {
+      "offer_id": 25106,
+      "product_id": 6692,
+      "supplier_id": 5,
+      "brand": "Chery",
+      "article": "202001202AA",
+      "name": "Амортизатор задней Chery",
+      "stock": "2",
+      "cost": "9450.00",
+      "source_label": "JIKIU manufacturer catalogue cross-reference",
+      "source_kind": "manufacturer_catalogue_cross_reference",
+      "source_url": "https://jikiu.com/catalogue/79062068",
+      "fitment_note": "Каталог производителя JIKIU связывает точный OEM Chery 202001202AA с Arrizo 8. Период сохранён помесячно, сторона и двигатель не расширялись.",
+      "fitments": [
+        {
+          "make": "CHERY",
+          "model": "Arrizo 8",
+          "date_from": "2022-04",
+          "date_to": "2025-03",
+          "engine": "1.6L SQRF4J16C",
+          "placement": "rear",
+          "side": ["left", "right"],
+          "source_scope": "JIKIU cross-reference to Chery OEM 202001202AA"
+        }
+      ]
+    }
+  ]
+}
