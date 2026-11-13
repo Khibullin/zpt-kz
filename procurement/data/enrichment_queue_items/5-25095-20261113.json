@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "checked_at": "2026-11-13T18:19:18.723Z",
+  "supplier_id": 5,
+  "supplier_name": "ЗаказАвто",
+  "offer_id": 25095,
+  "product_id": 6791,
+  "task_id": null,
+  "brand": "JASHI",
+  "article": "CD569F260204-0400",
+  "name": "Амортизатор задней Changan",
+  "research": {
+    "sources": [
+      {
+        "url": "https://www.weipaauto.com/changan-car-auto-parts.html",
+        "result": "Exact CD569F260204-0400 listed as Changan UNI-K rear right shock absorber, but not under JASHI brand."
+      },
+      {
+        "url": "https://chats.chinamobil.ru/files/changan-uni-k-uni-k-idd/applicationpdf/UNI-CHANGAN-PARTS-CATALOG-1.pdf",
+        "result": "Changan catalogue contains CD569F260204-0401 rear-right strut assembly, not exact -0400."
+      }
+    ],
+    "photo": {
+      "status": "not_confirmed",
+      "reason": "Exact JASHI-branded source for CD569F260204-0400 not found; Changan sources either use another brand or suffix -0401. Nothing saved."
+    },
+    "fitment": {
+      "status": "not_saved",
+      "reason": "Exact JASHI-branded source for CD569F260204-0400 not found; Changan sources either use another brand or suffix -0401. Nothing saved."
+    }
+  },
+  "after": {
+    "prepared_fitment": false,
+    "photo_unchanged": true,
+    "database_saved": false,
+    "ui_verified": false
+  },
+  "state": "reviewed_exception",
+  "reason": "Exact JASHI-branded source for CD569F260204-0400 not found; Changan sources either use another brand or suffix -0401. Nothing saved.",
+  "next_offer_id": 25224
+}
