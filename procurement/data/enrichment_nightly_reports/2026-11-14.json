@@ -2,8 +2,8 @@
   "schema": 1,
   "night_end_date": "2026-11-14",
   "started_at": "2026-11-13T18:05:41.445Z",
-  "updated_at": "2026-11-13T19:05:00.028Z",
-  "status": "paused_for_site_latency",
+  "updated_at": "2026-11-13T20:09:58.296Z",
+  "status": "publication_saved_db_verified_ui_pending",
   "supplier_stats": {
     "1": {
       "name": "Omega",
@@ -23,7 +23,7 @@
     },
     "5": {
       "name": "ЗаказАвто",
-      "processed_unique": 10,
+      "processed_unique": 11,
       "photos_added": 0,
       "fitment_added": 6,
       "years_or_engines_added": 5,
@@ -35,8 +35,10 @@
         "exact_real_photo_not_confirmed": 2,
         "brand_identity_not_confirmed": 1,
         "exact_brand_source_not_found": 1,
-        "package_conflict_photo_not_saved": 1
-      }
+        "package_conflict_photo_not_saved": 1,
+        "exact_photo_not_verified": 1
+      },
+      "pending_ui_verification": 1
     }
   },
   "queue": {
@@ -51,7 +53,13 @@
       "3": 100,
       "5": 90
     },
-    "lease_released_at": "2026-11-13T18:25:27.457Z"
+    "lease_released_at": null,
+    "lease_owner": "nightly-enrichment-20261114-0100",
+    "pending_ui_verification": {
+      "supplier_id": 5,
+      "offer_id": 25177,
+      "url": "https://zpt.kz/haval-zpt-25177/"
+    }
   },
   "events": [
     {
@@ -138,20 +146,36 @@
       "at": "2026-11-13T19:05:00.028Z",
       "type": "resume_check_paused",
       "detail": "At 00:02-00:04 Asia/Qyzylorda, shared lease was null and there were no pending publications or active/processing photo tasks. Public checks stayed elevated (home 6.198-8.964s; exact product 3.793-8.721s; direct Render 4.323-4.382s). Resource metrics were below limits and no 5xx were observed. No new item was counted; next remains ZakazAuto offer 25177."
+    },
+    {
+      "at": "2026-11-13T20:09:58.296Z",
+      "type": "resume_and_item_checkpoint",
+      "detail": "At 00:58-01:00 Asia/Qyzylorda, latency improved enough for one-item low-tempo processing. Shared lease acquired; no active/processing photo tasks."
+    },
+    {
+      "at": "2026-11-13T20:09:58.296Z",
+      "type": "deploy_live_db_verified_ui_pending",
+      "detail": "ZakazAuto 25177 HAVAL 2905110AKZ16A: two fitment rows saved by live deploy dep-dbrmqulbedkc73biubvg and verified in DB. Photo was not saved. Public-card verification remains pending because the execution environment became unavailable; no next item was taken."
     }
   ],
   "last_success": {
-    "at": "2026-11-13T18:24:17.730Z",
-    "stage": "saved_and_ui_verified",
+    "at": "2026-11-13T20:09:58.296Z",
+    "stage": "saved_and_db_verified_ui_pending",
     "supplier_id": 5,
-    "offer_id": 25224,
-    "deploy_id": "dep-dbrla968bjmc73f7khig"
+    "offer_id": 25177,
+    "deploy_id": "dep-dbrmqulbedkc73biubvg",
+    "commit": "155e7dc4b3bd23fd49fb15c36c1d87bba4dc7b4a"
   },
-  "blocking_error": null,
-  "finished_at": "2026-11-13T19:05:00.028Z",
+  "blocking_error": {
+    "kind": "temporary_execution_environment_unavailable",
+    "scope": "public_card_verification_only",
+    "offer_id": 25177,
+    "next_action": "Verify existing live card before advancing; do not republish."
+  },
+  "finished_at": "2026-11-13T20:09:58.296Z",
   "remaining_live": {
     "1": {
-      "remaining_without_photo": 297,
+      "remaining_without_photo": 296,
       "remaining_without_structured_fitment": 3391,
       "total_positive_stock": 3561
     },
@@ -162,7 +186,7 @@
     },
     "5": {
       "remaining_without_photo": 6720,
-      "remaining_without_structured_fitment": 6632,
+      "remaining_without_structured_fitment": 6631,
       "total_positive_stock": 6895
     }
   }
