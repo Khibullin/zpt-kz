@@ -2,8 +2,8 @@
   "schema": 1,
   "night_end_date": "2026-11-14",
   "started_at": "2026-11-13T18:05:41.445Z",
-  "updated_at": "2026-11-13T18:24:17.730Z",
-  "status": "running",
+  "updated_at": "2026-11-13T18:25:27.457Z",
+  "status": "paused_for_site_latency",
   "supplier_stats": {
     "1": {
       "name": "Omega",
@@ -46,7 +46,12 @@
       "5": 100
     },
     "next_supplier_id": 5,
-    "next_offer_id": 25177
+    "next_offer_id": 25177,
+    "control_batch_remaining": {
+      "3": 100,
+      "5": 90
+    },
+    "lease_released_at": "2026-11-13T18:25:27.457Z"
   },
   "events": [
     {
@@ -123,6 +128,11 @@
       "at": "2026-11-13T18:24:17.730Z",
       "type": "deploy_live",
       "detail": "Four additional fitments saved and verified; cumulative ZakazAuto fitments added: 6."
+    },
+    {
+      "at": "2026-11-13T18:25:27.457Z",
+      "type": "pause",
+      "detail": "Post-deploy public checks were HTTP 200 but home 4.471s and product 3.693s; above the requested low-load target, so the run saved progress and stopped taking new items."
     }
   ],
   "last_success": {
@@ -132,5 +142,23 @@
     "offer_id": 25224,
     "deploy_id": "dep-dbrla968bjmc73f7khig"
   },
-  "blocking_error": null
+  "blocking_error": null,
+  "finished_at": "2026-11-13T18:25:27.457Z",
+  "remaining_live": {
+    "1": {
+      "remaining_without_photo": 297,
+      "remaining_without_structured_fitment": 3391,
+      "total_positive_stock": 3561
+    },
+    "3": {
+      "remaining_without_photo": 22394,
+      "remaining_without_structured_fitment": 26369,
+      "total_positive_stock": 27852
+    },
+    "5": {
+      "remaining_without_photo": 6720,
+      "remaining_without_structured_fitment": 6632,
+      "total_positive_stock": 6895
+    }
+  }
 }
