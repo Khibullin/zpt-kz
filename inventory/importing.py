@@ -52,20 +52,38 @@ def parse_file(raw, kind):
                     raise ValueError(f'Неверное количество PP2: {sku}')
                 result.append(dict(sku=sku, name=str(r[1] or ''), brand=str(r[2] or ''), quantity=int(q), price=money(r[3], True)))
         elif kind == 'pp2':
-            aliases={'Артикул':'sku','SKU':'sku','Штрихкод Rapida':'sku','Штрихкод':'sku','Количество':'quantity','Остаток':'quantity','Количество, шт.':'quantity','Остаток PP2':'quantity','Наименование':'name','Название':'name','Бренд':'brand'}
-            header=next((i for i,r in enumerate(rows) if any(aliases.get(v)=='sku' for v in r) and any(aliases.get(v)=='quantity' for v in r)),None)
-            if header is None:raise ValueError('Ожидаются колонки Артикул (или Штрихкод Rapida), Количество. Дополнительно: Название, Бренд.')
-            columns={aliases[v]:i for i,v in enumerate(rows[header]) if v in aliases}
+            # The native Rapida fulfilment export uses "Продукт" and "Кол-во";
+            # "Штрих коды" is an optional additional identifier, not a required field.
+            aliases={'Артикул':'sku','SKU':'sku','Штрихкод Rapida':'sku','Штрихкод':'sku',
+                     'Продукт':'sku','Кол-во':'quantity','Количество':'quantity',
+                     'Остаток':'quantity','Количество, шт.':'quantity','Остаток PP2':'quantity',
+                     'Наименование':'name','Название':'name','Бренд':'brand',
+                     'Штрих коды':'barcode','Штрих-коды':'barcode'}
+            def normalized(value):
+                return str(value).strip() if value is not None else ''
+            header=next((i for i,r in enumerate(rows)
+                         if 'sku' in [aliases.get(normalized(v)) for v in r]
+                         and 'quantity' in [aliases.get(normalized(v)) for v in r]),None)
+            if header is None:
+                raise ValueError('Не найдены колонки «Продукт» и «Кол-во» (либо «Артикул» и «Количество»). Загрузите исходный Excel Rapida без изменений.')
+            columns={}
+            for i,v in enumerate(rows[header]):
+                key=aliases.get(normalized(v))
+                if key and key not in columns:columns[key]=i
             seen=set()
             for row in rows[header+1:]:
-                if not row[columns['sku']]:continue
-                sku=str(row[columns['sku']]).strip()
-                if sku in seen:raise ValueError(f'Повтор кода PP2: {sku}. Укажите один код на строку.')
-                seen.add(sku)
-                raw_q=row[columns['quantity']]
+                code=normalized(row[columns['sku']] if len(row)>columns['sku'] else None)
+                if not code:continue
+                if code in seen:raise ValueError(f'Повтор товара Rapida: {code}. Проверьте строки файла.')
+                seen.add(code)
+                raw_q=row[columns['quantity']] if len(row)>columns['quantity'] else None
                 qty=None if raw_q in [None,''] else Decimal(str(raw_q))
-                if qty is not None and (not qty.is_finite() or qty<0 or qty!=qty.to_integral_value()):raise ValueError(f'Неверное количество PP2: {sku}')
-                result.append(dict(sku=sku,name=str(row[columns['name']] or '') if 'name' in columns else sku,brand=str(row[columns['brand']] or '') if 'brand' in columns else '',quantity=int(qty) if qty is not None else None,price=None))
+                if qty is not None and (not qty.is_finite() or qty<0 or qty!=qty.to_integral_value()):
+                    raise ValueError(f'Неверное количество Rapida для товара {code}')
+                title=normalized(row[columns['name']]) if 'name' in columns and len(row)>columns['name'] else code
+                brand=normalized(row[columns['brand']]) if 'brand' in columns and len(row)>columns['brand'] else ''
+                result.append(dict(sku=code,name=title or code,brand=brand,
+                                   quantity=int(qty) if qty is not None else None,price=None))
         elif kind == 'rapida':
             header = next((i for i,r in enumerate(rows) if 'Штрихкод Rapida' in r and 'Принято Rapida' in r), None)
             if header is None: raise ValueError('Ожидается акт приёмки Rapida с артикулами и штрихкодами')
