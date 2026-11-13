@@ -16,7 +16,7 @@
     "expires_at": "2026-11-13T19:33:23.133Z"
   },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-13T18:18:15.905Z",
+  "heartbeat_at": "2026-11-13T18:19:12.383Z",
   "status": "running",
   "phase": "other_in_stock_control",
   "phase_reconciliation": {
@@ -7195,7 +7195,7 @@
     }
   ],
   "current_batch_index": 0,
-  "current_item_index": 7,
+  "current_item_index": 8,
   "reviewed": [
     {
       "supplier_id": 5,
@@ -7266,6 +7266,16 @@
       "checked_at": "2026-11-13T18:15:54.420Z",
       "status": "prepared_fitment_photo_unconfirmed",
       "journal": "procurement/data/enrichment_queue_items/5-25765-20261113.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25251,
+      "product_id": 7012,
+      "brand": "Parts-Mall",
+      "article": "PJC129FR",
+      "checked_at": "2026-11-13T18:19:12.383Z",
+      "status": "brand_identity_not_confirmed",
+      "journal": "procurement/data/enrichment_queue_items/5-25251-20261113.json"
     }
   ],
   "prepared": [
@@ -7520,12 +7530,23 @@
       "sources": [
         "https://partsouq.com/en/catalog/genuine/diagram?c=HYUNDAI202404&number=495602S350&vid=285872186"
       ]
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25251,
+      "field": "photo_and_fitment",
+      "reason": "brand_identity_not_confirmed",
+      "checked_at": "2026-11-13T18:19:12.383Z",
+      "sources": [
+        "https://koreanaparts.ru/product/stoyka-perednyaya-pravaya-pmc-PJC129FR",
+        "https://baza.drom.ru/moskva/sell_spare_parts/amortizator-gazovyj-pered-prav-aveo-t300-parts-mall-art-pjc129fr-g15618957270.html"
+      ]
     }
   ],
   "publication_pending": null,
   "next": {
     "supplier_id": 5,
-    "offer_id": 25251
+    "offer_id": 25095
   },
   "events": [
     {
@@ -7582,14 +7603,19 @@
       "at": "2026-11-13T18:18:15.905Z",
       "type": "deploy_recovered",
       "detail": "Migration renumbered to 0068 with dependency on 0067; dep-dbrl76qjnfac73ars24g live. Offers 25628 and 25106 saved and DB/UI verified."
+    },
+    {
+      "at": "2026-11-13T18:19:12.383Z",
+      "type": "item_checkpoint",
+      "detail": "Offer 25251: brand_identity_not_confirmed."
     }
   ],
   "last_success": {
-    "at": "2026-11-13T18:18:15.905Z",
-    "stage": "saved_and_ui_verified",
+    "at": "2026-11-13T18:19:12.383Z",
+    "stage": "reviewed_exception",
     "supplier_id": 5,
-    "offer_id": 25106,
-    "deploy_id": "dep-dbrl76qjnfac73ars24g"
+    "offer_id": 25251,
+    "journal": "procurement/data/enrichment_queue_items/5-25251-20261113.json"
   },
   "last_commit": "89406af46aaaae6ad48d1b5b42c5c1fa1c1c6d14"
 }
