@@ -17,7 +17,7 @@
     "released_at": "2026-11-13T18:25:27.457Z"
   },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-13T18:25:27.457Z",
+  "heartbeat_at": "2026-11-13T19:04:50.986Z",
   "status": "paused_for_site_latency",
   "phase": "other_in_stock_control",
   "phase_reconciliation": {
@@ -7761,6 +7761,11 @@
       "at": "2026-11-13T18:25:27.457Z",
       "type": "pause",
       "detail": "Post-deploy public checks were HTTP 200 but home 4.471s and product 3.693s; above the requested low-load target, so the run saved progress and stopped taking new items."
+    },
+    {
+      "at": "2026-11-13T19:04:50.986Z",
+      "type": "resume_check_paused",
+      "detail": "Night window open (00:02-00:04 Asia/Qyzylorda). Shared lease was null; publication_pending was null; photo tasks active/processing=0. End-to-end checks: zpt.kz home 6.198s then 8.964s, exact product /changan-zpt-25224/ 8.721s then 3.793s; direct Render home 4.323s and exact product 4.382s. Render service/DB CPU, memory and connections were below limits and no 5xx were observed. No new item was taken; next remains supplier 5 offer 25177."
     }
   ],
   "last_success": {
@@ -7771,8 +7776,8 @@
     "deploy_id": "dep-dbrla968bjmc73f7khig"
   },
   "last_commit": "ac659f42c53cc3fc4d22495f2792c4bbceec46ea",
-  "paused_at": "2026-11-13T18:25:27.457Z",
-  "pause_reason": "Post-deploy public checks were HTTP 200 but home 4.471s and product 3.693s; above the requested low-load target, so the run saved progress and stopped taking new items.",
+  "paused_at": "2026-11-13T19:04:50.986Z",
+  "pause_reason": "Temporary storefront latency remained elevated at the scheduled resume check; no new item was taken and shared lease was not acquired.",
   "remaining_live": {
     "1": {
       "remaining_without_photo": 297,
