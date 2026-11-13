@@ -2,14 +2,7 @@
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
   "checked_at": "2026-11-12T03:16:36.620372+00:00",
-  "lease": {
-    "owner": "nightly-enrichment-20261114-2303",
-    "acquired_at": "2026-11-13T18:03:23.133Z",
-    "heartbeat_at": "2026-11-13T18:03:23.133Z",
-    "expires_at": "2026-11-13T19:33:23.133Z",
-    "directive": "expanded-three-supplier-queue-2026-11-13",
-    "checkpoint": "procurement/data/enrichment_queue_20261113.json"
-  },
+  "lease": null,
   "next_supplier": 3,
   "batch_size": 100,
   "queue": [
@@ -15636,10 +15629,17 @@
     "reason": "All293 new-source reviews completed and all prepared additions saved and DB/UI verified;281 unsupported exceptions documented; no unreviewed or pending publication."
   },
   "last_lease": {
-    "owner": "enrichment-20261112-root",
-    "acquired_at": "2026-11-12T02:20:46.660Z",
-    "expires_at": "2026-11-12T04:20:46.660Z",
-    "released_at": "2026-11-12T03:16:36.620372+00:00"
+    "owner": "nightly-enrichment-20261114-2303",
+    "acquired_at": "2026-11-13T18:03:23.133Z",
+    "heartbeat_at": "2026-11-13T18:03:23.133Z",
+    "expires_at": "2026-11-13T19:33:23.133Z",
+    "directive": "expanded-three-supplier-queue-2026-11-13",
+    "checkpoint": "procurement/data/enrichment_queue_20261113.json",
+    "released_at": "2026-11-13T18:25:27.457Z",
+    "release_reason": "progress_saved_site_latency_pause",
+    "continuation_checkpoint": "procurement/data/enrichment_queue_20261113.json",
+    "next_supplier_id": 5,
+    "next_offer_id": 25177
   },
   "continuation_20261112": {
     "started_at": "2026-11-12T02:20:46.660Z",
