@@ -16,7 +16,7 @@
     "expires_at": "2026-11-13T19:33:23.133Z"
   },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-13T18:07:42.878Z",
+  "heartbeat_at": "2026-11-13T18:07:49.293Z",
   "status": "running",
   "phase": "other_in_stock_control",
   "phase_reconciliation": {
@@ -7195,7 +7195,7 @@
     }
   ],
   "current_batch_index": 0,
-  "current_item_index": 3,
+  "current_item_index": 4,
   "reviewed": [
     {
       "supplier_id": 5,
@@ -7226,6 +7226,16 @@
       "checked_at": "2026-11-13T18:07:42.878Z",
       "status": "article_conflict",
       "journal": "procurement/data/enrichment_queue_items/5-25636-20261113.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25106,
+      "product_id": 6692,
+      "brand": "Chery",
+      "article": "202001202AA",
+      "checked_at": "2026-11-13T18:07:49.293Z",
+      "status": "prepared_fitment_photo_unconfirmed",
+      "journal": "procurement/data/enrichment_queue_items/5-25106-20261113.json"
     }
   ],
   "prepared": [
@@ -7257,6 +7267,32 @@
               "conventional-clear cluster"
             ],
             "source_scope": "exact catalog row; option-code applicability is VIN-specific"
+          }
+        ]
+      }
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25106,
+      "kind": "fitment",
+      "source_url": "https://jikiu.com/catalogue/79062068",
+      "payload": {
+        "status": "prepared",
+        "source_url": "https://jikiu.com/catalogue/79062068",
+        "make": "CHERY",
+        "model": "Arrizo 8",
+        "details": "04.2022–03.2025 · 1.6L SQRF4J16C · задняя ось · левая/правая сторона · источник — каталог производителя аналога с точным OEM cross",
+        "configurations": [
+          {
+            "date_from": "2022-04",
+            "date_to": "2025-03",
+            "engine": "1.6L SQRF4J16C",
+            "placement": "rear",
+            "side": [
+              "left",
+              "right"
+            ],
+            "source_scope": "JIKIU cross-reference to Chery OEM 202001202AA"
           }
         ]
       }
@@ -7299,12 +7335,24 @@
         "https://www.gpa26.com/en/reference/1697566",
         "https://rrr.lt/en/used-part/clm319212-8625009061-ssangyong-kyron-airbag-control-unit-module"
       ]
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25106,
+      "field": "photo",
+      "reason": "prepared_fitment_photo_unconfirmed",
+      "checked_at": "2026-11-13T18:07:49.293Z",
+      "sources": [
+        "https://jikiu.com/catalogue/79062068",
+        "https://www.autoopt.ru/catalog/728552-amortizator_chery_arrizo_8_23__zadnij_levyjpravyj_oe/pdf",
+        "https://kaspi.kz/shop/p/chery-zadnii-202001202aa-2-sht-162887054/?c=750000000"
+      ]
     }
   ],
   "publication_pending": null,
   "next": {
     "supplier_id": 5,
-    "offer_id": 25106
+    "offer_id": 25784
   },
   "events": [
     {
@@ -7331,14 +7379,19 @@
       "at": "2026-11-13T18:07:42.878Z",
       "type": "item_checkpoint",
       "detail": "Offer 25636: article_conflict."
+    },
+    {
+      "at": "2026-11-13T18:07:49.293Z",
+      "type": "item_checkpoint",
+      "detail": "Offer 25106: prepared_fitment_photo_unconfirmed."
     }
   ],
   "last_success": {
-    "at": "2026-11-13T18:07:42.878Z",
-    "stage": "reviewed_exception",
+    "at": "2026-11-13T18:07:49.293Z",
+    "stage": "prepared",
     "supplier_id": 5,
-    "offer_id": 25636,
-    "journal": "procurement/data/enrichment_queue_items/5-25636-20261113.json"
+    "offer_id": 25106,
+    "journal": "procurement/data/enrichment_queue_items/5-25106-20261113.json"
   },
   "last_commit": "7b4617a04a9eaed79a7ec69b7aef7da29cc08737"
 }
