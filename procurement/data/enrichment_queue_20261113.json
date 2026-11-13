@@ -16,7 +16,7 @@
     "expires_at": "2026-11-13T19:33:23.133Z"
   },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-13T18:07:49.293Z",
+  "heartbeat_at": "2026-11-13T18:13:06.742Z",
   "status": "running",
   "phase": "other_in_stock_control",
   "phase_reconciliation": {
@@ -7195,7 +7195,7 @@
     }
   ],
   "current_batch_index": 0,
-  "current_item_index": 4,
+  "current_item_index": 5,
   "reviewed": [
     {
       "supplier_id": 5,
@@ -7236,6 +7236,16 @@
       "checked_at": "2026-11-13T18:07:49.293Z",
       "status": "prepared_fitment_photo_unconfirmed",
       "journal": "procurement/data/enrichment_queue_items/5-25106-20261113.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25784,
+      "product_id": 7360,
+      "brand": "SsangYong",
+      "article": "2132009052",
+      "checked_at": "2026-11-13T18:13:06.742Z",
+      "status": "prepared_fitment_photo_unconfirmed",
+      "journal": "procurement/data/enrichment_queue_items/5-25784-20261113.json"
     }
   ],
   "prepared": [
@@ -7296,6 +7306,28 @@
           }
         ]
       }
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25784,
+      "kind": "fitment",
+      "source_url": "https://luzar.ru/catalogue/elektroventilyatory/elektroventilyatory-okhlazhdeniya/elektroventilyator-okhlazhdeniya-dlya-avtomobiley-ssangyong-kyron-05-2-3i-s-kozhukhom-lfk-1750/",
+      "payload": {
+        "status": "prepared",
+        "source_url": "https://luzar.ru/catalogue/elektroventilyatory/elektroventilyatory-okhlazhdeniya/elektroventilyator-okhlazhdeniya-dlya-avtomobiley-ssangyong-kyron-05-2-3i-s-kozhukhom-lfk-1750/",
+        "make": "SSANGYONG",
+        "model": "Kyron",
+        "details": "с 2005 г. (открытый период источника) · 2.3i · вентилятор с кожухом · cross 2132009052",
+        "configurations": [
+          {
+            "date_from": "2005",
+            "date_to": null,
+            "engine": "2.3i",
+            "assembly": "with shroud",
+            "source_scope": "LUZAR manufacturer catalogue cross includes OEM 2132009052; end date not stated"
+          }
+        ]
+      }
     }
   ],
   "queued": [],
@@ -7347,12 +7379,23 @@
         "https://www.autoopt.ru/catalog/728552-amortizator_chery_arrizo_8_23__zadnij_levyjpravyj_oe/pdf",
         "https://kaspi.kz/shop/p/chery-zadnii-202001202aa-2-sht-162887054/?c=750000000"
       ]
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25784,
+      "field": "photo",
+      "reason": "exact_oem_photo_not_confirmed",
+      "checked_at": "2026-11-13T18:13:06.742Z",
+      "sources": [
+        "https://luzar.ru/catalogue/elektroventilyatory/elektroventilyatory-okhlazhdeniya/elektroventilyator-okhlazhdeniya-dlya-avtomobiley-ssangyong-kyron-05-2-3i-s-kozhukhom-lfk-1750/",
+        "https://kaspi.kz/shop/p/ssang-yong-ventiljator-radiatora-2132009052-137156585/"
+      ]
     }
   ],
   "publication_pending": null,
   "next": {
     "supplier_id": 5,
-    "offer_id": 25784
+    "offer_id": 25768
   },
   "events": [
     {
@@ -7384,14 +7427,19 @@
       "at": "2026-11-13T18:07:49.293Z",
       "type": "item_checkpoint",
       "detail": "Offer 25106: prepared_fitment_photo_unconfirmed."
+    },
+    {
+      "at": "2026-11-13T18:13:06.742Z",
+      "type": "item_checkpoint",
+      "detail": "Offer 25784: LUZAR exact cross fitment prepared; OEM photo unconfirmed."
     }
   ],
   "last_success": {
-    "at": "2026-11-13T18:07:49.293Z",
+    "at": "2026-11-13T18:13:06.742Z",
     "stage": "prepared",
     "supplier_id": 5,
-    "offer_id": 25106,
-    "journal": "procurement/data/enrichment_queue_items/5-25106-20261113.json"
+    "offer_id": 25784,
+    "journal": "procurement/data/enrichment_queue_items/5-25784-20261113.json"
   },
   "last_commit": "7b4617a04a9eaed79a7ec69b7aef7da29cc08737"
 }
