@@ -104,20 +104,28 @@ def scope(request):
             row['photo'] = image_url(batch, row, assets[0], thumb=True) if assets else ''
             row['card_title'] = card.title
             row['description'] = card.description
-            checks, ready = readiness(card, assets, pricing(request.user, card, row, competitor_data(row.get('offer')), settings=price_settings)) if list_page else ([], False)
+            row_price = pricing(request.user, card, row, competitor_data(row.get('offer')), settings=price_settings) if list_page else {}
+            checks, ready = readiness(card, assets, row_price) if list_page else ([], False)
             reasons = {
                 'Фотография от 500 × 500': 'Нет фото от 500 × 500',
                 'Название и описание': 'Не заполнены название или описание',
                 'Категория и характеристики': 'Не заполнены категория или характеристики Kaspi',
                 'Применимость с источником': 'Не подтверждена применимость',
-                'Проверены требования категории и комплектность': 'Ожидает проверки менеджером',
+                'Проверены требования категории и комплектность': 'Автоматическая проверка требований Kaspi не завершена',
                 'Наша цена': 'Не задана цена',
             }
             row['missing'] = [reasons[label] for label, ok in checks if not ok]
             row['status'] = 'Материалы проверены' if ready else 'Нужно дополнить материалы'
-            if row['missing'] == ['Ожидает проверки менеджером']:
-                row['status'] = 'Ожидает проверки менеджером'
-                row['missing'] = []
+            if row['missing']:
+                from .kaspi_card_jobs import api_attributes
+                _, schema_missing = api_attributes(card)
+                row['missing'] = [reason for reason in row['missing'] if reason != 'Автоматическая проверка требований Kaspi не завершена']
+                row['missing'].extend(schema_missing)
+                if 'Не задана цена' in row['missing'] and row_price.get('explanation'):
+                    row['missing'].remove('Не задана цена')
+                    row['missing'].append('Цена: '+row_price['explanation'])
+                row['preparation_reasons'] = card.source.get('enrichment',{}).get('reasons',[])
+                if not row['missing']: row['missing'] = ['Автоматическая проверка требований Kaspi не завершена']
         else:
             row['status'] = 'Автоматическая подготовка'
         params = request.GET.copy()

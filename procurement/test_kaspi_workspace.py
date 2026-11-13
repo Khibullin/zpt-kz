@@ -231,7 +231,8 @@ class KaspiPurchasedWorkspaceTests(TestCase):
         response = self.page()
         self.assertNotContains(response, 'Требует проверки')
         self.assertContains(response, 'Нет фото от 500 × 500')
-        self.assertContains(response, 'Не задана цена')
+        self.assertContains(response, 'Цена:')
+        self.assertNotContains(response, 'Ожидает проверки менеджером')
         data = io.BytesIO()
         Image.new('RGB', (600, 600), 'white').save(data, 'PNG')
         store_image(card, encode_image(data.getvalue()))
@@ -239,7 +240,8 @@ class KaspiPurchasedWorkspaceTests(TestCase):
         card.characteristics = {'Материал': 'Сталь'}
         card.save()
         KaspiCardPrice.objects.create(user=self.admin, card=card, mode='manual', amount=9000)
-        self.assertEqual(self.page().context['rows'][0]['status'], 'Ожидает проверки менеджером')
+        self.assertEqual(self.page().context['rows'][0]['status'], 'Нужно дополнить материалы')
+        self.assertContains(self.page(), 'Не получены требования выбранной категории Kaspi.')
         card.verified = True
         card.save()
         self.assertEqual(self.page().context['rows'][0]['status'], 'Материалы проверены')
@@ -445,3 +447,26 @@ class KaspiPurchasedWorkspaceTests(TestCase):
         self.assertEqual(response.status_code,200)
         self.assertEqual(response.json()['jobs'][0]['status'],'pending')
         self.assertEqual(KaspiCardJob.objects.count(),1)
+
+    def test_supplier_photo_gets_white_canvas_without_enlarging_part(self):
+        from .kaspi_enrichment import encode_source_image
+        raw=io.BytesIO();Image.new('RGB',(500,450),'red').save(raw,'PNG')
+        data,thumb,width,height=encode_source_image(raw.getvalue())
+        self.assertEqual((width,height),(500,500))
+        with Image.open(io.BytesIO(data)) as photo:
+            self.assertGreater(photo.getpixel((250,0))[1],240)
+            self.assertLess(photo.getpixel((250,25))[1],30)
+            self.assertLess(photo.getpixel((250,474))[1],30)
+        raw=io.BytesIO();Image.new('RGB',(100,100),'red').save(raw,'PNG')
+        with self.assertRaises(ValueError): encode_source_image(raw.getvalue())
+
+    def test_auto_schema_checks_do_not_require_manager_checkbox(self):
+        from .kaspi_materials import readiness,store_image
+        card=self.prepare();card.category='Master - Test';card.characteristics={'Материал':'Сталь'}
+        card.source['kaspi_schema']={'category':card.category,'attributes':[{'code':'material','title':'Материал','mandatory':True,'type':'string'}]}
+        card.save()
+        raw=io.BytesIO();Image.new('RGB',(600,600),'white').save(raw,'PNG')
+        store_image(card,encode_image(raw.getvalue()))
+        checks,ready=readiness(card,list(card.images.all()),{'amount':9000})
+        self.assertFalse(card.verified)
+        self.assertTrue(ready)
