@@ -1,0 +1,45 @@
+{
+  "schema": 1,
+  "checked_at": "2026-11-13T18:07:37.346Z",
+  "supplier_id": 5,
+  "supplier_name": "ЗаказАвто",
+  "offer_id": 25396,
+  "product_id": 6982,
+  "task_id": null,
+  "brand": "JETOUR",
+  "article": "F01-2804501NF",
+  "name": "Бампер задний JETOUR",
+  "research": {
+    "sources": [
+      {
+        "url": "https://roninkuzov.kz/kategoriya/bampery-i-komplektuyuschie.html",
+        "result": "Exact article presented as rear bumper for Jetour X70."
+      },
+      {
+        "url": "https://www.cigmaglobal.com/products/jetour-x70-auto-parts.html",
+        "result": "Exact article listed in Jetour X70 parts list; page states 1.5T SQRE4T15."
+      },
+      {
+        "url": "https://www.ecer.com/corp/details-uuuf9zt-p1mjmrs-f01-2804501nf-rear-bumper-for-jetour-t2-x70-plus.html",
+        "result": "Exact article claimed for Jetour T2/X70 Plus; conflicts with X70-only sources."
+      }
+    ],
+    "photo": {
+      "status": "not_confirmed",
+      "reason": "Exact-article sources conflict on vehicle execution (X70 versus T2/X70 Plus); no authoritative Jetour catalog located. Photo and fitment not saved."
+    },
+    "fitment": {
+      "status": "not_saved",
+      "reason": "Exact-article sources conflict on vehicle execution (X70 versus T2/X70 Plus); no authoritative Jetour catalog located. Photo and fitment not saved."
+    }
+  },
+  "after": {
+    "prepared_fitment": false,
+    "photo_unchanged": true,
+    "database_saved": false,
+    "ui_verified": false
+  },
+  "state": "reviewed_exception",
+  "reason": "Exact-article sources conflict on vehicle execution (X70 versus T2/X70 Plus); no authoritative Jetour catalog located. Photo and fitment not saved.",
+  "next_offer_id": 25636
+}
