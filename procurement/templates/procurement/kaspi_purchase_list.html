@@ -2,7 +2,7 @@
 {% block title %}Товары для Kaspi · ZPT.KZ{% endblock %}
 {% block workspace_back %}<a class="button" href="{{ catalog_url }}" data-office-back style="margin-right:10px">← Назад</a>{% endblock %}
 {% block content %}
-<link rel="stylesheet" href="{% static 'procurement/kaspi-cards-v1.css' %}">
+<link rel="stylesheet" href="{% static 'procurement/kaspi-cards-v1.css' %}?v=20261113-2">
 <div class="kc-workspace">
 <header><div><h1>Товары для Kaspi</h1><p class="muted">Закупленные товары · автоматическая подготовка карточек</p></div></header>
 <form method="get" class="panel kc-selector"><label for="kc-batch"><b>Закупочный лист</b></label><select id="kc-batch" name="batch" data-batch-select>{% for b in batches %}<option value="{{ b.key }}" {% if b.key == batch.key %}selected{% endif %}>{{ b.title }} · {{ b.reference }} · {{ b.date|date:'d.m.Y' }}</option>{% endfor %}</select><button>Открыть</button>{% if batch %}<strong>{{ batch.positions }} позиций · {{ batch.quantity }} единиц · {{ batch.total|floatformat:2|default:'Стоимость не установлена' }} ₸</strong>{% endif %}</form>
@@ -13,4 +13,4 @@
 <div class="kc-list">{% for row in rows %}<article class="panel kc-list-row"><a class="kc-list-photo" href="{{ row.url }}" aria-label="Открыть {{ row.brand }} {{ row.article }}">{% if row.photo %}<img src="{{ row.photo }}" alt="{{ row.name }}" loading="lazy" referrerpolicy="no-referrer">{% else %}<span>Фото подбирается</span>{% endif %}</a><div><a class="kc-item-title" href="{{ row.url }}">{{ row.card_title }}</a><p>{{ row.brand }} · {{ row.article }}</p><span class="kc-status">{{ row.status }}</span>{% if row.missing %}<ul class="kc-warning">{% for reason in row.missing %}<li>{{ reason }}</li>{% endfor %}</ul>{% endif %}</div><div class="kc-list-qty"><b>{{ row.quantity }} {{ row.unit }}</b><p class="muted">По закупочному листу</p><a href="{{ row.url }}">Открыть карточку</a></div></article>{% empty %}<section class="panel">Товары по выбранным условиям не найдены.</section>{% endfor %}</div>
 <p class="muted">Материалы собираются автоматически в фоне. Ручные исправления сохраняются. Недостающие фото и сведения явно отмечены.</p>{% endif %}
 {% else %}<section class="panel"><h2>Закупленных товаров пока нет</h2><p>Здесь появятся оплаченные заказы и принятые накладные, доступные по вашим правам.</p><a href="{{ basket_url }}">Открыть список закупки</a></section>{% endif %}
-</div><script src="{% static 'procurement/kaspi-cards-v1.js' %}" defer></script>{% endblock %}
+</div><script src="{% static 'procurement/kaspi-cards-v1.js' %}?v=20261113-2" defer></script>{% endblock %}
