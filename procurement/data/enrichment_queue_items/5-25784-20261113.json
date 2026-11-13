@@ -1,0 +1,54 @@
+{
+  "schema": 1,
+  "checked_at": "2026-11-13T18:13:06.742Z",
+  "supplier_id": 5,
+  "supplier_name": "ЗаказАвто",
+  "offer_id": 25784,
+  "product_id": 7360,
+  "task_id": null,
+  "brand": "SsangYong",
+  "article": "2132009052",
+  "name": "Вентилятор охлаждения SsangYong",
+  "research": {
+    "sources": [
+      {
+        "url": "https://luzar.ru/catalogue/elektroventilyatory/elektroventilyatory-okhlazhdeniya/elektroventilyator-okhlazhdeniya-dlya-avtomobiley-ssangyong-kyron-05-2-3i-s-kozhukhom-lfk-1750/",
+        "kind": "manufacturer_catalogue_cross_reference",
+        "result": "Exact OEM cross 2132009052; SsangYong Kyron from 2005, 2.3i, fan with shroud."
+      },
+      {
+        "url": "https://kaspi.kz/shop/p/ssang-yong-ventiljator-radiatora-2132009052-137156585/",
+        "kind": "retailer_listing",
+        "result": "Not used for structured years: broad 2005–2024 model list conflicts with narrower description and is not demonstrably complete."
+      }
+    ],
+    "photo": {
+      "status": "not_confirmed",
+      "reason": "No exact SsangYong-branded real product photo with confirmed execution and unit; analogue catalogue image not reused as OEM photo."
+    },
+    "fitment": {
+      "status": "prepared",
+      "source_url": "https://luzar.ru/catalogue/elektroventilyatory/elektroventilyatory-okhlazhdeniya/elektroventilyator-okhlazhdeniya-dlya-avtomobiley-ssangyong-kyron-05-2-3i-s-kozhukhom-lfk-1750/",
+      "make": "SSANGYONG",
+      "model": "Kyron",
+      "details": "с 2005 г. (открытый период источника) · 2.3i · вентилятор с кожухом · cross 2132009052",
+      "configurations": [
+        {
+          "date_from": "2005",
+          "date_to": null,
+          "engine": "2.3i",
+          "assembly": "with shroud",
+          "source_scope": "LUZAR manufacturer catalogue cross includes OEM 2132009052; end date not stated"
+        }
+      ]
+    }
+  },
+  "after": {
+    "prepared_fitment": true,
+    "photo_unchanged": true,
+    "database_saved": false,
+    "ui_verified": false
+  },
+  "state": "prepared_for_next_publication",
+  "next_offer_id": 25768
+}
