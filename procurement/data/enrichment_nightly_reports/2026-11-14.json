@@ -2,8 +2,8 @@
   "schema": 1,
   "night_end_date": "2026-11-14",
   "started_at": "2026-11-13T18:05:41.445Z",
-  "updated_at": "2026-11-13T20:09:58.296Z",
-  "status": "publication_saved_db_verified_ui_pending",
+  "updated_at": "2026-11-13T21:02:56.833Z",
+  "status": "paused_for_site_latency",
   "supplier_stats": {
     "1": {
       "name": "Omega",
@@ -25,8 +25,8 @@
       "name": "ЗаказАвто",
       "processed_unique": 11,
       "photos_added": 0,
-      "fitment_added": 6,
-      "years_or_engines_added": 5,
+      "fitment_added": 7,
+      "years_or_engines_added": 6,
       "skips": {
         "exact_photo_not_confirmed": 2,
         "contradictory_sources": 1,
@@ -38,7 +38,7 @@
         "package_conflict_photo_not_saved": 1,
         "exact_photo_not_verified": 1
       },
-      "pending_ui_verification": 1
+      "pending_ui_verification": 0
     }
   },
   "queue": {
@@ -48,18 +48,14 @@
       "5": 100
     },
     "next_supplier_id": 5,
-    "next_offer_id": 25177,
+    "next_offer_id": 25215,
     "control_batch_remaining": {
       "3": 100,
-      "5": 90
+      "5": 89
     },
     "lease_released_at": null,
-    "lease_owner": "nightly-enrichment-20261114-0100",
-    "pending_ui_verification": {
-      "supplier_id": 5,
-      "offer_id": 25177,
-      "url": "https://zpt.kz/haval-zpt-25177/"
-    }
+    "lease_owner": "nightly-enrichment-20261114-0202",
+    "pending_ui_verification": null
   },
   "events": [
     {
@@ -156,23 +152,23 @@
       "at": "2026-11-13T20:09:58.296Z",
       "type": "deploy_live_db_verified_ui_pending",
       "detail": "ZakazAuto 25177 HAVAL 2905110AKZ16A: two fitment rows saved by live deploy dep-dbrmqulbedkc73biubvg and verified in DB. Photo was not saved. Public-card verification remains pending because the execution environment became unavailable; no next item was taken."
+    },
+    {
+      "at": "2026-11-13T21:02:56.833Z",
+      "type": "ui_verified_and_advance",
+      "detail": "ZakazAuto 25177 HAVAL 2905110AKZ16A verified in public UI (HTTP 200; exact article, H6/GW4G15, M6 and discrete 2021-2024 years visible). Cumulative verified fitments: 7. Pointer advanced to offer 25215; no new item taken because timings were home 7.250s and product 6.291s."
     }
   ],
   "last_success": {
-    "at": "2026-11-13T20:09:58.296Z",
-    "stage": "saved_and_db_verified_ui_pending",
+    "at": "2026-11-13T21:02:56.833Z",
+    "stage": "saved_and_ui_verified",
     "supplier_id": 5,
     "offer_id": 25177,
     "deploy_id": "dep-dbrmqulbedkc73biubvg",
     "commit": "155e7dc4b3bd23fd49fb15c36c1d87bba4dc7b4a"
   },
-  "blocking_error": {
-    "kind": "temporary_execution_environment_unavailable",
-    "scope": "public_card_verification_only",
-    "offer_id": 25177,
-    "next_action": "Verify existing live card before advancing; do not republish."
-  },
-  "finished_at": "2026-11-13T20:09:58.296Z",
+  "blocking_error": null,
+  "finished_at": "2026-11-13T21:02:56.833Z",
   "remaining_live": {
     "1": {
       "remaining_without_photo": 296,
