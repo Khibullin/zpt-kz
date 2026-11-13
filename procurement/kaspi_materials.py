@@ -274,10 +274,14 @@ def competitor_data(offer, days=7):
         usable=bool(fresh and observation.complete and offer.match_verified and sellers))
 
 
-def pricing(user, card, row, competitors):
-    rule = KaspiPricingRule.objects.filter(user=user).first()
-    preference = Preferences.objects.filter(user=user).first()
-    choice = KaspiCardPrice.objects.filter(user=user, card=card).first() if card.pk else None
+def pricing(user, card, row, competitors, settings=None):
+    if settings is None:
+        rule = KaspiPricingRule.objects.filter(user=user).first()
+        preference = Preferences.objects.filter(user=user).first()
+        choice = KaspiCardPrice.objects.filter(user=user, card=card).first() if card.pk else None
+    else:
+        rule, preference, choices = settings
+        choice = choices.get(card.pk)
     result = dict(rule=rule, choice=choice, mode=choice.mode if choice else 'algorithm',
         recommended=None, amount=None, profit=None, commission=None, expenses=None, explanation='', minimum=None)
     if preference and preference.commission is not None:
@@ -301,7 +305,12 @@ def pricing(user, card, row, competitors):
             target = low - rule.value if rule.method == 'minimum_minus_amount' else low * (1 - rule.value / 100)
         if target is not None:
             result['recommended'] = max(floor, target.quantize(Decimal('1'), rounding=ROUND_CEILING))
-            result['explanation'] = f'{rule.get_method_display()}: {rule.value}. Минимальная цена с учётом прибыли: {floor} ₸.'
+            unit = '₸' if rule.method == 'minimum_minus_amount' else '%'
+            result['explanation'] = (f'{rule.get_method_display()}: {rule.value} {unit}. '
+                f'Расчётная цена: {target.quantize(Decimal("1"), rounding=ROUND_CEILING)} ₸. '
+                f'Минимальная цена с учётом прибыли: {floor} ₸. '
+                f'Итоговая рекомендация: {result["recommended"]} ₸.'
+                + (' Цена повышена до границы минимальной прибыли.' if target < floor else ''))
         else:
             result['explanation'] = 'Для алгоритма нужны свежие полные цены и подтверждённое совпадение товара.'
     else:
