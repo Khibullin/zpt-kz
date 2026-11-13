@@ -4,6 +4,7 @@ import io
 import json
 import logging
 import re
+import time
 from datetime import datetime, timedelta
 from decimal import Decimal, InvalidOperation, ROUND_CEILING
 from urllib.parse import urlsplit
@@ -208,7 +209,14 @@ def fetch_card_photo(row, card):
         return False
 
 
-def process_purchased_cards(limit=50, fetch_photos=False):
+_last_scan = 0.0
+
+
+def process_purchased_cards(limit=50, fetch_photos=False, throttle=False):
+    global _last_scan
+    if throttle and time.monotonic() - _last_scan < 30:
+        return 0
+    _last_scan = time.monotonic()
     from inventory.models import GoodsDocument
     from .models import PurchaseOrder
     from .kaspi_workspace import purchased_batches, source_rows, enrich_rows
