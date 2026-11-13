@@ -1,7 +1,7 @@
 {% extends 'inventory/base.html' %}{% block content %}<style>.upload-sources .card{min-width:0;flex-basis:240px;overflow-wrap:anywhere}.upload-sources input{max-width:100%;box-sizing:border-box}.upload-sources input[type=file]{width:100%}</style>
-<h1>Обновить остатки / загрузить файлы</h1>
-<p class="actions"><a href="{% url 'inventory:items' %}">К товарам и остаткам</a><a href="{% url 'inventory:money' %}">Деньги и расчёты</a><a href="{% url 'inventory:upload' %}?kind=rapida">Загрузить акт Rapida со штрихкодами</a></p>
-<p>Выберите один или несколько файлов XLSX. Сначала проверьте изменения, затем сохраните выбранные файлы. Дату указывайте по исходному файлу.</p>
+<h1>Загрузить файлы для сверки</h1>
+<p class="actions"><a href="{% url 'inventory:comparison' %}">← К сверке остатков</a></p>
+<p>Rapida: принимается исходный Excel с колонками «Кол-во» и «Продукт»; штрихкод может отсутствовать. Файл PP1 спрятан в дополнительный раздел.</p><p>Выберите один или несколько файлов XLSX. Сначала проверьте изменения, затем сохраните выбранные файлы. Дату указывайте по исходному файлу.</p>
 {% if expired %}<p class="notice">Время проверки истекло. Выберите файлы заново — данные не были загружены.</p>{% endif %}
 {% if preview and not expired %}
 <section class="panel"><h2>{% if preview.committed_at %}Результат загрузки{% else %}Проверка перед загрузкой{% endif %}</h2>
@@ -16,9 +16,9 @@
 {% if not preview.committed_at %}<form method="post">{% csrf_token %}<input type="hidden" name="preview_id" value="{{ preview.pk }}"><button name="action" value="confirm">Загрузить выбранные файлы</button> <a href="{% url 'inventory:updates' %}">Выбрать другие файлы</a></form>{% endif %}</section>
 {% endif %}
 <form method="post" enctype="multipart/form-data">{% csrf_token %}{{ form.non_field_errors }}<div class="cards upload-sources">
-{% for b in blocks %}<section class="card" id="{{ b.kind }}"><h2>{{ b.label }}</h2><p>{{ b.hint }}</p>
+{% for b in blocks %}{% if b.kind == 'pp1' %}<details class="card" id="{{ b.kind }}"><summary>Дополнительно: остатки PP1 (не нужны для сверки Rapida с Kaspi)</summary>{% else %}<section class="card" id="{{ b.kind }}">{% endif %}<h2>{{ b.label }}</h2><p>{{ b.hint }}</p>
 {% if b.latest %}<p>Дата данных: <b>{{ b.latest.as_of|date:'d.m.Y' }}</b><br>Последняя загрузка: {{ b.latest.created_at|date:'d.m.Y H:i' }}<br>Файл: <a href="{% url 'inventory:batch_file' b.latest.pk %}">{{ b.latest.filename }}</a><br>Сохранено строк: {{ b.count }}</p>{% else %}<p>Файл ещё не загружен.{% if b.kind == 'pp2' %} Пока используются данные Kaspi при отсутствии складских документов.{% endif %}</p>{% endif %}
-<p><label>{{ b.date.label }}{{ b.date }}</label>{{ b.date.errors }}</p><p><label>{{ b.file.label }}{{ b.file }}</label>{{ b.file.errors }}</p></section>{% endfor %}</div>
+<p><label>{{ b.date.label }}{{ b.date }}</label>{{ b.date.errors }}</p><p><label>{{ b.file.label }}{{ b.file }}</label>{{ b.file.errors }}</p><button type="button" class="secondary clear-file" data-kind="{{ b.kind }}">Убрать выбранный файл</button>{% if b.kind == 'pp1' %}</details>{% else %}</section>{% endif %}{% endfor %}</div>
 <button name="action" value="preview">Проверить выбранные файлы</button></form>
-<p>Загрузка сохраняет исходные файлы и даты. Остатки из файлов не прибавляются к проведённым документам. Финансовый отчёт Kaspi не создаёт складские отгрузки или банковские выплаты. Повторные файлы и операции не дублируются.</p>
+<script>document.querySelectorAll('.clear-file').forEach(function(btn){btn.addEventListener('click',function(){var card=btn.closest('.card');if(!card)return;var input=card.querySelector('input[type=file]');if(input)input.value='';});});</script><p>Кнопка «Убрать выбранный файл» очищает выбор до загрузки, не удаляя уже сохранённые учётные документы.</p><p>Загрузка сохраняет исходные файлы и даты. Остатки из файлов не прибавляются к проведённым документам. Финансовый отчёт Kaspi не создаёт складские отгрузки или банковские выплаты. Повторные файлы и операции не дублируются.</p>
 {% endblock %}
