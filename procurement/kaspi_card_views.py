@@ -50,6 +50,32 @@ def image_url(batch, row, asset, thumb=False, download=False):
         **({'thumb': '1'} if thumb else {}), **({'download_photo': '1'} if download else {}))
 
 
+def purchased_image(request):
+    key = request.GET.get('batch')
+    batch = next((batch for batch in purchased_batches(request.user) if batch['key'] == key), None)
+    if batch is None:
+        raise Http404
+    try:
+        index = int(request.GET.get('line', ''))
+        image_id = int(request.GET['image'])
+    except ValueError:
+        raise Http404
+    rows, _, supplier_id = source_rows(batch, request.user)
+    row = next((row for row in rows if row['index'] == index), None)
+    if row is None:
+        raise Http404
+    field = 'thumbnail' if request.GET.get('thumb') else 'data'
+    asset = KaspiCardImage.objects.filter(pk=image_id, active=True,
+        card__identity=identity_for(batch,row,supplier_id)).values_list(field, flat=True).first()
+    if asset is None:
+        raise Http404
+    response = HttpResponse(bytes(asset), content_type='image/jpeg')
+    response['X-Content-Type-Options'] = 'nosniff'
+    if request.GET.get('download_photo'):
+        response['Content-Disposition'] = f'attachment; filename="kaspi-photo-{image_id}.jpg"'
+    return response
+
+
 def scope(request):
     batches = purchased_batches(request.user)
     key = request.GET.get('batch')
@@ -57,10 +83,13 @@ def scope(request):
     if key and batch is None:
         raise Http404
     rows, files, supplier_id = source_rows(batch, request.user) if batch else ([], [], None)
+    material_rows = rows
+    if 'line' in request.GET:
+        material_rows = [row for row in rows if str(row['index']) == request.GET['line']]
     if batch:
-        enrich_rows(batch, rows, supplier_id)
+        enrich_rows(batch, material_rows, supplier_id, compact='line' not in request.GET)
     cards = {card.identity: card for card in KaspiPreparedCard.objects.filter(
-        identity__in=[identity_for(batch, row, supplier_id) for row in rows]).prefetch_related(
+        identity__in=[identity_for(batch, row, supplier_id) for row in material_rows]).prefetch_related(
             Prefetch('images', queryset=KaspiCardImage.objects.filter(active=True).defer('data', 'thumbnail')))} if rows else {}
     list_page = 'line' not in request.GET
     price_settings = (KaspiPricingRule.objects.filter(user=request.user).first(),
@@ -72,7 +101,7 @@ def scope(request):
         if row['prepared']:
             card = row['prepared']
             assets = list(card.images.all())
-            row['photo'] = image_url(batch, row, assets[0], thumb=True) if assets else card.photo_url
+            row['photo'] = image_url(batch, row, assets[0], thumb=True) if assets else ''
             row['card_title'] = card.title
             row['description'] = card.description
             checks, ready = readiness(card, assets, pricing(request.user, card, row, competitor_data(row.get('offer')), settings=price_settings)) if list_page else ([], False)
@@ -109,6 +138,8 @@ def packet(card, row, price, images):
 @access()
 @require_http_methods(['GET', 'POST'])
 def purchased_products(request):
+    if request.method == 'GET' and request.GET.get('image'):
+        return purchased_image(request)
     batches, batch, rows, files, supplier_id = scope(request)
     active = None
     if 'line' in request.GET:
@@ -269,7 +300,7 @@ def purchased_products(request):
     return render(request, 'procurement/kaspi_card.html', {**common, 'active': active, 'card': card,
         'images': gallery, 'form': form, 'price_form': price_form, 'price': price, 'competitors': competitors,
         'checks': checks, 'ready': ready, 'payload': payload, 'photo_error': error,
-        'main_photo': gallery[0]['url'] if gallery else card.photo_url,
+        'main_photo': gallery[0]['url'] if gallery else '',
         'back_url': back, 'card_page': True}, status=400 if request.method == 'POST' else 200)
 
 

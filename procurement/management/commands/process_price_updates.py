@@ -33,6 +33,8 @@ class Command(BaseCommand):
             facet_progress = False
             try:
                 if options['watch']:
+                    from procurement.filter_snapshots import refresh_filter_snapshots
+                    refresh_filter_snapshots()
                     from procurement.kaspi_materials import process_purchased_cards
                     process_purchased_cards(fetch_photos=True, throttle=True)
                 query = PriceUpdate.objects.filter(status__in=['ready', 'running']).order_by('pk')
@@ -68,7 +70,10 @@ class Command(BaseCommand):
                     if refresh_sitemap_snapshots():
                         self.stdout.write('Public sitemap snapshots refreshed')
                     from catalog.source_photos import process_photo_tasks
-                    photo_progress = process_photo_tasks(limit=10)
+                    from zoneinfo import ZoneInfo
+                    local_hour = timezone.now().astimezone(ZoneInfo('Asia/Qyzylorda')).hour
+                    if local_hour >= 23 or local_hour < 6:
+                        photo_progress = process_photo_tasks(limit=10)
                 if options['watch']:
                     KaspiReviewTask.objects.filter(status='checking', updated_at__lt=timezone.now()-timedelta(minutes=30)).update(status='pending')
                     tasks = KaspiReviewTask.objects.filter(status='pending', offer__match_verified=True,

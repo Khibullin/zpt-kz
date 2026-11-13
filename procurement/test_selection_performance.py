@@ -151,3 +151,27 @@ class SelectionPerformanceTests(TestCase):
         self.assertContains(response, 'Все модели и модификации')
         detail = self.client.get(reverse('procurement:detail', args=[offer.pk]))
         self.assertEqual(detail.context['offer'].fitments.count(), 21)
+
+    def test_persisted_filter_dictionary_keeps_verified_supplier_scope(self):
+        from .filter_snapshots import refresh_filter_snapshots, snapshot_options
+        from .filter_options import supplier_options, supplier_years, supplier_generations
+        fit = self.offers[0].fitments.get()
+        fit.configurations = [{'generation': 'G1', 'years': '2010–2012'}]
+        fit.save()
+        other = Supplier.objects.create(name='Snapshot other')
+        offer = Offer.objects.create(supplier=other, brand='X', article='X', name='Other', cost=1)
+        VehicleFitment.objects.create(offer=offer, make='Other', model='Other', verified=True,
+            configurations=[{'years':'2020','generation':'G2'}])
+        VehicleFitment.objects.create(offer=offer, make='Unverified', model='Hidden', verified=False,
+            configurations=[{'years':'1990'}])
+        refresh_filter_snapshots(force=True)
+        data = snapshot_options(self.supplier.pk)
+        self.assertEqual(data['years'], [2012, 2011, 2010])
+        self.assertNotIn('Other', data['models'])
+        self.assertNotIn('Unverified', snapshot_options(None)['models'])
+        with patch.object(connection, 'vendor', 'postgresql'):
+            with CaptureQueriesContext(connection) as queries:
+                self.assertEqual(supplier_years(self.supplier.pk), [2012, 2011, 2010])
+                self.assertEqual(supplier_generations(self.supplier.pk, 'Make 0','Model 0'), ['G1'])
+                self.assertIn('Make 0', supplier_options(self.supplier.pk)[1])
+        self.assertEqual(len(queries), 0)  # No fitment scan on a page request.

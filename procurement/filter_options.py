@@ -49,6 +49,10 @@ def options_cache_allowed():
 
 
 def supplier_options(supplier_id):
+    if connection.vendor == 'postgresql':
+        from .filter_snapshots import snapshot_options
+        data = snapshot_options(supplier_id)
+        return data.get('categories', []), data.get('models', {})
     # TTL also bounds staleness for external bulk writers and other worker processes.
     key = f'procurement:filter-options:v1:{cache.get(REVISION_KEY, "0")}:{supplier_id or "all"}'
     use_cache = options_cache_allowed()
@@ -70,6 +74,9 @@ def supplier_options(supplier_id):
 
 
 def supplier_years(supplier_id):
+    if connection.vendor == 'postgresql':
+        from .filter_snapshots import snapshot_options
+        return snapshot_options(supplier_id).get('years', [])
     from .fitment_filters import configuration_years
     from django.utils import timezone
     key = f'procurement:years:v2:{timezone.localdate().year}:{cache.get(REVISION_KEY, "0")}:{supplier_id or "all"}'
@@ -101,6 +108,9 @@ def supplier_years(supplier_id):
 def supplier_generations(supplier_id, make, model):
     if not make or not model:
         return []
+    if connection.vendor == 'postgresql':
+        from .filter_snapshots import snapshot_options
+        return snapshot_options(supplier_id).get('generations', {}).get(make, {}).get(model, [])
     from hashlib import sha256
     scope = sha256(f'{supplier_id}:{make}:{model}'.encode()).hexdigest()
     key = f'procurement:generations:v1:{cache.get(REVISION_KEY, "0")}:{scope}'
