@@ -16,7 +16,7 @@
     "expires_at": "2026-11-13T19:33:23.133Z"
   },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-13T18:19:23.330Z",
+  "heartbeat_at": "2026-11-13T18:24:17.730Z",
   "status": "running",
   "phase": "other_in_stock_control",
   "phase_reconciliation": {
@@ -7472,6 +7472,38 @@
       "saved_at": "2026-11-13T18:18:15.905Z",
       "deploy_id": "dep-dbrl76qjnfac73ars24g",
       "live_commit": "89406af46aaaae6ad48d1b5b42c5c1fa1c1c6d14"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25784,
+      "kind": "fitment",
+      "saved_at": "2026-11-13T18:24:17.730Z",
+      "deploy_id": "dep-dbrla968bjmc73f7khig",
+      "live_commit": "ac659f42c53cc3fc4d22495f2792c4bbceec46ea"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25768,
+      "kind": "fitment",
+      "saved_at": "2026-11-13T18:24:17.730Z",
+      "deploy_id": "dep-dbrla968bjmc73f7khig",
+      "live_commit": "ac659f42c53cc3fc4d22495f2792c4bbceec46ea"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25765,
+      "kind": "fitment",
+      "saved_at": "2026-11-13T18:24:17.730Z",
+      "deploy_id": "dep-dbrla968bjmc73f7khig",
+      "live_commit": "ac659f42c53cc3fc4d22495f2792c4bbceec46ea"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25224,
+      "kind": "fitment",
+      "saved_at": "2026-11-13T18:24:17.730Z",
+      "deploy_id": "dep-dbrla968bjmc73f7khig",
+      "live_commit": "ac659f42c53cc3fc4d22495f2792c4bbceec46ea"
     }
   ],
   "verified": [
@@ -7492,6 +7524,42 @@
       "ui_verified": true,
       "ui_url": "https://zpt.kz/chery-zpt-25106/",
       "verified_at": "2026-11-13T18:18:15.905Z"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25784,
+      "kind": "fitment",
+      "db_verified": true,
+      "ui_verified": true,
+      "ui_url": "https://zpt.kz/ssangyong-zpt-25784/",
+      "verified_at": "2026-11-13T18:24:17.730Z"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25768,
+      "kind": "fitment",
+      "db_verified": true,
+      "ui_verified": true,
+      "ui_url": "https://zpt.kz/hyundai-zpt-25768/",
+      "verified_at": "2026-11-13T18:24:17.730Z"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25765,
+      "kind": "fitment",
+      "db_verified": true,
+      "ui_verified": true,
+      "ui_url": "https://zpt.kz/hyundai-zpt-25765/",
+      "verified_at": "2026-11-13T18:24:17.730Z"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25224,
+      "kind": "fitment",
+      "db_verified": true,
+      "ui_verified": true,
+      "ui_url": "https://zpt.kz/changan-zpt-25224/",
+      "verified_at": "2026-11-13T18:24:17.730Z"
     }
   ],
   "exceptions": [
@@ -7682,14 +7750,19 @@
       "at": "2026-11-13T18:19:23.330Z",
       "type": "item_checkpoint",
       "detail": "Offer 25224: prepared_fitment_photo_unconfirmed."
+    },
+    {
+      "at": "2026-11-13T18:24:17.730Z",
+      "type": "deploy_live",
+      "detail": "Four additional fitments saved; DB and public UI verified for offers 25784, 25768, 25765, 25224."
     }
   ],
   "last_success": {
-    "at": "2026-11-13T18:19:23.330Z",
-    "stage": "prepared",
+    "at": "2026-11-13T18:24:17.730Z",
+    "stage": "saved_and_ui_verified",
     "supplier_id": 5,
     "offer_id": 25224,
-    "journal": "procurement/data/enrichment_queue_items/5-25224-20261113.json"
+    "deploy_id": "dep-dbrla968bjmc73f7khig"
   },
-  "last_commit": "89406af46aaaae6ad48d1b5b42c5c1fa1c1c6d14"
+  "last_commit": "ac659f42c53cc3fc4d22495f2792c4bbceec46ea"
 }
