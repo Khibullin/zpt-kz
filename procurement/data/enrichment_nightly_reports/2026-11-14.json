@@ -2,7 +2,7 @@
   "schema": 1,
   "night_end_date": "2026-11-14",
   "started_at": "2026-11-13T18:05:41.445Z",
-  "updated_at": "2026-11-13T18:25:27.457Z",
+  "updated_at": "2026-11-13T19:05:00.028Z",
   "status": "paused_for_site_latency",
   "supplier_stats": {
     "1": {
@@ -133,6 +133,11 @@
       "at": "2026-11-13T18:25:27.457Z",
       "type": "pause",
       "detail": "Post-deploy public checks were HTTP 200 but home 4.471s and product 3.693s; above the requested low-load target, so the run saved progress and stopped taking new items."
+    },
+    {
+      "at": "2026-11-13T19:05:00.028Z",
+      "type": "resume_check_paused",
+      "detail": "At 00:02-00:04 Asia/Qyzylorda, shared lease was null and there were no pending publications or active/processing photo tasks. Public checks stayed elevated (home 6.198-8.964s; exact product 3.793-8.721s; direct Render 4.323-4.382s). Resource metrics were below limits and no 5xx were observed. No new item was counted; next remains ZakazAuto offer 25177."
     }
   ],
   "last_success": {
@@ -143,7 +148,7 @@
     "deploy_id": "dep-dbrla968bjmc73f7khig"
   },
   "blocking_error": null,
-  "finished_at": "2026-11-13T18:25:27.457Z",
+  "finished_at": "2026-11-13T19:05:00.028Z",
   "remaining_live": {
     "1": {
       "remaining_without_photo": 297,
