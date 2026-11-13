@@ -261,10 +261,7 @@ def dashboard(request):
         supplier = form.cleaned_data.get('supplier')
     supplier_stats = None
     if supplier:
-        supplier_stats = Offer.objects.filter(supplier=supplier).aggregate(
-            loaded=Count('pk'), linked=Count('pk', filter=~Q(kaspi_url='')),
-            priced=Count('pk', filter=Q(kaspi_price__isnull=False)),
-            verified=Count('pk', filter=Q(match_verified=True)))
+        supplier_stats = {'loaded': Offer.objects.filter(supplier=supplier).count()}
     rows = filtered_rows(request, preferences, form.cleaned_data, paginate=request.GET.get('download') != 'csv') if valid else []
     rows_finished = perf_counter()
     best_empty_reason = ''

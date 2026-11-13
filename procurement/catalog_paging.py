@@ -53,7 +53,17 @@ def catalog_page(query, preferences, filters, mode, number, today):
         F('_catalog_difference') * Value(Decimal(100)) / NullIf(F('cost'), Value(Decimal(0))), output_field=money))
     # Zero and negative purchase costs have no defined return percentage.
     query = query.annotate(_catalog_roi=Case(When(cost__gt=0, then=F('_catalog_roi')), default=null, output_field=money))
-    counts = {row['_catalog_status']: row['n'] for row in query.order_by().values('_catalog_status').annotate(n=Count('pk', distinct=True))}
+    # Conditional counts need no GROUP BY/sort of the whole price list.
+    distinct = query.query.distinct
+    status_sets = {
+        'missing': missing.order_by().values('offer_id'),
+        'sellers': snapshots.exclude(sellers=[]).order_by().values('offer_id'),
+        'empty': snapshots.filter(complete=True,sellers=[],offer__match_verified=True).order_by().values('offer_id'),
+    }
+    summary = query.order_by().aggregate(total=Count('pk',distinct=distinct), **{
+        key: Count('pk',filter=Q(pk__in=ids),distinct=distinct) for key,ids in status_sets.items()})
+    counts = {key: summary[key] for key in status_sets}
+    counts['pending'] = summary['total'] - sum(counts.values())
     if filters.get('kaspi_status'):
         query = query.filter(_catalog_status__in=filters['kaspi_status'])
     if filters.get('sort') == 'profit':

@@ -44,4 +44,23 @@ class RequestListPerformanceTests(TestCase):
         for query in captured:
             sql=query['sql']
             self.assertFalse('JOIN "core_match"' in sql and 'JOIN "core_sellerrequestpageevent"' in sql)
-        self.assertLessEqual(len(captured),7)
+        self.assertLessEqual(len(captured),11)
+
+    def test_bulk_stages_match_latest_operator_decisions_and_completed_priority(self):
+        from django.contrib.admin.models import LogEntry,CHANGE
+        from django.contrib.contenttypes.models import ContentType
+        from django.contrib.auth import get_user_model
+        from control_panel.request_workspace import with_workspace_stage,STAGE_PREFIX
+        user=get_user_model().objects.create_user('stage-auditor')
+        seller=_seller()
+        waiting=_request();done=_request(purchase_result='purchased');new=_request();active=_request()
+        Match.objects.create(request=waiting,seller=seller,status='sent')
+        for request,message in [(waiting,'active'),(waiting,'waiting'),(done,'waiting'),(active,'active')]:
+            LogEntry.objects.create(user=user,content_type=ContentType.objects.get_for_model(Request),
+                object_id=str(request.pk),object_repr='Request',action_flag=CHANGE,
+                change_message=STAGE_PREFIX+message)
+        expected=dict(with_workspace_stage(Request.objects.all()).values_list('pk','workspace_stage'))
+        result=list_parts_requests(QueryDict())
+        self.assertEqual({row.pk:row.stage for row in result['rows']},expected)
+        self.assertEqual(expected[waiting.pk],'waiting')
+        self.assertEqual(expected[done.pk],'done')

@@ -31,7 +31,7 @@ class SupplierWorkspaceTests(TestCase):
         form = response.context['filter_form']
         self.assertEqual(list(form.fields['category'].choices), [('', 'Все категории'), ('Масляные фильтры', 'Масляные фильтры')])
         self.assertEqual(len(form.fields['vehicle_make'].choices), 1)
-        self.assertEqual(response.context['supplier_stats'], {'loaded': 1, 'linked': 0, 'priced': 0, 'verified': 0})
+        self.assertEqual(response.context['supplier_stats'], {'loaded': 1})
 
     def test_supplier_survives_settings_and_sidebar_return(self):
         self.client.get(self.url, {'supplier': self.valtec.pk})
