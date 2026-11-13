@@ -20,7 +20,9 @@ from core.models import (
     SellerRequestAccess,
     SellerRequestPageEvent,
 )
-from control_panel.request_workspace import with_workspace_stage, STAGES, STAGE_LABELS
+from control_panel.request_workspace import with_workspace_stage, STAGES, STAGE_LABELS, STAGE_PREFIX
+from django.contrib.admin.models import LogEntry
+from django.contrib.contenttypes.models import ContentType
 from control_panel.display import (
     dash,
     event_label,
@@ -183,8 +185,23 @@ def _apply_filters(queryset, params: QueryDict):
 def list_parts_requests(params: QueryDict) -> dict:
     # Count stages on one row per request. Combining these correlated lookups
     # with the match/event aggregate multiplies history rows and can time out.
-    stage_source = _apply_filters(with_workspace_stage(Request.objects.all()), params)
-    stages_by_id = dict(stage_source.values_list('pk', 'workspace_stage'))
+    candidates = dict(_apply_filters(Request.objects.all(), params).values_list('pk','purchase_result'))
+    ids = list(candidates)
+    dispatched = set(RequestDispatch.objects.filter(request_id__in=ids).order_by().values_list('request_id',flat=True).distinct())
+    matched = set(Match.objects.filter(request_id__in=ids).order_by().values_list('request_id',flat=True).distinct())
+    latest_stages = {}
+    if ids:
+        logs = LogEntry.objects.filter(content_type_id=ContentType.objects.get_for_model(Request).pk,
+            object_id__in=[str(pk) for pk in ids],change_message__startswith=STAGE_PREFIX
+        ).order_by('-action_time','-pk').values_list('object_id','change_message')
+        for object_id,message in logs:
+            latest_stages.setdefault(int(object_id),message)
+    stages_by_id = {}
+    for pk,result in candidates.items():
+        operator = latest_stages.get(pk,'')
+        stages_by_id[pk] = ('done' if result in ('purchased','closed') else
+            'waiting' if operator == STAGE_PREFIX+'waiting' else
+            'active' if operator == STAGE_PREFIX+'active' or pk in dispatched or pk in matched else 'new')
     stage_counts = Counter(stages_by_id.values())
     stage = first_value(params, 'stage')
     if stage not in dict(STAGES):
