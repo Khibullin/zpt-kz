@@ -277,3 +277,6 @@ class RetailPublicationRun(models.Model):
     summary = models.JSONField(default=dict)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+
+from .kaspi_models import KaspiPreparedCard, KaspiCardImage, KaspiCardPrice, KaspiPricingRule  # noqa: E402,F401
