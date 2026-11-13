@@ -16,7 +16,7 @@
     "expires_at": "2026-11-13T19:33:23.133Z"
   },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-13T18:06:31.747Z",
+  "heartbeat_at": "2026-11-13T18:07:37.346Z",
   "status": "running",
   "phase": "other_in_stock_control",
   "phase_reconciliation": {
@@ -7195,7 +7195,7 @@
     }
   ],
   "current_batch_index": 0,
-  "current_item_index": 1,
+  "current_item_index": 2,
   "reviewed": [
     {
       "supplier_id": 5,
@@ -7206,6 +7206,16 @@
       "checked_at": "2026-11-13T18:06:31.747Z",
       "status": "prepared_fitment_photo_unconfirmed",
       "journal": "procurement/data/enrichment_queue_items/5-25628-20261113.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25396,
+      "product_id": 6982,
+      "brand": "JETOUR",
+      "article": "F01-2804501NF",
+      "checked_at": "2026-11-13T18:07:37.346Z",
+      "status": "contradictory_sources",
+      "journal": "procurement/data/enrichment_queue_items/5-25396-20261113.json"
     }
   ],
   "prepared": [
@@ -7256,12 +7266,24 @@
         "https://partsouq.com/en/catalog/genuine/parts?c=HYUNDAI202404&gid=704&q=&vid=1546409837",
         "https://kaspi.kz/shop/p/hyundai-kia-blok-predohranitelei-914102s222-1-sht-163978365/?c=750000000"
       ]
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25396,
+      "field": "photo_and_fitment",
+      "reason": "contradictory_sources",
+      "checked_at": "2026-11-13T18:07:37.346Z",
+      "sources": [
+        "https://roninkuzov.kz/kategoriya/bampery-i-komplektuyuschie.html",
+        "https://www.cigmaglobal.com/products/jetour-x70-auto-parts.html",
+        "https://www.ecer.com/corp/details-uuuf9zt-p1mjmrs-f01-2804501nf-rear-bumper-for-jetour-t2-x70-plus.html"
+      ]
     }
   ],
   "publication_pending": null,
   "next": {
     "supplier_id": 5,
-    "offer_id": 25396
+    "offer_id": 25636
   },
   "events": [
     {
@@ -7278,14 +7300,19 @@
       "at": "2026-11-13T18:06:31.747Z",
       "type": "item_checkpoint",
       "detail": "Offer 25628: exact PartSouq fitment prepared; photo remains unconfirmed."
+    },
+    {
+      "at": "2026-11-13T18:07:37.346Z",
+      "type": "item_checkpoint",
+      "detail": "Offer 25396: contradictory_sources."
     }
   ],
   "last_success": {
-    "at": "2026-11-13T18:06:31.747Z",
-    "stage": "prepared",
+    "at": "2026-11-13T18:07:37.346Z",
+    "stage": "reviewed_exception",
     "supplier_id": 5,
-    "offer_id": 25628,
-    "journal": "procurement/data/enrichment_queue_items/5-25628-20261113.json"
+    "offer_id": 25396,
+    "journal": "procurement/data/enrichment_queue_items/5-25396-20261113.json"
   },
   "last_commit": "7b4617a04a9eaed79a7ec69b7aef7da29cc08737"
 }
