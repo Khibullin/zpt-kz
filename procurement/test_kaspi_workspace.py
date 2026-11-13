@@ -123,6 +123,20 @@ class KaspiPurchasedWorkspaceTests(TestCase):
         self.assertLess(len(asset.thumbnail), len(asset.data))
         downloaded = self.page(line=0, image=asset.pk, thumb='1')
         self.assertEqual(downloaded['Content-Type'], 'image/jpeg')
+        bundle = self.page(line=0, download='zip')
+        with zipfile.ZipFile(io.BytesIO(bundle.content)) as archive:
+            self.assertEqual(archive.read('images/photo-1.jpg'), bytes(asset.data))
+        card.refresh_from_db()
+        replacement = io.BytesIO()
+        Image.new('RGB', (600, 600), 'blue').save(replacement, 'PNG')
+        response = self.page(line=0)
+        self.assertEqual(self.client.post(url, {'action': 'upload_photo',
+            'source_token': response.context['source_token'], 'revision': card.revision,
+            'replace_image': asset.pk, 'photo': SimpleUploadedFile('new.png', replacement.getvalue())}).status_code, 302)
+        asset.refresh_from_db()
+        self.assertFalse(asset.active)
+        self.assertEqual(KaspiCardImage.objects.filter(card=card, active=True).count(), 1)
+        self.assertEqual(KaspiCardImage.objects.filter(card=card).count(), 2)
         self.client.force_login(self.other)
         self.assertEqual(self.page(line=0, image=asset.pk).status_code, 404)
 
