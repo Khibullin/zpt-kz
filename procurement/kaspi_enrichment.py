@@ -124,7 +124,7 @@ def category_schema(card, attrs, category_hint=''):
         if not isinstance(schema,list): raise ValueError('Не получены обязательные характеристики Kaspi.')
         cache.set(key,schema,3600)
     # Only exact labels/codes. Unknown enum values, package sizes and dimensions stay unknown.
-    supplied={**card.characteristics,**attrs}
+    supplied={'Бренд':card.brand,'Артикул':card.article,'Артикул производителя':card.article,**card.characteristics,**attrs}
     normalized={str(k).strip().casefold():v for k,v in supplied.items()}
     mapped={}
     for spec in schema:
@@ -135,7 +135,25 @@ def category_schema(card, attrs, category_hint=''):
     return category,schema,mapped
 
 
+ENRICHMENT_VERSION = 2
+
+
+def encode_source_image(data):
+    """Pad near-square supplier photos, preserving every source pixel and detail."""
+    import io
+    from PIL import Image, ImageOps
+    # Decode and validate size/format using the same bounded upload pipeline first.
+    validated=encode_image(data)
+    with Image.open(io.BytesIO(validated[0])) as source:
+        if min(source.size)<500 and min(source.size)>=450 and max(source.size)>=500:
+            source=ImageOps.pad(source,(max(500,source.width),max(500,source.height)),
+                color='white',method=Image.Resampling.LANCZOS)
+            out=io.BytesIO();source.save(out,'PNG');data=out.getvalue()
+    return encode_image(data,require_size=True)
+
+
 def due(card):
+    if card.source.get('enrichment',{}).get('version') != ENRICHMENT_VERSION: return True
     stamp=card.source.get('enrichment',{}).get('at')
     if not stamp: return True
     try: return timezone.now()-timezone.datetime.fromisoformat(stamp)>timedelta(hours=24)
@@ -144,6 +162,11 @@ def due(card):
 
 def enrich_card(row, card, user, batch_key, batch=None):
     pages=[]; reasons=[]; added=[]; attrs={}; description=''; hint=''
+    if 'images' not in card.manual_fields:
+        for asset in card.images.filter(active=True).filter(width__gte=450,height__gte=450):
+            if min(asset.width,asset.height)<500<=max(asset.width,asset.height):
+                encoded=encode_source_image(bytes(asset.data))
+                added.append((encoded,asset.source_url,card.source.get('photo_sources',{}).get(str(asset.pk),asset.source_url)))
     if row.get('offer') and row['offer'].supplier_url: pages.append(row['offer'].supplier_url)
     if row.get('offer') and row['offer'].kaspi_url: pages.append(row['offer'].kaspi_url)
     # Photo search supplies source pages; images are accepted only from an exact JSON-LD Product there.
@@ -168,9 +191,9 @@ def enrich_card(row, card, user, batch_key, batch=None):
             material=source_material(fetch_page(url),url,card)
             attrs.update(material['attributes']); description=description or material['description']; hint=hint or material['category']
             supplier_host=urlsplit(row['offer'].supplier_url).netloc if row.get('offer') else ''
-            for image_url in material['images'][:1 if urlsplit(url).netloc==supplier_host else 3]:
+            for image_url in ([] if 'images' in card.manual_fields else material['images'][:1 if urlsplit(url).netloc==supplier_host else 3]):
                 data,_=download_public_image(image_url,timeout=8)
-                encoded=encode_image(data,require_size=True)
+                encoded=encode_source_image(data)
                 import hashlib
                 digest=hashlib.sha256(encoded[0]).hexdigest()
                 if digest not in existing:
@@ -178,7 +201,7 @@ def enrich_card(row, card, user, batch_key, batch=None):
                 if len(added)>=4: break
             if len(added)>=4: break
         except Exception:
-            reasons.append('Не удалось подтвердить материалы источника: '+urlsplit(url).netloc)
+            reasons.append('Не удалось получить все материалы или подходящее фото: '+urlsplit(url).netloc)
     schema_info=None
     try:
         schema_info=category_schema(card,attrs,hint)
@@ -212,7 +235,7 @@ def enrich_card(row, card, user, batch_key, batch=None):
             if 'category' not in current.manual_fields: current.category=category; enriched.add('category')
             current.source['kaspi_schema']=dict(category=category,attributes=schema,values=mapped,at=timezone.now().isoformat())
             # Human descriptions remain independently copyable; API codes are stored separately.
-        current.source.update(enriched_fields=sorted(enriched),enrichment=dict(at=timezone.now().isoformat(),reasons=list(dict.fromkeys(reasons))))
+        current.source.update(enriched_fields=sorted(enriched),enrichment=dict(version=ENRICHMENT_VERSION,at=timezone.now().isoformat(),reasons=list(dict.fromkeys(reasons))))
         new_schema=dict(current.source.get('kaspi_schema',{}));new_schema.pop('at',None)
         if before!=snapshot(current) or old_schema!=new_schema:
             current.revision+=1
@@ -240,7 +263,7 @@ def embedded_images(batch, row):
             for image in getattr(sheet,'_images',[]):
                 anchor=getattr(image.anchor,'_from',None)
                 if anchor and anchor.row in matches:
-                    try: yield encode_image(image._data(),require_size=True),attachment.name
+                    try: yield encode_source_image(image._data()),attachment.name
                     except ValueError: continue
         book.close()
 
