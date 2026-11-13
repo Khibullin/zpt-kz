@@ -2,7 +2,7 @@
   "schema": 1,
   "night_end_date": "2026-11-14",
   "started_at": "2026-11-13T18:05:41.445Z",
-  "updated_at": "2026-11-13T18:05:41.445Z",
+  "updated_at": "2026-11-13T18:06:31.747Z",
   "status": "running",
   "supplier_stats": {
     "1": {
@@ -23,11 +23,13 @@
     },
     "5": {
       "name": "ЗаказАвто",
-      "processed_unique": 0,
+      "processed_unique": 1,
       "photos_added": 0,
       "fitment_added": 0,
       "years_or_engines_added": 0,
-      "skips": {}
+      "skips": {
+        "exact_photo_not_confirmed": 1
+      }
     }
   },
   "queue": {
@@ -37,7 +39,7 @@
       "5": 100
     },
     "next_supplier_id": 5,
-    "next_offer_id": 25628
+    "next_offer_id": 25396
   },
   "events": [
     {
@@ -49,8 +51,19 @@
       "at": "2026-11-13T18:05:41.445Z",
       "type": "batches_frozen",
       "detail": "ZakazAuto 100; Phaeton 100."
+    },
+    {
+      "at": "2026-11-13T18:06:31.747Z",
+      "type": "item_checkpoint",
+      "detail": "ZakazAuto 25628 reviewed; fitment prepared, photo unconfirmed."
     }
   ],
-  "last_success": null,
+  "last_success": {
+    "at": "2026-11-13T18:06:31.747Z",
+    "stage": "prepared",
+    "supplier_id": 5,
+    "offer_id": 25628,
+    "journal": "procurement/data/enrichment_queue_items/5-25628-20261113.json"
+  },
   "blocking_error": null
 }
