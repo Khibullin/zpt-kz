@@ -263,3 +263,16 @@ class KaspiPurchasedWorkspaceTests(TestCase):
         self.assertEqual(result['recommended'], Decimal('7618'))
         self.assertIn('повышена до границы', result['explanation'])
         self.assertContains(self.client.get(reverse('procurement:kaspi_card_pricing')), 'data-office-back')
+
+    def test_image_request_skips_card_scope_and_enrichment(self):
+        from unittest.mock import patch
+        from .kaspi_materials import store_image
+        card = self.prepare()
+        data = io.BytesIO()
+        Image.new('RGB', (600, 600), 'white').save(data, 'PNG')
+        asset = store_image(card, encode_image(data.getvalue()))
+        with patch('procurement.kaspi_card_views.scope', side_effect=AssertionError('Heavy card scope')):
+            response = self.page(line=0, image=asset.pk, thumb='1')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, bytes(asset.thumbnail))
+        self.assertEqual(self.page(line=0, image=asset.pk, thumb='1', batch='receipt:9999').status_code, 404)

@@ -92,13 +92,17 @@ def source_rows(batch, user):
     return rows, files, supplier_id
 
 
-def enrich_rows(batch, rows, supplier_id):
+def enrich_rows(batch, rows, supplier_id, compact=False):
     identities = Q(pk__in=[])
     for row in rows:
         if row['brand'] and row['article']:
             identities |= Q(brand__iexact=row['brand'], article__iexact=row['article'])
-    offers = Offer.objects.filter(identities, supplier_id=supplier_id).select_related('draft').prefetch_related(
-        Prefetch('fitments', queryset=VehicleFitment.objects.filter(verified=True))) if supplier_id else []
+    offers = Offer.objects.filter(identities, supplier_id=supplier_id).select_related('draft', 'kaspi_sellers') if supplier_id else Offer.objects.none()
+    if compact:
+        offers = offers.only('id', 'supplier_id', 'brand', 'article', 'photo_url', 'kaspi_url', 'match_verified',
+            'draft__id', 'draft__offer_id', 'draft__title', 'draft__photo_url', 'kaspi_sellers')
+    else:
+        offers = offers.prefetch_related(Prefetch('fitments', queryset=VehicleFitment.objects.filter(verified=True)))
     matches = {}
     for offer in offers:
         matches.setdefault((offer.brand.casefold(), offer.article.casefold()), []).append(offer)
@@ -111,9 +115,9 @@ def enrich_rows(batch, rows, supplier_id):
         candidates = matches.get((row['brand'].casefold(), row['article'].casefold()), [])
         offer = candidates[0] if len(candidates) == 1 else None
         draft = getattr(offer, 'draft', None) if offer else None
-        row.update(offer=offer, draft=draft, fitments=list(offer.fitments.all()) if offer else [],
+        row.update(offer=offer, draft=draft, fitments=list(offer.fitments.all()) if offer and not compact else [],
             photo=(draft.photo_url if draft else offer.photo_url if offer else ''),
-            description=(draft.description if draft else offer.description if offer else ''),
+            description=('' if compact else draft.description if draft else offer.description if offer else ''),
             card_title=(draft.title if draft else row['name']),
             stock=stock.get(row.get('item_id')), link_issue=not bool(offer),
             url=batch_url(batch['key'], line=row['index']))
