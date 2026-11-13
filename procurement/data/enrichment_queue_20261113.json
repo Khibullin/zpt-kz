@@ -17,8 +17,8 @@
     "released_at": "2026-11-13T18:25:27.457Z"
   },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-13T20:09:04.075Z",
-  "status": "publication_saved_db_verified_ui_pending",
+  "heartbeat_at": "2026-11-13T21:02:56.833Z",
+  "status": "paused_for_site_latency",
   "phase": "other_in_stock_control",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
@@ -7196,7 +7196,7 @@
     }
   ],
   "current_batch_index": 0,
-  "current_item_index": 10,
+  "current_item_index": 11,
   "reviewed": [
     {
       "supplier_id": 5,
@@ -7306,7 +7306,7 @@
       "brand": "HAVAL",
       "article": "2905110AKZ16A",
       "checked_at": "2026-11-13T20:09:04.075Z",
-      "status": "saved_fitment_db_verified_ui_pending_photo_unconfirmed",
+      "status": "saved_and_ui_verified_fitment_photo_unconfirmed",
       "journal": "procurement/data/enrichment_queue_items/5-25177-20261114.json"
     }
   ],
@@ -7616,10 +7616,10 @@
       "offer_id": 25177,
       "kind": "fitment",
       "db_verified": true,
-      "ui_verified": false,
+      "ui_verified": true,
       "ui_url": "https://zpt.kz/haval-zpt-25177/",
-      "verified_at": "2026-11-13T20:09:04.075Z",
-      "note": "DB has two verified make/model rows and provenance; UI check pending because the execution environment became unavailable."
+      "verified_at": "2026-11-13T21:02:56.833Z",
+      "ui_response_seconds": 6.290573
     }
   ],
   "exceptions": [
@@ -7747,20 +7747,10 @@
       "detail": "JIKIU image represents an aftermarket cross, not the exact HAVAL part; the exact Kaspi image could not be independently inspected in this run. No photo was saved."
     }
   ],
-  "publication_pending": {
-    "supplier_id": 5,
-    "offer_id": 25177,
-    "kind": "ui_verification_only",
-    "db_saved": true,
-    "db_verified": true,
-    "ui_url": "https://zpt.kz/haval-zpt-25177/",
-    "deploy_id": "dep-dbrmqulbedkc73biubvg",
-    "live_commit": "155e7dc4b3bd23fd49fb15c36c1d87bba4dc7b4a",
-    "created_at": "2026-11-13T20:09:04.075Z"
-  },
+  "publication_pending": null,
   "next": {
     "supplier_id": 5,
-    "offer_id": 25177
+    "offer_id": 25215
   },
   "events": [
     {
@@ -7852,18 +7842,23 @@
       "at": "2026-11-13T20:09:04.075Z",
       "type": "item_publication_db_verified",
       "detail": "Offer 25177 HAVAL 2905110AKZ16A: two sourced fitment rows saved by live deploy dep-dbrmqulbedkc73biubvg and verified in DB. Exact photo not saved. UI verification remains pending; current_item_index and next pointer were not advanced."
+    },
+    {
+      "at": "2026-11-13T21:02:56.833Z",
+      "type": "ui_verified_and_advance",
+      "detail": "Offer 25177 HAVAL 2905110AKZ16A returned HTTP 200 and displayed exact article, H6/GW4G15, M6 and discrete years 2021/2022/2023/2024. Pointer advanced to offer 25215. No new item was taken because home/product timings were 7.250s/6.291s."
     }
   ],
   "last_success": {
-    "at": "2026-11-13T18:24:17.730Z",
+    "at": "2026-11-13T21:02:56.833Z",
     "stage": "saved_and_ui_verified",
     "supplier_id": 5,
-    "offer_id": 25224,
-    "deploy_id": "dep-dbrla968bjmc73f7khig"
+    "offer_id": 25177,
+    "deploy_id": "dep-dbrmqulbedkc73biubvg"
   },
   "last_commit": "155e7dc4b3bd23fd49fb15c36c1d87bba4dc7b4a",
-  "paused_at": "2026-11-13T20:09:04.075Z",
-  "pause_reason": "Offer 25177 fitment is live and DB-verified; public-card verification could not be completed because the execution environment became unavailable. No next item taken.",
+  "paused_at": "2026-11-13T21:02:56.833Z",
+  "pause_reason": "Offer 25177 was DB/UI verified and the pointer advanced. New item not taken because public home and product responses were 7.250s and 6.291s.",
   "remaining_live": {
     "1": {
       "remaining_without_photo": 297,
