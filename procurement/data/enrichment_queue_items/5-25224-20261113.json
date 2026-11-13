@@ -1,0 +1,56 @@
+{
+  "schema": 1,
+  "checked_at": "2026-11-13T18:19:23.330Z",
+  "supplier_id": 5,
+  "supplier_name": "ЗаказАвто",
+  "offer_id": 25224,
+  "product_id": 6881,
+  "task_id": null,
+  "brand": "Changan",
+  "article": "S203F260204-0100",
+  "name": "Амортизатор передний Changan",
+  "research": {
+    "sources": [
+      {
+        "url": "https://www.shindary.com/part-number26/front-strut-assy-%28left%29-s203f260204-0100-for-changan.html",
+        "result": "Exact Changan article; front strut assembly, left."
+      },
+      {
+        "url": "https://www.mybeauvais.com/S203F260204-0100-Left-front-shock-absorber-CS55-PLUS-pd571442268.html",
+        "result": "Exact article; Changan CS55 Plus left front shock absorber."
+      },
+      {
+        "url": "https://shop.globalparts.kz/product/changan/s203f260204-0100",
+        "result": "Exact article and Changan brand, but listing says 2 pieces; not used for photo or unit quantity."
+      }
+    ],
+    "photo": {
+      "status": "not_confirmed",
+      "reason": "Model and left-front execution confirmed by exact sources; years/engine omitted. Photo not accepted because source/card packaging varies between 1 and 2 pieces."
+    },
+    "fitment": {
+      "status": "prepared",
+      "source_url": "https://www.shindary.com/part-number26/front-strut-assy-%28left%29-s203f260204-0100-for-changan.html",
+      "make": "CHANGAN",
+      "model": "CS55 Plus",
+      "details": "стойка передняя левая · годы и двигатель источниками не указаны",
+      "configurations": [
+        {
+          "placement": "front",
+          "side": "left",
+          "assembly": "strut assembly",
+          "source_scope": "Exact Changan S203F260204-0100; no years or engine stated"
+        }
+      ]
+    }
+  },
+  "after": {
+    "prepared_fitment": true,
+    "photo_unchanged": true,
+    "database_saved": false,
+    "ui_verified": false
+  },
+  "state": "prepared_for_next_publication",
+  "reason": "Model and left-front execution confirmed by exact sources; years/engine omitted. Photo not accepted because source/card packaging varies between 1 and 2 pieces.",
+  "next_offer_id": 25177
+}
