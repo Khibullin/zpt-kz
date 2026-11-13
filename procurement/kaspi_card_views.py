@@ -89,7 +89,11 @@ def purchased_products(request):
         return HttpResponse('Редактирование доступно менеджеру или администратору.', status=403)
     supplier = Supplier.objects.filter(pk=supplier_id).first() if supplier_id else None
     token = signing.dumps({'batch': batch['key'], 'source': source_signature(batch, rows)}, salt='kaspi-card-source') if batch else ''
-    events = list(Activity.objects.filter(details__kaspi_batch=batch['key']).select_related('user').order_by('-pk')[:50]) if batch else []
+    from django.db.models import Q
+    event_query = Q(details__kaspi_batch=batch['key']) if batch else Q(pk__in=[])
+    if batch and batch['kind'] == 'order':
+        event_query |= Q(details__purchase=batch['obj'].pk, user=request.user)
+    events = list(Activity.objects.filter(event_query).select_related('user').order_by('-pk')[:50])
     labels = {'kaspi_card_auto': 'Автоматически подготовлены материалы', 'kaspi_card_reused': 'Использована сохранённая карточка',
         'kaspi_card_saved': 'Исправлены материалы', 'kaspi_card_photo': 'Загружена фотография',
         'kaspi_card_photo_auto': 'Автоматически сохранена фотография', 'kaspi_card_price': 'Изменена наша цена'}
@@ -106,6 +110,8 @@ def purchased_products(request):
             'q': q, 'tab': request.GET.get('tab', 'products')})
     events = [e for e in events if active['prepared'] and e.details.get('card') == active['prepared'].pk]
     common['events'] = events
+    listing = batch['obj'].listing_states.filter(line=active['index']).first() if batch['kind'] == 'order' else None
+    common['listing'] = listing
     values, sources = automatic_values(active)
     card = active['prepared'] or KaspiPreparedCard(identity=active['identity'], offer=active.get('offer'), **values)
     images = list(card.images.all()) if card.pk else []
