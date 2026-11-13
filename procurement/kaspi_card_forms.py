@@ -48,7 +48,7 @@ class PricingRuleForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        method = self.data.get('method') if self.is_bound else self.initial.get('method', 'minimum_minus_amount')
+        method = self.data.get('method') if self.is_bound else self.initial.get('method', 'minimum_minus_percent')
         self.fields['value'].label = {
             'minimum_minus_amount': 'Сумма снижения, ₸',
             'minimum_minus_percent': 'Процент снижения, %',

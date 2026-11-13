@@ -92,7 +92,7 @@ def prepare_batch(batch, rows, supplier_id, user):
                 card = KaspiPreparedCard.objects.create(identity=key, offer=row.get('offer'), **values, source=source)
                 record(card, user, batch['key'], row, 'kaspi_card_auto')
             else:
-                changes = {k: v for k, v in values.items() if k not in card.manual_fields and getattr(card, k) != v and (k != 'photo_url' or v)}
+                changes = {k: v for k, v in values.items() if k not in card.manual_fields and k not in card.source.get('enriched_fields', []) and getattr(card, k) != v and (k != 'photo_url' or v)}
                 if changes:
                     before = snapshot(card)
                     for field, value in changes.items():
@@ -256,6 +256,17 @@ def process_purchased_cards(limit=50, fetch_photos=False, throttle=False):
                                 card.refresh_from_db()
                                 record(card, user, batch['key'], row, 'kaspi_card_photo_auto')
                             fetched = True
+                    if fetch_photos and not fetched:
+                        from .kaspi_enrichment import due, enrich_card
+                        if due(card):
+                            enrich_card(row,card,user,batch['key'],batch=batch)
+                            fetched=True
+                    if fetch_photos and user.is_active:
+                        from .kaspi_card_jobs import queue_job
+                        from .models import KaspiCardJob
+                        if not competitor_data(row.get('offer'))['fresh'] and row.get('offer') and row['offer'].kaspi_url:
+                            if not KaspiCardJob.objects.filter(card=card,user=user,kind='refresh').exists():
+                                queue_job(card,user,'refresh',dict(batch=batch['key'],line=row['index']))
                     count += 1
         return count
     finally:
@@ -282,6 +293,7 @@ def pricing(user, card, row, competitors, settings=None):
     else:
         rule, preference, choices = settings
         choice = choices.get(card.pk)
+    rule = rule or KaspiPricingRule(user=user, value=Decimal("3"))
     result = dict(rule=rule, choice=choice, mode=choice.mode if choice else 'algorithm',
         recommended=None, amount=None, profit=None, commission=None, expenses=None, explanation='', minimum=None)
     if preference and preference.commission is not None:
@@ -312,9 +324,9 @@ def pricing(user, card, row, competitors, settings=None):
                 f'Итоговая рекомендация: {result["recommended"]} ₸.'
                 + (' Цена повышена до границы минимальной прибыли.' if target < floor else ''))
         else:
-            result['explanation'] = 'Для алгоритма нужны свежие полные цены и подтверждённое совпадение товара.'
+            result['explanation'] = ('Не подтверждено точное совпадение товара Kaspi.' if row.get('offer') and not row['offer'].match_verified else 'Цены конкурентов устарели или список неполный. Нажмите «Обновить».')
     else:
-        result['explanation'] = 'Настройте и включите алгоритм; комиссия и расходы должны быть известны. Формула по умолчанию не применяется.'
+        result['explanation'] = 'Алгоритм выключен либо не указаны комиссия, расходы или закупочная цена. Откройте настройки расчёта.'
     result['amount'] = choice.amount if choice and choice.mode == 'manual' else result['recommended']
     if result['amount'] is not None and cost is not None and rate is not None and expenses is not None:
         result['profit'] = result['amount'] * (1 - rate / 100) - cost - expenses
@@ -322,12 +334,13 @@ def pricing(user, card, row, competitors, settings=None):
 
 
 def readiness(card, images, price):
+    from .kaspi_card_jobs import automatic_verified
     checks = [
         ('Фотография от 500 × 500', any(a.width >= 500 and a.height >= 500 for a in images)),
         ('Название и описание', bool(card.title and card.description)),
         ('Категория и характеристики', bool(card.category.startswith('Master -') and card.characteristics)),
         ('Применимость с источником', bool(card.applicability and card.applicability_source)),
-        ('Проверены требования категории и комплектность', card.verified),
+        ('Проверены требования категории и комплектность', card.verified or automatic_verified(card)),
         ('Наша цена', price['amount'] is not None and price['amount'] > 0),
     ]
     return checks, all(ok for _, ok in checks)

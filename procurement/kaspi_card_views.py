@@ -2,13 +2,13 @@ import io
 import json
 import zipfile
 from functools import wraps
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlsplit
 
 from django.contrib import messages
 from django.core import signing
 from django.db import transaction
-from django.db.models import Prefetch
-from django.http import Http404, HttpResponse
+from django.db.models import Prefetch, Q
+from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.utils import timezone
@@ -131,6 +131,7 @@ def packet(card, row, price, images):
     return {'title': card.title, 'brand': card.brand, 'article': card.article,
         'category': card.category, 'description': card.description, 'attributes': card.characteristics,
         'applicability': card.applicability, 'price': str(price['amount']) if price['amount'] is not None else None,
+        'recommended': str(price['recommended']) if price['recommended'] is not None else None,
         'quantity': row.get('stock'), 'images': [f'images/photo-{n + 1}.jpg' for n in range(len(images))]}
 
 
@@ -152,16 +153,22 @@ def purchased_products(request):
             raise Http404
     if request.method == 'POST' and request.procurement_role not in ('sales', 'admin'):
         return HttpResponse('Редактирование доступно менеджеру или администратору.', status=403)
+    if request.GET.get('job_status') and active and active['prepared']:
+        from .models import KaspiCardJob
+        return JsonResponse({'jobs':list(KaspiCardJob.objects.filter(Q(user=request.user)|Q(kind='publish'),card=active['prepared']).values('kind','status','reason'))})
     supplier = Supplier.objects.filter(pk=supplier_id).first() if supplier_id else None
     token = signing.dumps({'batch': batch['key'], 'source': source_signature(batch, rows)}, salt='kaspi-card-source') if batch else ''
-    from django.db.models import Q
     event_query = Q(details__kaspi_batch=batch['key']) if batch else Q(pk__in=[])
     if batch and batch['kind'] == 'order':
         event_query |= Q(details__purchase=batch['obj'].pk, user=request.user)
+    event_query |= Q(action='kaspi_pricing_rule_saved',user=request.user)
     events = list(Activity.objects.filter(event_query).select_related('user').order_by('-pk')[:50])
     labels = {'kaspi_card_auto': 'Автоматически подготовлены материалы', 'kaspi_card_reused': 'Использована сохранённая карточка',
         'kaspi_card_saved': 'Исправлены материалы', 'kaspi_card_photo': 'Загружена фотография',
-        'kaspi_card_photo_auto': 'Автоматически сохранена фотография', 'kaspi_card_price': 'Изменена наша цена'}
+        'kaspi_card_photo_auto': 'Автоматически сохранена фотография', 'kaspi_card_price': 'Изменена наша цена',
+        'kaspi_card_enriched':'Автоматическая проверка и дополнение материалов', 'kaspi_refresh_queued':'Запрошено обновление конкурентов',
+        'kaspi_refresh_result':'Результат обновления конкурентов', 'kaspi_publish_queued':'Запрошена публикация',
+        'kaspi_publish_result':'Результат отправки в Kaspi', 'kaspi_card_main_photo':'Выбрано главное фото', 'kaspi_pricing_rule_saved':'Изменён алгоритм цены'}
     for event in events:
         event.label = labels.get(event.action, 'Изменение закупки')
     common = context(request, supplier=supplier, batches=batches, batch=batch, files=files, events=events,
@@ -173,7 +180,7 @@ def purchased_products(request):
         shown = [r for r in rows if not q or q.casefold() in f"{r['name']} {r['brand']} {r['article']}".casefold()]
         return render(request, 'procurement/kaspi_purchase_list.html', {**common, 'rows': shown,
             'q': q, 'tab': request.GET.get('tab', 'products')})
-    events = [e for e in events if active['prepared'] and e.details.get('card') == active['prepared'].pk]
+    events = [e for e in events if e.action=='kaspi_pricing_rule_saved' or active['prepared'] and e.details.get('card') == active['prepared'].pk]
     common['events'] = events
     listing = batch['obj'].listing_states.filter(line=active['index']).first() if batch['kind'] == 'order' else None
     common['listing'] = listing
@@ -198,7 +205,11 @@ def purchased_products(request):
         output = io.BytesIO()
         with zipfile.ZipFile(output, 'w', zipfile.ZIP_DEFLATED) as archive:
             archive.writestr('card.json', json.dumps(payload, ensure_ascii=False, indent=2))
-            archive.writestr('description.txt', card.title + '\n\n' + card.description + '\n\n' + card.applicability)
+            archive.writestr('title.txt',card.title)
+            archive.writestr('description.txt',card.description)
+            archive.writestr('attributes.txt','\n'.join(f'{k}: {v}' for k,v in card.characteristics.items()))
+            archive.writestr('applicability.txt',card.applicability)
+            archive.writestr('price.txt',str(price['amount'] or ''))
             archive.writestr('readme.txt', 'Материалы для ручного размещения. В Kaspi не отправлено.\n'
                 + '\n'.join(('Готово: ' if ok else 'Нужно дополнить: ') + label for label, ok in checks))
             for n, image in enumerate(images):
@@ -219,6 +230,32 @@ def purchased_products(request):
             signed = None
         if signed != {'batch': batch['key'], 'source': source_signature(batch, rows)}:
             return HttpResponse('Состав закупки изменился. Обновите карточку.', status=409)
+        if action in ('refresh_competitors','publish_kaspi','set_main_photo'):
+            if not card.pk:
+                messages.error(request,'Карточка подготавливается автоматически. Обновите страницу позже.')
+                return redirect(request.get_full_path())
+            from .kaspi_card_jobs import queue_job, freeze_publication
+            try:
+                if action=='set_main_photo':
+                    with transaction.atomic():
+                        current=KaspiPreparedCard.objects.select_for_update().get(pk=card.pk)
+                        if str(current.revision)!=request.POST.get('revision'): raise ValueError('Карточка изменена. Обновите страницу.')
+                        asset=current.images.filter(pk=request.POST.get('image_id'),active=True).first()
+                        if not asset: raise ValueError('Фотография не найдена.')
+                        from django.db.models import F
+                        current.images.filter(active=True).update(position=F('position')+1)
+                        asset.position=0;asset.save(update_fields=['position'])
+                        current.revision+=1;current.save(update_fields=['revision','updated_at'])
+                        record(current,request.user,batch['key'],active,'kaspi_card_main_photo')
+                    messages.success(request,'Главное фото выбрано.')
+                else:
+                    payload=(freeze_publication(card,request.user,active,batch,request.POST['source_token']) if action=='publish_kaspi'
+                        else dict(batch=batch['key'],line=active['index']))
+                    job,created=queue_job(card,request.user,'publish' if action=='publish_kaspi' else 'refresh',payload)
+                    messages.success(request,'Задача поставлена в очередь. Обработка выполняется в фоне.' if created else 'Эта задача уже сохранена: '+job.reason)
+            except ValueError as exc:
+                messages.error(request,str(exc))
+            return redirect(request.get_full_path())
         if action == 'save_material' and form.is_valid():
             with transaction.atomic():
                 current = KaspiPreparedCard.objects.select_for_update().filter(identity=active['identity']).first()
@@ -296,10 +333,25 @@ def purchased_products(request):
     back = request.GET.get('return_to', batch_url(batch['key']))
     if not url_has_allowed_host_and_scheme(back, allowed_hosts={request.get_host()}, require_https=request.is_secure()) or not back.startswith('/'):
         back = batch_url(batch['key'])
-    gallery = [dict(obj=a, url=image_url(batch, active, a), download=image_url(batch, active, a, download=True)) for a in images]
+    gallery = [dict(obj=a, url=image_url(batch, active, a), download=image_url(batch, active, a, download=True),
+        source=card.source.get('photo_sources',{}).get(str(a.pk),a.source_url)) for a in images]
+    from .kaspi_card_jobs import LABELS, api_attributes
+    from .kaspi_catalog_api import connected
+    from .kaspi_price_feed import integration_ready
+    from .models import KaspiCardJob
+    jobs=list(KaspiCardJob.objects.filter(Q(user=request.user)|Q(kind='publish'),card=card)) if card.pk else []
+    for job in jobs: job.label=LABELS.get(job.status,job.status)
+    _,api_missing=api_attributes(card)
+    publish_job=next((job for job in jobs if job.kind=='publish'),None)
+    refresh_job=next((job for job in jobs if job.kind=='refresh'),None)
+    can_publish=bool(ready and integration_ready() and active.get('stock') is not None and not api_missing and (not publish_job or publish_job.status=='error'))
+    extra_images=sum(1 for a in images if card.source.get('photo_kinds',{}).get(str(a.pk))=='external')
     return render(request, 'procurement/kaspi_card.html', {**common, 'active': active, 'card': card,
         'images': gallery, 'form': form, 'price_form': price_form, 'price': price, 'competitors': competitors,
         'checks': checks, 'ready': ready, 'payload': payload, 'photo_error': error,
+        'jobs':jobs,'refresh_job':refresh_job,'publish_job':publish_job,'can_publish':can_publish,
+        'integration_connected':integration_ready(),'api_missing':api_missing,'extra_images':extra_images,
+        'poll_jobs':any(job.status in ('pending','running','submitted','awaiting_listing') for job in jobs),
         'main_photo': gallery[0]['url'] if gallery else '',
         'back_url': back, 'card_page': True}, status=400 if request.method == 'POST' else 200)
 
@@ -308,7 +360,7 @@ def purchased_products(request):
 @access('sales', 'admin')
 @require_http_methods(['GET', 'POST'])
 def card_pricing_settings(request):
-    rule = KaspiPricingRule.objects.filter(user=request.user).first()
+    rule = KaspiPricingRule.objects.filter(user=request.user).first() or KaspiPricingRule(user=request.user)
     form = PricingRuleForm(request.POST if request.method == 'POST' else None, instance=rule)
     preference = Preferences.objects.filter(user=request.user).first()
     if request.method == 'POST' and form.is_valid():
@@ -322,5 +374,6 @@ def card_pricing_settings(request):
                 'method': obj.method, 'value': str(obj.value), 'min_profit': str(obj.min_profit), 'enabled': obj.enabled})
             messages.success(request, 'Алгоритм сохранён. Ручные цены не изменены.')
             return redirect('procurement:kaspi_card_pricing')
-    return render(request, 'procurement/kaspi_pricing.html', context(request, form=form, preference=preference),
+    from .kaspi_price_feed import feed_url, integration_ready
+    return render(request, 'procurement/kaspi_pricing.html', context(request, form=form, preference=preference, feed_url=feed_url(), integration_connected=integration_ready()),
         status=400 if request.method == 'POST' else 200)

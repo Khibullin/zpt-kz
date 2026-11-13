@@ -33,6 +33,10 @@ class Command(BaseCommand):
             facet_progress = False
             try:
                 if options['watch']:
+                    from procurement.kaspi_card_jobs import process_card_jobs
+                    process_card_jobs()
+                    from procurement.kaspi_price_feed import refresh_price_feed
+                    refresh_price_feed()
                     from procurement.filter_snapshots import refresh_filter_snapshots
                     refresh_filter_snapshots()
                     from procurement.kaspi_materials import process_purchased_cards

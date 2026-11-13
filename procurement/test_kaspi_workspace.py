@@ -276,3 +276,172 @@ class KaspiPurchasedWorkspaceTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, bytes(asset.thumbnail))
         self.assertEqual(self.page(line=0, image=asset.pk, thumb='1', batch='receipt:9999').status_code, 404)
+
+    def test_default_three_percent_requires_no_get_writes(self):
+        card=self.prepare()
+        Preferences.objects.create(user=self.admin,commission=10,expenses=250)
+        result=pricing(self.admin,card,{'cost':5606},{'usable':True,'sellers':[{'price':'10000'}]})
+        self.assertEqual(result['recommended'],Decimal('9700'))
+        self.assertEqual(KaspiPricingRule.objects.count(),0)
+        response=self.page(line=0)
+        for text in ('Копировать название','Копировать описание','Копировать характеристики','Опубликовать на Kaspi','Обновить'):
+            self.assertContains(response,text)
+
+    def test_refresh_runs_in_background_and_preserves_manual_price(self):
+        from unittest.mock import patch
+        from django.core.cache import cache
+        from .models import KaspiCardJob
+        from .kaspi_card_jobs import process_card_jobs
+        cache.delete('kaspi-card-refresh-paused')
+        card=self.prepare()
+        self.offer.kaspi_url='https://kaspi.kz/shop/p/test-123/'
+        self.offer.save(update_fields=['kaspi_url'])
+        KaspiCardPrice.objects.create(card=card,user=self.admin,mode='manual',amount=9000)
+        page=self.page(line=0)
+        url=reverse('procurement:kaspi_products')+f'?batch=receipt:{self.receipt.pk}&line=0'
+        data={'action':'refresh_competitors','source_token':page.context['source_token']}
+        with patch('procurement.kaspi_refresh.read_complete_sellers') as reader:
+            self.assertEqual(self.client.post(url,data).status_code,302)
+            self.assertEqual(self.client.post(url,data).status_code,302)
+            reader.assert_not_called()
+        self.assertEqual(KaspiCardJob.objects.count(),1)
+        sellers=[{'merchant_id':'1','name':'Shop','price':'10000','url':'https://kaspi.kz/shop/m/1/'}]
+        with patch('procurement.kaspi_refresh.read_complete_sellers',return_value=sellers):
+            process_card_jobs()
+        self.assertEqual(KaspiCardJob.objects.get().status,'done')
+        self.assertEqual(KaspiSellerSnapshot.objects.get(offer=self.offer).sellers,sellers)
+        self.assertEqual(KaspiCardPrice.objects.get(card=card).amount,Decimal('9000'))
+        self.offer.refresh_from_db()
+        self.assertFalse(self.offer.match_verified)
+
+    def test_failed_refresh_keeps_old_sellers(self):
+        from unittest.mock import patch
+        from django.core.cache import cache
+        from .kaspi_card_jobs import queue_job,process_card_jobs
+        cache.delete('kaspi-card-refresh-paused')
+        card=self.prepare()
+        self.offer.kaspi_url='https://kaspi.kz/shop/p/test-123/'
+        self.offer.save(update_fields=['kaspi_url'])
+        old=KaspiSellerSnapshot.objects.create(offer=self.offer,source_url=self.offer.kaspi_url,
+            checked_on=timezone.localdate(),complete=True,sellers=[{'name':'Old','price':'5000'}])
+        job,_=queue_job(card,self.admin,'refresh',dict(batch=f'receipt:{self.receipt.pk}',line=0))
+        with patch('procurement.kaspi_refresh.read_complete_sellers',side_effect=ValueError('HTTP 403')):
+            process_card_jobs()
+        job.refresh_from_db();old.refresh_from_db()
+        self.assertEqual(job.status,'error')
+        self.assertEqual(old.sellers,[{'name':'Old','price':'5000'}])
+        cache.delete('kaspi-card-refresh-paused')
+
+    def publish_fixture(self):
+        from .kaspi_materials import store_image
+        card=self.prepare()
+        card.category='Master - Test'
+        card.characteristics={'Материал':'сталь'}
+        card.source['kaspi_schema']={'category':card.category,'attributes':[{'code':'material','title':'Материал','type':'string','mandatory':True}]}
+        card.save()
+        data=io.BytesIO();Image.new('RGB',(600,600),'white').save(data,'PNG')
+        store_image(card,encode_image(data.getvalue()))
+        Preferences.objects.create(user=self.admin,commission=10,expenses=250)
+        KaspiCardPrice.objects.create(card=card,user=self.admin,mode='manual',amount=9000)
+        return card
+
+    def test_publish_is_explicit_idempotent_and_acceptance_is_not_sale(self):
+        from unittest.mock import patch
+        from django.test import override_settings
+        from datetime import timedelta
+        from .models import KaspiCardJob
+        from .kaspi_card_jobs import process_card_jobs
+        with override_settings(KASPI_API_TOKEN='unit-test-token',KASPI_MERCHANT_ID='1',KASPI_POINT_OF_SERVICE='PP2',KASPI_BASELINE_PRICE_FEED_URL='https://example.com/base.xml',KASPI_PRICE_FEED_CONNECTED=True):
+            card=self.publish_fixture()
+            page=self.page(line=0)
+            self.assertTrue(page.context['ready'])
+            url=reverse('procurement:kaspi_products')+f'?batch=receipt:{self.receipt.pk}&line=0'
+            data={'action':'publish_kaspi','source_token':page.context['source_token']}
+            with patch('procurement.kaspi_catalog_api.CatalogClient.submit',return_value={'code':'import-1','status':'UPLOADED'}) as submit:
+                self.client.post(url,data);self.client.post(url,data)
+                submit.assert_not_called()
+                self.assertEqual(KaspiCardJob.objects.count(),1)
+                process_card_jobs()
+                self.assertEqual(submit.call_count,1)
+                self.client.post(url,data)
+                process_card_jobs()
+                self.assertEqual(submit.call_count,1)
+            job=KaspiCardJob.objects.get();self.assertEqual(job.status,'submitted')
+            KaspiCardJob.objects.filter(pk=job.pk).update(updated_at=timezone.now()-timedelta(seconds=31))
+            with patch('procurement.kaspi_catalog_api.CatalogClient.status',return_value={'status':'FINISHED'}),patch('procurement.kaspi_catalog_api.CatalogClient.result',return_value={'errors':0,'total':1,'result':{'ZPT-'+card.identity[:16]:{'state':'FINISHED'}}}):
+                process_card_jobs()
+            job.refresh_from_db()
+            self.assertEqual(job.status,'awaiting_listing')
+            self.assertIn('размещение ещё не подтверждено',job.reason)
+
+    def test_uncertain_publish_is_never_repeated(self):
+        from unittest.mock import patch
+        from django.test import override_settings
+        from .kaspi_catalog_api import CatalogUncertain
+        from .kaspi_card_jobs import queue_job,process_card_jobs,freeze_publication
+        with override_settings(KASPI_API_TOKEN='unit-test-token',KASPI_MERCHANT_ID='1',KASPI_POINT_OF_SERVICE='PP2',KASPI_BASELINE_PRICE_FEED_URL='https://example.com/base.xml',KASPI_PRICE_FEED_CONNECTED=True):
+            card=self.publish_fixture();page=self.page(line=0)
+            payload=freeze_publication(card,self.admin,page.context['active'],page.context['batch'],page.context['source_token'])
+            job,_=queue_job(card,self.admin,'publish',payload)
+            with patch('procurement.kaspi_catalog_api.CatalogClient.submit',side_effect=CatalogUncertain('Unknown')) as submit:
+                process_card_jobs();process_card_jobs()
+                job.refresh_from_db();self.assertEqual(job.status,'unknown')
+                _,created=queue_job(card,self.admin,'publish',payload)
+                self.assertFalse(created)
+                self.assertEqual(submit.call_count,1)
+
+    def test_public_photo_requires_valid_limited_token(self):
+        from .kaspi_catalog_api import signed_image_url
+        card=self.publish_fixture()
+        asset=card.images.get()
+        url=signed_image_url(asset)
+        from urllib.parse import urlsplit
+        self.client.logout()
+        self.assertEqual(self.client.get(urlsplit(url).path).status_code,200)
+        self.assertEqual(self.client.get(urlsplit(url).path+'bad').status_code,404)
+
+    def test_automatic_sources_never_accept_similar_article_or_erase_manual_text(self):
+        from unittest.mock import patch
+        from .kaspi_enrichment import source_material,enrich_card
+        card=self.prepare()
+        raw={'@type':'Product','sku':'00123-A','brand':{'name':'WXQP'},'image':['https://example.com/photo.jpg']}
+        page='<script type="application/ld+json">'+json.dumps(raw)+'</script>'
+        self.assertEqual(source_material(page,'https://example.com',card)['images'],[])
+        raw['sku']='00123';raw['description']='Описание из источника';raw['additionalProperty']=[{'name':'Материал','value':'сталь'}];raw['image']=[]
+        page='<script type="application/ld+json">'+json.dumps(raw)+'</script>'
+        card.description='Ручное описание';card.manual_fields=['description'];card.save()
+        self.offer.supplier_url='https://example.com/exact'
+        row=dict(index=0,name=self.offer.name,brand=self.offer.brand,article=self.offer.article,offer=self.offer)
+        with patch('procurement.kaspi_enrichment.fetch_page',return_value=page),patch('procurement.kaspi_enrichment.connected',return_value=False):
+            enrich_card(row,card,self.admin,f'receipt:{self.receipt.pk}')
+        card.refresh_from_db();self.assertEqual(card.description,'Ручное описание')
+        self.assertEqual(card.characteristics['Материал'],'сталь')
+        self.prepare();card.refresh_from_db()
+        self.assertEqual(card.characteristics['Материал'],'сталь')
+
+    def test_full_price_feed_preserves_other_products_and_escapes_text(self):
+        from .kaspi_price_feed import merge_feed
+        from xml.etree import ElementTree as ET
+        original='<kaspi_catalog xmlns="kaspiShopping"><merchantid>shop</merchantid><offers><offer sku="old"><model>Old</model><price>123</price></offer></offers></kaspi_catalog>'
+        row=dict(sku='ZPT-001',title='Деталь & крепёж',brand='Brand',quantity=2,price='9700')
+        text=merge_feed(original,[row,row],merchant='shop',store='PP2')
+        root=ET.fromstring(text)
+        offers=root.findall('{kaspiShopping}offers/{kaspiShopping}offer')
+        self.assertEqual(len(offers),2)
+        self.assertEqual(offers[0].get('sku'),'old')
+        self.assertEqual(offers[0].findtext('{kaspiShopping}price'),'123')
+        self.assertEqual(offers[1].findtext('{kaspiShopping}model'),'Деталь & крепёж')
+        with self.assertRaises(ValueError): merge_feed(original,[row],merchant='wrong',store='PP2')
+        with self.assertRaises(ValueError): merge_feed(original,[{**row,'quantity':None}],merchant='shop',store='PP2')
+
+    def test_job_status_is_read_only_and_publication_is_shared_between_managers(self):
+        from .kaspi_card_jobs import queue_job
+        from .models import KaspiCardJob
+        card=self.prepare()
+        job,created=queue_job(card,self.admin,'publish',dict(batch=f'receipt:{self.receipt.pk}',line=0))
+        other,created=queue_job(card,self.other,'publish',dict(batch=f'receipt:{self.receipt.pk}',line=0))
+        self.assertFalse(created);self.assertEqual(other.pk,job.pk)
+        response=self.page(line=0,job_status='1')
+        self.assertEqual(response.status_code,200)
+        self.assertEqual(response.json()['jobs'][0]['status'],'pending')
+        self.assertEqual(KaspiCardJob.objects.count(),1)
