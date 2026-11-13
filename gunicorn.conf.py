@@ -1,4 +1,4 @@
-"""One durable supplier import consumer per web master, sharing the existing instance.
+"""Optional supplier import consumer; disabled by default on memory-limited web instances.
 
 Only user-staged imports are consumed. No timer initiates supplier downloads,
 Kaspi searches, purchases or messages. Database locks serialize multiple masters.
@@ -15,7 +15,7 @@ threads = 2
 
 
 def on_starting(server):
-    if os.environ.get('PRICE_UPDATE_WORKER_ENABLED', 'true').lower() == 'true':
+    if os.environ.get('PRICE_UPDATE_WORKER_ENABLED', 'false').lower() == 'true':
         server.price_update_worker = subprocess.Popen(
             [sys.executable, 'manage.py', 'process_price_updates', '--watch'])
 
