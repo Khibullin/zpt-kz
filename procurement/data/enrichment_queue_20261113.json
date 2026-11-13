@@ -17,8 +17,8 @@
     "released_at": "2026-11-13T18:25:27.457Z"
   },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-13T19:04:50.986Z",
-  "status": "paused_for_site_latency",
+  "heartbeat_at": "2026-11-13T20:09:04.075Z",
+  "status": "publication_saved_db_verified_ui_pending",
   "phase": "other_in_stock_control",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
@@ -7297,6 +7297,17 @@
       "checked_at": "2026-11-13T18:19:23.330Z",
       "status": "prepared_fitment_photo_unconfirmed",
       "journal": "procurement/data/enrichment_queue_items/5-25224-20261113.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25177,
+      "product_id": 6703,
+      "task_id": 4676,
+      "brand": "HAVAL",
+      "article": "2905110AKZ16A",
+      "checked_at": "2026-11-13T20:09:04.075Z",
+      "status": "saved_fitment_db_verified_ui_pending_photo_unconfirmed",
+      "journal": "procurement/data/enrichment_queue_items/5-25177-20261114.json"
     }
   ],
   "prepared": [
@@ -7454,9 +7465,39 @@
           }
         ]
       }
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25177,
+      "kind": "fitment",
+      "source_url": "https://www.jikiu.com/catalogue/59772881",
+      "additional_source_url": "https://kaspi.kz/shop/p/haval-perednii-2905110akz16a-1-sht-130189369/",
+      "payload": {
+        "status": "prepared",
+        "make_model_pairs": [
+          [
+            "HAVAL",
+            "H6"
+          ],
+          [
+            "HAVAL",
+            "M6"
+          ]
+        ],
+        "details": "H6 from 2014-09, 1.5L GW4G15, front left (JIKIU exact OEM cross); M6 discrete years 2021, 2022, 2023, 2024, 1.5L Turbo, 2WD, front left without spring (exact Kaspi characteristics)."
+      }
     }
   ],
-  "queued": [],
+  "queued": [
+    {
+      "supplier_id": 5,
+      "offer_id": 25177,
+      "kind": "fitment_publication",
+      "queued_at": "2026-11-13T20:05:14.300852Z",
+      "commit": "155e7dc4b3bd23fd49fb15c36c1d87bba4dc7b4a",
+      "deploy_id": "dep-dbrmqulbedkc73biubvg"
+    }
+  ],
   "saved": [
     {
       "supplier_id": 5,
@@ -7505,6 +7546,14 @@
       "saved_at": "2026-11-13T18:24:17.730Z",
       "deploy_id": "dep-dbrla968bjmc73f7khig",
       "live_commit": "ac659f42c53cc3fc4d22495f2792c4bbceec46ea"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25177,
+      "kind": "fitment",
+      "saved_at": "2026-11-13T20:07:09.400382Z",
+      "deploy_id": "dep-dbrmqulbedkc73biubvg",
+      "live_commit": "155e7dc4b3bd23fd49fb15c36c1d87bba4dc7b4a"
     }
   ],
   "verified": [
@@ -7561,6 +7610,16 @@
       "ui_verified": true,
       "ui_url": "https://zpt.kz/changan-zpt-25224/",
       "verified_at": "2026-11-13T18:24:17.730Z"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25177,
+      "kind": "fitment",
+      "db_verified": true,
+      "ui_verified": false,
+      "ui_url": "https://zpt.kz/haval-zpt-25177/",
+      "verified_at": "2026-11-13T20:09:04.075Z",
+      "note": "DB has two verified make/model rows and provenance; UI check pending because the execution environment became unavailable."
     }
   ],
   "exceptions": [
@@ -7674,9 +7733,31 @@
         "https://www.mybeauvais.com/S203F260204-0100-Left-front-shock-absorber-CS55-PLUS-pd571442268.html",
         "https://shop.globalparts.kz/product/changan/s203f260204-0100"
       ]
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25177,
+      "field": "photo",
+      "reason": "exact_photo_not_verified",
+      "checked_at": "2026-11-13T20:09:04.075Z",
+      "sources": [
+        "https://www.jikiu.com/catalogue/59772881",
+        "https://kaspi.kz/shop/p/haval-perednii-2905110akz16a-1-sht-130189369/"
+      ],
+      "detail": "JIKIU image represents an aftermarket cross, not the exact HAVAL part; the exact Kaspi image could not be independently inspected in this run. No photo was saved."
     }
   ],
-  "publication_pending": null,
+  "publication_pending": {
+    "supplier_id": 5,
+    "offer_id": 25177,
+    "kind": "ui_verification_only",
+    "db_saved": true,
+    "db_verified": true,
+    "ui_url": "https://zpt.kz/haval-zpt-25177/",
+    "deploy_id": "dep-dbrmqulbedkc73biubvg",
+    "live_commit": "155e7dc4b3bd23fd49fb15c36c1d87bba4dc7b4a",
+    "created_at": "2026-11-13T20:09:04.075Z"
+  },
   "next": {
     "supplier_id": 5,
     "offer_id": 25177
@@ -7766,6 +7847,11 @@
       "at": "2026-11-13T19:04:50.986Z",
       "type": "resume_check_paused",
       "detail": "Night window open (00:02-00:04 Asia/Qyzylorda). Shared lease was null; publication_pending was null; photo tasks active/processing=0. End-to-end checks: zpt.kz home 6.198s then 8.964s, exact product /changan-zpt-25224/ 8.721s then 3.793s; direct Render home 4.323s and exact product 4.382s. Render service/DB CPU, memory and connections were below limits and no 5xx were observed. No new item was taken; next remains supplier 5 offer 25177."
+    },
+    {
+      "at": "2026-11-13T20:09:04.075Z",
+      "type": "item_publication_db_verified",
+      "detail": "Offer 25177 HAVAL 2905110AKZ16A: two sourced fitment rows saved by live deploy dep-dbrmqulbedkc73biubvg and verified in DB. Exact photo not saved. UI verification remains pending; current_item_index and next pointer were not advanced."
     }
   ],
   "last_success": {
@@ -7775,9 +7861,9 @@
     "offer_id": 25224,
     "deploy_id": "dep-dbrla968bjmc73f7khig"
   },
-  "last_commit": "ac659f42c53cc3fc4d22495f2792c4bbceec46ea",
-  "paused_at": "2026-11-13T19:04:50.986Z",
-  "pause_reason": "Temporary storefront latency remained elevated at the scheduled resume check; no new item was taken and shared lease was not acquired.",
+  "last_commit": "155e7dc4b3bd23fd49fb15c36c1d87bba4dc7b4a",
+  "paused_at": "2026-11-13T20:09:04.075Z",
+  "pause_reason": "Offer 25177 fitment is live and DB-verified; public-card verification could not be completed because the execution environment became unavailable. No next item taken.",
   "remaining_live": {
     "1": {
       "remaining_without_photo": 297,
