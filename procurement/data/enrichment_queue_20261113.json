@@ -16,7 +16,7 @@
     "expires_at": "2026-11-13T19:33:23.133Z"
   },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-13T18:05:41.445Z",
+  "heartbeat_at": "2026-11-13T18:06:31.747Z",
   "status": "running",
   "phase": "other_in_stock_control",
   "phase_reconciliation": {
@@ -7195,17 +7195,73 @@
     }
   ],
   "current_batch_index": 0,
-  "current_item_index": 0,
-  "reviewed": [],
-  "prepared": [],
+  "current_item_index": 1,
+  "reviewed": [
+    {
+      "supplier_id": 5,
+      "offer_id": 25628,
+      "product_id": 7268,
+      "brand": "HYUNDAI-KIA",
+      "article": "914102S222",
+      "checked_at": "2026-11-13T18:06:31.747Z",
+      "status": "prepared_fitment_photo_unconfirmed",
+      "journal": "procurement/data/enrichment_queue_items/5-25628-20261113.json"
+    }
+  ],
+  "prepared": [
+    {
+      "supplier_id": 5,
+      "offer_id": 25628,
+      "kind": "fitment",
+      "source_url": "https://partsouq.com/en/catalog/genuine/parts?c=HYUNDAI202404&gid=704&q=&vid=1546409837",
+      "payload": {
+        "status": "prepared",
+        "source_url": "https://partsouq.com/en/catalog/genuine/parts?c=HYUNDAI202404&gid=704&q=&vid=1546409837",
+        "make": "HYUNDAI",
+        "model": "Tucson",
+        "details": "2009; 2010; 2011; 2012; 2013 · 2.0 CRDi (R) · АКПП 6-ступ. · 4WD · ESC · conventional-clear cluster; without asserted completeness",
+        "configurations": [
+          {
+            "years": [
+              2009,
+              2010,
+              2011,
+              2012,
+              2013
+            ],
+            "engine": "2.0 CRDi (R)",
+            "transmission": "6-speed automatic",
+            "drive": "4WD",
+            "restrictions": [
+              "ESC",
+              "conventional-clear cluster"
+            ],
+            "source_scope": "exact catalog row; option-code applicability is VIN-specific"
+          }
+        ]
+      }
+    }
+  ],
   "queued": [],
   "saved": [],
   "verified": [],
-  "exceptions": [],
+  "exceptions": [
+    {
+      "supplier_id": 5,
+      "offer_id": 25628,
+      "field": "photo",
+      "reason": "exact_photo_not_confirmed",
+      "checked_at": "2026-11-13T18:06:31.747Z",
+      "sources": [
+        "https://partsouq.com/en/catalog/genuine/parts?c=HYUNDAI202404&gid=704&q=&vid=1546409837",
+        "https://kaspi.kz/shop/p/hyundai-kia-blok-predohranitelei-914102s222-1-sht-163978365/?c=750000000"
+      ]
+    }
+  ],
   "publication_pending": null,
   "next": {
     "supplier_id": 5,
-    "offer_id": 25628
+    "offer_id": 25396
   },
   "events": [
     {
@@ -7217,8 +7273,19 @@
       "at": "2026-11-13T18:05:41.445Z",
       "type": "batches_frozen",
       "detail": "ZakazAuto 100; Phaeton 100."
+    },
+    {
+      "at": "2026-11-13T18:06:31.747Z",
+      "type": "item_checkpoint",
+      "detail": "Offer 25628: exact PartSouq fitment prepared; photo remains unconfirmed."
     }
   ],
-  "last_success": null,
+  "last_success": {
+    "at": "2026-11-13T18:06:31.747Z",
+    "stage": "prepared",
+    "supplier_id": 5,
+    "offer_id": 25628,
+    "journal": "procurement/data/enrichment_queue_items/5-25628-20261113.json"
+  },
   "last_commit": "7b4617a04a9eaed79a7ec69b7aef7da29cc08737"
 }
