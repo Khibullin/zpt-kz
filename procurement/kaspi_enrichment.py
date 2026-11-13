@@ -153,6 +153,10 @@ def encode_source_image(data):
 
 
 def due(card):
+    # Retry immediately when the previously missing API dependency is connected.
+    previous=card.source.get('enrichment',{})
+    if connected() and any('требует API-ключа' in reason for reason in previous.get('reasons',[])):
+        return True
     if card.source.get('enrichment',{}).get('version') != ENRICHMENT_VERSION: return True
     stamp=card.source.get('enrichment',{}).get('at')
     if not stamp: return True

@@ -470,3 +470,13 @@ class KaspiPurchasedWorkspaceTests(TestCase):
         checks,ready=readiness(card,list(card.images.all()),{'amount':9000})
         self.assertFalse(card.verified)
         self.assertTrue(ready)
+
+    def test_connecting_api_retries_cards_without_waiting_a_day(self):
+        from unittest.mock import patch
+        from procurement.kaspi_enrichment import due,ENRICHMENT_VERSION
+        card=self.prepare()
+        card.source['enrichment']={'version':ENRICHMENT_VERSION,'at':timezone.now().isoformat(),'reasons':['Автовыбор категории и обязательных характеристик требует API-ключа магазина Kaspi.']}
+        with patch('procurement.kaspi_enrichment.connected',return_value=False): self.assertFalse(due(card))
+        with patch('procurement.kaspi_enrichment.connected',return_value=True): self.assertTrue(due(card))
+        card.source['enrichment']['reasons']=['API Kaspi: HTTP 403. Проверьте подключение и права ключа.']
+        with patch('procurement.kaspi_enrichment.connected',return_value=True): self.assertFalse(due(card))
