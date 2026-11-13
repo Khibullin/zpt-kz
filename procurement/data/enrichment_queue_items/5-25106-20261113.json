@@ -1,0 +1,61 @@
+{
+  "schema": 1,
+  "checked_at": "2026-11-13T18:07:49.293Z",
+  "supplier_id": 5,
+  "supplier_name": "ЗаказАвто",
+  "offer_id": 25106,
+  "product_id": 6692,
+  "task_id": null,
+  "brand": "Chery",
+  "article": "202001202AA",
+  "name": "Амортизатор задней Chery",
+  "research": {
+    "sources": [
+      {
+        "url": "https://jikiu.com/catalogue/79062068",
+        "result": "Manufacturer catalogue cross: Chery 202001202AA, Arrizo 8, 04.22–03.25, 1.6L SQRF4J16C, rear left/right."
+      },
+      {
+        "url": "https://www.autoopt.ru/catalog/728552-amortizator_chery_arrizo_8_23__zadnij_levyjpravyj_oe/pdf",
+        "result": "Exact Chery article, Arrizo 8 (23-), rear left/right; corroborating independent listing."
+      },
+      {
+        "url": "https://kaspi.kz/shop/p/chery-zadnii-202001202aa-2-sht-162887054/?c=750000000",
+        "result": "Not used for photo or unit data: prior exact card is a two-piece pack while supplier unit remains unconfirmed."
+      }
+    ],
+    "photo": {
+      "status": "not_confirmed",
+      "reason": "Exact fitment prepared from manufacturer catalogue cross; exact source photo for the Chery-branded one-piece supplier unit not confirmed."
+    },
+    "fitment": {
+      "status": "prepared",
+      "source_url": "https://jikiu.com/catalogue/79062068",
+      "make": "CHERY",
+      "model": "Arrizo 8",
+      "details": "04.2022–03.2025 · 1.6L SQRF4J16C · задняя ось · левая/правая сторона · источник — каталог производителя аналога с точным OEM cross",
+      "configurations": [
+        {
+          "date_from": "2022-04",
+          "date_to": "2025-03",
+          "engine": "1.6L SQRF4J16C",
+          "placement": "rear",
+          "side": [
+            "left",
+            "right"
+          ],
+          "source_scope": "JIKIU cross-reference to Chery OEM 202001202AA"
+        }
+      ]
+    }
+  },
+  "after": {
+    "prepared_fitment": true,
+    "photo_unchanged": true,
+    "database_saved": false,
+    "ui_verified": false
+  },
+  "state": "prepared_for_publication",
+  "reason": "Exact fitment prepared from manufacturer catalogue cross; exact source photo for the Chery-branded one-piece supplier unit not confirmed.",
+  "next_offer_id": 25784
+}
