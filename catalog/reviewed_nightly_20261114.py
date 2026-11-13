@@ -5,7 +5,7 @@ from decimal import Decimal
 from functools import lru_cache
 from pathlib import Path
 
-MANIFEST_SHA256 = "8ffcfa4e4f79b29c0b2dc81fad9ee843995101f665e82a03c101c15087773f2f"
+MANIFEST_SHA256 = "babaf18cc057094d6636edc9ec55e67dbdadc55ea65017ac5426148d87d7bf4e"
 BATCH = "nightly-20261114-a"
 
 
@@ -16,7 +16,7 @@ def reviewed_rows():
         raise ValueError("Reviewed nightly manifest changed")
     payload = json.loads(raw)
     rows = payload["sources"]
-    if payload["checked_on"] != "2026-11-13" or len(rows) != 2:
+    if payload["checked_on"] != "2026-11-13" or len(rows) != 6:
         raise ValueError("Unexpected nightly review batch")
     if len({row["offer_id"] for row in rows}) != len(rows):
         raise ValueError("Duplicate reviewed offer")

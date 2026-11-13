@@ -117,7 +117,10 @@ class Tests(unittest.TestCase):
         return offer
 
     def test_exact_rows_and_discrete_years(self):
-        self.assertEqual({row["offer_id"] for row in ROWS}, {25628, 25106})
+        self.assertEqual(
+            {row["offer_id"] for row in ROWS},
+            {25628, 25106, 25784, 25768, 25765, 25224},
+        )
         tucson = next(row for row in ROWS if row["offer_id"] == 25628)
         self.assertEqual(tucson["fitments"][0]["years"], [2009, 2010, 2011, 2012, 2013])
 
@@ -126,9 +129,9 @@ class Tests(unittest.TestCase):
             self.add_row(row)
         before = list(Offer.objects.order_by("pk").values_list("id", "cost", "stock", "kaspi_price", "photo_url"))
         module.stage_review(self.apps, self.schema)
-        self.assertEqual(VehicleFitment.objects.count(), 2)
+        self.assertEqual(VehicleFitment.objects.count(), 6)
         module.stage_review(self.apps, self.schema)
-        self.assertEqual(VehicleFitment.objects.count(), 2)
+        self.assertEqual(VehicleFitment.objects.count(), 6)
         self.assertEqual(
             list(Offer.objects.order_by("pk").values_list("id", "cost", "stock", "kaspi_price", "photo_url")),
             before,
