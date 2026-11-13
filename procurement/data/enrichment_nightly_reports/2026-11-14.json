@@ -2,7 +2,7 @@
   "schema": 1,
   "night_end_date": "2026-11-14",
   "started_at": "2026-11-13T18:05:41.445Z",
-  "updated_at": "2026-11-13T18:15:54.420Z",
+  "updated_at": "2026-11-13T18:18:15.905Z",
   "status": "running",
   "supplier_stats": {
     "1": {
@@ -25,8 +25,8 @@
       "name": "ЗаказАвто",
       "processed_unique": 7,
       "photos_added": 0,
-      "fitment_added": 0,
-      "years_or_engines_added": 0,
+      "fitment_added": 2,
+      "years_or_engines_added": 2,
       "skips": {
         "exact_photo_not_confirmed": 2,
         "contradictory_sources": 1,
@@ -90,14 +90,24 @@
       "at": "2026-11-13T18:15:54.420Z",
       "type": "item_checkpoint",
       "detail": "ZakazAuto 25765: fitment prepared; exact photo unconfirmed."
+    },
+    {
+      "at": "2026-11-13T18:18:15.905Z",
+      "type": "deploy_failure",
+      "detail": "Initial deploy failed on migration leaf conflict; no data was changed."
+    },
+    {
+      "at": "2026-11-13T18:18:15.905Z",
+      "type": "deploy_recovered",
+      "detail": "Corrected deploy live; 2 fitments saved and verified in DB and public product pages."
     }
   ],
   "last_success": {
-    "at": "2026-11-13T18:15:54.420Z",
-    "stage": "prepared",
+    "at": "2026-11-13T18:18:15.905Z",
+    "stage": "saved_and_ui_verified",
     "supplier_id": 5,
-    "offer_id": 25765,
-    "journal": "procurement/data/enrichment_queue_items/5-25765-20261113.json"
+    "offer_id": 25106,
+    "deploy_id": "dep-dbrl76qjnfac73ars24g"
   },
   "blocking_error": null
 }
