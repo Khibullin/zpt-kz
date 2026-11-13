@@ -8,5 +8,5 @@ def stage(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-    dependencies = [("procurement", "0062_filter_dictionary_indexes")]
+    dependencies = [("procurement", "0067_offer_proc_offer_catalog_rank")]
     operations = [migrations.RunPython(stage, migrations.RunPython.noop)]
