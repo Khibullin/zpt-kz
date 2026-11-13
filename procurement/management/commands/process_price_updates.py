@@ -34,7 +34,7 @@ class Command(BaseCommand):
             try:
                 if options['watch']:
                     from procurement.kaspi_materials import process_purchased_cards
-                    process_purchased_cards(fetch_photos=True)
+                    process_purchased_cards(fetch_photos=True, throttle=True)
                 query = PriceUpdate.objects.filter(status__in=['ready', 'running']).order_by('pk')
                 if options['batch']:
                     query = query.filter(pk=options['batch'])
