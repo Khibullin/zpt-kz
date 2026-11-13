@@ -86,7 +86,10 @@ def refresh_price_feed():
             if price is None: raise ValueError('Цена опубликованного товара требует обновления конкурентов или ручного ввода.')
             rows.append(dict(sku=job.payload['material']['sku'],title=job.card.title,brand=job.card.brand,quantity=row['stock'],price=price))
             result={**job.result,'feed_price':str(price)}
-            KaspiCardJob.objects.filter(pk=job.pk).update(result=result)
+            changes={'result':result}
+            if job.status=='published' and job.result.get('feed_price')!=str(price):
+                changes.update(status='awaiting_listing',reason='Цена изменена. Ожидается подтверждение новой цены в Kaspi.',updated_at=now)
+            KaspiCardJob.objects.filter(pk=job.pk).update(**changes)
         feed.xml=merge_feed(original,rows,settings.KASPI_MERCHANT_ID,settings.KASPI_POINT_OF_SERVICE)
         feed.error='';feed.built_at=now
     except Exception as exc:
