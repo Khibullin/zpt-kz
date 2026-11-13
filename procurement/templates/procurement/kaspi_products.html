@@ -1,9 +1,10 @@
 {% extends 'procurement/base.html' %}{% load static %}
 {% block title %}Товары для Kaspi · ZPT.KZ{% endblock %}
+{% block workspace_back %}<a class="button" href="{{ catalog_url }}" data-kaspi-back style="margin-right:10px">← Назад</a>{% endblock %}
 {% block content %}
 <link rel="stylesheet" href="{% static 'procurement/kaspi-workspace-v1.css' %}">
 <div class="kp-workspace">
-<nav class="kp-nav" aria-label="Разделы товаров"><a class="button" href="{{ catalog_url }}">Каталог поставщика</a><a class="button kp-best" href="{{ catalog_url }}&mode=best">Выгодные к закупке</a><a class="button kp-primary" href="{% url 'procurement:kaspi_products' %}" aria-current="page">Товары для Kaspi</a><a class="button" href="{{ basket_url }}">Список закупки</a><a class="button" href="{{ settings_url }}">Настройки</a></nav>
+<nav class="kp-nav" aria-label="Разделы товаров"><a class="button" href="{{ catalog_url }}">Каталог поставщика</a><a class="button kp-best" href="{{ catalog_url }}&mode=best">Выгодные к закупке</a><a class="button kp-primary" href="{% url 'procurement:kaspi_products' %}" aria-current="page">Товары для Kaspi</a></nav>
 <header class="kp-heading"><div><h1>Товары для Kaspi</h1><p class="muted">Закупленные товары: подготовка карточек и история публикаций</p></div><a class="button kp-outline" href="{% if can_access_accounting %}{% url 'inventory:purchases' %}{% else %}{% url 'procurement:basket' %}{% endif %}">Добавить закупленный заказ</a></header>
 <div class="kp-layout">
 <section class="panel kp-batches" aria-label="Закупленные заказы"><h2>Закупленные заказы</h2><label class="kp-search-label" for="kp-batch-search">Поиск по заказам</label><input id="kp-batch-search" type="search" placeholder="Поставщик, номер" autocomplete="off">
@@ -34,5 +35,5 @@
 {% else %}<h3>История закупки и карточек</h3><p>{{ batch.obj.created_at|date:'d.m.Y H:i' }} · Закупка сохранена в системе</p>{% for event in events %}<div class="kp-event"><time>{{ event.created_at|date:'d.m.Y H:i' }}</time><strong>{{ event.label }}</strong><span>{{ event.user.get_username|default:'Система' }}{% if event.details.article %} · {{ event.details.brand }} {{ event.details.article }}{% endif %}</span>{% if event.details.after %}<details><summary>Сохранённая версия карточки</summary>{% for key,value in event.card_fields %}<p><b>{{ key }}</b>: {{ value|default:'Не заполнено' }}</p>{% endfor %}</details>{% endif %}</div>{% empty %}<p class="muted">Подготовка и изменения карточек ещё не выполнялись. Новые действия появятся здесь с датой и сотрудником.</p>{% endfor %}</section>{% endif %}
 {% else %}<section class="panel"><h2>Добавьте первую закупку</h2><p>Раздел использует оплаченные заказы и принятые накладные, доступные вам по действующим правам. Выбранные в подборе товары ещё не являются закупкой.</p><a class="button kp-outline" href="{{ basket_url }}">Открыть закупочные заказы</a></section>{% endif %}</div></div>
 <p class="kp-footnote">Повторная закупка использует сохранённую карточку товара. История каждой партии остаётся отдельно. Остатки изменяются только складскими операциями.</p></div>
-<script src="{% static 'procurement/kaspi-workspace-v1.js' %}" defer></script>
+<script src="{% static 'procurement/kaspi-workspace-v2.js' %}" defer></script>
 {% endblock %}
