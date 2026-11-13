@@ -10,14 +10,14 @@
     "reviewed_offer_ids": 408
   },
   "shared_lease": {
-    "owner": "nightly-enrichment-20261114-2303",
+    "owner": "nightly-enrichment-20261114-0256",
     "source_path": "procurement/data/enrichment_queue_20261111.json",
-    "acquired_at": "2026-11-13T18:03:23.133Z",
-    "expires_at": "2026-11-13T19:33:23.133Z",
-    "released_at": "2026-11-13T18:25:27.457Z"
+    "acquired_at": "2026-11-13T21:56:30.285Z",
+    "expires_at": "2026-11-13T22:42:46.087Z",
+    "released_at": "2026-11-13T22:16:20.000Z"
   },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-13T21:02:56.833Z",
+  "heartbeat_at": "2026-11-13T22:16:20.000Z",
   "status": "paused_for_site_latency",
   "phase": "other_in_stock_control",
   "phase_reconciliation": {
@@ -7196,7 +7196,7 @@
     }
   ],
   "current_batch_index": 0,
-  "current_item_index": 11,
+  "current_item_index": 12,
   "reviewed": [
     {
       "supplier_id": 5,
@@ -7308,6 +7308,17 @@
       "checked_at": "2026-11-13T20:09:04.075Z",
       "status": "saved_and_ui_verified_fitment_photo_unconfirmed",
       "journal": "procurement/data/enrichment_queue_items/5-25177-20261114.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25215,
+      "product_id": 6809,
+      "task_id": 4782,
+      "brand": "Parts-Mall",
+      "article": "PJB-016A",
+      "checked_at": "2026-11-13T22:00:30.000Z",
+      "status": "saved_and_ui_verified_photo_and_fitment",
+      "journal": "procurement/data/enrichment_queue_items/5-25215-20261114.json"
     }
   ],
   "prepared": [
@@ -7486,6 +7497,53 @@
         ],
         "details": "H6 from 2014-09, 1.5L GW4G15, front left (JIKIU exact OEM cross); M6 discrete years 2021, 2022, 2023, 2024, 1.5L Turbo, 2WD, front left without spring (exact Kaspi characteristics)."
       }
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25215,
+      "kind": "fitment",
+      "source_url": "https://plenty.parts/parts/parts-mall/suspension-damping/parts-mall-pjb016a-shock-absorber-p3007877",
+      "payload": {
+        "status": "prepared",
+        "make_model_pairs": [
+          [
+            "KIA",
+            "Carnival I"
+          ],
+          [
+            "KIA",
+            "Sedona I"
+          ]
+        ],
+        "years": [
+          1999,
+          2000,
+          2001
+        ],
+        "engine": "J3 2.9 TD",
+        "placement": "front left",
+        "restriction": "ABS",
+        "source_scope": "Exact Parts-Mall PJB-016A catalogue page; not asserted complete"
+      }
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25215,
+      "kind": "photo",
+      "source_url": "https://plenty.parts/parts/parts-mall/suspension-damping/parts-mall-pjb016a-shock-absorber-p3007877",
+      "image_url": "https://i.plenty.parts/i/850/i315_37_2935995.jpg",
+      "payload": {
+        "status": "prepared",
+        "main_size": [
+          342,
+          224
+        ],
+        "thumbnail_size": [
+          180,
+          118
+        ],
+        "source_sha256": "6c6cebe23ffcc955102a25e6b1224af926da583ae1e54ddeb5c75b2c76e59c8a"
+      }
     }
   ],
   "queued": [
@@ -7496,6 +7554,15 @@
       "queued_at": "2026-11-13T20:05:14.300852Z",
       "commit": "155e7dc4b3bd23fd49fb15c36c1d87bba4dc7b4a",
       "deploy_id": "dep-dbrmqulbedkc73biubvg"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25215,
+      "kind": "photo_and_fitment_publication",
+      "queued_at": "2026-11-13T22:05:20.821964Z",
+      "commit": "ef7f61f182ef367612a25e5922aef8ac61a620a8",
+      "deploy_id": "dep-dbroj817lnhs73dicrag",
+      "photo_consumer_deploy_id": "dep-dbrome15efls73dit0jg"
     }
   ],
   "saved": [
@@ -7554,6 +7621,23 @@
       "saved_at": "2026-11-13T20:07:09.400382Z",
       "deploy_id": "dep-dbrmqulbedkc73biubvg",
       "live_commit": "155e7dc4b3bd23fd49fb15c36c1d87bba4dc7b4a"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25215,
+      "kind": "fitment",
+      "saved_at": "2026-11-13T22:05:44.733466Z",
+      "deploy_id": "dep-dbroj817lnhs73dicrag",
+      "live_commit": "ef7f61f182ef367612a25e5922aef8ac61a620a8"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25215,
+      "kind": "photo",
+      "saved_at": "2026-11-13T22:15:15.780791Z",
+      "task_id": 4782,
+      "main_image": "products/optimized/8b320dfb89703edd76df68fc9819b948127d887345d5546a61c67159dbe00355.webp",
+      "supplier_thumbnail": "products/optimized/16b3b86a634dbe6db2b2384d642711e812f68887c188d807b9b3b21f7b66a319.webp"
     }
   ],
   "verified": [
@@ -7620,6 +7704,27 @@
       "ui_url": "https://zpt.kz/haval-zpt-25177/",
       "verified_at": "2026-11-13T21:02:56.833Z",
       "ui_response_seconds": 6.290573
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25215,
+      "kind": "fitment",
+      "db_verified": true,
+      "ui_verified": true,
+      "ui_url": "https://zpt.kz/kia-zpt-25215/",
+      "verified_at": "2026-11-13T22:16:20.000Z",
+      "ui_response_seconds": 3.952081
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25215,
+      "kind": "photo",
+      "db_verified": true,
+      "ui_verified": true,
+      "main_http_status": 200,
+      "thumbnail_http_status": 200,
+      "ui_url": "https://zpt.kz/kia-zpt-25215/",
+      "verified_at": "2026-11-13T22:16:20.000Z"
     }
   ],
   "exceptions": [
@@ -7750,7 +7855,7 @@
   "publication_pending": null,
   "next": {
     "supplier_id": 5,
-    "offer_id": 25215
+    "offer_id": 25285
   },
   "events": [
     {
@@ -7847,18 +7952,40 @@
       "at": "2026-11-13T21:02:56.833Z",
       "type": "ui_verified_and_advance",
       "detail": "Offer 25177 HAVAL 2905110AKZ16A returned HTTP 200 and displayed exact article, H6/GW4G15, M6 and discrete years 2021/2022/2023/2024. Pointer advanced to offer 25215. No new item was taken because home/product timings were 7.250s/6.291s."
+    },
+    {
+      "at": "2026-11-13T21:56:30.285Z",
+      "type": "resume_and_item_start",
+      "detail": "Night window open; shared lease acquired. Site checks were elevated but stable enough for one-item low-tempo processing (home 5.401s, product 3.097s)."
+    },
+    {
+      "at": "2026-11-13T22:12:08.824166Z",
+      "type": "photo_consumer_root_cause_and_recovery",
+      "detail": "Live Render configuration showed the existing PRICE_UPDATE_WORKER_ENABLED flag was false. The existing single process_price_updates --watch consumer was enabled; no second consumer or mass producer was started."
+    },
+    {
+      "at": "2026-11-13T22:16:20.000Z",
+      "type": "item_saved_verified_and_advance",
+      "detail": "Offer 25215 Parts-Mall PJB-016A: exact photo, 180px thumbnail, and two sourced fitment rows saved; DB, both image URLs, and public UI verified. Pointer advanced to offer 25285."
+    },
+    {
+      "at": "2026-11-13T22:16:20.000Z",
+      "type": "pause",
+      "detail": "No next item taken because public checks remained elevated (page 3.952s, main image 4.502s, thumbnail 5.292s). Progress saved and shared lease released."
     }
   ],
   "last_success": {
-    "at": "2026-11-13T21:02:56.833Z",
-    "stage": "saved_and_ui_verified",
+    "at": "2026-11-13T22:16:20.000Z",
+    "stage": "saved_and_ui_verified_photo_and_fitment",
     "supplier_id": 5,
-    "offer_id": 25177,
-    "deploy_id": "dep-dbrmqulbedkc73biubvg"
+    "offer_id": 25215,
+    "deploy_id": "dep-dbroj817lnhs73dicrag",
+    "photo_consumer_deploy_id": "dep-dbrome15efls73dit0jg",
+    "commit": "ef7f61f182ef367612a25e5922aef8ac61a620a8"
   },
-  "last_commit": "155e7dc4b3bd23fd49fb15c36c1d87bba4dc7b4a",
-  "paused_at": "2026-11-13T21:02:56.833Z",
-  "pause_reason": "Offer 25177 was DB/UI verified and the pointer advanced. New item not taken because public home and product responses were 7.250s and 6.291s.",
+  "last_commit": "ef7f61f182ef367612a25e5922aef8ac61a620a8",
+  "paused_at": "2026-11-13T22:16:20.000Z",
+  "pause_reason": "Current item completed and verified; public checks remained elevated (page 3.952s, main image 4.502s, thumbnail 5.292s), so no next item was taken.",
   "remaining_live": {
     "1": {
       "remaining_without_photo": 297,
@@ -7871,8 +7998,8 @@
       "total_positive_stock": 27852
     },
     "5": {
-      "remaining_without_photo": 6720,
-      "remaining_without_structured_fitment": 6632,
+      "remaining_without_photo": 6719,
+      "remaining_without_structured_fitment": 6630,
       "total_positive_stock": 6895
     }
   }

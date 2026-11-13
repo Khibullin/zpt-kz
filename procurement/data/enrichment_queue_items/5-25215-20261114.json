@@ -1,0 +1,157 @@
+{
+  "schema": 1,
+  "checked_on": "2026-11-14",
+  "checked_at": "2026-11-13T22:00:30.000Z",
+  "supplier_id": 5,
+  "supplier": "ЗаказАвто",
+  "offer_id": 25215,
+  "product_id": 6809,
+  "task_id": 4782,
+  "brand": "Parts-Mall",
+  "article": "PJB-016A",
+  "name": "Амортизатор передний Kia",
+  "stock_before": "1",
+  "cost_before": "15900.00",
+  "before": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "fitment_rows": 0,
+    "reviewed_applicability": null
+  },
+  "prepared": {
+    "photo": {
+      "status": "prepared",
+      "source_kind": "independent_exact_part_catalogue",
+      "source_url": "https://plenty.parts/parts/parts-mall/suspension-damping/parts-mall-pjb016a-shock-absorber-p3007877",
+      "image_url": "https://i.plenty.parts/i/850/i315_37_2935995.jpg",
+      "source_sha256": "6c6cebe23ffcc955102a25e6b1224af926da583ae1e54ddeb5c75b2c76e59c8a",
+      "main_size": [
+        342,
+        224
+      ],
+      "thumbnail_size": [
+        180,
+        118
+      ],
+      "note": "Real part photograph from the exact Parts-Mall PJB-016A catalogue page."
+    },
+    "fitment": {
+      "status": "prepared",
+      "make_model_pairs": 2,
+      "source_kind": "independent_exact_part_catalogue",
+      "source_url": "https://plenty.parts/parts/parts-mall/suspension-damping/parts-mall-pjb016a-shock-absorber-p3007877",
+      "scope": "Carnival I and Sedona I; discrete years 1999/2000/2001; J3 2.9 TD; front left; gas pressure; ABS restriction; not asserted complete."
+    }
+  },
+  "queued": {
+    "status": "github_commit_autodeploy_and_existing_photo_consumer",
+    "commit": "ef7f61f182ef367612a25e5922aef8ac61a620a8",
+    "deploy_id": "dep-dbroj817lnhs73dicrag",
+    "photo_consumer_deploy_id": "dep-dbrome15efls73dit0jg",
+    "queued_at": "2026-11-13T22:05:20.821964Z"
+  },
+  "saved": {
+    "status": "live_db_saved",
+    "fitment_saved_at": "2026-11-13T22:05:44.733466Z",
+    "photo_saved_at": "2026-11-13T22:15:15.780791Z",
+    "fitment_rows": 2,
+    "main_bytes": 10080,
+    "thumbnail_bytes": 2858
+  },
+  "after": {
+    "main_image": "products/optimized/8b320dfb89703edd76df68fc9819b948127d887345d5546a61c67159dbe00355.webp",
+    "supplier_thumbnail": "products/optimized/16b3b86a634dbe6db2b2384d642711e812f68887c188d807b9b3b21f7b66a319.webp",
+    "fitments": [
+      {
+        "make": "KIA",
+        "model": "Carnival I",
+        "configurations": [
+          {
+            "years": [
+              1999,
+              2000,
+              2001
+            ],
+            "engine": "J3 2.9 TD diesel (126 hp / 93 kW / 2.9 L)",
+            "drive": "FWD",
+            "body": "MPV / Van / Minivan",
+            "placement": "front",
+            "side": "left",
+            "shock_type": "gas pressure",
+            "restriction": "for vehicles with ABS",
+            "source_url": "https://plenty.parts/parts/parts-mall/suspension-damping/parts-mall-pjb016a-shock-absorber-p3007877"
+          }
+        ]
+      },
+      {
+        "make": "KIA",
+        "model": "Sedona I",
+        "configurations": [
+          {
+            "years": [
+              1999,
+              2000,
+              2001
+            ],
+            "engine": "J3 2.9 TD diesel (126 hp / 93 kW / 2.9 L)",
+            "drive": "FWD",
+            "body": "MPV / Van / Minivan",
+            "placement": "front",
+            "side": "left",
+            "shock_type": "gas pressure",
+            "restriction": "for vehicles with ABS",
+            "source_url": "https://plenty.parts/parts/parts-mall/suspension-damping/parts-mall-pjb016a-shock-absorber-p3007877"
+          }
+        ]
+      }
+    ],
+    "stock": "1",
+    "cost": "15900.00",
+    "kaspi_price": "30120.00"
+  },
+  "verification": {
+    "db_verified": true,
+    "fitment_verified": true,
+    "photo_verified": true,
+    "thumbnail_verified": true,
+    "ui_verified": true,
+    "ui_url": "https://zpt.kz/kia-zpt-25215/",
+    "ui_verified_at": "2026-11-13T22:16:20.000Z",
+    "ui_http_status": 200,
+    "ui_response_seconds": 3.952081,
+    "main_url": "https://zpt.kz/products/products/optimized/8b320dfb89703edd76df68fc9819b948127d887345d5546a61c67159dbe00355.webp",
+    "main_http_status": 200,
+    "main_response_seconds": 4.502062,
+    "thumbnail_url": "https://zpt.kz/products/products/optimized/16b3b86a634dbe6db2b2384d642711e812f68887c188d807b9b3b21f7b66a319.webp",
+    "thumbnail_http_status": 200,
+    "thumbnail_response_seconds": 5.291777,
+    "ui_evidence": [
+      "PJB-016A",
+      "Parts-Mall",
+      "KIA Carnival I",
+      "KIA Sedona I",
+      "1999",
+      "2000",
+      "2001",
+      "J3 2.9 TD"
+    ]
+  },
+  "sources": [
+    {
+      "kind": "independent_exact_part_catalogue",
+      "url": "https://plenty.parts/parts/parts-mall/suspension-damping/parts-mall-pjb016a-shock-absorber-p3007877",
+      "checked_on": "2026-11-14",
+      "exact_brand": "Parts-Mall",
+      "exact_article": "PJB-016A",
+      "image_url": "https://i.plenty.parts/i/850/i315_37_2935995.jpg"
+    }
+  ],
+  "status": "saved_and_ui_verified_photo_and_fitment",
+  "skip_reason": null,
+  "next": {
+    "supplier_id": 5,
+    "offer_id": 25285,
+    "action": "review_photo_and_fitment_if_site_latency_allows"
+  },
+  "trade_data_unchanged": true
+}

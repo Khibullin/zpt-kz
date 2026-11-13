@@ -2,7 +2,7 @@
   "schema": 1,
   "night_end_date": "2026-11-14",
   "started_at": "2026-11-13T18:05:41.445Z",
-  "updated_at": "2026-11-13T21:02:56.833Z",
+  "updated_at": "2026-11-13T22:16:20.000Z",
   "status": "paused_for_site_latency",
   "supplier_stats": {
     "1": {
@@ -23,10 +23,10 @@
     },
     "5": {
       "name": "ЗаказАвто",
-      "processed_unique": 11,
-      "photos_added": 0,
-      "fitment_added": 7,
-      "years_or_engines_added": 6,
+      "processed_unique": 12,
+      "photos_added": 1,
+      "fitment_added": 8,
+      "years_or_engines_added": 7,
       "skips": {
         "exact_photo_not_confirmed": 2,
         "contradictory_sources": 1,
@@ -48,13 +48,13 @@
       "5": 100
     },
     "next_supplier_id": 5,
-    "next_offer_id": 25215,
+    "next_offer_id": 25285,
     "control_batch_remaining": {
       "3": 100,
-      "5": 89
+      "5": 88
     },
-    "lease_released_at": null,
-    "lease_owner": "nightly-enrichment-20261114-0202",
+    "lease_released_at": "2026-11-13T22:16:20.000Z",
+    "lease_owner": "nightly-enrichment-20261114-0256",
     "pending_ui_verification": null
   },
   "events": [
@@ -157,18 +157,39 @@
       "at": "2026-11-13T21:02:56.833Z",
       "type": "ui_verified_and_advance",
       "detail": "ZakazAuto 25177 HAVAL 2905110AKZ16A verified in public UI (HTTP 200; exact article, H6/GW4G15, M6 and discrete 2021-2024 years visible). Cumulative verified fitments: 7. Pointer advanced to offer 25215; no new item taken because timings were home 7.250s and product 6.291s."
+    },
+    {
+      "at": "2026-11-13T21:56:30.285Z",
+      "type": "resume_and_item_start",
+      "detail": "Night window open; one-item low-tempo processing resumed at ZakazAuto offer 25215."
+    },
+    {
+      "at": "2026-11-13T22:12:08.824166Z",
+      "type": "photo_consumer_root_cause_and_recovery",
+      "detail": "Existing Render photo consumer was disabled by PRICE_UPDATE_WORKER_ENABLED=false. Enabled the existing single process_price_updates --watch consumer; no second consumer or mass producer started."
+    },
+    {
+      "at": "2026-11-13T22:16:20.000Z",
+      "type": "item_saved_verified_and_advance",
+      "detail": "ZakazAuto 25215 Parts-Mall PJB-016A: first exact photo and thumbnail saved, applicability supplemented with Carnival I and Sedona I, discrete years 1999/2000/2001 and J3 2.9 TD. DB, images and public UI verified."
+    },
+    {
+      "at": "2026-11-13T22:16:20.000Z",
+      "type": "pause",
+      "detail": "No next item taken because public response times remained elevated; checkpoint saved and shared lease released."
     }
   ],
   "last_success": {
-    "at": "2026-11-13T21:02:56.833Z",
-    "stage": "saved_and_ui_verified",
+    "at": "2026-11-13T22:16:20.000Z",
+    "stage": "saved_and_ui_verified_photo_and_fitment",
     "supplier_id": 5,
-    "offer_id": 25177,
-    "deploy_id": "dep-dbrmqulbedkc73biubvg",
-    "commit": "155e7dc4b3bd23fd49fb15c36c1d87bba4dc7b4a"
+    "offer_id": 25215,
+    "deploy_id": "dep-dbroj817lnhs73dicrag",
+    "photo_consumer_deploy_id": "dep-dbrome15efls73dit0jg",
+    "commit": "ef7f61f182ef367612a25e5922aef8ac61a620a8"
   },
   "blocking_error": null,
-  "finished_at": "2026-11-13T21:02:56.833Z",
+  "finished_at": "2026-11-13T22:16:20.000Z",
   "remaining_live": {
     "1": {
       "remaining_without_photo": 296,
@@ -181,8 +202,8 @@
       "total_positive_stock": 27852
     },
     "5": {
-      "remaining_without_photo": 6720,
-      "remaining_without_structured_fitment": 6631,
+      "remaining_without_photo": 6719,
+      "remaining_without_structured_fitment": 6630,
       "total_positive_stock": 6895
     }
   }
