@@ -2,7 +2,7 @@
   "schema": 1,
   "night_end_date": "2026-11-14",
   "started_at": "2026-11-13T18:05:41.445Z",
-  "updated_at": "2026-11-13T18:07:37.346Z",
+  "updated_at": "2026-11-13T18:07:42.878Z",
   "status": "running",
   "supplier_stats": {
     "1": {
@@ -23,13 +23,14 @@
     },
     "5": {
       "name": "ЗаказАвто",
-      "processed_unique": 2,
+      "processed_unique": 3,
       "photos_added": 0,
       "fitment_added": 0,
       "years_or_engines_added": 0,
       "skips": {
         "exact_photo_not_confirmed": 1,
-        "contradictory_sources": 1
+        "contradictory_sources": 1,
+        "article_conflict": 1
       }
     }
   },
@@ -40,7 +41,7 @@
       "5": 100
     },
     "next_supplier_id": 5,
-    "next_offer_id": 25636
+    "next_offer_id": 25106
   },
   "events": [
     {
@@ -62,14 +63,19 @@
       "at": "2026-11-13T18:07:37.346Z",
       "type": "item_checkpoint",
       "detail": "ZakazAuto 25396: contradictory_sources."
+    },
+    {
+      "at": "2026-11-13T18:07:42.878Z",
+      "type": "item_checkpoint",
+      "detail": "ZakazAuto 25636: article_conflict."
     }
   ],
   "last_success": {
-    "at": "2026-11-13T18:07:37.346Z",
+    "at": "2026-11-13T18:07:42.878Z",
     "stage": "reviewed_exception",
     "supplier_id": 5,
-    "offer_id": 25396,
-    "journal": "procurement/data/enrichment_queue_items/5-25396-20261113.json"
+    "offer_id": 25636,
+    "journal": "procurement/data/enrichment_queue_items/5-25636-20261113.json"
   },
   "blocking_error": null
 }
