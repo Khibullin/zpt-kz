@@ -1,0 +1,114 @@
+{
+  "schema": 1,
+  "checked_on": "2026-11-14",
+  "checked_at": "2026-11-13T20:09:04.075Z",
+  "supplier_id": 5,
+  "supplier": "ЗаказАвто",
+  "offer_id": 25177,
+  "product_id": 6703,
+  "task_id": 4676,
+  "brand": "HAVAL",
+  "article": "2905110AKZ16A",
+  "name": "Амортизатор передний HAVAL",
+  "stock_before": "1",
+  "cost_before": "17050.00",
+  "before": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "fitment_rows": 0,
+    "reviewed_applicability": null
+  },
+  "prepared": {
+    "photo": {
+      "status": "not_prepared",
+      "reason": "No independently verified exact HAVAL 2905110AKZ16A image; aftermarket-cross image was not used."
+    },
+    "fitment": {
+      "status": "prepared",
+      "make_model_pairs": 2,
+      "sources": [
+        {
+          "kind": "manufacturer_catalogue_cross_reference",
+          "url": "https://www.jikiu.com/catalogue/59772881",
+          "scope": "HAVAL H6, front left, from 2014-09, 1.5L GW4G15; exact OEM cross 2905110AKZ16A"
+        },
+        {
+          "kind": "exact_kaspi_characteristics",
+          "url": "https://kaspi.kz/shop/p/haval-perednii-2905110akz16a-1-sht-130189369/",
+          "scope": "HAVAL M6, years 2021/2022/2023/2024, 1.5L Turbo, 2WD, front left, without spring"
+        }
+      ]
+    }
+  },
+  "queued": {
+    "status": "github_commit_autodeploy",
+    "commit": "155e7dc4b3bd23fd49fb15c36c1d87bba4dc7b4a",
+    "deploy_id": "dep-dbrmqulbedkc73biubvg",
+    "queued_at": "2026-11-13T20:05:14.300852Z"
+  },
+  "saved": {
+    "status": "live_db_saved",
+    "saved_at": "2026-11-13T20:07:09.400382Z",
+    "fitment_rows": 2
+  },
+  "after": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "fitments": [
+      {
+        "make": "HAVAL",
+        "model": "H6",
+        "configurations": [
+          {
+            "date_from": "2014-09",
+            "date_to": null,
+            "engine": "1.5L GW4G15",
+            "placement": "front",
+            "side": "left",
+            "source_url": "https://www.jikiu.com/catalogue/59772881"
+          }
+        ]
+      },
+      {
+        "make": "HAVAL",
+        "model": "M6",
+        "configurations": [
+          {
+            "years": [
+              2021,
+              2022,
+              2023,
+              2024
+            ],
+            "engine": "1.5L Turbo",
+            "drive": "2WD",
+            "placement": "front",
+            "side": "left",
+            "assembly": "strut without spring",
+            "source_url": "https://kaspi.kz/shop/p/haval-perednii-2905110akz16a-1-sht-130189369/"
+          }
+        ]
+      }
+    ],
+    "stock": "1",
+    "cost": "17050.00",
+    "kaspi_price": "32000.00"
+  },
+  "verification": {
+    "db_verified": true,
+    "fitment_verified": true,
+    "photo_verified": false,
+    "thumbnail_verified": false,
+    "ui_verified": false,
+    "ui_url": "https://zpt.kz/haval-zpt-25177/",
+    "ui_pending_reason": "Execution environment became unavailable after deploy; no duplicate publication is needed. Next run must verify the existing live card first."
+  },
+  "status": "saved_fitment_db_verified_ui_pending_photo_unconfirmed",
+  "skip_reason": null,
+  "next": {
+    "supplier_id": 5,
+    "offer_id": 25177,
+    "action": "verify_existing_public_card_then_advance_to_offer_25215"
+  },
+  "trade_data_unchanged": true
+}
