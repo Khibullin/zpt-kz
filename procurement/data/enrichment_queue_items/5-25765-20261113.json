@@ -1,0 +1,54 @@
+{
+  "schema": 1,
+  "checked_at": "2026-11-13T18:15:54.420Z",
+  "supplier_id": 5,
+  "supplier_name": "ЗаказАвто",
+  "offer_id": 25765,
+  "product_id": 7250,
+  "task_id": null,
+  "brand": "HYUNDAI-KIA",
+  "article": "495602S350",
+  "name": "Вал промежуточный Hyundai",
+  "research": {
+    "sources": [
+      {
+        "url": "https://partsouq.com/en/catalog/genuine/diagram?c=HYUNDAI202404&number=495602S350&vid=285872186",
+        "kind": "independent_oem_catalogue",
+        "result": "Exact 495602S350 catalogue row. PartSouq exact search lists additional IX35/Tucson variants; only the exact diagram configuration is structured here."
+      }
+    ],
+    "photo": {
+      "status": "not_confirmed",
+      "reason": "Catalogue page did not expose a confirmed real exact-item image distinct from branding/diagram; no photo saved."
+    },
+    "fitment": {
+      "status": "prepared",
+      "make": "HYUNDAI",
+      "model": "ix35 / Tucson",
+      "details": "модельные годы 2010; 2011 · EUR, Slovakia plant · 2.0 Theta II · МКПП 5-ступ. · 4WD",
+      "configurations": [
+        {
+          "years": [
+            2010,
+            2011
+          ],
+          "region": "EUR",
+          "plant": "Slovakia",
+          "engine": "2.0 Theta II",
+          "transmission": "5-speed manual",
+          "drive": "4WD",
+          "source_scope": "Exact 495602S350 catalogue row; not asserted complete for all markets"
+        }
+      ],
+      "source_url": "https://partsouq.com/en/catalog/genuine/diagram?c=HYUNDAI202404&number=495602S350&vid=285872186"
+    }
+  },
+  "after": {
+    "prepared_fitment": true,
+    "photo_unchanged": true,
+    "database_saved": false,
+    "ui_verified": false
+  },
+  "state": "prepared_for_next_publication",
+  "next_offer_id": 25251
+}
