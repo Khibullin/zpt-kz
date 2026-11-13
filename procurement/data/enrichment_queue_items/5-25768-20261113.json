@@ -46,9 +46,14 @@
   "after": {
     "prepared_fitment": true,
     "photo_unchanged": true,
-    "database_saved": false,
-    "ui_verified": false
+    "database_saved": true,
+    "ui_verified": true,
+    "db_verified": true,
+    "ui_url": "https://zpt.kz/hyundai-zpt-25768/",
+    "saved_at": "2026-11-13T18:24:17.730Z",
+    "deploy_id": "dep-dbrla968bjmc73f7khig",
+    "live_commit": "ac659f42c53cc3fc4d22495f2792c4bbceec46ea"
   },
-  "state": "prepared_for_next_publication",
+  "state": "saved_and_verified",
   "next_offer_id": 25765
 }
