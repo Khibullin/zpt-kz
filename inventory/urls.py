@@ -7,6 +7,7 @@ from . import workspace_views as workspace
 app_name = 'inventory'
 urlpatterns = [
     path('updates/', update_views.updates, name='updates'),
+    path('updates/original/<int:pk>/delete/', update_views.delete_original, name='delete_original'),
     path('comparison/', comparison_views.comparison, name='comparison'),
     path('search/', workspace.search, name='search'),
     path('archive-transfer/', workspace.archive_transfer, name='archive_transfer'),
