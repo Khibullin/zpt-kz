@@ -99,16 +99,28 @@
     "fitment_verified": true,
     "photo_verified": false,
     "thumbnail_verified": false,
-    "ui_verified": false,
+    "ui_verified": true,
     "ui_url": "https://zpt.kz/haval-zpt-25177/",
-    "ui_pending_reason": "Execution environment became unavailable after deploy; no duplicate publication is needed. Next run must verify the existing live card first."
+    "ui_verified_at": "2026-11-13T21:02:56.833Z",
+    "ui_http_status": 200,
+    "ui_response_seconds": 6.290573,
+    "ui_evidence": [
+      "2905110AKZ16A",
+      "H6",
+      "GW4G15",
+      "M6",
+      "2021",
+      "2022",
+      "2023",
+      "2024"
+    ]
   },
-  "status": "saved_fitment_db_verified_ui_pending_photo_unconfirmed",
+  "status": "saved_and_ui_verified_fitment_photo_unconfirmed",
   "skip_reason": null,
   "next": {
     "supplier_id": 5,
-    "offer_id": 25177,
-    "action": "verify_existing_public_card_then_advance_to_offer_25215"
+    "offer_id": 25215,
+    "action": "review_photo_and_fitment_when_site_latency_recovers"
   },
   "trade_data_unchanged": true
 }
