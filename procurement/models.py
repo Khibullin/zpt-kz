@@ -279,4 +279,4 @@ class RetailPublicationRun(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
 
-from .kaspi_models import KaspiPreparedCard, KaspiCardImage, KaspiCardPrice, KaspiPricingRule  # noqa: E402,F401
+from .kaspi_models import KaspiPreparedCard, KaspiCardImage, KaspiCardPrice, KaspiPricingRule, KaspiCardJob, KaspiPriceFeed  # noqa: E402,F401

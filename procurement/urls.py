@@ -7,9 +7,13 @@ from .auth import WorkspaceLoginView
 from .invitations import invite_manager, accept_invitation, activate_invitation
 from .retail_views import retail_workspace, retail_excel
 from .kaspi_card_views import purchased_products as kaspi_products, card_pricing_settings
+from .kaspi_catalog_api import shared_image
+from .kaspi_price_feed import price_feed
 
 app_name = 'procurement'
 urlpatterns = [
+    path('kaspi-feed/<str:token>/', price_feed, name='kaspi_price_feed'),
+    path('kaspi-photo/<str:token>/', shared_image, name='kaspi_shared_image'),
     path('kaspi-products/pricing/', card_pricing_settings, name='kaspi_card_pricing'),
     path('kaspi-products/', kaspi_products, name='kaspi_products'),
     path('fitments/refresh/', views.refresh_shared_fitments, name='refresh_shared_fitments'),

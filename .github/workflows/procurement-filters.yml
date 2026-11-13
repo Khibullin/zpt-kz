@@ -25,7 +25,7 @@ jobs:
       - run: node --check procurement/static/procurement/kaspi-cards-v1.js
       - run: node --check procurement/static/procurement/kaspi-pricing.js
       - run: node --check static/office/navigation.js
-      - run: node --test tests-js/office-navigation.test.cjs
+      - run: node --test tests-js/office-navigation.test.cjs tests-js/kaspi-card-controls.test.cjs
       - run: python manage.py check
       - run: python manage.py makemigrations procurement --check --dry-run
       - run: python manage.py test procurement --settings=backend.settings_ui_ci --noinput

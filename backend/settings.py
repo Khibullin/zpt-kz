@@ -521,3 +521,9 @@ CACHES = {
         "OPTIONS": {"MAX_ENTRIES": 32},
     },
 }
+
+# The existing full price feed is merged, never replaced by just purchased items.
+KASPI_BASELINE_PRICE_FEED_URL = os.getenv('KASPI_BASELINE_PRICE_FEED_URL', '').strip()
+KASPI_POINT_OF_SERVICE = os.getenv('KASPI_POINT_OF_SERVICE', '').strip()
+KASPI_LOCAL_WAREHOUSE = os.getenv('KASPI_LOCAL_WAREHOUSE', 'PP2').strip()
+KASPI_PRICE_FEED_CONNECTED = _env_flag('KASPI_PRICE_FEED_CONNECTED', False)

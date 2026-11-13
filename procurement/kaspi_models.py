@@ -53,11 +53,36 @@ class KaspiCardPrice(models.Model):
 
 class KaspiPricingRule(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    enabled = models.BooleanField(default=False)
+    enabled = models.BooleanField(default=True)
     method = models.CharField(max_length=24, choices=[
         ('minimum_minus_amount', 'Ниже минимальной цены на сумму'),
         ('minimum_minus_percent', 'Ниже минимальной цены на процент'),
-        ('cost_plus_percent', 'Наценка к закупочной цене')], default='minimum_minus_amount')
-    value = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+        ('cost_plus_percent', 'Наценка к закупочной цене')], default='minimum_minus_percent')
+    value = models.DecimalField(max_digits=12, decimal_places=2, default=3)
     min_profit = models.DecimalField(max_digits=12, decimal_places=2, default=1000)
     updated_at = models.DateTimeField(auto_now=True)
+
+
+class KaspiCardJob(models.Model):
+    card = models.ForeignKey(KaspiPreparedCard, on_delete=models.CASCADE, related_name='jobs')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    kind = models.CharField(max_length=12, choices=[('refresh','Обновить конкурентов'),('publish','Публикация')])
+    status = models.CharField(max_length=16, default='pending')
+    payload = models.JSONField(default=dict)
+    external_code = models.CharField(max_length=160, blank=True)
+    reason = models.TextField(blank=True)
+    result = models.JSONField(default=dict)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['card','user','kind'], name='kaspi_one_card_job'),
+            models.UniqueConstraint(fields=['card'],condition=models.Q(kind='publish'),name='kaspi_one_shop_publication')]
+
+
+class KaspiPriceFeed(models.Model):
+    key = models.CharField(max_length=20,primary_key=True,default='main')
+    xml = models.TextField(blank=True)
+    error = models.TextField(blank=True)
+    built_at = models.DateTimeField(null=True,blank=True)
+    attempted_at = models.DateTimeField(null=True,blank=True)
