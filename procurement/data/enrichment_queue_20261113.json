@@ -16,7 +16,7 @@
     "expires_at": "2026-11-13T19:33:23.133Z"
   },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-13T18:15:54.420Z",
+  "heartbeat_at": "2026-11-13T18:18:15.905Z",
   "status": "running",
   "phase": "other_in_stock_control",
   "phase_reconciliation": {
@@ -7405,8 +7405,44 @@
     }
   ],
   "queued": [],
-  "saved": [],
-  "verified": [],
+  "saved": [
+    {
+      "supplier_id": 5,
+      "offer_id": 25628,
+      "kind": "fitment",
+      "saved_at": "2026-11-13T18:18:15.905Z",
+      "deploy_id": "dep-dbrl76qjnfac73ars24g",
+      "live_commit": "89406af46aaaae6ad48d1b5b42c5c1fa1c1c6d14"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25106,
+      "kind": "fitment",
+      "saved_at": "2026-11-13T18:18:15.905Z",
+      "deploy_id": "dep-dbrl76qjnfac73ars24g",
+      "live_commit": "89406af46aaaae6ad48d1b5b42c5c1fa1c1c6d14"
+    }
+  ],
+  "verified": [
+    {
+      "supplier_id": 5,
+      "offer_id": 25628,
+      "kind": "fitment",
+      "db_verified": true,
+      "ui_verified": true,
+      "ui_url": "https://zpt.kz/hyundai-zpt-25628/",
+      "verified_at": "2026-11-13T18:18:15.905Z"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25106,
+      "kind": "fitment",
+      "db_verified": true,
+      "ui_verified": true,
+      "ui_url": "https://zpt.kz/chery-zpt-25106/",
+      "verified_at": "2026-11-13T18:18:15.905Z"
+    }
+  ],
   "exceptions": [
     {
       "supplier_id": 5,
@@ -7536,14 +7572,24 @@
       "at": "2026-11-13T18:15:54.420Z",
       "type": "item_checkpoint",
       "detail": "Offer 25765: exact PartSouq fitment prepared; exact photo unconfirmed."
+    },
+    {
+      "at": "2026-11-13T18:18:15.905Z",
+      "type": "deploy_failure",
+      "detail": "dep-dbrl610jo6nc73en2d60 failed: migration name 0063 conflicted with existing 0067 leaf; no DB mutation occurred."
+    },
+    {
+      "at": "2026-11-13T18:18:15.905Z",
+      "type": "deploy_recovered",
+      "detail": "Migration renumbered to 0068 with dependency on 0067; dep-dbrl76qjnfac73ars24g live. Offers 25628 and 25106 saved and DB/UI verified."
     }
   ],
   "last_success": {
-    "at": "2026-11-13T18:15:54.420Z",
-    "stage": "prepared",
+    "at": "2026-11-13T18:18:15.905Z",
+    "stage": "saved_and_ui_verified",
     "supplier_id": 5,
-    "offer_id": 25765,
-    "journal": "procurement/data/enrichment_queue_items/5-25765-20261113.json"
+    "offer_id": 25106,
+    "deploy_id": "dep-dbrl76qjnfac73ars24g"
   },
-  "last_commit": "7b4617a04a9eaed79a7ec69b7aef7da29cc08737"
+  "last_commit": "89406af46aaaae6ad48d1b5b42c5c1fa1c1c6d14"
 }
