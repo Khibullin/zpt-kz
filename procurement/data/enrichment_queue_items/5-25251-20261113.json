@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "checked_at": "2026-11-13T18:19:12.383Z",
+  "supplier_id": 5,
+  "supplier_name": "ЗаказАвто",
+  "offer_id": 25251,
+  "product_id": 7012,
+  "task_id": null,
+  "brand": "Parts-Mall",
+  "article": "PJC129FR",
+  "name": "Амортизатор передний Chevrolet",
+  "research": {
+    "sources": [
+      {
+        "url": "https://koreanaparts.ru/product/stoyka-perednyaya-pravaya-pmc-PJC129FR",
+        "result": "Exact PMC PJC129FR, front right; no model application on page."
+      },
+      {
+        "url": "https://baza.drom.ru/moskva/sell_spare_parts/amortizator-gazovyj-pered-prav-aveo-t300-parts-mall-art-pjc129fr-g15618957270.html",
+        "result": "Exact Parts-Mall listing says Chevrolet Aveo T300 and Sonic, but is a seller listing with automated compatibility warning."
+      }
+    ],
+    "photo": {
+      "status": "not_confirmed",
+      "reason": "No manufacturer catalogue confirming that offer brand spelling Parts-Mall, PMC identity, execution and the seller application are the same exact unit. Nothing saved."
+    },
+    "fitment": {
+      "status": "not_saved",
+      "reason": "No manufacturer catalogue confirming that offer brand spelling Parts-Mall, PMC identity, execution and the seller application are the same exact unit. Nothing saved."
+    }
+  },
+  "after": {
+    "prepared_fitment": false,
+    "photo_unchanged": true,
+    "database_saved": false,
+    "ui_verified": false
+  },
+  "state": "reviewed_exception",
+  "reason": "No manufacturer catalogue confirming that offer brand spelling Parts-Mall, PMC identity, execution and the seller application are the same exact unit. Nothing saved.",
+  "next_offer_id": 25095
+}
