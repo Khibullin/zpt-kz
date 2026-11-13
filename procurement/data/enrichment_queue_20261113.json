@@ -13,11 +13,12 @@
     "owner": "nightly-enrichment-20261114-2303",
     "source_path": "procurement/data/enrichment_queue_20261111.json",
     "acquired_at": "2026-11-13T18:03:23.133Z",
-    "expires_at": "2026-11-13T19:33:23.133Z"
+    "expires_at": "2026-11-13T19:33:23.133Z",
+    "released_at": "2026-11-13T18:25:27.457Z"
   },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-13T18:24:17.730Z",
-  "status": "running",
+  "heartbeat_at": "2026-11-13T18:25:27.457Z",
+  "status": "paused_for_site_latency",
   "phase": "other_in_stock_control",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
@@ -7755,6 +7756,11 @@
       "at": "2026-11-13T18:24:17.730Z",
       "type": "deploy_live",
       "detail": "Four additional fitments saved; DB and public UI verified for offers 25784, 25768, 25765, 25224."
+    },
+    {
+      "at": "2026-11-13T18:25:27.457Z",
+      "type": "pause",
+      "detail": "Post-deploy public checks were HTTP 200 but home 4.471s and product 3.693s; above the requested low-load target, so the run saved progress and stopped taking new items."
     }
   ],
   "last_success": {
@@ -7764,5 +7770,24 @@
     "offer_id": 25224,
     "deploy_id": "dep-dbrla968bjmc73f7khig"
   },
-  "last_commit": "ac659f42c53cc3fc4d22495f2792c4bbceec46ea"
+  "last_commit": "ac659f42c53cc3fc4d22495f2792c4bbceec46ea",
+  "paused_at": "2026-11-13T18:25:27.457Z",
+  "pause_reason": "Post-deploy public checks were HTTP 200 but home 4.471s and product 3.693s; above the requested low-load target, so the run saved progress and stopped taking new items.",
+  "remaining_live": {
+    "1": {
+      "remaining_without_photo": 297,
+      "remaining_without_structured_fitment": 3391,
+      "total_positive_stock": 3561
+    },
+    "3": {
+      "remaining_without_photo": 22394,
+      "remaining_without_structured_fitment": 26369,
+      "total_positive_stock": 27852
+    },
+    "5": {
+      "remaining_without_photo": 6720,
+      "remaining_without_structured_fitment": 6632,
+      "total_positive_stock": 6895
+    }
+  }
 }
