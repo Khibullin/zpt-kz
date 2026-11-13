@@ -1,0 +1,56 @@
+{
+  "schema": 1,
+  "night_end_date": "2026-11-14",
+  "started_at": "2026-11-13T18:05:41.445Z",
+  "updated_at": "2026-11-13T18:05:41.445Z",
+  "status": "running",
+  "supplier_stats": {
+    "1": {
+      "name": "Omega",
+      "processed_unique": 0,
+      "photos_added": 0,
+      "fitment_added": 0,
+      "years_or_engines_added": 0,
+      "skips": {}
+    },
+    "3": {
+      "name": "Фаэтон",
+      "processed_unique": 0,
+      "photos_added": 0,
+      "fitment_added": 0,
+      "years_or_engines_added": 0,
+      "skips": {}
+    },
+    "5": {
+      "name": "ЗаказАвто",
+      "processed_unique": 0,
+      "photos_added": 0,
+      "fitment_added": 0,
+      "years_or_engines_added": 0,
+      "skips": {}
+    }
+  },
+  "queue": {
+    "phase": "other_in_stock_control",
+    "frozen_batches": {
+      "3": 100,
+      "5": 100
+    },
+    "next_supplier_id": 5,
+    "next_offer_id": 25628
+  },
+  "events": [
+    {
+      "at": "2026-11-13T18:05:41.445Z",
+      "type": "start",
+      "detail": "Lease acquired after live DB showed zero active/processing photo tasks."
+    },
+    {
+      "at": "2026-11-13T18:05:41.445Z",
+      "type": "batches_frozen",
+      "detail": "ZakazAuto 100; Phaeton 100."
+    }
+  ],
+  "last_success": null,
+  "blocking_error": null
+}
