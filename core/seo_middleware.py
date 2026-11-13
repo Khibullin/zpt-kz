@@ -133,8 +133,9 @@ class SeoRobotsHeaderMiddleware:
             # Never cache wholesale data or inject third-party analytics here.
             from django.utils.cache import patch_vary_headers
             response['X-Robots-Tag'] = 'noindex, nofollow, noarchive, nosnippet'
-            response['Cache-Control'] = 'private, no-store, max-age=0, must-revalidate'
-            response['Pragma'] = 'no-cache'
+            if not getattr(response, 'office_image_cache', False):
+                response['Cache-Control'] = 'private, no-store, max-age=0, must-revalidate'
+                response['Pragma'] = 'no-cache'
             # Keep same-origin HTTPS form submissions compatible with CSRF.
             # External destinations still receive no referrer.
             response.setdefault('Referrer-Policy', 'same-origin')

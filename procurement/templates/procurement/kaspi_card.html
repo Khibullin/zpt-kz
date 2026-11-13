@@ -1,6 +1,6 @@
 {% extends 'procurement/base.html' %}{% load static %}
 {% block title %}{{ card.brand }} {{ card.article }} · Карточка для Kaspi{% endblock %}
-{% block workspace_back %}<a class="button" href="{{ back_url }}" style="margin-right:10px">← Назад к списку</a>{% endblock %}
+{% block workspace_back %}<a class="button" href="{{ back_url }}" data-office-list-back style="margin-right:10px">← Назад к списку</a>{% endblock %}
 {% block content %}
 <link rel="stylesheet" href="{% static 'procurement/kaspi-cards-v1.css' %}">
 <div class="kc-workspace">

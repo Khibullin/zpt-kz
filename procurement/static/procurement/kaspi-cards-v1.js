@@ -1,10 +1,5 @@
 (() => {
   document.querySelectorAll('[data-batch-select]').forEach(select => select.addEventListener('change', () => select.form.requestSubmit()));
-  const back = document.querySelector('[data-kaspi-back]');
-  if (back) back.addEventListener('click', event => {
-    if (event.button || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
-    if (window.navigation ? window.navigation.canGoBack : history.length > 1) { event.preventDefault(); history.back(); }
-  });
   document.querySelectorAll('[data-open-editor]').forEach(button => button.addEventListener('click', () => {
     const editor = document.getElementById('kc-editor');
     if (!editor) return;

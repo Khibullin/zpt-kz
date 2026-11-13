@@ -208,3 +208,58 @@ class KaspiPurchasedWorkspaceTests(TestCase):
         self.assertEqual(self.client.post(url, {'action': 'save_material',
             'source_token': page.context['source_token']}).status_code, 409)
         self.assertEqual(self.page(line=0, image='9999').status_code, 404)
+
+    def test_images_cache_privately_but_html_and_denials_do_not(self):
+        from .kaspi_materials import store_image
+        card = self.prepare()
+        data = io.BytesIO()
+        Image.new('RGB', (600, 600), 'white').save(data, 'PNG')
+        asset = store_image(card, encode_image(data.getvalue()))
+        response = self.page(line=0, image=asset.pk, thumb='1')
+        self.assertEqual(response['Cache-Control'], 'private, max-age=86400, immutable')
+        self.assertNotIn('Pragma', response)
+        self.assertIn('Cookie', response['Vary'])
+        self.assertIn('no-store', self.page()['Cache-Control'])
+        self.client.force_login(self.other)
+        self.assertEqual(self.page(line=0, image=asset.pk).status_code, 404)
+        self.client.logout()
+        self.assertIn('no-store', self.page(line=0, image=asset.pk)['Cache-Control'])
+
+    def test_list_names_missing_materials_and_readiness_uses_our_price(self):
+        from .kaspi_materials import store_image
+        card = self.prepare()
+        response = self.page()
+        self.assertNotContains(response, 'Требует проверки')
+        self.assertContains(response, 'Нет фото от 500 × 500')
+        self.assertContains(response, 'Не задана цена')
+        data = io.BytesIO()
+        Image.new('RGB', (600, 600), 'white').save(data, 'PNG')
+        store_image(card, encode_image(data.getvalue()))
+        card.category = 'Master - Test'
+        card.characteristics = {'Материал': 'Сталь'}
+        card.save()
+        KaspiCardPrice.objects.create(user=self.admin, card=card, mode='manual', amount=9000)
+        self.assertEqual(self.page().context['rows'][0]['status'], 'Ожидает проверки менеджером')
+        card.verified = True
+        card.save()
+        self.assertEqual(self.page().context['rows'][0]['status'], 'Материалы проверены')
+
+    def test_pricing_accepts_comma_percent_and_explains_floor(self):
+        from .kaspi_card_forms import PricingRuleForm
+        form = PricingRuleForm(data={'enabled': True, 'method': 'minimum_minus_percent', 'value': '2,5', 'min_profit': 1000})
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertEqual(form.cleaned_data['value'], Decimal('2.5'))
+        self.assertEqual(form.fields['value'].label, 'Процент снижения, %')
+        invalid = PricingRuleForm(data={'method': 'minimum_minus_percent', 'value': 100, 'min_profit': 1000})
+        self.assertFalse(invalid.is_valid())
+        card = self.prepare()
+        Preferences.objects.create(user=self.admin, commission=10, expenses=250)
+        rule = KaspiPricingRule.objects.create(user=self.admin, enabled=True, method='minimum_minus_percent', value=3, min_profit=1000)
+        result = pricing(self.admin, card, {'cost': 5606}, {'usable': True, 'sellers': [{'price': 10000}]})
+        self.assertEqual(result['recommended'], Decimal('9700'))
+        rule.value = 50
+        rule.save()
+        result = pricing(self.admin, card, {'cost': 5606}, {'usable': True, 'sellers': [{'price': 10000}]})
+        self.assertEqual(result['recommended'], Decimal('7618'))
+        self.assertIn('повышена до границы', result['explanation'])
+        self.assertContains(self.client.get(reverse('procurement:kaspi_card_pricing')), 'data-office-back')

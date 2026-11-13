@@ -42,6 +42,20 @@ class CardPriceForm(forms.Form):
 
 
 class PricingRuleForm(forms.ModelForm):
+    value = forms.DecimalField(label='Сумма снижения, ₸', max_digits=14, decimal_places=2,
+        min_value=Decimal('0'), localize=True,
+        widget=forms.TextInput(attrs={'inputmode': 'decimal', 'data-pricing-value': ''}))
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        method = self.data.get('method') if self.is_bound else self.initial.get('method', 'minimum_minus_amount')
+        self.fields['value'].label = {
+            'minimum_minus_amount': 'Сумма снижения, ₸',
+            'minimum_minus_percent': 'Процент снижения, %',
+            'cost_plus_percent': 'Процент наценки, %',
+        }.get(method, 'Сумма снижения, ₸')
+        self.fields['value'].help_text = 'Введите число, например 3 или 2,5. Единица указана в названии поля.'
+
     class Meta:
         model = KaspiPricingRule
         fields = ['enabled', 'method', 'value', 'min_profit']

@@ -3,7 +3,7 @@ on:
   push:
     branches: ['codex/procurement-country-filter']
   pull_request:
-    paths: ['procurement/**', '.github/workflows/procurement-filters.yml']
+    paths: ['procurement/**', 'core/seo_middleware.py', 'static/office/navigation.js', 'templates/includes/office_favicon.html', '.github/workflows/procurement-filters.yml']
 permissions:
   contents: read
 jobs:
@@ -23,6 +23,9 @@ jobs:
           cache: pip
       - run: pip install -r requirements.txt
       - run: node --check procurement/static/procurement/kaspi-cards-v1.js
+      - run: node --check procurement/static/procurement/kaspi-pricing.js
+      - run: node --check static/office/navigation.js
+      - run: node --test tests-js/office-navigation.test.cjs
       - run: python manage.py check
       - run: python manage.py makemigrations procurement --check --dry-run
       - run: python manage.py test procurement --settings=backend.settings_ui_ci --noinput

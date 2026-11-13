@@ -1,6 +1,7 @@
 import io
 import json
 import zipfile
+from functools import wraps
 from urllib.parse import urlencode
 
 from django.contrib import messages
@@ -11,6 +12,7 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.cache import add_never_cache_headers, patch_vary_headers
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_http_methods
@@ -20,6 +22,21 @@ from .kaspi_workspace import purchased_batches, source_rows, enrich_rows, batch_
 from .kaspi_materials import automatic_values, identity_for, pricing, competitor_data, readiness, snapshot, record, encode_image, store_image
 from .kaspi_card_forms import CardMaterialForm, CardPriceForm, PricingRuleForm
 from .models import KaspiPreparedCard, KaspiCardImage, KaspiCardPrice, KaspiPricingRule, Preferences, Supplier, Activity
+
+
+def private_material_cache(view):
+    @wraps(view)
+    def wrapped(request, *args, **kwargs):
+        response = view(request, *args, **kwargs)
+        if request.method == 'GET' and request.GET.get('image') and response.status_code == 200 and response.get('Content-Type') == 'image/jpeg':
+            # Every read still passes the purchased-batch permission checks on a cache miss.
+            response['Cache-Control'] = 'private, max-age=86400, immutable'
+            response.office_image_cache = True
+            patch_vary_headers(response, ['Cookie'])
+        else:
+            add_never_cache_headers(response)
+        return response
+    return wrapped
 
 
 def material_initial(card):
@@ -45,6 +62,10 @@ def scope(request):
     cards = {card.identity: card for card in KaspiPreparedCard.objects.filter(
         identity__in=[identity_for(batch, row, supplier_id) for row in rows]).prefetch_related(
             Prefetch('images', queryset=KaspiCardImage.objects.filter(active=True).defer('data', 'thumbnail')))} if rows else {}
+    list_page = 'line' not in request.GET
+    price_settings = (KaspiPricingRule.objects.filter(user=request.user).first(),
+        Preferences.objects.filter(user=request.user).first(),
+        {c.card_id: c for c in KaspiCardPrice.objects.filter(user=request.user, card__in=cards.values())}) if list_page and cards else None
     for row in rows:
         row['identity'] = identity_for(batch, row, supplier_id)
         row['prepared'] = cards.get(row['identity'])
@@ -54,7 +75,20 @@ def scope(request):
             row['photo'] = image_url(batch, row, assets[0], thumb=True) if assets else card.photo_url
             row['card_title'] = card.title
             row['description'] = card.description
-            row['status'] = 'Требует проверки' if not card.verified else 'Материалы проверены'
+            checks, ready = readiness(card, assets, pricing(request.user, card, row, competitor_data(row.get('offer')), settings=price_settings)) if list_page else ([], False)
+            reasons = {
+                'Фотография от 500 × 500': 'Нет фото от 500 × 500',
+                'Название и описание': 'Не заполнены название или описание',
+                'Категория и характеристики': 'Не заполнены категория или характеристики Kaspi',
+                'Применимость с источником': 'Не подтверждена применимость',
+                'Проверены требования категории и комплектность': 'Ожидает проверки менеджером',
+                'Наша цена': 'Не задана цена',
+            }
+            row['missing'] = [reasons[label] for label, ok in checks if not ok]
+            row['status'] = 'Материалы проверены' if ready else 'Нужно дополнить материалы'
+            if row['missing'] == ['Ожидает проверки менеджером']:
+                row['status'] = 'Ожидает проверки менеджером'
+                row['missing'] = []
         else:
             row['status'] = 'Автоматическая подготовка'
         params = request.GET.copy()
@@ -71,7 +105,7 @@ def packet(card, row, price, images):
         'quantity': row.get('stock'), 'images': [f'images/photo-{n + 1}.jpg' for n in range(len(images))]}
 
 
-@never_cache
+@private_material_cache
 @access()
 @require_http_methods(['GET', 'POST'])
 def purchased_products(request):
