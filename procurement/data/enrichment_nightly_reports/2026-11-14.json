@@ -2,7 +2,7 @@
   "schema": 1,
   "night_end_date": "2026-11-14",
   "started_at": "2026-11-13T18:05:41.445Z",
-  "updated_at": "2026-11-13T18:18:15.905Z",
+  "updated_at": "2026-11-13T18:19:12.383Z",
   "status": "running",
   "supplier_stats": {
     "1": {
@@ -23,7 +23,7 @@
     },
     "5": {
       "name": "ЗаказАвто",
-      "processed_unique": 7,
+      "processed_unique": 8,
       "photos_added": 0,
       "fitment_added": 2,
       "years_or_engines_added": 2,
@@ -32,7 +32,8 @@
         "contradictory_sources": 1,
         "article_conflict": 1,
         "exact_oem_photo_not_confirmed": 1,
-        "exact_real_photo_not_confirmed": 2
+        "exact_real_photo_not_confirmed": 2,
+        "brand_identity_not_confirmed": 1
       }
     }
   },
@@ -43,7 +44,7 @@
       "5": 100
     },
     "next_supplier_id": 5,
-    "next_offer_id": 25251
+    "next_offer_id": 25095
   },
   "events": [
     {
@@ -100,14 +101,19 @@
       "at": "2026-11-13T18:18:15.905Z",
       "type": "deploy_recovered",
       "detail": "Corrected deploy live; 2 fitments saved and verified in DB and public product pages."
+    },
+    {
+      "at": "2026-11-13T18:19:12.383Z",
+      "type": "item_checkpoint",
+      "detail": "ZakazAuto 25251: brand_identity_not_confirmed."
     }
   ],
   "last_success": {
-    "at": "2026-11-13T18:18:15.905Z",
-    "stage": "saved_and_ui_verified",
+    "at": "2026-11-13T18:19:12.383Z",
+    "stage": "reviewed_exception",
     "supplier_id": 5,
-    "offer_id": 25106,
-    "deploy_id": "dep-dbrl76qjnfac73ars24g"
+    "offer_id": 25251,
+    "journal": "procurement/data/enrichment_queue_items/5-25251-20261113.json"
   },
   "blocking_error": null
 }
