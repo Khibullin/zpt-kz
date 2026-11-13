@@ -37,6 +37,9 @@ def api_attributes(card):
         if not spec.get('multiValued') and isinstance(value,list): valid=False
         if not valid:
             missing.append(str(name)+' — неверный тип значения'); continue
+        if spec.get('type')=='number':
+            converted=[int(Decimal(str(item))) if Decimal(str(item))==Decimal(str(item)).to_integral_value() else float(Decimal(str(item))) for item in items]
+            value=converted if isinstance(value,list) else converted[0]
         values.append({'code':code,'value':value})
     if not saved.get('attributes'): missing.append('Не загружен список характеристик категории.')
     return values,missing
