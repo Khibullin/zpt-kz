@@ -16,7 +16,7 @@
     "expires_at": "2026-11-13T19:33:23.133Z"
   },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-13T18:07:37.346Z",
+  "heartbeat_at": "2026-11-13T18:07:42.878Z",
   "status": "running",
   "phase": "other_in_stock_control",
   "phase_reconciliation": {
@@ -7195,7 +7195,7 @@
     }
   ],
   "current_batch_index": 0,
-  "current_item_index": 2,
+  "current_item_index": 3,
   "reviewed": [
     {
       "supplier_id": 5,
@@ -7216,6 +7216,16 @@
       "checked_at": "2026-11-13T18:07:37.346Z",
       "status": "contradictory_sources",
       "journal": "procurement/data/enrichment_queue_items/5-25396-20261113.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25636,
+      "product_id": 7359,
+      "brand": "SsangYong",
+      "article": "!8625009061",
+      "checked_at": "2026-11-13T18:07:42.878Z",
+      "status": "article_conflict",
+      "journal": "procurement/data/enrichment_queue_items/5-25636-20261113.json"
     }
   ],
   "prepared": [
@@ -7278,12 +7288,23 @@
         "https://www.cigmaglobal.com/products/jetour-x70-auto-parts.html",
         "https://www.ecer.com/corp/details-uuuf9zt-p1mjmrs-f01-2804501nf-rear-bumper-for-jetour-t2-x70-plus.html"
       ]
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25636,
+      "field": "photo_and_fitment",
+      "reason": "article_conflict",
+      "checked_at": "2026-11-13T18:07:42.878Z",
+      "sources": [
+        "https://www.gpa26.com/en/reference/1697566",
+        "https://rrr.lt/en/used-part/clm319212-8625009061-ssangyong-kyron-airbag-control-unit-module"
+      ]
     }
   ],
   "publication_pending": null,
   "next": {
     "supplier_id": 5,
-    "offer_id": 25636
+    "offer_id": 25106
   },
   "events": [
     {
@@ -7305,14 +7326,19 @@
       "at": "2026-11-13T18:07:37.346Z",
       "type": "item_checkpoint",
       "detail": "Offer 25396: contradictory_sources."
+    },
+    {
+      "at": "2026-11-13T18:07:42.878Z",
+      "type": "item_checkpoint",
+      "detail": "Offer 25636: article_conflict."
     }
   ],
   "last_success": {
-    "at": "2026-11-13T18:07:37.346Z",
+    "at": "2026-11-13T18:07:42.878Z",
     "stage": "reviewed_exception",
     "supplier_id": 5,
-    "offer_id": 25396,
-    "journal": "procurement/data/enrichment_queue_items/5-25396-20261113.json"
+    "offer_id": 25636,
+    "journal": "procurement/data/enrichment_queue_items/5-25636-20261113.json"
   },
   "last_commit": "7b4617a04a9eaed79a7ec69b7aef7da29cc08737"
 }
