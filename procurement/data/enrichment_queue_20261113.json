@@ -16,7 +16,7 @@
     "expires_at": "2026-11-13T19:33:23.133Z"
   },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-13T18:19:12.383Z",
+  "heartbeat_at": "2026-11-13T18:19:18.723Z",
   "status": "running",
   "phase": "other_in_stock_control",
   "phase_reconciliation": {
@@ -7195,7 +7195,7 @@
     }
   ],
   "current_batch_index": 0,
-  "current_item_index": 8,
+  "current_item_index": 9,
   "reviewed": [
     {
       "supplier_id": 5,
@@ -7276,6 +7276,16 @@
       "checked_at": "2026-11-13T18:19:12.383Z",
       "status": "brand_identity_not_confirmed",
       "journal": "procurement/data/enrichment_queue_items/5-25251-20261113.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25095,
+      "product_id": 6791,
+      "brand": "JASHI",
+      "article": "CD569F260204-0400",
+      "checked_at": "2026-11-13T18:19:18.723Z",
+      "status": "exact_brand_source_not_found",
+      "journal": "procurement/data/enrichment_queue_items/5-25095-20261113.json"
     }
   ],
   "prepared": [
@@ -7541,12 +7551,23 @@
         "https://koreanaparts.ru/product/stoyka-perednyaya-pravaya-pmc-PJC129FR",
         "https://baza.drom.ru/moskva/sell_spare_parts/amortizator-gazovyj-pered-prav-aveo-t300-parts-mall-art-pjc129fr-g15618957270.html"
       ]
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25095,
+      "field": "photo_and_fitment",
+      "reason": "exact_brand_source_not_found",
+      "checked_at": "2026-11-13T18:19:18.723Z",
+      "sources": [
+        "https://www.weipaauto.com/changan-car-auto-parts.html",
+        "https://chats.chinamobil.ru/files/changan-uni-k-uni-k-idd/applicationpdf/UNI-CHANGAN-PARTS-CATALOG-1.pdf"
+      ]
     }
   ],
   "publication_pending": null,
   "next": {
     "supplier_id": 5,
-    "offer_id": 25095
+    "offer_id": 25224
   },
   "events": [
     {
@@ -7608,14 +7629,19 @@
       "at": "2026-11-13T18:19:12.383Z",
       "type": "item_checkpoint",
       "detail": "Offer 25251: brand_identity_not_confirmed."
+    },
+    {
+      "at": "2026-11-13T18:19:18.723Z",
+      "type": "item_checkpoint",
+      "detail": "Offer 25095: exact_brand_source_not_found."
     }
   ],
   "last_success": {
-    "at": "2026-11-13T18:19:12.383Z",
+    "at": "2026-11-13T18:19:18.723Z",
     "stage": "reviewed_exception",
     "supplier_id": 5,
-    "offer_id": 25251,
-    "journal": "procurement/data/enrichment_queue_items/5-25251-20261113.json"
+    "offer_id": 25095,
+    "journal": "procurement/data/enrichment_queue_items/5-25095-20261113.json"
   },
   "last_commit": "89406af46aaaae6ad48d1b5b42c5c1fa1c1c6d14"
 }
