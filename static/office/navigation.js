@@ -1,9 +1,9 @@
 (() => {
-  if (!location.pathname.startsWith('/office/')) return;
+  if (!/^\/(office|control|marketing|admin)\//.test(location.pathname)) return;
   const current = location.pathname + location.search;
   const key = 'office-scroll:' + current;
   const parent = location.pathname.replace(/[^/]+\/$/, '') || '/office/';
-  let previous = parent === location.pathname ? '/office/' : parent;
+  let previous = location.pathname === '/office/' ? '/' : parent === '/' || parent === location.pathname ? '/office/' : parent;
   try {
     let trail = JSON.parse(sessionStorage.getItem('office-page-trail') || '[]');
     if (!Array.isArray(trail)) trail = [];
