@@ -65,9 +65,14 @@
   "after": {
     "prepared_fitment": true,
     "photo_unchanged": true,
-    "database_saved": false,
-    "ui_verified": false
+    "database_saved": true,
+    "ui_verified": true,
+    "db_verified": true,
+    "ui_url": "https://zpt.kz/hyundai-zpt-25628/",
+    "saved_at": "2026-11-13T18:18:15.905Z",
+    "deploy_id": "dep-dbrl76qjnfac73ars24g",
+    "live_commit": "89406af46aaaae6ad48d1b5b42c5c1fa1c1c6d14"
   },
-  "state": "prepared_for_publication",
+  "state": "saved_and_verified",
   "next_offer_id": 25396
 }
