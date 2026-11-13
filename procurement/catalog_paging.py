@@ -5,6 +5,7 @@ from decimal import Decimal
 from django.core.paginator import Paginator
 from django.db.models import Case, When, Value, Q, F, Count, DecimalField, ExpressionWrapper
 from django.db.models.functions import Coalesce, NullIf
+from .models import KaspiSellerSnapshot, KaspiCardSearch
 
 
 def best_candidates_query(query, preferences, today):
@@ -23,16 +24,22 @@ def best_candidates_query(query, preferences, today):
 
 def catalog_page(query, preferences, filters, mode, number, today):
     fresh = today - timedelta(days=preferences.no_sellers_days)
-    snapshot = Q(kaspi_sellers__city='750000000', kaspi_sellers__source_url=F('kaspi_url'),
-                 kaspi_sellers__checked_on__gte=fresh, kaspi_sellers__checked_on__lte=today) & ~Q(kaspi_url='')
-    missing = Q(kaspi_url='', kaspi_card_search__complete=True, kaspi_card_search__city='750000000',
-                kaspi_card_search__checked_on__gte=fresh, kaspi_card_search__checked_on__lte=today,
-                kaspi_card_search__checked_brand=F('brand'), kaspi_card_search__checked_article=F('article'),
-                kaspi_card_search__checked_name=F('name'))
+    # Determine status from the small set of fresh observations. Do not join
+    # every catalogue row to historical JSON snapshots for grouping/sorting.
+    offer_query = query
+    query = query.select_related(None)
+    snapshots = KaspiSellerSnapshot.objects.filter(
+        city='750000000', source_url=F('offer__kaspi_url'),
+        checked_on__gte=fresh, checked_on__lte=today).exclude(offer__kaspi_url='')
+    missing = KaspiCardSearch.objects.filter(
+        offer__kaspi_url='', complete=True, city='750000000',
+        checked_on__gte=fresh, checked_on__lte=today,
+        checked_brand=F('offer__brand'), checked_article=F('offer__article'),
+        checked_name=F('offer__name'))
     query = query.annotate(_catalog_status=Case(
-        When(missing, then=Value('missing')),
-        When(snapshot & ~Q(kaspi_sellers__sellers=[]), then=Value('sellers')),
-        When(snapshot & Q(kaspi_sellers__complete=True, kaspi_sellers__sellers=[], match_verified=True), then=Value('empty')),
+        When(pk__in=missing.order_by().values('offer_id'), then=Value('missing')),
+        When(pk__in=snapshots.exclude(sellers=[]).order_by().values('offer_id'), then=Value('sellers')),
+        When(pk__in=snapshots.filter(complete=True,sellers=[],offer__match_verified=True).order_by().values('offer_id'), then=Value('empty')),
         default=Value('pending')))
     money = DecimalField(max_digits=38, decimal_places=12)
     null = Value(None, output_field=money)
@@ -65,6 +72,6 @@ def catalog_page(query, preferences, filters, mode, number, today):
     paginator.count = sum(counts.get(status, 0) for status in selected_statuses)
     page = paginator.get_page(number)
     ids = list(page.object_list)
-    offers = {offer.pk: offer for offer in query.filter(pk__in=ids).order_by()}
+    offers = {offer.pk: offer for offer in offer_query.filter(pk__in=ids).order_by()}
     page.object_list = [offers[pk] for pk in ids]
     return page, counts

@@ -1,3 +1,5 @@
+import logging
+from time import perf_counter
 from control_panel.auth import control_staff_required
 from control_panel.periods import (
     DEFAULT_OVERVIEW_PERIOD,
@@ -106,6 +108,7 @@ def overview(request):
 
 @control_staff_required
 def parts_request_list(request):
+    started = perf_counter()
     context = _base_context(
         active_nav='parts',
         breadcrumbs=[
@@ -115,7 +118,13 @@ def parts_request_list(request):
         title='Заявки на запчасти',
     )
     context.update(list_parts_requests(request.GET))
-    return render(request, 'control_panel/parts_list.html', context)
+    selected = perf_counter()
+    response = render(request, 'control_panel/parts_list.html', context)
+    finished = perf_counter()
+    response['Server-Timing'] = f'list;dur={(selected-started)*1000:.1f}, render;dur={(finished-selected)*1000:.1f}'
+    logging.getLogger('gunicorn.error').info('Request list performance: list=%.1fms render=%.1fms',
+        (selected-started)*1000,(finished-selected)*1000)
+    return response
 
 
 @control_staff_required
