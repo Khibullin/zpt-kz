@@ -68,7 +68,8 @@ class Offer(models.Model):
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=['supplier', 'brand', 'article'], name='procurement_supplier_article')]
-        indexes = [models.Index(fields=['supplier', 'category'], name='proc_offer_supplier_category')]
+        indexes = [models.Index(fields=['supplier', 'category'], name='proc_offer_supplier_category'),
+                   models.Index(fields=['supplier', 'id'], include=['cost', 'kaspi_price'], name='proc_offer_catalog_rank')]
         ordering = ['brand', 'article', 'pk']
 
 

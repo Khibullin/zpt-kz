@@ -3,7 +3,7 @@ on:
   push:
     branches: ['codex/procurement-country-filter']
   pull_request:
-    paths: ['procurement/**', 'core/seo_middleware.py', 'static/office/navigation.js', 'templates/includes/office_favicon.html', '.github/workflows/procurement-filters.yml']
+    paths: ['control_panel/selectors/parts_requests.py', 'control_panel/test_request_list_performance.py', 'control_panel/views.py', 'procurement/**', 'core/seo_middleware.py', 'static/office/navigation.js', 'templates/includes/office_favicon.html', '.github/workflows/procurement-filters.yml']
 permissions:
   contents: read
 jobs:
@@ -29,3 +29,5 @@ jobs:
       - run: python manage.py check
       - run: python manage.py makemigrations procurement --check --dry-run
       - run: python manage.py test procurement --settings=backend.settings_ui_ci --noinput
+
+      - run: python manage.py test control_panel.test_request_list_performance control_panel.tests.ControlPanelTests.test_parts_list_filters_search_and_hides_phone control_panel.tests.ControlPanelTests.test_pagination_keeps_filters --settings=backend.settings_ui_ci --noinput

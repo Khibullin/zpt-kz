@@ -194,8 +194,30 @@ def list_parts_requests(params: QueryDict) -> dict:
         query = params.copy(); query.pop('page', None); query['stage'] = key
         stage_tabs.append({'key': key, 'label': label, 'count': len(stages_by_id) if key == 'all' else stage_counts[key], 'url': '?' + query.urlencode()})
     selected_ids = [pk for pk, value in stages_by_id.items() if stage == 'all' or value == stage]
-    queryset = _base_queryset().filter(pk__in=selected_ids).order_by('-created_at', '-id')
+    # Page request IDs before reading their many-to-many history. Joining both
+    # matches and events multiplies rows (M × E), even with COUNT(DISTINCT).
+    queryset = Request.objects.filter(pk__in=selected_ids).only(
+        'id','created_at','brand','model','category','city','status','purchase_result','description'
+    ).order_by('-created_at', '-id')
     page = paginate(queryset, params)
+    visible_ids = [item.pk for item in page.object_list]
+    received = dict(Match.objects.filter(request_id__in=visible_ids).filter(
+        Q(sent_at__isnull=False) | Q(status='sent')
+    ).values('request_id').annotate(n=Count('pk')).values_list('request_id','n'))
+    event_totals = {item['request_id']: item for item in SellerRequestPageEvent.objects.filter(
+        request_id__in=visible_ids
+    ).values('request_id').annotate(
+        opened=Count('seller_id',filter=Q(event_type='page_open'),distinct=True),
+        whatsapp=Count('seller_id',filter=Q(event_type='whatsapp_click'),distinct=True),
+        called=Count('seller_id',filter=Q(event_type='call_click'),distinct=True),
+        stock_count=Count('pk',filter=Q(event_type='out_of_stock')),
+        decline_count=Count('pk',filter=Q(event_type='cannot_fulfill')),
+    )}
+    for item in page.object_list:
+        item.sellers_received = received.get(item.pk,0)
+        totals = event_totals.get(item.pk,{})
+        for field in ('opened','whatsapp','called','stock_count','decline_count'):
+            setattr(item,field,totals.get(field,0))
     rows = [
         PartsRequestRow(
             description=item.description, stage=stages_by_id[item.pk], stage_label=STAGE_LABELS[stages_by_id[item.pk]],
