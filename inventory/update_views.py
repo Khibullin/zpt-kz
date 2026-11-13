@@ -131,3 +131,21 @@ def updates(request):
         count=(KaspiOperation.objects.filter(batch=latest).count() if kind=='sales' else StockSnapshot.objects.filter(batch=latest).count()) if latest else 0
         blocks.append({'kind':kind,'label':label,'hint':hint,'file':form[kind+'_file'],'date':form[kind+'_date'],'latest':latest,'count':count,'focus':request.GET.get('section')==kind})
     return render(request,'inventory/updates.html',{'form':form,'blocks':blocks,'preview':preview,'reviews':reviews,'expired':expired})
+
+
+@never_cache
+@accounting_access
+@require_http_methods(['POST'])
+def delete_original(request, pk):
+    """Delete only stored XLSX bytes; preserve imported rows, snapshots and audit metadata."""
+    batch=get_object_or_404(ImportBatch,pk=pk)
+    if request.POST.get('confirm') != 'delete_original':
+        messages.error(request,'Удаление оригинала не подтверждено.')
+        return redirect('inventory:updates')
+    if batch.original_data:
+        batch.original_data=None
+        batch.save(update_fields=['original_data'])
+        messages.success(request,f'Оригинал файла «{batch.filename}» удалён. Остатки, операции и история загрузки сохранены.')
+    else:
+        messages.info(request,'Оригинал уже удалён или не сохранялся.')
+    return redirect('inventory:updates')
