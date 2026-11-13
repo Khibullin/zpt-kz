@@ -16,7 +16,7 @@
     "expires_at": "2026-11-13T19:33:23.133Z"
   },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-13T18:19:18.723Z",
+  "heartbeat_at": "2026-11-13T18:19:23.330Z",
   "status": "running",
   "phase": "other_in_stock_control",
   "phase_reconciliation": {
@@ -7195,7 +7195,7 @@
     }
   ],
   "current_batch_index": 0,
-  "current_item_index": 9,
+  "current_item_index": 10,
   "reviewed": [
     {
       "supplier_id": 5,
@@ -7286,6 +7286,16 @@
       "checked_at": "2026-11-13T18:19:18.723Z",
       "status": "exact_brand_source_not_found",
       "journal": "procurement/data/enrichment_queue_items/5-25095-20261113.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25224,
+      "product_id": 6881,
+      "brand": "Changan",
+      "article": "S203F260204-0100",
+      "checked_at": "2026-11-13T18:19:23.330Z",
+      "status": "prepared_fitment_photo_unconfirmed",
+      "journal": "procurement/data/enrichment_queue_items/5-25224-20261113.json"
     }
   ],
   "prepared": [
@@ -7421,6 +7431,27 @@
           }
         ],
         "source_url": "https://partsouq.com/en/catalog/genuine/diagram?c=HYUNDAI202404&number=495602S350&vid=285872186"
+      }
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25224,
+      "kind": "fitment",
+      "source_url": "https://www.shindary.com/part-number26/front-strut-assy-%28left%29-s203f260204-0100-for-changan.html",
+      "payload": {
+        "status": "prepared",
+        "source_url": "https://www.shindary.com/part-number26/front-strut-assy-%28left%29-s203f260204-0100-for-changan.html",
+        "make": "CHANGAN",
+        "model": "CS55 Plus",
+        "details": "стойка передняя левая · годы и двигатель источниками не указаны",
+        "configurations": [
+          {
+            "placement": "front",
+            "side": "left",
+            "assembly": "strut assembly",
+            "source_scope": "Exact Changan S203F260204-0100; no years or engine stated"
+          }
+        ]
       }
     }
   ],
@@ -7562,12 +7593,24 @@
         "https://www.weipaauto.com/changan-car-auto-parts.html",
         "https://chats.chinamobil.ru/files/changan-uni-k-uni-k-idd/applicationpdf/UNI-CHANGAN-PARTS-CATALOG-1.pdf"
       ]
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25224,
+      "field": "photo",
+      "reason": "prepared_fitment_photo_unconfirmed",
+      "checked_at": "2026-11-13T18:19:23.330Z",
+      "sources": [
+        "https://www.shindary.com/part-number26/front-strut-assy-%28left%29-s203f260204-0100-for-changan.html",
+        "https://www.mybeauvais.com/S203F260204-0100-Left-front-shock-absorber-CS55-PLUS-pd571442268.html",
+        "https://shop.globalparts.kz/product/changan/s203f260204-0100"
+      ]
     }
   ],
   "publication_pending": null,
   "next": {
     "supplier_id": 5,
-    "offer_id": 25224
+    "offer_id": 25177
   },
   "events": [
     {
@@ -7634,14 +7677,19 @@
       "at": "2026-11-13T18:19:18.723Z",
       "type": "item_checkpoint",
       "detail": "Offer 25095: exact_brand_source_not_found."
+    },
+    {
+      "at": "2026-11-13T18:19:23.330Z",
+      "type": "item_checkpoint",
+      "detail": "Offer 25224: prepared_fitment_photo_unconfirmed."
     }
   ],
   "last_success": {
-    "at": "2026-11-13T18:19:18.723Z",
-    "stage": "reviewed_exception",
+    "at": "2026-11-13T18:19:23.330Z",
+    "stage": "prepared",
     "supplier_id": 5,
-    "offer_id": 25095,
-    "journal": "procurement/data/enrichment_queue_items/5-25095-20261113.json"
+    "offer_id": 25224,
+    "journal": "procurement/data/enrichment_queue_items/5-25224-20261113.json"
   },
   "last_commit": "89406af46aaaae6ad48d1b5b42c5c1fa1c1c6d14"
 }
