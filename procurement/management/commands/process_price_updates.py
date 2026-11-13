@@ -32,6 +32,9 @@ class Command(BaseCommand):
             photo_progress = 0
             facet_progress = False
             try:
+                if options['watch']:
+                    from procurement.kaspi_materials import process_purchased_cards
+                    process_purchased_cards(fetch_photos=True)
                 query = PriceUpdate.objects.filter(status__in=['ready', 'running']).order_by('pk')
                 if options['batch']:
                     query = query.filter(pk=options['batch'])
