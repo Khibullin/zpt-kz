@@ -16,7 +16,7 @@
     "expires_at": "2026-11-13T19:33:23.133Z"
   },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-13T18:15:49.063Z",
+  "heartbeat_at": "2026-11-13T18:15:54.420Z",
   "status": "running",
   "phase": "other_in_stock_control",
   "phase_reconciliation": {
@@ -7195,7 +7195,7 @@
     }
   ],
   "current_batch_index": 0,
-  "current_item_index": 6,
+  "current_item_index": 7,
   "reviewed": [
     {
       "supplier_id": 5,
@@ -7256,6 +7256,16 @@
       "checked_at": "2026-11-13T18:15:49.063Z",
       "status": "prepared_fitment_photo_unconfirmed",
       "journal": "procurement/data/enrichment_queue_items/5-25768-20261113.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25765,
+      "product_id": 7250,
+      "brand": "HYUNDAI-KIA",
+      "article": "495602S350",
+      "checked_at": "2026-11-13T18:15:54.420Z",
+      "status": "prepared_fitment_photo_unconfirmed",
+      "journal": "procurement/data/enrichment_queue_items/5-25765-20261113.json"
     }
   ],
   "prepared": [
@@ -7365,6 +7375,33 @@
         ],
         "source_url": "https://partsouq.com/en/catalog/genuine/diagram?c=HYUNDAI202404&number=495602S150&vid=1738592031"
       }
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25765,
+      "kind": "fitment",
+      "source_url": "https://partsouq.com/en/catalog/genuine/diagram?c=HYUNDAI202404&number=495602S350&vid=285872186",
+      "payload": {
+        "status": "prepared",
+        "make": "HYUNDAI",
+        "model": "ix35 / Tucson",
+        "details": "модельные годы 2010; 2011 · EUR, Slovakia plant · 2.0 Theta II · МКПП 5-ступ. · 4WD",
+        "configurations": [
+          {
+            "years": [
+              2010,
+              2011
+            ],
+            "region": "EUR",
+            "plant": "Slovakia",
+            "engine": "2.0 Theta II",
+            "transmission": "5-speed manual",
+            "drive": "4WD",
+            "source_scope": "Exact 495602S350 catalogue row; not asserted complete for all markets"
+          }
+        ],
+        "source_url": "https://partsouq.com/en/catalog/genuine/diagram?c=HYUNDAI202404&number=495602S350&vid=285872186"
+      }
     }
   ],
   "queued": [],
@@ -7437,12 +7474,22 @@
       "sources": [
         "https://partsouq.com/en/catalog/genuine/diagram?c=HYUNDAI202404&number=495602S150&vid=1738592031"
       ]
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25765,
+      "field": "photo",
+      "reason": "exact_real_photo_not_confirmed",
+      "checked_at": "2026-11-13T18:15:54.420Z",
+      "sources": [
+        "https://partsouq.com/en/catalog/genuine/diagram?c=HYUNDAI202404&number=495602S350&vid=285872186"
+      ]
     }
   ],
   "publication_pending": null,
   "next": {
     "supplier_id": 5,
-    "offer_id": 25765
+    "offer_id": 25251
   },
   "events": [
     {
@@ -7484,14 +7531,19 @@
       "at": "2026-11-13T18:15:49.063Z",
       "type": "item_checkpoint",
       "detail": "Offer 25768: exact PartSouq fitment prepared; exact photo unconfirmed."
+    },
+    {
+      "at": "2026-11-13T18:15:54.420Z",
+      "type": "item_checkpoint",
+      "detail": "Offer 25765: exact PartSouq fitment prepared; exact photo unconfirmed."
     }
   ],
   "last_success": {
-    "at": "2026-11-13T18:15:49.063Z",
+    "at": "2026-11-13T18:15:54.420Z",
     "stage": "prepared",
     "supplier_id": 5,
-    "offer_id": 25768,
-    "journal": "procurement/data/enrichment_queue_items/5-25768-20261113.json"
+    "offer_id": 25765,
+    "journal": "procurement/data/enrichment_queue_items/5-25765-20261113.json"
   },
   "last_commit": "7b4617a04a9eaed79a7ec69b7aef7da29cc08737"
 }
