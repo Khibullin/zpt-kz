@@ -1,0 +1,45 @@
+{
+  "checked_on": "2026-11-14",
+  "scope": "One exact positive-stock ZakazAuto structured fitment from an exact international OE cross; no photo, price, stock, profit, Kaspi, or unrelated field changes",
+  "sources": [
+    {
+      "offer_id": 25095,
+      "product_id": 6791,
+      "supplier_id": 5,
+      "brand": "JASHI",
+      "article": "CD569F260204-0400",
+      "stock": "1",
+      "cost": "43200.00",
+      "manufacturer_article": "SHA4C014(R)",
+      "source_label": "LUSAUTO/BP international catalogue exact OE cross, corroborated by the stored exact JASHI Kaspi card and the Changan UNI-K catalogue",
+      "source_kind": "independent_exact_oem_cross_catalogue",
+      "source_urls": [
+        "https://www.lusmall.com/Catalog/Part?SKU=261250",
+        "https://kaspi.kz/shop/p/jashi-zadnii-cd569f260204-0400-1-sht-130050233/?c=750000000",
+        "https://chats.chinamobil.ru/files/changan-uni-k-uni-k-idd/applicationpdf/UNI-CHANGAN-PARTS-CATALOG-1.pdf"
+      ],
+      "source_url": "https://www.lusmall.com/Catalog/Part?SKU=261250",
+      "fitment_note": "The exact international catalogue row maps OE CD569F260204-0400 to rear-right shock absorber/strut SHA4C014(R) for CHANGAN UNI-K from 2020 with an open end date. The stored exact JASHI Kaspi card confirms brand, full article, rear placement and one-piece offer identity. The Changan catalogue separately lists CD569F260204-0401 as the complete rear-right strut assembly; therefore no spring assembly, engine, drivetrain, package content beyond the stored one-piece offer, or closing year is inferred for -0400.",
+      "fitments": [
+        {
+          "make": "CHANGAN",
+          "model": "UNI-K",
+          "details": "Задний правый амортизатор/стойка; с 2020 года, конечная дата не указана. Исполнение в сборе с пружиной не заявляется.",
+          "configurations": [
+            {
+              "date_from": "2020",
+              "date_to": null,
+              "placement": "rear",
+              "side": "right",
+              "engine": null,
+              "drive": null,
+              "source_scope": "exact OE cross catalogue; open-ended period; engine and drivetrain not stated",
+              "oem_article": "CD569F260204-0400",
+              "cross_article": "SHA4C014(R)"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
