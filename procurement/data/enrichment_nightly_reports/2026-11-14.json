@@ -2,7 +2,7 @@
   "schema": 1,
   "night_end_date": "2026-11-14",
   "started_at": "2026-11-13T18:05:41.445Z",
-  "updated_at": "2026-11-14T09:10:19.000Z",
+  "updated_at": "2026-11-14T09:25:19.167Z",
   "status": "running_weekend",
   "supplier_stats": {
     "1": {
@@ -23,10 +23,10 @@
     },
     "5": {
       "name": "ЗаказАвто",
-      "processed_unique": 17,
+      "processed_unique": 18,
       "photos_added": 1,
-      "fitment_added": 12,
-      "years_or_engines_added": 11,
+      "fitment_added": 13,
+      "years_or_engines_added": 12,
       "skips": {
         "exact_photo_not_confirmed": 2,
         "contradictory_sources": 1,
@@ -37,7 +37,8 @@
         "exact_brand_source_not_found": 1,
         "package_conflict_photo_not_saved": 2,
         "exact_photo_not_verified": 4,
-        "brand_article_conflict": 1
+        "brand_article_conflict": 1,
+        "source_access_forbidden_photo_not_saved": 1
       },
       "pending_ui_verification": 0
     }
@@ -49,10 +50,10 @@
       "5": 100
     },
     "next_supplier_id": 5,
-    "next_offer_id": 25170,
+    "next_offer_id": 25129,
     "control_batch_remaining": {
       "3": 100,
-      "5": 83
+      "5": 82
     },
     "lease_released_at": null,
     "lease_owner": "weekend-enrichment-20261114-1400",
@@ -244,15 +245,20 @@
       "at": "2026-11-14T09:10:19.000Z",
       "type": "item_saved_verified_and_advance",
       "detail": "ZakazAuto 25082 JASHI C281F260202-0200: verified CHANGAN UNI-V 2022, 2023 and 2024 configurations with 1.5L Turbo, front-left complete one-piece strut restrictions saved and shown publicly. Photo remains unverified. Queue advanced to 25170."
+    },
+    {
+      "at": "2026-11-14T09:25:19.167Z",
+      "type": "item_saved_verified_and_advance",
+      "detail": "ZakazAuto 25170 TRIALLI AG 03007: exact manufacturer fitment saved and publicly verified for five UAZ model labels and 11 modification/engine/year configurations. Engine presentation was corrected after the first UI check using only the already sourced fields. Exact manufacturer images returned 403; access restrictions were not bypassed and no photo was saved. Queue advanced to 25129."
     }
   ],
   "last_success": {
-    "at": "2026-11-14T09:10:19.000Z",
-    "stage": "saved_and_ui_verified_fitment_photo_unconfirmed",
+    "at": "2026-11-14T09:25:19.167Z",
+    "stage": "saved_and_ui_verified_fitment_photo_source_forbidden",
     "supplier_id": 5,
-    "offer_id": 25082,
-    "deploy_id": "dep-dbs29jff3r2c73dtavr0",
-    "commit": "b4362492d033fd1a54114141233c0d4e2d5e9b19"
+    "offer_id": 25170,
+    "deploy_id": "dep-dbs2fj2jnfac73bpu46g",
+    "commit": "9b14a6476694dbb186bc22587e30201319efec07"
   },
   "blocking_error": null,
   "finished_at": null,
@@ -269,7 +275,7 @@
     },
     "5": {
       "remaining_without_photo": 6719,
-      "remaining_without_structured_fitment": 6626,
+      "remaining_without_structured_fitment": 6625,
       "total_positive_stock": 6895
     }
   },

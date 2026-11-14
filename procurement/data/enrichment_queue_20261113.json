@@ -13,11 +13,11 @@
     "owner": "weekend-enrichment-20261114-1400",
     "source_path": "procurement/data/enrichment_queue_20261111.json",
     "acquired_at": "2026-11-14T09:04:44.000Z",
-    "expires_at": "2026-11-14T09:40:19.000Z",
+    "expires_at": "2026-11-14T09:55:19.167Z",
     "released_at": null
   },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-14T09:10:19.000Z",
+  "heartbeat_at": "2026-11-14T09:25:19.167Z",
   "status": "running_weekend",
   "phase": "other_in_stock_control",
   "phase_reconciliation": {
@@ -7196,7 +7196,7 @@
     }
   ],
   "current_batch_index": 0,
-  "current_item_index": 17,
+  "current_item_index": 18,
   "reviewed": [
     {
       "supplier_id": 5,
@@ -7374,6 +7374,17 @@
       "checked_at": "2026-11-14T09:10:19.000Z",
       "status": "saved_and_ui_verified_fitment_photo_unconfirmed",
       "journal": "procurement/data/enrichment_queue_items/5-25082-20261114.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25170,
+      "product_id": 6841,
+      "task_id": 4814,
+      "brand": "TRIALLI",
+      "article": "AG 03007",
+      "checked_at": "2026-11-14T09:25:19.167Z",
+      "status": "saved_and_ui_verified_fitment_photo_source_forbidden",
+      "journal": "procurement/data/enrichment_queue_items/5-25170-20261114.json"
     }
   ],
   "prepared": [
@@ -7797,6 +7808,14 @@
       "saved_at": "2026-11-14T09:08:56.795750Z",
       "deploy_id": "dep-dbs29jff3r2c73dtavr0",
       "live_commit": "b4362492d033fd1a54114141233c0d4e2d5e9b19"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25170,
+      "kind": "fitment",
+      "saved_at": "2026-11-14T09:22:49.532743Z",
+      "deploy_id": "dep-dbs2fj2jnfac73bpu46g",
+      "live_commit": "9b14a6476694dbb186bc22587e30201319efec07"
     }
   ],
   "verified": [
@@ -7963,6 +7982,37 @@
         "Установка: спереди",
         "Сторона: слева",
         "OEM: C281F260202-0200"
+      ]
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25170,
+      "kind": "fitment",
+      "db_verified": true,
+      "ui_verified": true,
+      "ui_url": "https://zpt.kz/product-zpt-25170/",
+      "verified_at": "2026-11-14T09:25:19.167Z",
+      "ui_http_status": 200,
+      "make_model_pairs": 5,
+      "configuration_count": 11,
+      "engine_rows": 11,
+      "ui_evidence": [
+        "AG 03007",
+        "TRIALLI",
+        "UAZ 3160 Closed Off-Road Vehicle",
+        "UAZ Patriot",
+        "UAZ PICKUP",
+        "UAZ SIMBIR (3162) Closed Off-Road Vehicle",
+        "UAZ UAZ 3160",
+        "2.9 · UMZ-4218",
+        "2.3 D · F1AE0481A",
+        "2.2 D 4x4 · ZMZ-51432",
+        "1994-2003",
+        "2004-н.в.",
+        "2009-н.в.",
+        "Передний левый/правый",
+        "1 шт. в комплекте",
+        "2 шт. на автомобиль"
       ]
     }
   ],
@@ -8155,12 +8205,25 @@
         "https://www.chinesecar.parts/models/changan-uni-v-parts.html"
       ],
       "detail": "Exact identity and fitment were verified, but no exact JASHI source image was independently downloaded and checked against the complete one-piece strut assembly. No photo or thumbnail was saved."
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25170,
+      "field": "photo",
+      "reason": "source_access_forbidden_photo_not_saved",
+      "checked_at": "2026-11-14T09:25:19.167Z",
+      "sources": [
+        "https://trialli.ru/catalogue/amortizatory-i-opory/amortizatory/ag-03007/",
+        "https://cdn.carvilleshop.ru/upload/resize_1000/AG03007_223019_192b32a5b5d83b6bfcfca2078e93d743.jpg",
+        "https://cdn.carvilleshop.ru/upload/resize_300/AG03007_223019_192b32a5b5d83b6bfcfca2078e93d743.jpg"
+      ],
+      "detail": "The exact manufacturer page exposes exact AG 03007 images, but both main and thumbnail CDN URLs returned HTTP 403 to the retrieval client. The restriction was not bypassed and no alternate channel was used. No photo or thumbnail was saved; retry only if the manufacturer source becomes accessible or a new exact source is found."
     }
   ],
   "publication_pending": null,
   "next": {
     "supplier_id": 5,
-    "offer_id": 25170
+    "offer_id": 25129
   },
   "events": [
     {
@@ -8342,17 +8405,22 @@
       "at": "2026-11-14T09:10:19.000Z",
       "type": "item_saved_verified_and_advance",
       "detail": "Offer 25082 JASHI C281F260202-0200: exact sourced fitment saved for CHANGAN UNI-V as three separate configurations for 2022, 2023 and 2024, each 1.5L Turbo, front left complete one-piece strut assembly. No continuous/open range or engine code was inferred. Photo was not independently verified. DB and public UI verified; pointer advanced to offer 25170."
+    },
+    {
+      "at": "2026-11-14T09:25:19.167Z",
+      "type": "item_saved_verified_and_advance",
+      "detail": "Offer 25170 TRIALLI AG 03007: exact manufacturer-catalogue fitment saved for five UAZ model labels with 11 exact modification/engine/year configurations, front left/right placement, one unit supplied and two units per vehicle. A first UI check exposed hidden engines; a bounded follow-up migration added only the display key from the already sourced modification and engine-code fields. Final DB and public UI verification succeeded. Manufacturer image CDN returned 403; no bypass and no photo save. Pointer advanced to offer 25129."
     }
   ],
   "last_success": {
-    "at": "2026-11-14T09:10:19.000Z",
-    "stage": "saved_and_ui_verified_fitment_photo_unconfirmed",
+    "at": "2026-11-14T09:25:19.167Z",
+    "stage": "saved_and_ui_verified_fitment_photo_source_forbidden",
     "supplier_id": 5,
-    "offer_id": 25082,
-    "deploy_id": "dep-dbs29jff3r2c73dtavr0",
-    "commit": "b4362492d033fd1a54114141233c0d4e2d5e9b19"
+    "offer_id": 25170,
+    "deploy_id": "dep-dbs2fj2jnfac73bpu46g",
+    "commit": "9b14a6476694dbb186bc22587e30201319efec07"
   },
-  "last_commit": "b4362492d033fd1a54114141233c0d4e2d5e9b19",
+  "last_commit": "9b14a6476694dbb186bc22587e30201319efec07",
   "paused_at": null,
   "pause_reason": null,
   "remaining_live": {
@@ -8368,7 +8436,7 @@
     },
     "5": {
       "remaining_without_photo": 6719,
-      "remaining_without_structured_fitment": 6626,
+      "remaining_without_structured_fitment": 6625,
       "total_positive_stock": 6895
     }
   }
