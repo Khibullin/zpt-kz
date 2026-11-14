@@ -1,0 +1,91 @@
+{
+  "checked_on": "2026-11-14",
+  "scope": "One exact positive-stock ZakazAuto fitment enhancement; no photo, price, stock, profit, Kaspi, or unrelated field changes",
+  "sources": [
+    {
+      "offer_id": 25224,
+      "product_id": 6881,
+      "task_id": 4854,
+      "supplier_id": 5,
+      "fitment_id": 111504,
+      "brand": "Changan",
+      "article": "S203F260204-0100",
+      "manufacturer_article": "S203F260204-0100",
+      "stock": "1",
+      "cost": "40000.00",
+      "source_label": "Exact one-piece Kaspi characteristics corroborated by exact independent part catalogues",
+      "source_kind": "exact_kaspi_characteristics_plus_exact_part_catalogues",
+      "source_urls": [
+        "https://kaspi.kz/shop/p/changan-perednii-s203f260204-0100-1-sht-139321548/",
+        "https://www.shindary.com/part-number26/front-strut-assy-%28left%29-s203f260204-0100-for-changan.html",
+        "https://www.mybeauvais.com/S203F260204-0100-Left-front-shock-absorber-CS55-PLUS-pd571442268.html"
+      ],
+      "source_url": "https://kaspi.kz/shop/p/changan-perednii-s203f260204-0100-1-sht-139321548/",
+      "fitment_note": "The exact Kaspi card for one piece confirms CHANGAN S203F260204-0100 as a front-left complete strut assembly for CS55 Plus, explicitly listing 2021, 2022, 2023 and 2024 and 1.5L Turbo. The years are stored separately, not expanded into an inferred continuous range. Shindary and Beauvais exact-part pages independently corroborate the article, model and left-front execution. No generation, region or additional engine is inferred. The conflicting exact two-piece card is retained only as a rejected photo/package source and does not change the existing Kaspi decision.",
+      "expected_before": {
+        "make": "CHANGAN",
+        "model": "CS55 Plus",
+        "details": "",
+        "source_url": "https://www.shindary.com/part-number26/front-strut-assy-%28left%29-s203f260204-0100-for-changan.html",
+        "configurations": [
+          {
+            "assembly": "strut assembly",
+            "placement": "front",
+            "side": "left",
+            "source_scope": "Exact Changan S203F260204-0100; no years or engine stated",
+            "source_url": "https://www.shindary.com/part-number26/front-strut-assy-%28left%29-s203f260204-0100-for-changan.html"
+          }
+        ]
+      },
+      "details": "Передняя левая стойка в сборе, 1 шт.; комплектность точной карточки: пружина, опора, опорный подшипник, пыльник и отбойник.",
+      "configurations": [
+        {
+          "year": 2021,
+          "engine": "1.5L Turbo",
+          "assembly": "complete strut assembly",
+          "placement": "front",
+          "side": "left",
+          "quantity": 1,
+          "source_scope": "exact Kaspi one-piece card; individual year explicitly listed",
+          "source_url": "https://kaspi.kz/shop/p/changan-perednii-s203f260204-0100-1-sht-139321548/"
+        },
+        {
+          "year": 2022,
+          "engine": "1.5L Turbo",
+          "assembly": "complete strut assembly",
+          "placement": "front",
+          "side": "left",
+          "quantity": 1,
+          "source_scope": "exact Kaspi one-piece card; individual year explicitly listed",
+          "source_url": "https://kaspi.kz/shop/p/changan-perednii-s203f260204-0100-1-sht-139321548/"
+        },
+        {
+          "year": 2023,
+          "engine": "1.5L Turbo",
+          "assembly": "complete strut assembly",
+          "placement": "front",
+          "side": "left",
+          "quantity": 1,
+          "source_scope": "exact Kaspi one-piece card; individual year explicitly listed",
+          "source_url": "https://kaspi.kz/shop/p/changan-perednii-s203f260204-0100-1-sht-139321548/"
+        },
+        {
+          "year": 2024,
+          "engine": "1.5L Turbo",
+          "assembly": "complete strut assembly",
+          "placement": "front",
+          "side": "left",
+          "quantity": 1,
+          "source_scope": "exact Kaspi one-piece card; individual year explicitly listed",
+          "source_url": "https://kaspi.kz/shop/p/changan-perednii-s203f260204-0100-1-sht-139321548/"
+        }
+      ],
+      "photo_review": {
+        "status": "not_saved",
+        "reason": "The independently visible exact image belongs to a two-piece package, while the exact one-piece card image could not be independently verified. No analogue or conflicting package image was used.",
+        "rejected_source_url": "https://shop.globalparts.kz/product/changan/s203f260204-0100",
+        "rechecked_on": "2026-11-14"
+      }
+    }
+  ]
+}
