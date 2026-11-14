@@ -12,6 +12,14 @@ from procurement.price_updates import advance_update
 logger = logging.getLogger(__name__)
 
 
+def photo_window_open(now):
+    """Keep one consumer: nights on weekdays, all day on Saturday and Sunday."""
+    from zoneinfo import ZoneInfo
+
+    local_now = now.astimezone(ZoneInfo('Asia/Qyzylorda'))
+    return local_now.weekday() >= 5 or local_now.hour >= 23 or local_now.hour < 6
+
+
 class Command(BaseCommand):
     help = 'Continue authorized supplier uploads, optionally as a background consumer.'
 
@@ -74,9 +82,7 @@ class Command(BaseCommand):
                     if refresh_sitemap_snapshots():
                         self.stdout.write('Public sitemap snapshots refreshed')
                     from catalog.source_photos import process_photo_tasks
-                    from zoneinfo import ZoneInfo
-                    local_hour = timezone.now().astimezone(ZoneInfo('Asia/Qyzylorda')).hour
-                    if local_hour >= 23 or local_hour < 6:
+                    if photo_window_open(timezone.now()):
                         photo_progress = process_photo_tasks(limit=10)
                 if options['watch']:
                     KaspiReviewTask.objects.filter(status='checking', updated_at__lt=timezone.now()-timedelta(minutes=30)).update(status='pending')
