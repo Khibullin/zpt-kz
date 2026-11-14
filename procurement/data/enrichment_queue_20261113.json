@@ -9,14 +9,7 @@
     "phase": "completed_with_documented_exceptions_20261112",
     "reviewed_offer_ids": 408
   },
-  "shared_lease": {
-    "owner": "weekend-enrichment-20261115-0200-recheck19",
-    "scope": "enrichment_queue_20261113_recheck_first19",
-    "acquired_at": "2026-11-14T20:03:32.941Z",
-    "heartbeat_at": "2026-11-14T20:08:51.140Z",
-    "expires_at": "2026-11-14T20:38:51.140Z",
-    "next_offer_id": 25114
-  },
+  "shared_lease": null,
   "started_at": "2026-11-13T18:05:41.445Z",
   "heartbeat_at": "2026-11-14T19:16:20.438Z",
   "status": "running_checkpointed",
@@ -8891,6 +8884,11 @@
       "at": "2026-11-14T20:12:41.035Z",
       "type": "item_rechecked_sources_unavailable_and_advance",
       "detail": "SsangYong 4530132100: package quantity 1 confirmed by two new exact sources, but consumer received HTTP 403 from both. Zero photo/thumbnail/fitment additions. Existing fitment and trade data DB/UI verified. Resume sequence 16 TLK 115071."
+    },
+    {
+      "at": "2026-11-14T20:13:15.598Z",
+      "type": "lease_released",
+      "detail": "Shared lease released after sequence 15 checkpoint; next sequence 16 TLK 115071."
     }
   ],
   "last_success": {
@@ -9335,7 +9333,7 @@
     "service_memory_limit_bytes": 536870900,
     "decision": "research and read-only checks allowed; defer or throttle writes while memory remains above 90% on the web service"
   },
-  "updated_at": "2026-11-14T20:12:41.035Z",
+  "updated_at": "2026-11-14T20:13:15.598Z",
   "current_index": 15,
   "next_supplier_id": 5,
   "next_offer_id": 25165,
