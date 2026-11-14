@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "checked_on": "2026-11-14",
-  "checked_at": "2026-11-13T20:09:04.075Z",
+  "checked_at": "2026-11-14T16:20:21.510Z",
   "supplier_id": 5,
   "supplier": "ЗаказАвто",
   "offer_id": 25177,
@@ -20,8 +20,18 @@
   },
   "prepared": {
     "photo": {
-      "status": "not_prepared",
-      "reason": "No independently verified exact HAVAL 2905110AKZ16A image; aftermarket-cross image was not used."
+      "status": "prepared_exact_photo",
+      "source_kind": "verified_exact_international_catalogue",
+      "source_url": "https://rebornfj.com/product-detail/front-left-shock-absorber-assembly-for_197499.html",
+      "image_url": "https://rebornfj.com/wp-content/uploads/2026/05/white_bg_23f1e6e22d5147b5891fd12002e53527.webp",
+      "source_checked_on": "2026-11-14",
+      "source_size": [
+        1000,
+        1000
+      ],
+      "source_sha256": "4b069efbbfbde77476983bb4799a4a91414d39b78657ac4346af53020705c835",
+      "execution": "one front-left bare strut without spring; quantity 1",
+      "note": "New exact HAVAL drawing/SKU source resolved the prior photo exception."
     },
     "fitment": {
       "status": "prepared",
@@ -41,19 +51,34 @@
     }
   },
   "queued": {
-    "status": "github_commit_autodeploy",
-    "commit": "155e7dc4b3bd23fd49fb15c36c1d87bba4dc7b4a",
-    "deploy_id": "dep-dbrmqulbedkc73biubvg",
-    "queued_at": "2026-11-13T20:05:14.300852Z"
+    "status": "existing_single_consumer_autodeploy",
+    "task_id": 4676,
+    "commits": [
+      "c33dd983ec8559ea5d0f1db64dd7cf8272643eee",
+      "6cd239d97c969200e479b55bc60ecd46d78f8870",
+      "185f256b0cb9295cd5540b871bb5606883afdb5b"
+    ],
+    "deploy_id": "dep-dbs8ipe7bikc73epm4a0",
+    "queued_at": "2026-11-14T16:08:52.000Z"
   },
   "saved": {
-    "status": "live_db_saved",
-    "saved_at": "2026-11-13T20:07:09.400382Z",
-    "fitment_rows": 2
+    "status": "live_db_saved_photo_and_thumbnail",
+    "saved_at": "2026-11-14T16:17:07.589Z",
+    "fitment_rows": 2,
+    "main_image": "products/optimized/9043ab427254f414336b6e69f1ed1e9ee7c0bb5793f1e0f5a32c5a7a195e9e59.webp",
+    "supplier_thumbnail": "products/optimized/80dd0ae1fc1964d859137f0bd3c8963fda202c47ee3403b8c0cfa7160eefd684.webp",
+    "main_size": [
+      800,
+      800
+    ],
+    "thumbnail_size": [
+      180,
+      180
+    ]
   },
   "after": {
-    "main_image": "",
-    "supplier_thumbnail": "",
+    "main_image": "products/optimized/9043ab427254f414336b6e69f1ed1e9ee7c0bb5793f1e0f5a32c5a7a195e9e59.webp",
+    "supplier_thumbnail": "products/optimized/80dd0ae1fc1964d859137f0bd3c8963fda202c47ee3403b8c0cfa7160eefd684.webp",
     "fitments": [
       {
         "make": "HAVAL",
@@ -97,30 +122,41 @@
   "verification": {
     "db_verified": true,
     "fitment_verified": true,
-    "photo_verified": false,
-    "thumbnail_verified": false,
+    "photo_verified": true,
+    "thumbnail_verified": true,
     "ui_verified": true,
     "ui_url": "https://zpt.kz/haval-zpt-25177/",
-    "ui_verified_at": "2026-11-13T21:02:56.833Z",
+    "ui_verified_at": "2026-11-14T16:20:21.510Z",
     "ui_http_status": 200,
     "ui_response_seconds": 6.290573,
     "ui_evidence": [
       "2905110AKZ16A",
-      "H6",
-      "GW4G15",
-      "M6",
+      "exact one-piece front-left strut photo",
+      "800x800 main image",
+      "180x180 thumbnail",
+      "HAVAL H6",
+      "HAVAL M6",
       "2021",
       "2022",
       "2023",
       "2024"
     ]
   },
-  "status": "saved_and_ui_verified_fitment_photo_unconfirmed",
+  "status": "photo_saved_and_verified_fitment_preserved",
   "skip_reason": null,
   "next": {
     "supplier_id": 5,
     "offer_id": 25215,
-    "action": "review_photo_and_fitment_when_site_latency_recovers"
+    "action": "recheck_photo_and_fitment_with_new_sources_only"
   },
-  "trade_data_unchanged": true
+  "trade_data_unchanged": true,
+  "recheck": {
+    "assigned_on": "2026-11-14",
+    "completed_at": "2026-11-14T16:20:21.510Z",
+    "source_url": "https://rebornfj.com/product-detail/front-left-shock-absorber-assembly-for_197499.html",
+    "image_url": "https://rebornfj.com/wp-content/uploads/2026/05/white_bg_23f1e6e22d5147b5891fd12002e53527.webp",
+    "result": "photo_and_thumbnail_saved_verified",
+    "prior_exception": "exact_photo_not_verified",
+    "prior_exception_resolved": true
+  }
 }

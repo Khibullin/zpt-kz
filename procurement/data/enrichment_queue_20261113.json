@@ -10,16 +10,16 @@
     "reviewed_offer_ids": 408
   },
   "shared_lease": {
-    "owner": "weekend-enrichment-20261114-2101-recheck19",
+    "owner": null,
     "source_path": "procurement/data/enrichment_queue_20261111.json",
-    "heartbeat_at": "2026-11-14T16:01:29.140Z",
-    "expires_at": "2026-11-14T16:31:29.140Z",
-    "released_at": null,
-    "release_reason": null
+    "heartbeat_at": "2026-11-14T16:20:21.510Z",
+    "expires_at": null,
+    "released_at": "2026-11-14T16:20:21.510Z",
+    "release_reason": "Exact HAVAL 2905110AKZ16A photo and thumbnail saved by the sole existing consumer and DB/public UI verified; advanced to sequence 12."
   },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-14T15:01:52.818Z",
-  "status": "rechecking_item",
+  "heartbeat_at": "2026-11-14T16:20:21.510Z",
+  "status": "checkpointed_item_verified",
   "phase": "recheck_first19",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
@@ -7306,8 +7306,8 @@
       "task_id": 4676,
       "brand": "HAVAL",
       "article": "2905110AKZ16A",
-      "checked_at": "2026-11-13T20:09:04.075Z",
-      "status": "saved_and_ui_verified_fitment_photo_unconfirmed",
+      "checked_at": "2026-11-14T16:20:21.510Z",
+      "status": "photo_saved_and_verified_fitment_preserved",
       "journal": "procurement/data/enrichment_queue_items/5-25177-20261114.json"
     },
     {
@@ -7734,6 +7734,25 @@
       "source_url": "https://catalog.parts-mall.com/shop-detail?factory_no=PJC-129FR",
       "image_url": "https://catalog.parts-mall.com/images/PJC-129FR_0300-1F.jpg",
       "journal": "procurement/data/enrichment_queue_items/5-25251-20261113.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25177,
+      "kind": "photo",
+      "source_url": "https://rebornfj.com/product-detail/front-left-shock-absorber-assembly-for_197499.html",
+      "image_url": "https://rebornfj.com/wp-content/uploads/2026/05/white_bg_23f1e6e22d5147b5891fd12002e53527.webp",
+      "checked_on": "2026-11-14",
+      "payload": {
+        "status": "prepared_exact",
+        "brand": "HAVAL",
+        "article": "2905110AKZ16A",
+        "execution": "front-left bare strut without spring; one piece",
+        "source_size": [
+          1000,
+          1000
+        ],
+        "source_sha256": "4b069efbbfbde77476983bb4799a4a91414d39b78657ac4346af53020705c835"
+      }
     }
   ],
   "queued": [
@@ -7779,6 +7798,17 @@
       "queued_at": "2026-11-14T10:02:05.000Z",
       "commit": "7ba9dc8f93a043d4ad5722b41935a0b4f705840d",
       "deploy_id": "dep-dbs33q6q1p3s73ebdq50"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25177,
+      "kind": "photo",
+      "queued_at": "2026-11-14T16:08:52.000Z",
+      "commit": "c33dd983ec8559ea5d0f1db64dd7cf8272643eee",
+      "parser_commit": "6cd239d97c969200e479b55bc60ecd46d78f8870",
+      "restage_commit": "185f256b0cb9295cd5540b871bb5606883afdb5b",
+      "deploy_id": "dep-dbs8ipe7bikc73epm4a0",
+      "task_id": 4676
     }
   ],
   "saved": [
@@ -7932,6 +7962,16 @@
       "configuration_count": 1,
       "deploy_id": "dep-dbs6ndm8bjmc73e6g2kg",
       "live_commit": "5ea7f430a6e148a905bfe32f795fdc0963065e77"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25177,
+      "kind": "photo_and_thumbnail",
+      "saved_at": "2026-11-14T16:17:07.589Z",
+      "deploy_id": "dep-dbs8ipe7bikc73epm4a0",
+      "live_commit": "185f256b0cb9295cd5540b871bb5606883afdb5b",
+      "main_path": "products/optimized/9043ab427254f414336b6e69f1ed1e9ee7c0bb5793f1e0f5a32c5a7a195e9e59.webp",
+      "thumbnail_path": "products/optimized/80dd0ae1fc1964d859137f0bd3c8963fda202c47ee3403b8c0cfa7160eefd684.webp"
     }
   ],
   "verified": [
@@ -8195,6 +8235,23 @@
         "OEM: CD569F260204-0400",
         "Исполнение в сборе с пружиной не заявляется."
       ]
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25177,
+      "kind": "photo_and_thumbnail",
+      "db_verified": true,
+      "ui_verified": true,
+      "ui_url": "https://zpt.kz/haval-zpt-25177/",
+      "verified_at": "2026-11-14T16:20:21.510Z",
+      "main_size": [
+        800,
+        800
+      ],
+      "thumbnail_size": [
+        180,
+        180
+      ]
     }
   ],
   "exceptions": [
@@ -8319,7 +8376,10 @@
         "https://www.jikiu.com/catalogue/59772881",
         "https://kaspi.kz/shop/p/haval-perednii-2905110akz16a-1-sht-130189369/"
       ],
-      "detail": "JIKIU image represents an aftermarket cross, not the exact HAVAL part; the exact Kaspi image could not be independently inspected in this run. No photo was saved."
+      "detail": "JIKIU image represents an aftermarket cross, not the exact HAVAL part; the exact Kaspi image could not be independently inspected in this run. No photo was saved.",
+      "resolved_at": "2026-11-14T16:20:21.510Z",
+      "resolution": "A new exact Rebornfj HAVAL drawing/SKU source independently confirmed and the one-piece front-left strut photo was saved and verified.",
+      "resolution_source": "https://rebornfj.com/product-detail/front-left-shock-absorber-assembly-for_197499.html"
     },
     {
       "supplier_id": 5,
@@ -8430,11 +8490,11 @@
   "publication_pending": null,
   "next": {
     "phase": "recheck_first19",
-    "sequence": 10,
+    "sequence": 12,
     "supplier_id": 5,
-    "offer_id": 25224,
-    "brand": "Changan",
-    "article": "S203F260204-0100"
+    "offer_id": 25215,
+    "brand": "Parts-Mall",
+    "article": "PJB-016A"
   },
   "events": [
     {
@@ -8751,21 +8811,31 @@
       "at": "2026-11-14T16:01:29.140Z",
       "type": "lease_acquired",
       "detail": "Shared lease acquired atomically for first-19 sequence 11 offer 25177 after confirming no active photo task or unfinished publication; no second worker or schedule started."
+    },
+    {
+      "at": "2026-11-14T16:17:07.589Z",
+      "type": "item_photo_saved_verified_and_advance",
+      "detail": "ZakazAuto HAVAL 2905110AKZ16A: a new exact Rebornfj drawing/SKU product source confirmed one front-left bare strut without spring. Existing sole consumer saved 800x800 WebP and 180x180 thumbnail; DB and public UI verified. Existing H6/M6 fitment preserved. Price, stock and Kaspi data unchanged. Resume at sequence 12 offer 25215."
+    },
+    {
+      "at": "2026-11-14T16:20:21.510Z",
+      "type": "lease_released",
+      "detail": "Shared canonical lease released after verified HAVAL 2905110AKZ16A photo publication; next is sequence 12 offer 25215. No duplicate worker or schedule was created."
     }
   ],
   "last_success": {
-    "at": "2026-11-14T15:14:32.159Z",
-    "stage": "fitment_enhanced_saved_and_ui_verified",
+    "at": "2026-11-14T16:17:07.589Z",
+    "stage": "photo_and_thumbnail_saved_and_ui_verified",
     "supplier_id": 5,
-    "offer_id": 25224,
-    "product_id": 6881,
-    "task_id": 4854,
-    "article": "S203F260204-0100",
-    "commit": "29fd4eb75d9ecea1b504a8c557a8aa0815cd8cac",
-    "deploy_id": "dep-dbs7kenf3r2c73e2uhhg",
-    "ui_url": "https://zpt.kz/changan-zpt-25224/"
+    "offer_id": 25177,
+    "product_id": 6703,
+    "task_id": 4676,
+    "article": "2905110AKZ16A",
+    "commit": "185f256b0cb9295cd5540b871bb5606883afdb5b",
+    "deploy_id": "dep-dbs8ipe7bikc73epm4a0",
+    "ui_url": "https://zpt.kz/haval-zpt-25177/"
   },
-  "last_commit": "29fd4eb75d9ecea1b504a8c557a8aa0815cd8cac",
+  "last_commit": "185f256b0cb9295cd5540b871bb5606883afdb5b",
   "paused_at": "2026-11-14T15:14:32.159Z",
   "pause_reason": "Sequence 10 fitment enhancement saved and verified; exact one-piece photo remained unverified. Resume first-19 recheck at sequence 11.",
   "remaining_live": {
@@ -8807,7 +8877,7 @@
   "recheck_first19": {
     "frozen_at": "2026-11-14T11:05:21.000Z",
     "total": 19,
-    "current_index": 10,
+    "current_index": 11,
     "status": "running_checkpointed",
     "items": [
       {
@@ -8950,7 +9020,8 @@
         "article": "2905110AKZ16A",
         "prior_status": "saved_and_ui_verified_fitment_photo_unconfirmed",
         "journal": "procurement/data/enrichment_queue_items/5-25177-20261114.json",
-        "status": "pending_recheck"
+        "status": "photo_saved_and_verified_fitment_preserved",
+        "rechecked_at": "2026-11-14T16:20:21.510Z"
       },
       {
         "sequence": 12,
@@ -9052,36 +9123,40 @@
     "photos_missing_before": 18,
     "structured_fitment_missing_before": 5,
     "results": {
-      "reviewed": 10,
-      "new_photos": 4,
-      "new_thumbnails": 4,
+      "reviewed": 11,
+      "new_photos": 5,
+      "new_thumbnails": 5,
       "new_fitments": 3,
       "no_change": 4,
       "candidates_pending": 0
     },
     "last_saved": {
       "supplier_id": 5,
-      "offer_id": 25224,
-      "product_id": 6881,
-      "task_id": 4854,
-      "article": "S203F260204-0100",
-      "kind": "fitment_enhancement",
-      "fitment_id": 111504,
-      "configuration_count": 4,
-      "years": [
-        "2021",
-        "2022",
-        "2023",
-        "2024"
+      "offer_id": 25177,
+      "product_id": 6703,
+      "task_id": 4676,
+      "article": "2905110AKZ16A",
+      "kind": "photo_and_thumbnail",
+      "source_url": "https://rebornfj.com/product-detail/front-left-shock-absorber-assembly-for_197499.html",
+      "image_url": "https://rebornfj.com/wp-content/uploads/2026/05/white_bg_23f1e6e22d5147b5891fd12002e53527.webp",
+      "main_path": "products/optimized/9043ab427254f414336b6e69f1ed1e9ee7c0bb5793f1e0f5a32c5a7a195e9e59.webp",
+      "thumbnail_path": "products/optimized/80dd0ae1fc1964d859137f0bd3c8963fda202c47ee3403b8c0cfa7160eefd684.webp",
+      "main_size": [
+        800,
+        800
       ],
-      "engine": "1.5L Turbo",
-      "photo_saved": false,
+      "thumbnail_size": [
+        180,
+        180
+      ],
+      "photo_saved": true,
+      "fitment_preserved": true,
       "db_verified": true,
       "ui_verified": true,
-      "ui_url": "https://zpt.kz/changan-zpt-25224/",
-      "deploy_id": "dep-dbs7kenf3r2c73e2uhhg",
-      "commit": "29fd4eb75d9ecea1b504a8c557a8aa0815cd8cac",
-      "saved_at": "2026-11-14T15:14:32.159Z"
+      "ui_url": "https://zpt.kz/haval-zpt-25177/",
+      "deploy_id": "dep-dbs8ipe7bikc73epm4a0",
+      "commit": "185f256b0cb9295cd5540b871bb5606883afdb5b",
+      "saved_at": "2026-11-14T16:17:07.589Z"
     },
     "pending_candidate": null
   },
@@ -9148,5 +9223,5 @@
     "service_memory_limit_bytes": 536870900,
     "decision": "research and read-only checks allowed; defer or throttle writes while memory remains above 90% on the web service"
   },
-  "updated_at": "2026-11-14T16:01:29.140Z"
+  "updated_at": "2026-11-14T16:20:21.510Z"
 }

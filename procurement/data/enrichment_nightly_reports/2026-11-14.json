@@ -2,7 +2,7 @@
   "schema": 1,
   "night_end_date": "2026-11-14",
   "started_at": "2026-11-13T18:05:41.445Z",
-  "updated_at": "2026-11-14T15:15:56.580Z",
+  "updated_at": "2026-11-14T16:20:21.510Z",
   "status": "checkpointed_item_verified",
   "supplier_stats": {
     "1": {
@@ -24,7 +24,7 @@
     "5": {
       "name": "ЗаказАвто",
       "processed_unique": 19,
-      "photos_added": 5,
+      "photos_added": 6,
       "fitment_added": 17,
       "years_or_engines_added": 16,
       "skips": {
@@ -53,23 +53,23 @@
       "5": 100
     },
     "next_supplier_id": 5,
-    "next_offer_id": 25177,
+    "next_offer_id": 25215,
     "control_batch_remaining": {
       "3": 100,
       "5": 81
     },
-    "lease_released_at": "2026-11-14T15:15:56.580Z",
+    "lease_released_at": "2026-11-14T16:20:21.510Z",
     "lease_owner": null,
     "pending_ui_verification": null,
     "publication_pending": null,
     "batch_size": 20,
     "recheck": {
       "total": 19,
-      "current_index": 10,
+      "current_index": 11,
       "status": "running_checkpointed",
-      "reviewed_unique": 10,
-      "new_photos": 4,
-      "new_thumbnails": 4,
+      "reviewed_unique": 11,
+      "new_photos": 5,
+      "new_thumbnails": 5,
       "new_fitments": 3,
       "no_change": 4,
       "candidates_pending": 0,
@@ -372,19 +372,29 @@
       "at": "2026-11-14T15:15:56.580Z",
       "type": "lease_released",
       "detail": "Shared lease released after sequence 10 checkpoint; next is sequence 11 offer 25177."
+    },
+    {
+      "at": "2026-11-14T16:17:07.589Z",
+      "type": "item_photo_saved_verified_and_advance",
+      "detail": "ZakazAuto HAVAL 2905110AKZ16A: new exact Rebornfj source confirmed the one-piece front-left strut. 800x800 photo and 180x180 thumbnail saved by the sole consumer and verified in DB/public UI; existing H6/M6 fitment preserved; trade/Kaspi unchanged. Resume sequence 12 offer 25215."
+    },
+    {
+      "at": "2026-11-14T16:20:21.510Z",
+      "type": "lease_released",
+      "detail": "Shared lease released after sequence 11 checkpoint; next is sequence 12 offer 25215."
     }
   ],
   "last_success": {
-    "at": "2026-11-14T15:14:32.159Z",
-    "stage": "fitment_enhanced_saved_and_ui_verified",
+    "at": "2026-11-14T16:17:07.589Z",
+    "stage": "photo_and_thumbnail_saved_and_ui_verified",
     "supplier_id": 5,
-    "offer_id": 25224,
-    "product_id": 6881,
-    "task_id": 4854,
-    "article": "S203F260204-0100",
-    "commit": "29fd4eb75d9ecea1b504a8c557a8aa0815cd8cac",
-    "deploy_id": "dep-dbs7kenf3r2c73e2uhhg",
-    "ui_url": "https://zpt.kz/changan-zpt-25224/"
+    "offer_id": 25177,
+    "product_id": 6703,
+    "task_id": 4676,
+    "article": "2905110AKZ16A",
+    "commit": "185f256b0cb9295cd5540b871bb5606883afdb5b",
+    "deploy_id": "dep-dbs8ipe7bikc73epm4a0",
+    "ui_url": "https://zpt.kz/haval-zpt-25177/"
   },
   "blocking_error": null,
   "finished_at": null,
@@ -491,5 +501,6 @@
       "gmail_url": "https://mail.google.com/mail/u/?authuser=rkhaibullin%40gmail.com#all/1a1d792369f89158"
     },
     "email_html": "<p>Ринат, доброе утро.</p>\n<p><b>За ночь 13–14 ноября обработано 12 уникальных товаров ЗаказАвто: добавлены 1 фото и 1 миниатюра, дополнена структурированная применимость у 8 товаров.</b> По Омеге и Фаэтону новых обработанных товаров в этой очереди нет.</p>\n<p>Период: 13.11.2026 23:00 — 14.11.2026 06:00, Казахстан (Asia/Qyzylorda). Срез свежей БД — 05:58:49. Массовая обработка при подготовке отчёта не запускалась.</p>\n<table border=\"1\" cellpadding=\"6\" cellspacing=\"0\" style=\"border-collapse:collapse\">\n<tr><th>Показатель</th><th>Омега (1)</th><th>Фаэтон (3)</th><th>ЗаказАвто (5)</th></tr>\n<tr><td>Уникальных товаров обработано</td><td>0</td><td>0</td><td>12</td></tr>\n<tr><td>Впервые добавлено фото / миниатюр</td><td>0 / 0</td><td>0 / 0</td><td>1 / 1</td></tr>\n<tr><td>Товаров с дополненной привязкой марка/модель</td><td>0</td><td>0</td><td>8 (10 привязок)</td></tr>\n<tr><td>Товаров с добавленными годами / двигателями</td><td>0 / 0</td><td>0 / 0</td><td>7 / 7</td></tr>\n<tr><td>Всего товаров с положительным остатком</td><td>14 951</td><td>27 939</td><td>6 977</td></tr>\n<tr><td>Осталось без сохранённого фото</td><td>1 375</td><td>22 481</td><td>6 801</td></tr>\n<tr><td>Осталось без структурированных марки/модели</td><td>12 322</td><td>26 451</td><td>6 712</td></tr>\n</table>\n<p>Числа дополнений относятся к товарам, повторные попытки не учитываются. Текстовое описание совместимости не засчитывалось как структурированная применимость. Годы и двигатели подтверждены для отдельных конфигураций; это не означает полного покрытия всех комплектаций.</p>\n<p><b>Пропуски:</b> у 7 товаров точное фото не подтверждено, ещё у 1 есть конфликт комплектности фотографии; у 4 товаров не внесены ни фото, ни применимость: противоречивые источники — 1, конфликт полного артикула — 1, не подтверждён бренд — 1, не найден источник точного бренда — 1. Причины относятся к разным полям: у части товаров применимость сохранена, хотя фото пропущено.</p>\n<p><b>Остановки и возобновления:</b> первоначальный сбой публикации из-за конфликта миграций исправлен в 23:18. После 23:25 обработка неоднократно приостанавливалась из-за медленного ответа сайта. Возобновление около 01:00 дало ещё одну применимость; проверка карточки завершена в 02:02. Следующее возобновление около 02:56 завершилось сохранением фото и применимости. В 03:12 восстановлен существующий обработчик фото, ранее отключённый настройкой. Проверки продолжения в 04:00 и 05:00 не брали новых товаров: последние измерения — главная 8,60 с, карточка 6,58 с, прямой Render 7,08 с. Это основание паузы, а не доказательство причины медленной работы сайта.</p>\n<p><b>Последнее фактическое сохранение фото:</b> 03:15:15, ЗаказАвто №25215, Parts-Mall PJB-016A; проверка фото, миниатюры и карточки завершена в 03:16:20. Свежая БД подтверждает фото, миниатюру и все 10 привязок у 8 товаров. На срезе активных и ожидающих фотозадач нет; незавершённой публикации и занятой блокировки очереди нет. Последний ночной запуск завершён, очередь приостановлена из-за задержек сайта.</p>\n<p><b>Продолжение:</b> ЗаказАвто №25285, Parts-Mall PJD007. В контрольной партии осталось 88 из 100 ЗаказАвто и 100 из 100 Фаэтона; Омега ещё не начата. Приоритетные выгодные позиции ранее рассмотрены, поэтому текущая фаза — остальные товары в наличии.</p>\n<p><b>Уточнение остатков:</b> утренний пересчёт учитывает форматы наличия «2 шт.» и «&gt;20 шт.» по правилу кода сайта. Промежуточная ночная сводка учитывала их неполно, поэтому её остатки заменены проверенными цифрами таблицы. Цены, остатки и товарные данные в рамках подготовки отчёта не изменялись.</p>\n<p><a href=\"https://github.com/Khibullin/zpt-kz/blob/enrichment-queue-20261111/procurement/data/enrichment_nightly_reports/2026-11-14.json\">Постоянный журнал ночи и утренней сверки</a> (требуется доступ к репозиторию).</p>"
-  }
+  },
+  "last_commit": "185f256b0cb9295cd5540b871bb5606883afdb5b"
 }
