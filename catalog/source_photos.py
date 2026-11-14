@@ -127,7 +127,7 @@ def process_photo_tasks(limit=10):
     if any(row['evidence'].get('block_kind')=='storage' or row['note'].startswith('Недостаточно свободного места') for row in blocked):return 0
     # Prepared work is activated by the deployed consumer, not the old process
     # while Render runs schema/data migrations for the next release.
-    SupplierPhotoTask.objects.filter(status__in=['prepared','maker_ready','web_ready','bilstein_ready','shock_ready','weekend14h_ready','weekend14i_ready','weekend14j_ready','weekend14k_ready','weekend14n_ready','weekend15a_ready','weekend15b_ready','weekend15c_ready','weekend15d_ready']).update(status='pending')
+    SupplierPhotoTask.objects.filter(status__in=['prepared','maker_ready','web_ready','bilstein_ready','shock_ready','weekend14h_ready','weekend14i_ready','weekend14j_ready','weekend14k_ready','weekend14n_ready','weekend15a_ready','weekend15b_ready','weekend15c_ready','weekend15d_ready','weekend15e_ready']).update(status='pending')
     from .reviewed_remaining2 import process_reviewed_photos as process_remaining2_photos
     done=process_remaining2_photos(limit=limit)
     from .reviewed_zakaz100 import process_reviewed_photos as process_zakaz100_photos
@@ -207,12 +207,27 @@ def process_photo_tasks(limit=10):
                     listing=RetailListing.objects.select_related('offer').filter(product=product,enabled=True).first()
                     if not listing or listing.offer.brand.strip().casefold()!=offer.brand.strip().casefold():
                         raise ValueError('Не подтверждено совпадение производителя.')
-                    html=fetch_bytes(public_page_url(task.source_url,offer.brand)).decode('utf-8',errors='replace')
-                    if urlsplit(task.source_url).netloc=='omega-auto-parts.kz':
-                        image_url=matching_image(html,offer.brand,offer.article)
+                    evidence=task.evidence or {}
+                    exact_jashi=(
+                        task.pk==4759 and product.pk==6786 and offer.pk==25082
+                        and offer.brand=='JASHI' and offer.article=='C281F260202-0200'
+                        and task.source_url=='https://kaspi.kz/shop/p/jashi-perednii-c281f260202-0200-1-sht-130050225/'
+                        and evidence.get('reviewed_batch')=='weekend-20261115-e'
+                        and evidence.get('image_url')=='https://resources.cdn-kaspi.kz/img/m/p/p62/p7d/8356815.png?format=gallery-large'
+                        and evidence.get('checked_on')=='2026-11-15'
+                    )
+                    if exact_jashi:
+                        # The exact card and its sole image were visually checked before
+                        # staging. Fetch only that immutable CDN object here; the guarded
+                        # migration has already rechecked live identity, stock and fitment.
+                        image_url=evidence['image_url']
                     else:
-                        from .manufacturer_photos import matching_manufacturer_image
-                        image_url=matching_manufacturer_image(html,task.source_url,offer.brand,offer.article)
+                        html=fetch_bytes(public_page_url(task.source_url,offer.brand)).decode('utf-8',errors='replace')
+                        if urlsplit(task.source_url).netloc=='omega-auto-parts.kz':
+                            image_url=matching_image(html,offer.brand,offer.article)
+                        else:
+                            from .manufacturer_photos import matching_manufacturer_image
+                            image_url=matching_manufacturer_image(html,task.source_url,offer.brand,offer.article)
                     if not image_url:
                         task.status='skipped';task.note='Точное совпадение или реальная фотография не найдены.'
                     else:

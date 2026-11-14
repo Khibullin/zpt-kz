@@ -106,6 +106,20 @@ class ManufacturerPhotoTests(SimpleTestCase):
         self.assertEqual(matching_manufacturer_image(html.replace('/1개당','/2개'),url,'SsangYong','4530132100'),'')
         self.assertEqual(matching_manufacturer_image(html.replace('/still/600','/still/80'),url,'SsangYong','4530132100'),'')
 
+    def test_kaspi_jashi_requires_exact_card_identity_and_main_photo(self):
+        url='https://kaspi.kz/shop/p/jashi-perednii-c281f260202-0200-1-sht-130050225/'
+        image='https://resources.cdn-kaspi.kz/img/m/p/p62/p7d/8356815.png?format=gallery-large'
+        html=(
+            '<h1>Амортизатор JASHI передний C281F260202-0200 1 шт</h1>'
+            '<div>Код товара: 130050225</div>'
+            '<meta property="og:image" content="'+image+'">'
+        )
+        self.assertEqual(matching_manufacturer_image(html,url,'JASHI','C281F260202-0200'),image)
+        self.assertEqual(matching_manufacturer_image(html,url,'JASHI','C281F260202-0400'),'')
+        self.assertEqual(matching_manufacturer_image(html,url,'OTHER','C281F260202-0200'),'')
+        self.assertEqual(matching_manufacturer_image(html.replace('130050225','130050226'),url,'JASHI','C281F260202-0200'),'')
+        self.assertEqual(matching_manufacturer_image(html.replace('gallery-large','gallery-medium'),url,'JASHI','C281F260202-0200'),'')
+
     def test_unapproved_pages_are_rejected(self):
         for url in ['http://aywiparts.ru/product/view/7','https://aywiparts.ru.evil.example/product/view/7','https://aywiparts.ru/product/view/7?redirect=1','https://[',None]:
             self.assertFalse(valid_page(url,'AYWIPARTS'))

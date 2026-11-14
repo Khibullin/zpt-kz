@@ -51,6 +51,8 @@ def valid_page(url,brand):
         return p.path=='/Item' and set(q)=={'goodsCode'} and q['goodsCode']==['4348280358']
     if p.netloc=='www.ebay.com' and brand=='SSANGYONG':
         return not p.query and p.path=='/itm/157310193004'
+    if p.netloc=='kaspi.kz' and brand=='JASHI':
+        return not p.query and p.path=='/shop/p/jashi-perednii-c281f260202-0200-1-sht-130050225/'
     if p.netloc=='rebornfj.com' and brand=='HAVAL':
         return not p.query and p.path=='/product-detail/front-left-shock-absorber-assembly-for_197499.html'
     if p.query:return False
@@ -170,6 +172,21 @@ def matching_manufacturer_image(html,url,brand,article):
             if tag!='img':continue
             src=urljoin(url,attrs.get('src',''));target=urlsplit(src)
             if target.scheme=='https' and target.netloc=='i.ebayimg.com' and not target.query and not target.fragment and target.path==wanted:return src
+    elif p.netloc=='kaspi.kz':
+        if expected!='C281F260202-0200' or p.path!='/shop/p/jashi-perednii-c281f260202-0200-1-sht-130050225/':return ''
+        page_text=text(html)
+        required=(
+            'АМОРТИЗАТОР JASHI ПЕРЕДНИЙ C281F260202-0200 1 ШТ',
+            'КОД ТОВАРА: 130050225',
+        )
+        if not all(value in page_text for value in required):return ''
+        wanted='/img/m/p/p62/p7d/8356815.png'
+        for tag,attrs in tags:
+            if tag!='meta' or attrs.get('property')!='og:image':continue
+            src=attrs.get('content','');target=urlsplit(src);params=parse_qs(target.query)
+            if target.scheme!='https' or target.netloc!='resources.cdn-kaspi.kz' or target.fragment or target.path!=wanted:continue
+            if params!={'format':['gallery-large']}:continue
+            return src
     elif p.netloc=='item.gmarket.co.kr':
         q=parse_qs(p.query)
         if expected!='4530132100' or q.get('goodsCode')!=['4348280358']:return ''
