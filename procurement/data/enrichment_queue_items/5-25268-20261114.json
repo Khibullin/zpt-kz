@@ -1,0 +1,106 @@
+{
+  "schema": 1,
+  "checked_on": "2026-11-14",
+  "checked_at": "2026-11-14T07:16:56.000Z",
+  "supplier_id": 5,
+  "supplier": "ЗаказАвто",
+  "offer_id": 25268,
+  "product_id": 6994,
+  "task_id": 4967,
+  "brand": "Mando",
+  "article": "EX54661A7100",
+  "name": "Амортизатор передний Kia",
+  "stock_before": "1",
+  "cost_before": "20400.00",
+  "before": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "fitment_rows": 0,
+    "reviewed_applicability": null
+  },
+  "prepared": {
+    "photo": {
+      "status": "not_confirmed",
+      "reason": "Exact pages were found, but no source image was independently downloaded and checked for execution and package quantity.",
+      "checked_urls": [
+        "https://dok.dbroker.com.ua/art-EX54661A7100-MANDO-15644811/",
+        "https://www.avtoall.ru/amortizator_kia_cerato_13_peredniy_pravyy_gazovyy_mando-949481/"
+      ]
+    },
+    "fitment": {
+      "status": "prepared_not_published",
+      "make_model_pairs": 1,
+      "configuration_count": 1,
+      "source_kind": "manufacturer_catalogue_pdf_mirror",
+      "source_url": "https://download.part-kom.ru/catalogs/MANDO_Catalogue.pdf",
+      "scope": "KIA K3 (YD), from 2012-10 with no asserted end date, front right gas, market GEN, OE 54661A7100; no engine configuration claimed."
+    }
+  },
+  "queued": {
+    "status": "not_queued_due_measured_load",
+    "queued_at": null,
+    "reason": "A second consecutive production deploy was deferred while database CPU and memory were near plan limits."
+  },
+  "saved": {
+    "status": "not_saved",
+    "fitment_saved_at": null,
+    "fitment_rows": 0,
+    "photo_saved": false
+  },
+  "after": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "fitment_rows": 0,
+    "stock": "1",
+    "cost": "20400.00"
+  },
+  "verification": {
+    "source_verified": true,
+    "db_verified": false,
+    "fitment_verified": false,
+    "photo_verified": false,
+    "thumbnail_verified": false,
+    "ui_verified": false,
+    "ui_url": "https://zpt.kz/kia-zpt-25268/",
+    "note": "No new fitment or photo is claimed on the live site; this journal records prepared data only."
+  },
+  "sources": [
+    {
+      "kind": "manufacturer_catalogue_pdf_mirror",
+      "url": "https://download.part-kom.ru/catalogs/MANDO_Catalogue.pdf",
+      "checked_on": "2026-11-14",
+      "exact_brand": "Mando",
+      "exact_article": "EX54661A7100"
+    },
+    {
+      "kind": "oem_catalog_exact_part",
+      "url": "https://partsouq.com/en/catalog/genuine/parts?c=KIA&gid=13397&q=&ssd=$*KwGDvoOS54LUwsnwzJeLxMCT-_rz4uD2gtnU2J2S0pSLkvz8qcTWk8OVjJPglciWubqJ4uaCgtbmhqXViZDO6Onxho-H2QAAAACDIr4u$&vid=490443987",
+      "checked_on": "2026-11-14",
+      "exact_brand": "KIA",
+      "exact_article": "54661A7100",
+      "scope": "CERATO 12 (2012-2016), STRUT ASSY FRONT RH; exact row has package/suspension constraints but no complete engine configuration."
+    },
+    {
+      "kind": "independent_exact_part_page_photo_unverified",
+      "url": "https://dok.dbroker.com.ua/art-EX54661A7100-MANDO-15644811/",
+      "checked_on": "2026-11-14",
+      "exact_brand": "Mando",
+      "exact_article": "EX54661A7100"
+    },
+    {
+      "kind": "independent_exact_part_page_photo_unverified",
+      "url": "https://www.avtoall.ru/amortizator_kia_cerato_13_peredniy_pravyy_gazovyy_mando-949481/",
+      "checked_on": "2026-11-14",
+      "exact_brand": "Mando",
+      "exact_article": "EX54661A7100"
+    }
+  ],
+  "status": "prepared_not_published",
+  "skip_reason": "publication_deferred_due_measured_database_load",
+  "next": {
+    "supplier_id": 5,
+    "offer_id": 25268,
+    "action": "recheck live DB, publish prepared fitment as one small write, verify DB/UI, then advance"
+  },
+  "trade_data_unchanged": true
+}

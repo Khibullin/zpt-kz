@@ -14,11 +14,11 @@
     "source_path": "procurement/data/enrichment_queue_20261111.json",
     "acquired_at": "2026-11-14T07:01:37.000Z",
     "expires_at": "2026-11-14T07:47:34.000Z",
-    "released_at": null
+    "released_at": "2026-11-14T07:16:56.000Z"
   },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-14T07:12:34.000Z",
-  "status": "running_weekend",
+  "heartbeat_at": "2026-11-14T07:16:56.000Z",
+  "status": "prepared_waiting_low_load_publication",
   "phase": "other_in_stock_control",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
@@ -7585,6 +7585,30 @@
         "shock_type": "gas",
         "source_scope": "Exact PJD-007 rows from the Parts-Mall manufacturer catalogue; Musso deliberately excluded because its table lists other PMC numbers"
       }
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25268,
+      "kind": "fitment",
+      "source_url": "https://download.part-kom.ru/catalogs/MANDO_Catalogue.pdf",
+      "additional_source_url": "https://partsouq.com/en/catalog/genuine/parts?c=KIA&gid=13397&q=&ssd=$*KwGDvoOS54LUwsnwzJeLxMCT-_rz4uD2gtnU2J2S0pSLkvz8qcTWk8OVjJPglciWubqJ4uaCgtbmhqXViZDO6Onxho-H2QAAAACDIr4u$&vid=490443987",
+      "payload": {
+        "make": "KIA",
+        "model": "K3 (YD)",
+        "date_from": "2012-10",
+        "date_to": null,
+        "placement": "front",
+        "side": "right",
+        "shock_type": "gas",
+        "market": "GEN",
+        "oem_article": "54661A7100",
+        "engines": [],
+        "engine_scope": "not claimed because exact Mando row has no engine configuration",
+        "source_url": "https://download.part-kom.ru/catalogs/MANDO_Catalogue.pdf",
+        "additional_source_url": "https://partsouq.com/en/catalog/genuine/parts?c=KIA&gid=13397&q=&ssd=$*KwGDvoOS54LUwsnwzJeLxMCT-_rz4uD2gtnU2J2S0pSLkvz8qcTWk8OVjJPglciWubqJ4uaCgtbmhqXViZDO6Onxho-H2QAAAACDIr4u$&vid=490443987",
+        "source_scope": "Exact Mando EX54661A7100 row; open-ended 201210~ retained without inventing an end date.",
+        "status": "prepared"
+      }
     }
   ],
   "queued": [
@@ -7934,7 +7958,38 @@
       "detail": "The exact product pages did not expose a source image that could be independently downloaded and checked for execution and package quantity. No photo was saved."
     }
   ],
-  "publication_pending": null,
+  "publication_pending": {
+    "supplier_id": 5,
+    "offer_id": 25268,
+    "product_id": 6994,
+    "task_id": 4967,
+    "brand": "Mando",
+    "article": "EX54661A7100",
+    "status": "prepared_not_published",
+    "prepared_at": "2026-11-14T07:16:56.000Z",
+    "fitment": {
+      "make": "KIA",
+      "model": "K3 (YD)",
+      "date_from": "2012-10",
+      "date_to": null,
+      "placement": "front",
+      "side": "right",
+      "shock_type": "gas",
+      "market": "GEN",
+      "oem_article": "54661A7100",
+      "engines": [],
+      "engine_scope": "not claimed because exact Mando row has no engine configuration",
+      "source_url": "https://download.part-kom.ru/catalogs/MANDO_Catalogue.pdf",
+      "additional_source_url": "https://partsouq.com/en/catalog/genuine/parts?c=KIA&gid=13397&q=&ssd=$*KwGDvoOS54LUwsnwzJeLxMCT-_rz4uD2gtnU2J2S0pSLkvz8qcTWk8OVjJPglciWubqJ4uaCgtbmhqXViZDO6Onxho-H2QAAAACDIr4u$&vid=490443987",
+      "source_scope": "Exact Mando EX54661A7100 row; open-ended 201210~ retained without inventing an end date."
+    },
+    "photo": {
+      "status": "exact_photo_not_verified",
+      "saved": false,
+      "reason": "Exact pages were found, but no source image was independently downloaded and checked for execution and package quantity."
+    },
+    "publication": "deferred_due_measured_database_load; no second consecutive deploy in this run"
+  },
   "next": {
     "supplier_id": 5,
     "offer_id": 25268
@@ -8074,6 +8129,16 @@
       "at": "2026-11-14T07:12:34.000Z",
       "type": "performance_observation",
       "detail": "Initial 502 responses coincided with an unrelated Render deploy. After it became live, pages returned 200 but remained slow (product 7.942s, home 7.282s, direct Render 5.478s). Web CPU was low; database CPU reached about 88% of its 0.1 CPU limit and memory about 90% of its 256 MiB limit, so the run kept writes small and sequential."
+    },
+    {
+      "at": "2026-11-14T07:16:56.000Z",
+      "type": "item_prepared_publication_deferred",
+      "detail": "Offer 25268 Mando EX54661A7100: exact Mando catalogue fitment prepared for KIA K3 (YD), from 2012-10 with no asserted end date, front right gas, market GEN, OE 54661A7100. No engine configuration or photo was claimed. Publication was deferred because database load was near plan limits; pointer remains on this offer and lease was released."
+    },
+    {
+      "at": "2026-11-14T07:16:56.000Z",
+      "type": "lease_released",
+      "detail": "Shared lease released after persisting the prepared, not-published EX54661A7100 payload. No new item was taken; continuation must publish and verify offer 25268 before advancing."
     }
   ],
   "last_success": {
@@ -8085,8 +8150,8 @@
     "commit": "60377dd5ced60af4a409800b14a365e283304d4a"
   },
   "last_commit": "60377dd5ced60af4a409800b14a365e283304d4a",
-  "paused_at": null,
-  "pause_reason": null,
+  "paused_at": "2026-11-14T07:16:56.000Z",
+  "pause_reason": "EX54661A7100 source data prepared; publication deferred to avoid a second consecutive deploy while database CPU and memory were near plan limits.",
   "remaining_live": {
     "1": {
       "remaining_without_photo": 297,
