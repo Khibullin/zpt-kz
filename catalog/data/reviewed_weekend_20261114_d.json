@@ -1,0 +1,62 @@
+{
+  "checked_on": "2026-11-14",
+  "sources": [
+    {
+      "offer_id": 25082,
+      "product_id": 6786,
+      "supplier_id": 5,
+      "brand": "JASHI",
+      "article": "C281F260202-0200",
+      "stock": "1",
+      "cost": "47200.00",
+      "source_label": "Exact Kaspi characteristics with independent exact OEM catalogue confirmation",
+      "source_kind": "exact_kaspi_characteristics_and_independent_catalogue",
+      "source_urls": [
+        "https://kaspi.kz/shop/p/jashi-perednii-c281f260202-0200-1-sht-130050225/",
+        "https://www.chinesecar.parts/models/changan-uni-v-parts.html"
+      ],
+      "fitment_note": "The exact Kaspi card identifies JASHI C281F260202-0200 as a one-piece complete front-left strut assembly for Changan UNI-V and lists the individual years 2022, 2023 and 2024 plus 1.5L Turbo. An independent exact OEM catalogue identifies C281F260202-0200 as STRUT ASSY FR-LH for CA UNI V. The three listed years are retained as separate configurations and are not expanded into an inferred continuous or open-ended range. No engine code or broader engine coverage is inferred.",
+      "fitments": [
+        {
+          "make": "CHANGAN",
+          "model": "UNI-V",
+          "details": "Комплектная передняя левая стойка с пружиной, пыльником и опорой; 1 шт.",
+          "years": "2022",
+          "engine": "1.5L Turbo",
+          "placement": "front",
+          "side": "left",
+          "oem_article": "C281F260202-0200",
+          "package_quantity": 1,
+          "source_url": "https://kaspi.kz/shop/p/jashi-perednii-c281f260202-0200-1-sht-130050225/",
+          "source_scope": "Exact Kaspi characteristics; independent exact OEM catalogue confirms front-left strut assembly"
+        },
+        {
+          "make": "CHANGAN",
+          "model": "UNI-V",
+          "details": "Комплектная передняя левая стойка с пружиной, пыльником и опорой; 1 шт.",
+          "years": "2023",
+          "engine": "1.5L Turbo",
+          "placement": "front",
+          "side": "left",
+          "oem_article": "C281F260202-0200",
+          "package_quantity": 1,
+          "source_url": "https://kaspi.kz/shop/p/jashi-perednii-c281f260202-0200-1-sht-130050225/",
+          "source_scope": "Exact Kaspi characteristics; independent exact OEM catalogue confirms front-left strut assembly"
+        },
+        {
+          "make": "CHANGAN",
+          "model": "UNI-V",
+          "details": "Комплектная передняя левая стойка с пружиной, пыльником и опорой; 1 шт.",
+          "years": "2024",
+          "engine": "1.5L Turbo",
+          "placement": "front",
+          "side": "left",
+          "oem_article": "C281F260202-0200",
+          "package_quantity": 1,
+          "source_url": "https://kaspi.kz/shop/p/jashi-perednii-c281f260202-0200-1-sht-130050225/",
+          "source_scope": "Exact Kaspi characteristics; independent exact OEM catalogue confirms front-left strut assembly"
+        }
+      ]
+    }
+  ]
+}
