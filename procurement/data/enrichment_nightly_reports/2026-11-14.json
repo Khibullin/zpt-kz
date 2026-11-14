@@ -2,7 +2,7 @@
   "schema": 1,
   "night_end_date": "2026-11-14",
   "started_at": "2026-11-13T18:05:41.445Z",
-  "updated_at": "2026-11-14T12:26:58.284Z",
+  "updated_at": "2026-11-14T12:27:03.169Z",
   "status": "paused_checkpointed_prepared_candidate",
   "supplier_stats": {
     "1": {
@@ -56,8 +56,8 @@
       "3": 100,
       "5": 81
     },
-    "lease_released_at": null,
-    "lease_owner": "weekend-enrichment-20261114-1700-recheck19",
+    "lease_released_at": "2026-11-14T12:27:03.169Z",
+    "lease_owner": null,
     "pending_ui_verification": null,
     "publication_pending": {
       "supplier_id": 5,
@@ -346,6 +346,11 @@
       "at": "2026-11-14T12:26:58.284Z",
       "type": "official_candidate_prepared_not_published",
       "detail": "ZakazAuto 25251 Parts-Mall PJC129FR: exact official photo and structured fitment candidate prepared and journaled. Not queued or saved because the preceding public-card check measured 11.51s; no addition counted. Resume from the same offer after a fresh load/live-state check."
+    },
+    {
+      "at": "2026-11-14T12:27:03.169Z",
+      "type": "lease_released",
+      "detail": "Shared lease released after checkpointing the prepared PJC129FR candidate; no duplicate worker or schedule was created."
     }
   ],
   "last_success": {
