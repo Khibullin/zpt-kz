@@ -10,15 +10,17 @@
     "reviewed_offer_ids": 408
   },
   "shared_lease": {
-    "owner": "weekend-enrichment-20261114-1500",
+    "owner": null,
     "source_path": "procurement/data/enrichment_queue_20261111.json",
     "acquired_at": "2026-11-14T10:01:20.382Z",
-    "expires_at": "2026-11-14T10:31:20.382Z",
-    "released_at": null
+    "expires_at": null,
+    "released_at": "2026-11-14T10:07:37.000Z",
+    "last_owner": "weekend-enrichment-20261114-1500",
+    "release_reason": "published_verified_checkpointed_one_item"
   },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-14T10:01:20.382Z",
-  "status": "running_weekend",
+  "heartbeat_at": "2026-11-14T10:07:37.000Z",
+  "status": "ready_for_weekend_resume",
   "phase": "other_in_stock_control",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
@@ -7196,7 +7198,7 @@
     }
   ],
   "current_batch_index": 0,
-  "current_item_index": 18,
+  "current_item_index": 19,
   "reviewed": [
     {
       "supplier_id": 5,
@@ -7385,6 +7387,17 @@
       "checked_at": "2026-11-14T09:25:19.167Z",
       "status": "saved_and_ui_verified_fitment_photo_source_forbidden",
       "journal": "procurement/data/enrichment_queue_items/5-25170-20261114.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25129,
+      "product_id": 6713,
+      "task_id": 4686,
+      "brand": "HYUNDAI-KIA",
+      "article": "553102P500",
+      "checked_at": "2026-11-14T10:07:37.000Z",
+      "status": "saved_and_ui_verified_fitment_placeholder_rejected",
+      "journal": "procurement/data/enrichment_queue_items/5-25129-20261114.json"
     }
   ],
   "prepared": [
@@ -7673,7 +7686,7 @@
       "brand": "HYUNDAI-KIA",
       "article": "553102P500",
       "prepared_at": "2026-11-14T09:27:30.135Z",
-      "status": "publication_deferred_high_db_memory",
+      "status": "published_and_verified",
       "journal": "procurement/data/enrichment_queue_items/5-25129-20261114.json",
       "payload": {
         "supplier_id": 5,
@@ -7705,7 +7718,11 @@
             "confirmation_url": "https://ipex.com.pe/wp-content/uploads/2021/08/2-Catalogo-Amortiguadores.pdf"
           }
         ]
-      }
+      },
+      "published_at": "2026-11-14T10:04:42.945403Z",
+      "verified_at": "2026-11-14T10:07:37.000Z",
+      "commit": "7ba9dc8f93a043d4ad5722b41935a0b4f705840d",
+      "deploy_id": "dep-dbs33q6q1p3s73ebdq50"
     }
   ],
   "queued": [
@@ -7743,6 +7760,14 @@
       "deploy_id": "dep-dbs1d068bjmc73e17ae0",
       "presentation_commit": "6db9fa34630ec022efe7bb01d4a4e25287fb17f3",
       "presentation_deploy_id": "dep-dbs1f0u7bikc73ehv3r0"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25129,
+      "kind": "fitment_publication",
+      "queued_at": "2026-11-14T10:02:05.000Z",
+      "commit": "7ba9dc8f93a043d4ad5722b41935a0b4f705840d",
+      "deploy_id": "dep-dbs33q6q1p3s73ebdq50"
     }
   ],
   "saved": [
@@ -7858,6 +7883,15 @@
       "saved_at": "2026-11-14T09:22:49.532743Z",
       "deploy_id": "dep-dbs2fj2jnfac73bpu46g",
       "live_commit": "9b14a6476694dbb186bc22587e30201319efec07"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25129,
+      "kind": "fitment",
+      "saved_at": "2026-11-14T10:04:42.945403Z",
+      "fitment_id": 111518,
+      "deploy_id": "dep-dbs33q6q1p3s73ebdq50",
+      "live_commit": "7ba9dc8f93a043d4ad5722b41935a0b4f705840d"
     }
   ],
   "verified": [
@@ -8055,6 +8089,28 @@
         "Передний левый/правый",
         "1 шт. в комплекте",
         "2 шт. на автомобиль"
+      ]
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25129,
+      "kind": "fitment",
+      "db_verified": true,
+      "ui_verified": true,
+      "ui_url": "https://zpt.kz/hyundai-zpt-25129/",
+      "verified_at": "2026-11-14T10:07:37.000Z",
+      "ui_http_status": 200,
+      "make_model_pairs": 1,
+      "configuration_count": 1,
+      "engine_rows": 0,
+      "ui_evidence": [
+        "553102P500",
+        "KIA New Sorento R (XM)",
+        "Не указан",
+        "2012-07–2014-08",
+        "Задний газовый амортизатор; только 4WD",
+        "Установка: сзади",
+        "OEM: 553102P500"
       ]
     }
   ],
@@ -8260,55 +8316,28 @@
         "https://cdn.carvilleshop.ru/upload/resize_300/AG03007_223019_192b32a5b5d83b6bfcfca2078e93d743.jpg"
       ],
       "detail": "The exact manufacturer page exposes exact AG 03007 images, but both main and thumbnail CDN URLs returned HTTP 403 to the retrieval client. The restriction was not bypassed and no alternate channel was used. No photo or thumbnail was saved; retry only if the manufacturer source becomes accessible or a new exact source is found."
-    }
-  ],
-  "publication_pending": {
-    "kind": "fitment",
-    "prepared_at": "2026-11-14T09:27:30.135Z",
-    "reason": "db_memory_high_after_research",
-    "measured": {
-      "db_memory_bytes": 237764600,
-      "db_memory_plan_bytes": 268435456,
-      "db_cpu_latest": 0.030317783,
-      "active_connections": 3,
-      "metric_at": "2026-11-14T09:27:00Z"
     },
-    "payload": {
+    {
       "supplier_id": 5,
       "offer_id": 25129,
-      "product_id": 6713,
-      "task_id": 4686,
-      "brand": "HYUNDAI-KIA",
-      "article": "553102P500",
-      "stock": "6",
-      "cost": "33700.00",
-      "source_label": "Hyundai Mobis authorized genuine-parts dealer exact product page with exact Mando catalogue confirmation",
-      "source_kind": "authorized_mobis_dealer_and_mando_catalogue",
-      "source_urls": [
+      "field": "photo",
+      "reason": "placeholder_photo_rejected",
+      "checked_at": "2026-11-14T10:07:37.000Z",
+      "sources": [
         "https://capom.co.kr/product/%EB%A6%AC%EC%96%B4-%EC%87%BC%ED%81%AC-%EC%97%85%EC%86%8C%EB%B2%84-553102p500-%EC%8F%98%EB%A0%8C%ED%86%A0/112396/",
-        "https://ipex.com.pe/wp-content/uploads/2021/08/2-Catalogo-Amortiguadores.pdf"
+        "https://capom.co.kr/web/product/small/202405/d8d557bdd32cefeebab5edd751aca0a8.jpg"
       ],
-      "fitment_note": "The Hyundai Mobis authorized dealer identifies exact part 553102P500 as a rear shock absorber assembly for New Sorento R (XM), 2012-07 through 2014-08. The exact Mando catalogue independently identifies OE 553102P500 for Sorento R (XM) as a rear gas shock absorber with the 4WD restriction. The narrower Mobis-dealer period is retained; no engine, side, broader period or package quantity is inferred.",
-      "fitments": [
-        {
-          "make": "KIA",
-          "model": "New Sorento R (XM)",
-          "details": "Задний газовый амортизатор; только 4WD. Двигатель и сторона установки источниками не указаны.",
-          "years": "2012-07–2014-08",
-          "placement": "rear",
-          "type": "gas",
-          "restriction": "4WD",
-          "oem_article": "553102P500",
-          "source_url": "https://capom.co.kr/product/%EB%A6%AC%EC%96%B4-%EC%87%BC%ED%81%AC-%EC%97%85%EC%86%8C%EB%B2%84-553102p500-%EC%8F%98%EB%A0%8C%ED%86%A0/112396/",
-          "confirmation_url": "https://ipex.com.pe/wp-content/uploads/2021/08/2-Catalogo-Amortiguadores.pdf"
-        }
-      ]
-    },
-    "next_action": "Recheck time, lease, live offer/fitment state, publication pending and DB load; publish one bounded fitment migration only if still absent and load is acceptable."
-  },
+      "detail": "The exact Mobis dealer page exposes only a generic grey Mobis brand graphic, not the exact shock absorber. It was not used as a product photo or thumbnail; retry only with a new exact real-photo source."
+    }
+  ],
+  "publication_pending": null,
   "next": {
     "supplier_id": 5,
-    "offer_id": 25129
+    "offer_id": 25081,
+    "product_id": 6827,
+    "task_id": 4800,
+    "brand": "SsangYong",
+    "article": "1612003114"
   },
   "events": [
     {
@@ -8510,17 +8539,27 @@
       "at": "2026-11-14T10:01:20.382Z",
       "type": "lease_acquired",
       "detail": "Shared lease acquired atomically for the existing single weekend processor. Offer 25129 publication_pending remains absent in live DB; no active/pending photo task or service error was found. One bounded fitment write will be attempted under warning-level DB memory."
+    },
+    {
+      "at": "2026-11-14T10:07:37.000Z",
+      "type": "item_saved_verified_and_advance",
+      "detail": "ZakazAuto 25129 HYUNDAI-KIA 553102P500: exact KIA New Sorento R (XM), 2012-07–2014-08, rear gas, 4WD fitment published in deploy dep-dbs33q6q1p3s73ebdq50, verified in live DB as fitment 111518 and on the public card. Generic Mobis placeholder rejected; no photo or thumbnail saved. Trade data unchanged. Queue advanced to 25081."
+    },
+    {
+      "at": "2026-11-14T10:07:37.000Z",
+      "type": "lease_released",
+      "detail": "Shared canonical lease released after per-item journal, live DB/UI verification and queue advancement. No second processor, photo consumer or schedule was created."
     }
   ],
   "last_success": {
-    "at": "2026-11-14T09:25:19.167Z",
-    "stage": "saved_and_ui_verified_fitment_photo_source_forbidden",
+    "at": "2026-11-14T10:07:37.000Z",
+    "stage": "saved_and_ui_verified_fitment_placeholder_rejected",
     "supplier_id": 5,
-    "offer_id": 25170,
-    "deploy_id": "dep-dbs2fj2jnfac73bpu46g",
-    "commit": "9b14a6476694dbb186bc22587e30201319efec07"
+    "offer_id": 25129,
+    "deploy_id": "dep-dbs33q6q1p3s73ebdq50",
+    "commit": "7ba9dc8f93a043d4ad5722b41935a0b4f705840d"
   },
-  "last_commit": "9b14a6476694dbb186bc22587e30201319efec07",
+  "last_commit": "7ba9dc8f93a043d4ad5722b41935a0b4f705840d",
   "paused_at": null,
   "pause_reason": null,
   "remaining_live": {
@@ -8536,7 +8575,7 @@
     },
     "5": {
       "remaining_without_photo": 6719,
-      "remaining_without_structured_fitment": 6625,
+      "remaining_without_structured_fitment": 6624,
       "total_positive_stock": 6895
     }
   }
