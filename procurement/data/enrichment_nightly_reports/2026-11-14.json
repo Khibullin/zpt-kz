@@ -2,8 +2,8 @@
   "schema": 1,
   "night_end_date": "2026-11-14",
   "started_at": "2026-11-13T18:05:41.445Z",
-  "updated_at": "2026-11-14T09:25:19.167Z",
-  "status": "running_weekend",
+  "updated_at": "2026-11-14T09:27:30.135Z",
+  "status": "paused_weekend_load",
   "supplier_stats": {
     "1": {
       "name": "Omega",
@@ -55,10 +55,16 @@
       "3": 100,
       "5": 82
     },
-    "lease_released_at": null,
-    "lease_owner": "weekend-enrichment-20261114-1400",
+    "lease_released_at": "2026-11-14T09:27:30.135Z",
+    "lease_owner": null,
     "pending_ui_verification": null,
-    "publication_pending": null
+    "publication_pending": {
+      "supplier_id": 5,
+      "offer_id": 25129,
+      "kind": "fitment",
+      "prepared_at": "2026-11-14T09:27:30.135Z",
+      "reason": "db_memory_high_after_research"
+    }
   },
   "events": [
     {
@@ -250,6 +256,16 @@
       "at": "2026-11-14T09:25:19.167Z",
       "type": "item_saved_verified_and_advance",
       "detail": "ZakazAuto 25170 TRIALLI AG 03007: exact manufacturer fitment saved and publicly verified for five UAZ model labels and 11 modification/engine/year configurations. Engine presentation was corrected after the first UI check using only the already sourced fields. Exact manufacturer images returned 403; access restrictions were not bypassed and no photo was saved. Queue advanced to 25129."
+    },
+    {
+      "at": "2026-11-14T09:27:30.135Z",
+      "type": "item_prepared_publication_deferred",
+      "detail": "ZakazAuto 25129 HYUNDAI-KIA 553102P500: exact KIA New Sorento R (XM), 2012-07–2014-08, rear gas, 4WD fitment prepared but not saved or counted. Generic grey placeholder image rejected. Publication deferred at measured DB memory about 238 MiB/256 MiB."
+    },
+    {
+      "at": "2026-11-14T09:27:30.135Z",
+      "type": "lease_released",
+      "detail": "Shared lease released cleanly. Queue remains on offer 25129 with an explicit publication_pending payload; no duplicate processor or schedule was created."
     }
   ],
   "last_success": {

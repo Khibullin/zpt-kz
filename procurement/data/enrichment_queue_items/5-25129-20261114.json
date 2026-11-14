@@ -1,0 +1,122 @@
+{
+  "schema": 1,
+  "checked_on": "2026-11-14",
+  "checked_at": "2026-11-14T09:27:30.135Z",
+  "supplier_id": 5,
+  "supplier": "ЗаказАвто",
+  "offer_id": 25129,
+  "product_id": 6713,
+  "task_id": 4686,
+  "brand": "HYUNDAI-KIA",
+  "article": "553102P500",
+  "name": "Амортизатор задний Hyundai",
+  "stock_before": "6",
+  "cost_before": "33700.00",
+  "before": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "fitment_rows": 0,
+    "reviewed_applicability": null
+  },
+  "prepared": {
+    "photo": {
+      "status": "rejected_placeholder",
+      "reason": "Exact Mobis dealer page exposes a generic grey brand graphic, not the part.",
+      "checked_urls": [
+        "https://capom.co.kr/product/%EB%A6%AC%EC%96%B4-%EC%87%BC%ED%81%AC-%EC%97%85%EC%86%8C%EB%B2%84-553102p500-%EC%8F%98%EB%A0%8C%ED%86%A0/112396/",
+        "https://capom.co.kr/web/product/small/202405/d8d557bdd32cefeebab5edd751aca0a8.jpg"
+      ]
+    },
+    "fitment": {
+      "status": "prepared_not_published",
+      "make_model_pairs": 1,
+      "configuration_count": 1,
+      "source_kind": "authorized_mobis_dealer_and_mando_catalogue",
+      "source_urls": [
+        "https://capom.co.kr/product/%EB%A6%AC%EC%96%B4-%EC%87%BC%ED%81%AC-%EC%97%85%EC%86%8C%EB%B2%84-553102p500-%EC%8F%98%EB%A0%8C%ED%86%A0/112396/",
+        "https://ipex.com.pe/wp-content/uploads/2021/08/2-Catalogo-Amortiguadores.pdf"
+      ],
+      "scope": "KIA New Sorento R (XM); 2012-07–2014-08; rear gas; 4WD; no engine, side, wider period or package quantity inferred.",
+      "payload": {
+        "supplier_id": 5,
+        "offer_id": 25129,
+        "product_id": 6713,
+        "task_id": 4686,
+        "brand": "HYUNDAI-KIA",
+        "article": "553102P500",
+        "stock": "6",
+        "cost": "33700.00",
+        "source_label": "Hyundai Mobis authorized genuine-parts dealer exact product page with exact Mando catalogue confirmation",
+        "source_kind": "authorized_mobis_dealer_and_mando_catalogue",
+        "source_urls": [
+          "https://capom.co.kr/product/%EB%A6%AC%EC%96%B4-%EC%87%BC%ED%81%AC-%EC%97%85%EC%86%8C%EB%B2%84-553102p500-%EC%8F%98%EB%A0%8C%ED%86%A0/112396/",
+          "https://ipex.com.pe/wp-content/uploads/2021/08/2-Catalogo-Amortiguadores.pdf"
+        ],
+        "fitment_note": "Exact Mobis dealer page: New Sorento R (XM), 2012-07 through 2014-08, rear shock absorber assembly. Exact Mando catalogue independently confirms OE 553102P500 for Sorento R (XM), rear gas, 4WD. The narrower period is retained; no engine, side, broader period or package quantity is inferred.",
+        "fitments": [
+          {
+            "make": "KIA",
+            "model": "New Sorento R (XM)",
+            "details": "Задний газовый амортизатор; только 4WD. Двигатель и сторона установки источниками не указаны.",
+            "years": "2012-07–2014-08",
+            "placement": "rear",
+            "type": "gas",
+            "restriction": "4WD",
+            "oem_article": "553102P500",
+            "source_url": "https://capom.co.kr/product/%EB%A6%AC%EC%96%B4-%EC%87%BC%ED%81%AC-%EC%97%85%EC%86%8C%EB%B2%84-553102p500-%EC%8F%98%EB%A0%8C%ED%86%A0/112396/",
+            "confirmation_url": "https://ipex.com.pe/wp-content/uploads/2021/08/2-Catalogo-Amortiguadores.pdf"
+          }
+        ]
+      }
+    }
+  },
+  "queued": {
+    "status": "not_queued",
+    "reason": "DB memory measured about 238 MiB of 256 MiB after research."
+  },
+  "saved": {
+    "status": "not_saved",
+    "fitment_rows": 0,
+    "photo_saved": false
+  },
+  "after": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "fitments": [],
+    "stock": "6",
+    "cost": "33700.00",
+    "kaspi_price": "46260.00"
+  },
+  "verification": {
+    "source_verified": true,
+    "db_verified": false,
+    "fitment_verified": false,
+    "photo_verified": false,
+    "thumbnail_verified": false,
+    "ui_verified": false
+  },
+  "sources": [
+    {
+      "kind": "authorized_hyundai_mobis_dealer",
+      "url": "https://capom.co.kr/product/%EB%A6%AC%EC%96%B4-%EC%87%BC%ED%81%AC-%EC%97%85%EC%86%8C%EB%B2%84-553102p500-%EC%8F%98%EB%A0%8C%ED%86%A0/112396/",
+      "checked_on": "2026-11-14",
+      "exact_article": "553102P500",
+      "scope": "Rear shock absorber assembly; New Sorento R (XM); 2012-07 to 2014-08."
+    },
+    {
+      "kind": "mando_exact_catalogue",
+      "url": "https://ipex.com.pe/wp-content/uploads/2021/08/2-Catalogo-Amortiguadores.pdf",
+      "checked_on": "2026-11-14",
+      "exact_article": "553102P500",
+      "scope": "Sorento R (XM); rear gas; 4WD; broader catalogue period not used as saved period."
+    }
+  ],
+  "status": "prepared_publication_deferred_high_db_memory",
+  "skip_reason": "placeholder_photo_rejected",
+  "next": {
+    "supplier_id": 5,
+    "offer_id": 25129,
+    "action": "recheck live DB/load, publish exact fitment payload if still absent, verify DB/UI, then advance"
+  },
+  "trade_data_unchanged": true
+}
