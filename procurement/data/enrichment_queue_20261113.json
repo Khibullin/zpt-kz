@@ -17,8 +17,8 @@
     "released_at": null
   },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-14T13:16:28.415Z",
-  "status": "deploying_exact_candidate",
+  "heartbeat_at": "2026-11-14T13:21:26.729Z",
+  "status": "checkpointed_item_verified",
   "phase": "recheck_first19",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
@@ -7902,6 +7902,25 @@
       "fitment_id": 111518,
       "deploy_id": "dep-dbs33q6q1p3s73ebdq50",
       "live_commit": "7ba9dc8f93a043d4ad5722b41935a0b4f705840d"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25251,
+      "kind": "fitment",
+      "saved_at": "2026-11-14T13:21:26.729Z",
+      "fitment_id": 111519,
+      "configuration_count": 11,
+      "deploy_id": "dep-dbs5u62jnfac73bt7u70",
+      "live_commit": "19fd4233866964caa04c0b2c01267653876204d1"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25251,
+      "kind": "photo",
+      "saved_at": "2026-11-14T13:21:26.729Z",
+      "task_id": 4985,
+      "main_image": "products/optimized/554cd52fd71ac8815ce0ddde1abc6ec335ad035805540bcfc816387a67be0938.webp",
+      "supplier_thumbnail": "products/optimized/41ef1a5ddc0379d648e39f7ab99e03b8d2f08fcd53d0f21dc551cbc418705cb4.webp"
     }
   ],
   "verified": [
@@ -8122,6 +8141,27 @@
         "Установка: сзади",
         "OEM: 553102P500"
       ]
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25251,
+      "kind": "photo_and_fitment",
+      "db_verified": true,
+      "ui_verified": true,
+      "main_http_status": 200,
+      "thumbnail_http_status": 200,
+      "main_size": [
+        480,
+        640
+      ],
+      "thumbnail_size": [
+        135,
+        180
+      ],
+      "make_model_pairs": 1,
+      "configuration_count": 11,
+      "ui_url": "https://zpt.kz/chevrolet-zpt-25251/",
+      "verified_at": "2026-11-14T13:21:26.729Z"
     }
   ],
   "exceptions": [
@@ -8340,30 +8380,14 @@
       "detail": "The exact Mobis dealer page exposes only a generic grey Mobis brand graphic, not the exact shock absorber. It was not used as a product photo or thumbnail; retry only with a new exact real-photo source."
     }
   ],
-  "publication_pending": {
-    "sequence": 8,
-    "supplier_id": 5,
-    "offer_id": 25251,
-    "product_id": 7012,
-    "task_id": 4985,
-    "brand": "Parts-Mall",
-    "article": "PJC129FR",
-    "prepared": true,
-    "queued": true,
-    "saved": false,
-    "verified": false,
-    "photo_source_url": "https://catalog.parts-mall.com/images/PJC-129FR_0300-1F.jpg",
-    "fitment_source_url": "https://catalog.parts-mall.com/shop-detail?factory_no=PJC-129FR",
-    "journal": "procurement/data/enrichment_queue_items/5-25251-20261113.json",
-    "commit": "19fd4233866964caa04c0b2c01267653876204d1"
-  },
+  "publication_pending": null,
   "next": {
     "phase": "recheck_first19",
-    "sequence": 8,
+    "sequence": 9,
     "supplier_id": 5,
-    "offer_id": 25251,
-    "brand": "Parts-Mall",
-    "article": "PJC129FR"
+    "offer_id": 25095,
+    "brand": "JASHI",
+    "article": "CD569F260204-0400"
   },
   "events": [
     {
@@ -8635,21 +8659,26 @@
       "at": "2026-11-14T13:16:28.415Z",
       "type": "exact_candidate_queued_for_existing_consumer",
       "detail": "ZakazAuto 25251 Parts-Mall PJC129FR: one exact manufacturer photo task and one sourced fitment row committed atomically in main at 19fd4233866964caa04c0b2c01267653876204d1. Awaiting live deploy, sole-consumer processing, DB/file/UI verification; no addition counted yet."
+    },
+    {
+      "at": "2026-11-14T13:21:26.729Z",
+      "type": "item_saved_verified_and_advance",
+      "detail": "ZakazAuto 25251 Parts-Mall PJC129FR: exact official manufacturer photo saved as WebP 480x640 plus 135x180 thumbnail; exact Chevrolet Aveo/Sonic (T300) fitment saved with 11 source configurations, engines, front-right and RHD restrictions. DB, both files and public card verified. Price 7670, cost 5900, stock 1 and Kaspi fields unchanged. Resume at sequence 9 offer 25095."
     }
   ],
   "last_success": {
-    "at": "2026-11-14T12:20:45.083Z",
-    "stage": "photo_saved_and_ui_verified",
+    "at": "2026-11-14T13:21:26.729Z",
+    "stage": "photo_and_fitment_saved_and_ui_verified",
     "supplier_id": 5,
-    "offer_id": 25765,
-    "product_id": 7250,
-    "task_id": 5223,
-    "commit": "649e834bb39d08a1d2b9f3679c2c57ab1000e408",
-    "deploy_id": "dep-dbs5236417fc73f3qft0"
+    "offer_id": 25251,
+    "product_id": 7012,
+    "task_id": 4985,
+    "commit": "19fd4233866964caa04c0b2c01267653876204d1",
+    "deploy_id": "dep-dbs5u62jnfac73bt7u70"
   },
-  "last_commit": "649e834bb39d08a1d2b9f3679c2c57ab1000e408",
-  "paused_at": "2026-11-14T12:26:58.284Z",
-  "pause_reason": "Exact official PJC129FR photo and fitment candidate prepared but not queued after measured 11.51s public-card latency; recheck load and live state before bounded publication.",
+  "last_commit": "19fd4233866964caa04c0b2c01267653876204d1",
+  "paused_at": "2026-11-14T13:21:26.729Z",
+  "pause_reason": "One bounded exact photo and fitment publication completed and verified; resume first-19 recheck at sequence 9.",
   "remaining_live": {
     "1": {
       "remaining_without_photo": 297,
@@ -8689,8 +8718,8 @@
   "recheck_first19": {
     "frozen_at": "2026-11-14T11:05:21.000Z",
     "total": 19,
-    "current_index": 7,
-    "status": "paused_checkpointed_prepared_candidate",
+    "current_index": 8,
+    "status": "running_checkpointed",
     "items": [
       {
         "sequence": 1,
@@ -8788,13 +8817,13 @@
         "supplier_id": 5,
         "offer_id": 25251,
         "product_id": 7012,
-        "task_id": null,
+        "task_id": 4985,
         "brand": "Parts-Mall",
         "article": "PJC129FR",
         "prior_status": "brand_identity_not_confirmed",
         "journal": "procurement/data/enrichment_queue_items/5-25251-20261113.json",
-        "status": "prepared_exact_official_photo_and_fitment_candidate",
-        "rechecked_at": "2026-11-14T12:26:58.284Z"
+        "status": "photo_and_fitment_saved_verified",
+        "rechecked_at": "2026-11-14T13:21:26.729Z"
       },
       {
         "sequence": 9,
@@ -8933,50 +8962,36 @@
     "structured_fitment_missing_before": 5,
     "results": {
       "reviewed": 8,
-      "new_photos": 3,
-      "new_thumbnails": 3,
-      "new_fitments": 0,
+      "new_photos": 4,
+      "new_thumbnails": 4,
+      "new_fitments": 1,
       "no_change": 4,
-      "candidates_pending": 1
+      "candidates_pending": 0
     },
     "last_saved": {
-      "supplier_id": 5,
-      "offer_id": 25765,
-      "product_id": 7250,
-      "task_id": 5223,
-      "article": "495602S350",
-      "main_size": [
-        800,
-        453
-      ],
-      "thumbnail_size": [
-        180,
-        102
-      ],
-      "db_verified": true,
-      "ui_verified": true,
-      "ui_url": "https://zpt.kz/hyundai-zpt-25765/",
-      "deploy_id": "dep-dbs5236417fc73f3qft0",
-      "commit": "649e834bb39d08a1d2b9f3679c2c57ab1000e408",
-      "saved_at": "2026-11-14T12:20:45.083Z"
-    },
-    "pending_candidate": {
-      "sequence": 8,
       "supplier_id": 5,
       "offer_id": 25251,
       "product_id": 7012,
       "task_id": 4985,
-      "brand": "Parts-Mall",
       "article": "PJC129FR",
-      "prepared": true,
-      "queued": true,
-      "saved": false,
-      "verified": false,
-      "photo_source_url": "https://catalog.parts-mall.com/images/PJC-129FR_0300-1F.jpg",
-      "fitment_source_url": "https://catalog.parts-mall.com/shop-detail?factory_no=PJC-129FR",
-      "journal": "procurement/data/enrichment_queue_items/5-25251-20261113.json",
-      "commit": "19fd4233866964caa04c0b2c01267653876204d1"
-    }
+      "main_size": [
+        480,
+        640
+      ],
+      "thumbnail_size": [
+        135,
+        180
+      ],
+      "fitment_id": 111519,
+      "configuration_count": 11,
+      "db_verified": true,
+      "ui_verified": true,
+      "ui_url": "https://zpt.kz/chevrolet-zpt-25251/",
+      "deploy_id": "dep-dbs5u62jnfac73bt7u70",
+      "commit": "19fd4233866964caa04c0b2c01267653876204d1",
+      "saved_at": "2026-11-14T13:21:26.729Z"
+    },
+    "pending_candidate": null
   },
   "normal_resume": {
     "phase": "other_in_stock_control",
@@ -9041,5 +9056,5 @@
     "service_memory_limit_bytes": 536870900,
     "decision": "research and read-only checks allowed; defer or throttle writes while memory remains above 90% on the web service"
   },
-  "updated_at": "2026-11-14T13:16:28.415Z"
+  "updated_at": "2026-11-14T13:21:26.729Z"
 }
