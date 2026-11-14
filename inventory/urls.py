@@ -1,4 +1,5 @@
 from django.urls import path
+from django.views.generic import RedirectView
 from . import comparison_views
 from . import update_views
 from . import purchasing
@@ -8,7 +9,7 @@ app_name = 'inventory'
 urlpatterns = [
     path('updates/', update_views.updates, name='updates'),
     path('updates/original/<int:pk>/delete/', update_views.delete_original, name='delete_original'),
-    path('comparison/', comparison_views.comparison, name='comparison'),
+    path('comparison/', RedirectView.as_view(pattern_name='inventory:updates', permanent=False), name='comparison'),
     path('search/', workspace.search, name='search'),
     path('archive-transfer/', workspace.archive_transfer, name='archive_transfer'),
     path('balances-at/', workspace.balances_at, name='balances_at'),
