@@ -42,6 +42,8 @@ def valid_page(url,brand):
     if p.netloc=='catalog.parts-mall.com' and brand in ('PARTS-MALL','PARTS MALL'):
         q=parse_qs(p.query)
         return p.path=='/shop-detail' and set(q)=={'factory_no'} and len(q['factory_no'])==1 and bool(re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9-]{0,119}',q['factory_no'][0]))
+    if p.netloc=='rebornfj.com' and brand=='HAVAL':
+        return not p.query and p.path=='/product-detail/front-left-shock-absorber-assembly-for_197499.html'
     if p.query:return False
     return (p.netloc=='asva-trading.com' and brand=='ASVA' and p.path.startswith('/catalog/')) or (
         p.netloc=='aywiparts.ru' and brand=='AYWIPARTS' and bool(re.fullmatch(r'/product/view/\d+',p.path)))
@@ -105,6 +107,28 @@ def matching_manufacturer_image(html,url,brand,article):
             params=parse_qs(target.query,keep_blank_values=True)
             if params and not (set(params)=={'v'} and len(params['v'])==1 and params['v'][0].isdigit()):continue
             if target.scheme=='https' and target.netloc==p.netloc and not target.fragment and re.fullmatch(r'/newfolder/product_image/'+re.escape(expected)+r'\.(?:jpg|jpeg|png|webp)',target.path,re.I):return src
+    elif p.netloc=='rebornfj.com':
+        if expected!='2905110AKZ16A' or p.path!='/product-detail/front-left-shock-absorber-assembly-for_197499.html':return ''
+        canonicals=[attrs.get('href') for tag,attrs in tags if tag=='link' and attrs.get('rel')=='canonical']
+        if canonicals!=[url]:return ''
+        headings=re.findall(r'<h1\b[^>]*>(.*?)</h1>',html,re.I|re.S)
+        if len(headings)!=1:
+            return ''
+        heading=text(headings[0])
+        if expected not in heading or 'FRONT LEFT SHOCK ABSORBER ASSEMBLY FOR HAVAL H6 SPORT' not in heading:return ''
+        if not re.search(r'Drawing\s+No\..*?'+re.escape(expected),html,re.I|re.S):return ''
+        if not re.search(r'Brand.*?Haval',html,re.I|re.S):return ''
+        if not re.search(r'SKU.*?'+re.escape(expected),html,re.I|re.S):return ''
+        wanted='/wp-content/uploads/2026/05/white_bg_23f1e6e22d5147b5891fd12002e53527.webp'
+        for tag,attrs in tags:
+            if tag!='img':continue
+            src=attrs.get('src','');target=urlsplit(src)
+            large=attrs.get('data-large_image','');large_target=urlsplit(large)
+            if target.scheme!='https' or target.netloc!=p.netloc or target.query or target.fragment or target.path!=wanted:continue
+            if large_target.scheme!='https' or large_target.netloc!=p.netloc or large_target.query or large_target.fragment or large_target.path!=wanted:continue
+            if attrs.get('data-large_image_width')!='1000' or attrs.get('data-large_image_height')!='1000':continue
+            if (attrs.get('alt') or '')!='white_bg_23f1e6e22d5147b5891fd12002e53527.jpg':continue
+            return src
     elif p.netloc=='tachka.ru':
         if p.path.upper()!='/HYUNDAI-KIA/'+expected:return ''
         canonicals=[attrs.get('href') for tag,attrs in tags if tag=='link' and attrs.get('rel')=='canonical']

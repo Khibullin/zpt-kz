@@ -1,0 +1,23 @@
+{
+  "checked_on": "2026-11-14",
+  "scope": "One exact positive-stock ZakazAuto HAVAL photo; preserve verified fitment and never change price, stock, profit, Kaspi, or unrelated fields",
+  "sources": [
+    {
+      "offer_id": 25177,
+      "product_id": 6703,
+      "task_id": 4676,
+      "supplier_id": 5,
+      "brand": "HAVAL",
+      "article": "2905110AKZ16A",
+      "stock": "1",
+      "cost": "17050.00",
+      "source_label": "Rebornfj exact HAVAL drawing-number product card",
+      "source_kind": "verified_exact_international_catalogue",
+      "source_url": "https://rebornfj.com/product-detail/front-left-shock-absorber-assembly-for_197499.html",
+      "verified_image_url": "https://rebornfj.com/wp-content/uploads/2026/05/white_bg_23f1e6e22d5147b5891fd12002e53527.webp",
+      "verified_image_sha256": "4b069efbbfbde77476983bb4799a4a91414d39b78657ac4346af53020705c835",
+      "verified_image_size": "1000x1000",
+      "verification_note": "The exact page identifies brand HAVAL, drawing/SKU 2905110AKZ16A, H6 Sport, front-left shock absorber assembly and quantity control default 1. The main image shows one bare front-left strut without spring beside a Genuine Parts box, matching the exact one-piece execution already confirmed by the exact Kaspi characteristics. The image is not a vehicle, placeholder, pair or analogue. The page offers supply tiers, so no manufacturing tier beyond the visible Genuine Parts packaging is asserted. Existing verified H6 and M6 fitment rows are preserved unchanged."
+    }
+  ]
+}
