@@ -19,7 +19,7 @@
   },
   "started_at": "2026-11-13T18:05:41.445Z",
   "heartbeat_at": "2026-11-14T19:16:20.438Z",
-  "status": "running_recheck_first19",
+  "status": "running_checkpointed",
   "phase": "recheck_first19",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
@@ -8886,6 +8886,11 @@
       "at": "2026-11-14T20:08:51.140Z",
       "type": "heartbeat",
       "detail": "Sequence 15: exact Gmarket source recorded HTTP 403 without bypass; independent exact eBay source deployment in progress."
+    },
+    {
+      "at": "2026-11-14T20:12:41.035Z",
+      "type": "item_rechecked_sources_unavailable_and_advance",
+      "detail": "SsangYong 4530132100: package quantity 1 confirmed by two new exact sources, but consumer received HTTP 403 from both. Zero photo/thumbnail/fitment additions. Existing fitment and trade data DB/UI verified. Resume sequence 16 TLK 115071."
     }
   ],
   "last_success": {
@@ -8942,7 +8947,7 @@
   "recheck_first19": {
     "frozen_at": "2026-11-14T11:05:21.000Z",
     "total": 19,
-    "current_index": 14,
+    "current_index": 15,
     "status": "running_checkpointed",
     "items": [
       {
@@ -9137,7 +9142,8 @@
         "article": "4530132100",
         "prior_status": "saved_and_ui_verified_fitment_photo_package_conflict",
         "journal": "procurement/data/enrichment_queue_items/5-25114-20261114.json",
-        "status": "pending_recheck"
+        "status": "rechecked_fitment_verified_photo_sources_temporarily_unavailable",
+        "rechecked_at": "2026-11-14T20:12:41.035Z"
       },
       {
         "sequence": 16,
@@ -9191,11 +9197,11 @@
     "photos_missing_before": 18,
     "structured_fitment_missing_before": 5,
     "results": {
-      "reviewed": 14,
+      "reviewed": 15,
       "new_photos": 6,
       "new_thumbnails": 6,
       "new_fitments": 3,
-      "no_change": 5,
+      "no_change": 6,
       "candidates_pending": 0,
       "fitment_display_enhancements": 1
     },
@@ -9235,25 +9241,21 @@
     "pending_candidate": null,
     "last_reviewed": {
       "supplier_id": 5,
-      "offer_id": 25268,
-      "product_id": 6994,
-      "task_id": 4967,
-      "article": "EX54661A7100",
-      "kind": "source_access_failures_fitment_reverified_no_photo",
+      "offer_id": 25114,
+      "product_id": 6829,
+      "task_id": 4802,
+      "article": "4530132100",
+      "kind": "package_conflict_resolved_in_research_sources_http_403_no_photo",
       "source_attempts": [
         {
-          "commit": "312ad02af4f04a86ae8b0f0e56e55e80d74bfbc5",
-          "deploy_id": "dep-dbsb2s2jnfac73c3m2pg",
-          "source_url": "https://www.autodoc.co.uk/mando/14579627",
+          "url": "https://item.gmarket.co.kr/Item?goodsCode=4348280358",
           "result": "temporary_source_unavailable_http_403",
-          "finished_at": "2026-11-14T19:09:11.018255Z"
+          "checked_on": "2026-11-15"
         },
         {
-          "commit": "a219d536e1c73abd90a0726f1480346f19e7d6ed",
-          "deploy_id": "dep-dbsb57u7bikc73et61a0",
-          "source_url": "https://evocar.ua/ru/mando/ex54661a7100",
+          "url": "https://www.ebay.com/itm/157310193004",
           "result": "temporary_source_unavailable_http_403",
-          "finished_at": "2026-11-14T19:13:56.949872Z"
+          "checked_on": "2026-11-15"
         }
       ],
       "photo_saved": false,
@@ -9262,10 +9264,12 @@
       "fitment_configurations_preserved": 1,
       "db_verified": true,
       "ui_verified": true,
-      "ui_url": "https://zpt.kz/kia-zpt-25268/",
+      "ui_url": "https://zpt.kz/ssangyong-zpt-25114/",
       "task_status": "blocked",
       "skip_reason": "temporary_source_unavailable_http_403",
-      "saved_at": "2026-11-14T19:16:20.438Z"
+      "commit": "ea2b21d759e11db8f48e519fb0e98a95c19cfd2f",
+      "deploy_id": "dep-dbsbvieq1p3s73elos10",
+      "saved_at": "2026-11-14T20:12:41.035Z"
     }
   },
   "normal_resume": {
@@ -9331,5 +9335,10 @@
     "service_memory_limit_bytes": 536870900,
     "decision": "research and read-only checks allowed; defer or throttle writes while memory remains above 90% on the web service"
   },
-  "updated_at": "2026-11-14T20:08:51.140Z"
+  "updated_at": "2026-11-14T20:12:41.035Z",
+  "current_index": 15,
+  "next_supplier_id": 5,
+  "next_offer_id": 25165,
+  "next_product_id": 6839,
+  "next_task_id": 4812
 }
