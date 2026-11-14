@@ -2,7 +2,7 @@
   "schema": 1,
   "night_end_date": "2026-11-14",
   "started_at": "2026-11-13T18:05:41.445Z",
-  "updated_at": "2026-11-14T14:14:13.202Z",
+  "updated_at": "2026-11-14T14:14:52.307Z",
   "status": "checkpointed_item_verified",
   "supplier_stats": {
     "1": {
@@ -57,8 +57,8 @@
       "3": 100,
       "5": 81
     },
-    "lease_released_at": "2026-11-14T13:21:32.930Z",
-    "lease_owner": "weekend-enrichment-20261114-1906-recheck19",
+    "lease_released_at": "2026-11-14T14:14:52.307Z",
+    "lease_owner": null,
     "pending_ui_verification": null,
     "publication_pending": null,
     "batch_size": 20,
@@ -356,6 +356,11 @@
       "at": "2026-11-14T14:14:13.202Z",
       "type": "item_fitment_saved_verified_and_advance",
       "detail": "ZakazAuto JASHI CD569F260204-0400: structured CHANGAN UNI-K fitment (rear right, from 2020, open end, no engine inference) saved and DB/UI verified. No exact JASHI photo was verified; zero photo/thumbnail additions. Trade/Kaspi unchanged. Resume at sequence 10 offer 25224."
+    },
+    {
+      "at": "2026-11-14T14:14:52.307Z",
+      "type": "lease_released",
+      "detail": "Shared lease released after sequence 9 checkpoint; next is sequence 10 offer 25224."
     }
   ],
   "last_success": {
