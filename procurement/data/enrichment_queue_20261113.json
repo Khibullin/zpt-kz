@@ -12,10 +12,10 @@
   "shared_lease": {
     "owner": "weekend-enrichment-20261114-2001-recheck19",
     "source_path": "procurement/data/enrichment_queue_20261111.json",
-    "heartbeat_at": "2026-11-14T15:14:32.159Z",
-    "expires_at": "2026-11-14T15:44:32.159Z",
-    "released_at": null,
-    "release_reason": null
+    "heartbeat_at": "2026-11-14T15:15:56.580Z",
+    "expires_at": "2026-11-14T15:15:56.580Z",
+    "released_at": "2026-11-14T15:15:56.580Z",
+    "release_reason": "Sequence 10 fitment enhancement saved and DB/UI verified; resume at sequence 11."
   },
   "started_at": "2026-11-13T18:05:41.445Z",
   "heartbeat_at": "2026-11-14T15:01:52.818Z",
@@ -8741,6 +8741,11 @@
       "at": "2026-11-14T15:14:32.159Z",
       "type": "item_fitment_enhanced_verified_and_advance",
       "detail": "ZakazAuto Changan S203F260204-0100: existing exact CS55 Plus left-front fitment enhanced from the exact one-piece card with four separate years 2021/2022/2023/2024, 1.5L Turbo and complete one-piece assembly restrictions. DB and public UI verified. Photo and thumbnail remain empty because the only independently visible exact image was a conflicting two-piece package. Price, stock and Kaspi decision unchanged. Resume at sequence 11 offer 25177."
+    },
+    {
+      "at": "2026-11-14T15:15:56.580Z",
+      "type": "lease_released",
+      "detail": "Shared canonical lease released after verified Changan S203F260204-0100 fitment enhancement; next is sequence 11 offer 25177. No duplicate worker or schedule was created."
     }
   ],
   "last_success": {
@@ -9138,5 +9143,5 @@
     "service_memory_limit_bytes": 536870900,
     "decision": "research and read-only checks allowed; defer or throttle writes while memory remains above 90% on the web service"
   },
-  "updated_at": "2026-11-14T15:14:32.159Z"
+  "updated_at": "2026-11-14T15:15:56.580Z"
 }
