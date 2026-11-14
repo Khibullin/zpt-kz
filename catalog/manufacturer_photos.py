@@ -42,6 +42,8 @@ def valid_page(url,brand):
     if p.netloc=='catalog.parts-mall.com' and brand in ('PARTS-MALL','PARTS MALL'):
         q=parse_qs(p.query)
         return p.path=='/shop-detail' and set(q)=={'factory_no'} and len(q['factory_no'])==1 and bool(re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9-]{0,119}',q['factory_no'][0]))
+    if p.netloc=='www.autodoc.co.uk' and brand=='MANDO':
+        return not p.query and bool(re.fullmatch(r'/mando/\d+',p.path))
     if p.netloc=='rebornfj.com' and brand=='HAVAL':
         return not p.query and p.path=='/product-detail/front-left-shock-absorber-assembly-for_197499.html'
     if p.query:return False
@@ -126,6 +128,31 @@ def matching_manufacturer_image(html,url,brand,article):
             if attrs.get('data-large_image_width')!='1000' or attrs.get('data-large_image_height')!='1000':continue
             if (attrs.get('alt') or '')!='white_bg_23f1e6e22d5147b5891fd12002e53527.jpg':continue
             return src
+    elif p.netloc=='www.autodoc.co.uk':
+        product_id=p.path.rsplit('/',1)[-1]
+        for raw in re.findall(r'<script\b[^>]*type=["\']application/ld\+json["\'][^>]*>(.*?)</script>',html,re.S|re.I):
+            try:data=json.loads(raw)
+            except (TypeError,ValueError):continue
+            if not isinstance(data,dict) or data.get('@type')!='Product':continue
+            maker=data.get('brand',{})
+            if not isinstance(maker,dict) or str(maker.get('name','')).strip().upper()!='MANDO':continue
+            if str(data.get('sku','')).strip().upper()!=expected or str(data.get('mpn','')).strip().upper()!=expected:continue
+            name=str(data.get('name','')).strip().upper()
+            if expected not in name or 'MANDO' not in name:continue
+            props=data.get('additionalProperty',[])
+            if not isinstance(props,list):continue
+            values={str(prop.get('name','')).strip().upper():str(prop.get('value','')).strip().upper() for prop in props if isinstance(prop,dict)}
+            if values.get('ITEM NUMBER')!=expected or values.get('MANUFACTURER')!='MANDO':continue
+            images=data.get('image',[])
+            if isinstance(images,str):images=[images]
+            for src in images if isinstance(images,list) else []:
+                if not isinstance(src,str):continue
+                target=urlsplit(src);params=parse_qs(target.query)
+                if target.scheme!='https' or target.netloc!='cdn.autodoc.de' or target.path!='/thumb' or target.fragment:continue
+                if set(params)!={'id','m','n','lng','rev'}:continue
+                if params.get('id')!=[product_id] or params.get('m')!=['0'] or params.get('n')!=['0'] or params.get('lng')!=['en']:continue
+                if len(params.get('rev',[]))!=1 or not params['rev'][0].isdigit():continue
+                return src
     elif p.netloc=='tachka.ru':
         if p.path.upper()!='/HYUNDAI-KIA/'+expected:return ''
         canonicals=[attrs.get('href') for tag,attrs in tags if tag=='link' and attrs.get('rel')=='canonical']

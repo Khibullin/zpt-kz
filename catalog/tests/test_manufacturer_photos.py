@@ -48,6 +48,25 @@ class ManufacturerPhotoTests(SimpleTestCase):
         self.assertEqual(matching_manufacturer_image(html,url,'AYWIPARTS','AW1310010R'),'')
         self.assertEqual(matching_manufacturer_image(html.replace('/AW1310010L/','/AW1310010R/'),url,'AYWIPARTS','AW1310010L'),'')
 
+    def test_autodoc_mando_requires_exact_jsonld_identity_and_first_product_image(self):
+        url='https://www.autodoc.co.uk/mando/14579627'
+        image='https://cdn.autodoc.de/thumb?id=14579627&m=0&n=0&lng=en&rev=94078121'
+        data={
+            '@type':'Product','name':'Mando EX54661A7100 Shock absorber for KIA CERATO',
+            'sku':'EX54661A7100','mpn':'EX54661A7100','brand':{'name':'Mando'},
+            'additionalProperty':[
+                {'name':'Item number','value':'EX54661A7100'},
+                {'name':'Manufacturer','value':'Mando'},
+            ],
+            'image':[image,'https://cdn.autodoc.de/thumb?id=14579627&m=0&n=1&lng=en&rev=94078121'],
+        }
+        def markup():return '<script type="application/ld+json">'+json.dumps(data)+'</script>'
+        self.assertEqual(matching_manufacturer_image(markup(),url,'Mando','EX54661A7100'),image)
+        self.assertEqual(matching_manufacturer_image(markup(),url,'OTHER','EX54661A7100'),'')
+        self.assertEqual(matching_manufacturer_image(markup(),url,'Mando','EX54661A7200'),'')
+        data['image'][0]=image.replace('n=0','n=1')
+        self.assertEqual(matching_manufacturer_image(markup(),url,'Mando','EX54661A7100'),'')
+
     def test_unapproved_pages_are_rejected(self):
         for url in ['http://aywiparts.ru/product/view/7','https://aywiparts.ru.evil.example/product/view/7','https://aywiparts.ru/product/view/7?redirect=1','https://[',None]:
             self.assertFalse(valid_page(url,'AYWIPARTS'))
