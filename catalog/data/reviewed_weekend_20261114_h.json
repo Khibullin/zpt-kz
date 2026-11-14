@@ -1,0 +1,21 @@
+{
+  "checked_on": "2026-11-14",
+  "scope": "One exact positive-stock ZakazAuto photo task; no price, stock, profit, Kaspi, fitment, or unrelated field changes",
+  "sources": [
+    {
+      "offer_id": 25768,
+      "product_id": 7249,
+      "task_id": 5222,
+      "supplier_id": 5,
+      "brand": "HYUNDAI-KIA",
+      "article": "495602S250",
+      "stock": "3",
+      "cost": "41500.00",
+      "source_label": "Tachka.ru exact public product catalogue page",
+      "source_kind": "independent_exact_part_catalogue",
+      "source_url": "https://tachka.ru/hyundai-kia/495602S250",
+      "verified_image_url": "https://img.tachka.ru/Se9Y9wUg7aA5s5JNcNgnk4QuQFg=/trim:top-left:50/fit-in/1500x1875/brand/hyundai-kia/691b297c20bf6f7bd988450517a7db84.jpeg",
+      "image_note": "Exact page names Hyundai / KIA article 495602S250 and displays a real intermediate drive shaft assembly; the deployed sole photo consumer must revalidate page identity before saving."
+    }
+  ]
+}

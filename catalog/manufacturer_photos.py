@@ -35,6 +35,8 @@ def valid_page(url,brand):
     if p.netloc=='www.sankei-555.com' and brand=='555':
         q=parse_qs(p.query)
         return p.path=='/search/detail.php' and set(q)=={'p_id','sch_p_555no'} and len(q['p_id'])==1 and q['p_id'][0].isdigit() and len(q['sch_p_555no'])==1
+    if p.netloc=='tachka.ru' and brand=='HYUNDAI-KIA':
+        return not p.query and bool(re.fullmatch(r'/hyundai-kia/[A-Za-z0-9.-]{1,120}',p.path))
     if p.query:return False
     return (p.netloc=='asva-trading.com' and brand=='ASVA' and p.path.startswith('/catalog/')) or (
         p.netloc=='aywiparts.ru' and brand=='AYWIPARTS' and bool(re.fullmatch(r'/product/view/\d+',p.path)))
@@ -98,6 +100,24 @@ def matching_manufacturer_image(html,url,brand,article):
             params=parse_qs(target.query,keep_blank_values=True)
             if params and not (set(params)=={'v'} and len(params['v'])==1 and params['v'][0].isdigit()):continue
             if target.scheme=='https' and target.netloc==p.netloc and not target.fragment and re.fullmatch(r'/newfolder/product_image/'+re.escape(expected)+r'\.(?:jpg|jpeg|png|webp)',target.path,re.I):return src
+    elif p.netloc=='tachka.ru':
+        if p.path.upper()!='/HYUNDAI-KIA/'+expected:return ''
+        canonicals=[attrs.get('href') for tag,attrs in tags if tag=='link' and attrs.get('rel')=='canonical']
+        if canonicals!=[url]:return ''
+        for raw in re.findall(r'<script\b[^>]*type=["\']application/ld\+json["\'][^>]*>(.*?)</script>',html,re.S|re.I):
+            try:data=json.loads(raw)
+            except (TypeError,ValueError):continue
+            if not isinstance(data,dict) or data.get('@type')!='Product':continue
+            maker=data.get('brand',{})
+            if not isinstance(maker,dict) or str(maker.get('name','')).strip().upper()!='HYUNDAI / KIA':continue
+            if str(data.get('sku','')).strip().upper()!=expected or str(data.get('mpn','')).strip().upper()!=expected:continue
+            name=str(data.get('name','')).strip().upper()
+            if expected not in name or 'HYUNDAI / KIA' not in name:continue
+            src=data.get('image','')
+            if not isinstance(src,str):continue
+            target=urlsplit(src);leaf=target.path.rsplit('/',1)[-1].rsplit('.',1)[0].casefold()
+            if leaf in ('spg','no_image','no-image','noimage','placeholder','default'):continue
+            if target.scheme=='https' and target.netloc=='img.tachka.ru' and not target.query and not target.fragment and re.search(r'\.(?:jpg|jpeg|png|webp)$',target.path,re.I):return src
     return ''
 
 
