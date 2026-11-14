@@ -2,8 +2,8 @@
   "schema": 1,
   "night_end_date": "2026-11-14",
   "started_at": "2026-11-13T18:05:41.445Z",
-  "updated_at": "2026-11-14T07:16:56.000Z",
-  "status": "prepared_waiting_low_load_publication",
+  "updated_at": "2026-11-14T08:13:42.000Z",
+  "status": "running_weekend",
   "supplier_stats": {
     "1": {
       "name": "Omega",
@@ -23,10 +23,10 @@
     },
     "5": {
       "name": "ЗаказАвто",
-      "processed_unique": 13,
+      "processed_unique": 14,
       "photos_added": 1,
-      "fitment_added": 9,
-      "years_or_engines_added": 8,
+      "fitment_added": 10,
+      "years_or_engines_added": 9,
       "skips": {
         "exact_photo_not_confirmed": 2,
         "contradictory_sources": 1,
@@ -36,7 +36,7 @@
         "brand_identity_not_confirmed": 1,
         "exact_brand_source_not_found": 1,
         "package_conflict_photo_not_saved": 1,
-        "exact_photo_not_verified": 2
+        "exact_photo_not_verified": 3
       },
       "pending_ui_verification": 0
     }
@@ -48,46 +48,15 @@
       "5": 100
     },
     "next_supplier_id": 5,
-    "next_offer_id": 25268,
+    "next_offer_id": 25114,
     "control_batch_remaining": {
       "3": 100,
-      "5": 87
+      "5": 86
     },
-    "lease_released_at": "2026-11-14T07:16:56.000Z",
-    "lease_owner": null,
+    "lease_released_at": null,
+    "lease_owner": "weekend-enrichment-20261114-1300",
     "pending_ui_verification": null,
-    "publication_pending": {
-      "supplier_id": 5,
-      "offer_id": 25268,
-      "product_id": 6994,
-      "task_id": 4967,
-      "brand": "Mando",
-      "article": "EX54661A7100",
-      "status": "prepared_not_published",
-      "prepared_at": "2026-11-14T07:16:56.000Z",
-      "fitment": {
-        "make": "KIA",
-        "model": "K3 (YD)",
-        "date_from": "2012-10",
-        "date_to": null,
-        "placement": "front",
-        "side": "right",
-        "shock_type": "gas",
-        "market": "GEN",
-        "oem_article": "54661A7100",
-        "engines": [],
-        "engine_scope": "not claimed because exact Mando row has no engine configuration",
-        "source_url": "https://download.part-kom.ru/catalogs/MANDO_Catalogue.pdf",
-        "additional_source_url": "https://partsouq.com/en/catalog/genuine/parts?c=KIA&gid=13397&q=&ssd=$*KwGDvoOS54LUwsnwzJeLxMCT-_rz4uD2gtnU2J2S0pSLkvz8qcTWk8OVjJPglciWubqJ4uaCgtbmhqXViZDO6Onxho-H2QAAAACDIr4u$&vid=490443987",
-        "source_scope": "Exact Mando EX54661A7100 row; open-ended 201210~ retained without inventing an end date."
-      },
-      "photo": {
-        "status": "exact_photo_not_verified",
-        "saved": false,
-        "reason": "Exact pages were found, but no source image was independently downloaded and checked for execution and package quantity."
-      },
-      "publication": "deferred_due_measured_database_load; no second consecutive deploy in this run"
-    }
+    "publication_pending": null
   },
   "events": [
     {
@@ -239,18 +208,30 @@
       "at": "2026-11-14T07:16:56.000Z",
       "type": "lease_released",
       "detail": "Shared lease released cleanly. Next run must use the saved publication_pending payload, recheck live DB, publish one small write, verify DB/UI, then advance."
+    },
+    {
+      "at": "2026-11-14T08:13:42.000Z",
+      "type": "photo_consumer_query_indexed",
+      "detail": "The existing sole photo consumer was observed repeatedly scanning all catalog_supplierphototask rows for evidence.reviewed_batch. The exact query moved from Seq Scan cost 4527.49 to Index Scan cost 2.63 after two concurrent indexes; DB CPU fell to about 29% by 08:14Z. No extra consumer was started."
+    },
+    {
+      "at": "2026-11-14T08:13:42.000Z",
+      "type": "item_saved_verified_and_advance",
+      "detail": "ZakazAuto 25268 Mando EX54661A7100: one verified KIA K3 (YD) fitment saved and shown publicly with open period from 10.2012, front/right/gas/GEN/OE restrictions. No engine or photo was claimed. Queue advanced to 25114."
     }
   ],
   "last_success": {
-    "at": "2026-11-14T07:12:34.000Z",
+    "at": "2026-11-14T08:13:42.000Z",
     "stage": "saved_and_ui_verified_fitment_photo_unconfirmed",
     "supplier_id": 5,
-    "offer_id": 25285,
-    "deploy_id": "dep-dbs0hu5bedkc73bksq10",
-    "commit": "60377dd5ced60af4a409800b14a365e283304d4a"
+    "offer_id": 25268,
+    "deploy_id": "dep-dbs1d068bjmc73e17ae0",
+    "commit": "a570af7323d3fccf9875756895faa21612a9b197",
+    "presentation_deploy_id": "dep-dbs1f0u7bikc73ehv3r0",
+    "presentation_commit": "6db9fa34630ec022efe7bb01d4a4e25287fb17f3"
   },
   "blocking_error": null,
-  "finished_at": "2026-11-14T07:16:56.000Z",
+  "finished_at": null,
   "remaining_live": {
     "1": {
       "remaining_without_photo": 296,
@@ -264,7 +245,7 @@
     },
     "5": {
       "remaining_without_photo": 6719,
-      "remaining_without_structured_fitment": 6629,
+      "remaining_without_structured_fitment": 6628,
       "total_positive_stock": 6895
     }
   },

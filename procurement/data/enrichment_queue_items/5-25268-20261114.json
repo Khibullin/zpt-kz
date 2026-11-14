@@ -37,32 +37,71 @@
     }
   },
   "queued": {
-    "status": "not_queued_due_measured_load",
-    "queued_at": null,
-    "reason": "A second consecutive production deploy was deferred while database CPU and memory were near plan limits."
+    "status": "github_commit_autodeploy",
+    "commit": "a570af7323d3fccf9875756895faa21612a9b197",
+    "deploy_id": "dep-dbs1d068bjmc73e17ae0",
+    "queued_at": "2026-11-14T08:06:22.000Z",
+    "presentation_commit": "6db9fa34630ec022efe7bb01d4a4e25287fb17f3",
+    "presentation_deploy_id": "dep-dbs1f0u7bikc73ehv3r0"
   },
   "saved": {
-    "status": "not_saved",
-    "fitment_saved_at": null,
-    "fitment_rows": 0,
+    "status": "live_db_saved",
+    "fitment_saved_at": "2026-11-14T08:08:24.586454Z",
+    "fitment_rows": 1,
+    "configuration_count": 1,
     "photo_saved": false
   },
   "after": {
     "main_image": "",
     "supplier_thumbnail": "",
-    "fitment_rows": 0,
+    "fitments": [
+      {
+        "id": 111510,
+        "make": "KIA",
+        "model": "K3 (YD)",
+        "verified": true,
+        "source_url": "https://download.part-kom.ru/catalogs/MANDO_Catalogue.pdf",
+        "configurations": [
+          {
+            "date_from": "2012-10",
+            "date_to": null,
+            "market": "GEN",
+            "oem_article": "54661A7100",
+            "placement": "front",
+            "shock_type": "gas",
+            "side": "right",
+            "source_scope": "Exact Mando EX54661A7100 row; open-ended 201210~ retained and no engine configuration inferred",
+            "source_url": "https://download.part-kom.ru/catalogs/MANDO_Catalogue.pdf"
+          }
+        ]
+      }
+    ],
     "stock": "1",
-    "cost": "20400.00"
+    "cost": "20400.00",
+    "kaspi_price": "33321.00"
   },
   "verification": {
     "source_verified": true,
-    "db_verified": false,
-    "fitment_verified": false,
+    "db_verified": true,
+    "fitment_verified": true,
     "photo_verified": false,
     "thumbnail_verified": false,
-    "ui_verified": false,
+    "ui_verified": true,
     "ui_url": "https://zpt.kz/kia-zpt-25268/",
-    "note": "No new fitment or photo is claimed on the live site; this journal records prepared data only."
+    "ui_verified_at": "2026-11-14T08:13:42.000Z",
+    "ui_http_status": 200,
+    "ui_response_seconds": 6.619858,
+    "ui_evidence": [
+      "EX54661A7100",
+      "Mando",
+      "KIA K3 (YD)",
+      "с 10.2012",
+      "Рынок: GEN",
+      "Установка: спереди",
+      "Сторона: справа",
+      "Тип: газовый",
+      "OEM: 54661A7100"
+    ]
   },
   "sources": [
     {
@@ -95,12 +134,25 @@
       "exact_article": "EX54661A7100"
     }
   ],
-  "status": "prepared_not_published",
-  "skip_reason": "publication_deferred_due_measured_database_load",
+  "status": "saved_and_ui_verified_fitment_photo_unconfirmed",
+  "skip_reason": "exact_photo_not_verified",
   "next": {
     "supplier_id": 5,
-    "offer_id": 25268,
-    "action": "recheck live DB, publish prepared fitment as one small write, verify DB/UI, then advance"
+    "offer_id": 25114,
+    "action": "review photo and fitment after fresh time/load/DB checks"
   },
-  "trade_data_unchanged": true
+  "trade_data_unchanged": true,
+  "publication_attempts": [
+    {
+      "at": "2026-11-14T07:16:56.000Z",
+      "result": "deferred_before_write",
+      "reason": "database CPU and memory were near plan limits"
+    },
+    {
+      "at": "2026-11-14T08:13:42.000Z",
+      "result": "saved_and_verified",
+      "commit": "a570af7323d3fccf9875756895faa21612a9b197",
+      "deploy_id": "dep-dbs1d068bjmc73e17ae0"
+    }
+  ]
 }
