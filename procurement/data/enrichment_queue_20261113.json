@@ -13,11 +13,11 @@
     "owner": "weekend-enrichment-20261114-1400",
     "source_path": "procurement/data/enrichment_queue_20261111.json",
     "acquired_at": "2026-11-14T09:04:44.000Z",
-    "expires_at": "2026-11-14T09:34:44.000Z",
+    "expires_at": "2026-11-14T09:40:19.000Z",
     "released_at": null
   },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-14T09:04:44.000Z",
+  "heartbeat_at": "2026-11-14T09:10:19.000Z",
   "status": "running_weekend",
   "phase": "other_in_stock_control",
   "phase_reconciliation": {
@@ -7196,7 +7196,7 @@
     }
   ],
   "current_batch_index": 0,
-  "current_item_index": 16,
+  "current_item_index": 17,
   "reviewed": [
     {
       "supplier_id": 5,
@@ -7363,6 +7363,17 @@
       "checked_at": "2026-11-14T08:25:38.000Z",
       "status": "brand_article_conflict_no_write",
       "journal": "procurement/data/enrichment_queue_items/5-25165-20261114.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25082,
+      "product_id": 6786,
+      "task_id": 4759,
+      "brand": "JASHI",
+      "article": "C281F260202-0200",
+      "checked_at": "2026-11-14T09:10:19.000Z",
+      "status": "saved_and_ui_verified_fitment_photo_unconfirmed",
+      "journal": "procurement/data/enrichment_queue_items/5-25082-20261114.json"
     }
   ],
   "prepared": [
@@ -7778,6 +7789,14 @@
       "saved_at": "2026-11-14T08:21:39.161141Z",
       "deploy_id": "dep-dbs1j9lbedkc73blpo9g",
       "live_commit": "b6865a763d0d18d713b654d77070b1eb2961ffd7"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25082,
+      "kind": "fitment",
+      "saved_at": "2026-11-14T09:08:56.795750Z",
+      "deploy_id": "dep-dbs29jff3r2c73dtavr0",
+      "live_commit": "b4362492d033fd1a54114141233c0d4e2d5e9b19"
     }
   ],
   "verified": [
@@ -7920,6 +7939,30 @@
         "Тип: газовый",
         "OEM: 4530132100",
         "Количество в цене: 1 шт."
+      ]
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25082,
+      "kind": "fitment",
+      "db_verified": true,
+      "ui_verified": true,
+      "ui_url": "https://zpt.kz/changan-zpt-25082/",
+      "verified_at": "2026-11-14T09:10:19.000Z",
+      "ui_http_status": 200,
+      "configuration_count": 3,
+      "ui_evidence": [
+        "C281F260202-0200",
+        "JASHI",
+        "CHANGAN UNI-V",
+        "1.5L Turbo",
+        "2022",
+        "2023",
+        "2024",
+        "Комплектная передняя левая стойка с пружиной, пыльником и опорой; 1 шт.",
+        "Установка: спереди",
+        "Сторона: слева",
+        "OEM: C281F260202-0200"
       ]
     }
   ],
@@ -8100,12 +8143,24 @@
         "https://www.mcstarparts.com/product-page/mercedes-w201-front-strut-standard-201-320-31-30-2013203130"
       ],
       "detail": "The official TLK site did not provide an exact 115071 product record. Exact independent and Sachs catalogue sources identify 115071 as a SACHS article cross-referenced to Mercedes OE 201 320 31 30, while the Kaspi page combines 201 320 31 30/115071 under TLK. Supplier-brand identity is therefore unconfirmed; no photo or fitment was saved."
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25082,
+      "field": "photo",
+      "reason": "exact_photo_not_verified",
+      "checked_at": "2026-11-14T09:10:19.000Z",
+      "sources": [
+        "https://kaspi.kz/shop/p/jashi-perednii-c281f260202-0200-1-sht-130050225/",
+        "https://www.chinesecar.parts/models/changan-uni-v-parts.html"
+      ],
+      "detail": "Exact identity and fitment were verified, but no exact JASHI source image was independently downloaded and checked against the complete one-piece strut assembly. No photo or thumbnail was saved."
     }
   ],
   "publication_pending": null,
   "next": {
     "supplier_id": 5,
-    "offer_id": 25082
+    "offer_id": 25170
   },
   "events": [
     {
@@ -8282,17 +8337,22 @@
       "at": "2026-11-14T09:04:44.000Z",
       "type": "lease_acquired",
       "detail": "Fresh shared lease acquired atomically for the existing single weekend processor. No pending publication or active/pending photo task was found; continuation starts at offer 25082."
+    },
+    {
+      "at": "2026-11-14T09:10:19.000Z",
+      "type": "item_saved_verified_and_advance",
+      "detail": "Offer 25082 JASHI C281F260202-0200: exact sourced fitment saved for CHANGAN UNI-V as three separate configurations for 2022, 2023 and 2024, each 1.5L Turbo, front left complete one-piece strut assembly. No continuous/open range or engine code was inferred. Photo was not independently verified. DB and public UI verified; pointer advanced to offer 25170."
     }
   ],
   "last_success": {
-    "at": "2026-11-14T08:23:25.000Z",
-    "stage": "saved_and_ui_verified_fitment_photo_package_conflict",
+    "at": "2026-11-14T09:10:19.000Z",
+    "stage": "saved_and_ui_verified_fitment_photo_unconfirmed",
     "supplier_id": 5,
-    "offer_id": 25114,
-    "deploy_id": "dep-dbs1j9lbedkc73blpo9g",
-    "commit": "b6865a763d0d18d713b654d77070b1eb2961ffd7"
+    "offer_id": 25082,
+    "deploy_id": "dep-dbs29jff3r2c73dtavr0",
+    "commit": "b4362492d033fd1a54114141233c0d4e2d5e9b19"
   },
-  "last_commit": "b6865a763d0d18d713b654d77070b1eb2961ffd7",
+  "last_commit": "b4362492d033fd1a54114141233c0d4e2d5e9b19",
   "paused_at": null,
   "pause_reason": null,
   "remaining_live": {
@@ -8308,7 +8368,7 @@
     },
     "5": {
       "remaining_without_photo": 6719,
-      "remaining_without_structured_fitment": 6627,
+      "remaining_without_structured_fitment": 6626,
       "total_positive_stock": 6895
     }
   }

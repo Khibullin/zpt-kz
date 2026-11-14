@@ -5,8 +5,8 @@
   "lease": {
     "owner": "weekend-enrichment-20261114-1400",
     "acquired_at": "2026-11-14T09:04:44.000Z",
-    "heartbeat_at": "2026-11-14T09:04:44.000Z",
-    "expires_at": "2026-11-14T09:34:44.000Z",
+    "heartbeat_at": "2026-11-14T09:10:19.000Z",
+    "expires_at": "2026-11-14T09:40:19.000Z",
     "directive": "expanded-three-supplier-queue-2026-11-14-weekend",
     "checkpoint": "procurement/data/enrichment_queue_20261113.json"
   },

@@ -2,7 +2,7 @@
   "schema": 1,
   "night_end_date": "2026-11-14",
   "started_at": "2026-11-13T18:05:41.445Z",
-  "updated_at": "2026-11-14T09:04:44.000Z",
+  "updated_at": "2026-11-14T09:10:19.000Z",
   "status": "running_weekend",
   "supplier_stats": {
     "1": {
@@ -23,10 +23,10 @@
     },
     "5": {
       "name": "ЗаказАвто",
-      "processed_unique": 16,
+      "processed_unique": 17,
       "photos_added": 1,
-      "fitment_added": 11,
-      "years_or_engines_added": 10,
+      "fitment_added": 12,
+      "years_or_engines_added": 11,
       "skips": {
         "exact_photo_not_confirmed": 2,
         "contradictory_sources": 1,
@@ -36,7 +36,7 @@
         "brand_identity_not_confirmed": 1,
         "exact_brand_source_not_found": 1,
         "package_conflict_photo_not_saved": 2,
-        "exact_photo_not_verified": 3,
+        "exact_photo_not_verified": 4,
         "brand_article_conflict": 1
       },
       "pending_ui_verification": 0
@@ -49,10 +49,10 @@
       "5": 100
     },
     "next_supplier_id": 5,
-    "next_offer_id": 25082,
+    "next_offer_id": 25170,
     "control_batch_remaining": {
       "3": 100,
-      "5": 84
+      "5": 83
     },
     "lease_released_at": null,
     "lease_owner": "weekend-enrichment-20261114-1400",
@@ -239,15 +239,20 @@
       "at": "2026-11-14T09:04:44.000Z",
       "type": "lease_acquired",
       "detail": "Shared lease acquired for the existing single processor; continuation begins at ZakazAuto offer 25082 after fresh DB/load checks."
+    },
+    {
+      "at": "2026-11-14T09:10:19.000Z",
+      "type": "item_saved_verified_and_advance",
+      "detail": "ZakazAuto 25082 JASHI C281F260202-0200: verified CHANGAN UNI-V 2022, 2023 and 2024 configurations with 1.5L Turbo, front-left complete one-piece strut restrictions saved and shown publicly. Photo remains unverified. Queue advanced to 25170."
     }
   ],
   "last_success": {
-    "at": "2026-11-14T08:23:25.000Z",
-    "stage": "saved_and_ui_verified_fitment_photo_package_conflict",
+    "at": "2026-11-14T09:10:19.000Z",
+    "stage": "saved_and_ui_verified_fitment_photo_unconfirmed",
     "supplier_id": 5,
-    "offer_id": 25114,
-    "deploy_id": "dep-dbs1j9lbedkc73blpo9g",
-    "commit": "b6865a763d0d18d713b654d77070b1eb2961ffd7"
+    "offer_id": 25082,
+    "deploy_id": "dep-dbs29jff3r2c73dtavr0",
+    "commit": "b4362492d033fd1a54114141233c0d4e2d5e9b19"
   },
   "blocking_error": null,
   "finished_at": null,
@@ -264,7 +269,7 @@
     },
     "5": {
       "remaining_without_photo": 6719,
-      "remaining_without_structured_fitment": 6627,
+      "remaining_without_structured_fitment": 6626,
       "total_positive_stock": 6895
     }
   },
