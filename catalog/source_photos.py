@@ -127,7 +127,7 @@ def process_photo_tasks(limit=10):
     if any(row['evidence'].get('block_kind')=='storage' or row['note'].startswith('Недостаточно свободного места') for row in blocked):return 0
     # Prepared work is activated by the deployed consumer, not the old process
     # while Render runs schema/data migrations for the next release.
-    SupplierPhotoTask.objects.filter(status__in=['prepared','maker_ready','web_ready','bilstein_ready','shock_ready','weekend14h_ready','weekend14i_ready','weekend14j_ready','weekend14k_ready','weekend14n_ready','weekend15a_ready','weekend15b_ready','weekend15c_ready','weekend15d_ready','weekend15e_ready']).update(status='pending')
+    SupplierPhotoTask.objects.filter(status__in=['prepared','maker_ready','web_ready','bilstein_ready','shock_ready','weekend14h_ready','weekend14i_ready','weekend14j_ready','weekend14k_ready','weekend14n_ready','weekend15a_ready','weekend15b_ready','weekend15c_ready','weekend15d_ready','weekend15e_ready','weekend15f_ready']).update(status='pending')
     from .reviewed_remaining2 import process_reviewed_photos as process_remaining2_photos
     done=process_remaining2_photos(limit=limit)
     from .reviewed_zakaz100 import process_reviewed_photos as process_zakaz100_photos
@@ -216,8 +216,16 @@ def process_photo_tasks(limit=10):
                         and evidence.get('image_url')=='https://resources.cdn-kaspi.kz/img/m/p/p62/p7d/8356815.png?format=gallery-large'
                         and evidence.get('checked_on')=='2026-11-15'
                     )
-                    if exact_jashi:
-                        # The exact card and its sole image were visually checked before
+                    exact_trialli=(
+                        task.pk==4814 and product.pk==6841 and offer.pk==25170
+                        and offer.brand=='TRIALLI' and offer.article=='AG 03007'
+                        and task.source_url=='https://shop.globalparts.kz/catalog/card/184634'
+                        and evidence.get('reviewed_batch')=='weekend-20261115-f'
+                        and evidence.get('image_url')=='https://resources.cdn-kaspi.kz/img/m/p/h6d/h92/67650614853662.jpg?format=gallery-large'
+                        and evidence.get('checked_on')=='2026-11-15'
+                    )
+                    if exact_jashi or exact_trialli:
+                        # The exact card and selected item image were visually checked before
                         # staging. Fetch only that immutable CDN object here; the guarded
                         # migration has already rechecked live identity, stock and fitment.
                         image_url=evidence['image_url']
