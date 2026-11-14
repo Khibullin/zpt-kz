@@ -17,8 +17,8 @@
     "released_at": null
   },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-14T12:20:45.083Z",
-  "status": "running_research_throttled",
+  "heartbeat_at": "2026-11-14T12:26:58.284Z",
+  "status": "paused_checkpointed_prepared_candidate",
   "phase": "recheck_first19",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
@@ -7721,6 +7721,18 @@
       "verified_at": "2026-11-14T10:07:37.000Z",
       "commit": "7ba9dc8f93a043d4ad5722b41935a0b4f705840d",
       "deploy_id": "dep-dbs33q6q1p3s73ebdq50"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25251,
+      "product_id": 7012,
+      "task_id": 4985,
+      "kind": "photo_and_fitment",
+      "prepared_at": "2026-11-14T12:26:58.284Z",
+      "status": "prepared_not_queued",
+      "source_url": "https://catalog.parts-mall.com/shop-detail?factory_no=PJC-129FR",
+      "image_url": "https://catalog.parts-mall.com/images/PJC-129FR_0300-1F.jpg",
+      "journal": "procurement/data/enrichment_queue_items/5-25251-20261113.json"
     }
   ],
   "queued": [
@@ -8328,7 +8340,22 @@
       "detail": "The exact Mobis dealer page exposes only a generic grey Mobis brand graphic, not the exact shock absorber. It was not used as a product photo or thumbnail; retry only with a new exact real-photo source."
     }
   ],
-  "publication_pending": null,
+  "publication_pending": {
+    "sequence": 8,
+    "supplier_id": 5,
+    "offer_id": 25251,
+    "product_id": 7012,
+    "task_id": 4985,
+    "brand": "Parts-Mall",
+    "article": "PJC129FR",
+    "prepared": true,
+    "queued": false,
+    "saved": false,
+    "verified": false,
+    "photo_source_url": "https://catalog.parts-mall.com/images/PJC-129FR_0300-1F.jpg",
+    "fitment_source_url": "https://catalog.parts-mall.com/shop-detail?factory_no=PJC-129FR",
+    "journal": "procurement/data/enrichment_queue_items/5-25251-20261113.json"
+  },
   "next": {
     "phase": "recheck_first19",
     "sequence": 8,
@@ -8587,6 +8614,11 @@
       "at": "2026-11-14T12:20:45.083Z",
       "type": "item_saved_verified_and_advance",
       "detail": "ZakazAuto 25765 HYUNDAI-KIA 495602S350: exact Tachka Product identity revalidated; one 800x453 WebP and one 180x102 thumbnail saved by the sole consumer. DB, files and public card content verified. Price, stock, Kaspi and fitment unchanged. Public card response measured 11.51s; DB writes throttled while source research continues at sequence 8 offer 25251."
+    },
+    {
+      "at": "2026-11-14T12:26:58.284Z",
+      "type": "official_candidate_prepared_and_checkpointed",
+      "detail": "ZakazAuto 25251 Parts-Mall PJC129FR: official manufacturer catalogue confirms PJC-129FR identity, front-right/RHD execution, exact image and AVEO/SONIC(T300) configurations. Prepared only: queued=false, saved=false, verified=false. Publication deferred after measured 11.51s card latency; resume at sequence 8."
     }
   ],
   "last_success": {
@@ -8600,8 +8632,8 @@
     "deploy_id": "dep-dbs5236417fc73f3qft0"
   },
   "last_commit": "649e834bb39d08a1d2b9f3679c2c57ab1000e408",
-  "paused_at": "2026-11-14T11:28:38.000Z",
-  "pause_reason": "One bounded exact photo was saved and verified under elevated service memory/DB load. Resume the explicit 2132009052 photo candidate before advancing the 19-item recheck.",
+  "paused_at": "2026-11-14T12:26:58.284Z",
+  "pause_reason": "Exact official PJC129FR photo and fitment candidate prepared but not queued after measured 11.51s public-card latency; recheck load and live state before bounded publication.",
   "remaining_live": {
     "1": {
       "remaining_without_photo": 297,
@@ -8642,7 +8674,7 @@
     "frozen_at": "2026-11-14T11:05:21.000Z",
     "total": 19,
     "current_index": 7,
-    "status": "running_research_throttled",
+    "status": "paused_checkpointed_prepared_candidate",
     "items": [
       {
         "sequence": 1,
@@ -8745,7 +8777,8 @@
         "article": "PJC129FR",
         "prior_status": "brand_identity_not_confirmed",
         "journal": "procurement/data/enrichment_queue_items/5-25251-20261113.json",
-        "status": "pending_recheck"
+        "status": "prepared_exact_official_photo_and_fitment_candidate",
+        "rechecked_at": "2026-11-14T12:26:58.284Z"
       },
       {
         "sequence": 9,
@@ -8883,12 +8916,12 @@
     "photos_missing_before": 18,
     "structured_fitment_missing_before": 5,
     "results": {
-      "reviewed": 7,
+      "reviewed": 8,
       "new_photos": 3,
       "new_thumbnails": 3,
       "new_fitments": 0,
       "no_change": 4,
-      "candidates_pending": 0
+      "candidates_pending": 1
     },
     "last_saved": {
       "supplier_id": 5,
@@ -8911,7 +8944,22 @@
       "commit": "649e834bb39d08a1d2b9f3679c2c57ab1000e408",
       "saved_at": "2026-11-14T12:20:45.083Z"
     },
-    "pending_candidate": null
+    "pending_candidate": {
+      "sequence": 8,
+      "supplier_id": 5,
+      "offer_id": 25251,
+      "product_id": 7012,
+      "task_id": 4985,
+      "brand": "Parts-Mall",
+      "article": "PJC129FR",
+      "prepared": true,
+      "queued": false,
+      "saved": false,
+      "verified": false,
+      "photo_source_url": "https://catalog.parts-mall.com/images/PJC-129FR_0300-1F.jpg",
+      "fitment_source_url": "https://catalog.parts-mall.com/shop-detail?factory_no=PJC-129FR",
+      "journal": "procurement/data/enrichment_queue_items/5-25251-20261113.json"
+    }
   },
   "normal_resume": {
     "phase": "other_in_stock_control",
@@ -8976,5 +9024,5 @@
     "service_memory_limit_bytes": 536870900,
     "decision": "research and read-only checks allowed; defer or throttle writes while memory remains above 90% on the web service"
   },
-  "updated_at": "2026-11-14T12:20:45.083Z"
+  "updated_at": "2026-11-14T12:26:58.284Z"
 }
