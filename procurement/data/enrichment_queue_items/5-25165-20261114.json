@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "checked_on": "2026-11-14",
-  "checked_at": "2026-11-14T08:25:38.000Z",
+  "checked_on": "2026-11-15",
+  "checked_at": "2026-11-14T21:03:49.019Z",
   "supplier_id": 5,
   "supplier": "ЗаказАвто",
   "offer_id": 25165,
@@ -21,11 +21,11 @@
   "prepared": {
     "photo": {
       "status": "not_saved",
-      "reason": "Exact TLK brand identity is unconfirmed; available exact 115071 images are SACHS or generic cross-reference products."
+      "reason": "The owner-directed repeat search found no new exact TLK 115071 manufacturer/supplier/catalog image. The only exact TLK result remains the previously documented Kaspi card, whose combined number 201 320 31 30/115071 conflicts with catalogues that identify 115071 as SACHS."
     },
     "fitment": {
       "status": "not_saved_conflict",
-      "reason": "The official TLK site has no exact 115071 record, while exact catalogues identify 115071 as SACHS and Kaspi combines 201 320 31 30/115071 under TLK. Mercedes applicability cannot be transferred to an unconfirmed TLK product."
+      "reason": "Kaspi describes Mercedes-Benz W201/W124/C124 and separate years 1984 and 1997, but no independent TLK catalogue confirms TLK article 115071. SACHS applicability and images cannot be transferred to an unconfirmed TLK product."
     }
   },
   "queued": {
@@ -34,6 +34,7 @@
   "saved": {
     "status": "no_write",
     "photo_saved": false,
+    "thumbnail_saved": false,
     "fitment_saved": false
   },
   "after": {
@@ -51,7 +52,9 @@
     "photo_verified": false,
     "thumbnail_verified": false,
     "fitment_verified": false,
-    "ui_verification_not_applicable": true
+    "ui_verified": true,
+    "ui_url": "https://zpt.kz/product-zpt-25165/",
+    "ui_result": "Public card opens and shows TLK 115071 with the generic compatibility warning; no confirmed structured applicability is displayed."
   },
   "sources": [
     {
@@ -64,7 +67,9 @@
       "kind": "kaspi_exact_card",
       "url": "https://kaspi.kz/shop/p/tlk-perednii-201-320-31-30-115071-1-sht-141112545/?c=750000000",
       "checked_on": "2026-11-14",
-      "scope": "Brand TLK; combined manufacturer/OEM article 201 320 31 30/115071; Mercedes-Benz E-CLASS; separate years 1984 and 1997; one unit."
+      "scope": "Brand TLK; combined manufacturer/OEM article 201 320 31 30/115071; Mercedes-Benz E-CLASS; separate years 1984 and 1997; one unit.",
+      "rechecked_on": "2026-11-15",
+      "recheck_result": "Exact card still present; no seller offers. Brand TLK, combined number 201 320 31 30/115071, one unit, Mercedes-Benz W201/W124/C124 in description; does not resolve manufacturer-number conflict."
     },
     {
       "kind": "manufacturer_catalogue_copy_conflicting_brand",
@@ -83,12 +88,28 @@
       "scope": "Mercedes W201 standard front strut; explicitly excludes Sportline."
     }
   ],
-  "status": "brand_article_conflict_no_write",
+  "status": "rechecked_brand_article_conflict_no_write",
   "skip_reason": "brand_article_conflict",
   "next": {
     "supplier_id": 5,
     "offer_id": 25082,
-    "action": "review exact JASHI C281F260202-0200 sources after fresh time/load/DB checks"
+    "product_id": 6786,
+    "task_id": 4759,
+    "brand": "JASHI",
+    "article": "C281F260202-0200",
+    "action": "review exact sources after fresh time/load/DB checks"
   },
-  "trade_data_unchanged": true
+  "trade_data_unchanged": true,
+  "rechecked_on": "2026-11-15",
+  "rechecked_at": "2026-11-14T21:03:49.019Z",
+  "recheck": {
+    "requested_scope": "manufacturers, KZ/RU/international catalogues, OEM and cross numbers",
+    "checked_on": "2026-11-15",
+    "result": "no_new_exact_tlk_source",
+    "search_result": "Only the already documented exact Kaspi card was returned; unrelated results were rejected.",
+    "prohibited_sources_not_queried": [
+      "ASVA",
+      "Альта-Картер"
+    ]
+  }
 }
