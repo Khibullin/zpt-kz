@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "checked_on": "2026-11-14",
-  "checked_at": "2026-11-13T22:00:30.000Z",
+  "checked_at": "2026-11-14T17:13:50.109Z",
   "supplier_id": 5,
   "supplier": "ЗаказАвто",
   "offer_id": 25215,
@@ -56,7 +56,9 @@
     "photo_saved_at": "2026-11-13T22:15:15.780791Z",
     "fitment_rows": 2,
     "main_bytes": 10080,
-    "thumbnail_bytes": 2858
+    "thumbnail_bytes": 2858,
+    "restriction_display_saved_at": "2026-11-14T17:13:50.109Z",
+    "restriction_display_commit": "162110337b3de84ec25782bd9b9648d46d870d07"
   },
   "after": {
     "main_image": "products/optimized/8b320dfb89703edd76df68fc9819b948127d887345d5546a61c67159dbe00355.webp",
@@ -107,7 +109,8 @@
     ],
     "stock": "1",
     "cost": "15900.00",
-    "kaspi_price": "30120.00"
+    "kaspi_price": "30120.00",
+    "restriction_displayed": "for vehicles with ABS"
   },
   "verification": {
     "db_verified": true,
@@ -116,7 +119,7 @@
     "thumbnail_verified": true,
     "ui_verified": true,
     "ui_url": "https://zpt.kz/kia-zpt-25215/",
-    "ui_verified_at": "2026-11-13T22:16:20.000Z",
+    "ui_verified_at": "2026-11-14T17:13:50.109Z",
     "ui_http_status": 200,
     "ui_response_seconds": 3.952081,
     "main_url": "https://zpt.kz/products/products/optimized/8b320dfb89703edd76df68fc9819b948127d887345d5546a61c67159dbe00355.webp",
@@ -133,7 +136,8 @@
       "1999",
       "2000",
       "2001",
-      "J3 2.9 TD"
+      "J3 2.9 TD",
+      "Ограничение: for vehicles with ABS"
     ]
   },
   "sources": [
@@ -146,12 +150,25 @@
       "image_url": "https://i.plenty.parts/i/850/i315_37_2935995.jpg"
     }
   ],
-  "status": "saved_and_ui_verified_photo_and_fitment",
+  "status": "rechecked_complete_fitment_restriction_displayed",
   "skip_reason": null,
   "next": {
     "supplier_id": 5,
     "offer_id": 25285,
-    "action": "review_photo_and_fitment_if_site_latency_allows"
+    "article": "PJD007",
+    "action": "continue_first19_recheck_sequence_13"
   },
-  "trade_data_unchanged": true
+  "trade_data_unchanged": true,
+  "recheck": {
+    "assigned_reason": "Owner-directed first-19 repeat check using manufacturer, KZ/RU/international catalogues, OEM and cross numbers.",
+    "checked_at": "2026-11-14T17:13:50.109Z",
+    "result": "Exact photo and thumbnail remained valid; exact structured fitment remained valid. Public applicability omitted the already-sourced restriction 'for vehicles with ABS'. Rendering was corrected and deployed; no product data row required rewriting.",
+    "new_photo": false,
+    "new_thumbnail": false,
+    "new_fitment_rows": 0,
+    "fitment_display_enhanced": true,
+    "commit": "162110337b3de84ec25782bd9b9648d46d870d07",
+    "deploy_id": "dep-dbs9bbeq1p3s73eid790",
+    "ui_url": "https://zpt.kz/kia-zpt-25215/"
+  }
 }
