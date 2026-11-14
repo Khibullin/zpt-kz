@@ -2,8 +2,8 @@
   "schema": 1,
   "night_end_date": "2026-11-14",
   "started_at": "2026-11-13T18:05:41.445Z",
-  "updated_at": "2026-11-14T11:28:38.000Z",
-  "status": "paused_checkpointed_candidate_pending",
+  "updated_at": "2026-11-14T12:13:26.645Z",
+  "status": "running_recheck",
   "supplier_stats": {
     "1": {
       "name": "Omega",
@@ -24,7 +24,7 @@
     "5": {
       "name": "ЗаказАвто",
       "processed_unique": 19,
-      "photos_added": 2,
+      "photos_added": 3,
       "fitment_added": 14,
       "years_or_engines_added": 13,
       "skips": {
@@ -51,35 +51,26 @@
       "5": 100
     },
     "next_supplier_id": 5,
-    "next_offer_id": 25784,
+    "next_offer_id": 25765,
     "control_batch_remaining": {
       "3": 100,
       "5": 81
     },
-    "lease_released_at": "2026-11-14T11:28:38.000Z",
-    "lease_owner": null,
+    "lease_released_at": null,
+    "lease_owner": "weekend-enrichment-20261114-1700-recheck19",
     "pending_ui_verification": null,
-    "publication_pending": {
-      "kind": "photo_candidate_review",
-      "supplier_id": 5,
-      "offer_id": 25784,
-      "article": "2132009052",
-      "prepared": false,
-      "queued": false,
-      "saved": false,
-      "verified": false
-    },
+    "publication_pending": null,
     "batch_size": 20,
     "recheck": {
       "total": 19,
-      "current_index": 4,
-      "status": "running_candidate_pending",
+      "current_index": 6,
+      "status": "running",
       "reviewed_unique": 6,
-      "new_photos": 1,
-      "new_thumbnails": 1,
+      "new_photos": 2,
+      "new_thumbnails": 2,
       "new_fitments": 0,
       "no_change": 4,
-      "candidates_pending": 1,
+      "candidates_pending": 0,
       "photos_missing_before": 18,
       "structured_fitment_missing_before": 5
     }
@@ -329,18 +320,23 @@
       "at": "2026-11-14T11:28:38.000Z",
       "type": "lease_released",
       "detail": "Shared lease released after checkpointing one saved photo and the pending sequence-5 candidate. First recheck batch remains incomplete; no duplicate process or schedule was created."
+    },
+    {
+      "at": "2026-11-14T12:13:26.645Z",
+      "type": "item_saved_verified_and_advance",
+      "detail": "ZakazAuto 25784 SsangYong 2132009052: exact OEM photo saved as WebP 768x768 plus 180x180 thumbnail by the sole existing consumer; DB, both files and public card verified. Trade and Kaspi data unchanged. Next sequence 7 offer 25765."
     }
   ],
   "last_success": {
-    "at": "2026-11-14T11:23:33.791Z",
+    "at": "2026-11-14T12:13:26.645Z",
     "stage": "photo_saved_and_ui_verified",
     "supplier_id": 5,
-    "offer_id": 25768,
-    "product_id": 7249,
-    "task_id": 5222,
-    "deploy_id": "dep-dbs48i7f3r2c73dv4ch0",
-    "commit": "110eaf511252b2ab18f16d51a48660fc25728c57",
-    "ui_url": "https://zpt.kz/hyundai-zpt-25768/"
+    "offer_id": 25784,
+    "product_id": 7360,
+    "task_id": 5333,
+    "deploy_id": "dep-dbs4ujtbedkc73bovrpg",
+    "commit": "6fa02c1ced549a909d2d7c6658aab4c991792706",
+    "ui_url": "https://zpt.kz/ssangyong-zpt-25784/"
   },
   "blocking_error": null,
   "finished_at": null,
