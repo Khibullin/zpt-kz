@@ -20,11 +20,25 @@
   },
   "prepared": {
     "photo": {
-      "status": "not_saved_package_conflict",
-      "reason": "The ZPT/offer quantity is one unit, while exact external photo offers include pair/2-piece presentations; an exact single-unit source image was not independently verified.",
+      "status": "not_saved_sources_temporarily_unavailable",
+      "reason": "Two newly permitted exact single-unit sources resolved the package conflict in research, but the existing background consumer received HTTP 403 from each page. No access restriction was bypassed and neither source will be retried without new source state.",
       "checked_urls": [
-        "https://www.koreamotors.ru/product/4530132100",
-        "https://www.sparekorea.com/product/parts/1001326/4530132100-shock-absorber-assy-rr-gas.html"
+        "https://item.gmarket.co.kr/Item?goodsCode=4348280358",
+        "https://www.ebay.com/itm/157310193004"
+      ],
+      "package_quantity_confirmed": 1,
+      "execution": "rear gas shock absorber; left or right; one unit",
+      "source_attempts": [
+        {
+          "url": "https://item.gmarket.co.kr/Item?goodsCode=4348280358",
+          "result": "temporary_source_unavailable_http_403",
+          "checked_on": "2026-11-15"
+        },
+        {
+          "url": "https://www.ebay.com/itm/157310193004",
+          "result": "temporary_source_unavailable_http_403",
+          "checked_on": "2026-11-15"
+        }
       ]
     },
     "fitment": {
@@ -43,11 +57,12 @@
     "queued_at": "2026-11-14T08:19:50.860262Z"
   },
   "saved": {
-    "status": "live_db_saved",
-    "fitment_saved_at": "2026-11-14T08:21:39.161141Z",
+    "status": "live_db_unchanged_after_recheck",
     "fitment_rows": 1,
     "configuration_count": 1,
-    "photo_saved": false
+    "photo_saved": false,
+    "thumbnail_saved": false,
+    "rechecked_at": "2026-11-14T20:12:41.035Z"
   },
   "after": {
     "main_image": "",
@@ -84,7 +99,7 @@
     "thumbnail_verified": false,
     "ui_verified": true,
     "ui_url": "https://zpt.kz/ssangyong-zpt-25114/",
-    "ui_verified_at": "2026-11-14T08:23:25.000Z",
+    "ui_verified_at": "2026-11-14T20:12:41.035Z",
     "ui_http_status": 200,
     "ui_evidence": [
       "4530132100",
@@ -95,7 +110,10 @@
       "Тип: газовый",
       "OEM: 4530132100",
       "Количество в цене: 1 шт."
-    ]
+    ],
+    "task_status": "blocked",
+    "active_photo_tasks": 0,
+    "trade_data_unchanged": true
   },
   "sources": [
     {
@@ -125,14 +143,38 @@
       "checked_on": "2026-11-14",
       "exact_brand": "SsangYong",
       "exact_article": "4530132100"
+    },
+    {
+      "kind": "checked_international_exact_single_unit_listing_temporary_http_403",
+      "url": "https://item.gmarket.co.kr/Item?goodsCode=4348280358",
+      "image_url": "https://gdimg.gmarket.co.kr/4348280358/still/600?ver=1741740426",
+      "checked_on": "2026-11-15",
+      "exact_brand": "SsangYong",
+      "exact_article": "4530132100 / 45301-32100",
+      "package_quantity": 1
+    },
+    {
+      "kind": "checked_international_exact_single_unit_listing_temporary_http_403",
+      "url": "https://www.ebay.com/itm/157310193004",
+      "image_url": "https://i.ebayimg.com/images/g/XLIAAeSwdGFowS-W/s-l1600.webp",
+      "checked_on": "2026-11-15",
+      "exact_brand": "SsangYong",
+      "exact_article": "4530132100 / 45301-32100",
+      "package_quantity": 1
     }
   ],
-  "status": "saved_and_ui_verified_fitment_photo_package_conflict",
-  "skip_reason": "package_conflict_photo_not_saved",
+  "status": "rechecked_fitment_verified_photo_sources_temporarily_unavailable",
+  "skip_reason": "temporary_source_unavailable_http_403",
   "next": {
     "supplier_id": 5,
     "offer_id": 25165,
+    "product_id": 6839,
+    "task_id": 4812,
+    "brand": "TLK",
+    "article": "115071",
     "action": "review exact TLK 115071 sources after fresh time/load/DB checks"
   },
-  "trade_data_unchanged": true
+  "trade_data_unchanged": true,
+  "rechecked_on": "2026-11-15",
+  "rechecked_at": "2026-11-14T20:12:41.035Z"
 }
