@@ -2,7 +2,7 @@
   "schema": 1,
   "night_end_date": "2026-11-14",
   "started_at": "2026-11-13T18:05:41.445Z",
-  "updated_at": "2026-11-14T13:21:26.729Z",
+  "updated_at": "2026-11-14T13:21:32.930Z",
   "status": "checkpointed_item_verified",
   "supplier_stats": {
     "1": {
@@ -56,7 +56,7 @@
       "3": 100,
       "5": 81
     },
-    "lease_released_at": "2026-11-14T12:27:03.169Z",
+    "lease_released_at": "2026-11-14T13:21:32.930Z",
     "lease_owner": null,
     "pending_ui_verification": null,
     "publication_pending": null,
@@ -345,6 +345,11 @@
       "at": "2026-11-14T13:21:26.729Z",
       "type": "item_saved_verified_and_advance",
       "detail": "ZakazAuto PJC129FR: one exact photo, one 180px-bounded thumbnail and one structured fitment with 11 configurations saved and verified. Trade/Kaspi unchanged. First-19 recheck continues at sequence 9; batch is not complete."
+    },
+    {
+      "at": "2026-11-14T13:21:32.930Z",
+      "type": "lease_released",
+      "detail": "Shared lease released after verified PJC129FR publication; next is sequence 9 offer 25095."
     }
   ],
   "last_success": {
