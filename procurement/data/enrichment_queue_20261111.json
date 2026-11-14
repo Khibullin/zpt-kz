@@ -2,14 +2,7 @@
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
   "checked_at": "2026-11-12T03:16:36.620372+00:00",
-  "lease": {
-    "owner": "weekend-enrichment-20261114-1700-recheck19",
-    "acquired_at": "2026-11-14T12:03:47.511Z",
-    "heartbeat_at": "2026-11-14T12:17:14.499Z",
-    "expires_at": "2026-11-14T12:47:14.499Z",
-    "directive": "owner-2026-11-14-recheck-first-19-batches-20",
-    "checkpoint": "procurement/data/enrichment_queue_20261113.json"
-  },
+  "lease": null,
   "next_supplier": 3,
   "batch_size": 100,
   "queue": [
@@ -15636,14 +15629,14 @@
     "reason": "All293 new-source reviews completed and all prepared additions saved and DB/UI verified;281 unsupported exceptions documented; no unreviewed or pending publication."
   },
   "last_lease": {
-    "owner": "weekend-enrichment-20261114-1605-recheck19",
-    "acquired_at": "2026-11-14T11:05:21.000Z",
-    "heartbeat_at": "2026-11-14T11:22:15.000Z",
-    "expires_at": "2026-11-14T11:52:15.000Z",
+    "owner": "weekend-enrichment-20261114-1700-recheck19",
+    "acquired_at": "2026-11-14T12:03:47.511Z",
+    "heartbeat_at": "2026-11-14T12:17:14.499Z",
+    "expires_at": "2026-11-14T12:47:14.499Z",
     "directive": "owner-2026-11-14-recheck-first-19-batches-20",
     "checkpoint": "procurement/data/enrichment_queue_20261113.json",
-    "released_at": "2026-11-14T11:28:38.000Z",
-    "release_reason": "checkpointed_one_verified_photo_and_pending_recheck_candidate"
+    "released_at": "2026-11-14T12:27:03.169Z",
+    "release_reason": "checkpointed_prepared_official_candidate_after_latency_throttle"
   },
   "continuation_20261112": {
     "started_at": "2026-11-12T02:20:46.660Z",
