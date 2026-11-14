@@ -9,17 +9,10 @@
     "phase": "completed_with_documented_exceptions_20261112",
     "reviewed_offer_ids": 408
   },
-  "shared_lease": {
-    "owner": "weekend-enrichment-20261115-0357-recheck19",
-    "scope": "enrichment_queue_20261113_recheck_first19",
-    "acquired_at": "2026-11-14T22:58:41.587130Z",
-    "heartbeat_at": "2026-11-14T22:58:41.587130Z",
-    "expires_at": "2026-11-14T23:28:41.587130Z",
-    "next_offer_id": 25170
-  },
+  "shared_lease": null,
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-14T22:58:41.587130Z",
-  "status": "running_recheck_first19",
+  "heartbeat_at": "2026-11-14T23:06:38.367086Z",
+  "status": "running_recheck_first19_checkpointed",
   "phase": "recheck_first19",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
@@ -8911,21 +8904,31 @@
       "at": "2026-11-14T22:15:28.714066Z",
       "type": "lease_released",
       "detail": "Shared lease released after sequence 17 checkpoint."
+    },
+    {
+      "at": "2026-11-14T23:06:38.367086Z",
+      "type": "item_rechecked_photo_saved_and_advance",
+      "detail": "TRIALLI AG 03007: new exact Global Parts KZ card confirmed brand, article AG03007, front placement, left/right side and one-unit package; inspected 627x373 item image saved as main and 180x107 thumbnail by the existing consumer. Existing five UAZ fitment rows and 11 configurations preserved and reverified in DB and public UI. Trade and Kaspi unchanged. Resume sequence 19 offer 25129."
+    },
+    {
+      "at": "2026-11-14T23:06:38.367086Z",
+      "type": "lease_released",
+      "detail": "Shared lease released after sequence 18 checkpoint."
     }
   ],
   "last_success": {
-    "at": "2026-11-14T22:15:28.714066Z",
+    "at": "2026-11-14T23:06:38.367086Z",
     "stage": "exact_photo_saved_thumbnail_saved_fitment_preserved_and_ui_verified",
     "supplier_id": 5,
-    "offer_id": 25082,
-    "product_id": 6786,
-    "task_id": 4759,
-    "article": "C281F260202-0200",
-    "commit": "5ffd95a0461020bead45ed2b075090561411bd03",
-    "deploy_id": "dep-dbsdp0e417fc73feli7g",
-    "ui_url": "https://zpt.kz/changan-zpt-25082/"
+    "offer_id": 25170,
+    "product_id": 6841,
+    "task_id": 4814,
+    "article": "AG 03007",
+    "commit": "d39cbeba64f46d71dfe6d9abe089cc4b5bd122e3",
+    "deploy_id": "dep-dbseh2k9v7es73bs2p90",
+    "ui_url": "https://zpt.kz/product-zpt-25170/"
   },
-  "last_commit": "5ffd95a0461020bead45ed2b075090561411bd03",
+  "last_commit": "d39cbeba64f46d71dfe6d9abe089cc4b5bd122e3",
   "paused_at": "2026-11-14T19:16:20.438Z",
   "pause_reason": "Sequence 14 EX54661A7100 recheck completed. Two exact photo sources were temporarily unavailable to the background consumer (HTTP 403); existing fitment verified. Resume at sequence 15.",
   "remaining_live": {
@@ -8967,7 +8970,7 @@
   "recheck_first19": {
     "frozen_at": "2026-11-14T11:05:21.000Z",
     "total": 19,
-    "current_index": 17,
+    "current_index": 18,
     "status": "running_checkpointed",
     "items": [
       {
@@ -9211,7 +9214,14 @@
         "article": "AG 03007",
         "prior_status": "saved_and_ui_verified_fitment_photo_source_forbidden",
         "journal": "procurement/data/enrichment_queue_items/5-25170-20261114.json",
-        "status": "pending_recheck"
+        "status": "photo_saved_and_verified_fitment_preserved",
+        "rechecked_at": "2026-11-14T23:06:38.367086Z",
+        "photo_saved": true,
+        "thumbnail_saved": true,
+        "fitment_saved": false,
+        "fitment_preserved": true,
+        "main_path": "products/optimized/a3982440592dd649ab7162893ededc1e7233ca9865866a457c16bfac719e8c13.webp",
+        "thumbnail_path": "products/optimized/02fb6c3ddd42330454c3f1b144dea9cb5d7278b340d7497a78977382d5c41453.webp"
       },
       {
         "sequence": 19,
@@ -9229,9 +9239,9 @@
     "photos_missing_before": 18,
     "structured_fitment_missing_before": 5,
     "results": {
-      "reviewed": 17,
-      "new_photos": 7,
-      "new_thumbnails": 7,
+      "reviewed": 18,
+      "new_photos": 8,
+      "new_thumbnails": 8,
       "new_fitments": 3,
       "no_change": 7,
       "candidates_pending": 0,
@@ -9239,57 +9249,57 @@
     },
     "last_saved": {
       "supplier_id": 5,
-      "offer_id": 25082,
-      "product_id": 6786,
-      "task_id": 4759,
-      "brand": "JASHI",
-      "article": "C281F260202-0200",
+      "offer_id": 25170,
+      "product_id": 6841,
+      "task_id": 4814,
+      "brand": "TRIALLI",
+      "article": "AG 03007",
       "kind": "exact_photo_and_thumbnail",
-      "source_url": "https://kaspi.kz/shop/p/jashi-perednii-c281f260202-0200-1-sht-130050225/",
-      "source_image_url": "https://resources.cdn-kaspi.kz/img/m/p/p62/p7d/8356815.png?format=gallery-large",
-      "main_path": "products/optimized/6f6809eb96fafe367afaf079c8517a5c78ac5266f55a09759c0dccf89b57fc41.webp",
-      "thumbnail_path": "products/optimized/9629709641e70dde069939d8865335af8a09aff04cda3ff817754bd99c4cc300.webp",
+      "source_url": "https://shop.globalparts.kz/catalog/card/184634",
+      "source_image_url": "https://resources.cdn-kaspi.kz/img/m/p/h6d/h92/67650614853662.jpg?format=gallery-large",
+      "main_path": "products/optimized/a3982440592dd649ab7162893ededc1e7233ca9865866a457c16bfac719e8c13.webp",
+      "thumbnail_path": "products/optimized/02fb6c3ddd42330454c3f1b144dea9cb5d7278b340d7497a78977382d5c41453.webp",
       "main_size": [
-        401,
-        172
+        627,
+        373
       ],
       "thumbnail_size": [
         180,
-        77
+        107
       ],
-      "source_bytes": 19349,
-      "main_bytes": 6306,
-      "thumbnail_bytes": 1886,
+      "source_bytes": 46609,
+      "main_bytes": 13792,
+      "thumbnail_bytes": 1804,
       "photo_saved": true,
       "thumbnail_saved": true,
-      "fitment_rows_preserved": 1,
-      "fitment_configurations_preserved": 3,
+      "fitment_rows_preserved": 5,
+      "fitment_configurations_preserved": 11,
       "db_verified": true,
       "ui_verified": true,
-      "ui_url": "https://zpt.kz/changan-zpt-25082/",
-      "deploy_id": "dep-dbsdp0e417fc73feli7g",
-      "commit": "5ffd95a0461020bead45ed2b075090561411bd03",
-      "saved_at": "2026-11-14T22:15:28.714066Z"
+      "ui_url": "https://zpt.kz/product-zpt-25170/",
+      "deploy_id": "dep-dbseh2k9v7es73bs2p90",
+      "commit": "d39cbeba64f46d71dfe6d9abe089cc4b5bd122e3",
+      "saved_at": "2026-11-14T23:06:38.367086Z"
     },
     "pending_candidate": null,
     "last_reviewed": {
       "supplier_id": 5,
-      "offer_id": 25082,
-      "product_id": 6786,
-      "task_id": 4759,
-      "brand": "JASHI",
-      "article": "C281F260202-0200",
+      "offer_id": 25170,
+      "product_id": 6841,
+      "task_id": 4814,
+      "brand": "TRIALLI",
+      "article": "AG 03007",
       "kind": "photo_saved_fitment_preserved",
       "photo_saved": true,
       "thumbnail_saved": true,
       "fitment_saved": false,
-      "fitment_rows": 1,
-      "fitment_configurations": 3,
+      "fitment_rows": 5,
+      "fitment_configurations": 11,
       "db_verified": true,
       "ui_verified": true,
-      "ui_url": "https://zpt.kz/changan-zpt-25082/",
+      "ui_url": "https://zpt.kz/product-zpt-25170/",
       "task_status": "done",
-      "saved_at": "2026-11-14T22:15:28.714066Z"
+      "saved_at": "2026-11-14T23:06:38.367086Z"
     }
   },
   "normal_resume": {
@@ -9355,16 +9365,16 @@
     "service_memory_limit_bytes": 536870900,
     "decision": "research and read-only checks allowed; defer or throttle writes while memory remains above 90% on the web service"
   },
-  "updated_at": "2026-11-14T22:58:41.587130Z",
-  "current_index": 17,
+  "updated_at": "2026-11-14T23:06:38.367086Z",
+  "current_index": 18,
   "next_supplier_id": 5,
-  "next_offer_id": 25170,
-  "next_product_id": 6841,
-  "next_task_id": 4814,
+  "next_offer_id": 25129,
+  "next_product_id": 6713,
+  "next_task_id": 4686,
   "last_lease": {
-    "owner": "weekend-enrichment-20261115-0304-recheck19",
+    "owner": "weekend-enrichment-20261115-0357-recheck19",
     "scope": "enrichment_queue_20261113_recheck_first19",
-    "released_at": "2026-11-14T22:15:28.714066Z",
-    "reason": "sequence_17_checkpointed_photo_saved_fitment_preserved"
+    "released_at": "2026-11-14T23:06:38.367086Z",
+    "reason": "sequence_18_checkpointed_photo_saved_fitment_preserved"
   }
 }

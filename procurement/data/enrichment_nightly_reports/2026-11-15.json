@@ -2,7 +2,7 @@
   "schema": 1,
   "night_end_date": "2026-11-15",
   "started_at": "2026-11-14T19:02:21.138Z",
-  "updated_at": "2026-11-14T22:15:28.714066Z",
+  "updated_at": "2026-11-14T23:06:38.367086Z",
   "status": "checkpointed_item_verified",
   "supplier_stats": {
     "1": {
@@ -23,8 +23,8 @@
     },
     "5": {
       "name": "ЗаказАвто",
-      "processed_unique": 4,
-      "photos_added": 1,
+      "processed_unique": 5,
+      "photos_added": 2,
       "fitment_added": 0,
       "years_or_engines_added": 0,
       "skips": {
@@ -38,18 +38,18 @@
     "phase": "recheck_first19",
     "batch_size": 20,
     "next_supplier_id": 5,
-    "next_offer_id": 25170,
+    "next_offer_id": 25129,
     "lease_owner": null,
-    "lease_released_at": "2026-11-14T22:15:28.714066Z",
+    "lease_released_at": "2026-11-14T23:06:38.367086Z",
     "publication_pending": null,
     "pending_ui_verification": null,
     "recheck": {
       "total": 19,
-      "current_index": 17,
+      "current_index": 18,
       "status": "running_checkpointed",
-      "reviewed_unique": 17,
-      "new_photos": 7,
-      "new_thumbnails": 7,
+      "reviewed_unique": 18,
+      "new_photos": 8,
+      "new_thumbnails": 8,
       "new_fitments": 3,
       "no_change": 7,
       "candidates_pending": 0,
@@ -128,19 +128,34 @@
       "at": "2026-11-14T22:15:28.714066Z",
       "type": "lease_released",
       "detail": "Shared lease released after sequence 17 checkpoint."
+    },
+    {
+      "at": "2026-11-14T23:04:57.777653Z",
+      "type": "photo_and_thumbnail_saved",
+      "detail": "TRIALLI AG 03007: exact inspected Global Parts KZ image saved by existing consumer as 627x373 main WebP and 180x107 thumbnail; task 4814 done."
+    },
+    {
+      "at": "2026-11-14T23:06:38.367086Z",
+      "type": "item_rechecked_photo_saved_and_advance",
+      "detail": "TRIALLI AG 03007: one new photo and one new thumbnail verified in DB and public UI. Existing five UAZ fitment rows and 11 configurations preserved. Trade and Kaspi unchanged. Resume sequence 19 HYUNDAI-KIA 553102P500 offer 25129."
+    },
+    {
+      "at": "2026-11-14T23:06:38.367086Z",
+      "type": "lease_released",
+      "detail": "Shared lease released after sequence 18 checkpoint."
     }
   ],
   "last_success": {
-    "at": "2026-11-14T22:15:28.714066Z",
+    "at": "2026-11-14T23:06:38.367086Z",
     "stage": "photo_thumbnail_saved_fitment_preserved_db_ui_verified",
     "supplier_id": 5,
-    "offer_id": 25082,
-    "product_id": 6786,
-    "task_id": 4759,
-    "article": "C281F260202-0200",
-    "commit": "5ffd95a0461020bead45ed2b075090561411bd03",
-    "deploy_id": "dep-dbsdp0e417fc73feli7g",
-    "ui_url": "https://zpt.kz/changan-zpt-25082/"
+    "offer_id": 25170,
+    "product_id": 6841,
+    "task_id": 4814,
+    "article": "AG 03007",
+    "commit": "d39cbeba64f46d71dfe6d9abe089cc4b5bd122e3",
+    "deploy_id": "dep-dbseh2k9v7es73bs2p90",
+    "ui_url": "https://zpt.kz/product-zpt-25170/"
   },
-  "last_commit": "5ffd95a0461020bead45ed2b075090561411bd03"
+  "last_commit": "d39cbeba64f46d71dfe6d9abe089cc4b5bd122e3"
 }

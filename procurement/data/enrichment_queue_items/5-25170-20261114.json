@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "checked_on": "2026-11-14",
-  "checked_at": "2026-11-14T09:25:19.167Z",
+  "checked_on": "2026-11-15",
+  "checked_at": "2026-11-14T23:06:38.367086Z",
   "supplier_id": 5,
   "supplier": "ЗаказАвто",
   "offer_id": 25170,
@@ -20,14 +20,20 @@
   },
   "prepared": {
     "photo": {
-      "status": "source_access_forbidden",
-      "reason": "Exact manufacturer main and thumbnail CDN URLs returned HTTP 403. The restriction was not bypassed; no alternate channel was used.",
-      "checked_urls": [
-        "https://trialli.ru/catalogue/amortizatory-i-opory/amortizatory/ag-03007/",
-        "https://cdn.carvilleshop.ru/upload/resize_1000/AG03007_223019_192b32a5b5d83b6bfcfca2078e93d743.jpg",
-        "https://cdn.carvilleshop.ru/upload/resize_300/AG03007_223019_192b32a5b5d83b6bfcfca2078e93d743.jpg"
+      "status": "confirmed_exact",
+      "source_url": "https://shop.globalparts.kz/catalog/card/184634",
+      "image_url": "https://resources.cdn-kaspi.kz/img/m/p/h6d/h92/67650614853662.jpg?format=gallery-large",
+      "image_sha256": "be528163f9a869771d76beabf475f162dad3c2c58a7d747a67e79c187d06da44",
+      "source_size": [
+        627,
+        373
       ],
-      "retry_policy": "Retry only with newly accessible manufacturer content or a new exact source; do not loop or bypass the 403."
+      "checked_on": "2026-11-15",
+      "execution": "front shock absorber",
+      "placement": "front",
+      "side": "left/right",
+      "package_quantity": 1,
+      "visual_check": "real shock absorber with TRIALLI package; no car or placeholder"
     },
     "fitment": {
       "status": "published",
@@ -41,29 +47,38 @@
   },
   "queued": {
     "status": "github_commit_autodeploy",
-    "commits": [
-      "4a3f9b9b30c728c001f1188584f76206405b6fd5",
-      "9b14a6476694dbb186bc22587e30201319efec07"
-    ],
-    "deploy_ids": [
-      "dep-dbs2dmc9v7es73bdovm0",
-      "dep-dbs2fj2jnfac73bpu46g"
-    ],
-    "queued_at": "2026-11-14T09:16:09.218935Z",
-    "display_fix_queued_at": "2026-11-14T09:20:12.346576Z"
+    "commit": "d39cbeba64f46d71dfe6d9abe089cc4b5bd122e3",
+    "deploy_id": "dep-dbseh2k9v7es73bs2p90",
+    "queued_at": "2026-11-14T23:02:34.797154Z",
+    "task_status_before": "needs_source",
+    "staged_status": "weekend15f_ready"
   },
   "saved": {
     "status": "live_db_saved",
-    "fitment_saved_at": "2026-11-14T09:17:46.606787Z",
-    "display_fix_saved_at": "2026-11-14T09:22:49.532743Z",
+    "photo_saved": true,
+    "thumbnail_saved": true,
+    "fitment_preserved": true,
+    "saved_at": "2026-11-14T23:04:57.777653Z",
+    "main_path": "products/optimized/a3982440592dd649ab7162893ededc1e7233ca9865866a457c16bfac719e8c13.webp",
+    "thumbnail_path": "products/optimized/02fb6c3ddd42330454c3f1b144dea9cb5d7278b340d7497a78977382d5c41453.webp",
+    "main_size": [
+      627,
+      373
+    ],
+    "thumbnail_size": [
+      180,
+      107
+    ],
+    "main_bytes": 13792,
+    "thumbnail_bytes": 1804,
+    "source_bytes": 46609,
     "fitment_rows": 5,
     "configuration_count": 11,
-    "engine_rows": 11,
-    "photo_saved": false
+    "task_status": "done"
   },
   "after": {
-    "main_image": "",
-    "supplier_thumbnail": "",
+    "main_image": "products/optimized/a3982440592dd649ab7162893ededc1e7233ca9865866a457c16bfac719e8c13.webp",
+    "supplier_thumbnail": "products/optimized/02fb6c3ddd42330454c3f1b144dea9cb5d7278b340d7497a78977382d5c41453.webp",
     "fitments": [
       {
         "configurations": [
@@ -261,35 +276,36 @@
     ],
     "stock": "4",
     "cost": "6300.00",
-    "kaspi_price": "15200.00"
+    "kaspi_price": "15200.00",
+    "product_price": "8190.00",
+    "task_status": "done"
   },
   "verification": {
     "source_verified": true,
     "db_verified": true,
     "fitment_verified": true,
-    "photo_verified": false,
-    "thumbnail_verified": false,
+    "photo_verified": true,
+    "thumbnail_verified": true,
     "ui_verified": true,
     "ui_url": "https://zpt.kz/product-zpt-25170/",
-    "ui_verified_at": "2026-11-14T09:25:19.167Z",
+    "ui_verified_at": "2026-11-14T23:06:38.367086Z",
     "ui_http_status": 200,
     "ui_evidence": [
-      "AG 03007",
-      "TRIALLI",
-      "UAZ 3160 Closed Off-Road Vehicle",
-      "UAZ Patriot",
-      "UAZ PICKUP",
-      "UAZ SIMBIR (3162) Closed Off-Road Vehicle",
-      "UAZ UAZ 3160",
-      "2.9 · UMZ-4218",
-      "2.3 D · F1AE0481A",
-      "2.2 D 4x4 · ZMZ-51432",
-      "1994-2003",
-      "2004-н.в.",
-      "2009-н.в.",
+      "Основное изображение отображается в карточке 627x373",
+      "TRIALLI AG 03007",
+      "UAZ 3160 / Patriot / PICKUP / SIMBIR",
+      "11 подтверждённых конфигураций",
       "Передний левый/правый",
-      "1 шт. в комплекте",
-      "2 шт. на автомобиль"
+      "1 шт. в комплекте; 2 шт. на автомобиль"
+    ],
+    "image_rendered": true,
+    "main_size": [
+      627,
+      373
+    ],
+    "thumbnail_size": [
+      180,
+      107
     ]
   },
   "sources": [
@@ -299,15 +315,47 @@
       "checked_on": "2026-11-14",
       "exact_brand": "TRIALLI",
       "exact_article": "AG 03007",
-      "scope": "Characteristics, package quantity, placement, side and full applicability table."
+      "scope": "Characteristics, package quantity, placement, side and full applicability table; manufacturer CDN returned 403 and was not bypassed."
+    },
+    {
+      "kind": "exact_kz_catalogue_card_and_item_image",
+      "url": "https://shop.globalparts.kz/catalog/card/184634",
+      "image_url": "https://resources.cdn-kaspi.kz/img/m/p/h6d/h92/67650614853662.jpg?format=gallery-large",
+      "checked_on": "2026-11-15",
+      "exact_brand": "TRIALLI",
+      "source_article": "AG03007",
+      "matched_article": "AG 03007",
+      "scope": "Front shock absorber; left/right; one unit; real product image with TRIALLI package.",
+      "used_for": "photo and independent exact identity confirmation"
     }
   ],
-  "status": "saved_and_ui_verified_fitment_photo_source_forbidden",
-  "skip_reason": "source_access_forbidden_photo_not_saved",
+  "status": "photo_saved_and_verified_fitment_preserved",
+  "skip_reason": null,
   "next": {
     "supplier_id": 5,
     "offer_id": 25129,
-    "action": "review exact HYUNDAI-KIA 553102P500 sources after fresh time/load/DB checks"
+    "product_id": 6713,
+    "task_id": 4686,
+    "brand": "HYUNDAI-KIA",
+    "article": "553102P500",
+    "action": "recheck exact sources after fresh time/load/DB/lease checks"
   },
-  "trade_data_unchanged": true
+  "trade_data_unchanged": true,
+  "rechecked_on": "2026-11-15",
+  "rechecked_at": "2026-11-14T23:06:38.367086Z",
+  "recheck": {
+    "directive": "owner-directed repeat review of first 19 items with expanded manufacturer/KZ/RU/international/OEM/cross-number search",
+    "source_result": "new_exact_kz_catalogue_photo_confirmed_and_saved",
+    "exact_identity": {
+      "brand": "TRIALLI",
+      "article": "AG 03007",
+      "source_article": "AG03007",
+      "execution": "front shock absorber",
+      "placement": "front",
+      "side": "left/right",
+      "package_quantity": 1
+    },
+    "new_fitment_written": false,
+    "existing_fitment_preserved": true
+  }
 }
