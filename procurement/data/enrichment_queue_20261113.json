@@ -10,15 +10,15 @@
     "reviewed_offer_ids": 408
   },
   "shared_lease": {
-    "owner": "weekend-enrichment-20261114-1605-recheck19",
+    "owner": "weekend-enrichment-20261114-1700-recheck19",
     "source_path": "procurement/data/enrichment_queue_20261111.json",
-    "acquired_at": "2026-11-14T11:05:21.000Z",
-    "expires_at": "2026-11-14T11:35:21.000Z",
+    "heartbeat_at": "2026-11-14T12:13:26.645Z",
+    "expires_at": "2026-11-14T12:43:28.958Z",
     "released_at": null
   },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-14T11:28:38.000Z",
-  "status": "paused_checkpointed_candidate_pending",
+  "heartbeat_at": "2026-11-14T12:13:26.645Z",
+  "status": "running_recheck",
   "phase": "recheck_first19",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
@@ -8328,25 +8328,14 @@
       "detail": "The exact Mobis dealer page exposes only a generic grey Mobis brand graphic, not the exact shock absorber. It was not used as a product photo or thumbnail; retry only with a new exact real-photo source."
     }
   ],
-  "publication_pending": {
-    "kind": "photo_candidate_review",
-    "supplier_id": 5,
-    "offer_id": 25784,
-    "product_id": 7360,
-    "brand": "SsangYong",
-    "article": "2132009052",
-    "prepared": false,
-    "queued": false,
-    "saved": false,
-    "verified": false
-  },
+  "publication_pending": null,
   "next": {
     "phase": "recheck_first19",
-    "sequence": 5,
+    "sequence": 7,
     "supplier_id": 5,
-    "offer_id": 25784,
-    "brand": "SsangYong",
-    "article": "2132009052"
+    "offer_id": 25765,
+    "brand": "HYUNDAI-KIA",
+    "article": "495602S350"
   },
   "events": [
     {
@@ -8588,19 +8577,24 @@
       "at": "2026-11-14T11:28:38.000Z",
       "type": "pause_and_release",
       "detail": "Per-item progress saved after one bounded photo write. First recheck batch is not complete; next is sequence 5 offer 25784 with exact real-photo candidates. Lease released for the next scheduled single run."
+    },
+    {
+      "at": "2026-11-14T12:13:26.645Z",
+      "type": "item_saved_verified_and_advance",
+      "detail": "ZakazAuto 25784 SsangYong 2132009052: exact Autoopt OEM identity revalidated; one 768x768 WebP and one 180x180 thumbnail saved by the existing sole consumer. DB, both HTTP files and public card verified. Price, stock, Kaspi and verified fitment unchanged. Resume at sequence 7 offer 25765; sequence 6 was already complete."
     }
   ],
   "last_success": {
-    "at": "2026-11-14T11:23:33.791Z",
+    "at": "2026-11-14T12:13:26.645Z",
     "stage": "photo_saved_and_ui_verified",
     "supplier_id": 5,
-    "offer_id": 25768,
-    "product_id": 7249,
-    "task_id": 5222,
-    "commit": "110eaf511252b2ab18f16d51a48660fc25728c57",
-    "deploy_id": "dep-dbs48i7f3r2c73dv4ch0"
+    "offer_id": 25784,
+    "product_id": 7360,
+    "task_id": 5333,
+    "commit": "6fa02c1ced549a909d2d7c6658aab4c991792706",
+    "deploy_id": "dep-dbs4ujtbedkc73bovrpg"
   },
-  "last_commit": "110eaf511252b2ab18f16d51a48660fc25728c57",
+  "last_commit": "6fa02c1ced549a909d2d7c6658aab4c991792706",
   "paused_at": "2026-11-14T11:28:38.000Z",
   "pause_reason": "One bounded exact photo was saved and verified under elevated service memory/DB load. Resume the explicit 2132009052 photo candidate before advancing the 19-item recheck.",
   "remaining_live": {
@@ -8642,8 +8636,8 @@
   "recheck_first19": {
     "frozen_at": "2026-11-14T11:05:21.000Z",
     "total": 19,
-    "current_index": 4,
-    "status": "running_candidate_pending",
+    "current_index": 6,
+    "status": "running",
     "items": [
       {
         "sequence": 1,
@@ -8702,13 +8696,13 @@
         "supplier_id": 5,
         "offer_id": 25784,
         "product_id": 7360,
-        "task_id": null,
+        "task_id": 5333,
         "brand": "SsangYong",
         "article": "2132009052",
         "prior_status": "prepared_fitment_photo_unconfirmed",
         "journal": "procurement/data/enrichment_queue_items/5-25784.json",
-        "status": "exact_photo_candidate_pending",
-        "rechecked_at": "2026-11-14T11:23:33.791Z"
+        "status": "photo_saved_and_verified",
+        "rechecked_at": "2026-11-14T12:13:26.645Z"
       },
       {
         "sequence": 6,
@@ -8884,45 +8878,34 @@
     "structured_fitment_missing_before": 5,
     "results": {
       "reviewed": 6,
-      "new_photos": 1,
-      "new_thumbnails": 1,
+      "new_photos": 2,
+      "new_thumbnails": 2,
       "new_fitments": 0,
       "no_change": 4,
-      "candidates_pending": 1
+      "candidates_pending": 0
     },
     "last_saved": {
       "supplier_id": 5,
-      "offer_id": 25768,
-      "product_id": 7249,
-      "task_id": 5222,
-      "article": "495602S250",
+      "offer_id": 25784,
+      "product_id": 7360,
+      "task_id": 5333,
+      "article": "2132009052",
       "main_size": [
-        800,
-        506
+        768,
+        768
       ],
       "thumbnail_size": [
         180,
-        114
+        180
       ],
       "db_verified": true,
       "ui_verified": true,
-      "ui_url": "https://zpt.kz/hyundai-zpt-25768/",
-      "deploy_id": "dep-dbs48i7f3r2c73dv4ch0",
-      "commit": "110eaf511252b2ab18f16d51a48660fc25728c57",
-      "saved_at": "2026-11-14T11:23:33.791Z"
+      "ui_url": "https://zpt.kz/ssangyong-zpt-25784/",
+      "deploy_id": "dep-dbs4ujtbedkc73bovrpg",
+      "commit": "6fa02c1ced549a909d2d7c6658aab4c991792706",
+      "saved_at": "2026-11-14T12:13:26.645Z"
     },
-    "pending_candidate": {
-      "supplier_id": 5,
-      "offer_id": 25784,
-      "product_id": 7360,
-      "brand": "SsangYong",
-      "article": "2132009052",
-      "reason": "Exact real-photo candidates found on Autoopt/AvtoALL; placeholder from Plenty rejected. Needs bounded save and DB/UI verification before advancing.",
-      "sources": [
-        "https://www.autoopt.ru/catalog/723986-ventiljator_ssangyong_actyon_06__kyron_07__ohlazhdenija_jelektricheskij_v_sbore_oe",
-        "https://www.avtoall.ru/ventilyator_ssangyong_actyon__06___kyron__07___ohlajdeniya_lektricheskiiy_v_sbore_oe-723986/"
-      ]
-    }
+    "pending_candidate": null
   },
   "normal_resume": {
     "phase": "other_in_stock_control",
@@ -8987,5 +8970,5 @@
     "service_memory_limit_bytes": 536870900,
     "decision": "research and read-only checks allowed; defer or throttle writes while memory remains above 90% on the web service"
   },
-  "updated_at": "2026-11-14T11:28:38.000Z"
+  "updated_at": "2026-11-14T12:13:26.645Z"
 }
