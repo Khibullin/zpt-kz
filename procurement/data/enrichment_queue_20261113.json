@@ -12,14 +12,14 @@
   "shared_lease": {
     "owner": "weekend-enrichment-20261114-2001-recheck19",
     "source_path": "procurement/data/enrichment_queue_20261111.json",
-    "heartbeat_at": "2026-11-14T15:01:52.818Z",
-    "expires_at": "2026-11-14T15:31:42.463Z",
+    "heartbeat_at": "2026-11-14T15:14:32.159Z",
+    "expires_at": "2026-11-14T15:44:32.159Z",
     "released_at": null,
     "release_reason": null
   },
   "started_at": "2026-11-13T18:05:41.445Z",
   "heartbeat_at": "2026-11-14T15:01:52.818Z",
-  "status": "rechecking_item",
+  "status": "checkpointed_item_verified",
   "phase": "recheck_first19",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
@@ -8736,21 +8736,28 @@
       "at": "2026-11-14T15:01:52.818Z",
       "type": "lease_acquired",
       "detail": "Shared lease acquired atomically for first-19 sequence 10 offer 25224; no second worker or schedule started."
+    },
+    {
+      "at": "2026-11-14T15:14:32.159Z",
+      "type": "item_fitment_enhanced_verified_and_advance",
+      "detail": "ZakazAuto Changan S203F260204-0100: existing exact CS55 Plus left-front fitment enhanced from the exact one-piece card with four separate years 2021/2022/2023/2024, 1.5L Turbo and complete one-piece assembly restrictions. DB and public UI verified. Photo and thumbnail remain empty because the only independently visible exact image was a conflicting two-piece package. Price, stock and Kaspi decision unchanged. Resume at sequence 11 offer 25177."
     }
   ],
   "last_success": {
-    "at": "2026-11-14T14:13:56.611Z",
-    "stage": "fitment_saved_and_ui_verified",
+    "at": "2026-11-14T15:14:32.159Z",
+    "stage": "fitment_enhanced_saved_and_ui_verified",
     "supplier_id": 5,
-    "offer_id": 25095,
-    "product_id": 6791,
-    "task_id": 4764,
-    "commit": "5ea7f430a6e148a905bfe32f795fdc0963065e77",
-    "deploy_id": "dep-dbs6ndm8bjmc73e6g2kg"
+    "offer_id": 25224,
+    "product_id": 6881,
+    "task_id": 4854,
+    "article": "S203F260204-0100",
+    "commit": "29fd4eb75d9ecea1b504a8c557a8aa0815cd8cac",
+    "deploy_id": "dep-dbs7kenf3r2c73e2uhhg",
+    "ui_url": "https://zpt.kz/changan-zpt-25224/"
   },
-  "last_commit": "5ea7f430a6e148a905bfe32f795fdc0963065e77",
-  "paused_at": "2026-11-14T13:21:26.729Z",
-  "pause_reason": "One bounded exact photo and fitment publication completed and verified; resume first-19 recheck at sequence 9.",
+  "last_commit": "29fd4eb75d9ecea1b504a8c557a8aa0815cd8cac",
+  "paused_at": "2026-11-14T15:14:32.159Z",
+  "pause_reason": "Sequence 10 fitment enhancement saved and verified; exact one-piece photo remained unverified. Resume first-19 recheck at sequence 11.",
   "remaining_live": {
     "1": {
       "remaining_without_photo": 297,
@@ -8790,7 +8797,7 @@
   "recheck_first19": {
     "frozen_at": "2026-11-14T11:05:21.000Z",
     "total": 19,
-    "current_index": 9,
+    "current_index": 10,
     "status": "running_checkpointed",
     "items": [
       {
@@ -8915,12 +8922,13 @@
         "supplier_id": 5,
         "offer_id": 25224,
         "product_id": 6881,
-        "task_id": null,
+        "task_id": 4854,
         "brand": "Changan",
         "article": "S203F260204-0100",
         "prior_status": "prepared_fitment_photo_unconfirmed",
         "journal": "procurement/data/enrichment_queue_items/5-25224-20261113.json",
-        "status": "pending_recheck"
+        "status": "fitment_enhanced_verified_photo_unconfirmed",
+        "rechecked_at": "2026-11-14T15:14:32.159Z"
       },
       {
         "sequence": 11,
@@ -9034,29 +9042,36 @@
     "photos_missing_before": 18,
     "structured_fitment_missing_before": 5,
     "results": {
-      "reviewed": 9,
+      "reviewed": 10,
       "new_photos": 4,
       "new_thumbnails": 4,
-      "new_fitments": 2,
+      "new_fitments": 3,
       "no_change": 4,
       "candidates_pending": 0
     },
     "last_saved": {
       "supplier_id": 5,
-      "offer_id": 25095,
-      "product_id": 6791,
-      "task_id": 4764,
-      "article": "CD569F260204-0400",
-      "kind": "fitment",
-      "fitment_id": 111520,
-      "configuration_count": 1,
+      "offer_id": 25224,
+      "product_id": 6881,
+      "task_id": 4854,
+      "article": "S203F260204-0100",
+      "kind": "fitment_enhancement",
+      "fitment_id": 111504,
+      "configuration_count": 4,
+      "years": [
+        "2021",
+        "2022",
+        "2023",
+        "2024"
+      ],
+      "engine": "1.5L Turbo",
       "photo_saved": false,
       "db_verified": true,
       "ui_verified": true,
-      "ui_url": "https://zpt.kz/changan-zpt-25095/",
-      "deploy_id": "dep-dbs6ndm8bjmc73e6g2kg",
-      "commit": "5ea7f430a6e148a905bfe32f795fdc0963065e77",
-      "saved_at": "2026-11-14T14:13:56.611Z"
+      "ui_url": "https://zpt.kz/changan-zpt-25224/",
+      "deploy_id": "dep-dbs7kenf3r2c73e2uhhg",
+      "commit": "29fd4eb75d9ecea1b504a8c557a8aa0815cd8cac",
+      "saved_at": "2026-11-14T15:14:32.159Z"
     },
     "pending_candidate": null
   },
@@ -9123,5 +9138,5 @@
     "service_memory_limit_bytes": 536870900,
     "decision": "research and read-only checks allowed; defer or throttle writes while memory remains above 90% on the web service"
   },
-  "updated_at": "2026-11-14T15:01:52.818Z"
+  "updated_at": "2026-11-14T15:14:32.159Z"
 }
