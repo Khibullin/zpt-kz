@@ -10,24 +10,22 @@
     "reviewed_offer_ids": 408
   },
   "shared_lease": {
-    "owner": null,
+    "owner": "weekend-enrichment-20261114-1605-recheck19",
     "source_path": "procurement/data/enrichment_queue_20261111.json",
-    "acquired_at": "2026-11-14T10:01:20.382Z",
-    "expires_at": null,
-    "released_at": "2026-11-14T10:07:37.000Z",
-    "last_owner": "weekend-enrichment-20261114-1500",
-    "release_reason": "published_verified_checkpointed_one_item"
+    "acquired_at": "2026-11-14T11:05:21.000Z",
+    "expires_at": "2026-11-14T11:35:21.000Z",
+    "released_at": null
   },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-14T10:07:37.000Z",
-  "status": "ready_for_weekend_resume",
+  "heartbeat_at": "2026-11-14T11:05:21.000Z",
+  "status": "running_weekend_recheck19",
   "phase": "other_in_stock_control",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
     "best_omega": "no unreviewed positive-stock incomplete candidates after excluding the authoritative old reviews",
     "action": "continued to other positive-stock products without repeating old exceptions"
   },
-  "batch_size": 100,
+  "batch_size": 20,
   "batches": [
     {
       "supplier_id": 5,
@@ -8549,6 +8547,16 @@
       "at": "2026-11-14T10:07:37.000Z",
       "type": "lease_released",
       "detail": "Shared canonical lease released after per-item journal, live DB/UI verification and queue advancement. No second processor, photo consumer or schedule was created."
+    },
+    {
+      "at": "2026-11-14T11:05:21.000Z",
+      "type": "owner_directive_update",
+      "detail": "New owner directive applied: first recheck the 19 already processed ZakazAuto items (18 without a new photo and 5 without structured fitment) using manufacturer, KZ/RU/international catalogues, OEM and cross-number sources; normal batches changed from 100 to 20. Prices, stock, margins and Kaspi remain untouched."
+    },
+    {
+      "at": "2026-11-14T11:05:21.000Z",
+      "type": "lease_acquired",
+      "detail": "Canonical shared lease acquired atomically for the existing single weekend processor after live DB, photo-task, service, deploy and load checks. Recheck batch frozen at 19 items; no second process or schedule created."
     }
   ],
   "last_success": {
@@ -8578,5 +8586,332 @@
       "remaining_without_structured_fitment": 6624,
       "total_positive_stock": 6895
     }
+  },
+  "owner_directive_update": {
+    "date": "2026-11-14",
+    "priority": "recheck_first_19_zakazauto",
+    "batch_size": 20,
+    "normal_order": [
+      "ZakazAuto:20",
+      "Phaeton:20",
+      "Omega:20 after profitable phases"
+    ],
+    "search_scope": [
+      "manufacturer",
+      "KZ catalogue",
+      "RU catalogue",
+      "international catalogue",
+      "OEM number",
+      "cross-number"
+    ],
+    "trade_data_unchanged": true
+  },
+  "recheck_first19": {
+    "frozen_at": "2026-11-14T11:05:21.000Z",
+    "total": 19,
+    "current_index": 0,
+    "status": "running",
+    "items": [
+      {
+        "sequence": 1,
+        "supplier_id": 5,
+        "offer_id": 25628,
+        "product_id": 7268,
+        "task_id": null,
+        "brand": "HYUNDAI-KIA",
+        "article": "914102S222",
+        "prior_status": "prepared_fitment_photo_unconfirmed",
+        "journal": "procurement/data/enrichment_queue_items/5-25628-20261113.json",
+        "status": "pending_recheck"
+      },
+      {
+        "sequence": 2,
+        "supplier_id": 5,
+        "offer_id": 25396,
+        "product_id": 6982,
+        "task_id": null,
+        "brand": "JETOUR",
+        "article": "F01-2804501NF",
+        "prior_status": "contradictory_sources",
+        "journal": "procurement/data/enrichment_queue_items/5-25396-20261113.json",
+        "status": "pending_recheck"
+      },
+      {
+        "sequence": 3,
+        "supplier_id": 5,
+        "offer_id": 25636,
+        "product_id": 7359,
+        "task_id": null,
+        "brand": "SsangYong",
+        "article": "!8625009061",
+        "prior_status": "article_conflict",
+        "journal": "procurement/data/enrichment_queue_items/5-25636-20261113.json",
+        "status": "pending_recheck"
+      },
+      {
+        "sequence": 4,
+        "supplier_id": 5,
+        "offer_id": 25106,
+        "product_id": 6692,
+        "task_id": null,
+        "brand": "Chery",
+        "article": "202001202AA",
+        "prior_status": "prepared_fitment_photo_unconfirmed",
+        "journal": "procurement/data/enrichment_queue_items/5-25106-20261113.json",
+        "status": "pending_recheck"
+      },
+      {
+        "sequence": 5,
+        "supplier_id": 5,
+        "offer_id": 25784,
+        "product_id": 7360,
+        "task_id": null,
+        "brand": "SsangYong",
+        "article": "2132009052",
+        "prior_status": "prepared_fitment_photo_unconfirmed",
+        "journal": "procurement/data/enrichment_queue_items/5-25784-20261113.json",
+        "status": "pending_recheck"
+      },
+      {
+        "sequence": 6,
+        "supplier_id": 5,
+        "offer_id": 25768,
+        "product_id": 7249,
+        "task_id": null,
+        "brand": "HYUNDAI-KIA",
+        "article": "495602S250",
+        "prior_status": "prepared_fitment_photo_unconfirmed",
+        "journal": "procurement/data/enrichment_queue_items/5-25768-20261113.json",
+        "status": "pending_recheck"
+      },
+      {
+        "sequence": 7,
+        "supplier_id": 5,
+        "offer_id": 25765,
+        "product_id": 7250,
+        "task_id": null,
+        "brand": "HYUNDAI-KIA",
+        "article": "495602S350",
+        "prior_status": "prepared_fitment_photo_unconfirmed",
+        "journal": "procurement/data/enrichment_queue_items/5-25765-20261113.json",
+        "status": "pending_recheck"
+      },
+      {
+        "sequence": 8,
+        "supplier_id": 5,
+        "offer_id": 25251,
+        "product_id": 7012,
+        "task_id": null,
+        "brand": "Parts-Mall",
+        "article": "PJC129FR",
+        "prior_status": "brand_identity_not_confirmed",
+        "journal": "procurement/data/enrichment_queue_items/5-25251-20261113.json",
+        "status": "pending_recheck"
+      },
+      {
+        "sequence": 9,
+        "supplier_id": 5,
+        "offer_id": 25095,
+        "product_id": 6791,
+        "task_id": null,
+        "brand": "JASHI",
+        "article": "CD569F260204-0400",
+        "prior_status": "exact_brand_source_not_found",
+        "journal": "procurement/data/enrichment_queue_items/5-25095-20261113.json",
+        "status": "pending_recheck"
+      },
+      {
+        "sequence": 10,
+        "supplier_id": 5,
+        "offer_id": 25224,
+        "product_id": 6881,
+        "task_id": null,
+        "brand": "Changan",
+        "article": "S203F260204-0100",
+        "prior_status": "prepared_fitment_photo_unconfirmed",
+        "journal": "procurement/data/enrichment_queue_items/5-25224-20261113.json",
+        "status": "pending_recheck"
+      },
+      {
+        "sequence": 11,
+        "supplier_id": 5,
+        "offer_id": 25177,
+        "product_id": 6703,
+        "task_id": 4676,
+        "brand": "HAVAL",
+        "article": "2905110AKZ16A",
+        "prior_status": "saved_and_ui_verified_fitment_photo_unconfirmed",
+        "journal": "procurement/data/enrichment_queue_items/5-25177-20261114.json",
+        "status": "pending_recheck"
+      },
+      {
+        "sequence": 12,
+        "supplier_id": 5,
+        "offer_id": 25215,
+        "product_id": 6809,
+        "task_id": 4782,
+        "brand": "Parts-Mall",
+        "article": "PJB-016A",
+        "prior_status": "saved_and_ui_verified_photo_and_fitment",
+        "journal": "procurement/data/enrichment_queue_items/5-25215-20261114.json",
+        "status": "pending_recheck"
+      },
+      {
+        "sequence": 13,
+        "supplier_id": 5,
+        "offer_id": 25285,
+        "product_id": 7013,
+        "task_id": 4986,
+        "brand": "Parts-Mall",
+        "article": "PJD007",
+        "prior_status": "saved_and_ui_verified_fitment_photo_unconfirmed",
+        "journal": "procurement/data/enrichment_queue_items/5-25285-20261114.json",
+        "status": "pending_recheck"
+      },
+      {
+        "sequence": 14,
+        "supplier_id": 5,
+        "offer_id": 25268,
+        "product_id": 6994,
+        "task_id": 4967,
+        "brand": "Mando",
+        "article": "EX54661A7100",
+        "prior_status": "saved_and_ui_verified_fitment_photo_unconfirmed",
+        "journal": "procurement/data/enrichment_queue_items/5-25268-20261114.json",
+        "status": "pending_recheck"
+      },
+      {
+        "sequence": 15,
+        "supplier_id": 5,
+        "offer_id": 25114,
+        "product_id": 6829,
+        "task_id": 4802,
+        "brand": "SsangYong",
+        "article": "4530132100",
+        "prior_status": "saved_and_ui_verified_fitment_photo_package_conflict",
+        "journal": "procurement/data/enrichment_queue_items/5-25114-20261114.json",
+        "status": "pending_recheck"
+      },
+      {
+        "sequence": 16,
+        "supplier_id": 5,
+        "offer_id": 25165,
+        "product_id": 6839,
+        "task_id": 4812,
+        "brand": "TLK",
+        "article": "115071",
+        "prior_status": "brand_article_conflict_no_write",
+        "journal": "procurement/data/enrichment_queue_items/5-25165-20261114.json",
+        "status": "pending_recheck"
+      },
+      {
+        "sequence": 17,
+        "supplier_id": 5,
+        "offer_id": 25082,
+        "product_id": 6786,
+        "task_id": 4759,
+        "brand": "JASHI",
+        "article": "C281F260202-0200",
+        "prior_status": "saved_and_ui_verified_fitment_photo_unconfirmed",
+        "journal": "procurement/data/enrichment_queue_items/5-25082-20261114.json",
+        "status": "pending_recheck"
+      },
+      {
+        "sequence": 18,
+        "supplier_id": 5,
+        "offer_id": 25170,
+        "product_id": 6841,
+        "task_id": 4814,
+        "brand": "TRIALLI",
+        "article": "AG 03007",
+        "prior_status": "saved_and_ui_verified_fitment_photo_source_forbidden",
+        "journal": "procurement/data/enrichment_queue_items/5-25170-20261114.json",
+        "status": "pending_recheck"
+      },
+      {
+        "sequence": 19,
+        "supplier_id": 5,
+        "offer_id": 25129,
+        "product_id": 6713,
+        "task_id": 4686,
+        "brand": "HYUNDAI-KIA",
+        "article": "553102P500",
+        "prior_status": "saved_and_ui_verified_fitment_placeholder_rejected",
+        "journal": "procurement/data/enrichment_queue_items/5-25129-20261114.json",
+        "status": "pending_recheck"
+      }
+    ],
+    "photos_missing_before": 18,
+    "structured_fitment_missing_before": 5,
+    "results": {
+      "reviewed": 0,
+      "new_photos": 0,
+      "new_thumbnails": 0,
+      "new_fitments": 0,
+      "no_change": 0
+    }
+  },
+  "normal_resume": {
+    "phase": "other_in_stock_control",
+    "next_supplier_id": 5,
+    "next_batch_size": 20,
+    "zakazauto_offer_ids": [
+      25081,
+      25373,
+      25088,
+      25213,
+      25289,
+      25290,
+      25142,
+      28110,
+      25352,
+      25159,
+      25206,
+      25086,
+      25085,
+      25131,
+      25110,
+      25433,
+      25436,
+      25098,
+      25127,
+      25404
+    ],
+    "phaeton_offer_ids": [
+      23349,
+      23288,
+      24846,
+      23113,
+      24807,
+      24953,
+      22591,
+      24849,
+      24850,
+      23363,
+      23361,
+      24856,
+      24842,
+      24820,
+      22570,
+      22546,
+      24847,
+      22560,
+      22536,
+      22726
+    ],
+    "note": "Resume only after the frozen first-19 recheck completes; existing 100-item snapshots are historical sources partitioned into immutable 20-item segments."
+  },
+  "load_at_start": {
+    "measured_at": "2026-11-14T11:03:00Z",
+    "db_cpu_latest": 0.049496517,
+    "db_cpu_limit": 0.1,
+    "db_memory_bytes": 232845310,
+    "db_memory_limit_bytes": 268435460,
+    "db_active_connections": 3,
+    "service_cpu_latest": 0.023342216,
+    "service_cpu_limit": 0.5,
+    "service_memory_bytes": 497725440,
+    "service_memory_limit_bytes": 536870900,
+    "decision": "research and read-only checks allowed; defer or throttle writes while memory remains above 90% on the web service"
   }
 }
