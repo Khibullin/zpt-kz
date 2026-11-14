@@ -5,7 +5,7 @@
   "supplier_name": "ЗаказАвто",
   "offer_id": 25784,
   "product_id": 7360,
-  "task_id": null,
+  "task_id": 5333,
   "brand": "SsangYong",
   "article": "2132009052",
   "name": "Вентилятор охлаждения SsangYong",
@@ -50,40 +50,84 @@
     "ui_verified": true,
     "db_verified": true,
     "ui_url": "https://zpt.kz/ssangyong-zpt-25784/",
-    "saved_at": "2026-11-13T18:24:17.730Z",
-    "deploy_id": "dep-dbrla968bjmc73f7khig",
-    "live_commit": "ac659f42c53cc3fc4d22495f2792c4bbceec46ea"
+    "saved_at": "2026-11-14T12:13:26.645Z",
+    "deploy_id": "dep-dbs4ujtbedkc73bovrpg",
+    "live_commit": "6fa02c1ced549a909d2d7c6658aab4c991792706",
+    "photo_added": true,
+    "thumbnail_added": true
   },
   "state": "saved_and_verified",
-  "next_offer_id": 25768,
+  "next_offer_id": 25765,
   "recheck_20261114": {
-    "status": "rechecked_exact_photo_candidate_pending",
-    "checked_at": "2026-11-14T11:23:33.791Z",
-    "missing_after": [
+    "status": "photo_saved_and_verified",
+    "checked_at": "2026-11-14T12:13:26.645Z",
+    "missing_before": [
       "photo"
     ],
+    "missing_after": [],
     "sources_checked": [
       {
         "url": "https://plenty.parts/parts/ssangyong/cooling-system/ssangyong-2132009052-electric-motor-radiator-fan-p3502292",
         "kind": "independent_exact_catalogue",
-        "result": "Exact page found, but exposed image URL resolves to a generic SVG silhouette and was rejected."
+        "result": "Exact page found, but exposed image was a generic SVG silhouette and was rejected."
       },
       {
         "url": "https://www.autoopt.ru/catalog/723986-ventiljator_ssangyong_actyon_06__kyron_07__ohlazhdenija_jelektricheskij_v_sbore_oe",
-        "kind": "ru_exact_catalogue",
-        "result": "Exact OEM page with real product images; candidate retained for a bounded follow-up publication."
+        "kind": "ru_exact_oem_catalogue",
+        "result": "Exact SSANGYONG 2132009052 page and real assembled cooling-fan photo revalidated by the sole consumer."
       },
       {
         "url": "https://www.avtoall.ru/ventilyator_ssangyong_actyon__06___kyron__07___ohlajdeniya_lektricheskiiy_v_sbore_oe-723986/",
         "kind": "ru_exact_catalogue",
-        "result": "Exact OEM page with real product images; candidate retained for a bounded follow-up publication."
+        "result": "Exact candidate page checked; Autoopt was selected because it exposed a complete machine-readable OEM identity and exact image."
       }
     ],
-    "reason": "Fitment remains verified. Placeholder was rejected; exact real-photo candidates require the next bounded save/verification step.",
     "prepared": true,
-    "queued": false,
-    "saved": false,
-    "verified": false,
-    "next_offer_id": 25768
+    "queued": true,
+    "saved": true,
+    "verified": true,
+    "source_url": "https://www.autoopt.ru/catalog/723986-ventiljator_ssangyong_actyon_06__kyron_07__ohlazhdenija_jelektricheskij_v_sbore_oe",
+    "image_url": "https://www.autoopt.ru/product_pictures/big/ccd/723986.jpg",
+    "source_image": {
+      "format": "JPEG",
+      "width": 768,
+      "height": 768,
+      "bytes": 126588,
+      "sha256": "b22a0fb7d08aee4236ae269b0f5b8f0be7fecb92b184a2e252fd26cbe45689df"
+    },
+    "saved_files": {
+      "main": {
+        "path": "products/optimized/004cbb0689150b866d27bab1be9b192a630c693c47de2ab4bff8331eccf85c91.webp",
+        "width": 768,
+        "height": 768,
+        "bytes": 41692,
+        "http_status": 200
+      },
+      "thumbnail": {
+        "path": "products/optimized/9cb1162bfde4ecb06f9fec4bcf2f166fb4850b835b6d4ace64397fe6ad3dc7eb.webp",
+        "width": 180,
+        "height": 180,
+        "bytes": 3970,
+        "http_status": 200
+      }
+    },
+    "database": {
+      "task_status": "done",
+      "product_id": 7360,
+      "offer_id": 25784,
+      "price_before": 53300,
+      "price_after": 53300,
+      "cost_before": "41000.00",
+      "cost_after": "41000.00",
+      "stock_before": "11",
+      "stock_after": "11",
+      "kaspi_unchanged": true
+    },
+    "fitment_unchanged_verified": true,
+    "ui_url": "https://zpt.kz/ssangyong-zpt-25784/",
+    "ui_verified": true,
+    "deploy_id": "dep-dbs4ujtbedkc73bovrpg",
+    "live_commit": "6fa02c1ced549a909d2d7c6658aab4c991792706",
+    "next_offer_id": 25765
   }
 }
