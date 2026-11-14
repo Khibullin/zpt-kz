@@ -2,8 +2,8 @@
   "schema": 1,
   "night_end_date": "2026-11-14",
   "started_at": "2026-11-13T18:05:41.445Z",
-  "updated_at": "2026-11-14T11:23:33.791Z",
-  "status": "running_weekend_recheck19_candidate_pending",
+  "updated_at": "2026-11-14T11:28:38.000Z",
+  "status": "paused_checkpointed_candidate_pending",
   "supplier_stats": {
     "1": {
       "name": "Omega",
@@ -56,8 +56,8 @@
       "3": 100,
       "5": 81
     },
-    "lease_released_at": null,
-    "lease_owner": "weekend-enrichment-20261114-1605-recheck19",
+    "lease_released_at": "2026-11-14T11:28:38.000Z",
+    "lease_owner": null,
     "pending_ui_verification": null,
     "publication_pending": {
       "kind": "photo_candidate_review",
@@ -324,6 +324,11 @@
       "at": "2026-11-14T11:23:33.791Z",
       "type": "recheck_progress_saved",
       "detail": "Six assigned items researched/checkpointed: four no-change, one exact-photo candidate pending (offer 25784), one photo+thumbnail saved (offer 25768). Resume at sequence 5; do not repeat completed searches."
+    },
+    {
+      "at": "2026-11-14T11:28:38.000Z",
+      "type": "lease_released",
+      "detail": "Shared lease released after checkpointing one saved photo and the pending sequence-5 candidate. First recheck batch remains incomplete; no duplicate process or schedule was created."
     }
   ],
   "last_success": {
