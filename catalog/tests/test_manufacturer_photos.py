@@ -81,6 +81,18 @@ class ManufacturerPhotoTests(SimpleTestCase):
         self.assertEqual(matching_manufacturer_image(html.replace('справа','слева'),url,'Mando','EX54661A7100'),'')
         self.assertEqual(matching_manufacturer_image(html.replace('cdn.evocar.ua','evil.example'),url,'Mando','EX54661A7100'),'')
 
+    def test_gmarket_ssangyong_requires_exact_article_single_unit_and_main_photo(self):
+        url='https://item.gmarket.co.kr/Item?goodsCode=4348280358'
+        image='https://gdimg.gmarket.co.kr/4348280358/still/600?ver=1741740426'
+        html=(
+            '<h1>쌍용/엑티언 스포츠/자동차 뒷쇽업쇼바/GAS타입/45301-32100/1개당</h1>'
+            '<img alt="45301-32100" src="'+image+'">'
+        )
+        self.assertEqual(matching_manufacturer_image(html,url,'SsangYong','4530132100'),image)
+        self.assertEqual(matching_manufacturer_image(html,url,'SsangYong','4530132200'),'')
+        self.assertEqual(matching_manufacturer_image(html.replace('/1개당','/2개'),url,'SsangYong','4530132100'),'')
+        self.assertEqual(matching_manufacturer_image(html.replace('/still/600','/still/80'),url,'SsangYong','4530132100'),'')
+
     def test_unapproved_pages_are_rejected(self):
         for url in ['http://aywiparts.ru/product/view/7','https://aywiparts.ru.evil.example/product/view/7','https://aywiparts.ru/product/view/7?redirect=1','https://[',None]:
             self.assertFalse(valid_page(url,'AYWIPARTS'))

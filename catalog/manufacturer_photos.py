@@ -46,6 +46,9 @@ def valid_page(url,brand):
         return not p.query and bool(re.fullmatch(r'/mando/\d+',p.path))
     if p.netloc=='evocar.ua' and brand=='MANDO':
         return not p.query and bool(re.fullmatch(r'/ru/mando/[A-Za-z0-9.-]{1,120}',p.path))
+    if p.netloc=='item.gmarket.co.kr' and brand=='SSANGYONG':
+        q=parse_qs(p.query)
+        return p.path=='/Item' and set(q)=={'goodsCode'} and q['goodsCode']==['4348280358']
     if p.netloc=='rebornfj.com' and brand=='HAVAL':
         return not p.query and p.path=='/product-detail/front-left-shock-absorber-assembly-for_197499.html'
     if p.query:return False
@@ -155,6 +158,21 @@ def matching_manufacturer_image(html,url,brand,article):
                 if params.get('id')!=[product_id] or params.get('m')!=['0'] or params.get('n')!=['0'] or params.get('lng')!=['en']:continue
                 if len(params.get('rev',[]))!=1 or not params['rev'][0].isdigit():continue
                 return src
+    elif p.netloc=='item.gmarket.co.kr':
+        q=parse_qs(p.query)
+        if expected!='4530132100' or q.get('goodsCode')!=['4348280358']:return ''
+        page_text=text(html)
+        # The exact listing identifies OEM 45301-32100 and explicitly says
+        # 1개당 (per one unit), resolving the earlier two-piece photo conflict.
+        if '45301-32100/1개당' not in page_text or '쌍용' not in page_text:return ''
+        for tag,attrs in tags:
+            if tag!='img':continue
+            src=urljoin(url,attrs.get('src',''));target=urlsplit(src)
+            params=parse_qs(target.query)
+            if target.scheme!='https' or target.netloc!='gdimg.gmarket.co.kr' or target.fragment:continue
+            if target.path!='/4348280358/still/600':continue
+            if set(params)!={'ver'} or len(params['ver'])!=1 or not params['ver'][0].isdigit():continue
+            return src
     elif p.netloc=='evocar.ua':
         if p.path.casefold()!=('/ru/mando/'+expected).casefold():return ''
         headings=re.findall(r'<h1\b[^>]*>(.*?)</h1>',html,re.I|re.S)
