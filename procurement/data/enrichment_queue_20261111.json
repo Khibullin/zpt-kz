@@ -2,7 +2,14 @@
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
   "checked_at": "2026-11-12T03:16:36.620372+00:00",
-  "lease": null,
+  "lease": {
+    "owner": "weekend-enrichment-20261114-1300",
+    "acquired_at": "2026-11-14T08:01:49.000Z",
+    "heartbeat_at": "2026-11-14T08:01:49.000Z",
+    "expires_at": "2026-11-14T08:31:49.000Z",
+    "directive": "expanded-three-supplier-queue-2026-11-14-weekend",
+    "checkpoint": "procurement/data/enrichment_queue_20261113.json"
+  },
   "next_supplier": 3,
   "batch_size": 100,
   "queue": [
