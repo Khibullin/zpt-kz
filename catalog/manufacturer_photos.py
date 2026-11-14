@@ -49,6 +49,8 @@ def valid_page(url,brand):
     if p.netloc=='item.gmarket.co.kr' and brand=='SSANGYONG':
         q=parse_qs(p.query)
         return p.path=='/Item' and set(q)=={'goodsCode'} and q['goodsCode']==['4348280358']
+    if p.netloc=='www.ebay.com' and brand=='SSANGYONG':
+        return not p.query and p.path=='/itm/157310193004'
     if p.netloc=='rebornfj.com' and brand=='HAVAL':
         return not p.query and p.path=='/product-detail/front-left-shock-absorber-assembly-for_197499.html'
     if p.query:return False
@@ -158,6 +160,16 @@ def matching_manufacturer_image(html,url,brand,article):
                 if params.get('id')!=[product_id] or params.get('m')!=['0'] or params.get('n')!=['0'] or params.get('lng')!=['en']:continue
                 if len(params.get('rev',[]))!=1 or not params['rev'][0].isdigit():continue
                 return src
+    elif p.netloc=='www.ebay.com':
+        if expected!='4530132100' or p.path!='/itm/157310193004':return ''
+        page_text=text(html)
+        title='GENUINE REAR GAS SHOCK ABSORBER 4530132100 FOR SSANGYONG KORANDO SPORTS'
+        if title not in page_text or 'BUY 1$159.00/EA' not in page_text:return ''
+        wanted='/images/g/XLIAAeSwdGFowS-W/s-l1600.webp'
+        for tag,attrs in tags:
+            if tag!='img':continue
+            src=urljoin(url,attrs.get('src',''));target=urlsplit(src)
+            if target.scheme=='https' and target.netloc=='i.ebayimg.com' and not target.query and not target.fragment and target.path==wanted:return src
     elif p.netloc=='item.gmarket.co.kr':
         q=parse_qs(p.query)
         if expected!='4530132100' or q.get('goodsCode')!=['4348280358']:return ''

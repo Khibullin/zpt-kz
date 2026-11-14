@@ -81,6 +81,19 @@ class ManufacturerPhotoTests(SimpleTestCase):
         self.assertEqual(matching_manufacturer_image(html.replace('справа','слева'),url,'Mando','EX54661A7100'),'')
         self.assertEqual(matching_manufacturer_image(html.replace('cdn.evocar.ua','evil.example'),url,'Mando','EX54661A7100'),'')
 
+    def test_ebay_ssangyong_requires_exact_article_single_unit_and_main_photo(self):
+        url='https://www.ebay.com/itm/157310193004'
+        image='https://i.ebayimg.com/images/g/XLIAAeSwdGFowS-W/s-l1600.webp'
+        html=(
+            '<h1>Genuine Rear Gas Shock Absorber 4530132100 for Ssangyong Korando Sports</h1>'
+            '<div>Buy 1$159.00/ea</div>'
+            '<img alt="4530132100" src="'+image+'">'
+        )
+        self.assertEqual(matching_manufacturer_image(html,url,'SsangYong','4530132100'),image)
+        self.assertEqual(matching_manufacturer_image(html,url,'SsangYong','4530132200'),'')
+        self.assertEqual(matching_manufacturer_image(html.replace('Buy 1','Buy 2'),url,'SsangYong','4530132100'),'')
+        self.assertEqual(matching_manufacturer_image(html.replace('s-l1600','s-l500'),url,'SsangYong','4530132100'),'')
+
     def test_gmarket_ssangyong_requires_exact_article_single_unit_and_main_photo(self):
         url='https://item.gmarket.co.kr/Item?goodsCode=4348280358'
         image='https://gdimg.gmarket.co.kr/4348280358/still/600?ver=1741740426'
