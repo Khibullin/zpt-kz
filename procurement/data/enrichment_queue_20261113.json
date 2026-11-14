@@ -10,16 +10,16 @@
     "reviewed_offer_ids": 408
   },
   "shared_lease": {
-    "owner": null,
+    "owner": "weekend-enrichment-20261114-1906-recheck19",
     "source_path": "procurement/data/enrichment_queue_20261111.json",
-    "heartbeat_at": "2026-11-14T13:21:32.930Z",
-    "expires_at": null,
-    "released_at": "2026-11-14T13:21:32.930Z",
-    "release_reason": "checkpointed_verified_pjc129fr_photo_and_fitment"
+    "heartbeat_at": "2026-11-14T14:06:27.717Z",
+    "expires_at": "2026-11-14T14:36:15.688Z",
+    "released_at": null,
+    "release_reason": null
   },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-14T13:21:32.930Z",
-  "status": "checkpointed_item_verified",
+  "heartbeat_at": "2026-11-14T14:06:27.717Z",
+  "status": "rechecking_item",
   "phase": "recheck_first19",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
@@ -8670,6 +8670,11 @@
       "at": "2026-11-14T13:21:32.930Z",
       "type": "lease_released",
       "detail": "Shared lease released after verified PJC129FR photo and fitment publication. No duplicate worker or schedule created; resume at sequence 9."
+    },
+    {
+      "at": "2026-11-14T14:06:27.717Z",
+      "type": "lease_acquired",
+      "detail": "Shared lease acquired atomically for first-19 sequence 9 offer 25095; no second worker or schedule started."
     }
   ],
   "last_success": {
@@ -9062,5 +9067,5 @@
     "service_memory_limit_bytes": 536870900,
     "decision": "research and read-only checks allowed; defer or throttle writes while memory remains above 90% on the web service"
   },
-  "updated_at": "2026-11-14T13:21:32.930Z"
+  "updated_at": "2026-11-14T14:06:27.717Z"
 }
