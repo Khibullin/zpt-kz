@@ -10,14 +10,15 @@
     "reviewed_offer_ids": 408
   },
   "shared_lease": {
-    "owner": "weekend-enrichment-20261114-1802-recheck19",
+    "owner": null,
     "source_path": "procurement/data/enrichment_queue_20261111.json",
-    "heartbeat_at": "2026-11-14T13:16:28.415Z",
-    "expires_at": "2026-11-14T13:46:28.415Z",
-    "released_at": null
+    "heartbeat_at": "2026-11-14T13:21:32.930Z",
+    "expires_at": null,
+    "released_at": "2026-11-14T13:21:32.930Z",
+    "release_reason": "checkpointed_verified_pjc129fr_photo_and_fitment"
   },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-14T13:21:26.729Z",
+  "heartbeat_at": "2026-11-14T13:21:32.930Z",
   "status": "checkpointed_item_verified",
   "phase": "recheck_first19",
   "phase_reconciliation": {
@@ -8664,6 +8665,11 @@
       "at": "2026-11-14T13:21:26.729Z",
       "type": "item_saved_verified_and_advance",
       "detail": "ZakazAuto 25251 Parts-Mall PJC129FR: exact official manufacturer photo saved as WebP 480x640 plus 135x180 thumbnail; exact Chevrolet Aveo/Sonic (T300) fitment saved with 11 source configurations, engines, front-right and RHD restrictions. DB, both files and public card verified. Price 7670, cost 5900, stock 1 and Kaspi fields unchanged. Resume at sequence 9 offer 25095."
+    },
+    {
+      "at": "2026-11-14T13:21:32.930Z",
+      "type": "lease_released",
+      "detail": "Shared lease released after verified PJC129FR photo and fitment publication. No duplicate worker or schedule created; resume at sequence 9."
     }
   ],
   "last_success": {
@@ -9056,5 +9062,5 @@
     "service_memory_limit_bytes": 536870900,
     "decision": "research and read-only checks allowed; defer or throttle writes while memory remains above 90% on the web service"
   },
-  "updated_at": "2026-11-14T13:21:26.729Z"
+  "updated_at": "2026-11-14T13:21:32.930Z"
 }
