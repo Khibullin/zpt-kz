@@ -135,6 +135,28 @@ def updates(request):
                 messages.success(request,'Выбранные файлы загружены. Складские движения и банковские выплаты автоматически не создавались.')
             else:messages.info(request,'Эта загрузка уже сохранена. Повторных строк не добавлено.')
         return redirect(reverse('inventory:updates')+'?preview='+str(preview.pk))
+    # One click: validate all chosen files before committing any source.
+    if request.method=='POST' and request.POST.get('action')=='quick' and form.is_valid():
+        selected=[]
+        for kind,_,_ in SOURCES:
+            uploaded=form.cleaned_data.get(kind+'_file')
+            if uploaded is None:continue
+            raw=uploaded.read()
+            try:
+                parse_file(raw,kind)
+            except Exception as exc:
+                if not parse_error(exc):raise
+                form.add_error(kind+'_file',f'Файл не принят: {exc}')
+                continue
+            selected.append((kind,uploaded.name,form.cleaned_data[kind+'_date'],raw))
+        if not form.errors and selected:
+            with transaction.atomic():
+                totals=[]
+                for kind,name,as_of,raw in selected:
+                    batch,count=import_file(raw,kind,name,as_of,request.user)
+                    totals.append(f'{LABELS[kind]}: {count} новых строк')
+            messages.success(request,'Проверено и сохранено. '+', '.join(totals)+'. Повторные файлы не дублируются.')
+            return redirect('inventory:updates')
     if request.method=='POST' and request.POST.get('action')=='preview' and form.is_valid():
         selected=[]
         for kind,_,_ in SOURCES:
@@ -165,7 +187,15 @@ def updates(request):
         latest=ImportBatch.objects.filter(kind=kind).defer('original_data').order_by('-pk').first()
         count=(KaspiOperation.objects.filter(batch=latest).count() if kind=='sales' else StockSnapshot.objects.filter(batch=latest).count()) if latest else 0
         blocks.append({'kind':kind,'label':label,'hint':hint,'file':form[kind+'_file'],'date':form[kind+'_date'],'latest':latest,'count':count,'focus':request.GET.get('section')==kind,'metrics':batch_metrics(kind,latest)})
-    return render(request,'inventory/updates.html',{'form':form,'blocks':blocks,'preview':preview,'reviews':reviews,'expired':expired})
+    from .check_workspace import analyze
+    from django.core.paginator import Paginator
+    chosen=request.GET.getlist('source')
+    if not chosen:chosen=['pp2','stock']
+    analysis=analyze(chosen) if request.GET.get('analyze')=='1' else None
+    result_page=Paginator(analysis['comparisons'],60).get_page(request.GET.get('page')) if analysis else None
+    return render(request,'inventory/updates.html',{'form':form,'blocks':blocks,'preview':preview,
+        'reviews':reviews,'expired':expired,'analysis':analysis,'result_page':result_page,
+        'selected_sources':chosen})
 
 
 @never_cache
