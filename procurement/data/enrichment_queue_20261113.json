@@ -10,16 +10,16 @@
     "reviewed_offer_ids": 408
   },
   "shared_lease": {
-    "owner": "weekend-enrichment-20261115-0002-recheck19",
+    "owner": null,
     "source_path": "procurement/data/enrichment_queue_20261111.json",
-    "heartbeat_at": "2026-11-14T19:02:21.138Z",
-    "expires_at": "2026-11-14T19:32:21.138Z",
-    "released_at": null,
-    "release_reason": null
+    "heartbeat_at": "2026-11-14T19:16:20.438Z",
+    "expires_at": null,
+    "released_at": "2026-11-14T19:16:20.438Z",
+    "release_reason": "checkpointed_mando_sources_unavailable_fitment_verified"
   },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-14T19:02:21.138Z",
-  "status": "rechecking_item",
+  "heartbeat_at": "2026-11-14T19:16:20.438Z",
+  "status": "checkpointed_item_verified",
   "phase": "recheck_first19",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
@@ -8490,11 +8490,11 @@
   "publication_pending": null,
   "next": {
     "phase": "recheck_first19",
-    "sequence": 14,
+    "sequence": 15,
     "supplier_id": 5,
-    "offer_id": 25268,
-    "brand": "Mando",
-    "article": "EX54661A7100"
+    "offer_id": 25114,
+    "brand": "SsangYong",
+    "article": "4530132100"
   },
   "events": [
     {
@@ -8856,23 +8856,43 @@
       "at": "2026-11-14T19:02:21.138Z",
       "type": "lease_acquired",
       "detail": "Shared lease acquired atomically for first-19 sequence 14 offer 25268 after confirming no active photo task or unfinished publication; no second worker or schedule started."
+    },
+    {
+      "at": "2026-11-14T19:09:15.290837Z",
+      "type": "source_temporarily_unavailable",
+      "detail": "Mando EX54661A7100 exact AUTODOC catalogue page returned HTTP 403 to the existing background consumer. No URL, protocol or channel bypass was attempted; the source was not retried."
+    },
+    {
+      "at": "2026-11-14T19:14:05.799034Z",
+      "type": "source_temporarily_unavailable",
+      "detail": "A different exact EVOCAR catalogue page for Mando EX54661A7100 also returned HTTP 403 to the background consumer. No photo or thumbnail was saved and the restriction was not bypassed."
+    },
+    {
+      "at": "2026-11-14T19:16:20.438Z",
+      "type": "item_rechecked_source_unavailable_and_advance",
+      "detail": "ZakazAuto Mando EX54661A7100: two independently verified exact catalogue pages were prepared sequentially, but both returned HTTP 403 to the background consumer. Existing KIA K3 (YD) structured fitment, open start 2012-10, front/right/gas and OEM 54661A7100 was reverified in DB and on the public card. Zero new photo, thumbnail or fitment row counted; price, stock and Kaspi unchanged. Resume sequence 15 offer 25114."
+    },
+    {
+      "at": "2026-11-14T19:16:20.438Z",
+      "type": "lease_released",
+      "detail": "Shared canonical lease released after sequence 14 checkpoint; next is sequence 15 offer 25114. No duplicate worker or schedule was created."
     }
   ],
   "last_success": {
-    "at": "2026-11-14T18:10:37.603Z",
-    "stage": "photo_and_thumbnail_saved_and_ui_verified",
+    "at": "2026-11-14T19:16:20.438Z",
+    "stage": "source_failures_recorded_fitment_reverified_no_photo",
     "supplier_id": 5,
-    "offer_id": 25285,
-    "product_id": 7013,
-    "task_id": 4986,
-    "article": "PJD007",
-    "commit": "f81dc4d3443e1c29bfab959d26e46f2281e01b15",
-    "deploy_id": "dep-dbsa5h2jnfac73c2eb3g",
-    "ui_url": "https://zpt.kz/ssangyong-zpt-25285/"
+    "offer_id": 25268,
+    "product_id": 6994,
+    "task_id": 4967,
+    "article": "EX54661A7100",
+    "commit": "a219d536e1c73abd90a0726f1480346f19e7d6ed",
+    "deploy_id": "dep-dbsb57u7bikc73et61a0",
+    "ui_url": "https://zpt.kz/kia-zpt-25268/"
   },
-  "last_commit": "f81dc4d3443e1c29bfab959d26e46f2281e01b15",
-  "paused_at": "2026-11-14T18:10:37.603Z",
-  "pause_reason": "Sequence 13 PJD007 recheck completed; official photo and thumbnail plus existing fitment verified. Resume first-19 recheck at sequence 14.",
+  "last_commit": "a219d536e1c73abd90a0726f1480346f19e7d6ed",
+  "paused_at": "2026-11-14T19:16:20.438Z",
+  "pause_reason": "Sequence 14 EX54661A7100 recheck completed. Two exact photo sources were temporarily unavailable to the background consumer (HTTP 403); existing fitment verified. Resume at sequence 15.",
   "remaining_live": {
     "1": {
       "remaining_without_photo": 297,
@@ -8912,7 +8932,7 @@
   "recheck_first19": {
     "frozen_at": "2026-11-14T11:05:21.000Z",
     "total": 19,
-    "current_index": 13,
+    "current_index": 14,
     "status": "running_checkpointed",
     "items": [
       {
@@ -9094,7 +9114,8 @@
         "article": "EX54661A7100",
         "prior_status": "saved_and_ui_verified_fitment_photo_unconfirmed",
         "journal": "procurement/data/enrichment_queue_items/5-25268-20261114.json",
-        "status": "pending_recheck"
+        "status": "rechecked_fitment_verified_photo_sources_temporarily_unavailable",
+        "rechecked_at": "2026-11-14T19:16:20.438Z"
       },
       {
         "sequence": 15,
@@ -9160,11 +9181,11 @@
     "photos_missing_before": 18,
     "structured_fitment_missing_before": 5,
     "results": {
-      "reviewed": 13,
+      "reviewed": 14,
       "new_photos": 6,
       "new_thumbnails": 6,
       "new_fitments": 3,
-      "no_change": 4,
+      "no_change": 5,
       "candidates_pending": 0,
       "fitment_display_enhancements": 1
     },
@@ -9201,7 +9222,41 @@
       "commit": "f81dc4d3443e1c29bfab959d26e46f2281e01b15",
       "saved_at": "2026-11-14T18:10:37.603Z"
     },
-    "pending_candidate": null
+    "pending_candidate": null,
+    "last_reviewed": {
+      "supplier_id": 5,
+      "offer_id": 25268,
+      "product_id": 6994,
+      "task_id": 4967,
+      "article": "EX54661A7100",
+      "kind": "source_access_failures_fitment_reverified_no_photo",
+      "source_attempts": [
+        {
+          "commit": "312ad02af4f04a86ae8b0f0e56e55e80d74bfbc5",
+          "deploy_id": "dep-dbsb2s2jnfac73c3m2pg",
+          "source_url": "https://www.autodoc.co.uk/mando/14579627",
+          "result": "temporary_source_unavailable_http_403",
+          "finished_at": "2026-11-14T19:09:11.018255Z"
+        },
+        {
+          "commit": "a219d536e1c73abd90a0726f1480346f19e7d6ed",
+          "deploy_id": "dep-dbsb57u7bikc73et61a0",
+          "source_url": "https://evocar.ua/ru/mando/ex54661a7100",
+          "result": "temporary_source_unavailable_http_403",
+          "finished_at": "2026-11-14T19:13:56.949872Z"
+        }
+      ],
+      "photo_saved": false,
+      "thumbnail_saved": false,
+      "fitment_rows_preserved": 1,
+      "fitment_configurations_preserved": 1,
+      "db_verified": true,
+      "ui_verified": true,
+      "ui_url": "https://zpt.kz/kia-zpt-25268/",
+      "task_status": "blocked",
+      "skip_reason": "temporary_source_unavailable_http_403",
+      "saved_at": "2026-11-14T19:16:20.438Z"
+    }
   },
   "normal_resume": {
     "phase": "other_in_stock_control",
@@ -9266,5 +9321,5 @@
     "service_memory_limit_bytes": 536870900,
     "decision": "research and read-only checks allowed; defer or throttle writes while memory remains above 90% on the web service"
   },
-  "updated_at": "2026-11-14T19:02:21.138Z"
+  "updated_at": "2026-11-14T19:16:20.438Z"
 }
