@@ -7,6 +7,7 @@ from pathlib import Path
 
 MANIFEST_SHA256 = "1f712e762ba080cd05424b355cc9087425f3394d763ec9995456a40f3c88a071"
 BATCH = "weekend-20261114-h"
+TASK_STATUS = "weekend14h_ready"
 
 
 @lru_cache(maxsize=1)
@@ -68,7 +69,7 @@ def stage_review(apps, schema_editor):
             if task is None or task.offer.brand != row["brand"] or task.offer.article != row["article"]:
                 continue
             task.source_url = row["source_url"]
-            task.status = "prepared"
+            task.status = TASK_STATUS
             task.note = "Точная карточка и предметное фото проверены; ожидает повторной проверки единственным потребителем."
             task.evidence = {
                 **(task.evidence or {}),

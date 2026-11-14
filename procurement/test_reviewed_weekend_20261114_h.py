@@ -13,6 +13,7 @@ class ReviewedWeekend20261114HTests(SimpleTestCase):
         self.assertEqual((row["supplier_id"], row["offer_id"], row["product_id"], row["task_id"]), (5, 25768, 7249, 5222))
         self.assertEqual((row["brand"], row["article"]), ("HYUNDAI-KIA", "495602S250"))
         self.assertEqual(row["source_url"], "https://tachka.ru/hyundai-kia/495602S250")
+        self.assertEqual(reviewed.TASK_STATUS, "weekend14h_ready")
 
     def test_manifest_has_no_embedded_photo(self):
         path = Path(reviewed.__file__).parent / "data" / "reviewed_weekend_20261114_h.json"
