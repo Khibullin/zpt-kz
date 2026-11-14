@@ -2,8 +2,8 @@
   "schema": 1,
   "night_end_date": "2026-11-14",
   "started_at": "2026-11-13T18:05:41.445Z",
-  "updated_at": "2026-11-14T10:07:37.000Z",
-  "status": "ready_for_weekend_resume",
+  "updated_at": "2026-11-14T11:05:21.000Z",
+  "status": "running_weekend_recheck19",
   "supplier_stats": {
     "1": {
       "name": "Omega",
@@ -45,21 +45,29 @@
     }
   },
   "queue": {
-    "phase": "other_in_stock_control",
+    "phase": "recheck_first19",
     "frozen_batches": {
       "3": 100,
       "5": 100
     },
     "next_supplier_id": 5,
-    "next_offer_id": 25081,
+    "next_offer_id": 25628,
     "control_batch_remaining": {
       "3": 100,
       "5": 81
     },
-    "lease_released_at": "2026-11-14T10:07:37.000Z",
-    "lease_owner": null,
+    "lease_released_at": null,
+    "lease_owner": "weekend-enrichment-20261114-1605-recheck19",
     "pending_ui_verification": null,
-    "publication_pending": null
+    "publication_pending": null,
+    "batch_size": 20,
+    "recheck": {
+      "total": 19,
+      "current_index": 0,
+      "status": "running",
+      "photos_missing_before": 18,
+      "structured_fitment_missing_before": 5
+    }
   },
   "events": [
     {
@@ -276,6 +284,16 @@
       "at": "2026-11-14T10:07:37.000Z",
       "type": "lease_released",
       "detail": "Shared lease released after successful save, verification and checkpoint. Existing single worker/photo-consumer arrangement remains unchanged."
+    },
+    {
+      "at": "2026-11-14T11:05:21.000Z",
+      "type": "owner_directive_update",
+      "detail": "Priority changed to a frozen recheck of the first 19 ZakazAuto items; normal alternating batches are now 20, not 100. Expanded source scope: manufacturer, KZ/RU/international catalogues, OEM and cross numbers."
+    },
+    {
+      "at": "2026-11-14T11:05:21.000Z",
+      "type": "lease_acquired",
+      "detail": "Single canonical lease acquired after live database and Render checks. No active/pending/processing photo tasks and no recent service error logs; research begins at offer 25628."
     }
   ],
   "last_success": {
