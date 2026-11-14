@@ -39,6 +39,9 @@ def valid_page(url,brand):
         return not p.query and bool(re.fullmatch(r'/hyundai-kia/[A-Za-z0-9.-]{1,120}',p.path))
     if p.netloc=='www.autoopt.ru' and brand=='SSANGYONG':
         return not p.query and bool(re.fullmatch(r'/catalog/\d+-[a-z0-9_]+',p.path))
+    if p.netloc=='catalog.parts-mall.com' and brand in ('PARTS-MALL','PARTS MALL'):
+        q=parse_qs(p.query)
+        return p.path=='/shop-detail' and set(q)=={'factory_no'} and len(q['factory_no'])==1 and bool(re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9-]{0,119}',q['factory_no'][0]))
     if p.query:return False
     return (p.netloc=='asva-trading.com' and brand=='ASVA' and p.path.startswith('/catalog/')) or (
         p.netloc=='aywiparts.ru' and brand=='AYWIPARTS' and bool(re.fullmatch(r'/product/view/\d+',p.path)))
@@ -120,6 +123,17 @@ def matching_manufacturer_image(html,url,brand,article):
             target=urlsplit(src);leaf=target.path.rsplit('/',1)[-1].rsplit('.',1)[0].casefold()
             if leaf in ('spg','no_image','no-image','noimage','placeholder','default'):continue
             if target.scheme=='https' and target.netloc=='img.tachka.ru' and not target.query and not target.fragment and re.search(r'\.(?:jpg|jpeg|png|webp)$',target.path,re.I):return src
+    elif p.netloc=='catalog.parts-mall.com':
+        q=parse_qs(p.query);factory=q['factory_no'][0].strip().upper()
+        if re.sub(r'[-\\s]','',factory)!=re.sub(r'[-\\s]','',expected):return ''
+        page_text=text(html)
+        if not re.search(r'(?<![A-Z0-9])'+re.escape(factory)+r'(?![A-Z0-9])',page_text):return ''
+        if 'PMC' not in page_text or 'SHOCK ABSORBER' not in page_text:return ''
+        wanted='/IMAGES/'+factory+'_0300-1F.JPG'
+        for tag,attrs in tags:
+            if tag!='img':continue
+            src=urljoin(url,attrs.get('src',''));target=urlsplit(src)
+            if target.scheme=='https' and target.netloc==p.netloc and not target.query and not target.fragment and target.path.upper()==wanted:return src
     elif p.netloc=='www.autoopt.ru':
         product_id=p.path.split('/',2)[2].split('-',1)[0]
         canonicals=[attrs.get('href') for tag,attrs in tags if tag=='link' and attrs.get('rel')=='canonical']
