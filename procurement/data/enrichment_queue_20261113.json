@@ -12,14 +12,14 @@
   "shared_lease": {
     "owner": "weekend-enrichment-20261114-1906-recheck19",
     "source_path": "procurement/data/enrichment_queue_20261111.json",
-    "heartbeat_at": "2026-11-14T14:06:27.717Z",
-    "expires_at": "2026-11-14T14:36:15.688Z",
+    "heartbeat_at": "2026-11-14T14:13:56.611Z",
+    "expires_at": "2026-11-14T14:43:56.611Z",
     "released_at": null,
     "release_reason": null
   },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-14T14:06:27.717Z",
-  "status": "rechecking_item",
+  "heartbeat_at": "2026-11-14T14:13:56.611Z",
+  "status": "checkpointed_item_verified",
   "phase": "recheck_first19",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
@@ -7922,6 +7922,16 @@
       "task_id": 4985,
       "main_image": "products/optimized/554cd52fd71ac8815ce0ddde1abc6ec335ad035805540bcfc816387a67be0938.webp",
       "supplier_thumbnail": "products/optimized/41ef1a5ddc0379d648e39f7ab99e03b8d2f08fcd53d0f21dc551cbc418705cb4.webp"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25095,
+      "kind": "fitment",
+      "saved_at": "2026-11-14T14:13:56.611Z",
+      "fitment_id": 111520,
+      "configuration_count": 1,
+      "deploy_id": "dep-dbs6ndm8bjmc73e6g2kg",
+      "live_commit": "5ea7f430a6e148a905bfe32f795fdc0963065e77"
     }
   ],
   "verified": [
@@ -8163,6 +8173,28 @@
       "configuration_count": 11,
       "ui_url": "https://zpt.kz/chevrolet-zpt-25251/",
       "verified_at": "2026-11-14T13:21:26.729Z"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25095,
+      "kind": "fitment",
+      "db_verified": true,
+      "ui_verified": true,
+      "ui_url": "https://zpt.kz/changan-zpt-25095/",
+      "verified_at": "2026-11-14T14:13:56.611Z",
+      "make_model_pairs": 1,
+      "configuration_count": 1,
+      "engine_rows": 0,
+      "ui_evidence": [
+        "JASHI",
+        "CD569F260204-0400",
+        "CHANGAN UNI-K",
+        "с 2020",
+        "Установка: сзади",
+        "Сторона: справа",
+        "OEM: CD569F260204-0400",
+        "Исполнение в сборе с пружиной не заявляется."
+      ]
     }
   ],
   "exceptions": [
@@ -8379,16 +8411,30 @@
         "https://capom.co.kr/web/product/small/202405/d8d557bdd32cefeebab5edd751aca0a8.jpg"
       ],
       "detail": "The exact Mobis dealer page exposes only a generic grey Mobis brand graphic, not the exact shock absorber. It was not used as a product photo or thumbnail; retry only with a new exact real-photo source."
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25095,
+      "field": "photo",
+      "reason": "exact_jashi_photo_not_verified",
+      "checked_at": "2026-11-14T14:13:56.611Z",
+      "sources": [
+        "https://www.lusmall.com/Catalog/Part?SKU=261250",
+        "https://www.lusmall.com/product/28?Page=17",
+        "https://autopiter.kz/brands/id8621/jashi",
+        "https://kaspi.kz/shop/p/jashi-zadnii-cd569f260204-0400-1-sht-130050233/?c=750000000"
+      ],
+      "detail": "New exact fitment source was found and saved, but the accessible exact-cross photo is branded LUXE, not JASHI. No exact JASHI product photo was independently accessible, so no photo or thumbnail was saved."
     }
   ],
   "publication_pending": null,
   "next": {
     "phase": "recheck_first19",
-    "sequence": 9,
+    "sequence": 10,
     "supplier_id": 5,
-    "offer_id": 25095,
-    "brand": "JASHI",
-    "article": "CD569F260204-0400"
+    "offer_id": 25224,
+    "brand": "Changan",
+    "article": "S203F260204-0100"
   },
   "events": [
     {
@@ -8675,19 +8721,24 @@
       "at": "2026-11-14T14:06:27.717Z",
       "type": "lease_acquired",
       "detail": "Shared lease acquired atomically for first-19 sequence 9 offer 25095; no second worker or schedule started."
+    },
+    {
+      "at": "2026-11-14T14:13:56.611Z",
+      "type": "item_fitment_saved_verified_and_advance",
+      "detail": "ZakazAuto JASHI CD569F260204-0400: one structured CHANGAN UNI-K fitment saved from exact OE cross and verified in DB/UI. No exact JASHI photo was verified; photo and thumbnail remain empty. Trade/Kaspi unchanged. Next sequence 10 offer 25224."
     }
   ],
   "last_success": {
-    "at": "2026-11-14T13:21:26.729Z",
-    "stage": "photo_and_fitment_saved_and_ui_verified",
+    "at": "2026-11-14T14:13:56.611Z",
+    "stage": "fitment_saved_and_ui_verified",
     "supplier_id": 5,
-    "offer_id": 25251,
-    "product_id": 7012,
-    "task_id": 4985,
-    "commit": "19fd4233866964caa04c0b2c01267653876204d1",
-    "deploy_id": "dep-dbs5u62jnfac73bt7u70"
+    "offer_id": 25095,
+    "product_id": 6791,
+    "task_id": 4764,
+    "commit": "5ea7f430a6e148a905bfe32f795fdc0963065e77",
+    "deploy_id": "dep-dbs6ndm8bjmc73e6g2kg"
   },
-  "last_commit": "19fd4233866964caa04c0b2c01267653876204d1",
+  "last_commit": "5ea7f430a6e148a905bfe32f795fdc0963065e77",
   "paused_at": "2026-11-14T13:21:26.729Z",
   "pause_reason": "One bounded exact photo and fitment publication completed and verified; resume first-19 recheck at sequence 9.",
   "remaining_live": {
@@ -8729,7 +8780,7 @@
   "recheck_first19": {
     "frozen_at": "2026-11-14T11:05:21.000Z",
     "total": 19,
-    "current_index": 8,
+    "current_index": 9,
     "status": "running_checkpointed",
     "items": [
       {
@@ -8841,12 +8892,13 @@
         "supplier_id": 5,
         "offer_id": 25095,
         "product_id": 6791,
-        "task_id": null,
+        "task_id": 4764,
         "brand": "JASHI",
         "article": "CD569F260204-0400",
         "prior_status": "exact_brand_source_not_found",
         "journal": "procurement/data/enrichment_queue_items/5-25095-20261113.json",
-        "status": "pending_recheck"
+        "status": "fitment_saved_verified_photo_unconfirmed",
+        "rechecked_at": "2026-11-14T14:13:56.611Z"
       },
       {
         "sequence": 10,
@@ -8972,35 +9024,29 @@
     "photos_missing_before": 18,
     "structured_fitment_missing_before": 5,
     "results": {
-      "reviewed": 8,
+      "reviewed": 9,
       "new_photos": 4,
       "new_thumbnails": 4,
-      "new_fitments": 1,
+      "new_fitments": 2,
       "no_change": 4,
       "candidates_pending": 0
     },
     "last_saved": {
       "supplier_id": 5,
-      "offer_id": 25251,
-      "product_id": 7012,
-      "task_id": 4985,
-      "article": "PJC129FR",
-      "main_size": [
-        480,
-        640
-      ],
-      "thumbnail_size": [
-        135,
-        180
-      ],
-      "fitment_id": 111519,
-      "configuration_count": 11,
+      "offer_id": 25095,
+      "product_id": 6791,
+      "task_id": 4764,
+      "article": "CD569F260204-0400",
+      "kind": "fitment",
+      "fitment_id": 111520,
+      "configuration_count": 1,
+      "photo_saved": false,
       "db_verified": true,
       "ui_verified": true,
-      "ui_url": "https://zpt.kz/chevrolet-zpt-25251/",
-      "deploy_id": "dep-dbs5u62jnfac73bt7u70",
-      "commit": "19fd4233866964caa04c0b2c01267653876204d1",
-      "saved_at": "2026-11-14T13:21:26.729Z"
+      "ui_url": "https://zpt.kz/changan-zpt-25095/",
+      "deploy_id": "dep-dbs6ndm8bjmc73e6g2kg",
+      "commit": "5ea7f430a6e148a905bfe32f795fdc0963065e77",
+      "saved_at": "2026-11-14T14:13:56.611Z"
     },
     "pending_candidate": null
   },
@@ -9067,5 +9113,5 @@
     "service_memory_limit_bytes": 536870900,
     "decision": "research and read-only checks allowed; defer or throttle writes while memory remains above 90% on the web service"
   },
-  "updated_at": "2026-11-14T14:06:27.717Z"
+  "updated_at": "2026-11-14T14:13:56.611Z"
 }
