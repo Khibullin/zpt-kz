@@ -2,7 +2,7 @@
   "schema": 1,
   "night_end_date": "2026-11-14",
   "started_at": "2026-11-13T18:05:41.445Z",
-  "updated_at": "2026-11-14T08:13:42.000Z",
+  "updated_at": "2026-11-14T08:23:25.000Z",
   "status": "running_weekend",
   "supplier_stats": {
     "1": {
@@ -23,10 +23,10 @@
     },
     "5": {
       "name": "ЗаказАвто",
-      "processed_unique": 14,
+      "processed_unique": 15,
       "photos_added": 1,
-      "fitment_added": 10,
-      "years_or_engines_added": 9,
+      "fitment_added": 11,
+      "years_or_engines_added": 10,
       "skips": {
         "exact_photo_not_confirmed": 2,
         "contradictory_sources": 1,
@@ -35,7 +35,7 @@
         "exact_real_photo_not_confirmed": 2,
         "brand_identity_not_confirmed": 1,
         "exact_brand_source_not_found": 1,
-        "package_conflict_photo_not_saved": 1,
+        "package_conflict_photo_not_saved": 2,
         "exact_photo_not_verified": 3
       },
       "pending_ui_verification": 0
@@ -48,10 +48,10 @@
       "5": 100
     },
     "next_supplier_id": 5,
-    "next_offer_id": 25114,
+    "next_offer_id": 25165,
     "control_batch_remaining": {
       "3": 100,
-      "5": 86
+      "5": 85
     },
     "lease_released_at": null,
     "lease_owner": "weekend-enrichment-20261114-1300",
@@ -218,17 +218,20 @@
       "at": "2026-11-14T08:13:42.000Z",
       "type": "item_saved_verified_and_advance",
       "detail": "ZakazAuto 25268 Mando EX54661A7100: one verified KIA K3 (YD) fitment saved and shown publicly with open period from 10.2012, front/right/gas/GEN/OE restrictions. No engine or photo was claimed. Queue advanced to 25114."
+    },
+    {
+      "at": "2026-11-14T08:23:25.000Z",
+      "type": "item_saved_verified_and_advance",
+      "detail": "ZakazAuto 25114 SsangYong 4530132100: verified Korando Sports (Q150) 2012–2017 rear-gas fitment saved and shown publicly. No engine/side was asserted. Photo skipped due one-unit versus pair/2-piece package conflict. Queue advanced to 25165."
     }
   ],
   "last_success": {
-    "at": "2026-11-14T08:13:42.000Z",
-    "stage": "saved_and_ui_verified_fitment_photo_unconfirmed",
+    "at": "2026-11-14T08:23:25.000Z",
+    "stage": "saved_and_ui_verified_fitment_photo_package_conflict",
     "supplier_id": 5,
-    "offer_id": 25268,
-    "deploy_id": "dep-dbs1d068bjmc73e17ae0",
-    "commit": "a570af7323d3fccf9875756895faa21612a9b197",
-    "presentation_deploy_id": "dep-dbs1f0u7bikc73ehv3r0",
-    "presentation_commit": "6db9fa34630ec022efe7bb01d4a4e25287fb17f3"
+    "offer_id": 25114,
+    "deploy_id": "dep-dbs1j9lbedkc73blpo9g",
+    "commit": "b6865a763d0d18d713b654d77070b1eb2961ffd7"
   },
   "blocking_error": null,
   "finished_at": null,
@@ -245,7 +248,7 @@
     },
     "5": {
       "remaining_without_photo": 6719,
-      "remaining_without_structured_fitment": 6628,
+      "remaining_without_structured_fitment": 6627,
       "total_positive_stock": 6895
     }
   },

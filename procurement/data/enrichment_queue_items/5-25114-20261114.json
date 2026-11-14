@@ -1,0 +1,138 @@
+{
+  "schema": 1,
+  "checked_on": "2026-11-14",
+  "checked_at": "2026-11-14T08:23:25.000Z",
+  "supplier_id": 5,
+  "supplier": "ЗаказАвто",
+  "offer_id": 25114,
+  "product_id": 6829,
+  "task_id": 4802,
+  "brand": "SsangYong",
+  "article": "4530132100",
+  "name": "Амортизатор задний SsangYong",
+  "stock_before": "1",
+  "cost_before": "18700.00",
+  "before": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "fitment_rows": 0,
+    "reviewed_applicability": null
+  },
+  "prepared": {
+    "photo": {
+      "status": "not_saved_package_conflict",
+      "reason": "The ZPT/offer quantity is one unit, while exact external photo offers include pair/2-piece presentations; an exact single-unit source image was not independently verified.",
+      "checked_urls": [
+        "https://www.koreamotors.ru/product/4530132100",
+        "https://www.sparekorea.com/product/parts/1001326/4530132100-shock-absorber-assy-rr-gas.html"
+      ]
+    },
+    "fitment": {
+      "status": "published",
+      "make_model_pairs": 1,
+      "configuration_count": 1,
+      "source_kind": "manufacturer_catalogue_pdf_mirror",
+      "source_url": "https://ipex.com.pe/wp-content/uploads/2021/08/2-Catalogo-Amortiguadores.pdf",
+      "scope": "SSANGYONG Korando Sports (Q150), 2012–2017, rear gas, OE 4530132100 / Mando EX4530132100; no engine, side, or region inferred."
+    }
+  },
+  "queued": {
+    "status": "github_commit_autodeploy",
+    "commit": "b6865a763d0d18d713b654d77070b1eb2961ffd7",
+    "deploy_id": "dep-dbs1j9lbedkc73blpo9g",
+    "queued_at": "2026-11-14T08:19:50.860262Z"
+  },
+  "saved": {
+    "status": "live_db_saved",
+    "fitment_saved_at": "2026-11-14T08:21:39.161141Z",
+    "fitment_rows": 1,
+    "configuration_count": 1,
+    "photo_saved": false
+  },
+  "after": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "fitments": [
+      {
+        "id": 111511,
+        "make": "SSANGYONG",
+        "model": "Korando Sports (Q150)",
+        "verified": true,
+        "source_url": "https://ipex.com.pe/wp-content/uploads/2021/08/2-Catalogo-Amortiguadores.pdf",
+        "configurations": [
+          {
+            "years": "2012–2017",
+            "placement": "rear",
+            "shock_type": "gas",
+            "oem_article": "4530132100",
+            "mando_article": "EX4530132100",
+            "source_url": "https://ipex.com.pe/wp-content/uploads/2021/08/2-Catalogo-Amortiguadores.pdf",
+            "source_scope": "Exact Mando 2018 catalogue row; no engine, side, or regional restriction inferred"
+          }
+        ]
+      }
+    ],
+    "stock": "1",
+    "cost": "18700.00",
+    "kaspi_price": "30360.00"
+  },
+  "verification": {
+    "source_verified": true,
+    "db_verified": true,
+    "fitment_verified": true,
+    "photo_verified": false,
+    "thumbnail_verified": false,
+    "ui_verified": true,
+    "ui_url": "https://zpt.kz/ssangyong-zpt-25114/",
+    "ui_verified_at": "2026-11-14T08:23:25.000Z",
+    "ui_http_status": 200,
+    "ui_evidence": [
+      "4530132100",
+      "SsangYong",
+      "SSANGYONG Korando Sports (Q150)",
+      "2012–2017",
+      "Установка: сзади",
+      "Тип: газовый",
+      "OEM: 4530132100",
+      "Количество в цене: 1 шт."
+    ]
+  },
+  "sources": [
+    {
+      "kind": "manufacturer_catalogue_pdf_mirror",
+      "url": "https://ipex.com.pe/wp-content/uploads/2021/08/2-Catalogo-Amortiguadores.pdf",
+      "checked_on": "2026-11-14",
+      "exact_brand": "Mando",
+      "exact_article": "EX4530132100 / OEM 4530132100"
+    },
+    {
+      "kind": "manufacturer_catalogue_copy",
+      "url": "https://www.scribd.com/document/572816424/MANDO-CATALOGUE-2018",
+      "checked_on": "2026-11-14",
+      "exact_brand": "Mando",
+      "exact_article": "EX4530132100 / OEM 4530132100"
+    },
+    {
+      "kind": "independent_exact_part_page",
+      "url": "https://www.sparekorea.com/product/parts/1001326/4530132100-shock-absorber-assy-rr-gas.html",
+      "checked_on": "2026-11-14",
+      "exact_brand": "SsangYong",
+      "exact_article": "4530132100"
+    },
+    {
+      "kind": "independent_exact_part_page_photo_package_conflict",
+      "url": "https://www.koreamotors.ru/product/4530132100",
+      "checked_on": "2026-11-14",
+      "exact_brand": "SsangYong",
+      "exact_article": "4530132100"
+    }
+  ],
+  "status": "saved_and_ui_verified_fitment_photo_package_conflict",
+  "skip_reason": "package_conflict_photo_not_saved",
+  "next": {
+    "supplier_id": 5,
+    "offer_id": 25165,
+    "action": "review exact TLK 115071 sources after fresh time/load/DB checks"
+  },
+  "trade_data_unchanged": true
+}

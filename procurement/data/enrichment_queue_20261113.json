@@ -13,11 +13,11 @@
     "owner": "weekend-enrichment-20261114-1300",
     "source_path": "procurement/data/enrichment_queue_20261111.json",
     "acquired_at": "2026-11-14T08:01:49.000Z",
-    "expires_at": "2026-11-14T08:43:42.000Z",
+    "expires_at": "2026-11-14T08:53:25.000Z",
     "released_at": null
   },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-14T08:13:42.000Z",
+  "heartbeat_at": "2026-11-14T08:23:25.000Z",
   "status": "running_weekend",
   "phase": "other_in_stock_control",
   "phase_reconciliation": {
@@ -7196,7 +7196,7 @@
     }
   ],
   "current_batch_index": 0,
-  "current_item_index": 14,
+  "current_item_index": 15,
   "reviewed": [
     {
       "supplier_id": 5,
@@ -7341,6 +7341,17 @@
       "checked_at": "2026-11-14T08:13:42.000Z",
       "status": "saved_and_ui_verified_fitment_photo_unconfirmed",
       "journal": "procurement/data/enrichment_queue_items/5-25268-20261114.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25114,
+      "product_id": 6829,
+      "task_id": 4802,
+      "brand": "SsangYong",
+      "article": "4530132100",
+      "checked_at": "2026-11-14T08:23:25.000Z",
+      "status": "saved_and_ui_verified_fitment_photo_package_conflict",
+      "journal": "procurement/data/enrichment_queue_items/5-25114-20261114.json"
     }
   ],
   "prepared": [
@@ -7748,6 +7759,14 @@
       "saved_at": "2026-11-14T08:08:24.586454Z",
       "deploy_id": "dep-dbs1d068bjmc73e17ae0",
       "live_commit": "a570af7323d3fccf9875756895faa21612a9b197"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25114,
+      "kind": "fitment",
+      "saved_at": "2026-11-14T08:21:39.161141Z",
+      "deploy_id": "dep-dbs1j9lbedkc73blpo9g",
+      "live_commit": "b6865a763d0d18d713b654d77070b1eb2961ffd7"
     }
   ],
   "verified": [
@@ -7869,6 +7888,27 @@
         "Сторона: справа",
         "Тип: газовый",
         "OEM: 54661A7100"
+      ]
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25114,
+      "kind": "fitment",
+      "db_verified": true,
+      "ui_verified": true,
+      "ui_url": "https://zpt.kz/ssangyong-zpt-25114/",
+      "verified_at": "2026-11-14T08:23:25.000Z",
+      "ui_http_status": 200,
+      "configuration_count": 1,
+      "ui_evidence": [
+        "4530132100",
+        "SsangYong",
+        "SSANGYONG Korando Sports (Q150)",
+        "2012–2017",
+        "Установка: сзади",
+        "Тип: газовый",
+        "OEM: 4530132100",
+        "Количество в цене: 1 шт."
       ]
     }
   ],
@@ -8021,12 +8061,26 @@
         "https://www.avtoall.ru/amortizator_kia_cerato_13_peredniy_pravyy_gazovyy_mando-949481/"
       ],
       "detail": "Exact brand/article pages were found, but no source image was independently downloaded and checked for execution and package quantity. No photo was saved."
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25114,
+      "field": "photo",
+      "reason": "package_conflict_photo_not_saved",
+      "checked_at": "2026-11-14T08:23:25.000Z",
+      "sources": [
+        "https://ipex.com.pe/wp-content/uploads/2021/08/2-Catalogo-Amortiguadores.pdf",
+        "https://www.scribd.com/document/572816424/MANDO-CATALOGUE-2018",
+        "https://www.sparekorea.com/product/parts/1001326/4530132100-shock-absorber-assy-rr-gas.html",
+        "https://www.koreamotors.ru/product/4530132100"
+      ],
+      "detail": "The offer and public ZPT card state one unit, while exact external image offers include pair/2-piece presentations. No exact single-unit source image was independently verified, so no photo or thumbnail was saved."
     }
   ],
   "publication_pending": null,
   "next": {
     "supplier_id": 5,
-    "offer_id": 25114
+    "offer_id": 25165
   },
   "events": [
     {
@@ -8183,19 +8237,22 @@
       "at": "2026-11-14T08:13:42.000Z",
       "type": "item_saved_verified_and_advance",
       "detail": "Offer 25268 Mando EX54661A7100: exact sourced fitment saved for KIA K3 (YD), from 2012-10 with no asserted end date, front right gas, GEN market, OE 54661A7100. No engine or photo was claimed. DB and public UI verified, including period and restrictions; pointer advanced to offer 25114."
+    },
+    {
+      "at": "2026-11-14T08:23:25.000Z",
+      "type": "item_saved_verified_and_advance",
+      "detail": "Offer 25114 SsangYong 4530132100: exact Mando catalogue fitment saved for SSANGYONG Korando Sports (Q150), 2012–2017, rear gas, OE 4530132100. No engine or side was claimed. Photo was not saved because exact external offers conflict on one unit versus pair/2-piece presentation. DB and public UI verified; pointer advanced to offer 25165."
     }
   ],
   "last_success": {
-    "at": "2026-11-14T08:13:42.000Z",
-    "stage": "saved_and_ui_verified_fitment_photo_unconfirmed",
+    "at": "2026-11-14T08:23:25.000Z",
+    "stage": "saved_and_ui_verified_fitment_photo_package_conflict",
     "supplier_id": 5,
-    "offer_id": 25268,
-    "deploy_id": "dep-dbs1d068bjmc73e17ae0",
-    "commit": "a570af7323d3fccf9875756895faa21612a9b197",
-    "presentation_deploy_id": "dep-dbs1f0u7bikc73ehv3r0",
-    "presentation_commit": "6db9fa34630ec022efe7bb01d4a4e25287fb17f3"
+    "offer_id": 25114,
+    "deploy_id": "dep-dbs1j9lbedkc73blpo9g",
+    "commit": "b6865a763d0d18d713b654d77070b1eb2961ffd7"
   },
-  "last_commit": "6db9fa34630ec022efe7bb01d4a4e25287fb17f3",
+  "last_commit": "b6865a763d0d18d713b654d77070b1eb2961ffd7",
   "paused_at": null,
   "pause_reason": null,
   "remaining_live": {
@@ -8211,7 +8268,7 @@
     },
     "5": {
       "remaining_without_photo": 6719,
-      "remaining_without_structured_fitment": 6628,
+      "remaining_without_structured_fitment": 6627,
       "total_positive_stock": 6895
     }
   }
