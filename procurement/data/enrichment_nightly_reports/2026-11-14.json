@@ -2,8 +2,8 @@
   "schema": 1,
   "night_end_date": "2026-11-14",
   "started_at": "2026-11-13T18:05:41.445Z",
-  "updated_at": "2026-11-14T12:27:03.169Z",
-  "status": "paused_checkpointed_prepared_candidate",
+  "updated_at": "2026-11-14T13:21:26.729Z",
+  "status": "checkpointed_item_verified",
   "supplier_stats": {
     "1": {
       "name": "Omega",
@@ -24,9 +24,9 @@
     "5": {
       "name": "ЗаказАвто",
       "processed_unique": 19,
-      "photos_added": 4,
-      "fitment_added": 14,
-      "years_or_engines_added": 13,
+      "photos_added": 5,
+      "fitment_added": 15,
+      "years_or_engines_added": 14,
       "skips": {
         "exact_photo_not_confirmed": 2,
         "contradictory_sources": 1,
@@ -51,7 +51,7 @@
       "5": 100
     },
     "next_supplier_id": 5,
-    "next_offer_id": 25251,
+    "next_offer_id": 25095,
     "control_batch_remaining": {
       "3": 100,
       "5": 81
@@ -59,29 +59,18 @@
     "lease_released_at": "2026-11-14T12:27:03.169Z",
     "lease_owner": null,
     "pending_ui_verification": null,
-    "publication_pending": {
-      "supplier_id": 5,
-      "offer_id": 25251,
-      "product_id": 7012,
-      "task_id": 4985,
-      "article": "PJC129FR",
-      "prepared": true,
-      "queued": false,
-      "saved": false,
-      "verified": false,
-      "source_url": "https://catalog.parts-mall.com/shop-detail?factory_no=PJC-129FR"
-    },
+    "publication_pending": null,
     "batch_size": 20,
     "recheck": {
       "total": 19,
-      "current_index": 7,
-      "status": "paused_checkpointed_prepared_candidate",
+      "current_index": 8,
+      "status": "running_checkpointed",
       "reviewed_unique": 8,
-      "new_photos": 3,
-      "new_thumbnails": 3,
-      "new_fitments": 0,
+      "new_photos": 4,
+      "new_thumbnails": 4,
+      "new_fitments": 1,
       "no_change": 4,
-      "candidates_pending": 1,
+      "candidates_pending": 0,
       "photos_missing_before": 18,
       "structured_fitment_missing_before": 5
     }
@@ -351,18 +340,24 @@
       "at": "2026-11-14T12:27:03.169Z",
       "type": "lease_released",
       "detail": "Shared lease released after checkpointing the prepared PJC129FR candidate; no duplicate worker or schedule was created."
+    },
+    {
+      "at": "2026-11-14T13:21:26.729Z",
+      "type": "item_saved_verified_and_advance",
+      "detail": "ZakazAuto PJC129FR: one exact photo, one 180px-bounded thumbnail and one structured fitment with 11 configurations saved and verified. Trade/Kaspi unchanged. First-19 recheck continues at sequence 9; batch is not complete."
     }
   ],
   "last_success": {
-    "at": "2026-11-14T12:20:45.083Z",
-    "stage": "photo_saved_and_ui_verified",
+    "at": "2026-11-14T13:21:26.729Z",
+    "stage": "photo_and_fitment_saved_and_ui_verified",
     "supplier_id": 5,
-    "offer_id": 25765,
-    "product_id": 7250,
-    "task_id": 5223,
-    "deploy_id": "dep-dbs5236417fc73f3qft0",
-    "commit": "649e834bb39d08a1d2b9f3679c2c57ab1000e408",
-    "ui_url": "https://zpt.kz/hyundai-zpt-25765/"
+    "offer_id": 25251,
+    "product_id": 7012,
+    "task_id": 4985,
+    "article": "PJC129FR",
+    "commit": "19fd4233866964caa04c0b2c01267653876204d1",
+    "deploy_id": "dep-dbs5u62jnfac73bt7u70",
+    "ui_url": "https://zpt.kz/chevrolet-zpt-25251/"
   },
   "blocking_error": null,
   "finished_at": null,
@@ -378,8 +373,8 @@
       "total_positive_stock": 27852
     },
     "5": {
-      "remaining_without_photo": 6718,
-      "remaining_without_structured_fitment": 6624,
+      "remaining_without_photo": 6717,
+      "remaining_without_structured_fitment": 6623,
       "total_positive_stock": 6895
     }
   },
