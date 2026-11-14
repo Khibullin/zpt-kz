@@ -2,8 +2,8 @@
   "schema": 1,
   "night_end_date": "2026-11-14",
   "started_at": "2026-11-13T18:05:41.445Z",
-  "updated_at": "2026-11-14T10:01:20.382Z",
-  "status": "running_weekend",
+  "updated_at": "2026-11-14T10:07:37.000Z",
+  "status": "ready_for_weekend_resume",
   "supplier_stats": {
     "1": {
       "name": "Omega",
@@ -23,10 +23,10 @@
     },
     "5": {
       "name": "ЗаказАвто",
-      "processed_unique": 18,
+      "processed_unique": 19,
       "photos_added": 1,
-      "fitment_added": 13,
-      "years_or_engines_added": 12,
+      "fitment_added": 14,
+      "years_or_engines_added": 13,
       "skips": {
         "exact_photo_not_confirmed": 2,
         "contradictory_sources": 1,
@@ -38,7 +38,8 @@
         "package_conflict_photo_not_saved": 2,
         "exact_photo_not_verified": 4,
         "brand_article_conflict": 1,
-        "source_access_forbidden_photo_not_saved": 1
+        "source_access_forbidden_photo_not_saved": 1,
+        "placeholder_photo_rejected": 1
       },
       "pending_ui_verification": 0
     }
@@ -50,21 +51,15 @@
       "5": 100
     },
     "next_supplier_id": 5,
-    "next_offer_id": 25129,
+    "next_offer_id": 25081,
     "control_batch_remaining": {
       "3": 100,
-      "5": 82
+      "5": 81
     },
-    "lease_released_at": null,
-    "lease_owner": "weekend-enrichment-20261114-1500",
+    "lease_released_at": "2026-11-14T10:07:37.000Z",
+    "lease_owner": null,
     "pending_ui_verification": null,
-    "publication_pending": {
-      "supplier_id": 5,
-      "offer_id": 25129,
-      "kind": "fitment",
-      "prepared_at": "2026-11-14T09:27:30.135Z",
-      "reason": "db_memory_high_after_research"
-    }
+    "publication_pending": null
   },
   "events": [
     {
@@ -271,15 +266,25 @@
       "at": "2026-11-14T10:01:20.382Z",
       "type": "lease_acquired",
       "detail": "Shared lease acquired for the single weekend processor. Resuming the prepared, not-yet-published ZakazAuto 25129 fitment after fresh live DB, service, task and load checks."
+    },
+    {
+      "at": "2026-11-14T10:07:37.000Z",
+      "type": "item_saved_verified_and_advance",
+      "detail": "ZakazAuto 25129 HYUNDAI-KIA 553102P500: one exact fitment row saved and verified in live DB/UI (KIA New Sorento R (XM), 2012-07–2014-08, rear gas, 4WD). Generic placeholder rejected; photo counters unchanged. Queue advanced to offer 25081."
+    },
+    {
+      "at": "2026-11-14T10:07:37.000Z",
+      "type": "lease_released",
+      "detail": "Shared lease released after successful save, verification and checkpoint. Existing single worker/photo-consumer arrangement remains unchanged."
     }
   ],
   "last_success": {
-    "at": "2026-11-14T09:25:19.167Z",
-    "stage": "saved_and_ui_verified_fitment_photo_source_forbidden",
+    "at": "2026-11-14T10:07:37.000Z",
+    "stage": "saved_and_ui_verified_fitment_placeholder_rejected",
     "supplier_id": 5,
-    "offer_id": 25170,
-    "deploy_id": "dep-dbs2fj2jnfac73bpu46g",
-    "commit": "9b14a6476694dbb186bc22587e30201319efec07"
+    "offer_id": 25129,
+    "deploy_id": "dep-dbs33q6q1p3s73ebdq50",
+    "commit": "7ba9dc8f93a043d4ad5722b41935a0b4f705840d"
   },
   "blocking_error": null,
   "finished_at": null,
@@ -296,7 +301,7 @@
     },
     "5": {
       "remaining_without_photo": 6719,
-      "remaining_without_structured_fitment": 6625,
+      "remaining_without_structured_fitment": 6624,
       "total_positive_stock": 6895
     }
   },
