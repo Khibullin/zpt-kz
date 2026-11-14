@@ -10,14 +10,14 @@
     "reviewed_offer_ids": 408
   },
   "shared_lease": {
-    "owner": "nightly-enrichment-20261114-0400",
+    "owner": "nightly-enrichment-20261114-0500",
     "source_path": "procurement/data/enrichment_queue_20261111.json",
-    "acquired_at": "2026-11-13T23:00:54.262Z",
-    "expires_at": "2026-11-13T23:30:54.262Z",
-    "released_at": "2026-11-13T23:03:24.000Z"
+    "acquired_at": "2026-11-14T00:05:41.000Z",
+    "expires_at": "2026-11-14T00:25:41.000Z",
+    "released_at": "2026-11-14T00:06:48.000Z"
   },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-13T23:03:24.000Z",
+  "heartbeat_at": "2026-11-14T00:06:48.000Z",
   "status": "paused_for_site_latency",
   "phase": "other_in_stock_control",
   "phase_reconciliation": {
@@ -7977,6 +7977,11 @@
       "at": "2026-11-13T23:03:24.000Z",
       "type": "resume_check_paused",
       "detail": "04:00 resume check: no pending publication and no active photo task; offer 25285 was not taken. Public response remained elevated (home samples 7.247s and 9.668s, exact product page 3.772s, direct Render 5.016s). Queue pointer is unchanged and shared lease was released."
+    },
+    {
+      "at": "2026-11-14T00:06:48.000Z",
+      "type": "resume_check_paused",
+      "detail": "05:00 resume check: shared lease acquired; no pending publication and no pending photo task; offer 25285 Parts-Mall PJD007 remained untouched. Public response was elevated (home 8.598s, exact product page 6.579s, direct Render 7.077s), so no item was taken. Queue pointer is unchanged and shared lease was released."
     }
   ],
   "last_success": {
@@ -7989,8 +7994,8 @@
     "commit": "ef7f61f182ef367612a25e5922aef8ac61a620a8"
   },
   "last_commit": "ef7f61f182ef367612a25e5922aef8ac61a620a8",
-  "paused_at": "2026-11-13T23:03:24.000Z",
-  "pause_reason": "No item was taken during the 04:00 resume check because public response remained elevated (home 7.247s/9.668s, exact next-product page 3.772s, direct Render 5.016s). No pending publication or active photo task was found.",
+  "paused_at": "2026-11-14T00:06:48.000Z",
+  "pause_reason": "No item was taken during the 05:00 resume check because public response remained elevated (home 8.598s, exact next-product page 6.579s, direct Render 7.077s). No pending publication or pending photo task was found.",
   "remaining_live": {
     "1": {
       "remaining_without_photo": 297,

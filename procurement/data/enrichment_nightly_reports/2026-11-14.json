@@ -2,7 +2,7 @@
   "schema": 1,
   "night_end_date": "2026-11-14",
   "started_at": "2026-11-13T18:05:41.445Z",
-  "updated_at": "2026-11-13T23:03:24.000Z",
+  "updated_at": "2026-11-14T00:06:48.000Z",
   "status": "paused_for_site_latency",
   "supplier_stats": {
     "1": {
@@ -53,8 +53,8 @@
       "3": 100,
       "5": 88
     },
-    "lease_released_at": "2026-11-13T23:03:24.000Z",
-    "lease_owner": "nightly-enrichment-20261114-0400",
+    "lease_released_at": "2026-11-14T00:06:48.000Z",
+    "lease_owner": "nightly-enrichment-20261114-0500",
     "pending_ui_verification": null
   },
   "events": [
@@ -182,6 +182,11 @@
       "at": "2026-11-13T23:03:24.000Z",
       "type": "resume_check_paused",
       "detail": "04:00 resume check: no pending publication and no active photo task; offer 25285 was not taken. Public response remained elevated (home samples 7.247s and 9.668s, exact product page 3.772s, direct Render 5.016s). Queue pointer is unchanged and shared lease was released."
+    },
+    {
+      "at": "2026-11-14T00:06:48.000Z",
+      "type": "resume_check_paused",
+      "detail": "05:00 resume check: shared lease acquired; no pending publication and no pending photo task; offer 25285 Parts-Mall PJD007 remained untouched. Public response was elevated (home 8.598s, exact product page 6.579s, direct Render 7.077s), so no item was taken. Queue pointer is unchanged and shared lease was released."
     }
   ],
   "last_success": {
@@ -194,7 +199,7 @@
     "commit": "ef7f61f182ef367612a25e5922aef8ac61a620a8"
   },
   "blocking_error": null,
-  "finished_at": "2026-11-13T23:03:24.000Z",
+  "finished_at": "2026-11-14T00:06:48.000Z",
   "remaining_live": {
     "1": {
       "remaining_without_photo": 296,
