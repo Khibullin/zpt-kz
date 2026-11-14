@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "checked_on": "2026-11-14",
-  "checked_at": "2026-11-14T07:12:34.000Z",
+  "checked_at": "2026-11-14T18:10:37.603Z",
   "supplier_id": 5,
   "supplier": "ЗаказАвто",
   "offer_id": 25285,
@@ -20,16 +20,31 @@
   },
   "prepared": {
     "photo": {
-      "status": "not_confirmed",
-      "reason": "Exact source image could not be independently downloaded and checked for execution and package quantity; no photo saved.",
-      "checked_urls": [
-        "https://catalog.parts-mall.com/",
-        "https://file.euroauto.ru/file/catalogs/firms/5011.pdf",
-        "https://texkom.ru/catalog/amortizator-podveski/amortizator-podveski-parts-mall-pjd007/"
-      ]
+      "status": "confirmed_exact_official",
+      "source_page_url": "https://catalog.parts-mall.com/shop-detail?factory_no=PJD-007",
+      "source_image_url": "https://catalog.parts-mall.com/images/PJD-007_0300-1F.jpg",
+      "exact_brand": "Parts-Mall",
+      "exact_article": "PJD-007",
+      "execution": {
+        "position": "front",
+        "type": "gas",
+        "drive_type": "LHD",
+        "transmission": [
+          "M/T",
+          "A/T"
+        ]
+      },
+      "oem_cross_numbers": [
+        "P4430106200",
+        "P4430106202",
+        "P4430106220"
+      ],
+      "package_quantity": 1,
+      "checked_on": "2026-11-14",
+      "evidence": "Official Parts-Mall detail page matched factory number PJD-007 and showed the exact front gas shock image; no analogue image used."
     },
     "fitment": {
-      "status": "prepared",
+      "status": "preserved_and_reverified",
       "make_model_pairs": 1,
       "configuration_count": 7,
       "source_kind": "manufacturer_catalogue_pdf_mirror",
@@ -38,21 +53,39 @@
     }
   },
   "queued": {
-    "status": "github_commit_autodeploy",
-    "commit": "60377dd5ced60af4a409800b14a365e283304d4a",
-    "deploy_id": "dep-dbs0hu5bedkc73bksq10",
-    "queued_at": "2026-11-14T07:08:40.631243Z"
+    "status": "github_commit_autodeploy_and_existing_single_consumer",
+    "commit": "f81dc4d3443e1c29bfab959d26e46f2281e01b15",
+    "deploy_id": "dep-dbsa5h2jnfac73c2eb3g",
+    "queued_at": "2026-11-14T18:10:37.603Z",
+    "task_status_staged": "web_ready",
+    "consumer_count": 1
   },
   "saved": {
     "status": "live_db_saved",
     "fitment_saved_at": "2026-11-14T07:09:38.594504Z",
     "fitment_rows": 1,
     "configuration_count": 7,
-    "photo_saved": false
+    "photo_saved": true,
+    "thumbnail_saved": true,
+    "photo_saved_at": "2026-11-14T18:05:50.759618Z",
+    "main_path": "products/optimized/eba3d2f89e0d867c01e6b5ca26f9d11ed58491de58a4e42a33f66cf9591d5554.webp",
+    "thumbnail_path": "products/optimized/033f43565289d6edbef14954e5290d6b91b817659dc89db1a1772b7245abb959.webp",
+    "main_size": [
+      445,
+      292
+    ],
+    "thumbnail_size": [
+      180,
+      118
+    ],
+    "source_bytes": 66467,
+    "main_bytes": 10742,
+    "thumbnail_bytes": 1914,
+    "task_status": "done"
   },
   "after": {
-    "main_image": "",
-    "supplier_thumbnail": "",
+    "main_image": "products/optimized/eba3d2f89e0d867c01e6b5ca26f9d11ed58491de58a4e42a33f66cf9591d5554.webp",
+    "supplier_thumbnail": "products/optimized/033f43565289d6edbef14954e5290d6b91b817659dc89db1a1772b7245abb959.webp",
     "fitments": [
       {
         "make": "SSANGYONG",
@@ -166,29 +199,59 @@
   "verification": {
     "db_verified": true,
     "fitment_verified": true,
-    "photo_verified": false,
-    "thumbnail_verified": false,
+    "photo_verified": true,
+    "thumbnail_verified": true,
     "ui_verified": true,
     "ui_url": "https://zpt.kz/ssangyong-zpt-25285/",
-    "ui_verified_at": "2026-11-14T07:12:34.000Z",
+    "ui_verified_at": "2026-11-14T18:10:37.603Z",
     "ui_http_status": 200,
-    "ui_response_seconds": 7.942277,
     "ui_evidence": [
       "PJD007",
       "Parts-Mall",
+      "official exact product image loaded",
+      "445x292 main image",
+      "180x118 generated thumbnail",
       "SSANGYONG",
       "Korando-NEW (KJ)",
-      "M161(E20)",
-      "OM662LA"
-    ]
+      "seven exact engine configurations"
+    ],
+    "media": {
+      "main_path": "products/optimized/eba3d2f89e0d867c01e6b5ca26f9d11ed58491de58a4e42a33f66cf9591d5554.webp",
+      "thumbnail_path": "products/optimized/033f43565289d6edbef14954e5290d6b91b817659dc89db1a1772b7245abb959.webp",
+      "main_size": [
+        445,
+        292
+      ],
+      "thumbnail_size": [
+        180,
+        118
+      ],
+      "main_complete": true
+    }
   },
   "sources": [
     {
-      "kind": "manufacturer_current_catalogue",
-      "url": "https://catalog.parts-mall.com/",
+      "kind": "manufacturer_current_exact_part_page",
+      "url": "https://catalog.parts-mall.com/shop-detail?factory_no=PJD-007",
       "checked_on": "2026-11-14",
       "exact_brand": "Parts-Mall",
-      "exact_article": "PJD007"
+      "exact_article": "PJD-007",
+      "oem_cross_numbers": [
+        "P4430106200",
+        "P4430106202",
+        "P4430106220"
+      ]
+    },
+    {
+      "kind": "manufacturer_current_exact_image",
+      "url": "https://catalog.parts-mall.com/images/PJD-007_0300-1F.jpg",
+      "checked_on": "2026-11-14",
+      "exact_brand": "Parts-Mall",
+      "exact_article": "PJD-007",
+      "image_dimensions": [
+        445,
+        292
+      ]
     },
     {
       "kind": "manufacturer_catalogue_pdf_mirror",
@@ -196,21 +259,28 @@
       "checked_on": "2026-11-14",
       "exact_brand": "Parts-Mall",
       "exact_article": "PJD-007"
-    },
-    {
-      "kind": "independent_exact_part_page_photo_unverified",
-      "url": "https://texkom.ru/catalog/amortizator-podveski/amortizator-podveski-parts-mall-pjd007/",
-      "checked_on": "2026-11-14",
-      "exact_brand": "Parts-Mall",
-      "exact_article": "PJD-007"
     }
   ],
-  "status": "saved_and_ui_verified_fitment_photo_unconfirmed",
-  "skip_reason": "exact_photo_not_verified",
+  "status": "photo_saved_and_verified_fitment_preserved",
+  "skip_reason": null,
   "next": {
     "supplier_id": 5,
     "offer_id": 25268,
-    "action": "review_photo_and_fitment; keep writes sequential while latency remains elevated"
+    "sequence": 14,
+    "brand": "Mando",
+    "article": "EX54661A7100",
+    "action": "review_photo_and_fitment; keep writes sequential"
   },
-  "trade_data_unchanged": true
+  "trade_data_unchanged": true,
+  "recheck": {
+    "directive": "owner_directed_first19_recheck",
+    "rechecked_at": "2026-11-14T18:10:37.603Z",
+    "expanded_search_scope": [
+      "manufacturer current catalogue",
+      "manufacturer catalogue PDF mirror",
+      "KZ/RU/international exact catalogues",
+      "OEM cross numbers"
+    ],
+    "result": "exact_official_photo_saved_and_verified; existing structured fitment preserved"
+  }
 }
