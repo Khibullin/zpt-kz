@@ -112,11 +112,8 @@ def matching_manufacturer_image(html,url,brand,article):
         canonicals=[attrs.get('href') for tag,attrs in tags if tag=='link' and attrs.get('rel')=='canonical']
         if canonicals!=[url]:return ''
         headings=re.findall(r'<h1\b[^>]*>(.*?)</h1>',html,re.I|re.S)
-        if len(headings)!=1:
-            return ''
-        heading=text(headings[0])
-        if expected not in heading or 'FRONT LEFT SHOCK ABSORBER ASSEMBLY FOR HAVAL H6 SPORT' not in heading:return ''
-        if not re.search(r'Drawing\s+No\..*?'+re.escape(expected),html,re.I|re.S):return ''
+        if not any(expected in text(heading) and 'FRONT LEFT SHOCK ABSORBER ASSEMBLY FOR HAVAL H6 SPORT' in text(heading) for heading in headings):return ''
+        if not re.search(r'Drawing\s+No\b.*?'+re.escape(expected),html,re.I|re.S):return ''
         if not re.search(r'Brand.*?Haval',html,re.I|re.S):return ''
         if not re.search(r'SKU.*?'+re.escape(expected),html,re.I|re.S):return ''
         wanted='/wp-content/uploads/2026/05/white_bg_23f1e6e22d5147b5891fd12002e53527.webp'
