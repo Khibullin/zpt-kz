@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "checked_on": "2026-11-14",
-  "checked_at": "2026-11-14T09:27:30.135Z",
+  "checked_at": "2026-11-14T10:07:37.000Z",
   "supplier_id": 5,
   "supplier": "ЗаказАвто",
   "offer_id": 25129,
@@ -28,7 +28,7 @@
       ]
     },
     "fitment": {
-      "status": "prepared_not_published",
+      "status": "published_and_verified",
       "make_model_pairs": 1,
       "configuration_count": 1,
       "source_kind": "authorized_mobis_dealer_and_mando_catalogue",
@@ -71,29 +71,65 @@
     }
   },
   "queued": {
-    "status": "not_queued",
-    "reason": "DB memory measured about 238 MiB of 256 MiB after research."
+    "status": "queued_and_deployed",
+    "kind": "fitment_publication",
+    "queued_at": "2026-11-14T10:02:05.000Z",
+    "commit": "7ba9dc8f93a043d4ad5722b41935a0b4f705840d",
+    "deploy_id": "dep-dbs33q6q1p3s73ebdq50"
   },
   "saved": {
-    "status": "not_saved",
-    "fitment_rows": 0,
-    "photo_saved": false
+    "status": "saved",
+    "saved_at": "2026-11-14T10:04:42.945403Z",
+    "fitment_rows": 1,
+    "fitment_id": 111518,
+    "photo_saved": false,
+    "main_image_saved": false,
+    "thumbnail_saved": false,
+    "deploy_id": "dep-dbs33q6q1p3s73ebdq50",
+    "live_commit": "7ba9dc8f93a043d4ad5722b41935a0b4f705840d"
   },
   "after": {
     "main_image": "",
     "supplier_thumbnail": "",
-    "fitments": [],
+    "fitments": [
+      {
+        "id": 111518,
+        "make": "KIA",
+        "model": "New Sorento R (XM)",
+        "years": "2012-07–2014-08",
+        "engine": null,
+        "details": "Задний газовый амортизатор; только 4WD. Двигатель и сторона установки источниками не указаны.",
+        "placement": "rear",
+        "type": "gas",
+        "restriction": "4WD",
+        "oem_article": "553102P500",
+        "verified": true,
+        "source_kind": "authorized_mobis_dealer_and_mando_catalogue"
+      }
+    ],
     "stock": "6",
     "cost": "33700.00",
     "kaspi_price": "46260.00"
   },
   "verification": {
     "source_verified": true,
-    "db_verified": false,
-    "fitment_verified": false,
+    "db_verified": true,
+    "fitment_verified": true,
     "photo_verified": false,
     "thumbnail_verified": false,
-    "ui_verified": false
+    "ui_verified": true,
+    "ui_url": "https://zpt.kz/hyundai-zpt-25129/",
+    "ui_http_status": 200,
+    "verified_at": "2026-11-14T10:07:37.000Z",
+    "ui_evidence": [
+      "553102P500",
+      "KIA New Sorento R (XM)",
+      "Не указан",
+      "2012-07–2014-08",
+      "Задний газовый амортизатор; только 4WD",
+      "Установка: сзади",
+      "OEM: 553102P500"
+    ]
   },
   "sources": [
     {
@@ -111,12 +147,16 @@
       "scope": "Sorento R (XM); rear gas; 4WD; broader catalogue period not used as saved period."
     }
   ],
-  "status": "prepared_publication_deferred_high_db_memory",
+  "status": "saved_and_ui_verified_fitment_placeholder_rejected",
   "skip_reason": "placeholder_photo_rejected",
   "next": {
     "supplier_id": 5,
-    "offer_id": 25129,
-    "action": "recheck live DB/load, publish exact fitment payload if still absent, verify DB/UI, then advance"
+    "offer_id": 25081,
+    "product_id": 6827,
+    "task_id": 4800,
+    "brand": "SsangYong",
+    "article": "1612003114",
+    "action": "recheck weekend time, shared lease, live offer and DB load before taking the next item"
   },
   "trade_data_unchanged": true
 }
