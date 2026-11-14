@@ -13,8 +13,8 @@
     "owner": "weekend-enrichment-20261115-0200-recheck19",
     "scope": "enrichment_queue_20261113_recheck_first19",
     "acquired_at": "2026-11-14T20:03:32.941Z",
-    "heartbeat_at": "2026-11-14T20:03:32.941Z",
-    "expires_at": "2026-11-14T20:33:32.941Z",
+    "heartbeat_at": "2026-11-14T20:08:51.140Z",
+    "expires_at": "2026-11-14T20:38:51.140Z",
     "next_offer_id": 25114
   },
   "started_at": "2026-11-13T18:05:41.445Z",
@@ -8881,6 +8881,11 @@
       "at": "2026-11-14T20:03:32.941Z",
       "type": "lease_acquired",
       "detail": "Shared canonical lease acquired for sequence 15 SsangYong 4530132100; active photo tasks 0."
+    },
+    {
+      "at": "2026-11-14T20:08:51.140Z",
+      "type": "heartbeat",
+      "detail": "Sequence 15: exact Gmarket source recorded HTTP 403 without bypass; independent exact eBay source deployment in progress."
     }
   ],
   "last_success": {
@@ -9326,5 +9331,5 @@
     "service_memory_limit_bytes": 536870900,
     "decision": "research and read-only checks allowed; defer or throttle writes while memory remains above 90% on the web service"
   },
-  "updated_at": "2026-11-14T20:03:32.941Z"
+  "updated_at": "2026-11-14T20:08:51.140Z"
 }
