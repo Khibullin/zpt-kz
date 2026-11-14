@@ -1,0 +1,216 @@
+{
+  "schema": 1,
+  "checked_on": "2026-11-14",
+  "checked_at": "2026-11-14T07:12:34.000Z",
+  "supplier_id": 5,
+  "supplier": "ЗаказАвто",
+  "offer_id": 25285,
+  "product_id": 7013,
+  "task_id": 4986,
+  "brand": "Parts-Mall",
+  "article": "PJD007",
+  "name": "Амортизатор передний SsangYong",
+  "stock_before": "2",
+  "cost_before": "8790.00",
+  "before": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "fitment_rows": 0,
+    "reviewed_applicability": null
+  },
+  "prepared": {
+    "photo": {
+      "status": "not_confirmed",
+      "reason": "Exact source image could not be independently downloaded and checked for execution and package quantity; no photo saved.",
+      "checked_urls": [
+        "https://catalog.parts-mall.com/",
+        "https://file.euroauto.ru/file/catalogs/firms/5011.pdf",
+        "https://texkom.ru/catalog/amortizator-podveski/amortizator-podveski-parts-mall-pjd007/"
+      ]
+    },
+    "fitment": {
+      "status": "prepared",
+      "make_model_pairs": 1,
+      "configuration_count": 7,
+      "source_kind": "manufacturer_catalogue_pdf_mirror",
+      "source_url": "https://file.euroauto.ru/file/catalogs/firms/5011.pdf",
+      "scope": "SSANGYONG Korando-NEW (KJ), 1996-07 through 2005-10, seven exact engine rows, front gas shock; Musso excluded."
+    }
+  },
+  "queued": {
+    "status": "github_commit_autodeploy",
+    "commit": "60377dd5ced60af4a409800b14a365e283304d4a",
+    "deploy_id": "dep-dbs0hu5bedkc73bksq10",
+    "queued_at": "2026-11-14T07:08:40.631243Z"
+  },
+  "saved": {
+    "status": "live_db_saved",
+    "fitment_saved_at": "2026-11-14T07:09:38.594504Z",
+    "fitment_rows": 1,
+    "configuration_count": 7,
+    "photo_saved": false
+  },
+  "after": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "fitments": [
+      {
+        "make": "SSANGYONG",
+        "model": "Korando-NEW (KJ)",
+        "configurations": [
+          {
+            "make": "SSANGYONG",
+            "model": "Korando-NEW (KJ)",
+            "date_from": "1996-07",
+            "date_to": "2005-10",
+            "engine": "M161(E20)",
+            "displacement": "2.0L",
+            "valvetrain": "DOHC",
+            "fuel": "gasoline",
+            "placement": "front",
+            "shock_type": "gas",
+            "source_url": "https://file.euroauto.ru/file/catalogs/firms/5011.pdf",
+            "source_scope": "Exact PJD-007 row in the Parts-Mall manufacturer catalogue; no completeness claim outside this table"
+          },
+          {
+            "make": "SSANGYONG",
+            "model": "Korando-NEW (KJ)",
+            "date_from": "1996-07",
+            "date_to": "2005-10",
+            "engine": "M161(E23)",
+            "displacement": "2.3L",
+            "valvetrain": "DOHC",
+            "fuel": "gasoline",
+            "placement": "front",
+            "shock_type": "gas",
+            "source_url": "https://file.euroauto.ru/file/catalogs/firms/5011.pdf",
+            "source_scope": "Exact PJD-007 row in the Parts-Mall manufacturer catalogue; no completeness claim outside this table"
+          },
+          {
+            "make": "SSANGYONG",
+            "model": "Korando-NEW (KJ)",
+            "date_from": "1996-07",
+            "date_to": "2005-10",
+            "engine": "M162(E32)",
+            "displacement": "3.2L",
+            "valvetrain": "DOHC",
+            "fuel": "gasoline",
+            "placement": "front",
+            "shock_type": "gas",
+            "source_url": "https://file.euroauto.ru/file/catalogs/firms/5011.pdf",
+            "source_scope": "Exact PJD-007 row in the Parts-Mall manufacturer catalogue; no completeness claim outside this table"
+          },
+          {
+            "make": "SSANGYONG",
+            "model": "Korando-NEW (KJ)",
+            "date_from": "1996-07",
+            "date_to": "2005-10",
+            "engine": "OM661",
+            "displacement": "2.3L",
+            "valvetrain": "SOHC",
+            "fuel": "diesel",
+            "placement": "front",
+            "shock_type": "gas",
+            "source_url": "https://file.euroauto.ru/file/catalogs/firms/5011.pdf",
+            "source_scope": "Exact PJD-007 row in the Parts-Mall manufacturer catalogue; no completeness claim outside this table"
+          },
+          {
+            "make": "SSANGYONG",
+            "model": "Korando-NEW (KJ)",
+            "date_from": "1996-07",
+            "date_to": "2005-10",
+            "engine": "OM661LA",
+            "displacement": "2.3L",
+            "valvetrain": "SOHC",
+            "fuel": "diesel",
+            "placement": "front",
+            "shock_type": "gas",
+            "source_url": "https://file.euroauto.ru/file/catalogs/firms/5011.pdf",
+            "source_scope": "Exact PJD-007 row in the Parts-Mall manufacturer catalogue; no completeness claim outside this table"
+          },
+          {
+            "make": "SSANGYONG",
+            "model": "Korando-NEW (KJ)",
+            "date_from": "1996-07",
+            "date_to": "2005-10",
+            "engine": "OM662",
+            "displacement": "2.9L",
+            "valvetrain": "SOHC",
+            "fuel": "diesel",
+            "placement": "front",
+            "shock_type": "gas",
+            "source_url": "https://file.euroauto.ru/file/catalogs/firms/5011.pdf",
+            "source_scope": "Exact PJD-007 row in the Parts-Mall manufacturer catalogue; no completeness claim outside this table"
+          },
+          {
+            "make": "SSANGYONG",
+            "model": "Korando-NEW (KJ)",
+            "date_from": "1996-07",
+            "date_to": "2005-10",
+            "engine": "OM662LA",
+            "displacement": "2.9L",
+            "valvetrain": "SOHC",
+            "fuel": "diesel",
+            "placement": "front",
+            "shock_type": "gas",
+            "source_url": "https://file.euroauto.ru/file/catalogs/firms/5011.pdf",
+            "source_scope": "Exact PJD-007 row in the Parts-Mall manufacturer catalogue; no completeness claim outside this table"
+          }
+        ]
+      }
+    ],
+    "stock": "2",
+    "cost": "8790.00",
+    "kaspi_price": "21080.00"
+  },
+  "verification": {
+    "db_verified": true,
+    "fitment_verified": true,
+    "photo_verified": false,
+    "thumbnail_verified": false,
+    "ui_verified": true,
+    "ui_url": "https://zpt.kz/ssangyong-zpt-25285/",
+    "ui_verified_at": "2026-11-14T07:12:34.000Z",
+    "ui_http_status": 200,
+    "ui_response_seconds": 7.942277,
+    "ui_evidence": [
+      "PJD007",
+      "Parts-Mall",
+      "SSANGYONG",
+      "Korando-NEW (KJ)",
+      "M161(E20)",
+      "OM662LA"
+    ]
+  },
+  "sources": [
+    {
+      "kind": "manufacturer_current_catalogue",
+      "url": "https://catalog.parts-mall.com/",
+      "checked_on": "2026-11-14",
+      "exact_brand": "Parts-Mall",
+      "exact_article": "PJD007"
+    },
+    {
+      "kind": "manufacturer_catalogue_pdf_mirror",
+      "url": "https://file.euroauto.ru/file/catalogs/firms/5011.pdf",
+      "checked_on": "2026-11-14",
+      "exact_brand": "Parts-Mall",
+      "exact_article": "PJD-007"
+    },
+    {
+      "kind": "independent_exact_part_page_photo_unverified",
+      "url": "https://texkom.ru/catalog/amortizator-podveski/amortizator-podveski-parts-mall-pjd007/",
+      "checked_on": "2026-11-14",
+      "exact_brand": "Parts-Mall",
+      "exact_article": "PJD-007"
+    }
+  ],
+  "status": "saved_and_ui_verified_fitment_photo_unconfirmed",
+  "skip_reason": "exact_photo_not_verified",
+  "next": {
+    "supplier_id": 5,
+    "offer_id": 25268,
+    "action": "review_photo_and_fitment; keep writes sequential while latency remains elevated"
+  },
+  "trade_data_unchanged": true
+}

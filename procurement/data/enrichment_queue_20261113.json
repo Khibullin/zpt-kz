@@ -10,15 +10,15 @@
     "reviewed_offer_ids": 408
   },
   "shared_lease": {
-    "owner": "nightly-enrichment-20261114-0500",
+    "owner": "weekend-enrichment-20261114-1200",
     "source_path": "procurement/data/enrichment_queue_20261111.json",
-    "acquired_at": "2026-11-14T00:05:41.000Z",
-    "expires_at": "2026-11-14T00:25:41.000Z",
-    "released_at": "2026-11-14T00:06:48.000Z"
+    "acquired_at": "2026-11-14T07:01:37.000Z",
+    "expires_at": "2026-11-14T07:47:34.000Z",
+    "released_at": null
   },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-14T00:06:48.000Z",
-  "status": "paused_for_site_latency",
+  "heartbeat_at": "2026-11-14T07:12:34.000Z",
+  "status": "running_weekend",
   "phase": "other_in_stock_control",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
@@ -7196,7 +7196,7 @@
     }
   ],
   "current_batch_index": 0,
-  "current_item_index": 12,
+  "current_item_index": 13,
   "reviewed": [
     {
       "supplier_id": 5,
@@ -7319,6 +7319,17 @@
       "checked_at": "2026-11-13T22:00:30.000Z",
       "status": "saved_and_ui_verified_photo_and_fitment",
       "journal": "procurement/data/enrichment_queue_items/5-25215-20261114.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25285,
+      "product_id": 7013,
+      "task_id": 4986,
+      "brand": "Parts-Mall",
+      "article": "PJD007",
+      "checked_at": "2026-11-14T07:12:34.000Z",
+      "status": "saved_and_ui_verified_fitment_photo_unconfirmed",
+      "journal": "procurement/data/enrichment_queue_items/5-25285-20261114.json"
     }
   ],
   "prepared": [
@@ -7544,6 +7555,36 @@
         ],
         "source_sha256": "6c6cebe23ffcc955102a25e6b1224af926da583ae1e54ddeb5c75b2c76e59c8a"
       }
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25285,
+      "kind": "fitment",
+      "source_url": "https://file.euroauto.ru/file/catalogs/firms/5011.pdf",
+      "additional_source_url": "https://catalog.parts-mall.com/",
+      "payload": {
+        "status": "prepared",
+        "make_model_pairs": [
+          [
+            "SSANGYONG",
+            "Korando-NEW (KJ)"
+          ]
+        ],
+        "date_from": "1996-07",
+        "date_to": "2005-10",
+        "engines": [
+          "M161(E20)",
+          "M161(E23)",
+          "M162(E32)",
+          "OM661",
+          "OM661LA",
+          "OM662",
+          "OM662LA"
+        ],
+        "placement": "front",
+        "shock_type": "gas",
+        "source_scope": "Exact PJD-007 rows from the Parts-Mall manufacturer catalogue; Musso deliberately excluded because its table lists other PMC numbers"
+      }
     }
   ],
   "queued": [
@@ -7563,6 +7604,14 @@
       "commit": "ef7f61f182ef367612a25e5922aef8ac61a620a8",
       "deploy_id": "dep-dbroj817lnhs73dicrag",
       "photo_consumer_deploy_id": "dep-dbrome15efls73dit0jg"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25285,
+      "kind": "fitment_publication",
+      "queued_at": "2026-11-14T07:08:40.631243Z",
+      "commit": "60377dd5ced60af4a409800b14a365e283304d4a",
+      "deploy_id": "dep-dbs0hu5bedkc73bksq10"
     }
   ],
   "saved": [
@@ -7638,6 +7687,14 @@
       "task_id": 4782,
       "main_image": "products/optimized/8b320dfb89703edd76df68fc9819b948127d887345d5546a61c67159dbe00355.webp",
       "supplier_thumbnail": "products/optimized/16b3b86a634dbe6db2b2384d642711e812f68887c188d807b9b3b21f7b66a319.webp"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25285,
+      "kind": "fitment",
+      "saved_at": "2026-11-14T07:09:38.594504Z",
+      "deploy_id": "dep-dbs0hu5bedkc73bksq10",
+      "live_commit": "60377dd5ced60af4a409800b14a365e283304d4a"
     }
   ],
   "verified": [
@@ -7725,6 +7782,18 @@
       "thumbnail_http_status": 200,
       "ui_url": "https://zpt.kz/kia-zpt-25215/",
       "verified_at": "2026-11-13T22:16:20.000Z"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25285,
+      "kind": "fitment",
+      "db_verified": true,
+      "ui_verified": true,
+      "ui_url": "https://zpt.kz/ssangyong-zpt-25285/",
+      "verified_at": "2026-11-14T07:12:34.000Z",
+      "ui_http_status": 200,
+      "ui_response_seconds": 7.942277,
+      "configuration_count": 7
     }
   ],
   "exceptions": [
@@ -7850,12 +7919,25 @@
         "https://kaspi.kz/shop/p/haval-perednii-2905110akz16a-1-sht-130189369/"
       ],
       "detail": "JIKIU image represents an aftermarket cross, not the exact HAVAL part; the exact Kaspi image could not be independently inspected in this run. No photo was saved."
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25285,
+      "field": "photo",
+      "reason": "exact_photo_not_verified",
+      "checked_at": "2026-11-14T07:12:34.000Z",
+      "sources": [
+        "https://catalog.parts-mall.com/",
+        "https://file.euroauto.ru/file/catalogs/firms/5011.pdf",
+        "https://texkom.ru/catalog/amortizator-podveski/amortizator-podveski-parts-mall-pjd007/"
+      ],
+      "detail": "The exact product pages did not expose a source image that could be independently downloaded and checked for execution and package quantity. No photo was saved."
     }
   ],
   "publication_pending": null,
   "next": {
     "supplier_id": 5,
-    "offer_id": 25285
+    "offer_id": 25268
   },
   "events": [
     {
@@ -7982,20 +8064,29 @@
       "at": "2026-11-14T00:06:48.000Z",
       "type": "resume_check_paused",
       "detail": "05:00 resume check: shared lease acquired; no pending publication and no pending photo task; offer 25285 Parts-Mall PJD007 remained untouched. Public response was elevated (home 8.598s, exact product page 6.579s, direct Render 7.077s), so no item was taken. Queue pointer is unchanged and shared lease was released."
+    },
+    {
+      "at": "2026-11-14T07:12:34.000Z",
+      "type": "item_saved_verified_and_advance",
+      "detail": "Offer 25285 Parts-Mall PJD007: exact manufacturer-catalogue fitment saved for SSANGYONG Korando-NEW (KJ), 1996-07 through 2005-10, with seven engine configurations. Exact photo remained unverified and was not saved. DB and public UI verified; pointer advanced to offer 25268."
+    },
+    {
+      "at": "2026-11-14T07:12:34.000Z",
+      "type": "performance_observation",
+      "detail": "Initial 502 responses coincided with an unrelated Render deploy. After it became live, pages returned 200 but remained slow (product 7.942s, home 7.282s, direct Render 5.478s). Web CPU was low; database CPU reached about 88% of its 0.1 CPU limit and memory about 90% of its 256 MiB limit, so the run kept writes small and sequential."
     }
   ],
   "last_success": {
-    "at": "2026-11-13T22:16:20.000Z",
-    "stage": "saved_and_ui_verified_photo_and_fitment",
+    "at": "2026-11-14T07:12:34.000Z",
+    "stage": "saved_and_ui_verified_fitment_photo_unconfirmed",
     "supplier_id": 5,
-    "offer_id": 25215,
-    "deploy_id": "dep-dbroj817lnhs73dicrag",
-    "photo_consumer_deploy_id": "dep-dbrome15efls73dit0jg",
-    "commit": "ef7f61f182ef367612a25e5922aef8ac61a620a8"
+    "offer_id": 25285,
+    "deploy_id": "dep-dbs0hu5bedkc73bksq10",
+    "commit": "60377dd5ced60af4a409800b14a365e283304d4a"
   },
-  "last_commit": "ef7f61f182ef367612a25e5922aef8ac61a620a8",
-  "paused_at": "2026-11-14T00:06:48.000Z",
-  "pause_reason": "No item was taken during the 05:00 resume check because public response remained elevated (home 8.598s, exact next-product page 6.579s, direct Render 7.077s). No pending publication or pending photo task was found.",
+  "last_commit": "60377dd5ced60af4a409800b14a365e283304d4a",
+  "paused_at": null,
+  "pause_reason": null,
   "remaining_live": {
     "1": {
       "remaining_without_photo": 297,
@@ -8009,7 +8100,7 @@
     },
     "5": {
       "remaining_without_photo": 6719,
-      "remaining_without_structured_fitment": 6630,
+      "remaining_without_structured_fitment": 6629,
       "total_positive_stock": 6895
     }
   }

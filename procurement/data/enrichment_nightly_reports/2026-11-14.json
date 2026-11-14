@@ -2,8 +2,8 @@
   "schema": 1,
   "night_end_date": "2026-11-14",
   "started_at": "2026-11-13T18:05:41.445Z",
-  "updated_at": "2026-11-14T00:06:48.000Z",
-  "status": "paused_for_site_latency",
+  "updated_at": "2026-11-14T07:12:34.000Z",
+  "status": "running_weekend",
   "supplier_stats": {
     "1": {
       "name": "Omega",
@@ -23,10 +23,10 @@
     },
     "5": {
       "name": "ЗаказАвто",
-      "processed_unique": 12,
+      "processed_unique": 13,
       "photos_added": 1,
-      "fitment_added": 8,
-      "years_or_engines_added": 7,
+      "fitment_added": 9,
+      "years_or_engines_added": 8,
       "skips": {
         "exact_photo_not_confirmed": 2,
         "contradictory_sources": 1,
@@ -36,7 +36,7 @@
         "brand_identity_not_confirmed": 1,
         "exact_brand_source_not_found": 1,
         "package_conflict_photo_not_saved": 1,
-        "exact_photo_not_verified": 1
+        "exact_photo_not_verified": 2
       },
       "pending_ui_verification": 0
     }
@@ -48,13 +48,13 @@
       "5": 100
     },
     "next_supplier_id": 5,
-    "next_offer_id": 25285,
+    "next_offer_id": 25268,
     "control_batch_remaining": {
       "3": 100,
-      "5": 88
+      "5": 87
     },
-    "lease_released_at": "2026-11-14T00:06:48.000Z",
-    "lease_owner": "nightly-enrichment-20261114-0500",
+    "lease_released_at": null,
+    "lease_owner": "weekend-enrichment-20261114-1200",
     "pending_ui_verification": null
   },
   "events": [
@@ -187,19 +187,28 @@
       "at": "2026-11-14T00:06:48.000Z",
       "type": "resume_check_paused",
       "detail": "05:00 resume check: shared lease acquired; no pending publication and no pending photo task; offer 25285 Parts-Mall PJD007 remained untouched. Public response was elevated (home 8.598s, exact product page 6.579s, direct Render 7.077s), so no item was taken. Queue pointer is unchanged and shared lease was released."
+    },
+    {
+      "at": "2026-11-14T07:12:34.000Z",
+      "type": "item_saved_verified_and_advance",
+      "detail": "ZakazAuto 25285 Parts-Mall PJD007: exact manufacturer-catalogue fitment saved for SSANGYONG Korando-NEW (KJ), period 1996-07 through 2005-10, seven engine rows. Exact photo was not verified or saved. DB and public UI verified."
+    },
+    {
+      "at": "2026-11-14T07:12:34.000Z",
+      "type": "performance_observation",
+      "detail": "After an unrelated deploy finished, HTTP returned 200 but remained slow. Database CPU and memory approached plan limits, so only one small sequential write was published."
     }
   ],
   "last_success": {
-    "at": "2026-11-13T22:16:20.000Z",
-    "stage": "saved_and_ui_verified_photo_and_fitment",
+    "at": "2026-11-14T07:12:34.000Z",
+    "stage": "saved_and_ui_verified_fitment_photo_unconfirmed",
     "supplier_id": 5,
-    "offer_id": 25215,
-    "deploy_id": "dep-dbroj817lnhs73dicrag",
-    "photo_consumer_deploy_id": "dep-dbrome15efls73dit0jg",
-    "commit": "ef7f61f182ef367612a25e5922aef8ac61a620a8"
+    "offer_id": 25285,
+    "deploy_id": "dep-dbs0hu5bedkc73bksq10",
+    "commit": "60377dd5ced60af4a409800b14a365e283304d4a"
   },
   "blocking_error": null,
-  "finished_at": "2026-11-14T00:06:48.000Z",
+  "finished_at": null,
   "remaining_live": {
     "1": {
       "remaining_without_photo": 296,
@@ -213,7 +222,7 @@
     },
     "5": {
       "remaining_without_photo": 6719,
-      "remaining_without_structured_fitment": 6630,
+      "remaining_without_structured_fitment": 6629,
       "total_positive_stock": 6895
     }
   },
