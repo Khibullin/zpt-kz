@@ -1,0 +1,86 @@
+{
+  "schema": 1,
+  "checked_at": "2026-11-13T18:07:49.293Z",
+  "supplier_id": 5,
+  "supplier_name": "ЗаказАвто",
+  "offer_id": 25106,
+  "product_id": 6692,
+  "task_id": null,
+  "brand": "Chery",
+  "article": "202001202AA",
+  "name": "Амортизатор задней Chery",
+  "research": {
+    "sources": [
+      {
+        "url": "https://jikiu.com/catalogue/79062068",
+        "result": "Manufacturer catalogue cross: Chery 202001202AA, Arrizo 8, 04.22–03.25, 1.6L SQRF4J16C, rear left/right."
+      },
+      {
+        "url": "https://www.autoopt.ru/catalog/728552-amortizator_chery_arrizo_8_23__zadnij_levyjpravyj_oe/pdf",
+        "result": "Exact Chery article, Arrizo 8 (23-), rear left/right; corroborating independent listing."
+      },
+      {
+        "url": "https://kaspi.kz/shop/p/chery-zadnii-202001202aa-2-sht-162887054/?c=750000000",
+        "result": "Not used for photo or unit data: prior exact card is a two-piece pack while supplier unit remains unconfirmed."
+      }
+    ],
+    "photo": {
+      "status": "not_confirmed",
+      "reason": "Exact fitment prepared from manufacturer catalogue cross; exact source photo for the Chery-branded one-piece supplier unit not confirmed."
+    },
+    "fitment": {
+      "status": "prepared",
+      "source_url": "https://jikiu.com/catalogue/79062068",
+      "make": "CHERY",
+      "model": "Arrizo 8",
+      "details": "04.2022–03.2025 · 1.6L SQRF4J16C · задняя ось · левая/правая сторона · источник — каталог производителя аналога с точным OEM cross",
+      "configurations": [
+        {
+          "date_from": "2022-04",
+          "date_to": "2025-03",
+          "engine": "1.6L SQRF4J16C",
+          "placement": "rear",
+          "side": [
+            "left",
+            "right"
+          ],
+          "source_scope": "JIKIU cross-reference to Chery OEM 202001202AA"
+        }
+      ]
+    }
+  },
+  "after": {
+    "prepared_fitment": true,
+    "photo_unchanged": true,
+    "database_saved": true,
+    "ui_verified": true,
+    "db_verified": true,
+    "ui_url": "https://zpt.kz/chery-zpt-25106/",
+    "saved_at": "2026-11-13T18:18:15.905Z",
+    "deploy_id": "dep-dbrl76qjnfac73ars24g",
+    "live_commit": "89406af46aaaae6ad48d1b5b42c5c1fa1c1c6d14"
+  },
+  "state": "saved_and_verified",
+  "reason": "Exact fitment prepared from manufacturer catalogue cross; exact source photo for the Chery-branded one-piece supplier unit not confirmed.",
+  "next_offer_id": 25784,
+  "recheck_20261114": {
+    "status": "rechecked_no_confirmed_photo",
+    "checked_at": "2026-11-14T11:23:33.791Z",
+    "missing_after": [
+      "photo"
+    ],
+    "sources_checked": [
+      {
+        "url": "https://baza.drom.ru/oem/202001202AA/",
+        "kind": "ru_marketplace_oem_index",
+        "result": "Exact article search returned seller/analogue imagery and the page could not be decoded reliably; no exact one-unit manufacturer photograph confirmed."
+      }
+    ],
+    "reason": "Existing verified Arrizo 8 fitment retained; no exact, execution- and package-confirmed photograph found.",
+    "prepared": false,
+    "queued": false,
+    "saved": false,
+    "verified": true,
+    "next_offer_id": 25784
+  }
+}
