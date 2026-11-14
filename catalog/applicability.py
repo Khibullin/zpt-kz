@@ -175,6 +175,58 @@ def extra_compatibility_text(product, groups=None):
     return raw
 
 
+def supplier_configuration_period(config):
+    """Render sourced supplier periods without inventing a missing end date."""
+    if config.get('years'):
+        return str(config['years'])
+
+    def display(value):
+        match = re.fullmatch(r'(\d{4})(?:-(\d{2}))?', str(value or '').strip())
+        if not match:
+            return str(value or '').strip()
+        year, month = match.groups()
+        return f'{month}.{year}' if month else year
+
+    start = display(config.get('date_from'))
+    end = display(config.get('date_to'))
+    if start and end:
+        return start if start == end else f'{start}–{end}'
+    if start:
+        return f'с {start}'
+    if end:
+        return f'до {end}'
+    return 'Требует уточнения'
+
+
+def supplier_configuration_note(config):
+    values = [
+        str(config.get(key) or '')
+        for key in ('capacity', 'transmission', 'drive')
+        if config.get(key)
+    ]
+    labels = (
+        ('market', 'Рынок'),
+        ('placement', 'Установка'),
+        ('side', 'Сторона'),
+        ('shock_type', 'Тип'),
+        ('oem_article', 'OEM'),
+    )
+    translations = {
+        ('placement', 'front'): 'спереди',
+        ('placement', 'rear'): 'сзади',
+        ('side', 'left'): 'слева',
+        ('side', 'right'): 'справа',
+        ('shock_type', 'gas'): 'газовый',
+        ('shock_type', 'oil'): 'масляный',
+    }
+    values.extend(
+        f'{label}: {translations.get((key, str(config[key]).casefold()), config[key])}'
+        for key, label in labels
+        if config.get(key)
+    )
+    return '; '.join(values)
+
+
 def build_product_applicability(product):
     groups = grouped_applicability(product)
     engines = parse_plain_list(getattr(product, 'engine_compatibility', ''))
@@ -219,11 +271,11 @@ def build_product_applicability(product):
                 if not isinstance(config, dict):
                     continue
                 variant = ', '.join(str(config.get(key) or '') for key in ('generation', 'chassis', 'body', 'fuel') if config.get(key))
-                note = '; '.join(str(config.get(key) or '') for key in ('capacity', 'transmission', 'drive') if config.get(key))
+                note = supplier_configuration_note(config)
                 fitment_rows.append({
                     'model': f'{supplier.make} {supplier.model}', 'variant': variant,
                     'engine': config.get('engine') or 'Не указан',
-                    'period': config.get('years') or 'Требует уточнения',
+                    'period': supplier_configuration_period(config),
                     'needs_check': not supplier.verified,
                     'note': '; '.join(part for part in (supplier.details, note) if part),
                     'source_url': '', 'verified_on': None,

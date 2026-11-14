@@ -41,3 +41,34 @@ class RetailContentTests(TestCase):
         self.assertEqual(row['engine'], 'ACE')
         self.assertTrue(row['needs_check'])
         self.assertIn('1984cc', row['note'])
+
+    def test_supplier_table_renders_open_period_and_restrictions(self):
+        supplier = Supplier.objects.create(name='ZakazAuto test')
+        offer = Offer.objects.create(supplier=supplier, article='EX54661A7100', brand='Mando', name='Амортизатор', cost=20400)
+        RetailListing.objects.create(offer=offer, product=self.product)
+        VehicleFitment.objects.create(
+            offer=offer,
+            make='KIA',
+            model='K3 (YD)',
+            source_url='https://example.com/mando',
+            verified=True,
+            configurations=[{
+                'date_from': '2012-10',
+                'date_to': None,
+                'placement': 'front',
+                'side': 'right',
+                'shock_type': 'gas',
+                'market': 'GEN',
+                'oem_article': '54661A7100',
+            }],
+        )
+
+        row = build_product_applicability(self.product)['fitment_rows'][0]
+
+        self.assertEqual(row['period'], 'с 10.2012')
+        self.assertEqual(row['engine'], 'Не указан')
+        self.assertFalse(row['needs_check'])
+        self.assertIn('Рынок: GEN', row['note'])
+        self.assertIn('Сторона: справа', row['note'])
+        self.assertIn('Тип: газовый', row['note'])
+        self.assertIn('OEM: 54661A7100', row['note'])
