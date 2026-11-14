@@ -10,17 +10,15 @@
     "reviewed_offer_ids": 408
   },
   "shared_lease": {
-    "owner": null,
+    "owner": "weekend-enrichment-20261114-1500",
     "source_path": "procurement/data/enrichment_queue_20261111.json",
-    "acquired_at": "2026-11-14T09:04:44.000Z",
-    "expires_at": null,
-    "released_at": "2026-11-14T09:27:30.135Z",
-    "last_owner": "weekend-enrichment-20261114-1400",
-    "release_reason": "prepared_publication_deferred_high_db_memory"
+    "acquired_at": "2026-11-14T10:01:20.382Z",
+    "expires_at": "2026-11-14T10:31:20.382Z",
+    "released_at": null
   },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-14T09:27:30.135Z",
-  "status": "ready_for_weekend_resume",
+  "heartbeat_at": "2026-11-14T10:01:20.382Z",
+  "status": "running_weekend",
   "phase": "other_in_stock_control",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
@@ -8507,6 +8505,11 @@
       "at": "2026-11-14T09:27:30.135Z",
       "type": "lease_released",
       "detail": "Shared lease released after checkpointing the prepared, not-published 553102P500 payload. Queue pointer remains on offer 25129; the next run must recheck live state/load and publish/verify before advancing."
+    },
+    {
+      "at": "2026-11-14T10:01:20.382Z",
+      "type": "lease_acquired",
+      "detail": "Shared lease acquired atomically for the existing single weekend processor. Offer 25129 publication_pending remains absent in live DB; no active/pending photo task or service error was found. One bounded fitment write will be attempted under warning-level DB memory."
     }
   ],
   "last_success": {
@@ -8518,8 +8521,8 @@
     "commit": "9b14a6476694dbb186bc22587e30201319efec07"
   },
   "last_commit": "9b14a6476694dbb186bc22587e30201319efec07",
-  "paused_at": "2026-11-14T09:27:30.135Z",
-  "pause_reason": "Prepared offer 25129 but deferred the small publication because database memory reached about 238 MiB of 256 MiB after research.",
+  "paused_at": null,
+  "pause_reason": null,
   "remaining_live": {
     "1": {
       "remaining_without_photo": 297,

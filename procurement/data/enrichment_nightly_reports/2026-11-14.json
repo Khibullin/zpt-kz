@@ -2,8 +2,8 @@
   "schema": 1,
   "night_end_date": "2026-11-14",
   "started_at": "2026-11-13T18:05:41.445Z",
-  "updated_at": "2026-11-14T09:27:30.135Z",
-  "status": "paused_weekend_load",
+  "updated_at": "2026-11-14T10:01:20.382Z",
+  "status": "running_weekend",
   "supplier_stats": {
     "1": {
       "name": "Omega",
@@ -55,8 +55,8 @@
       "3": 100,
       "5": 82
     },
-    "lease_released_at": "2026-11-14T09:27:30.135Z",
-    "lease_owner": null,
+    "lease_released_at": null,
+    "lease_owner": "weekend-enrichment-20261114-1500",
     "pending_ui_verification": null,
     "publication_pending": {
       "supplier_id": 5,
@@ -266,6 +266,11 @@
       "at": "2026-11-14T09:27:30.135Z",
       "type": "lease_released",
       "detail": "Shared lease released cleanly. Queue remains on offer 25129 with an explicit publication_pending payload; no duplicate processor or schedule was created."
+    },
+    {
+      "at": "2026-11-14T10:01:20.382Z",
+      "type": "lease_acquired",
+      "detail": "Shared lease acquired for the single weekend processor. Resuming the prepared, not-yet-published ZakazAuto 25129 fitment after fresh live DB, service, task and load checks."
     }
   ],
   "last_success": {
