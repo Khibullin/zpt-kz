@@ -1,0 +1,100 @@
+{
+  "schema": 1,
+  "night_end_date": "2026-11-15",
+  "started_at": "2026-11-14T19:02:21.138Z",
+  "updated_at": "2026-11-14T19:16:20.438Z",
+  "status": "checkpointed_item_verified",
+  "supplier_stats": {
+    "1": {
+      "name": "Omega",
+      "processed_unique": 0,
+      "photos_added": 0,
+      "fitment_added": 0,
+      "years_or_engines_added": 0,
+      "skips": {}
+    },
+    "3": {
+      "name": "Фаэтон",
+      "processed_unique": 0,
+      "photos_added": 0,
+      "fitment_added": 0,
+      "years_or_engines_added": 0,
+      "skips": {}
+    },
+    "5": {
+      "name": "ЗаказАвто",
+      "processed_unique": 1,
+      "photos_added": 0,
+      "fitment_added": 0,
+      "years_or_engines_added": 0,
+      "skips": {
+        "temporary_source_unavailable_http_403": 1
+      },
+      "pending_ui_verification": 0
+    }
+  },
+  "queue": {
+    "phase": "recheck_first19",
+    "batch_size": 20,
+    "next_supplier_id": 5,
+    "next_offer_id": 25114,
+    "lease_owner": null,
+    "lease_released_at": "2026-11-14T19:16:20.438Z",
+    "publication_pending": null,
+    "pending_ui_verification": null,
+    "recheck": {
+      "total": 19,
+      "current_index": 14,
+      "status": "running_checkpointed",
+      "reviewed_unique": 14,
+      "new_photos": 6,
+      "new_thumbnails": 6,
+      "new_fitments": 3,
+      "no_change": 5,
+      "candidates_pending": 0,
+      "photos_missing_before": 18,
+      "structured_fitment_missing_before": 5,
+      "fitment_display_enhancements": 1
+    }
+  },
+  "events": [
+    {
+      "at": "2026-11-14T19:02:21.138Z",
+      "type": "run_started",
+      "detail": "Weekend run resumed owner-directed first-19 recheck at sequence 14 Mando EX54661A7100 after atomic shared lease acquisition and zero active photo tasks."
+    },
+    {
+      "at": "2026-11-14T19:09:15.290837Z",
+      "type": "source_temporarily_unavailable",
+      "detail": "Exact AUTODOC page returned HTTP 403 to the background consumer; no bypass or repeat."
+    },
+    {
+      "at": "2026-11-14T19:14:05.799034Z",
+      "type": "source_temporarily_unavailable",
+      "detail": "Different exact EVOCAR page also returned HTTP 403; no bypass, no photo write."
+    },
+    {
+      "at": "2026-11-14T19:16:20.438Z",
+      "type": "item_rechecked_source_unavailable_and_advance",
+      "detail": "Mando EX54661A7100: zero new photo/thumbnail/fitment. Existing KIA K3 (YD) fitment reverified in DB and public UI. Trade and Kaspi unchanged. Resume sequence 15 offer 25114."
+    },
+    {
+      "at": "2026-11-14T19:16:20.438Z",
+      "type": "lease_released",
+      "detail": "Shared lease released after sequence 14 checkpoint."
+    }
+  ],
+  "last_success": {
+    "at": "2026-11-14T19:16:20.438Z",
+    "stage": "source_failures_recorded_fitment_reverified_no_photo",
+    "supplier_id": 5,
+    "offer_id": 25268,
+    "product_id": 6994,
+    "task_id": 4967,
+    "article": "EX54661A7100",
+    "commit": "a219d536e1c73abd90a0726f1480346f19e7d6ed",
+    "deploy_id": "dep-dbsb57u7bikc73et61a0",
+    "ui_url": "https://zpt.kz/kia-zpt-25268/"
+  },
+  "last_commit": "a219d536e1c73abd90a0726f1480346f19e7d6ed"
+}
