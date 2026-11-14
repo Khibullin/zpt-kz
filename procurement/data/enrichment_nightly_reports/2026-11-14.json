@@ -2,8 +2,8 @@
   "schema": 1,
   "night_end_date": "2026-11-14",
   "started_at": "2026-11-13T18:05:41.445Z",
-  "updated_at": "2026-11-14T11:05:21.000Z",
-  "status": "running_weekend_recheck19",
+  "updated_at": "2026-11-14T11:23:33.791Z",
+  "status": "running_weekend_recheck19_candidate_pending",
   "supplier_stats": {
     "1": {
       "name": "Omega",
@@ -24,7 +24,7 @@
     "5": {
       "name": "ЗаказАвто",
       "processed_unique": 19,
-      "photos_added": 1,
+      "photos_added": 2,
       "fitment_added": 14,
       "years_or_engines_added": 13,
       "skips": {
@@ -51,7 +51,7 @@
       "5": 100
     },
     "next_supplier_id": 5,
-    "next_offer_id": 25628,
+    "next_offer_id": 25784,
     "control_batch_remaining": {
       "3": 100,
       "5": 81
@@ -59,12 +59,27 @@
     "lease_released_at": null,
     "lease_owner": "weekend-enrichment-20261114-1605-recheck19",
     "pending_ui_verification": null,
-    "publication_pending": null,
+    "publication_pending": {
+      "kind": "photo_candidate_review",
+      "supplier_id": 5,
+      "offer_id": 25784,
+      "article": "2132009052",
+      "prepared": false,
+      "queued": false,
+      "saved": false,
+      "verified": false
+    },
     "batch_size": 20,
     "recheck": {
       "total": 19,
-      "current_index": 0,
-      "status": "running",
+      "current_index": 4,
+      "status": "running_candidate_pending",
+      "reviewed_unique": 6,
+      "new_photos": 1,
+      "new_thumbnails": 1,
+      "new_fitments": 0,
+      "no_change": 4,
+      "candidates_pending": 1,
       "photos_missing_before": 18,
       "structured_fitment_missing_before": 5
     }
@@ -294,23 +309,41 @@
       "at": "2026-11-14T11:05:21.000Z",
       "type": "lease_acquired",
       "detail": "Single canonical lease acquired after live database and Render checks. No active/pending/processing photo tasks and no recent service error logs; research begins at offer 25628."
+    },
+    {
+      "at": "2026-11-14T11:18:42.533Z",
+      "type": "photo_activation_race_detected",
+      "detail": "Task 5222 was safely skipped by the old consumer during deploy transition; no product/trade data changed. Retry was isolated behind a status unknown to the old process."
+    },
+    {
+      "at": "2026-11-14T11:23:33.791Z",
+      "type": "item_saved_verified_out_of_order",
+      "detail": "ZakazAuto 25768 HYUNDAI-KIA 495602S250: exact photo saved as WebP 800x506 plus thumbnail 180x114 by the sole existing consumer; DB, both HTTP files and public card verified. First recheck batch remains incomplete."
+    },
+    {
+      "at": "2026-11-14T11:23:33.791Z",
+      "type": "recheck_progress_saved",
+      "detail": "Six assigned items researched/checkpointed: four no-change, one exact-photo candidate pending (offer 25784), one photo+thumbnail saved (offer 25768). Resume at sequence 5; do not repeat completed searches."
     }
   ],
   "last_success": {
-    "at": "2026-11-14T10:07:37.000Z",
-    "stage": "saved_and_ui_verified_fitment_placeholder_rejected",
+    "at": "2026-11-14T11:23:33.791Z",
+    "stage": "photo_saved_and_ui_verified",
     "supplier_id": 5,
-    "offer_id": 25129,
-    "deploy_id": "dep-dbs33q6q1p3s73ebdq50",
-    "commit": "7ba9dc8f93a043d4ad5722b41935a0b4f705840d"
+    "offer_id": 25768,
+    "product_id": 7249,
+    "task_id": 5222,
+    "deploy_id": "dep-dbs48i7f3r2c73dv4ch0",
+    "commit": "110eaf511252b2ab18f16d51a48660fc25728c57",
+    "ui_url": "https://zpt.kz/hyundai-zpt-25768/"
   },
   "blocking_error": null,
   "finished_at": null,
   "remaining_live": {
     "1": {
-      "remaining_without_photo": 296,
-      "remaining_without_structured_fitment": 3391,
-      "total_positive_stock": 3561
+      "remaining_without_photo": 1337,
+      "remaining_without_structured_fitment": 12285,
+      "total_positive_stock": 14913
     },
     "3": {
       "remaining_without_photo": 22394,
@@ -318,7 +351,7 @@
       "total_positive_stock": 27852
     },
     "5": {
-      "remaining_without_photo": 6719,
+      "remaining_without_photo": 6718,
       "remaining_without_structured_fitment": 6624,
       "total_positive_stock": 6895
     }
