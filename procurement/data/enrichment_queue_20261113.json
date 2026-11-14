@@ -10,16 +10,16 @@
     "reviewed_offer_ids": 408
   },
   "shared_lease": {
-    "owner": null,
+    "owner": "weekend-enrichment-20261114-2204-recheck19",
     "source_path": "procurement/data/enrichment_queue_20261111.json",
-    "heartbeat_at": "2026-11-14T16:20:21.510Z",
-    "expires_at": null,
-    "released_at": "2026-11-14T16:20:21.510Z",
-    "release_reason": "Exact HAVAL 2905110AKZ16A photo and thumbnail saved by the sole existing consumer and DB/public UI verified; advanced to sequence 12."
+    "heartbeat_at": "2026-11-14T17:04:50.920Z",
+    "expires_at": "2026-11-14T17:34:50.920Z",
+    "released_at": null,
+    "release_reason": null
   },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-14T16:20:21.510Z",
-  "status": "checkpointed_item_verified",
+  "heartbeat_at": "2026-11-14T17:04:50.920Z",
+  "status": "rechecking_item",
   "phase": "recheck_first19",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
@@ -8821,6 +8821,11 @@
       "at": "2026-11-14T16:20:21.510Z",
       "type": "lease_released",
       "detail": "Shared canonical lease released after verified HAVAL 2905110AKZ16A photo publication; next is sequence 12 offer 25215. No duplicate worker or schedule was created."
+    },
+    {
+      "at": "2026-11-14T17:04:50.920Z",
+      "type": "lease_acquired",
+      "detail": "Shared lease acquired atomically for first-19 sequence 12 offer 25215 after confirming no active photo task or unfinished publication; no second worker or schedule started."
     }
   ],
   "last_success": {
@@ -9223,5 +9228,5 @@
     "service_memory_limit_bytes": 536870900,
     "decision": "research and read-only checks allowed; defer or throttle writes while memory remains above 90% on the web service"
   },
-  "updated_at": "2026-11-14T16:20:21.510Z"
+  "updated_at": "2026-11-14T17:04:50.920Z"
 }
