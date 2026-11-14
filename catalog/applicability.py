@@ -210,6 +210,9 @@ def supplier_configuration_note(config):
         ('side', 'Сторона'),
         ('shock_type', 'Тип'),
         ('oem_article', 'OEM'),
+        ('restriction', 'Ограничение'),
+        ('assembly', 'Комплектность'),
+        ('region', 'Регион'),
     )
     translations = {
         ('placement', 'front'): 'спереди',
