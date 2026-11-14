@@ -10,16 +10,16 @@
     "reviewed_offer_ids": 408
   },
   "shared_lease": {
-    "owner": null,
+    "owner": "weekend-enrichment-20261115-0002-recheck19",
     "source_path": "procurement/data/enrichment_queue_20261111.json",
-    "heartbeat_at": "2026-11-14T18:10:37.603Z",
-    "expires_at": null,
-    "released_at": "2026-11-14T18:10:37.603Z",
-    "release_reason": "checkpointed_verified_pjd007_official_photo"
+    "heartbeat_at": "2026-11-14T19:02:21.138Z",
+    "expires_at": "2026-11-14T19:32:21.138Z",
+    "released_at": null,
+    "release_reason": null
   },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-14T18:10:37.603Z",
-  "status": "checkpointed_item_verified",
+  "heartbeat_at": "2026-11-14T19:02:21.138Z",
+  "status": "rechecking_item",
   "phase": "recheck_first19",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
@@ -8851,6 +8851,11 @@
       "at": "2026-11-14T18:10:37.603Z",
       "type": "lease_released",
       "detail": "Shared canonical lease released after verified PJD007 photo and fitment; next is sequence 14 offer 25268. No duplicate worker or schedule was created."
+    },
+    {
+      "at": "2026-11-14T19:02:21.138Z",
+      "type": "lease_acquired",
+      "detail": "Shared lease acquired atomically for first-19 sequence 14 offer 25268 after confirming no active photo task or unfinished publication; no second worker or schedule started."
     }
   ],
   "last_success": {
@@ -9261,5 +9266,5 @@
     "service_memory_limit_bytes": 536870900,
     "decision": "research and read-only checks allowed; defer or throttle writes while memory remains above 90% on the web service"
   },
-  "updated_at": "2026-11-14T18:10:37.603Z"
+  "updated_at": "2026-11-14T19:02:21.138Z"
 }
