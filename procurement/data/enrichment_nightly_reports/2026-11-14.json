@@ -216,5 +216,87 @@
       "remaining_without_structured_fitment": 6630,
       "total_positive_stock": 6895
     }
+  },
+  "morning_report": {
+    "period": {
+      "start": "2026-11-13T23:00:00+05:00",
+      "end": "2026-11-14T06:00:00+05:00",
+      "timezone": "Asia/Qyzylorda"
+    },
+    "snapshot_at": "2026-11-14T00:58:49.285910Z",
+    "supplier_stats": {
+      "1": {
+        "processed_unique": 0,
+        "photos_first_added": 0,
+        "thumbnails_first_added": 0,
+        "fitment_products_added": 0,
+        "years_products_added": 0,
+        "engine_products_added": 0
+      },
+      "3": {
+        "processed_unique": 0,
+        "photos_first_added": 0,
+        "thumbnails_first_added": 0,
+        "fitment_products_added": 0,
+        "years_products_added": 0,
+        "engine_products_added": 0
+      },
+      "5": {
+        "processed_unique": 12,
+        "photos_first_added": 1,
+        "thumbnails_first_added": 1,
+        "fitment_products_added": 8,
+        "structured_make_model_rows_added": 10,
+        "years_products_added": 7,
+        "engine_products_added": 7
+      }
+    },
+    "remaining_live": {
+      "1": {
+        "total_positive_stock": 14951,
+        "remaining_without_photo": 1375,
+        "remaining_without_structured_fitment": 12322
+      },
+      "3": {
+        "total_positive_stock": 27939,
+        "remaining_without_photo": 22481,
+        "remaining_without_structured_fitment": 26451
+      },
+      "5": {
+        "total_positive_stock": 6977,
+        "remaining_without_photo": 6801,
+        "remaining_without_structured_fitment": 6712
+      }
+    },
+    "reconciliation": "Morning DB read uses procurement.retail.stock_quantity semantics: ^\\s*[>≥]?\\s*(\\d+)(\\s|$), qty>0. Earlier remaining_live in nightly checkpoints undercounted stock formats with units and >. Morning figures supersede those figures, without altering trade data.",
+    "verification": {
+      "live_db": true,
+      "verified_fitment_products": 8,
+      "verified_fitment_rows": 10,
+      "photo_task": 4782,
+      "photo_task_status": "done",
+      "active_photo_tasks": 0,
+      "pending_photo_tasks": 0,
+      "shared_lease": null,
+      "publication_pending": null,
+      "last_automation_run_status": "completed",
+      "last_automation_run_completed_at": "2026-11-14T00:07:50.086149Z"
+    },
+    "last_actual_photo_save_at": "2026-11-13T22:15:15.780791Z",
+    "last_successful_ui_verification_at": "2026-11-13T22:16:20Z",
+    "queue_status": "paused_for_site_latency",
+    "next": {
+      "supplier_id": 5,
+      "offer_id": 25285,
+      "brand": "Parts-Mall",
+      "article": "PJD007"
+    },
+    "delivery": {
+      "status": "prepared",
+      "recipient": "rkhaibullin@gmail.com",
+      "subject": "ZPT.KZ — ночной отчёт по фото и применимости — 14.11.2026",
+      "dedup_sent_search": "no matching sent message",
+      "gmail_message_id": null
+    }
   }
 }
