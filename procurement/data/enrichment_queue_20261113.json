@@ -17,8 +17,8 @@
     "released_at": null
   },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-14T11:23:33.791Z",
-  "status": "running_weekend_recheck19_candidate_pending",
+  "heartbeat_at": "2026-11-14T11:28:38.000Z",
+  "status": "paused_checkpointed_candidate_pending",
   "phase": "recheck_first19",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
@@ -8583,6 +8583,11 @@
       "at": "2026-11-14T11:23:33.791Z",
       "type": "recheck_checkpoint",
       "detail": "Sequences 1-4 checkpointed with no new publishable photo/fitment; sequence 5 has exact real-photo candidates pending bounded verification; sequence 6 is already saved/verified. Resume at sequence 5 without repeating completed searches."
+    },
+    {
+      "at": "2026-11-14T11:28:38.000Z",
+      "type": "pause_and_release",
+      "detail": "Per-item progress saved after one bounded photo write. First recheck batch is not complete; next is sequence 5 offer 25784 with exact real-photo candidates. Lease released for the next scheduled single run."
     }
   ],
   "last_success": {
@@ -8596,8 +8601,8 @@
     "deploy_id": "dep-dbs48i7f3r2c73dv4ch0"
   },
   "last_commit": "110eaf511252b2ab18f16d51a48660fc25728c57",
-  "paused_at": null,
-  "pause_reason": null,
+  "paused_at": "2026-11-14T11:28:38.000Z",
+  "pause_reason": "One bounded exact photo was saved and verified under elevated service memory/DB load. Resume the explicit 2132009052 photo candidate before advancing the 19-item recheck.",
   "remaining_live": {
     "1": {
       "remaining_without_photo": 297,
@@ -8981,5 +8986,6 @@
     "service_memory_bytes": 497725440,
     "service_memory_limit_bytes": 536870900,
     "decision": "research and read-only checks allowed; defer or throttle writes while memory remains above 90% on the web service"
-  }
+  },
+  "updated_at": "2026-11-14T11:28:38.000Z"
 }
