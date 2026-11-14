@@ -1,10 +1,11 @@
 """One upload desk with an owner-bound, expiring review before import."""
 from datetime import timedelta
+from decimal import Decimal
 from django import forms
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from django.db.models import Sum
+from django.db.models import Sum, Min, Max, Count
 from django.http import Http404
 from django.shortcuts import render,redirect,get_object_or_404
 from django.urls import reverse
@@ -40,9 +41,42 @@ class UpdateForm(forms.Form):
         return data
 
 
+def review_metrics(kind, rows):
+    if kind == 'sales':
+        dates=[r['occurred_on'] for r in rows if r.get('occurred_on')]
+        revenue=[r['revenue'] for r in rows if r.get('revenue') is not None]
+        return {'assortment':len({r['product'] for r in rows if r.get('product')}),
+                'quantity':None,'total_amount':sum(revenue,Decimal('0')) if revenue else None,
+                'period_start':min(dates) if dates else None,
+                'period_end':max(dates) if dates else None,
+                'orders':len({r['order_id'] for r in rows if r.get('order_id')})}
+    quantities=[r['quantity'] for r in rows if r.get('quantity') is not None]
+    complete_qty=len(quantities)==len(rows)
+    valued=[Decimal(str(r['price']))*r['quantity'] for r in rows
+            if r.get('price') is not None and r.get('quantity') is not None]
+    return {'assortment':len({r['sku'] for r in rows}),
+            'quantity':sum(quantities) if complete_qty else None,
+            'total_amount':sum(valued,Decimal('0')) if len(valued)==len(rows) else None}
+
+
+def batch_metrics(kind,batch):
+    if not batch:return {}
+    if kind=='sales':
+        qs=KaspiOperation.objects.filter(batch=batch)
+        a=qs.aggregate(total_amount=Sum('revenue'),period_start=Min('occurred_on'),period_end=Max('occurred_on'))
+        return {**a,'assortment':qs.exclude(product='').values('product').distinct().count(),
+                'quantity':None,'orders':qs.values('order_id').distinct().count()}
+    qs=StockSnapshot.objects.filter(batch=batch)
+    stats=qs.aggregate(assortment=Count('sku',distinct=True),quantity=Sum('quantity'))
+    if qs.filter(quantity__isnull=True).exists():stats['quantity']=None
+    priced=qs.exclude(quantity__isnull=True).exclude(price__isnull=True).values_list('quantity','price')
+    stats['total_amount']=sum((Decimal(q)*p for q,p in priced),Decimal('0')) if not qs.filter(price__isnull=True).exists() else None
+    return stats
+
+
 def file_review(kind,raw):
     rows=parse_file(raw,kind)
-    out={'kind':kind,'label':LABELS[kind],'count':len(rows),'rows':rows[:8]}
+    out={'kind':kind,'label':LABELS[kind],'count':len(rows),'rows':rows[:8], 'metrics':review_metrics(kind,rows)}
     if kind=='sales':
         known=set(KaspiOperation.objects.filter(fingerprint__in=[r['fingerprint'] for r in rows]).values_list('fingerprint',flat=True))
         out.update(new=sum(r['fingerprint'] not in known for r in rows),unchanged=sum(r['fingerprint'] in known for r in rows),changed=0,removed=0,conflicts=[])
@@ -124,12 +158,13 @@ def updates(request):
             review.update(filename=f.filename,as_of=f.as_of,result=f.result)
             latest=ImportBatch.objects.filter(kind=f.kind).order_by('-as_of','-pk').first()
             review['older']=bool(latest and latest.as_of>f.as_of)
+            if preview.committed_at:review['metrics']=batch_metrics(f.kind,ImportBatch.objects.filter(kind=f.kind,digest=__import__('hashlib').sha256(bytes(f.data)).hexdigest()).first()) if f.data else batch_metrics(f.kind,latest)
             reviews.append(review)
     blocks=[]
     for kind,label,hint in SOURCES:
         latest=ImportBatch.objects.filter(kind=kind).defer('original_data').order_by('-pk').first()
         count=(KaspiOperation.objects.filter(batch=latest).count() if kind=='sales' else StockSnapshot.objects.filter(batch=latest).count()) if latest else 0
-        blocks.append({'kind':kind,'label':label,'hint':hint,'file':form[kind+'_file'],'date':form[kind+'_date'],'latest':latest,'count':count,'focus':request.GET.get('section')==kind})
+        blocks.append({'kind':kind,'label':label,'hint':hint,'file':form[kind+'_file'],'date':form[kind+'_date'],'latest':latest,'count':count,'focus':request.GET.get('section')==kind,'metrics':batch_metrics(kind,latest)})
     return render(request,'inventory/updates.html',{'form':form,'blocks':blocks,'preview':preview,'reviews':reviews,'expired':expired})
 
 
