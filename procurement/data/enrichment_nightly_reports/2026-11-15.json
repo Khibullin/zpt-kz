@@ -2,7 +2,7 @@
   "schema": 1,
   "night_end_date": "2026-11-15",
   "started_at": "2026-11-14T19:02:21.138Z",
-  "updated_at": "2026-11-14T21:03:49.019Z",
+  "updated_at": "2026-11-14T22:15:28.714066Z",
   "status": "checkpointed_item_verified",
   "supplier_stats": {
     "1": {
@@ -23,8 +23,8 @@
     },
     "5": {
       "name": "ЗаказАвто",
-      "processed_unique": 3,
-      "photos_added": 0,
+      "processed_unique": 4,
+      "photos_added": 1,
       "fitment_added": 0,
       "years_or_engines_added": 0,
       "skips": {
@@ -38,18 +38,18 @@
     "phase": "recheck_first19",
     "batch_size": 20,
     "next_supplier_id": 5,
-    "next_offer_id": 25082,
+    "next_offer_id": 25170,
     "lease_owner": null,
-    "lease_released_at": "2026-11-14T21:03:49.019Z",
+    "lease_released_at": "2026-11-14T22:15:28.714066Z",
     "publication_pending": null,
     "pending_ui_verification": null,
     "recheck": {
       "total": 19,
-      "current_index": 16,
+      "current_index": 17,
       "status": "running_checkpointed",
-      "reviewed_unique": 16,
-      "new_photos": 6,
-      "new_thumbnails": 6,
+      "reviewed_unique": 17,
+      "new_photos": 7,
+      "new_thumbnails": 7,
       "new_fitments": 3,
       "no_change": 7,
       "candidates_pending": 0,
@@ -113,19 +113,34 @@
       "at": "2026-11-14T21:03:49.019Z",
       "type": "lease_released",
       "detail": "Shared lease released after sequence 16 checkpoint."
+    },
+    {
+      "at": "2026-11-14T22:13:01.403443Z",
+      "type": "photo_and_thumbnail_saved",
+      "detail": "JASHI C281F260202-0200: exact inspected item image saved by existing consumer as 401x172 main WebP and 180x77 thumbnail; task 4759 done."
+    },
+    {
+      "at": "2026-11-14T22:15:28.714066Z",
+      "type": "item_rechecked_photo_saved_and_advance",
+      "detail": "JASHI C281F260202-0200: one new photo and one new thumbnail verified in DB and public UI. Existing CHANGAN UNI-V fitment with separate 2022, 2023 and 2024 rows and 1.5L Turbo preserved. Trade and Kaspi unchanged. Resume sequence 18 TRIALLI AG 03007 offer 25170."
+    },
+    {
+      "at": "2026-11-14T22:15:28.714066Z",
+      "type": "lease_released",
+      "detail": "Shared lease released after sequence 17 checkpoint."
     }
   ],
   "last_success": {
-    "at": "2026-11-14T21:03:49.019Z",
-    "stage": "exact_sources_rechecked_conflict_recorded_no_write",
+    "at": "2026-11-14T22:15:28.714066Z",
+    "stage": "photo_thumbnail_saved_fitment_preserved_db_ui_verified",
     "supplier_id": 5,
-    "offer_id": 25165,
-    "product_id": 6839,
-    "task_id": 4812,
-    "article": "115071",
-    "commit": "ea2b21d759e11db8f48e519fb0e98a95c19cfd2f",
-    "deploy_id": "dep-dbsbvieq1p3s73elos10",
-    "ui_url": "https://zpt.kz/product-zpt-25165/"
+    "offer_id": 25082,
+    "product_id": 6786,
+    "task_id": 4759,
+    "article": "C281F260202-0200",
+    "commit": "5ffd95a0461020bead45ed2b075090561411bd03",
+    "deploy_id": "dep-dbsdp0e417fc73feli7g",
+    "ui_url": "https://zpt.kz/changan-zpt-25082/"
   },
-  "last_commit": "ea2b21d759e11db8f48e519fb0e98a95c19cfd2f"
+  "last_commit": "5ffd95a0461020bead45ed2b075090561411bd03"
 }
