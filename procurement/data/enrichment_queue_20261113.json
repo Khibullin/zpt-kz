@@ -10,16 +10,16 @@
     "reviewed_offer_ids": 408
   },
   "shared_lease": {
-    "owner": "weekend-enrichment-20261114-2204-recheck19",
+    "owner": null,
     "source_path": "procurement/data/enrichment_queue_20261111.json",
-    "heartbeat_at": "2026-11-14T17:04:50.920Z",
-    "expires_at": "2026-11-14T17:34:50.920Z",
-    "released_at": null,
-    "release_reason": null
+    "heartbeat_at": "2026-11-14T17:13:50.109Z",
+    "expires_at": null,
+    "released_at": "2026-11-14T17:13:50.109Z",
+    "release_reason": "PJB-016A exact photo/thumbnail and structured fitment reverified; public applicability now includes the sourced ABS restriction; advanced to sequence 13."
   },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-14T17:04:50.920Z",
-  "status": "rechecking_item",
+  "heartbeat_at": "2026-11-14T17:13:50.109Z",
+  "status": "checkpointed_item_verified",
   "phase": "recheck_first19",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
@@ -8490,11 +8490,11 @@
   "publication_pending": null,
   "next": {
     "phase": "recheck_first19",
-    "sequence": 12,
+    "sequence": 13,
     "supplier_id": 5,
-    "offer_id": 25215,
+    "offer_id": 25285,
     "brand": "Parts-Mall",
-    "article": "PJB-016A"
+    "article": "PJD007"
   },
   "events": [
     {
@@ -8826,23 +8826,33 @@
       "at": "2026-11-14T17:04:50.920Z",
       "type": "lease_acquired",
       "detail": "Shared lease acquired atomically for first-19 sequence 12 offer 25215 after confirming no active photo task or unfinished publication; no second worker or schedule started."
+    },
+    {
+      "at": "2026-11-14T17:13:50.109Z",
+      "type": "item_fitment_restriction_display_verified_and_advance",
+      "detail": "ZakazAuto Parts-Mall PJB-016A: exact photo and 180px thumbnail already saved; two KIA Carnival I/Sedona I structured fitment rows reverified. The live DB ABS restriction was not visible in the public applicability note; rendering was corrected in commit 162110337b3de84ec25782bd9b9648d46d870d07, deploy dep-dbs9bbeq1p3s73eid790 reached live, and the public card was verified. No new photo, thumbnail or fitment row was counted; price, stock and Kaspi unchanged. Resume at sequence 13 offer 25285."
+    },
+    {
+      "at": "2026-11-14T17:13:50.109Z",
+      "type": "lease_released",
+      "detail": "Shared canonical lease released after verified PJB-016A restriction display; next is sequence 13 offer 25285. No duplicate worker or schedule was created."
     }
   ],
   "last_success": {
-    "at": "2026-11-14T16:17:07.589Z",
-    "stage": "photo_and_thumbnail_saved_and_ui_verified",
+    "at": "2026-11-14T17:13:50.109Z",
+    "stage": "fitment_restriction_display_saved_and_ui_verified",
     "supplier_id": 5,
-    "offer_id": 25177,
-    "product_id": 6703,
-    "task_id": 4676,
-    "article": "2905110AKZ16A",
-    "commit": "185f256b0cb9295cd5540b871bb5606883afdb5b",
-    "deploy_id": "dep-dbs8ipe7bikc73epm4a0",
-    "ui_url": "https://zpt.kz/haval-zpt-25177/"
+    "offer_id": 25215,
+    "product_id": 6809,
+    "task_id": 4782,
+    "article": "PJB-016A",
+    "commit": "162110337b3de84ec25782bd9b9648d46d870d07",
+    "deploy_id": "dep-dbs9bbeq1p3s73eid790",
+    "ui_url": "https://zpt.kz/kia-zpt-25215/"
   },
-  "last_commit": "185f256b0cb9295cd5540b871bb5606883afdb5b",
-  "paused_at": "2026-11-14T15:14:32.159Z",
-  "pause_reason": "Sequence 10 fitment enhancement saved and verified; exact one-piece photo remained unverified. Resume first-19 recheck at sequence 11.",
+  "last_commit": "162110337b3de84ec25782bd9b9648d46d870d07",
+  "paused_at": "2026-11-14T17:13:50.109Z",
+  "pause_reason": "Sequence 12 PJB-016A recheck completed and public ABS restriction display verified. Resume first-19 recheck at sequence 13.",
   "remaining_live": {
     "1": {
       "remaining_without_photo": 297,
@@ -8882,7 +8892,7 @@
   "recheck_first19": {
     "frozen_at": "2026-11-14T11:05:21.000Z",
     "total": 19,
-    "current_index": 11,
+    "current_index": 12,
     "status": "running_checkpointed",
     "items": [
       {
@@ -9038,7 +9048,8 @@
         "article": "PJB-016A",
         "prior_status": "saved_and_ui_verified_photo_and_fitment",
         "journal": "procurement/data/enrichment_queue_items/5-25215-20261114.json",
-        "status": "pending_recheck"
+        "status": "rechecked_complete_fitment_restriction_displayed",
+        "rechecked_at": "2026-11-14T17:13:50.109Z"
       },
       {
         "sequence": 13,
@@ -9128,40 +9139,41 @@
     "photos_missing_before": 18,
     "structured_fitment_missing_before": 5,
     "results": {
-      "reviewed": 11,
+      "reviewed": 12,
       "new_photos": 5,
       "new_thumbnails": 5,
       "new_fitments": 3,
       "no_change": 4,
-      "candidates_pending": 0
+      "candidates_pending": 0,
+      "fitment_display_enhancements": 1
     },
     "last_saved": {
       "supplier_id": 5,
-      "offer_id": 25177,
-      "product_id": 6703,
-      "task_id": 4676,
-      "article": "2905110AKZ16A",
-      "kind": "photo_and_thumbnail",
-      "source_url": "https://rebornfj.com/product-detail/front-left-shock-absorber-assembly-for_197499.html",
-      "image_url": "https://rebornfj.com/wp-content/uploads/2026/05/white_bg_23f1e6e22d5147b5891fd12002e53527.webp",
-      "main_path": "products/optimized/9043ab427254f414336b6e69f1ed1e9ee7c0bb5793f1e0f5a32c5a7a195e9e59.webp",
-      "thumbnail_path": "products/optimized/80dd0ae1fc1964d859137f0bd3c8963fda202c47ee3403b8c0cfa7160eefd684.webp",
+      "offer_id": 25215,
+      "product_id": 6809,
+      "task_id": 4782,
+      "article": "PJB-016A",
+      "kind": "fitment_restriction_display",
+      "source_url": "https://plenty.parts/parts/parts-mall/suspension-damping/parts-mall-pjb016a-shock-absorber-p3007877",
+      "main_path": "products/optimized/8b320dfb89703edd76df68fc9819b948127d887345d5546a61c67159dbe00355.webp",
+      "thumbnail_path": "products/optimized/16b3b86a634dbe6db2b2384d642711e812f68887c188d807b9b3b21f7b66a319.webp",
       "main_size": [
-        800,
-        800
+        342,
+        224
       ],
       "thumbnail_size": [
         180,
-        180
+        118
       ],
-      "photo_saved": true,
-      "fitment_preserved": true,
+      "photo_saved_previously": true,
+      "fitment_rows_preserved": 2,
+      "restriction_display_added": true,
       "db_verified": true,
       "ui_verified": true,
-      "ui_url": "https://zpt.kz/haval-zpt-25177/",
-      "deploy_id": "dep-dbs8ipe7bikc73epm4a0",
-      "commit": "185f256b0cb9295cd5540b871bb5606883afdb5b",
-      "saved_at": "2026-11-14T16:17:07.589Z"
+      "ui_url": "https://zpt.kz/kia-zpt-25215/",
+      "deploy_id": "dep-dbs9bbeq1p3s73eid790",
+      "commit": "162110337b3de84ec25782bd9b9648d46d870d07",
+      "saved_at": "2026-11-14T17:13:50.109Z"
     },
     "pending_candidate": null
   },
@@ -9228,5 +9240,5 @@
     "service_memory_limit_bytes": 536870900,
     "decision": "research and read-only checks allowed; defer or throttle writes while memory remains above 90% on the web service"
   },
-  "updated_at": "2026-11-14T17:04:50.920Z"
+  "updated_at": "2026-11-14T17:13:50.109Z"
 }
