@@ -37,6 +37,8 @@ def valid_page(url,brand):
         return p.path=='/search/detail.php' and set(q)=={'p_id','sch_p_555no'} and len(q['p_id'])==1 and q['p_id'][0].isdigit() and len(q['sch_p_555no'])==1
     if p.netloc=='tachka.ru' and brand=='HYUNDAI-KIA':
         return not p.query and bool(re.fullmatch(r'/hyundai-kia/[A-Za-z0-9.-]{1,120}',p.path))
+    if p.netloc=='www.autoopt.ru' and brand=='SSANGYONG':
+        return not p.query and bool(re.fullmatch(r'/catalog/\d+-[a-z0-9_]+',p.path))
     if p.query:return False
     return (p.netloc=='asva-trading.com' and brand=='ASVA' and p.path.startswith('/catalog/')) or (
         p.netloc=='aywiparts.ru' and brand=='AYWIPARTS' and bool(re.fullmatch(r'/product/view/\d+',p.path)))
@@ -118,6 +120,19 @@ def matching_manufacturer_image(html,url,brand,article):
             target=urlsplit(src);leaf=target.path.rsplit('/',1)[-1].rsplit('.',1)[0].casefold()
             if leaf in ('spg','no_image','no-image','noimage','placeholder','default'):continue
             if target.scheme=='https' and target.netloc=='img.tachka.ru' and not target.query and not target.fragment and re.search(r'\.(?:jpg|jpeg|png|webp)$',target.path,re.I):return src
+    elif p.netloc=='www.autoopt.ru':
+        product_id=p.path.split('/',2)[2].split('-',1)[0]
+        canonicals=[attrs.get('href') for tag,attrs in tags if tag=='link' and attrs.get('rel')=='canonical']
+        if canonicals!=[url]:return ''
+        titles=[attrs.get('content','') for tag,attrs in tags if tag=='meta' and attrs.get('property')=='og:title']
+        descriptions=[attrs.get('content','') for tag,attrs in tags if tag=='meta' and attrs.get('property')=='og:description']
+        if len(titles)!=1 or len(descriptions)!=1:return ''
+        if not re.search(r'(?<!\w)'+re.escape(expected)+r'(?!\w)',titles[0].upper()):return ''
+        if 'SSANGYONG' not in titles[0].upper() or not descriptions[0].strip().upper().startswith(expected+' '):return ''
+        for tag,attrs in tags:
+            if tag!='meta' or attrs.get('property')!='og:image':continue
+            src=attrs.get('content','');target=urlsplit(src)
+            if target.scheme=='https' and target.netloc==p.netloc and not target.query and not target.fragment and re.fullmatch(r'/product_pictures/big/[a-z0-9]+/'+re.escape(product_id)+r'\.(?:jpg|jpeg|png|webp)',target.path,re.I):return src
     return ''
 
 
