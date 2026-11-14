@@ -1,0 +1,36 @@
+{
+  "checked_on": "2026-11-14",
+  "sources": [
+    {
+      "offer_id": 25268,
+      "product_id": 6994,
+      "supplier_id": 5,
+      "brand": "Mando",
+      "article": "EX54661A7100",
+      "stock": "1",
+      "cost": "20400.00",
+      "source_label": "Mando shock absorber catalogue (manufacturer catalogue copy)",
+      "source_kind": "manufacturer_catalogue_pdf_mirror",
+      "source_urls": [
+        "https://download.part-kom.ru/catalogs/MANDO_Catalogue.pdf",
+        "https://partsouq.com/en/catalog/genuine/parts?c=KIA&gid=13397&q=&ssd=$*KwGDvoOS54LUwsnwzJeLxMCT-_rz4uD2gtnU2J2S0pSLkvz8qcTWk8OVjJPglciWubqJ4uaCgtbmhqXViZDO6Onxho-H2QAAAACDIr4u$&vid=490443987"
+      ],
+      "fitment_note": "The exact Mando row lists EX54661A7100 for KIA K3 (YD), beginning 2012-10, front right gas strut, general market, OE 54661A7100. The catalogue has an open end date, so no end year is inferred. The exact row does not provide an engine configuration, so no engine is claimed. The OEM catalogue independently confirms 54661A7100 as STRUT ASSY - FRONT, RH for CERATO 12 (2012-2016), but its package restrictions do not establish a complete engine range.",
+      "fitments": [
+        {
+          "make": "KIA",
+          "model": "K3 (YD)",
+          "date_from": "2012-10",
+          "date_to": null,
+          "placement": "front",
+          "side": "right",
+          "shock_type": "gas",
+          "market": "GEN",
+          "oem_article": "54661A7100",
+          "source_url": "https://download.part-kom.ru/catalogs/MANDO_Catalogue.pdf",
+          "source_scope": "Exact Mando EX54661A7100 row; open-ended 201210~ retained and no engine configuration inferred"
+        }
+      ]
+    }
+  ]
+}
