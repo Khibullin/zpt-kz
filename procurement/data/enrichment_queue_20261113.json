@@ -10,16 +10,16 @@
     "reviewed_offer_ids": 408
   },
   "shared_lease": {
-    "owner": "weekend-enrichment-20261114-2001-recheck19",
+    "owner": "weekend-enrichment-20261114-2101-recheck19",
     "source_path": "procurement/data/enrichment_queue_20261111.json",
-    "heartbeat_at": "2026-11-14T15:15:56.580Z",
-    "expires_at": "2026-11-14T15:15:56.580Z",
-    "released_at": "2026-11-14T15:15:56.580Z",
-    "release_reason": "Sequence 10 fitment enhancement saved and DB/UI verified; resume at sequence 11."
+    "heartbeat_at": "2026-11-14T16:01:29.140Z",
+    "expires_at": "2026-11-14T16:31:29.140Z",
+    "released_at": null,
+    "release_reason": null
   },
   "started_at": "2026-11-13T18:05:41.445Z",
   "heartbeat_at": "2026-11-14T15:01:52.818Z",
-  "status": "checkpointed_item_verified",
+  "status": "rechecking_item",
   "phase": "recheck_first19",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
@@ -8746,6 +8746,11 @@
       "at": "2026-11-14T15:15:56.580Z",
       "type": "lease_released",
       "detail": "Shared canonical lease released after verified Changan S203F260204-0100 fitment enhancement; next is sequence 11 offer 25177. No duplicate worker or schedule was created."
+    },
+    {
+      "at": "2026-11-14T16:01:29.140Z",
+      "type": "lease_acquired",
+      "detail": "Shared lease acquired atomically for first-19 sequence 11 offer 25177 after confirming no active photo task or unfinished publication; no second worker or schedule started."
     }
   ],
   "last_success": {
@@ -9143,5 +9148,5 @@
     "service_memory_limit_bytes": 536870900,
     "decision": "research and read-only checks allowed; defer or throttle writes while memory remains above 90% on the web service"
   },
-  "updated_at": "2026-11-14T15:15:56.580Z"
+  "updated_at": "2026-11-14T16:01:29.140Z"
 }
