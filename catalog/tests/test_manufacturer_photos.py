@@ -67,6 +67,20 @@ class ManufacturerPhotoTests(SimpleTestCase):
         data['image'][0]=image.replace('n=0','n=1')
         self.assertEqual(matching_manufacturer_image(markup(),url,'Mando','EX54661A7100'),'')
 
+    def test_evocar_mando_requires_exact_page_execution_and_product_photo(self):
+        url='https://evocar.ua/ru/mando/ex54661a7100'
+        image='https://cdn.evocar.ua/786ef0b604d0b4428b926fc1db1a4185/mando-ex54661a7100.jpg'
+        html=(
+            '<h1>Амортизатор Mando EX54661A7100</h1>'
+            '<div>Сторона установки Передний мост справа</div>'
+            '<div>Парные номера артикулов EX54651A7100</div>'
+            '<img alt="Mando EX54661A7100" src="'+image+'">'
+        )
+        self.assertEqual(matching_manufacturer_image(html,url,'Mando','EX54661A7100'),image)
+        self.assertEqual(matching_manufacturer_image(html,url,'Mando','EX54661A7200'),'')
+        self.assertEqual(matching_manufacturer_image(html.replace('справа','слева'),url,'Mando','EX54661A7100'),'')
+        self.assertEqual(matching_manufacturer_image(html.replace('cdn.evocar.ua','evil.example'),url,'Mando','EX54661A7100'),'')
+
     def test_unapproved_pages_are_rejected(self):
         for url in ['http://aywiparts.ru/product/view/7','https://aywiparts.ru.evil.example/product/view/7','https://aywiparts.ru/product/view/7?redirect=1','https://[',None]:
             self.assertFalse(valid_page(url,'AYWIPARTS'))

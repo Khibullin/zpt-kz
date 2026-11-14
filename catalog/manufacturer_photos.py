@@ -44,6 +44,8 @@ def valid_page(url,brand):
         return p.path=='/shop-detail' and set(q)=={'factory_no'} and len(q['factory_no'])==1 and bool(re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9-]{0,119}',q['factory_no'][0]))
     if p.netloc=='www.autodoc.co.uk' and brand=='MANDO':
         return not p.query and bool(re.fullmatch(r'/mando/\d+',p.path))
+    if p.netloc=='evocar.ua' and brand=='MANDO':
+        return not p.query and bool(re.fullmatch(r'/ru/mando/[A-Za-z0-9.-]{1,120}',p.path))
     if p.netloc=='rebornfj.com' and brand=='HAVAL':
         return not p.query and p.path=='/product-detail/front-left-shock-absorber-assembly-for_197499.html'
     if p.query:return False
@@ -153,6 +155,18 @@ def matching_manufacturer_image(html,url,brand,article):
                 if params.get('id')!=[product_id] or params.get('m')!=['0'] or params.get('n')!=['0'] or params.get('lng')!=['en']:continue
                 if len(params.get('rev',[]))!=1 or not params['rev'][0].isdigit():continue
                 return src
+    elif p.netloc=='evocar.ua':
+        if p.path.casefold()!=('/ru/mando/'+expected).casefold():return ''
+        headings=re.findall(r'<h1\b[^>]*>(.*?)</h1>',html,re.I|re.S)
+        if not any(text(heading)=='АМОРТИЗАТОР MANDO '+expected for heading in headings):return ''
+        page_text=text(html)
+        if 'СТОРОНА УСТАНОВКИ' not in page_text or 'ПЕРЕДНИЙ МОСТ СПРАВА' not in page_text:return ''
+        if 'ПАРНЫЕ НОМЕРА АРТИКУЛОВ' not in page_text or 'EX54651A7100' not in page_text:return ''
+        for tag,attrs in tags:
+            if tag!='img' or (attrs.get('alt') or '').strip().upper()!='MANDO '+expected:continue
+            src=urljoin(url,attrs.get('src',''));target=urlsplit(src)
+            wanted=r'/[0-9a-f]{32}/mando-'+re.escape(expected.lower())+r'\.jpg'
+            if target.scheme=='https' and target.netloc=='cdn.evocar.ua' and not target.query and not target.fragment and re.fullmatch(wanted,target.path,re.I):return src
     elif p.netloc=='tachka.ru':
         if p.path.upper()!='/HYUNDAI-KIA/'+expected:return ''
         canonicals=[attrs.get('href') for tag,attrs in tags if tag=='link' and attrs.get('rel')=='canonical']
