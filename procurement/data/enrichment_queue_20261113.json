@@ -10,16 +10,16 @@
     "reviewed_offer_ids": 408
   },
   "shared_lease": {
-    "owner": null,
+    "owner": "weekend-enrichment-20261114-1802-recheck19",
     "source_path": "procurement/data/enrichment_queue_20261111.json",
-    "heartbeat_at": "2026-11-14T17:13:50.109Z",
-    "expires_at": null,
-    "released_at": "2026-11-14T17:13:50.109Z",
-    "release_reason": "PJB-016A exact photo/thumbnail and structured fitment reverified; public applicability now includes the sourced ABS restriction; advanced to sequence 13."
+    "heartbeat_at": "2026-11-14T18:02:11.032Z",
+    "expires_at": "2026-11-14T18:32:11.032Z",
+    "released_at": null,
+    "release_reason": null
   },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-14T17:13:50.109Z",
-  "status": "checkpointed_item_verified",
+  "heartbeat_at": "2026-11-14T18:02:11.032Z",
+  "status": "rechecking_item",
   "phase": "recheck_first19",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
@@ -8836,6 +8836,11 @@
       "at": "2026-11-14T17:13:50.109Z",
       "type": "lease_released",
       "detail": "Shared canonical lease released after verified PJB-016A restriction display; next is sequence 13 offer 25285. No duplicate worker or schedule was created."
+    },
+    {
+      "at": "2026-11-14T18:02:11.032Z",
+      "type": "lease_acquired",
+      "detail": "Shared lease acquired atomically for first-19 sequence 13 offer 25285 after confirming no queued/processing photo task or unfinished publication; no second worker or schedule started."
     }
   ],
   "last_success": {
@@ -9240,5 +9245,5 @@
     "service_memory_limit_bytes": 536870900,
     "decision": "research and read-only checks allowed; defer or throttle writes while memory remains above 90% on the web service"
   },
-  "updated_at": "2026-11-14T17:13:50.109Z"
+  "updated_at": "2026-11-14T18:02:11.032Z"
 }
