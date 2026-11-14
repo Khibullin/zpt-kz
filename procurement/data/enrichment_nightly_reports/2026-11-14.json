@@ -2,7 +2,7 @@
   "schema": 1,
   "night_end_date": "2026-11-14",
   "started_at": "2026-11-13T18:05:41.445Z",
-  "updated_at": "2026-11-14T13:21:32.930Z",
+  "updated_at": "2026-11-14T14:14:13.202Z",
   "status": "checkpointed_item_verified",
   "supplier_stats": {
     "1": {
@@ -25,8 +25,8 @@
       "name": "ЗаказАвто",
       "processed_unique": 19,
       "photos_added": 5,
-      "fitment_added": 15,
-      "years_or_engines_added": 14,
+      "fitment_added": 16,
+      "years_or_engines_added": 15,
       "skips": {
         "exact_photo_not_confirmed": 2,
         "contradictory_sources": 1,
@@ -39,7 +39,8 @@
         "exact_photo_not_verified": 4,
         "brand_article_conflict": 1,
         "source_access_forbidden_photo_not_saved": 1,
-        "placeholder_photo_rejected": 1
+        "placeholder_photo_rejected": 1,
+        "exact_jashi_photo_not_verified": 1
       },
       "pending_ui_verification": 0
     }
@@ -51,24 +52,24 @@
       "5": 100
     },
     "next_supplier_id": 5,
-    "next_offer_id": 25095,
+    "next_offer_id": 25224,
     "control_batch_remaining": {
       "3": 100,
       "5": 81
     },
     "lease_released_at": "2026-11-14T13:21:32.930Z",
-    "lease_owner": null,
+    "lease_owner": "weekend-enrichment-20261114-1906-recheck19",
     "pending_ui_verification": null,
     "publication_pending": null,
     "batch_size": 20,
     "recheck": {
       "total": 19,
-      "current_index": 8,
+      "current_index": 9,
       "status": "running_checkpointed",
-      "reviewed_unique": 8,
+      "reviewed_unique": 9,
       "new_photos": 4,
       "new_thumbnails": 4,
-      "new_fitments": 1,
+      "new_fitments": 2,
       "no_change": 4,
       "candidates_pending": 0,
       "photos_missing_before": 18,
@@ -350,19 +351,24 @@
       "at": "2026-11-14T13:21:32.930Z",
       "type": "lease_released",
       "detail": "Shared lease released after verified PJC129FR publication; next is sequence 9 offer 25095."
+    },
+    {
+      "at": "2026-11-14T14:14:13.202Z",
+      "type": "item_fitment_saved_verified_and_advance",
+      "detail": "ZakazAuto JASHI CD569F260204-0400: structured CHANGAN UNI-K fitment (rear right, from 2020, open end, no engine inference) saved and DB/UI verified. No exact JASHI photo was verified; zero photo/thumbnail additions. Trade/Kaspi unchanged. Resume at sequence 10 offer 25224."
     }
   ],
   "last_success": {
-    "at": "2026-11-14T13:21:26.729Z",
-    "stage": "photo_and_fitment_saved_and_ui_verified",
+    "at": "2026-11-14T14:14:13.202Z",
+    "stage": "fitment_saved_and_ui_verified",
     "supplier_id": 5,
-    "offer_id": 25251,
-    "product_id": 7012,
-    "task_id": 4985,
-    "article": "PJC129FR",
-    "commit": "19fd4233866964caa04c0b2c01267653876204d1",
-    "deploy_id": "dep-dbs5u62jnfac73bt7u70",
-    "ui_url": "https://zpt.kz/chevrolet-zpt-25251/"
+    "offer_id": 25095,
+    "product_id": 6791,
+    "task_id": 4764,
+    "article": "CD569F260204-0400",
+    "commit": "5ea7f430a6e148a905bfe32f795fdc0963065e77",
+    "deploy_id": "dep-dbs6ndm8bjmc73e6g2kg",
+    "ui_url": "https://zpt.kz/changan-zpt-25095/"
   },
   "blocking_error": null,
   "finished_at": null,
