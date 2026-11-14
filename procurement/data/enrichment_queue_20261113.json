@@ -10,16 +10,16 @@
     "reviewed_offer_ids": 408
   },
   "shared_lease": {
-    "owner": "weekend-enrichment-20261114-1802-recheck19",
+    "owner": null,
     "source_path": "procurement/data/enrichment_queue_20261111.json",
-    "heartbeat_at": "2026-11-14T18:02:11.032Z",
-    "expires_at": "2026-11-14T18:32:11.032Z",
-    "released_at": null,
-    "release_reason": null
+    "heartbeat_at": "2026-11-14T18:10:37.603Z",
+    "expires_at": null,
+    "released_at": "2026-11-14T18:10:37.603Z",
+    "release_reason": "checkpointed_verified_pjd007_official_photo"
   },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-14T18:02:11.032Z",
-  "status": "rechecking_item",
+  "heartbeat_at": "2026-11-14T18:10:37.603Z",
+  "status": "checkpointed_item_verified",
   "phase": "recheck_first19",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
@@ -8490,11 +8490,11 @@
   "publication_pending": null,
   "next": {
     "phase": "recheck_first19",
-    "sequence": 13,
+    "sequence": 14,
     "supplier_id": 5,
-    "offer_id": 25285,
-    "brand": "Parts-Mall",
-    "article": "PJD007"
+    "offer_id": 25268,
+    "brand": "Mando",
+    "article": "EX54661A7100"
   },
   "events": [
     {
@@ -8841,23 +8841,33 @@
       "at": "2026-11-14T18:02:11.032Z",
       "type": "lease_acquired",
       "detail": "Shared lease acquired atomically for first-19 sequence 13 offer 25285 after confirming no queued/processing photo task or unfinished publication; no second worker or schedule started."
+    },
+    {
+      "at": "2026-11-14T18:10:37.603Z",
+      "type": "item_photo_saved_verified_and_advance",
+      "detail": "ZakazAuto Parts-Mall PJD007: exact official Parts-Mall image for PJD-007 saved by the existing single photo consumer; main 445x292 and thumbnail 180x118 verified in DB and on the public card. Existing seven-engine SSANGYONG Korando-NEW (KJ) fitment preserved and reverified. Price, stock and Kaspi unchanged. Resume sequence 14 offer 25268."
+    },
+    {
+      "at": "2026-11-14T18:10:37.603Z",
+      "type": "lease_released",
+      "detail": "Shared canonical lease released after verified PJD007 photo and fitment; next is sequence 14 offer 25268. No duplicate worker or schedule was created."
     }
   ],
   "last_success": {
-    "at": "2026-11-14T17:13:50.109Z",
-    "stage": "fitment_restriction_display_saved_and_ui_verified",
+    "at": "2026-11-14T18:10:37.603Z",
+    "stage": "photo_and_thumbnail_saved_and_ui_verified",
     "supplier_id": 5,
-    "offer_id": 25215,
-    "product_id": 6809,
-    "task_id": 4782,
-    "article": "PJB-016A",
-    "commit": "162110337b3de84ec25782bd9b9648d46d870d07",
-    "deploy_id": "dep-dbs9bbeq1p3s73eid790",
-    "ui_url": "https://zpt.kz/kia-zpt-25215/"
+    "offer_id": 25285,
+    "product_id": 7013,
+    "task_id": 4986,
+    "article": "PJD007",
+    "commit": "f81dc4d3443e1c29bfab959d26e46f2281e01b15",
+    "deploy_id": "dep-dbsa5h2jnfac73c2eb3g",
+    "ui_url": "https://zpt.kz/ssangyong-zpt-25285/"
   },
-  "last_commit": "162110337b3de84ec25782bd9b9648d46d870d07",
-  "paused_at": "2026-11-14T17:13:50.109Z",
-  "pause_reason": "Sequence 12 PJB-016A recheck completed and public ABS restriction display verified. Resume first-19 recheck at sequence 13.",
+  "last_commit": "f81dc4d3443e1c29bfab959d26e46f2281e01b15",
+  "paused_at": "2026-11-14T18:10:37.603Z",
+  "pause_reason": "Sequence 13 PJD007 recheck completed; official photo and thumbnail plus existing fitment verified. Resume first-19 recheck at sequence 14.",
   "remaining_live": {
     "1": {
       "remaining_without_photo": 297,
@@ -8897,7 +8907,7 @@
   "recheck_first19": {
     "frozen_at": "2026-11-14T11:05:21.000Z",
     "total": 19,
-    "current_index": 12,
+    "current_index": 13,
     "status": "running_checkpointed",
     "items": [
       {
@@ -9066,7 +9076,8 @@
         "article": "PJD007",
         "prior_status": "saved_and_ui_verified_fitment_photo_unconfirmed",
         "journal": "procurement/data/enrichment_queue_items/5-25285-20261114.json",
-        "status": "pending_recheck"
+        "status": "photo_saved_and_verified_fitment_preserved",
+        "rechecked_at": "2026-11-14T18:10:37.603Z"
       },
       {
         "sequence": 14,
@@ -9144,9 +9155,9 @@
     "photos_missing_before": 18,
     "structured_fitment_missing_before": 5,
     "results": {
-      "reviewed": 12,
-      "new_photos": 5,
-      "new_thumbnails": 5,
+      "reviewed": 13,
+      "new_photos": 6,
+      "new_thumbnails": 6,
       "new_fitments": 3,
       "no_change": 4,
       "candidates_pending": 0,
@@ -9154,31 +9165,36 @@
     },
     "last_saved": {
       "supplier_id": 5,
-      "offer_id": 25215,
-      "product_id": 6809,
-      "task_id": 4782,
-      "article": "PJB-016A",
-      "kind": "fitment_restriction_display",
-      "source_url": "https://plenty.parts/parts/parts-mall/suspension-damping/parts-mall-pjb016a-shock-absorber-p3007877",
-      "main_path": "products/optimized/8b320dfb89703edd76df68fc9819b948127d887345d5546a61c67159dbe00355.webp",
-      "thumbnail_path": "products/optimized/16b3b86a634dbe6db2b2384d642711e812f68887c188d807b9b3b21f7b66a319.webp",
+      "offer_id": 25285,
+      "product_id": 7013,
+      "task_id": 4986,
+      "article": "PJD007",
+      "kind": "official_photo_and_thumbnail",
+      "source_url": "https://catalog.parts-mall.com/shop-detail?factory_no=PJD-007",
+      "source_image_url": "https://catalog.parts-mall.com/images/PJD-007_0300-1F.jpg",
+      "main_path": "products/optimized/eba3d2f89e0d867c01e6b5ca26f9d11ed58491de58a4e42a33f66cf9591d5554.webp",
+      "thumbnail_path": "products/optimized/033f43565289d6edbef14954e5290d6b91b817659dc89db1a1772b7245abb959.webp",
       "main_size": [
-        342,
-        224
+        445,
+        292
       ],
       "thumbnail_size": [
         180,
         118
       ],
-      "photo_saved_previously": true,
-      "fitment_rows_preserved": 2,
-      "restriction_display_added": true,
+      "main_bytes": 10742,
+      "thumbnail_bytes": 1914,
+      "source_bytes": 66467,
+      "photo_saved": true,
+      "thumbnail_saved": true,
+      "fitment_rows_preserved": 1,
+      "fitment_configurations_preserved": 7,
       "db_verified": true,
       "ui_verified": true,
-      "ui_url": "https://zpt.kz/kia-zpt-25215/",
-      "deploy_id": "dep-dbs9bbeq1p3s73eid790",
-      "commit": "162110337b3de84ec25782bd9b9648d46d870d07",
-      "saved_at": "2026-11-14T17:13:50.109Z"
+      "ui_url": "https://zpt.kz/ssangyong-zpt-25285/",
+      "deploy_id": "dep-dbsa5h2jnfac73c2eb3g",
+      "commit": "f81dc4d3443e1c29bfab959d26e46f2281e01b15",
+      "saved_at": "2026-11-14T18:10:37.603Z"
     },
     "pending_candidate": null
   },
@@ -9245,5 +9261,5 @@
     "service_memory_limit_bytes": 536870900,
     "decision": "research and read-only checks allowed; defer or throttle writes while memory remains above 90% on the web service"
   },
-  "updated_at": "2026-11-14T18:02:11.032Z"
+  "updated_at": "2026-11-14T18:10:37.603Z"
 }
