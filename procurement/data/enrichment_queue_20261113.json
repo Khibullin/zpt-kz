@@ -10,15 +10,15 @@
     "reviewed_offer_ids": 408
   },
   "shared_lease": {
-    "owner": "weekend-enrichment-20261114-1906-recheck19",
+    "owner": null,
     "source_path": "procurement/data/enrichment_queue_20261111.json",
-    "heartbeat_at": "2026-11-14T14:13:56.611Z",
-    "expires_at": "2026-11-14T14:43:56.611Z",
-    "released_at": null,
-    "release_reason": null
+    "heartbeat_at": "2026-11-14T14:14:40.027Z",
+    "expires_at": null,
+    "released_at": "2026-11-14T14:14:40.027Z",
+    "release_reason": "checkpointed_verified_jashi_fitment"
   },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-14T14:13:56.611Z",
+  "heartbeat_at": "2026-11-14T14:14:40.027Z",
   "status": "checkpointed_item_verified",
   "phase": "recheck_first19",
   "phase_reconciliation": {
@@ -8726,6 +8726,11 @@
       "at": "2026-11-14T14:13:56.611Z",
       "type": "item_fitment_saved_verified_and_advance",
       "detail": "ZakazAuto JASHI CD569F260204-0400: one structured CHANGAN UNI-K fitment saved from exact OE cross and verified in DB/UI. No exact JASHI photo was verified; photo and thumbnail remain empty. Trade/Kaspi unchanged. Next sequence 10 offer 25224."
+    },
+    {
+      "at": "2026-11-14T14:14:40.027Z",
+      "type": "lease_released",
+      "detail": "Shared lease released after verified JASHI fitment publication; next is sequence 10 offer 25224. No duplicate worker or schedule was created."
     }
   ],
   "last_success": {
@@ -9113,5 +9118,5 @@
     "service_memory_limit_bytes": 536870900,
     "decision": "research and read-only checks allowed; defer or throttle writes while memory remains above 90% on the web service"
   },
-  "updated_at": "2026-11-14T14:13:56.611Z"
+  "updated_at": "2026-11-14T14:14:40.027Z"
 }
