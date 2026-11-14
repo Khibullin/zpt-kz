@@ -2,14 +2,7 @@
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
   "checked_at": "2026-11-12T03:16:36.620372+00:00",
-  "lease": {
-    "owner": "weekend-enrichment-20261114-2204-recheck19",
-    "scope": "enrichment_queue_20261113_recheck_first19",
-    "acquired_at": "2026-11-14T17:04:50.920Z",
-    "heartbeat_at": "2026-11-14T17:04:50.920Z",
-    "expires_at": "2026-11-14T17:34:50.920Z",
-    "next_offer_id": 25215
-  },
+  "lease": null,
   "next_supplier": 3,
   "batch_size": 100,
   "queue": [
@@ -15636,14 +15629,14 @@
     "reason": "All293 new-source reviews completed and all prepared additions saved and DB/UI verified;281 unsupported exceptions documented; no unreviewed or pending publication."
   },
   "last_lease": {
-    "owner": "weekend-enrichment-20261114-1906-recheck19",
+    "owner": "weekend-enrichment-20261114-2204-recheck19",
     "scope": "enrichment_queue_20261113_recheck_first19",
-    "acquired_at": "2026-11-14T14:06:15.688Z",
-    "heartbeat_at": "2026-11-14T14:06:15.688Z",
-    "expires_at": "2026-11-14T14:36:15.688Z",
-    "next_offer_id": 25095,
-    "released_at": "2026-11-14T14:14:22.884Z",
-    "release_reason": "checkpointed_verified_jashi_fitment"
+    "acquired_at": "2026-11-14T17:04:50.920Z",
+    "heartbeat_at": "2026-11-14T17:04:50.920Z",
+    "expires_at": "2026-11-14T17:34:50.920Z",
+    "next_offer_id": 25215,
+    "released_at": "2026-11-14T17:13:50.109Z",
+    "release_reason": "checkpointed_verified_pjb016a_fitment_restriction_display"
   },
   "continuation_20261112": {
     "started_at": "2026-11-12T02:20:46.660Z",
@@ -16368,5 +16361,5 @@
     "make_model_pairs_added": 146,
     "configurations_added": 185
   },
-  "updated_at": "2026-11-14T17:04:50.920Z"
+  "updated_at": "2026-11-14T17:13:50.109Z"
 }
