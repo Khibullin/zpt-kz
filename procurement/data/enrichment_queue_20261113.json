@@ -12,13 +12,13 @@
   "shared_lease": {
     "owner": "weekend-enrichment-20261114-1700-recheck19",
     "source_path": "procurement/data/enrichment_queue_20261111.json",
-    "heartbeat_at": "2026-11-14T12:13:26.645Z",
-    "expires_at": "2026-11-14T12:43:28.958Z",
+    "heartbeat_at": "2026-11-14T12:20:45.083Z",
+    "expires_at": "2026-11-14T12:50:46.641Z",
     "released_at": null
   },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-14T12:13:26.645Z",
-  "status": "running_recheck",
+  "heartbeat_at": "2026-11-14T12:20:45.083Z",
+  "status": "running_research_throttled",
   "phase": "recheck_first19",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
@@ -8331,11 +8331,11 @@
   "publication_pending": null,
   "next": {
     "phase": "recheck_first19",
-    "sequence": 7,
+    "sequence": 8,
     "supplier_id": 5,
-    "offer_id": 25765,
-    "brand": "HYUNDAI-KIA",
-    "article": "495602S350"
+    "offer_id": 25251,
+    "brand": "Parts-Mall",
+    "article": "PJC129FR"
   },
   "events": [
     {
@@ -8582,19 +8582,24 @@
       "at": "2026-11-14T12:13:26.645Z",
       "type": "item_saved_verified_and_advance",
       "detail": "ZakazAuto 25784 SsangYong 2132009052: exact Autoopt OEM identity revalidated; one 768x768 WebP and one 180x180 thumbnail saved by the existing sole consumer. DB, both HTTP files and public card verified. Price, stock, Kaspi and verified fitment unchanged. Resume at sequence 7 offer 25765; sequence 6 was already complete."
+    },
+    {
+      "at": "2026-11-14T12:20:45.083Z",
+      "type": "item_saved_verified_and_advance",
+      "detail": "ZakazAuto 25765 HYUNDAI-KIA 495602S350: exact Tachka Product identity revalidated; one 800x453 WebP and one 180x102 thumbnail saved by the sole consumer. DB, files and public card content verified. Price, stock, Kaspi and fitment unchanged. Public card response measured 11.51s; DB writes throttled while source research continues at sequence 8 offer 25251."
     }
   ],
   "last_success": {
-    "at": "2026-11-14T12:13:26.645Z",
+    "at": "2026-11-14T12:20:45.083Z",
     "stage": "photo_saved_and_ui_verified",
     "supplier_id": 5,
-    "offer_id": 25784,
-    "product_id": 7360,
-    "task_id": 5333,
-    "commit": "6fa02c1ced549a909d2d7c6658aab4c991792706",
-    "deploy_id": "dep-dbs4ujtbedkc73bovrpg"
+    "offer_id": 25765,
+    "product_id": 7250,
+    "task_id": 5223,
+    "commit": "649e834bb39d08a1d2b9f3679c2c57ab1000e408",
+    "deploy_id": "dep-dbs5236417fc73f3qft0"
   },
-  "last_commit": "6fa02c1ced549a909d2d7c6658aab4c991792706",
+  "last_commit": "649e834bb39d08a1d2b9f3679c2c57ab1000e408",
   "paused_at": "2026-11-14T11:28:38.000Z",
   "pause_reason": "One bounded exact photo was saved and verified under elevated service memory/DB load. Resume the explicit 2132009052 photo candidate before advancing the 19-item recheck.",
   "remaining_live": {
@@ -8636,8 +8641,8 @@
   "recheck_first19": {
     "frozen_at": "2026-11-14T11:05:21.000Z",
     "total": 19,
-    "current_index": 6,
-    "status": "running",
+    "current_index": 7,
+    "status": "running_research_throttled",
     "items": [
       {
         "sequence": 1,
@@ -8722,12 +8727,13 @@
         "supplier_id": 5,
         "offer_id": 25765,
         "product_id": 7250,
-        "task_id": null,
+        "task_id": 5223,
         "brand": "HYUNDAI-KIA",
         "article": "495602S350",
         "prior_status": "prepared_fitment_photo_unconfirmed",
         "journal": "procurement/data/enrichment_queue_items/5-25765-20261113.json",
-        "status": "pending_recheck"
+        "status": "photo_saved_and_verified",
+        "rechecked_at": "2026-11-14T12:20:45.083Z"
       },
       {
         "sequence": 8,
@@ -8877,33 +8883,33 @@
     "photos_missing_before": 18,
     "structured_fitment_missing_before": 5,
     "results": {
-      "reviewed": 6,
-      "new_photos": 2,
-      "new_thumbnails": 2,
+      "reviewed": 7,
+      "new_photos": 3,
+      "new_thumbnails": 3,
       "new_fitments": 0,
       "no_change": 4,
       "candidates_pending": 0
     },
     "last_saved": {
       "supplier_id": 5,
-      "offer_id": 25784,
-      "product_id": 7360,
-      "task_id": 5333,
-      "article": "2132009052",
+      "offer_id": 25765,
+      "product_id": 7250,
+      "task_id": 5223,
+      "article": "495602S350",
       "main_size": [
-        768,
-        768
+        800,
+        453
       ],
       "thumbnail_size": [
         180,
-        180
+        102
       ],
       "db_verified": true,
       "ui_verified": true,
-      "ui_url": "https://zpt.kz/ssangyong-zpt-25784/",
-      "deploy_id": "dep-dbs4ujtbedkc73bovrpg",
-      "commit": "6fa02c1ced549a909d2d7c6658aab4c991792706",
-      "saved_at": "2026-11-14T12:13:26.645Z"
+      "ui_url": "https://zpt.kz/hyundai-zpt-25765/",
+      "deploy_id": "dep-dbs5236417fc73f3qft0",
+      "commit": "649e834bb39d08a1d2b9f3679c2c57ab1000e408",
+      "saved_at": "2026-11-14T12:20:45.083Z"
     },
     "pending_candidate": null
   },
@@ -8970,5 +8976,5 @@
     "service_memory_limit_bytes": 536870900,
     "decision": "research and read-only checks allowed; defer or throttle writes while memory remains above 90% on the web service"
   },
-  "updated_at": "2026-11-14T12:13:26.645Z"
+  "updated_at": "2026-11-14T12:20:45.083Z"
 }
