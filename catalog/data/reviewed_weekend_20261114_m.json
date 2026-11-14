@@ -40,7 +40,7 @@
       "details": "Передняя левая стойка в сборе, 1 шт.; комплектность точной карточки: пружина, опора, опорный подшипник, пыльник и отбойник.",
       "configurations": [
         {
-          "year": 2021,
+          "years": "2021",
           "engine": "1.5L Turbo",
           "assembly": "complete strut assembly",
           "placement": "front",
@@ -50,7 +50,7 @@
           "source_url": "https://kaspi.kz/shop/p/changan-perednii-s203f260204-0100-1-sht-139321548/"
         },
         {
-          "year": 2022,
+          "years": "2022",
           "engine": "1.5L Turbo",
           "assembly": "complete strut assembly",
           "placement": "front",
@@ -60,7 +60,7 @@
           "source_url": "https://kaspi.kz/shop/p/changan-perednii-s203f260204-0100-1-sht-139321548/"
         },
         {
-          "year": 2023,
+          "years": "2023",
           "engine": "1.5L Turbo",
           "assembly": "complete strut assembly",
           "placement": "front",
@@ -70,7 +70,7 @@
           "source_url": "https://kaspi.kz/shop/p/changan-perednii-s203f260204-0100-1-sht-139321548/"
         },
         {
-          "year": 2024,
+          "years": "2024",
           "engine": "1.5L Turbo",
           "assembly": "complete strut assembly",
           "placement": "front",

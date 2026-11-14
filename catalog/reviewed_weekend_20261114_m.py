@@ -5,7 +5,7 @@ from decimal import Decimal
 from functools import lru_cache
 from pathlib import Path
 
-MANIFEST_SHA256 = "8a63170ab6a5acbb3edade0d421fba2c6e63942bc7e0c730f66ebfe420306253"
+MANIFEST_SHA256 = "46060ed7c231c06487f4d2007cc773bb186060602dd317bf4bd99348dfb1c149"
 BATCH = "weekend-20261114-m"
 
 
@@ -107,4 +107,46 @@ def stage_review(apps, schema_editor):
             action="reviewed_weekend_changan_fitment_enhancement",
             details={"batch": BATCH, **counts},
         )
+
+
+def repair_year_labels(apps, schema_editor):
+    """Convert four already-reviewed single years to the UI-supported key."""
+    if schema_editor.connection.alias != "default":
+        return
+
+    from django.db import transaction
+
+    Offer = apps.get_model("procurement", "Offer")
+    Fitment = apps.get_model("procurement", "VehicleFitment")
+    Activity = apps.get_model("procurement", "Activity")
+    counts = {"fitment_offers": 0, "configuration_rows": 0}
+    with transaction.atomic():
+        for row in reviewed_rows():
+            offer = Offer.objects.select_for_update().filter(pk=row["offer_id"]).first()
+            if not exact_offer(offer, row):
+                continue
+            fitment = Fitment.objects.select_for_update().filter(
+                pk=row["fitment_id"], offer_id=offer.pk, verified=True
+            ).first()
+            if not fitment:
+                continue
+            expected_old = []
+            for config in row["configurations"]:
+                old = dict(config)
+                old["year"] = int(old.pop("years"))
+                expected_old.append(old)
+            if fitment.configurations == row["configurations"]:
+                continue
+            if fitment.configurations != expected_old:
+                continue
+            fitment.configurations = row["configurations"]
+            fitment.save(update_fields=["configurations"])
+            counts["fitment_offers"] += 1
+            counts["configuration_rows"] += len(row["configurations"])
+        Activity.objects.create(
+            user_id=None,
+            action="reviewed_weekend_changan_fitment_year_label_repair",
+            details={"batch": BATCH, **counts},
+        )
+
 
