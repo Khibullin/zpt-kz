@@ -1,11 +1,11 @@
 {
   "schema": 1,
-  "checked_at": "2026-11-13T18:19:18.723Z",
+  "checked_at": "2026-11-14T14:13:24.752Z",
   "supplier_id": 5,
   "supplier_name": "ЗаказАвто",
   "offer_id": 25095,
   "product_id": 6791,
-  "task_id": null,
+  "task_id": 4764,
   "brand": "JASHI",
   "article": "CD569F260204-0400",
   "name": "Амортизатор задней Changan",
@@ -30,12 +30,92 @@
     }
   },
   "after": {
-    "prepared_fitment": false,
+    "prepared_fitment": true,
     "photo_unchanged": true,
-    "database_saved": false,
-    "ui_verified": false
+    "thumbnail_unchanged": true,
+    "database_saved": true,
+    "db_verified": true,
+    "ui_verified": true,
+    "ui_url": "https://zpt.kz/changan-zpt-25095/",
+    "fitment_id": 111520,
+    "configuration_count": 1,
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "photo_task_status": "needs_source",
+    "trade_unchanged": true,
+    "kaspi_unchanged": true
   },
-  "state": "reviewed_exception",
-  "reason": "Exact JASHI-branded source for CD569F260204-0400 not found; Changan sources either use another brand or suffix -0401. Nothing saved.",
-  "next_offer_id": 25224
+  "state": "rechecked_fitment_saved_verified_photo_unconfirmed",
+  "reason": "Structured fitment saved from an exact OE cross; no exact JASHI product photo was verified, so photo and thumbnail remain empty.",
+  "next_offer_id": 25224,
+  "initial_checked_at": "2026-11-13T18:19:18.723Z",
+  "rechecked_at": "2026-11-14T14:13:24.752Z",
+  "before_recheck": {
+    "photo": false,
+    "thumbnail": false,
+    "structured_fitment_count": 0,
+    "price": 56160,
+    "cost_price": 43200,
+    "stock_qty": 1,
+    "photo_task_status": "needs_source"
+  },
+  "recheck_20261114": {
+    "checked_at": "2026-11-14T14:13:24.752Z",
+    "source_scope": "manufacturer, KZ/RU/international catalogues, OEM and cross numbers",
+    "sources": [
+      {
+        "url": "https://www.lusmall.com/Catalog/Part?SKU=261250",
+        "result": "Exact OE cross CD569F260204-0400 to SHA4C014(R); CHANGAN UNI-K, rear right, from 2020 with no end date; source brand LUXE, so its photo was not used for JASHI."
+      },
+      {
+        "url": "https://www.lusmall.com/product/28?Page=17",
+        "result": "Exact catalogue index lists CD569F260204-0400 as UNI-K 20- REAR and distinguishes right SHA4C014(R-B) from left -0300."
+      },
+      {
+        "url": "https://chats.chinamobil.ru/files/changan-uni-k-uni-k-idd/applicationpdf/UNI-CHANGAN-PARTS-CATALOG-1.pdf",
+        "result": "Changan catalogue confirms UNI-K rear-right full strut uses suffix -0401; this prevents claiming a spring assembly for exact -0400."
+      },
+      {
+        "url": "https://kaspi.kz/shop/p/jashi-zadnii-cd569f260204-0400-1-sht-130050233/?c=750000000",
+        "result": "Stored exact JASHI card confirms brand, full article, rear placement and one-piece offer identity; page access was unavailable in the retrieval client during this run."
+      },
+      {
+        "url": "https://autopiter.kz/brands/id8621/jashi",
+        "result": "Independent KZ catalogue confirms the JASHI brand catalogue exists, but did not expose the exact article page or exact product photo in this run."
+      }
+    ],
+    "photo": {
+      "status": "not_saved",
+      "reason": "No exact JASHI-branded product photo was independently accessible and verified. LUXE/other-brand exact-cross images were rejected."
+    },
+    "fitment": {
+      "status": "saved_and_verified",
+      "fitment_id": 111520,
+      "make": "CHANGAN",
+      "model": "UNI-K",
+      "period": "from 2020; end not stated",
+      "engine": null,
+      "placement": "rear",
+      "side": "right",
+      "source_url": "https://www.lusmall.com/Catalog/Part?SKU=261250",
+      "source_kind": "independent_exact_oem_cross_catalogue",
+      "verified_on": "2026-11-14"
+    }
+  },
+  "source_urls": [
+    "https://www.lusmall.com/Catalog/Part?SKU=261250",
+    "https://www.lusmall.com/product/28?Page=17",
+    "https://chats.chinamobil.ru/files/changan-uni-k-uni-k-idd/applicationpdf/UNI-CHANGAN-PARTS-CATALOG-1.pdf",
+    "https://kaspi.kz/shop/p/jashi-zadnii-cd569f260204-0400-1-sht-130050233/?c=750000000",
+    "https://autopiter.kz/brands/id8621/jashi"
+  ],
+  "publication": {
+    "prepared": true,
+    "queued": false,
+    "saved": true,
+    "verified": true,
+    "commit": "5ea7f430a6e148a905bfe32f795fdc0963065e77",
+    "deploy_id": "dep-dbs6ndm8bjmc73e6g2kg",
+    "fitment_id": 111520
+  }
 }
