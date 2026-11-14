@@ -10,15 +10,15 @@
     "reviewed_offer_ids": 408
   },
   "shared_lease": {
-    "owner": null,
+    "owner": "weekend-enrichment-20261114-1400",
     "source_path": "procurement/data/enrichment_queue_20261111.json",
-    "acquired_at": "2026-11-14T08:01:49.000Z",
-    "expires_at": "2026-11-14T08:25:38.000Z",
-    "released_at": "2026-11-14T08:25:38.000Z"
+    "acquired_at": "2026-11-14T09:04:44.000Z",
+    "expires_at": "2026-11-14T09:34:44.000Z",
+    "released_at": null
   },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-14T08:25:38.000Z",
-  "status": "ready_for_weekend_resume",
+  "heartbeat_at": "2026-11-14T09:04:44.000Z",
+  "status": "running_weekend",
   "phase": "other_in_stock_control",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
@@ -8277,6 +8277,11 @@
       "at": "2026-11-14T08:25:38.000Z",
       "type": "lease_released",
       "detail": "Hourly weekend run completed after one verified save, one documented conflict, and performance/index verification. Shared lease released; next existing run may resume from offer 25082 after fresh time/load/DB checks."
+    },
+    {
+      "at": "2026-11-14T09:04:44.000Z",
+      "type": "lease_acquired",
+      "detail": "Fresh shared lease acquired atomically for the existing single weekend processor. No pending publication or active/pending photo task was found; continuation starts at offer 25082."
     }
   ],
   "last_success": {
@@ -8288,8 +8293,8 @@
     "commit": "b6865a763d0d18d713b654d77070b1eb2961ffd7"
   },
   "last_commit": "b6865a763d0d18d713b654d77070b1eb2961ffd7",
-  "paused_at": "2026-11-14T08:25:38.000Z",
-  "pause_reason": "hourly_run_completed_after_checkpoint; resume from offer 25082 with the existing single processor",
+  "paused_at": null,
+  "pause_reason": null,
   "remaining_live": {
     "1": {
       "remaining_without_photo": 297,
