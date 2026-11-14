@@ -10,14 +10,15 @@
     "reviewed_offer_ids": 408
   },
   "shared_lease": {
-    "owner": "weekend-enrichment-20261114-1700-recheck19",
+    "owner": null,
     "source_path": "procurement/data/enrichment_queue_20261111.json",
-    "heartbeat_at": "2026-11-14T12:20:45.083Z",
-    "expires_at": "2026-11-14T12:50:46.641Z",
-    "released_at": null
+    "heartbeat_at": "2026-11-14T12:27:03.169Z",
+    "expires_at": null,
+    "released_at": "2026-11-14T12:27:03.169Z",
+    "release_reason": "checkpointed_prepared_official_candidate_after_latency_throttle"
   },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-14T12:26:58.284Z",
+  "heartbeat_at": "2026-11-14T12:27:03.169Z",
   "status": "paused_checkpointed_prepared_candidate",
   "phase": "recheck_first19",
   "phase_reconciliation": {
@@ -8619,6 +8620,11 @@
       "at": "2026-11-14T12:26:58.284Z",
       "type": "official_candidate_prepared_and_checkpointed",
       "detail": "ZakazAuto 25251 Parts-Mall PJC129FR: official manufacturer catalogue confirms PJC-129FR identity, front-right/RHD execution, exact image and AVEO/SONIC(T300) configurations. Prepared only: queued=false, saved=false, verified=false. Publication deferred after measured 11.51s card latency; resume at sequence 8."
+    },
+    {
+      "at": "2026-11-14T12:27:03.169Z",
+      "type": "lease_released",
+      "detail": "Shared canonical lease released after checkpointing the exact official PJC129FR candidate. No second worker or schedule was created; resume at sequence 8 after a fresh load and live-state check."
     }
   ],
   "last_success": {
@@ -9024,5 +9030,5 @@
     "service_memory_limit_bytes": 536870900,
     "decision": "research and read-only checks allowed; defer or throttle writes while memory remains above 90% on the web service"
   },
-  "updated_at": "2026-11-14T12:26:58.284Z"
+  "updated_at": "2026-11-14T12:27:03.169Z"
 }
