@@ -12,13 +12,13 @@
   "shared_lease": {
     "owner": "weekend-enrichment-20261114-1802-recheck19",
     "source_path": "procurement/data/enrichment_queue_20261111.json",
-    "heartbeat_at": "2026-11-14T13:07:19.806Z",
-    "expires_at": "2026-11-14T13:37:19.806Z",
+    "heartbeat_at": "2026-11-14T13:16:28.415Z",
+    "expires_at": "2026-11-14T13:46:28.415Z",
     "released_at": null
   },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-14T13:07:19.806Z",
-  "status": "running_publication_recheck",
+  "heartbeat_at": "2026-11-14T13:16:28.415Z",
+  "status": "deploying_exact_candidate",
   "phase": "recheck_first19",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
@@ -8349,12 +8349,13 @@
     "brand": "Parts-Mall",
     "article": "PJC129FR",
     "prepared": true,
-    "queued": false,
+    "queued": true,
     "saved": false,
     "verified": false,
     "photo_source_url": "https://catalog.parts-mall.com/images/PJC-129FR_0300-1F.jpg",
     "fitment_source_url": "https://catalog.parts-mall.com/shop-detail?factory_no=PJC-129FR",
-    "journal": "procurement/data/enrichment_queue_items/5-25251-20261113.json"
+    "journal": "procurement/data/enrichment_queue_items/5-25251-20261113.json",
+    "commit": "19fd4233866964caa04c0b2c01267653876204d1"
   },
   "next": {
     "phase": "recheck_first19",
@@ -8629,6 +8630,11 @@
       "at": "2026-11-14T13:07:19.806Z",
       "type": "lease_acquired_and_live_state_rechecked",
       "detail": "Sequence 8 offer 25251 Parts-Mall PJC129FR resumed. Live DB still has positive stock 1, unchanged cost 5900, no photo, no fitment, and task 4985 needs_source. One bounded publication may proceed if exact-source validation and load checks remain acceptable."
+    },
+    {
+      "at": "2026-11-14T13:16:28.415Z",
+      "type": "exact_candidate_queued_for_existing_consumer",
+      "detail": "ZakazAuto 25251 Parts-Mall PJC129FR: one exact manufacturer photo task and one sourced fitment row committed atomically in main at 19fd4233866964caa04c0b2c01267653876204d1. Awaiting live deploy, sole-consumer processing, DB/file/UI verification; no addition counted yet."
     }
   ],
   "last_success": {
@@ -8963,12 +8969,13 @@
       "brand": "Parts-Mall",
       "article": "PJC129FR",
       "prepared": true,
-      "queued": false,
+      "queued": true,
       "saved": false,
       "verified": false,
       "photo_source_url": "https://catalog.parts-mall.com/images/PJC-129FR_0300-1F.jpg",
       "fitment_source_url": "https://catalog.parts-mall.com/shop-detail?factory_no=PJC-129FR",
-      "journal": "procurement/data/enrichment_queue_items/5-25251-20261113.json"
+      "journal": "procurement/data/enrichment_queue_items/5-25251-20261113.json",
+      "commit": "19fd4233866964caa04c0b2c01267653876204d1"
     }
   },
   "normal_resume": {
@@ -9034,5 +9041,5 @@
     "service_memory_limit_bytes": 536870900,
     "decision": "research and read-only checks allowed; defer or throttle writes while memory remains above 90% on the web service"
   },
-  "updated_at": "2026-11-14T13:07:19.806Z"
+  "updated_at": "2026-11-14T13:16:28.415Z"
 }
