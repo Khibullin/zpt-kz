@@ -10,15 +10,15 @@
     "reviewed_offer_ids": 408
   },
   "shared_lease": {
-    "owner": "weekend-enrichment-20261114-1300",
+    "owner": null,
     "source_path": "procurement/data/enrichment_queue_20261111.json",
     "acquired_at": "2026-11-14T08:01:49.000Z",
-    "expires_at": "2026-11-14T08:53:25.000Z",
-    "released_at": null
+    "expires_at": "2026-11-14T08:25:38.000Z",
+    "released_at": "2026-11-14T08:25:38.000Z"
   },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-14T08:23:25.000Z",
-  "status": "running_weekend",
+  "heartbeat_at": "2026-11-14T08:25:38.000Z",
+  "status": "ready_for_weekend_resume",
   "phase": "other_in_stock_control",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
@@ -7196,7 +7196,7 @@
     }
   ],
   "current_batch_index": 0,
-  "current_item_index": 15,
+  "current_item_index": 16,
   "reviewed": [
     {
       "supplier_id": 5,
@@ -7352,6 +7352,17 @@
       "checked_at": "2026-11-14T08:23:25.000Z",
       "status": "saved_and_ui_verified_fitment_photo_package_conflict",
       "journal": "procurement/data/enrichment_queue_items/5-25114-20261114.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25165,
+      "product_id": 6839,
+      "task_id": 4812,
+      "brand": "TLK",
+      "article": "115071",
+      "checked_at": "2026-11-14T08:25:38.000Z",
+      "status": "brand_article_conflict_no_write",
+      "journal": "procurement/data/enrichment_queue_items/5-25165-20261114.json"
     }
   ],
   "prepared": [
@@ -8075,12 +8086,26 @@
         "https://www.koreamotors.ru/product/4530132100"
       ],
       "detail": "The offer and public ZPT card state one unit, while exact external image offers include pair/2-piece presentations. No exact single-unit source image was independently verified, so no photo or thumbnail was saved."
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25165,
+      "field": "photo_and_fitment",
+      "reason": "brand_article_conflict",
+      "checked_at": "2026-11-14T08:25:38.000Z",
+      "sources": [
+        "https://tlk-auto.ru/tlk",
+        "https://kaspi.kz/shop/p/tlk-perednii-201-320-31-30-115071-1-sht-141112545/?c=750000000",
+        "https://download.unixauto.hu/file?id=01061978&name=SACHS+Leng%C3%A9scsillap%C3%ADt%C3%B3_Szem%C3%A9ly.pdf",
+        "https://www.mcstarparts.com/product-page/mercedes-w201-front-strut-standard-201-320-31-30-2013203130"
+      ],
+      "detail": "The official TLK site did not provide an exact 115071 product record. Exact independent and Sachs catalogue sources identify 115071 as a SACHS article cross-referenced to Mercedes OE 201 320 31 30, while the Kaspi page combines 201 320 31 30/115071 under TLK. Supplier-brand identity is therefore unconfirmed; no photo or fitment was saved."
     }
   ],
   "publication_pending": null,
   "next": {
     "supplier_id": 5,
-    "offer_id": 25165
+    "offer_id": 25082
   },
   "events": [
     {
@@ -8242,6 +8267,16 @@
       "at": "2026-11-14T08:23:25.000Z",
       "type": "item_saved_verified_and_advance",
       "detail": "Offer 25114 SsangYong 4530132100: exact Mando catalogue fitment saved for SSANGYONG Korando Sports (Q150), 2012–2017, rear gas, OE 4530132100. No engine or side was claimed. Photo was not saved because exact external offers conflict on one unit versus pair/2-piece presentation. DB and public UI verified; pointer advanced to offer 25165."
+    },
+    {
+      "at": "2026-11-14T08:25:38.000Z",
+      "type": "item_reviewed_no_write_and_advance",
+      "detail": "Offer 25165 TLK 115071: no official exact TLK record found; exact catalogue sources identify 115071 as SACHS and the Kaspi page combines it with Mercedes OE 201 320 31 30. Brand/article identity is conflicting, so no photo or fitment was saved. Pointer advanced to offer 25082."
+    },
+    {
+      "at": "2026-11-14T08:25:38.000Z",
+      "type": "lease_released",
+      "detail": "Hourly weekend run completed after one verified save, one documented conflict, and performance/index verification. Shared lease released; next existing run may resume from offer 25082 after fresh time/load/DB checks."
     }
   ],
   "last_success": {
@@ -8253,8 +8288,8 @@
     "commit": "b6865a763d0d18d713b654d77070b1eb2961ffd7"
   },
   "last_commit": "b6865a763d0d18d713b654d77070b1eb2961ffd7",
-  "paused_at": null,
-  "pause_reason": null,
+  "paused_at": "2026-11-14T08:25:38.000Z",
+  "pause_reason": "hourly_run_completed_after_checkpoint; resume from offer 25082 with the existing single processor",
   "remaining_live": {
     "1": {
       "remaining_without_photo": 297,

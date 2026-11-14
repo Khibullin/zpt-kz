@@ -2,8 +2,8 @@
   "schema": 1,
   "night_end_date": "2026-11-14",
   "started_at": "2026-11-13T18:05:41.445Z",
-  "updated_at": "2026-11-14T08:23:25.000Z",
-  "status": "running_weekend",
+  "updated_at": "2026-11-14T08:25:38.000Z",
+  "status": "ready_for_weekend_resume",
   "supplier_stats": {
     "1": {
       "name": "Omega",
@@ -23,7 +23,7 @@
     },
     "5": {
       "name": "ЗаказАвто",
-      "processed_unique": 15,
+      "processed_unique": 16,
       "photos_added": 1,
       "fitment_added": 11,
       "years_or_engines_added": 10,
@@ -36,7 +36,8 @@
         "brand_identity_not_confirmed": 1,
         "exact_brand_source_not_found": 1,
         "package_conflict_photo_not_saved": 2,
-        "exact_photo_not_verified": 3
+        "exact_photo_not_verified": 3,
+        "brand_article_conflict": 1
       },
       "pending_ui_verification": 0
     }
@@ -48,13 +49,13 @@
       "5": 100
     },
     "next_supplier_id": 5,
-    "next_offer_id": 25165,
+    "next_offer_id": 25082,
     "control_batch_remaining": {
       "3": 100,
-      "5": 85
+      "5": 84
     },
-    "lease_released_at": null,
-    "lease_owner": "weekend-enrichment-20261114-1300",
+    "lease_released_at": "2026-11-14T08:25:38.000Z",
+    "lease_owner": null,
     "pending_ui_verification": null,
     "publication_pending": null
   },
@@ -223,6 +224,16 @@
       "at": "2026-11-14T08:23:25.000Z",
       "type": "item_saved_verified_and_advance",
       "detail": "ZakazAuto 25114 SsangYong 4530132100: verified Korando Sports (Q150) 2012–2017 rear-gas fitment saved and shown publicly. No engine/side was asserted. Photo skipped due one-unit versus pair/2-piece package conflict. Queue advanced to 25165."
+    },
+    {
+      "at": "2026-11-14T08:25:38.000Z",
+      "type": "item_reviewed_no_write_and_advance",
+      "detail": "ZakazAuto 25165 TLK 115071: supplier-brand identity conflicts with exact SACHS 115071 catalogues and no official exact TLK record was found. No photo or fitment saved; queue advanced to 25082."
+    },
+    {
+      "at": "2026-11-14T08:25:38.000Z",
+      "type": "lease_released",
+      "detail": "Shared lease released after checkpointing this hourly weekend run. Existing automation can resume at offer 25082; no duplicate processor or schedule was created."
     }
   ],
   "last_success": {

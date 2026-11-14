@@ -1,0 +1,94 @@
+{
+  "schema": 1,
+  "checked_on": "2026-11-14",
+  "checked_at": "2026-11-14T08:25:38.000Z",
+  "supplier_id": 5,
+  "supplier": "ЗаказАвто",
+  "offer_id": 25165,
+  "product_id": 6839,
+  "task_id": 4812,
+  "brand": "TLK",
+  "article": "115071",
+  "name": "Амортизатор передний",
+  "stock_before": "1",
+  "cost_before": "3600.00",
+  "before": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "fitment_rows": 0,
+    "reviewed_applicability": null
+  },
+  "prepared": {
+    "photo": {
+      "status": "not_saved",
+      "reason": "Exact TLK brand identity is unconfirmed; available exact 115071 images are SACHS or generic cross-reference products."
+    },
+    "fitment": {
+      "status": "not_saved_conflict",
+      "reason": "The official TLK site has no exact 115071 record, while exact catalogues identify 115071 as SACHS and Kaspi combines 201 320 31 30/115071 under TLK. Mercedes applicability cannot be transferred to an unconfirmed TLK product."
+    }
+  },
+  "queued": {
+    "status": "not_queued"
+  },
+  "saved": {
+    "status": "no_write",
+    "photo_saved": false,
+    "fitment_saved": false
+  },
+  "after": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "fitment_rows": 0,
+    "stock": "1",
+    "cost": "3600.00",
+    "kaspi_price": "13000.00"
+  },
+  "verification": {
+    "source_reviewed": true,
+    "db_rechecked": true,
+    "db_unchanged": true,
+    "photo_verified": false,
+    "thumbnail_verified": false,
+    "fitment_verified": false,
+    "ui_verification_not_applicable": true
+  },
+  "sources": [
+    {
+      "kind": "official_brand_site_no_exact_record",
+      "url": "https://tlk-auto.ru/tlk",
+      "checked_on": "2026-11-14",
+      "result": "No exact 115071 record found in focused official-site search."
+    },
+    {
+      "kind": "kaspi_exact_card",
+      "url": "https://kaspi.kz/shop/p/tlk-perednii-201-320-31-30-115071-1-sht-141112545/?c=750000000",
+      "checked_on": "2026-11-14",
+      "scope": "Brand TLK; combined manufacturer/OEM article 201 320 31 30/115071; Mercedes-Benz E-CLASS; separate years 1984 and 1997; one unit."
+    },
+    {
+      "kind": "manufacturer_catalogue_copy_conflicting_brand",
+      "url": "https://download.unixauto.hu/file?id=01061978&name=SACHS+Leng%C3%A9scsillap%C3%ADt%C3%B3_Szem%C3%A9ly.pdf",
+      "checked_on": "2026-11-14",
+      "exact_brand": "SACHS",
+      "exact_article": "115 071",
+      "scope": "Cross-reference list includes Mercedes-Benz 201 320 31 30."
+    },
+    {
+      "kind": "independent_exact_sachs_page",
+      "url": "https://www.mcstarparts.com/product-page/mercedes-w201-front-strut-standard-201-320-31-30-2013203130",
+      "checked_on": "2026-11-14",
+      "exact_brand": "SACHS",
+      "exact_article": "115071",
+      "scope": "Mercedes W201 standard front strut; explicitly excludes Sportline."
+    }
+  ],
+  "status": "brand_article_conflict_no_write",
+  "skip_reason": "brand_article_conflict",
+  "next": {
+    "supplier_id": 5,
+    "offer_id": 25082,
+    "action": "review exact JASHI C281F260202-0200 sources after fresh time/load/DB checks"
+  },
+  "trade_data_unchanged": true
+}
