@@ -10,16 +10,15 @@
     "reviewed_offer_ids": 408
   },
   "shared_lease": {
-    "owner": null,
+    "owner": "weekend-enrichment-20261114-1802-recheck19",
     "source_path": "procurement/data/enrichment_queue_20261111.json",
-    "heartbeat_at": "2026-11-14T12:27:03.169Z",
-    "expires_at": null,
-    "released_at": "2026-11-14T12:27:03.169Z",
-    "release_reason": "checkpointed_prepared_official_candidate_after_latency_throttle"
+    "heartbeat_at": "2026-11-14T13:07:19.806Z",
+    "expires_at": "2026-11-14T13:37:19.806Z",
+    "released_at": null
   },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-14T12:27:03.169Z",
-  "status": "paused_checkpointed_prepared_candidate",
+  "heartbeat_at": "2026-11-14T13:07:19.806Z",
+  "status": "running_publication_recheck",
   "phase": "recheck_first19",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
@@ -8625,6 +8624,11 @@
       "at": "2026-11-14T12:27:03.169Z",
       "type": "lease_released",
       "detail": "Shared canonical lease released after checkpointing the exact official PJC129FR candidate. No second worker or schedule was created; resume at sequence 8 after a fresh load and live-state check."
+    },
+    {
+      "at": "2026-11-14T13:07:19.806Z",
+      "type": "lease_acquired_and_live_state_rechecked",
+      "detail": "Sequence 8 offer 25251 Parts-Mall PJC129FR resumed. Live DB still has positive stock 1, unchanged cost 5900, no photo, no fitment, and task 4985 needs_source. One bounded publication may proceed if exact-source validation and load checks remain acceptable."
     }
   ],
   "last_success": {
@@ -9030,5 +9034,5 @@
     "service_memory_limit_bytes": 536870900,
     "decision": "research and read-only checks allowed; defer or throttle writes while memory remains above 90% on the web service"
   },
-  "updated_at": "2026-11-14T12:27:03.169Z"
+  "updated_at": "2026-11-14T13:07:19.806Z"
 }
