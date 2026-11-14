@@ -2,7 +2,7 @@
   "schema": 1,
   "night_end_date": "2026-11-14",
   "started_at": "2026-11-13T18:05:41.445Z",
-  "updated_at": "2026-11-14T15:14:32.159Z",
+  "updated_at": "2026-11-14T15:15:56.580Z",
   "status": "checkpointed_item_verified",
   "supplier_stats": {
     "1": {
@@ -58,8 +58,8 @@
       "3": 100,
       "5": 81
     },
-    "lease_released_at": null,
-    "lease_owner": "weekend-enrichment-20261114-2001-recheck19",
+    "lease_released_at": "2026-11-14T15:15:56.580Z",
+    "lease_owner": null,
     "pending_ui_verification": null,
     "publication_pending": null,
     "batch_size": 20,
@@ -367,6 +367,11 @@
       "at": "2026-11-14T15:14:32.159Z",
       "type": "item_fitment_enhanced_verified_and_advance",
       "detail": "ZakazAuto 25224 Changan S203F260204-0100: four separate years 2021/2022/2023/2024, 1.5L Turbo and exact one-piece complete left-front assembly restrictions saved to the existing fitment and verified in DB/public UI. Photo and thumbnail not saved because the independently visible exact image was for a conflicting two-piece package. Trade/Kaspi unchanged; next sequence 11 offer 25177."
+    },
+    {
+      "at": "2026-11-14T15:15:56.580Z",
+      "type": "lease_released",
+      "detail": "Shared lease released after sequence 10 checkpoint; next is sequence 11 offer 25177."
     }
   ],
   "last_success": {
