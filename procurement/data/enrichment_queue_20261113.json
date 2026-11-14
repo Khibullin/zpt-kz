@@ -10,16 +10,16 @@
     "reviewed_offer_ids": 408
   },
   "shared_lease": {
-    "owner": null,
+    "owner": "weekend-enrichment-20261114-2001-recheck19",
     "source_path": "procurement/data/enrichment_queue_20261111.json",
-    "heartbeat_at": "2026-11-14T14:14:40.027Z",
-    "expires_at": null,
-    "released_at": "2026-11-14T14:14:40.027Z",
-    "release_reason": "checkpointed_verified_jashi_fitment"
+    "heartbeat_at": "2026-11-14T15:01:52.818Z",
+    "expires_at": "2026-11-14T15:31:42.463Z",
+    "released_at": null,
+    "release_reason": null
   },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-14T14:14:40.027Z",
-  "status": "checkpointed_item_verified",
+  "heartbeat_at": "2026-11-14T15:01:52.818Z",
+  "status": "rechecking_item",
   "phase": "recheck_first19",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
@@ -8731,6 +8731,11 @@
       "at": "2026-11-14T14:14:40.027Z",
       "type": "lease_released",
       "detail": "Shared lease released after verified JASHI fitment publication; next is sequence 10 offer 25224. No duplicate worker or schedule was created."
+    },
+    {
+      "at": "2026-11-14T15:01:52.818Z",
+      "type": "lease_acquired",
+      "detail": "Shared lease acquired atomically for first-19 sequence 10 offer 25224; no second worker or schedule started."
     }
   ],
   "last_success": {
@@ -9118,5 +9123,5 @@
     "service_memory_limit_bytes": 536870900,
     "decision": "research and read-only checks allowed; defer or throttle writes while memory remains above 90% on the web service"
   },
-  "updated_at": "2026-11-14T14:14:40.027Z"
+  "updated_at": "2026-11-14T15:01:52.818Z"
 }
