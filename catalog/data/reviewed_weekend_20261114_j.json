@@ -1,0 +1,23 @@
+{
+  "checked_on": "2026-11-14",
+  "scope": "One exact positive-stock ZakazAuto photo task; no price, stock, profit, Kaspi, fitment, or unrelated field changes",
+  "sources": [
+    {
+      "offer_id": 25765,
+      "product_id": 7250,
+      "task_id": 5223,
+      "supplier_id": 5,
+      "brand": "HYUNDAI-KIA",
+      "article": "495602S350",
+      "stock": "2",
+      "cost": "34900.00",
+      "source_label": "Tachka.ru exact public product catalogue page",
+      "source_kind": "independent_exact_part_catalogue",
+      "source_url": "https://tachka.ru/hyundai-kia/495602S350",
+      "verified_image_url": "https://img.tachka.ru/kqcj8uri9LshCLDDx5L7Sp5Ui_4=/trim:top-left:50/fit-in/1500x1875/brand/hyundai-kia/78c63b9802beb533b91b6cc23bba0697.jpeg",
+      "verified_image_sha256": "00d2bb69e4adac5ba787035c964ad1c0f8739c7f0cfce7bc211e556cd5b715eb",
+      "verified_image_size": "952x539",
+      "image_note": "Exact page identifies Hyundai / KIA article 495602S350 and shows one complete bearing bracket and shaft assembly; the sole consumer must revalidate page identity before saving."
+    }
+  ]
+}
