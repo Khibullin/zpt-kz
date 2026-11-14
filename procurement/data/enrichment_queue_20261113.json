@@ -9,10 +9,17 @@
     "phase": "completed_with_documented_exceptions_20261112",
     "reviewed_offer_ids": 408
   },
-  "shared_lease": null,
+  "shared_lease": {
+    "owner": "weekend-enrichment-20261115-0357-recheck19",
+    "scope": "enrichment_queue_20261113_recheck_first19",
+    "acquired_at": "2026-11-14T22:58:41.587130Z",
+    "heartbeat_at": "2026-11-14T22:58:41.587130Z",
+    "expires_at": "2026-11-14T23:28:41.587130Z",
+    "next_offer_id": 25170
+  },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-14T22:15:28.714066Z",
-  "status": "running_recheck_first19_checkpointed",
+  "heartbeat_at": "2026-11-14T22:58:41.587130Z",
+  "status": "running_recheck_first19",
   "phase": "recheck_first19",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
@@ -9348,7 +9355,7 @@
     "service_memory_limit_bytes": 536870900,
     "decision": "research and read-only checks allowed; defer or throttle writes while memory remains above 90% on the web service"
   },
-  "updated_at": "2026-11-14T22:15:28.714066Z",
+  "updated_at": "2026-11-14T22:58:41.587130Z",
   "current_index": 17,
   "next_supplier_id": 5,
   "next_offer_id": 25170,
