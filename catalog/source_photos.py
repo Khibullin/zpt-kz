@@ -127,7 +127,7 @@ def process_photo_tasks(limit=10):
     if any(row['evidence'].get('block_kind')=='storage' or row['note'].startswith('Недостаточно свободного места') for row in blocked):return 0
     # Prepared work is activated by the deployed consumer, not the old process
     # while Render runs schema/data migrations for the next release.
-    SupplierPhotoTask.objects.filter(status__in=['prepared','maker_ready','web_ready','bilstein_ready','shock_ready','weekend14h_ready','weekend14i_ready','weekend14j_ready','weekend14k_ready','weekend14n_ready','weekend15a_ready','weekend15b_ready','weekend15c_ready','weekend15d_ready','weekend15e_ready','weekend15f_ready','weekend15g_ready','weekend15h_ready','weekend15i_ready','weekend15j_ready','weekend15k_ready','weekend15l_ready','weekend15m_ready','weekend15n_ready','weekend15o_ready','weekend15p_ready','weekend15r_ready']).update(status='pending')
+    SupplierPhotoTask.objects.filter(status__in=['prepared','maker_ready','web_ready','bilstein_ready','shock_ready','weekend14h_ready','weekend14i_ready','weekend14j_ready','weekend14k_ready','weekend14n_ready','weekend15a_ready','weekend15b_ready','weekend15c_ready','weekend15d_ready','weekend15e_ready','weekend15f_ready','weekend15g_ready','weekend15h_ready','weekend15i_ready','weekend15j_ready','weekend15k_ready','weekend15l_ready','weekend15m_ready','weekend15n_ready','weekend15o_ready','weekend15p_ready','weekend15r_ready','weekend15s_ready']).update(status='pending')
     from .reviewed_remaining2 import process_reviewed_photos as process_remaining2_photos
     done=process_remaining2_photos(limit=limit)
     from .reviewed_zakaz100 import process_reviewed_photos as process_zakaz100_photos
@@ -320,7 +320,16 @@ def process_photo_tasks(limit=10):
                         and evidence.get('verified_image_sha256')=='dc00b266a7e6a6aaa2ca502e861fc4d3441966588e80002de66172c917870a78'
                         and evidence.get('checked_on')=='2026-11-15'
                     )
-                    if exact_jashi or exact_trialli or exact_hyundai_kia or exact_ssangyong or exact_haval or exact_jashi_54651 or exact_jashi_54650 or exact_jashi_54660 or exact_fenox_a12254 or exact_jashi_step_set or exact_hyundai_kia_55100 or exact_parts_mall_pqb007 or exact_ssangyong_7146034004:
+                    exact_ssangyong_7145034004=(
+                        task.pk==4805 and product.pk==6832 and offer.pk==25085
+                        and offer.brand=='SsangYong' and offer.article=='7145034004'
+                        and task.source_url=='https://www.autoopt.ru/catalog/912907-amortizator_ssangyong_actyon_10__kryshki_bagazhnika_levyj_oe'
+                        and evidence.get('reviewed_batch')=='weekend-20261115-s'
+                        and evidence.get('image_url')=='https://www.autoopt.ru/product_pictures/big/0fe/912907.jpg'
+                        and evidence.get('verified_image_sha256')=='f3748cf1663c711d9ec25b01031a0400df5d3bf2614dbd5f5e460a9a060baf07'
+                        and evidence.get('checked_on')=='2026-11-15'
+                    )
+                    if exact_jashi or exact_trialli or exact_hyundai_kia or exact_ssangyong or exact_haval or exact_jashi_54651 or exact_jashi_54650 or exact_jashi_54660 or exact_fenox_a12254 or exact_jashi_step_set or exact_hyundai_kia_55100 or exact_parts_mall_pqb007 or exact_ssangyong_7146034004 or exact_ssangyong_7145034004:
                         # The exact card and selected item image were visually checked before
                         # staging. Fetch only that immutable CDN object here; the guarded
                         # migration has already rechecked live identity, stock and fitment.
