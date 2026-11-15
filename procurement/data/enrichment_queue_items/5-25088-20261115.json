@@ -1,0 +1,93 @@
+{
+  "schema": 1,
+  "night_end_date": "2026-11-15",
+  "supplier_id": 5,
+  "supplier_name": "ЗаказАвто",
+  "offer_id": 25088,
+  "product_id": 6788,
+  "task_id": 4761,
+  "brand": "JASHI",
+  "article": "C281F260203-1100",
+  "name": "Амортизатор задней Changan",
+  "checked_on": "2026-11-15",
+  "before": {
+    "stock": "6",
+    "cost": "21400.00",
+    "price": "27820.00",
+    "kaspi_price": "31390.00",
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "fitment_rows": 0,
+    "task_status": "needs_source"
+  },
+  "prepared": {
+    "photo": {
+      "status": "not_staged_source_http_403",
+      "source_url": "https://www.chinesecar.parts/products/changan-c281f260203-1100-2090.html",
+      "image_url": "https://www.chinesecar.parts/assets/watermarked-products/product-2090.jpg",
+      "visual_check": "exact listing image shows a rear shock absorber and a JASHI box labelled C281F260203-1100",
+      "restriction": "direct file retrieval returned HTTP 403; no bypass attempted"
+    },
+    "fitment": {
+      "status": "confirmed_exact",
+      "make": "CHANGAN",
+      "model": "UNI-V",
+      "years": null,
+      "engine": null,
+      "placement": "rear",
+      "package_quantity": 1,
+      "source_url": "https://www.chinesecar.parts/products/changan-c281f260203-1100-2090.html",
+      "confirmation_url": "https://kaspi.kz/shop/p/jashi-zadnii-c281f260203-1100-1-sht-130050271/"
+    }
+  },
+  "queued": {
+    "status": "deployed_fitment_only",
+    "queued_at": "2026-11-15T09:18:30Z",
+    "commit": "e80095f723121d1a51a53a040c17202f5089715a",
+    "deploy_id": "dep-dbsnhq2jnfac73cfm4tg",
+    "photo_task_staged": false
+  },
+  "saved": {
+    "status": "fitment_saved",
+    "saved_at": "2026-11-15T09:20:06.972Z",
+    "photo_saved": false,
+    "thumbnail_saved": false,
+    "fitment_saved": true,
+    "fitment_id": 111522,
+    "task_status": "needs_source"
+  },
+  "verification": {
+    "source_verified": true,
+    "db_verified": true,
+    "photo_verified": false,
+    "thumbnail_verified": false,
+    "fitment_verified": true,
+    "ui_verified": true,
+    "ui_http_status": 200,
+    "ui_response_seconds": 6.064239,
+    "ui_url": "https://zpt.kz/changan-zpt-25088/",
+    "verified_at": "2026-11-15T09:21:20.000Z"
+  },
+  "after": {
+    "stock": "6",
+    "cost": "21400.00",
+    "price": "27820.00",
+    "kaspi_price": "31390.00",
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "fitment_rows": 1,
+    "task_status": "needs_source"
+  },
+  "trade_data_unchanged": true,
+  "status": "completed_fitment_saved_photo_source_unavailable_http403",
+  "skip_reason": "photo_source_temporarily_unavailable_http_403",
+  "next": {
+    "supplier_id": 5,
+    "offer_id": 25213,
+    "product_id": 6764,
+    "task_id": 4737,
+    "brand": "JASHI",
+    "article": "54651-D3000",
+    "action": "recheck lease, live stock/load/task state, then research exact brand/article sources"
+  }
+}
