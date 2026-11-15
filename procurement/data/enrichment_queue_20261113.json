@@ -9,20 +9,10 @@
     "phase": "completed_with_documented_exceptions_20261112",
     "reviewed_offer_ids": 408
   },
-  "shared_lease": {
-    "owner": "weekend-enrichment-20261115-1724-item25206",
-    "acquired_at": "2026-11-15T12:24:00.000Z",
-    "heartbeat_at": "2026-11-15T12:24:00.000Z",
-    "expires_at": "2026-11-15T13:04:00.000Z",
-    "checkpoint_path": "procurement/data/enrichment_queue_20261113.json",
-    "supplier_id": 5,
-    "offer_id": 25206,
-    "product_id": 6766,
-    "task_id": 4739
-  },
+  "shared_lease": null,
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-15T12:24:00.000Z",
-  "status": "lease_acquired_researching_jashi_54651_f2500",
+  "heartbeat_at": "2026-11-15T12:29:00.000Z",
+  "status": "checkpointed_after_verified_jashi_54651_f2500_fitment_resume_ready",
   "phase": "other_in_stock_control",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
@@ -7200,7 +7190,7 @@
     }
   ],
   "current_batch_index": 0,
-  "current_item_index": 10,
+  "current_item_index": 11,
   "reviewed": [
     {
       "supplier_id": 5,
@@ -7466,6 +7456,17 @@
       "checked_at": "2026-11-15T12:22:00.000Z",
       "status": "saved_and_ui_verified_photo_thumbnail_and_fitment",
       "journal": "procurement/data/enrichment_queue_items/5-25159-20261115.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25206,
+      "product_id": 6766,
+      "task_id": 4739,
+      "brand": "JASHI",
+      "article": "54651-F2500",
+      "checked_at": "2026-11-15T12:29:00.000Z",
+      "status": "saved_and_ui_verified_fitment_photo_unconfirmed",
+      "journal": "procurement/data/enrichment_queue_items/5-25206-20261115.json"
     }
   ],
   "prepared": [
@@ -7894,6 +7895,17 @@
       "source_url": "https://kaspi.kz/shop/p/pmc-parts-mall-pqb-007-upor-kapota-dlja-kia-sorento-2002-2005-chernyi-179355295/",
       "image_url": "https://resources.cdn-kaspi.kz/img/m/p/p1f/pa6/187024947.jpg?format=gallery-medium",
       "journal": "procurement/data/enrichment_queue_items/5-25159-20261115.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25206,
+      "product_id": 6766,
+      "task_id": 4739,
+      "kind": "fitment_only",
+      "prepared_at": "2026-11-15T12:25:00.000Z",
+      "status": "published_and_verified",
+      "source_url": "https://aftermarket.ctr.co.kr/files/214f77492147bb699d6fb2030be19ec2.pdf",
+      "journal": "procurement/data/enrichment_queue_items/5-25206-20261115.json"
     }
   ],
   "queued": [
@@ -8012,6 +8024,15 @@
       "commit": "9949c2f9b5402a407fd303367d013a4a4e095f9f",
       "deploy_id": "dep-dbsq5glbedkc73cfa6tg",
       "task_id": 4786
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25206,
+      "kind": "fitment_publication",
+      "queued_at": "2026-11-15T12:25:32.000Z",
+      "commit": "708cdbdfa7f0c4b860a598f58cb9d17e00e044d9",
+      "deploy_id": "dep-dbsq9fc9v7es73c6njng",
+      "task_id": 4739
     }
   ],
   "saved": [
@@ -8328,6 +8349,19 @@
       "supplier_thumbnail": "products/optimized/bedd11be1e77f1743679dbc21582cc7d607a81067e1323eff04fd02e7dc1808b.webp",
       "deploy_id": "dep-dbsq5glbedkc73cfa6tg",
       "live_commit": "9949c2f9b5402a407fd303367d013a4a4e095f9f"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25206,
+      "kind": "fitment",
+      "saved_at": "2026-11-15T12:27:12.953432Z",
+      "task_id": 4739,
+      "fitment_ids": [
+        111535
+      ],
+      "configuration_count": 1,
+      "deploy_id": "dep-dbsq9fc9v7es73c6njng",
+      "live_commit": "708cdbdfa7f0c4b860a598f58cb9d17e00e044d9"
     }
   ],
   "verified": [
@@ -8804,6 +8838,23 @@
       "configuration_count": 2,
       "engine_rows": 2,
       "verified_at": "2026-11-15T12:22:00.000Z"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25206,
+      "kind": "fitment_only_photo_unconfirmed",
+      "db_verified": true,
+      "ui_verified": true,
+      "ui_url": "https://zpt.kz/hyundai-zpt-25206/",
+      "ui_http_status": 200,
+      "fitment_ids": [
+        111535
+      ],
+      "configuration_count": 1,
+      "engine_rows": 0,
+      "photo_saved": false,
+      "placeholder_remains": true,
+      "verified_at": "2026-11-15T12:29:00.000Z"
     }
   ],
   "exceptions": [
@@ -9040,19 +9091,31 @@
         "https://kaspi.kz/shop/p/jashi-zadnii-cd569f260204-0400-1-sht-130050233/?c=750000000"
       ],
       "detail": "New exact fitment source was found and saved, but the accessible exact-cross photo is branded LUXE, not JASHI. No exact JASHI product photo was independently accessible, so no photo or thumbnail was saved."
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25206,
+      "field": "photo",
+      "reason": "exact_jashi_photo_not_found_brand_conflict",
+      "checked_at": "2026-11-15T12:29:00.000Z",
+      "sources": [
+        "https://shop.globalparts.kz/getCatalog?partNumber=54651F2500",
+        "https://kaspi.kz/shop/p/expert-perednii-54651-f2500-1-sht-119619624/"
+      ],
+      "detail": "Exact-article accessible cards identify Hyundai/Kia or Expert, not JASHI. No image was reused; retry only with a new exact JASHI source."
     }
   ],
   "publication_pending": null,
   "next": {
     "phase": "other_in_stock_control",
-    "sequence": 11,
+    "sequence": 12,
     "batch_size": 20,
     "supplier_id": 5,
-    "offer_id": 25206,
-    "product_id": 6766,
-    "task_id": 4739,
-    "brand": "JASHI",
-    "article": "54651-F2500"
+    "offer_id": 25086,
+    "product_id": 6834,
+    "task_id": 4807,
+    "brand": "SsangYong",
+    "article": "7146034004"
   },
   "events": [
     {
@@ -9649,34 +9712,49 @@
       "at": "2026-11-15T12:22:00.000Z",
       "type": "lease_released",
       "detail": "Expanded checkpoint released after per-item save; canonical shared lease remains held until report checkpoint completes."
+    },
+    {
+      "at": "2026-11-15T12:24:00.000Z",
+      "type": "lease_acquired",
+      "detail": "Shared lease acquired after fresh time, DB, processor and service-load checks for ZakazAuto offer 25206 / JASHI 54651-F2500."
+    },
+    {
+      "at": "2026-11-15T12:29:00.000Z",
+      "type": "item_saved_verified_and_advance",
+      "detail": "JASHI 54651-F2500: official CTR OEM cross fitment for HYUNDAI Avante/Elantra (AD), 2015–2020, front left saved and DB/UI verified. Engines are unknown. Exact JASHI photo not found; conflicting Expert and Hyundai/Kia images rejected. Batch20 now 11/20; resume offer 25086."
+    },
+    {
+      "at": "2026-11-15T12:29:00.000Z",
+      "type": "lease_released",
+      "detail": "Expanded checkpoint released after per-item save; canonical shared lease remains held until report checkpoint completes."
     }
   ],
   "last_success": {
-    "at": "2026-11-15T12:22:00.000Z",
+    "at": "2026-11-15T12:29:00.000Z",
     "supplier_id": 5,
-    "offer_id": 25159,
-    "product_id": 6813,
-    "task_id": 4786,
-    "brand": "Parts-Mall",
-    "article": "pqb-007",
+    "offer_id": 25206,
+    "product_id": 6766,
+    "task_id": 4739,
+    "brand": "JASHI",
+    "article": "54651-F2500",
     "saved": {
-      "photo": true,
-      "thumbnail": true,
+      "photo": false,
+      "thumbnail": false,
       "fitment": true,
       "years_or_engines": true
     },
     "db_verified": true,
     "ui_verified": true,
     "fitment_ids": [
-      111534
+      111535
     ],
-    "configuration_count": 2,
-    "engine_rows": 2,
-    "live_commit": "9949c2f9b5402a407fd303367d013a4a4e095f9f",
-    "deploy_id": "dep-dbsq5glbedkc73cfa6tg",
-    "ui_url": "https://zpt.kz/kia-zpt-25159/"
+    "configuration_count": 1,
+    "engine_rows": 0,
+    "live_commit": "708cdbdfa7f0c4b860a598f58cb9d17e00e044d9",
+    "deploy_id": "dep-dbsq9fc9v7es73c6njng",
+    "ui_url": "https://zpt.kz/hyundai-zpt-25206/"
   },
-  "last_commit": "dabf1ddc8be8d740145530c4b1543c8288a59097",
+  "last_commit": "28aedae6fe0d3665aadbb8e57adec3dc08ce76d6",
   "paused_at": "2026-11-14T19:16:20.438Z",
   "pause_reason": "Sequence 14 EX54661A7100 recheck completed. Two exact photo sources were temporarily unavailable to the background consumer (HTTP 403); existing fitment verified. Resume at sequence 15.",
   "remaining_live": {
@@ -10120,56 +10198,46 @@
     "service_memory_limit_bytes": 536870900,
     "decision": "research and read-only checks allowed; defer or throttle writes while memory remains above 90% on the web service"
   },
-  "updated_at": "2026-11-15T12:24:00.000Z",
-  "current_index": 10,
+  "updated_at": "2026-11-15T12:29:00.000Z",
+  "current_index": 11,
   "next_supplier_id": 5,
-  "next_offer_id": 25206,
-  "next_product_id": 6766,
-  "next_task_id": 4739,
+  "next_offer_id": 25086,
+  "next_product_id": 6834,
+  "next_task_id": 4807,
   "last_lease": {
-    "owner": "weekend-enrichment-20261115-1713-item25159",
-    "acquired_at": "2026-11-15T12:13:00.000Z",
-    "released_at": "2026-11-15T12:22:00.000Z",
-    "result": "completed_saved_and_verified_parts_mall_pqb007",
-    "checkpoint_path": "procurement/data/enrichment_queue_20261113.json",
-    "journal_commit": "dabf1ddc8be8d740145530c4b1543c8288a59097",
-    "next_offer_id": 25206
-  },
-  "lease": {
     "owner": "weekend-enrichment-20261115-1724-item25206",
     "acquired_at": "2026-11-15T12:24:00.000Z",
-    "heartbeat_at": "2026-11-15T12:24:00.000Z",
-    "expires_at": "2026-11-15T13:04:00.000Z",
+    "released_at": "2026-11-15T12:29:00.000Z",
+    "result": "completed_fitment_saved_verified_photo_unconfirmed",
     "checkpoint_path": "procurement/data/enrichment_queue_20261113.json",
-    "supplier_id": 5,
-    "offer_id": 25206,
-    "product_id": 6766,
-    "task_id": 4739
+    "journal_commit": "28aedae6fe0d3665aadbb8e57adec3dc08ce76d6",
+    "next_offer_id": 25086
   },
+  "lease": null,
   "pending_candidate": {
+    "supplier_id": 5,
+    "offer_id": 25086,
+    "product_id": 6834,
+    "task_id": 4807,
+    "brand": "SsangYong",
+    "article": "7146034004",
+    "state": "resume_ready_fresh_state_required"
+  },
+  "last_reviewed": {
     "supplier_id": 5,
     "offer_id": 25206,
     "product_id": 6766,
     "task_id": 4739,
     "brand": "JASHI",
     "article": "54651-F2500",
-    "state": "researching_new_sources"
-  },
-  "last_reviewed": {
-    "supplier_id": 5,
-    "offer_id": 25159,
-    "product_id": 6813,
-    "task_id": 4786,
-    "brand": "Parts-Mall",
-    "article": "pqb-007",
-    "kind": "exact_photo_thumbnail_manufacturer_period_and_engines_saved",
-    "photo_saved": true,
-    "thumbnail_saved": true,
+    "kind": "verified_fitment_saved_photo_brand_conflict",
+    "photo_saved": false,
+    "thumbnail_saved": false,
     "fitment_saved": true,
     "fitment_rows": 1,
-    "configuration_rows": 2,
+    "configuration_rows": 1,
     "db_verified": true,
     "ui_verified": true,
-    "reviewed_at": "2026-11-15T12:22:00.000Z"
+    "reviewed_at": "2026-11-15T12:29:00.000Z"
   }
 }
