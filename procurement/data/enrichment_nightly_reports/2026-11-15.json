@@ -2,7 +2,7 @@
   "schema": 1,
   "night_end_date": "2026-11-15",
   "started_at": "2026-11-14T19:02:21.138Z",
-  "updated_at": "2026-11-15T09:34:00.000Z",
+  "updated_at": "2026-11-15T09:34:30.000Z",
   "status": "checkpointed_after_verified_jashi_54651_d3000_resume_ready",
   "supplier_stats": {
     "1": {
@@ -34,7 +34,7 @@
         "brand_article_conflict": 1
       },
       "pending_ui_verification": 0,
-      "thumbnails_added": 4
+      "thumbnails_added": 6
     }
   },
   "queue": {
@@ -239,6 +239,11 @@
       "at": "2026-11-15T09:34:00.000Z",
       "type": "lease_released",
       "detail": "Shared lease released after per-item checkpoint; queue resumes at ZakazAuto offer 25289."
+    },
+    {
+      "at": "2026-11-15T09:34:30.000Z",
+      "type": "report_counter_reconciled",
+      "detail": "Thumbnail counter reconciled with the two newly DB/UI-verified HAVAL 2804201XKN01A and JASHI 54651-D3000 thumbnail files; no catalogue write performed."
     }
   ],
   "last_success": {
