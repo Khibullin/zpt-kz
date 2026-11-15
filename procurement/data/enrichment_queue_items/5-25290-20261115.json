@@ -1,0 +1,161 @@
+{
+  "schema": 1,
+  "night_end_date": "2026-11-15",
+  "supplier_id": 5,
+  "supplier_name": "ЗаказАвто",
+  "offer_id": 25290,
+  "product_id": 6961,
+  "task_id": 4934,
+  "brand": "JASHI",
+  "article": "54660H5100",
+  "name": "Амортизатор передний правый (голый без пружины) Hyundai Accent Hyundai",
+  "checked_on": "2026-11-15",
+  "before": {
+    "stock": "5",
+    "cost": "14400.00",
+    "price": "18720.00",
+    "kaspi_price": "22760.00",
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "fitment_rows": 0,
+    "task_status": "needs_source"
+  },
+  "prepared": {
+    "photo": {
+      "status": "confirmed_exact",
+      "source_kind": "exact_kaspi_card",
+      "source_url": "https://kaspi.kz/shop/p/jashi-perednii-54660h5100-1-sht-144184316/",
+      "image_url": "https://resources.cdn-kaspi.kz/img/m/p/ped/pc6/58893082.png?format=gallery-medium",
+      "source_dimensions": "571x420",
+      "source_bytes": 32230,
+      "sha256": "8bb584b6700964c3f43056682be114064b98a7958014f5630ee7a9aefd610e4e",
+      "visual_check": "real isolated front-right bare strut; no car, diagram, analogue or placeholder"
+    },
+    "fitment": {
+      "status": "confirmed_exact",
+      "rows": [
+        {
+          "make": "HYUNDAI",
+          "model": "Accent",
+          "years": [
+            "2017",
+            "2018",
+            "2019",
+            "2020",
+            "2021",
+            "2022",
+            "2023",
+            "2024",
+            "2025"
+          ],
+          "engine": null,
+          "generation": null,
+          "placement": "front",
+          "side": "right"
+        },
+        {
+          "make": "HYUNDAI",
+          "model": "Solaris",
+          "years": [
+            "2017",
+            "2018",
+            "2019",
+            "2020",
+            "2021",
+            "2022",
+            "2023",
+            "2024",
+            "2025"
+          ],
+          "engine": null,
+          "generation": null,
+          "placement": "front",
+          "side": "right"
+        },
+        {
+          "make": "KIA",
+          "model": "Rio",
+          "years": [
+            "2017",
+            "2018",
+            "2019",
+            "2020",
+            "2021",
+            "2022",
+            "2023",
+            "2024",
+            "2025"
+          ],
+          "engine": null,
+          "generation": null,
+          "placement": "front",
+          "side": "right"
+        }
+      ],
+      "execution": "bare strut without spring",
+      "package_quantity": 1,
+      "source_url": "https://kaspi.kz/shop/p/jashi-perednii-54660h5100-1-sht-144184316/",
+      "oem_confirmation_url": "https://yoshiparts.com/parts/hyundai-54660H5100",
+      "catalogue_confirmation_url": "https://partsouq.com/en/search/all?q=54660H5100",
+      "limitations": "Generation and engine were not stated; no values inferred. Each listed year stored separately."
+    }
+  },
+  "queued": {
+    "status": "queued_deployed_and_guarded",
+    "guard_commit": "5f96f2eb2af05a140cf42e05051da226fb4fcdc8",
+    "stage_commit": "92cecad77e5845a6ed6fe6bb12c44ff164ec4e30",
+    "deploy_id": "dep-dbsodqh5efls73f009lg",
+    "activation": "single existing consumer only; guard was live before task staging"
+  },
+  "saved": {
+    "status": "saved",
+    "saved_at": "2026-11-15T10:18:42.708681Z",
+    "photo_saved": true,
+    "thumbnail_saved": true,
+    "fitment_saved": true,
+    "fitment_ids": [
+      111528,
+      111529,
+      111530
+    ],
+    "task_status": "done",
+    "main_path": "products/optimized/2093b81b96f770552c1303ee79a3fca7480a86bf06e4e5baadc4a85d1cf14f31.webp",
+    "thumbnail_path": "products/optimized/245b41a4800e0eff0ade0a84563770d3cbdf31376498d48a4786dabaa7321d37.webp"
+  },
+  "verification": {
+    "source_verified": true,
+    "db_verified": true,
+    "photo_verified": true,
+    "thumbnail_verified": true,
+    "fitment_verified": true,
+    "ui_verified": true,
+    "ui_http_status": 200,
+    "main_http_status": 200,
+    "thumbnail_http_status": 200,
+    "main_dimensions": "571x420",
+    "thumbnail_dimensions": "180x132",
+    "ui_url": "https://zpt.kz/hyundai-accent-hyundai-zpt-25290/",
+    "verified_at": "2026-11-15T10:21:00.000Z"
+  },
+  "after": {
+    "stock": "5",
+    "cost": "14400.00",
+    "price": "18720.00",
+    "kaspi_price": "22760.00",
+    "main_image": "products/optimized/2093b81b96f770552c1303ee79a3fca7480a86bf06e4e5baadc4a85d1cf14f31.webp",
+    "supplier_thumbnail": "products/optimized/245b41a4800e0eff0ade0a84563770d3cbdf31376498d48a4786dabaa7321d37.webp",
+    "fitment_rows": 3,
+    "task_status": "done"
+  },
+  "trade_data_unchanged": true,
+  "status": "completed_saved_and_verified",
+  "next": {
+    "supplier_id": 5,
+    "offer_id": 25142,
+    "product_id": 6698,
+    "task_id": 4671,
+    "brand": "Fenox",
+    "article": "A12254",
+    "action": "recheck lease, local weekend time, live stock/load/task state, then research exact article formatting, execution and package sources"
+  }
+}
