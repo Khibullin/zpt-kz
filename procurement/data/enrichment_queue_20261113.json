@@ -11,8 +11,8 @@
   },
   "shared_lease": null,
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-15T10:12:00.000Z",
-  "status": "checkpointed_after_verified_jashi_54650h5100_resume_ready",
+  "heartbeat_at": "2026-11-15T10:15:00.000Z",
+  "status": "processing_offer_25290_jashi_54660h5100",
   "phase": "other_in_stock_control",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
@@ -9716,7 +9716,13 @@
     "released_at": "2026-11-15T10:12:00.000Z",
     "reason": "offer_25289_jashi_photo_thumbnail_three_fitments_saved_db_ui_verified_advance_to_25290"
   },
-  "lease": null,
+  "lease": {
+    "owner": "weekend-enrichment-20261115-1515-item25290",
+    "acquired_at": "2026-11-15T10:15:00.000Z",
+    "heartbeat_at": "2026-11-15T10:15:00.000Z",
+    "expires_at": "2026-11-15T10:55:00.000Z",
+    "purpose": "Single sequential weekend enrichment of frozen batch20 item offer 25290; no parallel processor"
+  },
   "pending_candidate": null,
   "last_reviewed": {
     "supplier_id": 5,
