@@ -11,8 +11,8 @@
   },
   "shared_lease": null,
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-15T09:14:20.000Z",
-  "status": "checkpointed_after_verified_haval_resume_ready",
+  "heartbeat_at": "2026-11-15T09:17:30.000Z",
+  "status": "processing_other_in_stock_control_batch20_zakazauto",
   "phase": "other_in_stock_control",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
@@ -9037,6 +9037,11 @@
       "at": "2026-11-15T09:14:20.000Z",
       "type": "lease_released",
       "detail": "Shared canonical lease released after verified HAVAL checkpoint; next is JASHI C281F260203-1100 offer 25088. No duplicate worker or schedule created."
+    },
+    {
+      "at": "2026-11-15T09:17:30.000Z",
+      "type": "lease_acquired",
+      "detail": "Shared canonical lease acquired atomically for ZakazAuto offer 25088 JASHI C281F260203-1100 after fresh checkpoint, live DB, task and service-load checks; no active photo task and no second processor."
     }
   ],
   "last_success": {
@@ -9495,7 +9500,7 @@
     "service_memory_limit_bytes": 536870900,
     "decision": "research and read-only checks allowed; defer or throttle writes while memory remains above 90% on the web service"
   },
-  "updated_at": "2026-11-15T09:14:20.000Z",
+  "updated_at": "2026-11-15T09:17:30.000Z",
   "current_index": 2,
   "next_supplier_id": 5,
   "next_offer_id": 25088,
@@ -9508,7 +9513,14 @@
     "released_at": "2026-11-15T09:14:20.000Z",
     "reason": "offer_25373_haval_photo_thumbnail_fitment_saved_db_ui_verified_advance_to_25088"
   },
-  "lease": null,
+  "lease": {
+    "owner": "weekend-enrichment-20261115-1417-batch20",
+    "scope": "enrichment_queue_20261113_other_in_stock_control_batch20_zakazauto",
+    "acquired_at": "2026-11-15T09:17:30.000Z",
+    "heartbeat_at": "2026-11-15T09:17:30.000Z",
+    "expires_at": "2026-11-15T09:52:30.000Z",
+    "next_offer_id": 25088
+  },
   "pending_candidate": null,
   "last_reviewed": {
     "supplier_id": 5,

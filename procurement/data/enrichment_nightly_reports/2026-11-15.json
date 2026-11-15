@@ -2,8 +2,8 @@
   "schema": 1,
   "night_end_date": "2026-11-15",
   "started_at": "2026-11-14T19:02:21.138Z",
-  "updated_at": "2026-11-15T09:14:20.000Z",
-  "status": "checkpointed_after_verified_haval_resume_ready",
+  "updated_at": "2026-11-15T09:17:30.000Z",
+  "status": "processing_other_in_stock_control_batch20_zakazauto",
   "supplier_stats": {
     "1": {
       "name": "Omega",
@@ -42,7 +42,7 @@
     "batch_size": 20,
     "next_supplier_id": 5,
     "next_offer_id": 25088,
-    "lease_owner": null,
+    "lease_owner": "weekend-enrichment-20261115-1417-batch20",
     "lease_released_at": "2026-11-15T09:14:20.000Z",
     "publication_pending": null,
     "pending_ui_verification": null,
@@ -62,7 +62,7 @@
     },
     "next_product_id": 6788,
     "next_task_id": 4761,
-    "lease_expires_at": null
+    "lease_expires_at": "2026-11-15T09:52:30.000Z"
   },
   "events": [
     {
@@ -204,6 +204,11 @@
       "at": "2026-11-15T09:14:20.000Z",
       "type": "lease_released",
       "detail": "Shared lease released after per-item checkpoint; queue resumes at ZakazAuto offer 25088."
+    },
+    {
+      "at": "2026-11-15T09:17:30.000Z",
+      "type": "lease_acquired",
+      "detail": "Shared lease acquired for ZakazAuto offer 25088 after confirming positive stock 6, empty photo/fitment, task 4761 needs_source, zero active photo tasks and service memory about 68%."
     }
   ],
   "last_success": {

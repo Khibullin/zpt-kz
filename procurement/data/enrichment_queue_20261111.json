@@ -1,8 +1,15 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-15T09:14:20.000Z",
-  "lease": null,
+  "checked_at": "2026-11-15T09:17:30.000Z",
+  "lease": {
+    "owner": "weekend-enrichment-20261115-1417-batch20",
+    "scope": "enrichment_queue_20261113_other_in_stock_control_batch20_zakazauto",
+    "acquired_at": "2026-11-15T09:17:30.000Z",
+    "heartbeat_at": "2026-11-15T09:17:30.000Z",
+    "expires_at": "2026-11-15T09:52:30.000Z",
+    "next_offer_id": 25088
+  },
   "next_supplier": 3,
   "batch_size": 100,
   "queue": [
@@ -16358,5 +16365,5 @@
     "make_model_pairs_added": 146,
     "configurations_added": 185
   },
-  "updated_at": "2026-11-15T09:14:20.000Z"
+  "updated_at": "2026-11-15T09:17:30.000Z"
 }
