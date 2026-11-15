@@ -329,7 +329,15 @@ def process_photo_tasks(limit=10):
                         and evidence.get('verified_image_sha256')=='f3748cf1663c711d9ec25b01031a0400df5d3bf2614dbd5f5e460a9a060baf07'
                         and evidence.get('checked_on')=='2026-11-15'
                     )
-                    if exact_jashi or exact_trialli or exact_hyundai_kia or exact_ssangyong or exact_haval or exact_jashi_54651 or exact_jashi_54650 or exact_jashi_54660 or exact_fenox_a12254 or exact_jashi_step_set or exact_hyundai_kia_55100 or exact_parts_mall_pqb007 or exact_ssangyong_7146034004 or exact_ssangyong_7145034004:
+                    exact_hyundai_kia_553112s400=(
+                        task.pk==4687 and product.pk==6714 and offer.pk==25131
+                        and offer.brand=='HYUNDAI-KIA' and offer.article=='553112S400'
+                        and task.source_url=='https://kaspi.kz/shop/p/hyundai-kia-zadnii-553112s400-1-sht-142570155/?c=750000000'
+                        and evidence.get('reviewed_batch')=='weekend-20261115-t'
+                        and evidence.get('image_url')=='https://resources.cdn-kaspi.kz/img/m/p/p9b/p96/53188476.png?format=gallery-medium'
+                        and evidence.get('checked_on')=='2026-11-15'
+                    )
+                    if exact_jashi or exact_trialli or exact_hyundai_kia or exact_ssangyong or exact_haval or exact_jashi_54651 or exact_jashi_54650 or exact_jashi_54660 or exact_fenox_a12254 or exact_jashi_step_set or exact_hyundai_kia_55100 or exact_parts_mall_pqb007 or exact_ssangyong_7146034004 or exact_ssangyong_7145034004 or exact_hyundai_kia_553112s400:
                         # The exact card and selected item image were visually checked before
                         # staging. Fetch only that immutable CDN object here; the guarded
                         # migration has already rechecked live identity, stock and fitment.
