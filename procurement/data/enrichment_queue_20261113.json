@@ -9,17 +9,10 @@
     "phase": "completed_with_documented_exceptions_20261112",
     "reviewed_offer_ids": 408
   },
-  "shared_lease": {
-    "owner": "weekend-enrichment-20261115-1604-item25142",
-    "acquired_at": "2026-11-15T11:04:00.000Z",
-    "heartbeat_at": "2026-11-15T11:04:00.000Z",
-    "expires_at": "2026-11-15T11:44:00.000Z",
-    "canonical_path": "procurement/data/enrichment_queue_20261111.json",
-    "canonical_blob_sha": "160ae7e93c44eced38ac1024d11780a432f9da90"
-  },
+  "shared_lease": null,
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-15T11:04:00.000Z",
-  "status": "processing_fenox_a12254",
+  "heartbeat_at": "2026-11-15T11:14:00.000Z",
+  "status": "checkpointed_after_verified_fenox_a12254_resume_ready",
   "phase": "other_in_stock_control",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
@@ -7197,7 +7190,7 @@
     }
   ],
   "current_batch_index": 0,
-  "current_item_index": 0,
+  "current_item_index": 7,
   "reviewed": [
     {
       "supplier_id": 5,
@@ -7419,6 +7412,17 @@
       "checked_at": "2026-11-15T10:21:00.000Z",
       "status": "saved_and_ui_verified_photo_thumbnail_and_fitment",
       "journal": "procurement/data/enrichment_queue_items/5-25290-20261115.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25142,
+      "product_id": 6698,
+      "task_id": 4671,
+      "brand": "Fenox",
+      "article": "A12254",
+      "checked_at": "2026-11-15T11:14:00.000Z",
+      "status": "saved_and_ui_verified_photo_thumbnail_and_fitment",
+      "journal": "procurement/data/enrichment_queue_items/5-25142-20261115.json"
     }
   ],
   "prepared": [
@@ -7799,6 +7803,18 @@
       "source_url": "https://kaspi.kz/shop/p/jashi-perednii-54660h5100-1-sht-144184316/",
       "image_url": "https://resources.cdn-kaspi.kz/img/m/p/ped/pc6/58893082.png?format=gallery-medium",
       "journal": "procurement/data/enrichment_queue_items/5-25290-20261115.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25142,
+      "product_id": 6698,
+      "task_id": 4671,
+      "kind": "photo_and_fitment",
+      "prepared_at": "2026-11-15T11:05:00.000Z",
+      "status": "published_and_verified",
+      "source_url": "https://armtek.by/product/amortizator-maslyanyy-fenox-a12254-zadnyaya-os-sleva-zadnyaya-os-sprava-4363063",
+      "image_url": "https://img.armtek.ru/img/article/436/4363063/500x500/4363063_0.webp",
+      "journal": "procurement/data/enrichment_queue_items/5-25142-20261115.json"
     }
   ],
   "queued": [
@@ -7875,6 +7891,17 @@
       "commit": "92cecad77e5845a6ed6fe6bb12c44ff164ec4e30",
       "deploy_id": "dep-dbsodqh5efls73f009lg",
       "task_id": 4934
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25142,
+      "kind": "photo_and_fitment_publication",
+      "queued_at": "2026-11-15T11:07:38.000Z",
+      "guard_commit": "6c9b5d586f4a01d4fdd368168929e0546540159a",
+      "commit": "299e85e2c1b80b6aaa927e4fbbedf0a3ba4de6cc",
+      "display_commit": "22dd60cb7e10fc3733059ed95250740628d2e36e",
+      "deploy_id": "dep-dbsp6895efls73f0nad0",
+      "task_id": 4671
     }
   ],
   "saved": [
@@ -8135,6 +8162,20 @@
       "supplier_thumbnail": "products/optimized/245b41a4800e0eff0ade0a84563770d3cbdf31376498d48a4786dabaa7321d37.webp",
       "deploy_id": "dep-dbsodqh5efls73f009lg",
       "live_commit": "92cecad77e5845a6ed6fe6bb12c44ff164ec4e30"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25142,
+      "kind": "photo_thumbnail_and_fitment",
+      "saved_at": "2026-11-15T11:08:41.576068Z",
+      "task_id": 4671,
+      "fitment_ids": [
+        111531
+      ],
+      "main_image": "products/optimized/c37171dedb9a5a861d109506d5fe716ba14ce80034cc1cc1af0c3dc1d1e386db.webp",
+      "supplier_thumbnail": "products/optimized/47ec260305d17fad26ab91569ceef664e8d1b9ec631ed99bf364e2bf40ef27dd.webp",
+      "deploy_id": "dep-dbsp6895efls73f0nad0",
+      "live_commit": "22dd60cb7e10fc3733059ed95250740628d2e36e"
     }
   ],
   "verified": [
@@ -8534,6 +8575,25 @@
       "configuration_count": 27,
       "engine_rows": 0,
       "verified_at": "2026-11-15T10:21:00.000Z"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25142,
+      "kind": "photo_thumbnail_and_fitment",
+      "db_verified": true,
+      "ui_verified": true,
+      "ui_url": "https://zpt.kz/daewoo-zpt-25142/",
+      "ui_http_status": 200,
+      "main_image_url": "https://zpt.kz/products/products/optimized/c37171dedb9a5a861d109506d5fe716ba14ce80034cc1cc1af0c3dc1d1e386db.webp",
+      "thumbnail_url": "https://zpt.kz/products/products/optimized/47ec260305d17fad26ab91569ceef664e8d1b9ec631ed99bf364e2bf40ef27dd.webp",
+      "main_dimensions": "500x371",
+      "thumbnail_dimensions": "180x134",
+      "fitment_ids": [
+        111531
+      ],
+      "configuration_count": 2,
+      "engine_rows": 2,
+      "verified_at": "2026-11-15T11:14:00.000Z"
     }
   ],
   "exceptions": [
@@ -8775,14 +8835,14 @@
   "publication_pending": null,
   "next": {
     "phase": "other_in_stock_control",
-    "sequence": 7,
+    "sequence": 8,
     "batch_size": 20,
     "supplier_id": 5,
-    "offer_id": 25142,
-    "product_id": 6698,
-    "task_id": 4671,
-    "brand": "Fenox",
-    "article": "A12254"
+    "offer_id": 28110,
+    "product_id": 9237,
+    "task_id": 7210,
+    "brand": "JASHI",
+    "article": "8405120P3011/SET/6p/"
   },
   "events": [
     {
@@ -9319,16 +9379,31 @@
       "at": "2026-11-15T10:21:00.000Z",
       "type": "lease_released",
       "detail": "Shared canonical lease released after verified JASHI 54660H5100 per-item checkpoint; next offer 25142. No duplicate worker or schedule created."
+    },
+    {
+      "at": "2026-11-15T11:04:00.000Z",
+      "type": "lease_acquired",
+      "detail": "Shared lease acquired after canonical blob-SHA check; resumed frozen ZakazAuto batch20 at offer 25142 / FENOX A12254."
+    },
+    {
+      "at": "2026-11-15T11:14:00.000Z",
+      "type": "item_saved_verified_and_advance",
+      "detail": "FENOX A12254: exact photo 500x371, thumbnail 180x134 and one sourced DAEWOO Matiz row with two engine/period configurations saved and DB/UI verified. Open-ended source periods retained; resume offer 28110."
+    },
+    {
+      "at": "2026-11-15T11:14:00.000Z",
+      "type": "lease_released",
+      "detail": "Shared lease released after per-item checkpoint; queue resumes at ZakazAuto offer 28110."
     }
   ],
   "last_success": {
-    "at": "2026-11-15T10:21:00.000Z",
+    "at": "2026-11-15T11:14:00.000Z",
     "supplier_id": 5,
-    "offer_id": 25290,
-    "product_id": 6961,
-    "task_id": 4934,
-    "brand": "JASHI",
-    "article": "54660H5100",
+    "offer_id": 25142,
+    "product_id": 6698,
+    "task_id": 4671,
+    "brand": "Fenox",
+    "article": "A12254",
     "saved": {
       "photo": true,
       "thumbnail": true,
@@ -9338,15 +9413,13 @@
     "db_verified": true,
     "ui_verified": true,
     "fitment_ids": [
-      111528,
-      111529,
-      111530
+      111531
     ],
-    "live_commit": "92cecad77e5845a6ed6fe6bb12c44ff164ec4e30",
-    "deploy_id": "dep-dbsodqh5efls73f009lg",
-    "ui_url": "https://zpt.kz/hyundai-accent-hyundai-zpt-25290/"
+    "live_commit": "22dd60cb7e10fc3733059ed95250740628d2e36e",
+    "deploy_id": "dep-dbsp6895efls73f0nad0",
+    "ui_url": "https://zpt.kz/daewoo-zpt-25142/"
   },
-  "last_commit": "92cecad77e5845a6ed6fe6bb12c44ff164ec4e30",
+  "last_commit": "22dd60cb7e10fc3733059ed95250740628d2e36e",
   "paused_at": "2026-11-14T19:16:20.438Z",
   "pause_reason": "Sequence 14 EX54661A7100 recheck completed. Two exact photo sources were temporarily unavailable to the background consumer (HTTP 403); existing fitment verified. Resume at sequence 15.",
   "remaining_live": {
@@ -9790,35 +9863,36 @@
     "service_memory_limit_bytes": 536870900,
     "decision": "research and read-only checks allowed; defer or throttle writes while memory remains above 90% on the web service"
   },
-  "updated_at": "2026-11-15T10:21:00.000Z",
-  "current_index": 6,
+  "updated_at": "2026-11-15T11:14:00.000Z",
+  "current_index": 7,
   "next_supplier_id": 5,
-  "next_offer_id": 25142,
-  "next_product_id": 6698,
-  "next_task_id": 4671,
+  "next_offer_id": 28110,
+  "next_product_id": 9237,
+  "next_task_id": 7210,
   "last_lease": {
-    "owner": "weekend-enrichment-20261115-1515-item25290",
-    "scope": "enrichment_queue_20261113_other_in_stock_control_batch20_zakazauto",
-    "acquired_at": "2026-11-15T10:15:00.000Z",
-    "released_at": "2026-11-15T10:21:00.000Z",
-    "reason": "offer_25290_jashi_photo_thumbnail_three_fitments_saved_db_ui_verified_advance_to_25142"
+    "owner": "weekend-enrichment-20261115-1604-item25142",
+    "acquired_at": "2026-11-15T11:04:00.000Z",
+    "released_at": "2026-11-15T11:14:00.000Z",
+    "result": "completed_saved_and_verified",
+    "canonical_path": "procurement/data/enrichment_queue_20261111.json"
   },
   "lease": null,
   "pending_candidate": null,
   "last_reviewed": {
     "supplier_id": 5,
-    "offer_id": 25290,
-    "product_id": 6961,
-    "task_id": 4934,
-    "brand": "JASHI",
-    "article": "54660H5100",
-    "kind": "exact_photo_thumbnail_and_confirmed_fitments_saved",
+    "offer_id": 25142,
+    "product_id": 6698,
+    "task_id": 4671,
+    "brand": "Fenox",
+    "article": "A12254",
+    "kind": "exact_photo_thumbnail_and_confirmed_fitment_saved",
     "photo_saved": true,
     "thumbnail_saved": true,
     "fitment_saved": true,
-    "fitment_rows": 3,
+    "fitment_rows": 1,
+    "configuration_rows": 2,
     "db_verified": true,
     "ui_verified": true,
-    "reviewed_at": "2026-11-15T10:21:00.000Z"
+    "reviewed_at": "2026-11-15T11:14:00.000Z"
   }
 }
