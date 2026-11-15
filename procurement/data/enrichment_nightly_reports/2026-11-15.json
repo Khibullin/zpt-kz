@@ -11,7 +11,8 @@
       "photos_added": 0,
       "fitment_added": 0,
       "years_or_engines_added": 0,
-      "skips": {}
+      "skips": {},
+      "thumbnails_added": 0
     },
     "3": {
       "name": "Фаэтон",
@@ -19,19 +20,21 @@
       "photos_added": 0,
       "fitment_added": 0,
       "years_or_engines_added": 0,
-      "skips": {}
+      "skips": {},
+      "thumbnails_added": 0
     },
     "5": {
       "name": "ЗаказАвто",
-      "processed_unique": 6,
-      "photos_added": 3,
+      "processed_unique": 7,
+      "photos_added": 4,
       "fitment_added": 0,
       "years_or_engines_added": 0,
       "skips": {
         "temporary_source_unavailable_http_403": 2,
         "brand_article_conflict": 1
       },
-      "pending_ui_verification": 0
+      "pending_ui_verification": 0,
+      "thumbnails_added": 4
     }
   },
   "queue": {
@@ -184,5 +187,79 @@
     "deploy_id": "dep-dbsfgd67bikc73f23gd0",
     "ui_url": "https://zpt.kz/hyundai-zpt-25129/"
   },
-  "last_commit": "45c3c196f0fed28d4195d11f1a49127826e7c61e"
+  "last_commit": "45c3c196f0fed28d4195d11f1a49127826e7c61e",
+  "morning_report": {
+    "period_start": "2026-11-14T23:00:00+05:00",
+    "period_end": "2026-11-15T06:00:00+05:00",
+    "verified_at": "2026-11-15T06:04:40+05:00",
+    "correction": "Cumulative report started after first hourly run. Included PJD007 offer 25285 (photo saved 2026-11-14T18:05:50.759618Z) from per-item journal and fresh DB. Original stats 6 reviewed/3 photos corrected to 7 unique rechecks/4 photos/4 thumbnails. Daytime first-19 totals excluded.",
+    "unique_reviewed_offer_ids": [
+      25285,
+      25268,
+      25114,
+      25165,
+      25082,
+      25170,
+      25129
+    ],
+    "first_time_reviewed": 0,
+    "repeat_review_unique": 7,
+    "photo_added_offer_ids": [
+      25285,
+      25082,
+      25170,
+      25129
+    ],
+    "structured_fitment_added": 0,
+    "years_added": 0,
+    "engines_added": 0,
+    "text_only_fitment_added": 0,
+    "remaining_snapshot": [
+      {
+        "positive_stock": 14951,
+        "supplier_id": 1,
+        "without_photo": 1375,
+        "without_structured": 12322
+      },
+      {
+        "positive_stock": 27939,
+        "supplier_id": 3,
+        "without_photo": 22481,
+        "without_structured": 26451
+      },
+      {
+        "positive_stock": 6977,
+        "supplier_id": 5,
+        "without_photo": 6792,
+        "without_structured": 6704
+      }
+    ],
+    "remaining_definition": "Distinct supplier offers with positive stock parsed by procurement.retail.stock_quantity from latest imported supplier data; without_photo means no offer.photo_url and no linked catalog_product.main_image; without_structured means no procurement_vehiclefitment row with nonempty make and model. Snapshot after 06:00, not historical 06:00 snapshot.",
+    "source_errors": {
+      "affected_unique_offers": 2,
+      "http_403_requests": 4
+    },
+    "conflicts": {
+      "unique_offers": 1,
+      "offer_id": 25165
+    },
+    "deployment_failures": 4,
+    "deployment_final_status": "live",
+    "latest_deploy": "dep-dbsfgd67bikc73f23gd0",
+    "last_photo_saved_at": "2026-11-15T00:11:27.683677Z",
+    "last_checkpoint_at": "2026-11-15T00:14:12.428Z",
+    "queue_state": "lease released; no queued/processing/web_ready photo tasks in fresh DB; next offer 25081 SsangYong 1612003114 product 6827 task 4800; processing automation last recorded run completed",
+    "next_automation_run": "2026-11-15T12:00:00+05:00",
+    "limitations": [
+      "No per-minute activity timeline to calculate useful work and downtime exactly.",
+      "Filtered Render runtime logs returned no entries; photo saving verified using fresh DB task evidence and per-item journals.",
+      "Remaining counts are current imported stock, not independently reconfirmed supplier availability."
+    ],
+    "delivery": {
+      "status": "prepared",
+      "recipient": "rkhaibullin@gmail.com",
+      "subject": "ZPT.KZ — ночной отчёт по фото и применимости — 15.11.2026",
+      "prepared_at": "2026-11-15T06:05:00+05:00"
+    }
+  }
 }
