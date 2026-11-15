@@ -11,8 +11,8 @@
   },
   "shared_lease": null,
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-15T10:04:00.000Z",
-  "status": "processing_offer_25289_jashi_54650h5100",
+  "heartbeat_at": "2026-11-15T10:12:00.000Z",
+  "status": "checkpointed_after_verified_jashi_54650h5100_resume_ready",
   "phase": "other_in_stock_control",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
@@ -7390,6 +7390,17 @@
       "checked_at": "2026-11-14T10:07:37.000Z",
       "status": "saved_and_ui_verified_fitment_placeholder_rejected",
       "journal": "procurement/data/enrichment_queue_items/5-25129-20261114.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25289,
+      "product_id": 6957,
+      "task_id": 4930,
+      "brand": "JASHI",
+      "article": "54650H5100",
+      "checked_at": "2026-11-15T10:12:00.000Z",
+      "status": "saved_and_ui_verified_photo_thumbnail_and_fitment",
+      "journal": "procurement/data/enrichment_queue_items/5-25289-20261115.json"
     }
   ],
   "prepared": [
@@ -7746,6 +7757,18 @@
         ],
         "source_sha256": "4b069efbbfbde77476983bb4799a4a91414d39b78657ac4346af53020705c835"
       }
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25289,
+      "product_id": 6957,
+      "task_id": 4930,
+      "kind": "photo_and_fitment",
+      "prepared_at": "2026-11-15T10:05:30.000Z",
+      "status": "published_and_verified",
+      "source_url": "https://kaspi.kz/shop/p/jashi-perednii-54650h5100-1-sht-144183578/",
+      "image_url": "https://resources.cdn-kaspi.kz/img/m/p/p88/p76/58890227.png?format=gallery-medium",
+      "journal": "procurement/data/enrichment_queue_items/5-25289-20261115.json"
     }
   ],
   "queued": [
@@ -7802,6 +7825,16 @@
       "restage_commit": "185f256b0cb9295cd5540b871bb5606883afdb5b",
       "deploy_id": "dep-dbs8ipe7bikc73epm4a0",
       "task_id": 4676
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25289,
+      "kind": "photo_and_fitment_publication",
+      "queued_at": "2026-11-15T10:08:15.000Z",
+      "guard_commit": "d5d6ab19982ef9ed80de2de0e59fe3ca9cb41b98",
+      "commit": "2e939c5c21eff08cfe3fe0506869a0d8b256dd66",
+      "deploy_id": "dep-dbso9468bjmc73eorbq0",
+      "task_id": 4930
     }
   ],
   "saved": [
@@ -8030,6 +8063,22 @@
       "configuration_count": 13,
       "deploy_id": "dep-dbsnkms9v7es73c42oo0",
       "live_commit": "118078f347b84820cf5d9090f176f8bda60454be"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25289,
+      "kind": "photo_thumbnail_and_fitment",
+      "saved_at": "2026-11-15T10:08:38.468571Z",
+      "task_id": 4930,
+      "fitment_ids": [
+        111525,
+        111526,
+        111527
+      ],
+      "main_image": "products/optimized/5759a5f1a8dd7b9c031fe9dd1997448d5787bc02015620b79161bf7fb84b0ed7.webp",
+      "supplier_thumbnail": "products/optimized/2a83dc3110a1e7ee846380e12517b526092da5ecbd2b333d6cb5158dbf21860e.webp",
+      "deploy_id": "dep-dbso9468bjmc73eorbq0",
+      "live_commit": "2e939c5c21eff08cfe3fe0506869a0d8b256dd66"
     }
   ],
   "verified": [
@@ -8387,6 +8436,27 @@
         "1 шт.",
         "Двигатель не указан"
       ]
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25289,
+      "kind": "photo_thumbnail_and_fitment",
+      "db_verified": true,
+      "ui_verified": true,
+      "ui_url": "https://zpt.kz/hyundai-accent-hyundai-zpt-25289/",
+      "ui_http_status": 200,
+      "main_image_url": "https://zpt.kz/products/products/optimized/5759a5f1a8dd7b9c031fe9dd1997448d5787bc02015620b79161bf7fb84b0ed7.webp",
+      "thumbnail_url": "https://zpt.kz/products/products/optimized/2a83dc3110a1e7ee846380e12517b526092da5ecbd2b333d6cb5158dbf21860e.webp",
+      "main_dimensions": "750x603",
+      "thumbnail_dimensions": "180x145",
+      "fitment_ids": [
+        111525,
+        111526,
+        111527
+      ],
+      "configuration_count": 27,
+      "engine_rows": 0,
+      "verified_at": "2026-11-15T10:12:00.000Z"
     }
   ],
   "exceptions": [
@@ -8628,14 +8698,14 @@
   "publication_pending": null,
   "next": {
     "phase": "other_in_stock_control",
-    "sequence": 5,
+    "sequence": 6,
     "batch_size": 20,
     "supplier_id": 5,
-    "offer_id": 25289,
-    "product_id": 6957,
-    "task_id": 4930,
+    "offer_id": 25290,
+    "product_id": 6961,
+    "task_id": 4934,
     "brand": "JASHI",
-    "article": "54650H5100"
+    "article": "54660H5100"
   },
   "events": [
     {
@@ -9152,25 +9222,44 @@
       "at": "2026-11-15T09:34:00.000Z",
       "type": "lease_released",
       "detail": "Shared canonical lease released after verified JASHI 54651-D3000 checkpoint; next offer 25289. No duplicate worker or schedule created."
+    },
+    {
+      "at": "2026-11-15T10:12:00.000Z",
+      "type": "item_saved_verified_and_advance",
+      "detail": "ZakazAuto JASHI 54650H5100: exact Kaspi card confirmed JASHI brand/article, front-left side, one-piece bare strut without spring and discrete 2017-2025 applicability. Existing sole consumer saved 750x603 WebP and 180x145 thumbnail. Three structured fitment rows saved for HYUNDAI Accent, HYUNDAI Solaris and KIA Rio; each year stored separately, no generation or engine inferred. DB, files and public card verified; trade/Kaspi unchanged. Resume offer 25290."
+    },
+    {
+      "at": "2026-11-15T10:12:00.000Z",
+      "type": "lease_released",
+      "detail": "Shared canonical lease released after verified JASHI 54650H5100 per-item checkpoint; next offer 25290. No duplicate worker or schedule created."
     }
   ],
   "last_success": {
-    "at": "2026-11-15T09:34:00.000Z",
-    "stage": "exact_photo_thumbnail_and_two_fitments_saved_db_ui_verified",
+    "at": "2026-11-15T10:12:00.000Z",
     "supplier_id": 5,
-    "offer_id": 25213,
-    "product_id": 6764,
-    "task_id": 4737,
-    "article": "54651-D3000",
+    "offer_id": 25289,
+    "product_id": 6957,
+    "task_id": 4930,
+    "brand": "JASHI",
+    "article": "54650H5100",
+    "saved": {
+      "photo": true,
+      "thumbnail": true,
+      "fitment": true,
+      "years_or_engines": true
+    },
+    "db_verified": true,
+    "ui_verified": true,
     "fitment_ids": [
-      111523,
-      111524
+      111525,
+      111526,
+      111527
     ],
-    "commit": "59fabed863130f464d42e379999dfa5b5121e870",
-    "deploy_id": "dep-dbsnnkqjnfac73cfrs2g",
-    "ui_url": "https://zpt.kz/hyundai-zpt-25213/"
+    "live_commit": "2e939c5c21eff08cfe3fe0506869a0d8b256dd66",
+    "deploy_id": "dep-dbso9468bjmc73eorbq0",
+    "ui_url": "https://zpt.kz/hyundai-accent-hyundai-zpt-25289/"
   },
-  "last_commit": "59fabed863130f464d42e379999dfa5b5121e870",
+  "last_commit": "2e939c5c21eff08cfe3fe0506869a0d8b256dd66",
   "paused_at": "2026-11-14T19:16:20.438Z",
   "pause_reason": "Sequence 14 EX54661A7100 recheck completed. Two exact photo sources were temporarily unavailable to the background consumer (HTTP 403); existing fitment verified. Resume at sequence 15.",
   "remaining_live": {
@@ -9614,41 +9703,35 @@
     "service_memory_limit_bytes": 536870900,
     "decision": "research and read-only checks allowed; defer or throttle writes while memory remains above 90% on the web service"
   },
-  "updated_at": "2026-11-15T09:34:00.000Z",
-  "current_index": 4,
+  "updated_at": "2026-11-15T10:12:00.000Z",
+  "current_index": 5,
   "next_supplier_id": 5,
-  "next_offer_id": 25289,
-  "next_product_id": 6957,
-  "next_task_id": 4930,
+  "next_offer_id": 25290,
+  "next_product_id": 6961,
+  "next_task_id": 4934,
   "last_lease": {
-    "owner": "weekend-enrichment-20261115-1423-batch20",
-    "scope": "enrichment_queue_20261113_other_in_stock_control_batch20_zakazauto",
-    "acquired_at": "2026-11-15T09:23:30.000Z",
-    "released_at": "2026-11-15T09:34:00.000Z",
-    "reason": "offer_25213_jashi_photo_thumbnail_two_fitments_saved_db_ui_verified_advance_to_25289"
-  },
-  "lease": {
     "owner": "weekend-enrichment-20261115-1504-item25289",
+    "scope": "enrichment_queue_20261113_other_in_stock_control_batch20_zakazauto",
     "acquired_at": "2026-11-15T10:04:00.000Z",
-    "heartbeat_at": "2026-11-15T10:04:00.000Z",
-    "expires_at": "2026-11-15T10:44:00.000Z",
-    "purpose": "Single sequential weekend enrichment of frozen batch20 item offer 25289; no parallel processor"
+    "released_at": "2026-11-15T10:12:00.000Z",
+    "reason": "offer_25289_jashi_photo_thumbnail_three_fitments_saved_db_ui_verified_advance_to_25290"
   },
+  "lease": null,
   "pending_candidate": null,
   "last_reviewed": {
     "supplier_id": 5,
-    "offer_id": 25213,
-    "product_id": 6764,
-    "task_id": 4737,
+    "offer_id": 25289,
+    "product_id": 6957,
+    "task_id": 4930,
     "brand": "JASHI",
-    "article": "54651-D3000",
+    "article": "54650H5100",
     "kind": "exact_photo_thumbnail_and_confirmed_fitments_saved",
     "photo_saved": true,
     "thumbnail_saved": true,
     "fitment_saved": true,
-    "fitment_rows": 2,
+    "fitment_rows": 3,
     "db_verified": true,
     "ui_verified": true,
-    "reviewed_at": "2026-11-15T09:34:00.000Z"
+    "reviewed_at": "2026-11-15T10:12:00.000Z"
   }
 }
