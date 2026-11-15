@@ -127,7 +127,7 @@ def process_photo_tasks(limit=10):
     if any(row['evidence'].get('block_kind')=='storage' or row['note'].startswith('Недостаточно свободного места') for row in blocked):return 0
     # Prepared work is activated by the deployed consumer, not the old process
     # while Render runs schema/data migrations for the next release.
-    SupplierPhotoTask.objects.filter(status__in=['prepared','maker_ready','web_ready','bilstein_ready','shock_ready','weekend14h_ready','weekend14i_ready','weekend14j_ready','weekend14k_ready','weekend14n_ready','weekend15a_ready','weekend15b_ready','weekend15c_ready','weekend15d_ready','weekend15e_ready','weekend15f_ready','weekend15g_ready','weekend15h_ready']).update(status='pending')
+    SupplierPhotoTask.objects.filter(status__in=['prepared','maker_ready','web_ready','bilstein_ready','shock_ready','weekend14h_ready','weekend14i_ready','weekend14j_ready','weekend14k_ready','weekend14n_ready','weekend15a_ready','weekend15b_ready','weekend15c_ready','weekend15d_ready','weekend15e_ready','weekend15f_ready','weekend15g_ready','weekend15h_ready','weekend15i_ready']).update(status='pending')
     from .reviewed_remaining2 import process_reviewed_photos as process_remaining2_photos
     done=process_remaining2_photos(limit=limit)
     from .reviewed_zakaz100 import process_reviewed_photos as process_zakaz100_photos
@@ -241,7 +241,16 @@ def process_photo_tasks(limit=10):
                         and evidence.get('verified_image_sha256')=='c4f312d7d6fedb6feb51b0bb1facebd3c1c307deb01a92fccdc7b010cff1391e'
                         and evidence.get('checked_on')=='2026-11-15'
                     )
-                    if exact_jashi or exact_trialli or exact_hyundai_kia or exact_ssangyong:
+                    exact_haval=(
+                        task.pk==4881 and product.pk==6908 and offer.pk==25373
+                        and offer.brand=='HAVAL' and offer.article=='2804201XKN01A'
+                        and task.source_url=='https://www.shindary.com/bumper/rear-bumper-2804201xkn01a-for-haval-h6.html'
+                        and evidence.get('reviewed_batch')=='weekend-20261115-i'
+                        and evidence.get('image_url')=='https://www.shindary.com/data/upload/20240523/2804201XKN01A.jpg'
+                        and evidence.get('verified_image_sha256')=='393d76bd812e5dcc9f086c8a4001cdfd2216bed2ce5990bb1a791f613fa92dab'
+                        and evidence.get('checked_on')=='2026-11-15'
+                    )
+                    if exact_jashi or exact_trialli or exact_hyundai_kia or exact_ssangyong or exact_haval:
                         # The exact card and selected item image were visually checked before
                         # staging. Fetch only that immutable CDN object here; the guarded
                         # migration has already rechecked live identity, stock and fitment.
