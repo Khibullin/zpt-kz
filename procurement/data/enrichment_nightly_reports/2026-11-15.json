@@ -2,8 +2,8 @@
   "schema": 1,
   "night_end_date": "2026-11-15",
   "started_at": "2026-11-14T19:02:21.138Z",
-  "updated_at": "2026-11-15T12:36:00.000Z",
-  "status": "checkpointed_after_verified_ssangyong_7146034004_resume_ready",
+  "updated_at": "2026-11-15T12:42:00.000Z",
+  "status": "checkpointed_after_verified_ssangyong_7145034004_resume_ready",
   "supplier_stats": {
     "1": {
       "name": "Omega",
@@ -25,25 +25,25 @@
     },
     "5": {
       "name": "ЗаказАвто",
-      "processed_unique": 19,
-      "photos_added": 13,
-      "fitment_added": 11,
-      "years_or_engines_added": 9,
+      "processed_unique": 20,
+      "photos_added": 14,
+      "fitment_added": 12,
+      "years_or_engines_added": 10,
       "skips": {
         "temporary_source_unavailable_http_403": 4,
         "brand_article_conflict": 2
       },
       "pending_ui_verification": 0,
-      "thumbnails_added": 13
+      "thumbnails_added": 14
     }
   },
   "queue": {
     "phase": "other_in_stock_control",
     "batch_size": 20,
     "next_supplier_id": 5,
-    "next_offer_id": 25085,
+    "next_offer_id": 25131,
     "lease_owner": null,
-    "lease_released_at": "2026-11-15T12:36:00.000Z",
+    "lease_released_at": "2026-11-15T12:42:00.000Z",
     "publication_pending": null,
     "pending_ui_verification": null,
     "recheck": {
@@ -60,11 +60,11 @@
       "structured_fitment_missing_before": 5,
       "fitment_display_enhancements": 1
     },
-    "next_product_id": 6832,
-    "next_task_id": 4805,
+    "next_product_id": 6714,
+    "next_task_id": 4687,
     "lease_expires_at": null,
-    "current_index": 12,
-    "current_batch_processed": 12,
+    "current_index": 13,
+    "current_batch_processed": 13,
     "current_batch_total": 20
   },
   "events": [
@@ -367,16 +367,31 @@
       "at": "2026-11-15T12:36:00.000Z",
       "type": "lease_released",
       "detail": "Shared lease released after per-item checkpoint; no pending publication or UI verification."
+    },
+    {
+      "at": "2026-11-15T12:37:00.000Z",
+      "type": "lease_acquired",
+      "detail": "Shared lease acquired for ZakazAuto offer 25085 / SsangYong 7145034004."
+    },
+    {
+      "at": "2026-11-15T12:42:00.000Z",
+      "type": "item_saved_verified_and_advance",
+      "detail": "SsangYong 7145034004: exact photo 800x666, thumbnail 180x150 and left Actyon/New Actyon tailgate-strut fitment from 2010 onward saved and verified. Batch20 now 13/20; resume offer 25131."
+    },
+    {
+      "at": "2026-11-15T12:42:00.000Z",
+      "type": "lease_released",
+      "detail": "Shared lease released after per-item checkpoint; no pending publication or UI verification."
     }
   ],
   "last_success": {
-    "at": "2026-11-15T12:36:00.000Z",
+    "at": "2026-11-15T12:42:00.000Z",
     "supplier_id": 5,
-    "offer_id": 25086,
-    "product_id": 6834,
-    "task_id": 4807,
+    "offer_id": 25085,
+    "product_id": 6832,
+    "task_id": 4805,
     "brand": "SsangYong",
-    "article": "7146034004",
+    "article": "7145034004",
     "saved": {
       "photo": true,
       "thumbnail": true,
@@ -386,15 +401,15 @@
     "db_verified": true,
     "ui_verified": true,
     "fitment_ids": [
-      111536
+      111537
     ],
     "configuration_count": 1,
     "engine_rows": 0,
-    "live_commit": "f32f393186ffd6537b3a3add1ed148cec193bcbe",
-    "deploy_id": "dep-dbsqd0e7bikc73fbrcpg",
-    "ui_url": "https://zpt.kz/ssangyong-zpt-25086/"
+    "live_commit": "93ffdbb6f8be7caa6108c21f621cc0b3d6441f58",
+    "deploy_id": "dep-dbsqfrm7bikc73fbu6ug",
+    "ui_url": "https://zpt.kz/ssangyong-zpt-25085/"
   },
-  "last_commit": "ca599a5de39bdab9e0b0aa78e2deea267c718847",
+  "last_commit": "376d1f37a3cb4f84f611f7d16e4d4fa80b51c398",
   "morning_report": {
     "period_start": "2026-11-14T23:00:00+05:00",
     "period_end": "2026-11-15T06:00:00+05:00",
