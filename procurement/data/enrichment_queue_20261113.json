@@ -9,10 +9,20 @@
     "phase": "completed_with_documented_exceptions_20261112",
     "reviewed_offer_ids": 408
   },
-  "shared_lease": null,
+  "shared_lease": {
+    "owner": "weekend-enrichment-20261115-1703-item25352",
+    "acquired_at": "2026-11-15T12:03:00.000Z",
+    "heartbeat_at": "2026-11-15T12:03:00.000Z",
+    "expires_at": "2026-11-15T12:43:00.000Z",
+    "checkpoint_path": "procurement/data/enrichment_queue_20261113.json",
+    "supplier_id": 5,
+    "offer_id": 25352,
+    "product_id": 6915,
+    "task_id": 4888
+  },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-15T11:25:00.000Z",
-  "status": "checkpointed_after_verified_jashi_8405120p3011_set_resume_ready",
+  "heartbeat_at": "2026-11-15T12:03:00.000Z",
+  "status": "lease_acquired_researching_hyundai_kia_55100h5600",
   "phase": "other_in_stock_control",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
@@ -9947,7 +9957,7 @@
     "service_memory_limit_bytes": 536870900,
     "decision": "research and read-only checks allowed; defer or throttle writes while memory remains above 90% on the web service"
   },
-  "updated_at": "2026-11-15T11:25:00.000Z",
+  "updated_at": "2026-11-15T12:03:00.000Z",
   "current_index": 8,
   "next_supplier_id": 5,
   "next_offer_id": 25352,
@@ -9960,8 +9970,26 @@
     "result": "completed_saved_and_verified",
     "canonical_path": "procurement/data/enrichment_queue_20261111.json"
   },
-  "lease": null,
-  "pending_candidate": null,
+  "lease": {
+    "owner": "weekend-enrichment-20261115-1703-item25352",
+    "acquired_at": "2026-11-15T12:03:00.000Z",
+    "heartbeat_at": "2026-11-15T12:03:00.000Z",
+    "expires_at": "2026-11-15T12:43:00.000Z",
+    "checkpoint_path": "procurement/data/enrichment_queue_20261113.json",
+    "supplier_id": 5,
+    "offer_id": 25352,
+    "product_id": 6915,
+    "task_id": 4888
+  },
+  "pending_candidate": {
+    "supplier_id": 5,
+    "offer_id": 25352,
+    "product_id": 6915,
+    "task_id": 4888,
+    "brand": "HYUNDAI-KIA",
+    "article": "55100H5600",
+    "state": "researching_new_sources"
+  },
   "last_reviewed": {
     "supplier_id": 5,
     "offer_id": 28110,
