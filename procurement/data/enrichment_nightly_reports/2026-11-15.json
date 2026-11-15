@@ -2,8 +2,8 @@
   "schema": 1,
   "night_end_date": "2026-11-15",
   "started_at": "2026-11-14T19:02:21.138Z",
-  "updated_at": "2026-11-15T08:02:58.278Z",
-  "status": "candidate_prepared_publication_deferred_high_service_memory",
+  "updated_at": "2026-11-15T09:06:30.058Z",
+  "status": "processing_other_in_stock_control_batch20_zakazauto",
   "supplier_stats": {
     "1": {
       "name": "Omega",
@@ -25,12 +25,12 @@
     },
     "5": {
       "name": "ЗаказАвто",
-      "processed_unique": 7,
+      "processed_unique": 8,
       "photos_added": 4,
       "fitment_added": 0,
       "years_or_engines_added": 0,
       "skips": {
-        "temporary_source_unavailable_http_403": 2,
+        "temporary_source_unavailable_http_403": 3,
         "brand_article_conflict": 1
       },
       "pending_ui_verification": 0,
@@ -41,48 +41,10 @@
     "phase": "other_in_stock_control",
     "batch_size": 20,
     "next_supplier_id": 5,
-    "next_offer_id": 25081,
-    "lease_owner": null,
+    "next_offer_id": 25373,
+    "lease_owner": "weekend-enrichment-20261115-1400-batch20",
     "lease_released_at": "2026-11-15T08:02:58.278Z",
-    "publication_pending": {
-      "supplier_id": 5,
-      "offer_id": 25081,
-      "product_id": 6827,
-      "task_id": 4800,
-      "brand": "SsangYong",
-      "article": "1612003114",
-      "status": "prepared_not_queued_high_service_memory",
-      "prepared_at": "2026-11-15T08:02:58.278Z",
-      "photo": {
-        "source_kind": "exact_international_catalogue_card",
-        "source_url": "https://plenty.parts/parts/ssangyong/engine/ssangyong-1612003114-vibration-damper-for-ssangyong-kg-mobility-p2259592",
-        "image_url": "https://i.plenty.parts/i/850/pictures_ppp_ssangyong_1612003114.jpg",
-        "exact_brand": true,
-        "exact_article": true,
-        "execution": "vibration damper for V-ribbed belt",
-        "package_quantity": null,
-        "visual_check": "real belt vibration damper; no car, diagram, analogue or placeholder",
-        "source_display_size": [
-          500,
-          500
-        ],
-        "checked_on": "2026-11-15"
-      },
-      "fitment": {
-        "status": "not_saved_source_conflict",
-        "reason": "Exact Kaspi card lists Actyon, Actyon Sports and Kyron with separate years 2007–2016, while the independent exact catalogue lists different model coverage and different start years/engines; no range, generation or engine inferred.",
-        "sources": [
-          "https://kaspi.kz/shop/p/ssang-yong-natjazhitel-privodnogo-remnja-1612003114-118119251/",
-          "https://plenty.parts/parts/ssangyong/engine/ssangyong-1612003114-vibration-damper-for-ssangyong-kg-mobility-p2259592"
-        ]
-      },
-      "load": {
-        "service_memory_bytes_latest": 495796220,
-        "service_memory_limit_bytes": 536870900,
-        "ratio": 0.9235,
-        "decision": "defer deployment and DB write; retry after load recheck"
-      }
-    },
+    "publication_pending": null,
     "pending_ui_verification": null,
     "recheck": {
       "total": 19,
@@ -98,8 +60,9 @@
       "structured_fitment_missing_before": 5,
       "fitment_display_enhancements": 1
     },
-    "next_product_id": 6827,
-    "next_task_id": 4800
+    "next_product_id": 6908,
+    "next_task_id": 4881,
+    "lease_expires_at": "2026-11-15T09:36:30.058Z"
   },
   "events": [
     {
@@ -221,6 +184,16 @@
       "at": "2026-11-15T08:02:58.278Z",
       "type": "lease_released",
       "detail": "Shared lease released; next run resumes offer 25081 after memory, DB, task and lease recheck."
+    },
+    {
+      "at": "2026-11-15T09:06:30.058Z",
+      "type": "source_temporarily_unavailable",
+      "detail": "SsangYong 1612003114: exact Plenty.Parts image returned HTTP 403 to the existing consumer; no bypass or repeat."
+    },
+    {
+      "at": "2026-11-15T09:06:30.058Z",
+      "type": "item_completed_no_write_and_advance",
+      "detail": "Offer 25081 completed with zero saved photo/thumbnail/fitment; fitment conflict retained. Resume HAVAL 2804201XKN01A offer 25373."
     }
   ],
   "last_success": {

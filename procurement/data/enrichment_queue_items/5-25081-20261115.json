@@ -45,25 +45,32 @@
     }
   },
   "queued": {
-    "status": "not_queued",
-    "reason": "service_memory_above_90_percent"
+    "status": "queued_and_deployed",
+    "kind": "exact_photo_publication",
+    "queued_at": "2026-11-15T09:03:17Z",
+    "commit": "07920e3194cd6940e3ef6934f8ec3f9a3df1b1c7",
+    "deploy_id": "dep-dbsnalvf3r2c73eji3q0"
   },
   "saved": {
     "status": "not_saved",
     "photo_saved": false,
     "thumbnail_saved": false,
-    "fitment_saved": false
+    "fitment_saved": false,
+    "task_status": "blocked",
+    "failure_kind": "temporary_source_unavailable_http_403",
+    "failed_at": "2026-11-15T09:05:11.089751Z"
   },
   "verification": {
-    "db_verified_unchanged": true,
+    "source_verified": true,
+    "db_verified": true,
+    "photo_verified": false,
+    "thumbnail_verified": false,
+    "fitment_verified": false,
     "ui_verified": false,
-    "reason": "nothing published; no UI success claimed",
-    "service_load": {
-      "service_memory_bytes_latest": 495796220,
-      "service_memory_limit_bytes": 536870900,
-      "ratio": 0.9235,
-      "decision": "defer deployment and DB write; retry after load recheck"
-    }
+    "reason": "Exact image URL returned HTTP 403 to existing Render consumer; no file was saved and UI success is not claimed.",
+    "deploy_id": "dep-dbsnalvf3r2c73eji3q0",
+    "live_commit": "07920e3194cd6940e3ef6934f8ec3f9a3df1b1c7",
+    "verified_at": "2026-11-15T09:06:30.058Z"
   },
   "sources": [
     {
@@ -90,14 +97,27 @@
     "kind": "fitment_model_year_conflict",
     "detail": "Kaspi and independent exact catalogue disagree on model coverage/start years; catalogue itself marks fitment as guidance. No structured fitment written."
   },
-  "status": "prepared_candidate_publication_deferred_high_service_memory",
-  "skip_reason": "temporary_high_service_memory",
+  "status": "completed_source_temporarily_unavailable_http_403",
+  "skip_reason": "temporary_source_unavailable_http_403",
   "next": {
     "supplier_id": 5,
-    "offer_id": 25081,
-    "product_id": 6827,
-    "task_id": 4800,
-    "action": "recheck lease, live DB, active consumer and service memory; queue exact photo only if load is safe; retain fitment conflict"
+    "offer_id": 25373,
+    "product_id": 6908,
+    "task_id": 4881,
+    "brand": "HAVAL",
+    "article": "2804201XKN01A",
+    "action": "check exact photo and confirmed fitment after heartbeat/live stock/load recheck"
   },
-  "trade_data_unchanged": true
+  "trade_data_unchanged": true,
+  "after": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "fitment_rows": 0,
+    "stock": "3",
+    "cost": "11100.00",
+    "kaspi_price": "20060.00",
+    "task_status": "blocked",
+    "task_source_url": "https://plenty.parts/parts/ssangyong/engine/ssangyong-1612003114-vibration-damper-for-ssangyong-kg-mobility-p2259592"
+  },
+  "rechecked_at": "2026-11-15T09:06:30.058Z"
 }
