@@ -9440,7 +9440,7 @@
     "service_memory_limit_bytes": 536870900,
     "decision": "research and read-only checks allowed; defer or throttle writes while memory remains above 90% on the web service"
   },
-  "updated_at": "2026-11-15T08:02:58.278Z",
+  "updated_at": "2026-11-15T09:00:24.482Z",
   "current_index": 0,
   "next_supplier_id": 5,
   "next_offer_id": 25081,
@@ -9452,7 +9452,14 @@
     "released_at": "2026-11-15T08:02:58.278Z",
     "reason": "offer_25081_source_prepared_publication_deferred_high_service_memory"
   },
-  "lease": null,
+  "lease": {
+    "owner": "weekend-enrichment-20261115-1400-batch20",
+    "scope": "enrichment_queue_20261113_other_in_stock_control_batch20_zakazauto",
+    "acquired_at": "2026-11-15T09:00:24.482Z",
+    "heartbeat_at": "2026-11-15T09:00:24.482Z",
+    "expires_at": "2026-11-15T09:35:24.482Z",
+    "next_offer_id": 25081
+  },
   "pending_candidate": {
     "supplier_id": 5,
     "offer_id": 25081,
