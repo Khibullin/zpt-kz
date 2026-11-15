@@ -2,8 +2,8 @@
   "schema": 1,
   "night_end_date": "2026-11-15",
   "started_at": "2026-11-14T19:02:21.138Z",
-  "updated_at": "2026-11-15T10:04:00.000Z",
-  "status": "processing_offer_25289_jashi_54650h5100",
+  "updated_at": "2026-11-15T10:12:00.000Z",
+  "status": "checkpointed_after_verified_jashi_54650h5100_resume_ready",
   "supplier_stats": {
     "1": {
       "name": "Omega",
@@ -25,25 +25,25 @@
     },
     "5": {
       "name": "ЗаказАвто",
-      "processed_unique": 11,
-      "photos_added": 6,
-      "fitment_added": 3,
-      "years_or_engines_added": 2,
+      "processed_unique": 12,
+      "photos_added": 7,
+      "fitment_added": 4,
+      "years_or_engines_added": 3,
       "skips": {
         "temporary_source_unavailable_http_403": 4,
         "brand_article_conflict": 1
       },
       "pending_ui_verification": 0,
-      "thumbnails_added": 6
+      "thumbnails_added": 7
     }
   },
   "queue": {
     "phase": "other_in_stock_control",
     "batch_size": 20,
     "next_supplier_id": 5,
-    "next_offer_id": 25289,
-    "lease_owner": "weekend-enrichment-20261115-1504-item25289",
-    "lease_released_at": "2026-11-15T09:34:00.000Z",
+    "next_offer_id": 25290,
+    "lease_owner": null,
+    "lease_released_at": "2026-11-15T10:12:00.000Z",
     "publication_pending": null,
     "pending_ui_verification": null,
     "recheck": {
@@ -60,9 +60,9 @@
       "structured_fitment_missing_before": 5,
       "fitment_display_enhancements": 1
     },
-    "next_product_id": 6957,
-    "next_task_id": 4930,
-    "lease_expires_at": "2026-11-15T10:44:00.000Z"
+    "next_product_id": 6961,
+    "next_task_id": 4934,
+    "lease_expires_at": null
   },
   "events": [
     {
@@ -249,16 +249,26 @@
       "at": "2026-11-15T10:04:00.000Z",
       "type": "lease_acquired",
       "detail": "Shared lease acquired after canonical blob-SHA check; resuming frozen ZakazAuto batch20 at offer 25289 / JASHI 54650H5100."
+    },
+    {
+      "at": "2026-11-15T10:12:00.000Z",
+      "type": "item_saved_verified_and_advance",
+      "detail": "JASHI 54650H5100: exact photo 750x603, thumbnail 180x145 and three sourced Accent / Solaris / Rio fitment rows saved and verified. Twenty-seven discrete year configurations (2017-2025 per model) stored; generation and engines remain unknown. Resume 25290."
+    },
+    {
+      "at": "2026-11-15T10:12:00.000Z",
+      "type": "lease_released",
+      "detail": "Shared lease released after per-item checkpoint; queue resumes at ZakazAuto offer 25290."
     }
   ],
   "last_success": {
-    "at": "2026-11-15T09:34:00.000Z",
+    "at": "2026-11-15T10:12:00.000Z",
     "supplier_id": 5,
-    "offer_id": 25213,
-    "product_id": 6764,
-    "task_id": 4737,
+    "offer_id": 25289,
+    "product_id": 6957,
+    "task_id": 4930,
     "brand": "JASHI",
-    "article": "54651-D3000",
+    "article": "54650H5100",
     "saved": {
       "photo": true,
       "thumbnail": true,
@@ -268,14 +278,15 @@
     "db_verified": true,
     "ui_verified": true,
     "fitment_ids": [
-      111523,
-      111524
+      111525,
+      111526,
+      111527
     ],
-    "live_commit": "59fabed863130f464d42e379999dfa5b5121e870",
-    "deploy_id": "dep-dbsnnkqjnfac73cfrs2g",
-    "ui_url": "https://zpt.kz/hyundai-zpt-25213/"
+    "live_commit": "2e939c5c21eff08cfe3fe0506869a0d8b256dd66",
+    "deploy_id": "dep-dbso9468bjmc73eorbq0",
+    "ui_url": "https://zpt.kz/hyundai-accent-hyundai-zpt-25289/"
   },
-  "last_commit": "45c3c196f0fed28d4195d11f1a49127826e7c61e",
+  "last_commit": "b3b5032ffe7e447e06cacc12b08e225a9d92b21b",
   "morning_report": {
     "period_start": "2026-11-14T23:00:00+05:00",
     "period_end": "2026-11-15T06:00:00+05:00",
