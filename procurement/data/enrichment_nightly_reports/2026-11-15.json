@@ -256,10 +256,21 @@
       "Remaining counts are current imported stock, not independently reconfirmed supplier availability."
     ],
     "delivery": {
-      "status": "prepared",
+      "status": "sent_and_verified",
       "recipient": "rkhaibullin@gmail.com",
       "subject": "ZPT.KZ — ночной отчёт по фото и применимости — 15.11.2026",
-      "prepared_at": "2026-11-15T06:05:00+05:00"
+      "prepared_at": "2026-11-15T06:05:00+05:00",
+      "sent_at": "2026-11-15T06:05:56+05:00",
+      "verified_at": "2026-11-15T06:06:00+05:00",
+      "gmail_message_id": "1a1dcbd50f901574",
+      "gmail_thread_id": "1a1dcbd50f901574",
+      "labels": [
+        "UNREAD",
+        "SENT",
+        "INBOX"
+      ],
+      "recipient_verified_by": "Gmail get_profile 2026-11-15: Rinat Khaibullin rkhaibullin@gmail.com",
+      "duplicate_check": "No sent message matching exact recipient and dated subject found before send; no previous delivery record in report."
     }
   }
 }
