@@ -9,10 +9,20 @@
     "phase": "completed_with_documented_exceptions_20261112",
     "reviewed_offer_ids": 408
   },
-  "shared_lease": null,
+  "shared_lease": {
+    "owner": "weekend-enrichment-20261115-1759-item25110",
+    "acquired_at": "2026-11-15T12:59:04.663Z",
+    "heartbeat_at": "2026-11-15T12:59:04.663Z",
+    "expires_at": "2026-11-15T13:39:04.663Z",
+    "checkpoint_path": "procurement/data/enrichment_queue_20261113.json",
+    "supplier_id": 5,
+    "offer_id": 25110,
+    "product_id": 6727,
+    "task_id": 4700
+  },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-15T12:57:59.368Z",
-  "status": "active_ready_for_next_item",
+  "heartbeat_at": "2026-11-15T12:59:04.663Z",
+  "status": "lease_acquired_researching_jashi_202000362aa",
   "phase": "other_in_stock_control",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
@@ -10440,7 +10450,7 @@
     "service_memory_limit_bytes": 536870900,
     "decision": "research and read-only checks allowed; defer or throttle writes while memory remains above 90% on the web service"
   },
-  "updated_at": "2026-11-15T12:57:59.368Z",
+  "updated_at": "2026-11-15T12:59:04.663Z",
   "current_index": 14,
   "next_supplier_id": 5,
   "next_offer_id": 25110,
@@ -10455,8 +10465,26 @@
     "journal_commit": "67e64ae6264b9ff709b0d809c0633e58806a1214",
     "next_offer_id": 25110
   },
-  "lease": null,
-  "pending_candidate": null,
+  "lease": {
+    "owner": "weekend-enrichment-20261115-1759-item25110",
+    "acquired_at": "2026-11-15T12:59:04.663Z",
+    "heartbeat_at": "2026-11-15T12:59:04.663Z",
+    "expires_at": "2026-11-15T13:39:04.663Z",
+    "checkpoint_path": "procurement/data/enrichment_queue_20261113.json",
+    "supplier_id": 5,
+    "offer_id": 25110,
+    "product_id": 6727,
+    "task_id": 4700
+  },
+  "pending_candidate": {
+    "supplier_id": 5,
+    "offer_id": 25110,
+    "product_id": 6727,
+    "task_id": 4700,
+    "brand": "JASHI",
+    "article": "202000362AA",
+    "state": "researching_new_sources"
+  },
   "last_reviewed": {
     "supplier_id": 5,
     "offer_id": 25131,
