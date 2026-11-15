@@ -1,0 +1,125 @@
+{
+  "schema": 1,
+  "night_end_date": "2026-11-15",
+  "supplier_id": 5,
+  "supplier_name": "ЗаказАвто",
+  "offer_id": 25142,
+  "product_id": 6698,
+  "task_id": 4671,
+  "brand": "Fenox",
+  "article": "A12254",
+  "name": "Амортизатор задний DAEWOO",
+  "checked_on": "2026-11-15",
+  "before": {
+    "stock": "1",
+    "cost": "5500.00",
+    "price": "7150.00",
+    "kaspi_price": "12585.00",
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "fitment_rows": 0,
+    "task_status": "needs_source"
+  },
+  "prepared": {
+    "photo": {
+      "status": "confirmed_exact",
+      "source_kind": "exact_catalogue_card",
+      "source_url": "https://armtek.by/product/amortizator-maslyanyy-fenox-a12254-zadnyaya-os-sleva-zadnyaya-os-sprava-4363063",
+      "image_url": "https://img.armtek.ru/img/article/436/4363063/500x500/4363063_0.webp",
+      "source_dimensions": "500x500 catalogue rendition",
+      "visual_check": "real isolated FENOX shock absorber with visible A12254 label; no car, diagram, analogue or placeholder"
+    },
+    "fitment": {
+      "status": "confirmed_exact",
+      "rows": [
+        {
+          "make": "DAEWOO",
+          "model": "Matiz",
+          "generation": "M100, M150 / KLYA",
+          "engine": "F8CV 0.8",
+          "period": "from 09.1998",
+          "years_display": "1998–н.в.",
+          "placement": "rear axle",
+          "side": "left or right"
+        },
+        {
+          "make": "DAEWOO",
+          "model": "Matiz",
+          "generation": "M100, M150 / KLYA",
+          "engine": "B10S 1.0",
+          "period": "from 01.2003",
+          "years_display": "2003–н.в.",
+          "placement": "rear axle",
+          "side": "left or right"
+        }
+      ],
+      "package_quantity": 1,
+      "source_url": "https://cartex.kz/part/a12254-fenox",
+      "confirmation_url": "https://auto-parts78.ru/catalog/fenox/a12254",
+      "oem_cross_numbers": [
+        "96316781",
+        "96342033",
+        "96610023"
+      ],
+      "limitations": "Open-ended source periods retained; no end year inferred. Tico listing was not imported because the exact configuration table did not provide its engine/period details."
+    }
+  },
+  "queued": {
+    "status": "queued_deployed_and_guarded",
+    "guard_commit": "6c9b5d586f4a01d4fdd368168929e0546540159a",
+    "stage_commit": "299e85e2c1b80b6aaa927e4fbbedf0a3ba4de6cc",
+    "display_commit": "22dd60cb7e10fc3733059ed95250740628d2e36e",
+    "deploy_id": "dep-dbsp6895efls73f0nad0",
+    "activation": "single existing consumer only; guard was live before task staging"
+  },
+  "saved": {
+    "status": "saved",
+    "saved_at": "2026-11-15T11:08:41.576068Z",
+    "photo_saved": true,
+    "thumbnail_saved": true,
+    "fitment_saved": true,
+    "fitment_ids": [
+      111531
+    ],
+    "task_status": "done",
+    "main_path": "products/optimized/c37171dedb9a5a861d109506d5fe716ba14ce80034cc1cc1af0c3dc1d1e386db.webp",
+    "thumbnail_path": "products/optimized/47ec260305d17fad26ab91569ceef664e8d1b9ec631ed99bf364e2bf40ef27dd.webp"
+  },
+  "verification": {
+    "source_verified": true,
+    "db_verified": true,
+    "photo_verified": true,
+    "thumbnail_verified": true,
+    "fitment_verified": true,
+    "ui_verified": true,
+    "ui_http_status": 200,
+    "main_http_status": 200,
+    "thumbnail_http_status": 200,
+    "main_dimensions": "500x371",
+    "thumbnail_dimensions": "180x134",
+    "ui_url": "https://zpt.kz/daewoo-zpt-25142/",
+    "verified_at": "2026-11-15T11:14:00.000Z"
+  },
+  "after": {
+    "stock": "1",
+    "cost": "5500.00",
+    "price": "7150.00",
+    "kaspi_price": "12585.00",
+    "main_image": "products/optimized/c37171dedb9a5a861d109506d5fe716ba14ce80034cc1cc1af0c3dc1d1e386db.webp",
+    "supplier_thumbnail": "products/optimized/47ec260305d17fad26ab91569ceef664e8d1b9ec631ed99bf364e2bf40ef27dd.webp",
+    "fitment_rows": 1,
+    "fitment_configurations": 2,
+    "task_status": "done"
+  },
+  "trade_data_unchanged": true,
+  "status": "completed_saved_and_verified",
+  "next": {
+    "supplier_id": 5,
+    "offer_id": 28110,
+    "product_id": 9237,
+    "task_id": 7210,
+    "brand": "JASHI",
+    "article": "8405120P3011/SET/6p/",
+    "action": "recheck lease, weekend time, live stock/load/task state, then confirm full supplier article including SET/6p execution and package against exact sources"
+  }
+}
