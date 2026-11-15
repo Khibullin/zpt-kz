@@ -1,0 +1,99 @@
+{
+  "schema": 1,
+  "night_end_date": "2026-11-15",
+  "supplier_id": 5,
+  "supplier_name": "ЗаказАвто",
+  "offer_id": 25373,
+  "product_id": 6908,
+  "task_id": 4881,
+  "brand": "HAVAL",
+  "article": "2804201XKN01A",
+  "name": "Бампер задний HAVAL",
+  "checked_on": "2026-11-15",
+  "before": {
+    "stock": "1",
+    "cost": "25190.00",
+    "price": "32747.00",
+    "kaspi_price": "36160.00",
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "fitment_rows": 0,
+    "task_status": "needs_source"
+  },
+  "prepared": {
+    "photo": {
+      "status": "confirmed_exact",
+      "source_kind": "manufacturer_catalogue",
+      "source_url": "https://www.shindary.com/bumper/rear-bumper-2804201xkn01a-for-haval-h6.html",
+      "image_url": "https://www.shindary.com/data/upload/20240523/2804201XKN01A.jpg",
+      "source_dimensions": "600x600",
+      "source_bytes": 21558,
+      "sha256": "393d76bd812e5dcc9f086c8a4001cdfd2216bed2ce5990bb1a791f613fa92dab",
+      "visual_check": "isolated rear bumper; no vehicle, analogue, diagram or placeholder"
+    },
+    "fitment": {
+      "status": "confirmed_exact",
+      "make": "HAVAL",
+      "model": "H6 (3rd generation)",
+      "years": "2022–present",
+      "engines": null,
+      "placement": "rear",
+      "details": "rear bumper assembly; original black unpainted",
+      "restriction": "P1/P2/P3 only; P4 uses OEM 2804110XKN01A",
+      "sources": [
+        "https://www.shindary.com/bumper/rear-bumper-2804201xkn01a-for-haval-h6.html",
+        "https://www.eliteparts.org/products/original-haval-h6-whole-rear-bumper"
+      ]
+    }
+  },
+  "queued": {
+    "status": "queued_and_deployed",
+    "queued_at": "2026-11-15T09:08:00Z",
+    "commit": "a9b4e61220d0729616abca7a6850c4a69d496a04",
+    "deploy_id": "dep-dbsnd67f3r2c73ejkk10"
+  },
+  "saved": {
+    "status": "saved",
+    "saved_at": "2026-11-15T09:10:41.756Z",
+    "photo_saved": true,
+    "thumbnail_saved": true,
+    "fitment_saved": true,
+    "fitment_id": 111521,
+    "task_status": "done",
+    "main_path": "products/optimized/9e6e47bb4595de32795a7a1fbe884b11c9029606f6af7345c75a2b6ae579a0e9.webp",
+    "thumbnail_path": "products/optimized/334057654a1605c333953777aa0fe82658aade53d8c49be81ec1dfae2f3c8621.webp"
+  },
+  "verification": {
+    "source_verified": true,
+    "db_verified": true,
+    "photo_verified": true,
+    "thumbnail_verified": true,
+    "fitment_verified": true,
+    "ui_verified": true,
+    "main_dimensions": "600x600",
+    "thumbnail_dimensions": "180x180",
+    "ui_url": "https://zpt.kz/haval-zpt-25373/",
+    "verified_at": "2026-11-15T09:14:20.000Z"
+  },
+  "after": {
+    "stock": "1",
+    "cost": "25190.00",
+    "price": "32747.00",
+    "kaspi_price": "36160.00",
+    "main_image": "products/optimized/9e6e47bb4595de32795a7a1fbe884b11c9029606f6af7345c75a2b6ae579a0e9.webp",
+    "supplier_thumbnail": "products/optimized/334057654a1605c333953777aa0fe82658aade53d8c49be81ec1dfae2f3c8621.webp",
+    "fitment_rows": 1,
+    "task_status": "done"
+  },
+  "trade_data_unchanged": true,
+  "status": "completed_saved_and_verified",
+  "next": {
+    "supplier_id": 5,
+    "offer_id": 25088,
+    "product_id": 6788,
+    "task_id": 4761,
+    "brand": "JASHI",
+    "article": "C281F260203-1100",
+    "action": "recheck lease, live stock/load/task state, then research exact sources"
+  }
+}

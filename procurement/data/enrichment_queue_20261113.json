@@ -11,8 +11,8 @@
   },
   "shared_lease": null,
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-15T00:14:12.428Z",
-  "status": "checkpointed_first19_completed_resume_ready",
+  "heartbeat_at": "2026-11-15T09:14:20.000Z",
+  "status": "checkpointed_after_verified_haval_resume_ready",
   "phase": "other_in_stock_control",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
@@ -7975,6 +7975,27 @@
       "live_commit": "45c3c196f0fed28d4195d11f1a49127826e7c61e",
       "main_path": "products/optimized/fba420e61551f9148fcf3c129a731d837bad094ce87c9c2ace972c3cba964afc.webp",
       "thumbnail_path": "products/optimized/16def1862386f78fb8650e395a052f42fc5357735a28e0df6999c16f00f68f8c.webp"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25373,
+      "kind": "photo_and_thumbnail",
+      "saved_at": "2026-11-15T09:10:41.756Z",
+      "task_id": 4881,
+      "deploy_id": "dep-dbsnd67f3r2c73ejkk10",
+      "live_commit": "a9b4e61220d0729616abca7a6850c4a69d496a04",
+      "main_path": "products/optimized/9e6e47bb4595de32795a7a1fbe884b11c9029606f6af7345c75a2b6ae579a0e9.webp",
+      "thumbnail_path": "products/optimized/334057654a1605c333953777aa0fe82658aade53d8c49be81ec1dfae2f3c8621.webp"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25373,
+      "kind": "fitment",
+      "saved_at": "2026-11-15T09:10:41.756Z",
+      "fitment_id": 111521,
+      "configuration_count": 1,
+      "deploy_id": "dep-dbsnd67f3r2c73ejkk10",
+      "live_commit": "a9b4e61220d0729616abca7a6850c4a69d496a04"
     }
   ],
   "verified": [
@@ -8272,6 +8293,20 @@
         180,
         120
       ]
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25373,
+      "kind": "photo_thumbnail_and_fitment",
+      "db_verified": true,
+      "ui_verified": true,
+      "ui_url": "https://zpt.kz/haval-zpt-25373/",
+      "main_image_url": "https://zpt.kz/products/products/optimized/9e6e47bb4595de32795a7a1fbe884b11c9029606f6af7345c75a2b6ae579a0e9.webp",
+      "thumbnail_url": "https://zpt.kz/products/products/optimized/334057654a1605c333953777aa0fe82658aade53d8c49be81ec1dfae2f3c8621.webp",
+      "main_dimensions": "600x600",
+      "thumbnail_dimensions": "180x180",
+      "fitment_id": 111521,
+      "verified_at": "2026-11-15T09:14:20.000Z"
     }
   ],
   "exceptions": [
@@ -8513,14 +8548,14 @@
   "publication_pending": null,
   "next": {
     "phase": "other_in_stock_control",
-    "sequence": 1,
+    "sequence": 3,
     "batch_size": 20,
     "supplier_id": 5,
-    "offer_id": 25081,
-    "product_id": 6827,
-    "task_id": 4800,
-    "brand": "SsangYong",
-    "article": "1612003114"
+    "offer_id": 25088,
+    "product_id": 6788,
+    "task_id": 4761,
+    "brand": "JASHI",
+    "article": "C281F260203-1100"
   },
   "events": [
     {
@@ -8992,21 +9027,31 @@
       "at": "2026-11-15T09:06:30.058Z",
       "type": "item_completed_no_write_and_advance",
       "detail": "Offer 25081: zero photo, thumbnail or fitment saved; DB verified unchanged; trade/Kaspi unchanged. Resume offer 25373 HAVAL 2804201XKN01A."
+    },
+    {
+      "at": "2026-11-15T09:14:20.000Z",
+      "type": "item_saved_verified_and_advance",
+      "detail": "ZakazAuto HAVAL 2804201XKN01A: exact Shindary rear-bumper photo saved by the existing sole consumer as 600x600 WebP plus 180x180 thumbnail. Exact Haval H6 third-generation 2022–present rear bumper fitment saved with P1/P2/P3 restriction and P4 alternate OEM warning. DB, files and public card verified; price, stock and Kaspi unchanged. Resume offer 25088."
+    },
+    {
+      "at": "2026-11-15T09:14:20.000Z",
+      "type": "lease_released",
+      "detail": "Shared canonical lease released after verified HAVAL checkpoint; next is JASHI C281F260203-1100 offer 25088. No duplicate worker or schedule created."
     }
   ],
   "last_success": {
-    "at": "2026-11-15T00:14:12.428Z",
-    "stage": "exact_photo_saved_thumbnail_saved_fitment_preserved_and_ui_verified",
+    "at": "2026-11-15T09:14:20.000Z",
+    "stage": "exact_photo_thumbnail_and_fitment_saved_db_ui_verified",
     "supplier_id": 5,
-    "offer_id": 25129,
-    "product_id": 6713,
-    "task_id": 4686,
-    "article": "553102P500",
-    "commit": "45c3c196f0fed28d4195d11f1a49127826e7c61e",
-    "deploy_id": "dep-dbsfgd67bikc73f23gd0",
-    "ui_url": "https://zpt.kz/hyundai-zpt-25129/"
+    "offer_id": 25373,
+    "product_id": 6908,
+    "task_id": 4881,
+    "article": "2804201XKN01A",
+    "commit": "a9b4e61220d0729616abca7a6850c4a69d496a04",
+    "deploy_id": "dep-dbsnd67f3r2c73ejkk10",
+    "ui_url": "https://zpt.kz/haval-zpt-25373/"
   },
-  "last_commit": "45c3c196f0fed28d4195d11f1a49127826e7c61e",
+  "last_commit": "a9b4e61220d0729616abca7a6850c4a69d496a04",
   "paused_at": "2026-11-14T19:16:20.438Z",
   "pause_reason": "Sequence 14 EX54661A7100 recheck completed. Two exact photo sources were temporarily unavailable to the background consumer (HTTP 403); existing fitment verified. Resume at sequence 15.",
   "remaining_live": {
@@ -9450,40 +9495,34 @@
     "service_memory_limit_bytes": 536870900,
     "decision": "research and read-only checks allowed; defer or throttle writes while memory remains above 90% on the web service"
   },
-  "updated_at": "2026-11-15T09:06:30.058Z",
-  "current_index": 1,
+  "updated_at": "2026-11-15T09:14:20.000Z",
+  "current_index": 2,
   "next_supplier_id": 5,
-  "next_offer_id": 25373,
-  "next_product_id": 6908,
-  "next_task_id": 4881,
+  "next_offer_id": 25088,
+  "next_product_id": 6788,
+  "next_task_id": 4761,
   "last_lease": {
-    "owner": "weekend-enrichment-20261115-1300-batch20",
-    "scope": "enrichment_queue_20261113_other_in_stock_control_batch20_zakazauto",
-    "released_at": "2026-11-15T08:02:58.278Z",
-    "reason": "offer_25081_source_prepared_publication_deferred_high_service_memory"
-  },
-  "lease": {
     "owner": "weekend-enrichment-20261115-1400-batch20",
     "scope": "enrichment_queue_20261113_other_in_stock_control_batch20_zakazauto",
     "acquired_at": "2026-11-15T09:00:24.482Z",
-    "heartbeat_at": "2026-11-15T09:06:30.058Z",
-    "expires_at": "2026-11-15T09:36:30.058Z",
-    "next_offer_id": 25373
+    "released_at": "2026-11-15T09:14:20.000Z",
+    "reason": "offer_25373_haval_photo_thumbnail_fitment_saved_db_ui_verified_advance_to_25088"
   },
+  "lease": null,
   "pending_candidate": null,
   "last_reviewed": {
     "supplier_id": 5,
-    "offer_id": 25081,
-    "product_id": 6827,
-    "task_id": 4800,
-    "brand": "SsangYong",
-    "article": "1612003114",
-    "kind": "exact_photo_source_blocked_http_403_fitment_conflict_no_write",
-    "photo_saved": false,
-    "thumbnail_saved": false,
-    "fitment_saved": false,
+    "offer_id": 25373,
+    "product_id": 6908,
+    "task_id": 4881,
+    "brand": "HAVAL",
+    "article": "2804201XKN01A",
+    "kind": "exact_photo_thumbnail_and_confirmed_fitment_saved",
+    "photo_saved": true,
+    "thumbnail_saved": true,
+    "fitment_saved": true,
     "db_verified": true,
-    "task_status": "blocked",
-    "reviewed_at": "2026-11-15T09:06:30.058Z"
+    "ui_verified": true,
+    "reviewed_at": "2026-11-15T09:14:20.000Z"
   }
 }

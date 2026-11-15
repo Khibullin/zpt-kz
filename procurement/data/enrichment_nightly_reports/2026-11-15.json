@@ -2,8 +2,8 @@
   "schema": 1,
   "night_end_date": "2026-11-15",
   "started_at": "2026-11-14T19:02:21.138Z",
-  "updated_at": "2026-11-15T09:06:30.058Z",
-  "status": "processing_other_in_stock_control_batch20_zakazauto",
+  "updated_at": "2026-11-15T09:14:20.000Z",
+  "status": "checkpointed_after_verified_haval_resume_ready",
   "supplier_stats": {
     "1": {
       "name": "Omega",
@@ -25,10 +25,10 @@
     },
     "5": {
       "name": "ЗаказАвто",
-      "processed_unique": 8,
-      "photos_added": 4,
-      "fitment_added": 0,
-      "years_or_engines_added": 0,
+      "processed_unique": 9,
+      "photos_added": 5,
+      "fitment_added": 1,
+      "years_or_engines_added": 1,
       "skips": {
         "temporary_source_unavailable_http_403": 3,
         "brand_article_conflict": 1
@@ -41,9 +41,9 @@
     "phase": "other_in_stock_control",
     "batch_size": 20,
     "next_supplier_id": 5,
-    "next_offer_id": 25373,
-    "lease_owner": "weekend-enrichment-20261115-1400-batch20",
-    "lease_released_at": "2026-11-15T08:02:58.278Z",
+    "next_offer_id": 25088,
+    "lease_owner": null,
+    "lease_released_at": "2026-11-15T09:14:20.000Z",
     "publication_pending": null,
     "pending_ui_verification": null,
     "recheck": {
@@ -60,9 +60,9 @@
       "structured_fitment_missing_before": 5,
       "fitment_display_enhancements": 1
     },
-    "next_product_id": 6908,
-    "next_task_id": 4881,
-    "lease_expires_at": "2026-11-15T09:36:30.058Z"
+    "next_product_id": 6788,
+    "next_task_id": 4761,
+    "lease_expires_at": null
   },
   "events": [
     {
@@ -194,19 +194,38 @@
       "at": "2026-11-15T09:06:30.058Z",
       "type": "item_completed_no_write_and_advance",
       "detail": "Offer 25081 completed with zero saved photo/thumbnail/fitment; fitment conflict retained. Resume HAVAL 2804201XKN01A offer 25373."
+    },
+    {
+      "at": "2026-11-15T09:14:20.000Z",
+      "type": "item_saved_verified_and_advance",
+      "detail": "HAVAL 2804201XKN01A: exact 600x600 photo, 180x180 thumbnail and one sourced H6 third-generation fitment row saved and verified in DB/UI. P1/P2/P3 restriction and P4 alternate OEM warning preserved. Resume offer 25088."
+    },
+    {
+      "at": "2026-11-15T09:14:20.000Z",
+      "type": "lease_released",
+      "detail": "Shared lease released after per-item checkpoint; queue resumes at ZakazAuto offer 25088."
     }
   ],
   "last_success": {
-    "at": "2026-11-15T00:14:12.428Z",
-    "stage": "photo_thumbnail_saved_fitment_preserved_db_ui_verified",
+    "at": "2026-11-15T09:14:20.000Z",
     "supplier_id": 5,
-    "offer_id": 25129,
-    "product_id": 6713,
-    "task_id": 4686,
-    "article": "553102P500",
-    "commit": "45c3c196f0fed28d4195d11f1a49127826e7c61e",
-    "deploy_id": "dep-dbsfgd67bikc73f23gd0",
-    "ui_url": "https://zpt.kz/hyundai-zpt-25129/"
+    "offer_id": 25373,
+    "product_id": 6908,
+    "task_id": 4881,
+    "brand": "HAVAL",
+    "article": "2804201XKN01A",
+    "saved": {
+      "photo": true,
+      "thumbnail": true,
+      "fitment": true,
+      "years_or_engines": true
+    },
+    "db_verified": true,
+    "ui_verified": true,
+    "fitment_id": 111521,
+    "live_commit": "a9b4e61220d0729616abca7a6850c4a69d496a04",
+    "deploy_id": "dep-dbsnd67f3r2c73ejkk10",
+    "ui_url": "https://zpt.kz/haval-zpt-25373/"
   },
   "last_commit": "45c3c196f0fed28d4195d11f1a49127826e7c61e",
   "morning_report": {
