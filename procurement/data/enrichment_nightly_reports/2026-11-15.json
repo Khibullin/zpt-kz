@@ -2,8 +2,8 @@
   "schema": 1,
   "night_end_date": "2026-11-15",
   "started_at": "2026-11-14T19:02:21.138Z",
-  "updated_at": "2026-11-15T12:42:00.000Z",
-  "status": "checkpointed_after_verified_ssangyong_7145034004_resume_ready",
+  "updated_at": "2026-11-15T12:58:25.764Z",
+  "status": "checkpointed_after_verified_hyundai_kia_553112s400_resume_ready",
   "supplier_stats": {
     "1": {
       "name": "Omega",
@@ -25,25 +25,25 @@
     },
     "5": {
       "name": "ЗаказАвто",
-      "processed_unique": 20,
-      "photos_added": 14,
-      "fitment_added": 12,
-      "years_or_engines_added": 10,
+      "processed_unique": 21,
+      "photos_added": 15,
+      "fitment_added": 13,
+      "years_or_engines_added": 11,
       "skips": {
         "temporary_source_unavailable_http_403": 4,
         "brand_article_conflict": 2
       },
       "pending_ui_verification": 0,
-      "thumbnails_added": 14
+      "thumbnails_added": 15
     }
   },
   "queue": {
     "phase": "other_in_stock_control",
     "batch_size": 20,
     "next_supplier_id": 5,
-    "next_offer_id": 25131,
+    "next_offer_id": 25110,
     "lease_owner": null,
-    "lease_released_at": "2026-11-15T12:42:00.000Z",
+    "lease_released_at": "2026-11-15T12:58:25.764Z",
     "publication_pending": null,
     "pending_ui_verification": null,
     "recheck": {
@@ -60,11 +60,11 @@
       "structured_fitment_missing_before": 5,
       "fitment_display_enhancements": 1
     },
-    "next_product_id": 6714,
-    "next_task_id": 4687,
+    "next_product_id": 6727,
+    "next_task_id": 4700,
     "lease_expires_at": null,
-    "current_index": 13,
-    "current_batch_processed": 13,
+    "current_index": 14,
+    "current_batch_processed": 14,
     "current_batch_total": 20
   },
   "events": [
@@ -382,16 +382,26 @@
       "at": "2026-11-15T12:42:00.000Z",
       "type": "lease_released",
       "detail": "Shared lease released after per-item checkpoint; no pending publication or UI verification."
+    },
+    {
+      "at": "2026-11-15T12:58:25.764Z",
+      "type": "item_saved_verified_and_advance",
+      "detail": "HYUNDAI-KIA 553112S400: exact clean photo 516x353, thumbnail 180x123, two structured fitment rows and one confirmed Hyundai engine configuration saved and verified. Batch20 now 14/20; resume offer 25110."
+    },
+    {
+      "at": "2026-11-15T12:58:25.764Z",
+      "type": "lease_released",
+      "detail": "Shared lease released after per-item checkpoint; no pending publication or UI verification."
     }
   ],
   "last_success": {
-    "at": "2026-11-15T12:42:00.000Z",
+    "at": "2026-11-15T12:58:25.764Z",
     "supplier_id": 5,
-    "offer_id": 25085,
-    "product_id": 6832,
-    "task_id": 4805,
-    "brand": "SsangYong",
-    "article": "7145034004",
+    "offer_id": 25131,
+    "product_id": 6714,
+    "task_id": 4687,
+    "brand": "HYUNDAI-KIA",
+    "article": "553112S400",
     "saved": {
       "photo": true,
       "thumbnail": true,
@@ -401,15 +411,16 @@
     "db_verified": true,
     "ui_verified": true,
     "fitment_ids": [
-      111537
+      111538,
+      111539
     ],
-    "configuration_count": 1,
-    "engine_rows": 0,
-    "live_commit": "93ffdbb6f8be7caa6108c21f621cc0b3d6441f58",
-    "deploy_id": "dep-dbsqfrm7bikc73fbu6ug",
-    "ui_url": "https://zpt.kz/ssangyong-zpt-25085/"
+    "configuration_count": 2,
+    "engine_rows": 1,
+    "live_commit": "046b420383c4e71238f37a201012daa8754c2b12",
+    "deploy_id": "dep-dbsqmme417fc73fqh5l0",
+    "ui_url": "https://zpt.kz/hyundai-zpt-25131/"
   },
-  "last_commit": "376d1f37a3cb4f84f611f7d16e4d4fa80b51c398",
+  "last_commit": "67e64ae6264b9ff709b0d809c0633e58806a1214",
   "morning_report": {
     "period_start": "2026-11-14T23:00:00+05:00",
     "period_end": "2026-11-15T06:00:00+05:00",
