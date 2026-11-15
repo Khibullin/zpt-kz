@@ -9,20 +9,10 @@
     "phase": "completed_with_documented_exceptions_20261112",
     "reviewed_offer_ids": 408
   },
-  "shared_lease": {
-    "owner": "weekend-enrichment-20261115-1730-item25086",
-    "acquired_at": "2026-11-15T12:30:00.000Z",
-    "heartbeat_at": "2026-11-15T12:30:00.000Z",
-    "expires_at": "2026-11-15T13:10:00.000Z",
-    "checkpoint_path": "procurement/data/enrichment_queue_20261113.json",
-    "supplier_id": 5,
-    "offer_id": 25086,
-    "product_id": 6834,
-    "task_id": 4807
-  },
+  "shared_lease": null,
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-15T12:30:00.000Z",
-  "status": "lease_acquired_researching_ssangyong_7146034004",
+  "heartbeat_at": "2026-11-15T12:36:00.000Z",
+  "status": "checkpointed_after_verified_ssangyong_7146034004_resume_ready",
   "phase": "other_in_stock_control",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
@@ -7200,7 +7190,7 @@
     }
   ],
   "current_batch_index": 0,
-  "current_item_index": 11,
+  "current_item_index": 12,
   "reviewed": [
     {
       "supplier_id": 5,
@@ -7477,6 +7467,17 @@
       "checked_at": "2026-11-15T12:29:00.000Z",
       "status": "saved_and_ui_verified_fitment_photo_unconfirmed",
       "journal": "procurement/data/enrichment_queue_items/5-25206-20261115.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25086,
+      "product_id": 6834,
+      "task_id": 4807,
+      "brand": "SsangYong",
+      "article": "7146034004",
+      "checked_at": "2026-11-15T12:36:00.000Z",
+      "status": "saved_and_ui_verified_photo_thumbnail_and_fitment",
+      "journal": "procurement/data/enrichment_queue_items/5-25086-20261115.json"
     }
   ],
   "prepared": [
@@ -7916,6 +7917,18 @@
       "status": "published_and_verified",
       "source_url": "https://aftermarket.ctr.co.kr/files/214f77492147bb699d6fb2030be19ec2.pdf",
       "journal": "procurement/data/enrichment_queue_items/5-25206-20261115.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25086,
+      "product_id": 6834,
+      "task_id": 4807,
+      "kind": "photo_and_fitment",
+      "prepared_at": "2026-11-15T12:32:00.000Z",
+      "status": "published_and_verified",
+      "source_url": "https://www.autoopt.ru/catalog/912908-amortizator_ssangyong_actyon_10__kryshki_bagazhnika_pravyj_oe",
+      "image_url": "https://www.autoopt.ru/product_pictures/big/734/912908.jpg",
+      "journal": "procurement/data/enrichment_queue_items/5-25086-20261115.json"
     }
   ],
   "queued": [
@@ -8043,6 +8056,16 @@
       "commit": "708cdbdfa7f0c4b860a598f58cb9d17e00e044d9",
       "deploy_id": "dep-dbsq9fc9v7es73c6njng",
       "task_id": 4739
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25086,
+      "kind": "photo_and_fitment_publication",
+      "queued_at": "2026-11-15T12:33:04.000Z",
+      "guard_commit": "0a799f918ceda0e5ee754a38bf9e11adc60653d2",
+      "commit": "f32f393186ffd6537b3a3add1ed148cec193bcbe",
+      "deploy_id": "dep-dbsqd0e7bikc73fbrcpg",
+      "task_id": 4807
     }
   ],
   "saved": [
@@ -8372,6 +8395,20 @@
       "configuration_count": 1,
       "deploy_id": "dep-dbsq9fc9v7es73c6njng",
       "live_commit": "708cdbdfa7f0c4b860a598f58cb9d17e00e044d9"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25086,
+      "kind": "photo_thumbnail_and_fitment",
+      "saved_at": "2026-11-15T12:34:42.518846Z",
+      "task_id": 4807,
+      "fitment_ids": [
+        111536
+      ],
+      "main_image": "products/optimized/ff4bcd8935b04ffac788d4a7670e7161731a902a17c6ab95a891a9e78becece8.webp",
+      "supplier_thumbnail": "products/optimized/3c275a9f71d8b41dc5b32ee15e5ec3d92cff39008b89d7844729a94ce8f16729.webp",
+      "deploy_id": "dep-dbsqd0e7bikc73fbrcpg",
+      "live_commit": "f32f393186ffd6537b3a3add1ed148cec193bcbe"
     }
   ],
   "verified": [
@@ -8865,6 +8902,25 @@
       "photo_saved": false,
       "placeholder_remains": true,
       "verified_at": "2026-11-15T12:29:00.000Z"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25086,
+      "kind": "photo_thumbnail_and_fitment",
+      "db_verified": true,
+      "ui_verified": true,
+      "ui_url": "https://zpt.kz/ssangyong-zpt-25086/",
+      "ui_http_status": 200,
+      "main_image_url": "https://zpt.kz/products/products/optimized/ff4bcd8935b04ffac788d4a7670e7161731a902a17c6ab95a891a9e78becece8.webp",
+      "thumbnail_url": "https://zpt.kz/products/products/optimized/3c275a9f71d8b41dc5b32ee15e5ec3d92cff39008b89d7844729a94ce8f16729.webp",
+      "main_dimensions": "800x671",
+      "thumbnail_dimensions": "180x151",
+      "fitment_ids": [
+        111536
+      ],
+      "configuration_count": 1,
+      "engine_rows": 0,
+      "verified_at": "2026-11-15T12:36:00.000Z"
     }
   ],
   "exceptions": [
@@ -9118,14 +9174,14 @@
   "publication_pending": null,
   "next": {
     "phase": "other_in_stock_control",
-    "sequence": 12,
+    "sequence": 13,
     "batch_size": 20,
     "supplier_id": 5,
-    "offer_id": 25086,
-    "product_id": 6834,
-    "task_id": 4807,
+    "offer_id": 25085,
+    "product_id": 6832,
+    "task_id": 4805,
     "brand": "SsangYong",
-    "article": "7146034004"
+    "article": "7145034004"
   },
   "events": [
     {
@@ -9737,34 +9793,49 @@
       "at": "2026-11-15T12:29:00.000Z",
       "type": "lease_released",
       "detail": "Expanded checkpoint released after per-item save; canonical shared lease remains held until report checkpoint completes."
+    },
+    {
+      "at": "2026-11-15T12:30:00.000Z",
+      "type": "lease_acquired",
+      "detail": "Shared lease acquired after fresh time and DB/process checks for ZakazAuto offer 25086 / SsangYong 7146034004."
+    },
+    {
+      "at": "2026-11-15T12:36:00.000Z",
+      "type": "item_saved_verified_and_advance",
+      "detail": "SsangYong 7146034004: exact 800x671 photo, 180x151 thumbnail and right Actyon/New Actyon tailgate-strut fitment from 2010 onward saved and DB/UI verified. End year, generation and engines remain unknown. Batch20 now 12/20; resume offer 25085."
+    },
+    {
+      "at": "2026-11-15T12:36:00.000Z",
+      "type": "lease_released",
+      "detail": "Expanded checkpoint released after per-item save; canonical shared lease remains held until report checkpoint completes."
     }
   ],
   "last_success": {
-    "at": "2026-11-15T12:29:00.000Z",
+    "at": "2026-11-15T12:36:00.000Z",
     "supplier_id": 5,
-    "offer_id": 25206,
-    "product_id": 6766,
-    "task_id": 4739,
-    "brand": "JASHI",
-    "article": "54651-F2500",
+    "offer_id": 25086,
+    "product_id": 6834,
+    "task_id": 4807,
+    "brand": "SsangYong",
+    "article": "7146034004",
     "saved": {
-      "photo": false,
-      "thumbnail": false,
+      "photo": true,
+      "thumbnail": true,
       "fitment": true,
       "years_or_engines": true
     },
     "db_verified": true,
     "ui_verified": true,
     "fitment_ids": [
-      111535
+      111536
     ],
     "configuration_count": 1,
     "engine_rows": 0,
-    "live_commit": "708cdbdfa7f0c4b860a598f58cb9d17e00e044d9",
-    "deploy_id": "dep-dbsq9fc9v7es73c6njng",
-    "ui_url": "https://zpt.kz/hyundai-zpt-25206/"
+    "live_commit": "f32f393186ffd6537b3a3add1ed148cec193bcbe",
+    "deploy_id": "dep-dbsqd0e7bikc73fbrcpg",
+    "ui_url": "https://zpt.kz/ssangyong-zpt-25086/"
   },
-  "last_commit": "28aedae6fe0d3665aadbb8e57adec3dc08ce76d6",
+  "last_commit": "7fd97aae4b9f7ddb03225b281e9b53e4d5650073",
   "paused_at": "2026-11-14T19:16:20.438Z",
   "pause_reason": "Sequence 14 EX54661A7100 recheck completed. Two exact photo sources were temporarily unavailable to the background consumer (HTTP 403); existing fitment verified. Resume at sequence 15.",
   "remaining_live": {
@@ -10208,56 +10279,46 @@
     "service_memory_limit_bytes": 536870900,
     "decision": "research and read-only checks allowed; defer or throttle writes while memory remains above 90% on the web service"
   },
-  "updated_at": "2026-11-15T12:30:00.000Z",
-  "current_index": 11,
+  "updated_at": "2026-11-15T12:36:00.000Z",
+  "current_index": 12,
   "next_supplier_id": 5,
-  "next_offer_id": 25086,
-  "next_product_id": 6834,
-  "next_task_id": 4807,
+  "next_offer_id": 25085,
+  "next_product_id": 6832,
+  "next_task_id": 4805,
   "last_lease": {
-    "owner": "weekend-enrichment-20261115-1724-item25206",
-    "acquired_at": "2026-11-15T12:24:00.000Z",
-    "released_at": "2026-11-15T12:29:00.000Z",
-    "result": "completed_fitment_saved_verified_photo_unconfirmed",
-    "checkpoint_path": "procurement/data/enrichment_queue_20261113.json",
-    "journal_commit": "28aedae6fe0d3665aadbb8e57adec3dc08ce76d6",
-    "next_offer_id": 25086
-  },
-  "lease": {
     "owner": "weekend-enrichment-20261115-1730-item25086",
     "acquired_at": "2026-11-15T12:30:00.000Z",
-    "heartbeat_at": "2026-11-15T12:30:00.000Z",
-    "expires_at": "2026-11-15T13:10:00.000Z",
+    "released_at": "2026-11-15T12:36:00.000Z",
+    "result": "completed_saved_and_verified_ssangyong_7146034004",
     "checkpoint_path": "procurement/data/enrichment_queue_20261113.json",
-    "supplier_id": 5,
-    "offer_id": 25086,
-    "product_id": 6834,
-    "task_id": 4807
+    "journal_commit": "7fd97aae4b9f7ddb03225b281e9b53e4d5650073",
+    "next_offer_id": 25085
   },
+  "lease": null,
   "pending_candidate": {
+    "supplier_id": 5,
+    "offer_id": 25085,
+    "product_id": 6832,
+    "task_id": 4805,
+    "brand": "SsangYong",
+    "article": "7145034004",
+    "state": "resume_ready_fresh_state_required"
+  },
+  "last_reviewed": {
     "supplier_id": 5,
     "offer_id": 25086,
     "product_id": 6834,
     "task_id": 4807,
     "brand": "SsangYong",
     "article": "7146034004",
-    "state": "researching_new_sources"
-  },
-  "last_reviewed": {
-    "supplier_id": 5,
-    "offer_id": 25206,
-    "product_id": 6766,
-    "task_id": 4739,
-    "brand": "JASHI",
-    "article": "54651-F2500",
-    "kind": "verified_fitment_saved_photo_brand_conflict",
-    "photo_saved": false,
-    "thumbnail_saved": false,
+    "kind": "exact_photo_thumbnail_side_and_open_period_saved",
+    "photo_saved": true,
+    "thumbnail_saved": true,
     "fitment_saved": true,
     "fitment_rows": 1,
     "configuration_rows": 1,
     "db_verified": true,
     "ui_verified": true,
-    "reviewed_at": "2026-11-15T12:29:00.000Z"
+    "reviewed_at": "2026-11-15T12:36:00.000Z"
   }
 }
