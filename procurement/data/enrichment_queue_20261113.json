@@ -8972,6 +8972,16 @@
       "at": "2026-11-15T00:14:12.428Z",
       "type": "lease_released",
       "detail": "Shared lease released after sequence 19 checkpoint and first-19 completion."
+    },
+    {
+      "at": "2026-11-15T08:02:58.278Z",
+      "type": "candidate_prepared_publication_deferred",
+      "detail": "SsangYong 1612003114 exact Plenty.Parts card/image prepared. Fitment not saved because exact Kaspi and independent catalogue conflict. Service memory 495.8/536.9 MB (92.35%); no deploy or DB write; resume same offer."
+    },
+    {
+      "at": "2026-11-15T08:02:58.278Z",
+      "type": "lease_released",
+      "detail": "Shared lease released after checkpointing prepared candidate for offer 25081; next run must recheck live DB/load before queueing."
     }
   ],
   "last_success": {
@@ -9430,24 +9440,70 @@
     "service_memory_limit_bytes": 536870900,
     "decision": "research and read-only checks allowed; defer or throttle writes while memory remains above 90% on the web service"
   },
-  "updated_at": "2026-11-15T08:00:29.695Z",
+  "updated_at": "2026-11-15T08:02:58.278Z",
   "current_index": 0,
   "next_supplier_id": 5,
   "next_offer_id": 25081,
   "next_product_id": 6827,
   "next_task_id": 4800,
   "last_lease": {
-    "owner": "weekend-enrichment-20261115-0458-recheck19",
-    "scope": "enrichment_queue_20261113_recheck_first19",
-    "released_at": "2026-11-15T00:14:12.428Z",
-    "reason": "sequence_19_checkpointed_first19_completed_resume_frozen_batch20"
-  },
-  "lease": {
     "owner": "weekend-enrichment-20261115-1300-batch20",
     "scope": "enrichment_queue_20261113_other_in_stock_control_batch20_zakazauto",
-    "acquired_at": "2026-11-15T08:00:29.695Z",
-    "heartbeat_at": "2026-11-15T08:00:29.695Z",
-    "expires_at": "2026-11-15T08:25:29.695Z",
-    "next_offer_id": 25081
+    "released_at": "2026-11-15T08:02:58.278Z",
+    "reason": "offer_25081_source_prepared_publication_deferred_high_service_memory"
+  },
+  "lease": null,
+  "pending_candidate": {
+    "supplier_id": 5,
+    "offer_id": 25081,
+    "product_id": 6827,
+    "task_id": 4800,
+    "brand": "SsangYong",
+    "article": "1612003114",
+    "status": "prepared_not_queued_high_service_memory",
+    "prepared_at": "2026-11-15T08:02:58.278Z",
+    "photo": {
+      "source_kind": "exact_international_catalogue_card",
+      "source_url": "https://plenty.parts/parts/ssangyong/engine/ssangyong-1612003114-vibration-damper-for-ssangyong-kg-mobility-p2259592",
+      "image_url": "https://i.plenty.parts/i/850/pictures_ppp_ssangyong_1612003114.jpg",
+      "exact_brand": true,
+      "exact_article": true,
+      "execution": "vibration damper for V-ribbed belt",
+      "package_quantity": null,
+      "visual_check": "real belt vibration damper; no car, diagram, analogue or placeholder",
+      "source_display_size": [
+        500,
+        500
+      ],
+      "checked_on": "2026-11-15"
+    },
+    "fitment": {
+      "status": "not_saved_source_conflict",
+      "reason": "Exact Kaspi card lists Actyon, Actyon Sports and Kyron with separate years 2007–2016, while the independent exact catalogue lists different model coverage and different start years/engines; no range, generation or engine inferred.",
+      "sources": [
+        "https://kaspi.kz/shop/p/ssang-yong-natjazhitel-privodnogo-remnja-1612003114-118119251/",
+        "https://plenty.parts/parts/ssangyong/engine/ssangyong-1612003114-vibration-damper-for-ssangyong-kg-mobility-p2259592"
+      ]
+    },
+    "load": {
+      "service_memory_bytes_latest": 495796220,
+      "service_memory_limit_bytes": 536870900,
+      "ratio": 0.9235,
+      "decision": "defer deployment and DB write; retry after load recheck"
+    }
+  },
+  "last_reviewed": {
+    "supplier_id": 5,
+    "offer_id": 25081,
+    "product_id": 6827,
+    "task_id": 4800,
+    "brand": "SsangYong",
+    "article": "1612003114",
+    "kind": "exact_photo_candidate_prepared_fitment_conflict_no_write",
+    "photo_saved": false,
+    "thumbnail_saved": false,
+    "fitment_saved": false,
+    "db_verified_unchanged": true,
+    "prepared_at": "2026-11-15T08:02:58.278Z"
   }
 }

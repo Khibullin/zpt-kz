@@ -1,0 +1,103 @@
+{
+  "schema": 1,
+  "supplier_id": 5,
+  "offer_id": 25081,
+  "product_id": 6827,
+  "task_id": 4800,
+  "brand": "SsangYong",
+  "article": "1612003114",
+  "checked_at": "2026-11-15T08:02:58.278Z",
+  "recheck_kind": "frozen_batch20_first_item",
+  "before": {
+    "stock": "3",
+    "cost": "11100.00",
+    "kaspi_price": "20060.00",
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "fitment_rows": 0,
+    "task_status": "needs_source",
+    "task_source_url": ""
+  },
+  "prepared": {
+    "status": "prepared_not_queued",
+    "photo_candidate": {
+      "source_kind": "exact_international_catalogue_card",
+      "source_url": "https://plenty.parts/parts/ssangyong/engine/ssangyong-1612003114-vibration-damper-for-ssangyong-kg-mobility-p2259592",
+      "image_url": "https://i.plenty.parts/i/850/pictures_ppp_ssangyong_1612003114.jpg",
+      "exact_brand": true,
+      "exact_article": true,
+      "execution": "vibration damper for V-ribbed belt",
+      "package_quantity": null,
+      "visual_check": "real belt vibration damper; no car, diagram, analogue or placeholder",
+      "source_display_size": [
+        500,
+        500
+      ],
+      "checked_on": "2026-11-15"
+    },
+    "fitment": {
+      "status": "not_saved_source_conflict",
+      "reason": "Exact Kaspi card lists Actyon, Actyon Sports and Kyron with separate years 2007–2016, while the independent exact catalogue lists different model coverage and different start years/engines; no range, generation or engine inferred.",
+      "sources": [
+        "https://kaspi.kz/shop/p/ssang-yong-natjazhitel-privodnogo-remnja-1612003114-118119251/",
+        "https://plenty.parts/parts/ssangyong/engine/ssangyong-1612003114-vibration-damper-for-ssangyong-kg-mobility-p2259592"
+      ]
+    }
+  },
+  "queued": {
+    "status": "not_queued",
+    "reason": "service_memory_above_90_percent"
+  },
+  "saved": {
+    "status": "not_saved",
+    "photo_saved": false,
+    "thumbnail_saved": false,
+    "fitment_saved": false
+  },
+  "verification": {
+    "db_verified_unchanged": true,
+    "ui_verified": false,
+    "reason": "nothing published; no UI success claimed",
+    "service_load": {
+      "service_memory_bytes_latest": 495796220,
+      "service_memory_limit_bytes": 536870900,
+      "ratio": 0.9235,
+      "decision": "defer deployment and DB write; retry after load recheck"
+    }
+  },
+  "sources": [
+    {
+      "kind": "exact_international_catalogue_card",
+      "url": "https://plenty.parts/parts/ssangyong/engine/ssangyong-1612003114-vibration-damper-for-ssangyong-kg-mobility-p2259592",
+      "image_url": "https://i.plenty.parts/i/850/pictures_ppp_ssangyong_1612003114.jpg",
+      "checked_on": "2026-11-15",
+      "scope": "Exact SsangYong 1612003114; vibration damper for V-ribbed belt; genuine part card and real item image."
+    },
+    {
+      "kind": "exact_kaspi_card",
+      "url": "https://kaspi.kz/shop/p/ssang-yong-natjazhitel-privodnogo-remnja-1612003114-118119251/",
+      "checked_on": "2026-11-15",
+      "scope": "Exact OEM/manufacturer article; models Actyon, Actyon Sports, Kyron; separate years 2007–2016; no engine."
+    },
+    {
+      "kind": "official_cross_reference",
+      "url": "https://www.gates.com/gb/en/power-transmission/power-transmission-components/tensioners.p.7808-000000-000000.v.7808-21630.html",
+      "checked_on": "2026-11-15",
+      "scope": "Gates T39230 DriveAlign tensioner identity; application not sufficient for saved fitment."
+    }
+  ],
+  "conflict": {
+    "kind": "fitment_model_year_conflict",
+    "detail": "Kaspi and independent exact catalogue disagree on model coverage/start years; catalogue itself marks fitment as guidance. No structured fitment written."
+  },
+  "status": "prepared_candidate_publication_deferred_high_service_memory",
+  "skip_reason": "temporary_high_service_memory",
+  "next": {
+    "supplier_id": 5,
+    "offer_id": 25081,
+    "product_id": 6827,
+    "task_id": 4800,
+    "action": "recheck lease, live DB, active consumer and service memory; queue exact photo only if load is safe; retain fitment conflict"
+  },
+  "trade_data_unchanged": true
+}

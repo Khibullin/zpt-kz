@@ -2,8 +2,8 @@
   "schema": 1,
   "night_end_date": "2026-11-15",
   "started_at": "2026-11-14T19:02:21.138Z",
-  "updated_at": "2026-11-15T00:14:12.428Z",
-  "status": "checkpointed_first19_completed_resume_ready",
+  "updated_at": "2026-11-15T08:02:58.278Z",
+  "status": "candidate_prepared_publication_deferred_high_service_memory",
   "supplier_stats": {
     "1": {
       "name": "Omega",
@@ -43,8 +43,46 @@
     "next_supplier_id": 5,
     "next_offer_id": 25081,
     "lease_owner": null,
-    "lease_released_at": "2026-11-15T00:14:12.428Z",
-    "publication_pending": null,
+    "lease_released_at": "2026-11-15T08:02:58.278Z",
+    "publication_pending": {
+      "supplier_id": 5,
+      "offer_id": 25081,
+      "product_id": 6827,
+      "task_id": 4800,
+      "brand": "SsangYong",
+      "article": "1612003114",
+      "status": "prepared_not_queued_high_service_memory",
+      "prepared_at": "2026-11-15T08:02:58.278Z",
+      "photo": {
+        "source_kind": "exact_international_catalogue_card",
+        "source_url": "https://plenty.parts/parts/ssangyong/engine/ssangyong-1612003114-vibration-damper-for-ssangyong-kg-mobility-p2259592",
+        "image_url": "https://i.plenty.parts/i/850/pictures_ppp_ssangyong_1612003114.jpg",
+        "exact_brand": true,
+        "exact_article": true,
+        "execution": "vibration damper for V-ribbed belt",
+        "package_quantity": null,
+        "visual_check": "real belt vibration damper; no car, diagram, analogue or placeholder",
+        "source_display_size": [
+          500,
+          500
+        ],
+        "checked_on": "2026-11-15"
+      },
+      "fitment": {
+        "status": "not_saved_source_conflict",
+        "reason": "Exact Kaspi card lists Actyon, Actyon Sports and Kyron with separate years 2007–2016, while the independent exact catalogue lists different model coverage and different start years/engines; no range, generation or engine inferred.",
+        "sources": [
+          "https://kaspi.kz/shop/p/ssang-yong-natjazhitel-privodnogo-remnja-1612003114-118119251/",
+          "https://plenty.parts/parts/ssangyong/engine/ssangyong-1612003114-vibration-damper-for-ssangyong-kg-mobility-p2259592"
+        ]
+      },
+      "load": {
+        "service_memory_bytes_latest": 495796220,
+        "service_memory_limit_bytes": 536870900,
+        "ratio": 0.9235,
+        "decision": "defer deployment and DB write; retry after load recheck"
+      }
+    },
     "pending_ui_verification": null,
     "recheck": {
       "total": 19,
@@ -173,6 +211,16 @@
       "at": "2026-11-15T00:14:12.428Z",
       "type": "lease_released",
       "detail": "Shared lease released after sequence 19 checkpoint."
+    },
+    {
+      "at": "2026-11-15T08:02:58.278Z",
+      "type": "candidate_prepared_publication_deferred",
+      "detail": "SsangYong 1612003114: exact photo candidate prepared; zero photo/thumbnail/fitment saved. Fitment conflict retained for review. Service memory 92.35%, so deployment/DB write deferred and item remains current."
+    },
+    {
+      "at": "2026-11-15T08:02:58.278Z",
+      "type": "lease_released",
+      "detail": "Shared lease released; next run resumes offer 25081 after memory, DB, task and lease recheck."
     }
   ],
   "last_success": {
