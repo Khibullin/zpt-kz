@@ -2,7 +2,13 @@
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
   "checked_at": "2026-11-15T09:34:00.000Z",
-  "lease": null,
+  "lease": {
+    "owner": "weekend-enrichment-20261115-1504-item25289",
+    "acquired_at": "2026-11-15T10:04:00.000Z",
+    "heartbeat_at": "2026-11-15T10:04:00.000Z",
+    "expires_at": "2026-11-15T10:44:00.000Z",
+    "purpose": "Single sequential weekend enrichment of frozen batch20 item offer 25289; no parallel processor"
+  },
   "next_supplier": 3,
   "batch_size": 100,
   "queue": [
@@ -16358,5 +16364,6 @@
     "make_model_pairs_added": 146,
     "configurations_added": 185
   },
-  "updated_at": "2026-11-15T09:34:00.000Z"
+  "updated_at": "2026-11-15T09:34:00.000Z",
+  "heartbeat_at": "2026-11-15T10:04:00.000Z"
 }
