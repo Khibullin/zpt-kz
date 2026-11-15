@@ -2,13 +2,7 @@
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
   "checked_at": "2026-11-15T09:34:00.000Z",
-  "lease": {
-    "owner": "weekend-enrichment-20261115-1515-item25290",
-    "acquired_at": "2026-11-15T10:15:00.000Z",
-    "heartbeat_at": "2026-11-15T10:15:00.000Z",
-    "expires_at": "2026-11-15T10:55:00.000Z",
-    "purpose": "Single sequential weekend enrichment of frozen batch20 item offer 25290; no parallel processor"
-  },
+  "lease": null,
   "next_supplier": 3,
   "batch_size": 100,
   "queue": [
@@ -15635,13 +15629,13 @@
     "reason": "All293 new-source reviews completed and all prepared additions saved and DB/UI verified;281 unsupported exceptions documented; no unreviewed or pending publication."
   },
   "last_lease": {
-    "owner": "weekend-enrichment-20261115-1504-item25289",
-    "acquired_at": "2026-11-15T10:04:00.000Z",
-    "heartbeat_at": "2026-11-15T10:04:00.000Z",
-    "expires_at": "2026-11-15T10:44:00.000Z",
-    "purpose": "Single sequential weekend enrichment of frozen batch20 item offer 25289; no parallel processor",
-    "released_at": "2026-11-15T10:12:00.000Z",
-    "reason": "offer_25289_saved_db_ui_verified_checkpointed_next_25290"
+    "owner": "weekend-enrichment-20261115-1515-item25290",
+    "acquired_at": "2026-11-15T10:15:00.000Z",
+    "heartbeat_at": "2026-11-15T10:15:00.000Z",
+    "expires_at": "2026-11-15T10:55:00.000Z",
+    "purpose": "Single sequential weekend enrichment of frozen batch20 item offer 25290; no parallel processor",
+    "released_at": "2026-11-15T10:21:00.000Z",
+    "reason": "offer_25290_saved_db_ui_verified_checkpointed_next_25142"
   },
   "continuation_20261112": {
     "started_at": "2026-11-12T02:20:46.660Z",
@@ -16367,5 +16361,5 @@
     "configurations_added": 185
   },
   "updated_at": "2026-11-15T09:34:00.000Z",
-  "heartbeat_at": "2026-11-15T10:15:00.000Z"
+  "heartbeat_at": "2026-11-15T10:21:00.000Z"
 }
