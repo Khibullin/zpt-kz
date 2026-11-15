@@ -9,10 +9,20 @@
     "phase": "completed_with_documented_exceptions_20261112",
     "reviewed_offer_ids": 408
   },
-  "shared_lease": null,
+  "shared_lease": {
+    "owner": "weekend-enrichment-20261115-1737-item25085",
+    "acquired_at": "2026-11-15T12:37:00.000Z",
+    "heartbeat_at": "2026-11-15T12:37:00.000Z",
+    "expires_at": "2026-11-15T13:17:00.000Z",
+    "checkpoint_path": "procurement/data/enrichment_queue_20261113.json",
+    "supplier_id": 5,
+    "offer_id": 25085,
+    "product_id": 6832,
+    "task_id": 4805
+  },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-15T12:36:00.000Z",
-  "status": "checkpointed_after_verified_ssangyong_7146034004_resume_ready",
+  "heartbeat_at": "2026-11-15T12:37:00.000Z",
+  "status": "lease_acquired_researching_ssangyong_7145034004",
   "phase": "other_in_stock_control",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
@@ -10279,7 +10289,7 @@
     "service_memory_limit_bytes": 536870900,
     "decision": "research and read-only checks allowed; defer or throttle writes while memory remains above 90% on the web service"
   },
-  "updated_at": "2026-11-15T12:36:00.000Z",
+  "updated_at": "2026-11-15T12:37:00.000Z",
   "current_index": 12,
   "next_supplier_id": 5,
   "next_offer_id": 25085,
@@ -10294,7 +10304,17 @@
     "journal_commit": "7fd97aae4b9f7ddb03225b281e9b53e4d5650073",
     "next_offer_id": 25085
   },
-  "lease": null,
+  "lease": {
+    "owner": "weekend-enrichment-20261115-1737-item25085",
+    "acquired_at": "2026-11-15T12:37:00.000Z",
+    "heartbeat_at": "2026-11-15T12:37:00.000Z",
+    "expires_at": "2026-11-15T13:17:00.000Z",
+    "checkpoint_path": "procurement/data/enrichment_queue_20261113.json",
+    "supplier_id": 5,
+    "offer_id": 25085,
+    "product_id": 6832,
+    "task_id": 4805
+  },
   "pending_candidate": {
     "supplier_id": 5,
     "offer_id": 25085,
@@ -10302,7 +10322,7 @@
     "task_id": 4805,
     "brand": "SsangYong",
     "article": "7145034004",
-    "state": "resume_ready_fresh_state_required"
+    "state": "researching_new_sources"
   },
   "last_reviewed": {
     "supplier_id": 5,
