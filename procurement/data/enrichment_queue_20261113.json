@@ -9,18 +9,11 @@
     "phase": "completed_with_documented_exceptions_20261112",
     "reviewed_offer_ids": 408
   },
-  "shared_lease": {
-    "owner": "weekend-enrichment-20261115-0458-recheck19",
-    "scope": "enrichment_queue_20261113_recheck_first19",
-    "acquired_at": "2026-11-14T23:59:30.063507Z",
-    "heartbeat_at": "2026-11-14T23:59:30.063507Z",
-    "expires_at": "2026-11-15T00:29:30.063507Z",
-    "next_offer_id": 25129
-  },
+  "shared_lease": null,
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-14T23:59:30.063507Z",
-  "status": "running_recheck_first19",
-  "phase": "recheck_first19",
+  "heartbeat_at": "2026-11-15T00:14:12.428Z",
+  "status": "checkpointed_first19_completed_resume_ready",
+  "phase": "other_in_stock_control",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
     "best_omega": "no unreviewed positive-stock incomplete candidates after excluding the authoritative old reviews",
@@ -7197,7 +7190,7 @@
     }
   ],
   "current_batch_index": 0,
-  "current_item_index": 19,
+  "current_item_index": 0,
   "reviewed": [
     {
       "supplier_id": 5,
@@ -7972,6 +7965,16 @@
       "live_commit": "185f256b0cb9295cd5540b871bb5606883afdb5b",
       "main_path": "products/optimized/9043ab427254f414336b6e69f1ed1e9ee7c0bb5793f1e0f5a32c5a7a195e9e59.webp",
       "thumbnail_path": "products/optimized/80dd0ae1fc1964d859137f0bd3c8963fda202c47ee3403b8c0cfa7160eefd684.webp"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25129,
+      "kind": "photo_and_thumbnail",
+      "saved_at": "2026-11-15T00:11:27.653076Z",
+      "deploy_id": "dep-dbsfgd67bikc73f23gd0",
+      "live_commit": "45c3c196f0fed28d4195d11f1a49127826e7c61e",
+      "main_path": "products/optimized/fba420e61551f9148fcf3c129a731d837bad094ce87c9c2ace972c3cba964afc.webp",
+      "thumbnail_path": "products/optimized/16def1862386f78fb8650e395a052f42fc5357735a28e0df6999c16f00f68f8c.webp"
     }
   ],
   "verified": [
@@ -8252,6 +8255,23 @@
         180,
         180
       ]
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25129,
+      "kind": "photo_and_thumbnail",
+      "db_verified": true,
+      "ui_verified": true,
+      "ui_url": "https://zpt.kz/hyundai-zpt-25129/",
+      "verified_at": "2026-11-15T00:14:12.428Z",
+      "main_size": [
+        800,
+        533
+      ],
+      "thumbnail_size": [
+        180,
+        120
+      ]
     }
   ],
   "exceptions": [
@@ -8470,7 +8490,10 @@
         "https://capom.co.kr/product/%EB%A6%AC%EC%96%B4-%EC%87%BC%ED%81%AC-%EC%97%85%EC%86%8C%EB%B2%84-553102p500-%EC%8F%98%EB%A0%8C%ED%86%A0/112396/",
         "https://capom.co.kr/web/product/small/202405/d8d557bdd32cefeebab5edd751aca0a8.jpg"
       ],
-      "detail": "The exact Mobis dealer page exposes only a generic grey Mobis brand graphic, not the exact shock absorber. It was not used as a product photo or thumbnail; retry only with a new exact real-photo source."
+      "detail": "The exact Mobis dealer page exposes only a generic grey Mobis brand graphic, not the exact shock absorber. It was not used as a product photo or thumbnail; retry only with a new exact real-photo source.",
+      "resolved_at": "2026-11-15T00:14:12.428Z",
+      "resolution": "A new exact PartSouq card exposed a real 553102P500 rear shock absorber image; main and thumbnail were saved and verified.",
+      "resolution_source": "https://partsouq.com/shop/product/553102P500-hyundai-kia-shock-absorber-assy/17998151"
     },
     {
       "supplier_id": 5,
@@ -8489,12 +8512,15 @@
   ],
   "publication_pending": null,
   "next": {
-    "phase": "recheck_first19",
-    "sequence": 15,
+    "phase": "other_in_stock_control",
+    "sequence": 1,
+    "batch_size": 20,
     "supplier_id": 5,
-    "offer_id": 25114,
+    "offer_id": 25081,
+    "product_id": 6827,
+    "task_id": 4800,
     "brand": "SsangYong",
-    "article": "4530132100"
+    "article": "1612003114"
   },
   "events": [
     {
@@ -8921,21 +8947,46 @@
       "at": "2026-11-14T23:06:38.367086Z",
       "type": "lease_released",
       "detail": "Shared lease released after sequence 18 checkpoint."
+    },
+    {
+      "at": "2026-11-15T00:03:53.806526Z",
+      "type": "deploy_failed_recovered",
+      "detail": "Initial HYUNDAI-KIA photo deploy failed before migration because its commit tree omitted the previous migration dependency; live service remained on the prior healthy deploy. The full main tree was restored before retry."
+    },
+    {
+      "at": "2026-11-15T00:07:51.186824Z",
+      "type": "deploy_failed_recovered",
+      "detail": "Guard migration referenced nonexistent VehicleFitment year columns; no catalogue row was written. Guard was corrected to the existing details/configurations fields and deployment succeeded."
+    },
+    {
+      "at": "2026-11-15T00:11:27.653076Z",
+      "type": "photo_and_thumbnail_saved",
+      "detail": "HYUNDAI-KIA 553102P500: exact inspected PartSouq image saved by the existing consumer as 800x533 main WebP and 180x120 thumbnail; task 4686 done."
+    },
+    {
+      "at": "2026-11-15T00:14:12.428Z",
+      "type": "first19_recheck_completed_and_advance",
+      "detail": "HYUNDAI-KIA 553102P500: new exact photo and thumbnail verified in DB and public UI; existing KIA New Sorento R (XM) 2012-07–2014-08 rear gas 4WD fitment preserved. First-19 directed recheck completed. Resume frozen 20-item ZakazAuto batch at offer 25081 SsangYong 1612003114."
+    },
+    {
+      "at": "2026-11-15T00:14:12.428Z",
+      "type": "lease_released",
+      "detail": "Shared lease released after sequence 19 checkpoint and first-19 completion."
     }
   ],
   "last_success": {
-    "at": "2026-11-14T23:06:38.367086Z",
+    "at": "2026-11-15T00:14:12.428Z",
     "stage": "exact_photo_saved_thumbnail_saved_fitment_preserved_and_ui_verified",
     "supplier_id": 5,
-    "offer_id": 25170,
-    "product_id": 6841,
-    "task_id": 4814,
-    "article": "AG 03007",
-    "commit": "d39cbeba64f46d71dfe6d9abe089cc4b5bd122e3",
-    "deploy_id": "dep-dbseh2k9v7es73bs2p90",
-    "ui_url": "https://zpt.kz/product-zpt-25170/"
+    "offer_id": 25129,
+    "product_id": 6713,
+    "task_id": 4686,
+    "article": "553102P500",
+    "commit": "45c3c196f0fed28d4195d11f1a49127826e7c61e",
+    "deploy_id": "dep-dbsfgd67bikc73f23gd0",
+    "ui_url": "https://zpt.kz/hyundai-zpt-25129/"
   },
-  "last_commit": "d39cbeba64f46d71dfe6d9abe089cc4b5bd122e3",
+  "last_commit": "45c3c196f0fed28d4195d11f1a49127826e7c61e",
   "paused_at": "2026-11-14T19:16:20.438Z",
   "pause_reason": "Sequence 14 EX54661A7100 recheck completed. Two exact photo sources were temporarily unavailable to the background consumer (HTTP 403); existing fitment verified. Resume at sequence 15.",
   "remaining_live": {
@@ -8950,7 +9001,7 @@
       "total_positive_stock": 27852
     },
     "5": {
-      "remaining_without_photo": 6719,
+      "remaining_without_photo": 6718,
       "remaining_without_structured_fitment": 6624,
       "total_positive_stock": 6895
     }
@@ -8977,8 +9028,8 @@
   "recheck_first19": {
     "frozen_at": "2026-11-14T11:05:21.000Z",
     "total": 19,
-    "current_index": 18,
-    "status": "running_checkpointed",
+    "current_index": 19,
+    "status": "completed",
     "items": [
       {
         "sequence": 1,
@@ -9240,15 +9291,22 @@
         "article": "553102P500",
         "prior_status": "saved_and_ui_verified_fitment_placeholder_rejected",
         "journal": "procurement/data/enrichment_queue_items/5-25129-20261114.json",
-        "status": "pending_recheck"
+        "status": "photo_saved_and_verified_fitment_preserved",
+        "rechecked_at": "2026-11-15T00:14:12.428Z",
+        "photo_saved": true,
+        "thumbnail_saved": true,
+        "fitment_saved": false,
+        "fitment_preserved": true,
+        "main_path": "products/optimized/fba420e61551f9148fcf3c129a731d837bad094ce87c9c2ace972c3cba964afc.webp",
+        "thumbnail_path": "products/optimized/16def1862386f78fb8650e395a052f42fc5357735a28e0df6999c16f00f68f8c.webp"
       }
     ],
     "photos_missing_before": 18,
     "structured_fitment_missing_before": 5,
     "results": {
-      "reviewed": 18,
-      "new_photos": 8,
-      "new_thumbnails": 8,
+      "reviewed": 19,
+      "new_photos": 9,
+      "new_thumbnails": 9,
       "new_fitments": 3,
       "no_change": 7,
       "candidates_pending": 0,
@@ -9256,57 +9314,57 @@
     },
     "last_saved": {
       "supplier_id": 5,
-      "offer_id": 25170,
-      "product_id": 6841,
-      "task_id": 4814,
-      "brand": "TRIALLI",
-      "article": "AG 03007",
+      "offer_id": 25129,
+      "product_id": 6713,
+      "task_id": 4686,
+      "brand": "HYUNDAI-KIA",
+      "article": "553102P500",
       "kind": "exact_photo_and_thumbnail",
-      "source_url": "https://shop.globalparts.kz/catalog/card/184634",
-      "source_image_url": "https://resources.cdn-kaspi.kz/img/m/p/h6d/h92/67650614853662.jpg?format=gallery-large",
-      "main_path": "products/optimized/a3982440592dd649ab7162893ededc1e7233ca9865866a457c16bfac719e8c13.webp",
-      "thumbnail_path": "products/optimized/02fb6c3ddd42330454c3f1b144dea9cb5d7278b340d7497a78977382d5c41453.webp",
+      "source_url": "https://partsouq.com/shop/product/553102P500-hyundai-kia-shock-absorber-assy/17998151",
+      "source_image_url": "https://partsouq.com/assets/tesseract/assets/partsimages/Hyundai-/-KIA/553102P500.jpg",
+      "main_path": "products/optimized/fba420e61551f9148fcf3c129a731d837bad094ce87c9c2ace972c3cba964afc.webp",
+      "thumbnail_path": "products/optimized/16def1862386f78fb8650e395a052f42fc5357735a28e0df6999c16f00f68f8c.webp",
       "main_size": [
-        627,
-        373
+        800,
+        533
       ],
       "thumbnail_size": [
         180,
-        107
+        120
       ],
-      "source_bytes": 46609,
-      "main_bytes": 13792,
-      "thumbnail_bytes": 1804,
+      "source_bytes": 93484,
+      "main_bytes": 9358,
+      "thumbnail_bytes": 1518,
       "photo_saved": true,
       "thumbnail_saved": true,
-      "fitment_rows_preserved": 5,
-      "fitment_configurations_preserved": 11,
+      "fitment_rows_preserved": 1,
+      "fitment_configurations_preserved": 1,
       "db_verified": true,
       "ui_verified": true,
-      "ui_url": "https://zpt.kz/product-zpt-25170/",
-      "deploy_id": "dep-dbseh2k9v7es73bs2p90",
-      "commit": "d39cbeba64f46d71dfe6d9abe089cc4b5bd122e3",
-      "saved_at": "2026-11-14T23:06:38.367086Z"
+      "ui_url": "https://zpt.kz/hyundai-zpt-25129/",
+      "deploy_id": "dep-dbsfgd67bikc73f23gd0",
+      "commit": "45c3c196f0fed28d4195d11f1a49127826e7c61e",
+      "saved_at": "2026-11-15T00:11:27.653076Z"
     },
     "pending_candidate": null,
     "last_reviewed": {
       "supplier_id": 5,
-      "offer_id": 25170,
-      "product_id": 6841,
-      "task_id": 4814,
-      "brand": "TRIALLI",
-      "article": "AG 03007",
+      "offer_id": 25129,
+      "product_id": 6713,
+      "task_id": 4686,
+      "brand": "HYUNDAI-KIA",
+      "article": "553102P500",
       "kind": "photo_saved_fitment_preserved",
       "photo_saved": true,
       "thumbnail_saved": true,
       "fitment_saved": false,
-      "fitment_rows": 5,
-      "fitment_configurations": 11,
+      "fitment_rows": 1,
+      "fitment_configurations": 1,
       "db_verified": true,
       "ui_verified": true,
-      "ui_url": "https://zpt.kz/product-zpt-25170/",
+      "ui_url": "https://zpt.kz/hyundai-zpt-25129/",
       "task_status": "done",
-      "saved_at": "2026-11-14T23:06:38.367086Z"
+      "saved_at": "2026-11-15T00:11:27.653076Z"
     }
   },
   "normal_resume": {
@@ -9372,16 +9430,16 @@
     "service_memory_limit_bytes": 536870900,
     "decision": "research and read-only checks allowed; defer or throttle writes while memory remains above 90% on the web service"
   },
-  "updated_at": "2026-11-14T23:59:30.063507Z",
-  "current_index": 18,
+  "updated_at": "2026-11-15T00:14:12.428Z",
+  "current_index": 0,
   "next_supplier_id": 5,
-  "next_offer_id": 25129,
-  "next_product_id": 6713,
-  "next_task_id": 4686,
+  "next_offer_id": 25081,
+  "next_product_id": 6827,
+  "next_task_id": 4800,
   "last_lease": {
-    "owner": "weekend-enrichment-20261115-0357-recheck19",
+    "owner": "weekend-enrichment-20261115-0458-recheck19",
     "scope": "enrichment_queue_20261113_recheck_first19",
-    "released_at": "2026-11-14T23:06:38.367086Z",
-    "reason": "sequence_18_checkpointed_photo_saved_fitment_preserved"
+    "released_at": "2026-11-15T00:14:12.428Z",
+    "reason": "sequence_19_checkpointed_first19_completed_resume_frozen_batch20"
   }
 }

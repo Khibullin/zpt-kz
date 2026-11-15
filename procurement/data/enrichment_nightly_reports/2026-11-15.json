@@ -2,8 +2,8 @@
   "schema": 1,
   "night_end_date": "2026-11-15",
   "started_at": "2026-11-14T19:02:21.138Z",
-  "updated_at": "2026-11-14T23:06:38.367086Z",
-  "status": "checkpointed_item_verified",
+  "updated_at": "2026-11-15T00:14:12.428Z",
+  "status": "checkpointed_first19_completed_resume_ready",
   "supplier_stats": {
     "1": {
       "name": "Omega",
@@ -23,8 +23,8 @@
     },
     "5": {
       "name": "ЗаказАвто",
-      "processed_unique": 5,
-      "photos_added": 2,
+      "processed_unique": 6,
+      "photos_added": 3,
       "fitment_added": 0,
       "years_or_engines_added": 0,
       "skips": {
@@ -35,28 +35,30 @@
     }
   },
   "queue": {
-    "phase": "recheck_first19",
+    "phase": "other_in_stock_control",
     "batch_size": 20,
     "next_supplier_id": 5,
-    "next_offer_id": 25129,
+    "next_offer_id": 25081,
     "lease_owner": null,
-    "lease_released_at": "2026-11-14T23:06:38.367086Z",
+    "lease_released_at": "2026-11-15T00:14:12.428Z",
     "publication_pending": null,
     "pending_ui_verification": null,
     "recheck": {
       "total": 19,
-      "current_index": 18,
-      "status": "running_checkpointed",
-      "reviewed_unique": 18,
-      "new_photos": 8,
-      "new_thumbnails": 8,
+      "current_index": 19,
+      "status": "completed",
+      "reviewed_unique": 19,
+      "new_photos": 9,
+      "new_thumbnails": 9,
       "new_fitments": 3,
       "no_change": 7,
       "candidates_pending": 0,
       "photos_missing_before": 18,
       "structured_fitment_missing_before": 5,
       "fitment_display_enhancements": 1
-    }
+    },
+    "next_product_id": 6827,
+    "next_task_id": 4800
   },
   "events": [
     {
@@ -143,19 +145,44 @@
       "at": "2026-11-14T23:06:38.367086Z",
       "type": "lease_released",
       "detail": "Shared lease released after sequence 18 checkpoint."
+    },
+    {
+      "at": "2026-11-15T00:03:53.806526Z",
+      "type": "deploy_failed_recovered",
+      "detail": "Initial photo deploy failed before migration because the commit tree omitted its previous migration dependency; production stayed healthy. The full main tree was restored."
+    },
+    {
+      "at": "2026-11-15T00:07:51.186824Z",
+      "type": "deploy_failed_recovered",
+      "detail": "Fitment guard referenced nonexistent year columns and wrote no catalogue data; corrected to existing details/configurations fields, then deployed successfully."
+    },
+    {
+      "at": "2026-11-15T00:11:27.653076Z",
+      "type": "photo_and_thumbnail_saved",
+      "detail": "HYUNDAI-KIA 553102P500: exact inspected PartSouq image saved as 800x533 main WebP and 180x120 thumbnail; task 4686 done."
+    },
+    {
+      "at": "2026-11-15T00:14:12.428Z",
+      "type": "first19_recheck_completed_and_advance",
+      "detail": "First-19 owner-directed recheck completed: 19 reviewed, 9 new photos and thumbnails, 3 fitment additions, 7 unchanged/conflicted. Resume frozen 20-item ZakazAuto batch at offer 25081 SsangYong 1612003114."
+    },
+    {
+      "at": "2026-11-15T00:14:12.428Z",
+      "type": "lease_released",
+      "detail": "Shared lease released after sequence 19 checkpoint."
     }
   ],
   "last_success": {
-    "at": "2026-11-14T23:06:38.367086Z",
+    "at": "2026-11-15T00:14:12.428Z",
     "stage": "photo_thumbnail_saved_fitment_preserved_db_ui_verified",
     "supplier_id": 5,
-    "offer_id": 25170,
-    "product_id": 6841,
-    "task_id": 4814,
-    "article": "AG 03007",
-    "commit": "d39cbeba64f46d71dfe6d9abe089cc4b5bd122e3",
-    "deploy_id": "dep-dbseh2k9v7es73bs2p90",
-    "ui_url": "https://zpt.kz/product-zpt-25170/"
+    "offer_id": 25129,
+    "product_id": 6713,
+    "task_id": 4686,
+    "article": "553102P500",
+    "commit": "45c3c196f0fed28d4195d11f1a49127826e7c61e",
+    "deploy_id": "dep-dbsfgd67bikc73f23gd0",
+    "ui_url": "https://zpt.kz/hyundai-zpt-25129/"
   },
-  "last_commit": "d39cbeba64f46d71dfe6d9abe089cc4b5bd122e3"
+  "last_commit": "45c3c196f0fed28d4195d11f1a49127826e7c61e"
 }

@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "checked_on": "2026-11-14",
-  "checked_at": "2026-11-14T10:07:37.000Z",
+  "checked_on": "2026-11-15",
+  "checked_at": "2026-11-15T00:14:12.428Z",
   "supplier_id": 5,
   "supplier": "ЗаказАвто",
   "offer_id": 25129,
@@ -20,12 +20,21 @@
   },
   "prepared": {
     "photo": {
-      "status": "rejected_placeholder",
-      "reason": "Exact Mobis dealer page exposes a generic grey brand graphic, not the part.",
-      "checked_urls": [
-        "https://capom.co.kr/product/%EB%A6%AC%EC%96%B4-%EC%87%BC%ED%81%AC-%EC%97%85%EC%86%8C%EB%B2%84-553102p500-%EC%8F%98%EB%A0%8C%ED%86%A0/112396/",
-        "https://capom.co.kr/web/product/small/202405/d8d557bdd32cefeebab5edd751aca0a8.jpg"
-      ]
+      "status": "published_and_verified",
+      "source_kind": "exact_international_catalogue_card",
+      "source_url": "https://partsouq.com/shop/product/553102P500-hyundai-kia-shock-absorber-assy/17998151",
+      "image_url": "https://partsouq.com/assets/tesseract/assets/partsimages/Hyundai-/-KIA/553102P500.jpg",
+      "exact_article": "553102P500",
+      "execution": "rear shock absorber assembly",
+      "placement": "rear",
+      "package_quantity": 1,
+      "source_image_size": [
+        1920,
+        1280
+      ],
+      "source_image_sha256": "a1582312e376f6d01b42ca7ec57478cf614dc1a891ce4e556c325f97cad2a6b1",
+      "visual_check": "Real rear shock absorber; no car, diagram, analogue or placeholder.",
+      "checked_on": "2026-11-15"
     },
     "fitment": {
       "status": "published_and_verified",
@@ -72,25 +81,39 @@
   },
   "queued": {
     "status": "queued_and_deployed",
-    "kind": "fitment_publication",
-    "queued_at": "2026-11-14T10:02:05.000Z",
-    "commit": "7ba9dc8f93a043d4ad5722b41935a0b4f705840d",
-    "deploy_id": "dep-dbs33q6q1p3s73ebdq50"
+    "kind": "exact_photo_publication",
+    "queued_at": "2026-11-15T00:03:29.000Z",
+    "commit": "45c3c196f0fed28d4195d11f1a49127826e7c61e",
+    "deploy_id": "dep-dbsfgd67bikc73f23gd0"
   },
   "saved": {
     "status": "saved",
-    "saved_at": "2026-11-14T10:04:42.945403Z",
+    "saved_at": "2026-11-15T00:11:27.653076Z",
     "fitment_rows": 1,
     "fitment_id": 111518,
-    "photo_saved": false,
-    "main_image_saved": false,
-    "thumbnail_saved": false,
-    "deploy_id": "dep-dbs33q6q1p3s73ebdq50",
-    "live_commit": "7ba9dc8f93a043d4ad5722b41935a0b4f705840d"
+    "photo_saved": true,
+    "main_image_saved": true,
+    "thumbnail_saved": true,
+    "main_image": "products/optimized/fba420e61551f9148fcf3c129a731d837bad094ce87c9c2ace972c3cba964afc.webp",
+    "supplier_thumbnail": "products/optimized/16def1862386f78fb8650e395a052f42fc5357735a28e0df6999c16f00f68f8c.webp",
+    "main_size": [
+      800,
+      533
+    ],
+    "thumbnail_size": [
+      180,
+      120
+    ],
+    "main_bytes": 9358,
+    "thumbnail_bytes": 1518,
+    "source_bytes": 93484,
+    "task_status": "done",
+    "deploy_id": "dep-dbsfgd67bikc73f23gd0",
+    "live_commit": "45c3c196f0fed28d4195d11f1a49127826e7c61e"
   },
   "after": {
-    "main_image": "",
-    "supplier_thumbnail": "",
+    "main_image": "products/optimized/fba420e61551f9148fcf3c129a731d837bad094ce87c9c2ace972c3cba964afc.webp",
+    "supplier_thumbnail": "products/optimized/16def1862386f78fb8650e395a052f42fc5357735a28e0df6999c16f00f68f8c.webp",
     "fitments": [
       {
         "id": 111518,
@@ -115,16 +138,25 @@
     "source_verified": true,
     "db_verified": true,
     "fitment_verified": true,
-    "photo_verified": false,
-    "thumbnail_verified": false,
+    "photo_verified": true,
+    "thumbnail_verified": true,
     "ui_verified": true,
     "ui_url": "https://zpt.kz/hyundai-zpt-25129/",
     "ui_http_status": 200,
-    "verified_at": "2026-11-14T10:07:37.000Z",
+    "verified_at": "2026-11-15T00:14:12.428Z",
+    "main_size": [
+      800,
+      533
+    ],
+    "thumbnail_size": [
+      180,
+      120
+    ],
     "ui_evidence": [
       "553102P500",
+      "HYUNDAI-KIA",
+      "Амортизатор задний Hyundai",
       "KIA New Sorento R (XM)",
-      "Не указан",
       "2012-07–2014-08",
       "Задний газовый амортизатор; только 4WD",
       "Установка: сзади",
@@ -145,10 +177,19 @@
       "checked_on": "2026-11-14",
       "exact_article": "553102P500",
       "scope": "Sorento R (XM); rear gas; 4WD; broader catalogue period not used as saved period."
+    },
+    {
+      "kind": "exact_partsouq_catalogue_card",
+      "url": "https://partsouq.com/shop/product/553102P500-hyundai-kia-shock-absorber-assy/17998151",
+      "image_url": "https://partsouq.com/assets/tesseract/assets/partsimages/Hyundai-/-KIA/553102P500.jpg",
+      "checked_on": "2026-11-15",
+      "exact_article": "553102P500",
+      "brand": "Hyundai / KIA",
+      "scope": "Real rear shock absorber assembly image; exact card states Sorento 2012–2014."
     }
   ],
-  "status": "saved_and_ui_verified_fitment_placeholder_rejected",
-  "skip_reason": "placeholder_photo_rejected",
+  "status": "photo_saved_and_verified_fitment_preserved",
+  "skip_reason": null,
   "next": {
     "supplier_id": 5,
     "offer_id": 25081,
@@ -156,7 +197,8 @@
     "task_id": 4800,
     "brand": "SsangYong",
     "article": "1612003114",
-    "action": "recheck weekend time, shared lease, live offer and DB load before taking the next item"
+    "action": "start frozen 20-item ZakazAuto batch after checking weekend time, shared lease, live stock and DB load"
   },
-  "trade_data_unchanged": true
+  "trade_data_unchanged": true,
+  "rechecked_at": "2026-11-15T00:14:12.428Z"
 }
