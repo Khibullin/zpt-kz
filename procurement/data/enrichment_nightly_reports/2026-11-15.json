@@ -2,8 +2,8 @@
   "schema": 1,
   "night_end_date": "2026-11-15",
   "started_at": "2026-11-14T19:02:21.138Z",
-  "updated_at": "2026-11-15T09:34:30.000Z",
-  "status": "checkpointed_after_verified_jashi_54651_d3000_resume_ready",
+  "updated_at": "2026-11-15T10:04:00.000Z",
+  "status": "processing_offer_25289_jashi_54650h5100",
   "supplier_stats": {
     "1": {
       "name": "Omega",
@@ -42,7 +42,7 @@
     "batch_size": 20,
     "next_supplier_id": 5,
     "next_offer_id": 25289,
-    "lease_owner": null,
+    "lease_owner": "weekend-enrichment-20261115-1504-item25289",
     "lease_released_at": "2026-11-15T09:34:00.000Z",
     "publication_pending": null,
     "pending_ui_verification": null,
@@ -62,7 +62,7 @@
     },
     "next_product_id": 6957,
     "next_task_id": 4930,
-    "lease_expires_at": null
+    "lease_expires_at": "2026-11-15T10:44:00.000Z"
   },
   "events": [
     {
@@ -244,6 +244,11 @@
       "at": "2026-11-15T09:34:30.000Z",
       "type": "report_counter_reconciled",
       "detail": "Thumbnail counter reconciled with the two newly DB/UI-verified HAVAL 2804201XKN01A and JASHI 54651-D3000 thumbnail files; no catalogue write performed."
+    },
+    {
+      "at": "2026-11-15T10:04:00.000Z",
+      "type": "lease_acquired",
+      "detail": "Shared lease acquired after canonical blob-SHA check; resuming frozen ZakazAuto batch20 at offer 25289 / JASHI 54650H5100."
     }
   ],
   "last_success": {
