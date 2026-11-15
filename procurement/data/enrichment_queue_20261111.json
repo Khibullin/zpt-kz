@@ -2,17 +2,7 @@
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
   "checked_at": "2026-11-15T09:34:00.000Z",
-  "lease": {
-    "owner": "weekend-enrichment-20261115-1703-item25352",
-    "acquired_at": "2026-11-15T12:03:00.000Z",
-    "heartbeat_at": "2026-11-15T12:03:00.000Z",
-    "expires_at": "2026-11-15T12:43:00.000Z",
-    "checkpoint_path": "procurement/data/enrichment_queue_20261113.json",
-    "supplier_id": 5,
-    "offer_id": 25352,
-    "product_id": 6915,
-    "task_id": 4888
-  },
+  "lease": null,
   "next_supplier": 3,
   "batch_size": 100,
   "queue": [
@@ -15639,13 +15629,14 @@
     "reason": "All293 new-source reviews completed and all prepared additions saved and DB/UI verified;281 unsupported exceptions documented; no unreviewed or pending publication."
   },
   "last_lease": {
-    "owner": "weekend-enrichment-20261115-1616-item28110",
-    "acquired_at": "2026-11-15T11:16:00.000Z",
-    "released_at": "2026-11-15T11:25:00.000Z",
-    "result": "completed_saved_and_verified_jashi_8405120p3011_set",
+    "owner": "weekend-enrichment-20261115-1703-item25352",
+    "acquired_at": "2026-11-15T12:03:00.000Z",
+    "released_at": "2026-11-15T12:11:00.000Z",
+    "result": "completed_saved_and_verified_hyundai_kia_55100h5600",
     "checkpoint_path": "procurement/data/enrichment_queue_20261113.json",
-    "checkpoint_commit": "861cfe53c13ca5653ca127c58af687a202509a31",
-    "next_offer_id": 25352
+    "checkpoint_commit": "0680ce8a9bbaea2c74759dc6ea90f20626893348",
+    "report_commit": "7118908444a5eef3adcf0e9af6ee68e8ea6a7a63",
+    "next_offer_id": 25159
   },
   "continuation_20261112": {
     "started_at": "2026-11-12T02:20:46.660Z",
@@ -16370,17 +16361,7 @@
     "make_model_pairs_added": 146,
     "configurations_added": 185
   },
-  "updated_at": "2026-11-15T12:03:00.000Z",
-  "heartbeat_at": "2026-11-15T12:03:00.000Z",
-  "shared_lease": {
-    "owner": "weekend-enrichment-20261115-1703-item25352",
-    "acquired_at": "2026-11-15T12:03:00.000Z",
-    "heartbeat_at": "2026-11-15T12:03:00.000Z",
-    "expires_at": "2026-11-15T12:43:00.000Z",
-    "checkpoint_path": "procurement/data/enrichment_queue_20261113.json",
-    "supplier_id": 5,
-    "offer_id": 25352,
-    "product_id": 6915,
-    "task_id": 4888
-  }
+  "updated_at": "2026-11-15T12:11:00.000Z",
+  "heartbeat_at": "2026-11-15T12:11:00.000Z",
+  "shared_lease": null
 }
