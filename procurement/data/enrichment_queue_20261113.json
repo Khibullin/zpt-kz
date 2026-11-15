@@ -9,10 +9,20 @@
     "phase": "completed_with_documented_exceptions_20261112",
     "reviewed_offer_ids": 408
   },
-  "shared_lease": null,
+  "shared_lease": {
+    "owner": "weekend-enrichment-20261115-1724-item25206",
+    "acquired_at": "2026-11-15T12:24:00.000Z",
+    "heartbeat_at": "2026-11-15T12:24:00.000Z",
+    "expires_at": "2026-11-15T13:04:00.000Z",
+    "checkpoint_path": "procurement/data/enrichment_queue_20261113.json",
+    "supplier_id": 5,
+    "offer_id": 25206,
+    "product_id": 6766,
+    "task_id": 4739
+  },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-15T12:22:00.000Z",
-  "status": "checkpointed_after_verified_parts_mall_pqb007_resume_ready",
+  "heartbeat_at": "2026-11-15T12:24:00.000Z",
+  "status": "lease_acquired_researching_jashi_54651_f2500",
   "phase": "other_in_stock_control",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
@@ -10110,7 +10120,7 @@
     "service_memory_limit_bytes": 536870900,
     "decision": "research and read-only checks allowed; defer or throttle writes while memory remains above 90% on the web service"
   },
-  "updated_at": "2026-11-15T12:22:00.000Z",
+  "updated_at": "2026-11-15T12:24:00.000Z",
   "current_index": 10,
   "next_supplier_id": 5,
   "next_offer_id": 25206,
@@ -10125,7 +10135,17 @@
     "journal_commit": "dabf1ddc8be8d740145530c4b1543c8288a59097",
     "next_offer_id": 25206
   },
-  "lease": null,
+  "lease": {
+    "owner": "weekend-enrichment-20261115-1724-item25206",
+    "acquired_at": "2026-11-15T12:24:00.000Z",
+    "heartbeat_at": "2026-11-15T12:24:00.000Z",
+    "expires_at": "2026-11-15T13:04:00.000Z",
+    "checkpoint_path": "procurement/data/enrichment_queue_20261113.json",
+    "supplier_id": 5,
+    "offer_id": 25206,
+    "product_id": 6766,
+    "task_id": 4739
+  },
   "pending_candidate": {
     "supplier_id": 5,
     "offer_id": 25206,
@@ -10133,7 +10153,7 @@
     "task_id": 4739,
     "brand": "JASHI",
     "article": "54651-F2500",
-    "state": "resume_ready_fresh_state_required"
+    "state": "researching_new_sources"
   },
   "last_reviewed": {
     "supplier_id": 5,
