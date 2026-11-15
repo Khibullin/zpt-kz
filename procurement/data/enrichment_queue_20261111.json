@@ -2,7 +2,17 @@
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
   "checked_at": "2026-11-15T09:34:00.000Z",
-  "lease": null,
+  "lease": {
+    "owner": "weekend-enrichment-20261115-1703-item25352",
+    "acquired_at": "2026-11-15T12:03:00.000Z",
+    "heartbeat_at": "2026-11-15T12:03:00.000Z",
+    "expires_at": "2026-11-15T12:43:00.000Z",
+    "checkpoint_path": "procurement/data/enrichment_queue_20261113.json",
+    "supplier_id": 5,
+    "offer_id": 25352,
+    "product_id": 6915,
+    "task_id": 4888
+  },
   "next_supplier": 3,
   "batch_size": 100,
   "queue": [
@@ -16360,6 +16370,17 @@
     "make_model_pairs_added": 146,
     "configurations_added": 185
   },
-  "updated_at": "2026-11-15T11:25:00.000Z",
-  "heartbeat_at": "2026-11-15T11:25:00.000Z"
+  "updated_at": "2026-11-15T12:03:00.000Z",
+  "heartbeat_at": "2026-11-15T12:03:00.000Z",
+  "shared_lease": {
+    "owner": "weekend-enrichment-20261115-1703-item25352",
+    "acquired_at": "2026-11-15T12:03:00.000Z",
+    "heartbeat_at": "2026-11-15T12:03:00.000Z",
+    "expires_at": "2026-11-15T12:43:00.000Z",
+    "checkpoint_path": "procurement/data/enrichment_queue_20261113.json",
+    "supplier_id": 5,
+    "offer_id": 25352,
+    "product_id": 6915,
+    "task_id": 4888
+  }
 }
