@@ -1,0 +1,124 @@
+{
+  "schema": 1,
+  "supplier_id": 5,
+  "supplier_name": "ЗаказАвто",
+  "offer_id": 25159,
+  "product_id": 6813,
+  "task_id": 4786,
+  "brand": "Parts-Mall",
+  "article": "pqb-007",
+  "checked_at": "2026-11-15T12:21:00.000Z",
+  "local_time": "2026-11-15T17:21:00+05:00",
+  "status": "saved_and_ui_verified_photo_thumbnail_and_fitment",
+  "fields_before": {
+    "product_main_image": "",
+    "product_supplier_thumbnail": "",
+    "offer_photo_url": "",
+    "task_status": "needs_source",
+    "task_source_url": "",
+    "fitment_rows": 0
+  },
+  "sources": [
+    {
+      "kind": "manufacturer_brand",
+      "url": "https://www.parts-mall.com/brand",
+      "result": "PMC confirmed as Parts-Mall private label"
+    },
+    {
+      "kind": "manufacturer_catalogue",
+      "url": "https://file.euroauto.ru/file/catalogs/firms/5011.pdf",
+      "result": "PQB-007; KIA Sorento (BL); 01.2002–03.2006; D4CB 2.5L diesel and G6CU 3.5L gasoline; hood lifter"
+    },
+    {
+      "kind": "exact_kaspi_card",
+      "url": "https://kaspi.kz/shop/p/pmc-parts-mall-pqb-007-upor-kapota-dlja-kia-sorento-2002-2005-chernyi-179355295/",
+      "result": "exact PMC PARTS MALL PQB-007 hood-strut identity and item image"
+    },
+    {
+      "kind": "exact_image",
+      "url": "https://resources.cdn-kaspi.kz/img/m/p/p1f/pa6/187024947.jpg?format=gallery-medium",
+      "sha256": "35d970accf69a516de64f1b77333d4139c844aa5e9da6e3b68e82504900a2fd6",
+      "source_dimensions": "750x491",
+      "visual_check": "real isolated gas strut in packaging; no car, diagram, analogue or placeholder"
+    }
+  ],
+  "prepared": {
+    "photo": true,
+    "thumbnail": true,
+    "fitment": true,
+    "exact_identity_checked": true,
+    "side_or_package_quantity_invented": false
+  },
+  "queued": {
+    "guard_commit": "d7f27249a4064125c79312b5d8a11a0bc0eebe57",
+    "data_commit": "9949c2f9b5402a407fd303367d013a4a4e095f9f",
+    "deploy_id": "dep-dbsq5glbedkc73cfa6tg"
+  },
+  "saved": {
+    "task_status": "done",
+    "main_image": "products/optimized/9254fee3317f0dbf2ebcf5c815bdbc38021536b6cf6078744bdd833a4f501c48.webp",
+    "supplier_thumbnail": "products/optimized/bedd11be1e77f1743679dbc21582cc7d607a81067e1323eff04fd02e7dc1808b.webp",
+    "offer_photo_url": "https://resources.cdn-kaspi.kz/img/m/p/p1f/pa6/187024947.jpg?format=gallery-medium",
+    "fitment_ids": [
+      111534
+    ],
+    "configurations": [
+      {
+        "make": "KIA",
+        "model": "Sorento (BL)",
+        "period": "01.2002–03.2006",
+        "engine": "D4CB 2.5L",
+        "fuel": "diesel",
+        "execution": "hood lifter"
+      },
+      {
+        "make": "KIA",
+        "model": "Sorento (BL)",
+        "period": "01.2002–03.2006",
+        "engine": "G6CU 3.5L",
+        "fuel": "gasoline",
+        "execution": "gas lifter - hood"
+      }
+    ]
+  },
+  "verified": {
+    "database": true,
+    "public_ui": true,
+    "ui_url": "https://zpt.kz/kia-zpt-25159/",
+    "main_dimensions": "750x491",
+    "thumbnail_dimensions": "180x118",
+    "fitment_visible": true
+  },
+  "trade_data": {
+    "price_before_after": [
+      2470,
+      2470
+    ],
+    "cost_before_after": [
+      1900,
+      1900
+    ],
+    "stock_before_after": [
+      1,
+      1
+    ],
+    "kaspi_price_before_after": [
+      7930,
+      7930
+    ],
+    "changed": false
+  },
+  "exclusions": {
+    "unconfirmed_years_or_engines_added": false,
+    "side_not_saved": true,
+    "package_quantity_not_saved": true
+  },
+  "next": {
+    "supplier_id": 5,
+    "offer_id": 25206,
+    "product_id": 6766,
+    "task_id": 4739,
+    "brand": "JASHI",
+    "article": "54651-F2500"
+  }
+}
