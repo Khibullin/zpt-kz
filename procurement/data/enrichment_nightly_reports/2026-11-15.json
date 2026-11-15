@@ -2,8 +2,8 @@
   "schema": 1,
   "night_end_date": "2026-11-15",
   "started_at": "2026-11-14T19:02:21.138Z",
-  "updated_at": "2026-11-15T10:21:00.000Z",
-  "status": "checkpointed_after_verified_jashi_54660h5100_resume_ready",
+  "updated_at": "2026-11-15T11:14:00.000Z",
+  "status": "checkpointed_after_verified_fenox_a12254_resume_ready",
   "supplier_stats": {
     "1": {
       "name": "Omega",
@@ -25,25 +25,25 @@
     },
     "5": {
       "name": "ЗаказАвто",
-      "processed_unique": 13,
-      "photos_added": 8,
-      "fitment_added": 5,
-      "years_or_engines_added": 4,
+      "processed_unique": 14,
+      "photos_added": 9,
+      "fitment_added": 6,
+      "years_or_engines_added": 5,
       "skips": {
         "temporary_source_unavailable_http_403": 4,
         "brand_article_conflict": 1
       },
       "pending_ui_verification": 0,
-      "thumbnails_added": 8
+      "thumbnails_added": 9
     }
   },
   "queue": {
     "phase": "other_in_stock_control",
     "batch_size": 20,
     "next_supplier_id": 5,
-    "next_offer_id": 25142,
+    "next_offer_id": 28110,
     "lease_owner": null,
-    "lease_released_at": "2026-11-15T10:21:00.000Z",
+    "lease_released_at": "2026-11-15T11:14:00.000Z",
     "publication_pending": null,
     "pending_ui_verification": null,
     "recheck": {
@@ -60,9 +60,12 @@
       "structured_fitment_missing_before": 5,
       "fitment_display_enhancements": 1
     },
-    "next_product_id": 6698,
-    "next_task_id": 4671,
-    "lease_expires_at": null
+    "next_product_id": 9237,
+    "next_task_id": 7210,
+    "lease_expires_at": null,
+    "current_index": 7,
+    "current_batch_processed": 7,
+    "current_batch_total": 20
   },
   "events": [
     {
@@ -274,16 +277,31 @@
       "at": "2026-11-15T10:21:00.000Z",
       "type": "lease_released",
       "detail": "Shared lease released after per-item checkpoint; queue resumes at ZakazAuto offer 25142."
+    },
+    {
+      "at": "2026-11-15T11:04:00.000Z",
+      "type": "lease_acquired",
+      "detail": "Shared lease acquired after canonical blob-SHA check for ZakazAuto offer 25142 / FENOX A12254."
+    },
+    {
+      "at": "2026-11-15T11:14:00.000Z",
+      "type": "item_saved_verified_and_advance",
+      "detail": "FENOX A12254: exact photo 500x371, thumbnail 180x134, DAEWOO Matiz fitment with two source-stated engines and open periods saved; DB, files and public UI verified. Batch20 now 7/20; resume offer 28110."
+    },
+    {
+      "at": "2026-11-15T11:14:00.000Z",
+      "type": "lease_released",
+      "detail": "Shared lease released after checkpoint; no pending publication or UI verification."
     }
   ],
   "last_success": {
-    "at": "2026-11-15T10:21:00.000Z",
+    "at": "2026-11-15T11:14:00.000Z",
     "supplier_id": 5,
-    "offer_id": 25290,
-    "product_id": 6961,
-    "task_id": 4934,
-    "brand": "JASHI",
-    "article": "54660H5100",
+    "offer_id": 25142,
+    "product_id": 6698,
+    "task_id": 4671,
+    "brand": "Fenox",
+    "article": "A12254",
     "saved": {
       "photo": true,
       "thumbnail": true,
@@ -293,15 +311,15 @@
     "db_verified": true,
     "ui_verified": true,
     "fitment_ids": [
-      111528,
-      111529,
-      111530
+      111531
     ],
-    "live_commit": "92cecad77e5845a6ed6fe6bb12c44ff164ec4e30",
-    "deploy_id": "dep-dbsodqh5efls73f009lg",
-    "ui_url": "https://zpt.kz/hyundai-accent-hyundai-zpt-25290/"
+    "configuration_count": 2,
+    "engine_rows": 2,
+    "live_commit": "22dd60cb7e10fc3733059ed95250740628d2e36e",
+    "deploy_id": "dep-dbsp6895efls73f0nad0",
+    "ui_url": "https://zpt.kz/daewoo-zpt-25142/"
   },
-  "last_commit": "362cb087b8df4dbc93ddb6cdcdab6984298ab346",
+  "last_commit": "dbe3ea04fe56052fec0ab066a23d72c05db30150",
   "morning_report": {
     "period_start": "2026-11-14T23:00:00+05:00",
     "period_end": "2026-11-15T06:00:00+05:00",
