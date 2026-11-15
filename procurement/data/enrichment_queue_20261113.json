@@ -9,10 +9,20 @@
     "phase": "completed_with_documented_exceptions_20261112",
     "reviewed_offer_ids": 408
   },
-  "shared_lease": null,
+  "shared_lease": {
+    "owner": "weekend-enrichment-20261115-1743-item25131",
+    "acquired_at": "2026-11-15T12:43:00.000Z",
+    "heartbeat_at": "2026-11-15T12:43:00.000Z",
+    "expires_at": "2026-11-15T13:23:00.000Z",
+    "checkpoint_path": "procurement/data/enrichment_queue_20261113.json",
+    "supplier_id": 5,
+    "offer_id": 25131,
+    "product_id": 6714,
+    "task_id": 4687
+  },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-15T12:42:00.000Z",
-  "status": "checkpointed_after_verified_ssangyong_7145034004_resume_ready",
+  "heartbeat_at": "2026-11-15T12:43:00.000Z",
+  "status": "lease_acquired_researching_hyundai_kia_553112s400",
   "phase": "other_in_stock_control",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
@@ -10360,7 +10370,7 @@
     "service_memory_limit_bytes": 536870900,
     "decision": "research and read-only checks allowed; defer or throttle writes while memory remains above 90% on the web service"
   },
-  "updated_at": "2026-11-15T12:42:00.000Z",
+  "updated_at": "2026-11-15T12:43:00.000Z",
   "current_index": 13,
   "next_supplier_id": 5,
   "next_offer_id": 25131,
@@ -10375,7 +10385,17 @@
     "journal_commit": "8dddd3dc340f29de3dc6072340e0ad6b9bf1574f",
     "next_offer_id": 25131
   },
-  "lease": null,
+  "lease": {
+    "owner": "weekend-enrichment-20261115-1743-item25131",
+    "acquired_at": "2026-11-15T12:43:00.000Z",
+    "heartbeat_at": "2026-11-15T12:43:00.000Z",
+    "expires_at": "2026-11-15T13:23:00.000Z",
+    "checkpoint_path": "procurement/data/enrichment_queue_20261113.json",
+    "supplier_id": 5,
+    "offer_id": 25131,
+    "product_id": 6714,
+    "task_id": 4687
+  },
   "pending_candidate": {
     "supplier_id": 5,
     "offer_id": 25131,
@@ -10383,7 +10403,7 @@
     "task_id": 4687,
     "brand": "HYUNDAI-KIA",
     "article": "553112S400",
-    "state": "resume_ready_fresh_state_required"
+    "state": "researching_new_sources"
   },
   "last_reviewed": {
     "supplier_id": 5,
