@@ -1,0 +1,116 @@
+{
+  "schema": 1,
+  "night_end_date": "2026-11-15",
+  "supplier_id": 5,
+  "supplier_name": "ЗаказАвто",
+  "offer_id": 25352,
+  "product_id": 6915,
+  "task_id": 4888,
+  "brand": "HYUNDAI-KIA",
+  "article": "55100H5600",
+  "name": "Балка задней подвески в сборе (для авто Hyundai",
+  "checked_on": "2026-11-15",
+  "before": {
+    "stock": "1",
+    "cost": "87300.00",
+    "price": "113490.00",
+    "kaspi_price": "105600.00",
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "fitment_rows": 0,
+    "task_status": "needs_source"
+  },
+  "prepared": {
+    "photo": {
+      "status": "confirmed_exact",
+      "source_kind": "exact_kaspi_card",
+      "source_url": "https://kaspi.kz/shop/p/hyundai-kia-balka-zadnei-podveski-55100h5600-146288405/",
+      "image_url": "https://resources.cdn-kaspi.kz/img/m/p/p58/pa8/66804531.png?format=gallery-medium",
+      "source_dimensions": "750x241",
+      "sha256": "2504af577c30a4a0cb5670e642766acfe2566670e219ad6515c37e98c0fe710b",
+      "visual_check": "real isolated black rear torsion beam assembly; no car, diagram, analogue or placeholder"
+    },
+    "fitment": {
+      "status": "confirmed_partial",
+      "rows": [
+        {
+          "make": "HYUNDAI",
+          "model": "Accent / Solaris",
+          "generation": null,
+          "years": "2021",
+          "engine": "G4LC",
+          "market": "EUR;GEN",
+          "execution": "torsion axle complete",
+          "placement": "rear suspension"
+        }
+      ],
+      "source_url": "https://partsouq.com/de/catalog/genuine/parts?c=Hyundai&gid=504&q=Z94K241BBMR254248&ssd=%24%2AKwG6h7qr3rvt-_DJ9a6y_fmq28va2tnGuePv4aSr662yq8bVhJGHycC8v7q9vrjz8-Hlq7StwLzduJrr9bnPrKOq-qy285nhpKv4rbKr1LXllPG8uMzNxdu8ueXt97Cr8_HXydznkpiN4v_WtsLYr_KOgIO-sby-9tb-_6Wflc3Bx8zEzMfIlJGX293cxsbO8NOhrLXI07e7w7u6vZOdjtq7u7u6vbYAAAAAv2rcYA%3D%3D%24&vid=791418026",
+      "limitations": "Only model year 2021 and engine G4LC were saved. Generation and other years were not inferred."
+    },
+    "unsuccessful_sources": [
+      {
+        "kind": "temporarily_unavailable",
+        "url": "https://ftp.gforceparts.com/en/catalog/genuine/parts?c=Hyundai&gid=478&q=Z94K241CBMR225197",
+        "reason": "HTTP 502 on exact indexed G4FG catalogue page; not used for saved fitment",
+        "checked_at": "2026-11-15T12:06:30.000Z"
+      }
+    ]
+  },
+  "queued": {
+    "status": "queued_deployed_and_guarded",
+    "guard_commit": "120edd9f14286c70e502ff9deb5635480fe53684",
+    "stage_commit": "70230ed6818163210f96ba6fd616bdf9311ff673",
+    "deploy_id": "dep-dbsq18s9v7es73c6eib0",
+    "activation": "single existing consumer only; guard was live before task staging"
+  },
+  "saved": {
+    "status": "saved",
+    "saved_at": "2026-11-15T12:08:26.610003Z",
+    "photo_saved": true,
+    "thumbnail_saved": true,
+    "fitment_saved": true,
+    "fitment_ids": [
+      111533
+    ],
+    "task_status": "done",
+    "main_path": "products/optimized/8c6434f235babf22017a14e675d4290ff68a8dfa0ead4bec464966bdb7e4f0a6.webp",
+    "thumbnail_path": "products/optimized/7ef91a8c7653ca844f10ce37ef410d82fc467b16d4eaef56c489908a0a86cafc.webp"
+  },
+  "verification": {
+    "source_verified": true,
+    "db_verified": true,
+    "photo_verified": true,
+    "thumbnail_verified": true,
+    "fitment_verified": true,
+    "ui_verified": true,
+    "ui_http_status": 200,
+    "main_http_status": 200,
+    "thumbnail_http_status": 200,
+    "main_dimensions": "750x241",
+    "thumbnail_dimensions": "180x58",
+    "ui_url": "https://zpt.kz/hyundai-zpt-25352/",
+    "verified_at": "2026-11-15T12:11:00.000Z"
+  },
+  "after": {
+    "stock": "1",
+    "cost": "87300.00",
+    "price": "113490.00",
+    "kaspi_price": "105600.00",
+    "main_image": "products/optimized/8c6434f235babf22017a14e675d4290ff68a8dfa0ead4bec464966bdb7e4f0a6.webp",
+    "supplier_thumbnail": "products/optimized/7ef91a8c7653ca844f10ce37ef410d82fc467b16d4eaef56c489908a0a86cafc.webp",
+    "fitment_rows": 1,
+    "fitment_configurations": 1,
+    "task_status": "done"
+  },
+  "trade_data_unchanged": true,
+  "status": "completed_saved_and_verified",
+  "next": {
+    "supplier_id": 5,
+    "offer_id": 25159,
+    "product_id": 6813,
+    "task_id": 4786,
+    "brand": "Parts-Mall",
+    "article": "pqb-007",
+    "action": "recheck lease, weekend time, live stock/load/task state, then search exact source and fitment"
+  }
+}
