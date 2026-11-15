@@ -5,8 +5,8 @@
   "lease": {
     "owner": "weekend-enrichment-20261115-1743-item25131",
     "acquired_at": "2026-11-15T12:43:00.000Z",
-    "heartbeat_at": "2026-11-15T12:43:00.000Z",
-    "expires_at": "2026-11-15T13:23:00.000Z",
+    "heartbeat_at": "2026-11-15T12:47:55.454Z",
+    "expires_at": "2026-11-15T13:27:55.454Z",
     "checkpoint_path": "procurement/data/enrichment_queue_20261113.json",
     "supplier_id": 5,
     "offer_id": 25131,
@@ -16372,7 +16372,7 @@
     "make_model_pairs_added": 146,
     "configurations_added": 185
   },
-  "updated_at": "2026-11-15T12:43:00.000Z",
+  "updated_at": "2026-11-15T12:47:55.454Z",
   "heartbeat_at": "2026-11-15T12:43:00.000Z",
   "shared_lease": {
     "owner": "weekend-enrichment-20261115-1743-item25131",
