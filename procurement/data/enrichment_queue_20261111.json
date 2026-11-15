@@ -2,17 +2,7 @@
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
   "checked_at": "2026-11-15T09:34:00.000Z",
-  "lease": {
-    "owner": "weekend-enrichment-20261115-1737-item25085",
-    "acquired_at": "2026-11-15T12:37:00.000Z",
-    "heartbeat_at": "2026-11-15T12:37:00.000Z",
-    "expires_at": "2026-11-15T13:17:00.000Z",
-    "checkpoint_path": "procurement/data/enrichment_queue_20261113.json",
-    "supplier_id": 5,
-    "offer_id": 25085,
-    "product_id": 6832,
-    "task_id": 4805
-  },
+  "lease": null,
   "next_supplier": 3,
   "batch_size": 100,
   "queue": [
@@ -15639,15 +15629,15 @@
     "reason": "All293 new-source reviews completed and all prepared additions saved and DB/UI verified;281 unsupported exceptions documented; no unreviewed or pending publication."
   },
   "last_lease": {
-    "owner": "weekend-enrichment-20261115-1730-item25086",
-    "acquired_at": "2026-11-15T12:30:00.000Z",
-    "released_at": "2026-11-15T12:36:00.000Z",
-    "result": "completed_saved_and_verified_ssangyong_7146034004",
+    "owner": "weekend-enrichment-20261115-1737-item25085",
+    "acquired_at": "2026-11-15T12:37:00.000Z",
+    "released_at": "2026-11-15T12:42:00.000Z",
+    "result": "completed_saved_and_verified_ssangyong_7145034004",
     "checkpoint_path": "procurement/data/enrichment_queue_20261113.json",
-    "checkpoint_commit": "ca599a5de39bdab9e0b0aa78e2deea267c718847",
-    "report_commit": "3302f11b96e30151c887344050ce42a29a592407",
-    "journal_commit": "7fd97aae4b9f7ddb03225b281e9b53e4d5650073",
-    "next_offer_id": 25085
+    "checkpoint_commit": "376d1f37a3cb4f84f611f7d16e4d4fa80b51c398",
+    "report_commit": "e2050e84b0e17c955d3e80cb02b86e3860e9337c",
+    "journal_commit": "8dddd3dc340f29de3dc6072340e0ad6b9bf1574f",
+    "next_offer_id": 25131
   },
   "continuation_20261112": {
     "started_at": "2026-11-12T02:20:46.660Z",
@@ -16372,17 +16362,7 @@
     "make_model_pairs_added": 146,
     "configurations_added": 185
   },
-  "updated_at": "2026-11-15T12:37:00.000Z",
-  "heartbeat_at": "2026-11-15T12:37:00.000Z",
-  "shared_lease": {
-    "owner": "weekend-enrichment-20261115-1737-item25085",
-    "acquired_at": "2026-11-15T12:37:00.000Z",
-    "heartbeat_at": "2026-11-15T12:37:00.000Z",
-    "expires_at": "2026-11-15T13:17:00.000Z",
-    "checkpoint_path": "procurement/data/enrichment_queue_20261113.json",
-    "supplier_id": 5,
-    "offer_id": 25085,
-    "product_id": 6832,
-    "task_id": 4805
-  }
+  "updated_at": "2026-11-15T12:42:00.000Z",
+  "heartbeat_at": "2026-11-15T12:42:00.000Z",
+  "shared_lease": null
 }
