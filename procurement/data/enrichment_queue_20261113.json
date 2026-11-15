@@ -9,20 +9,10 @@
     "phase": "completed_with_documented_exceptions_20261112",
     "reviewed_offer_ids": 408
   },
-  "shared_lease": {
-    "owner": "weekend-enrichment-20261115-1743-item25131",
-    "acquired_at": "2026-11-15T12:43:00.000Z",
-    "heartbeat_at": "2026-11-15T12:43:00.000Z",
-    "expires_at": "2026-11-15T13:23:00.000Z",
-    "checkpoint_path": "procurement/data/enrichment_queue_20261113.json",
-    "supplier_id": 5,
-    "offer_id": 25131,
-    "product_id": 6714,
-    "task_id": 4687
-  },
+  "shared_lease": null,
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-15T12:43:00.000Z",
-  "status": "lease_acquired_researching_hyundai_kia_553112s400",
+  "heartbeat_at": "2026-11-15T12:57:59.368Z",
+  "status": "active_ready_for_next_item",
   "phase": "other_in_stock_control",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
@@ -7200,7 +7190,7 @@
     }
   ],
   "current_batch_index": 0,
-  "current_item_index": 13,
+  "current_item_index": 14,
   "reviewed": [
     {
       "supplier_id": 5,
@@ -7499,6 +7489,17 @@
       "checked_at": "2026-11-15T12:42:00.000Z",
       "status": "saved_and_ui_verified_photo_thumbnail_and_fitment",
       "journal": "procurement/data/enrichment_queue_items/5-25085-20261115.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25131,
+      "product_id": 6714,
+      "task_id": 4687,
+      "brand": "HYUNDAI-KIA",
+      "article": "553112S400",
+      "checked_at": "2026-11-15T12:57:59.368Z",
+      "status": "saved_and_ui_verified_photo_thumbnail_and_structured_fitment",
+      "journal": "procurement/data/enrichment_queue_items/5-25131-20261115.json"
     }
   ],
   "prepared": [
@@ -7962,6 +7963,18 @@
       "source_url": "https://www.autoopt.ru/catalog/912907-amortizator_ssangyong_actyon_10__kryshki_bagazhnika_levyj_oe",
       "image_url": "https://www.autoopt.ru/product_pictures/big/0fe/912907.jpg",
       "journal": "procurement/data/enrichment_queue_items/5-25085-20261115.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25131,
+      "product_id": 6714,
+      "task_id": 4687,
+      "kind": "photo_and_fitment",
+      "prepared_at": "2026-11-15T12:49:00.000Z",
+      "status": "published_and_verified",
+      "source_url": "https://kaspi.kz/shop/p/hyundai-kia-zadnii-553112s400-1-sht-142570155/?c=750000000",
+      "image_url": "https://resources.cdn-kaspi.kz/img/m/p/p9b/p96/53188476.png?format=gallery-medium",
+      "journal": "procurement/data/enrichment_queue_items/5-25131-20261115.json"
     }
   ],
   "queued": [
@@ -8109,6 +8122,17 @@
       "commit": "93ffdbb6f8be7caa6108c21f621cc0b3d6441f58",
       "deploy_id": "dep-dbsqfrm7bikc73fbu6ug",
       "task_id": 4805
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25131,
+      "kind": "photo_and_fitment_publication",
+      "queued_at": "2026-11-15T12:53:43.000Z",
+      "guard_commit": "9c33b1ca0dad521cd3f1da5c276f0d24cfedcff1",
+      "commit": "4cf370e808d3e9d3d878e92ce43b81d27f3b1c10",
+      "consumer_commit": "046b420383c4e71238f37a201012daa8754c2b12",
+      "deploy_id": "dep-dbsqmme417fc73fqh5l0",
+      "task_id": 4687
     }
   ],
   "saved": [
@@ -8466,6 +8490,21 @@
       "supplier_thumbnail": "products/optimized/d2bcf5f8e5ae9de5246082690cb3ad11d2d3e92df291fdb36d67e712a5ffcbdf.webp",
       "deploy_id": "dep-dbsqfrm7bikc73fbu6ug",
       "live_commit": "93ffdbb6f8be7caa6108c21f621cc0b3d6441f58"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25131,
+      "kind": "photo_thumbnail_and_fitment",
+      "saved_at": "2026-11-15T12:55:05.491552Z",
+      "task_id": 4687,
+      "fitment_ids": [
+        111538,
+        111539
+      ],
+      "main_image": "products/optimized/58726a94187f41b8945875348da8e339b81a7623b23b3567e046c65334d01cd9.webp",
+      "supplier_thumbnail": "products/optimized/f1ae583cc085ff15ee8c3a0427ffb0d1f187e1349616ed3ea71716f63dce8aad.webp",
+      "deploy_id": "dep-dbsqmme417fc73fqh5l0",
+      "live_commit": "046b420383c4e71238f37a201012daa8754c2b12"
     }
   ],
   "verified": [
@@ -8997,6 +9036,26 @@
       "configuration_count": 1,
       "engine_rows": 0,
       "verified_at": "2026-11-15T12:42:00.000Z"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25131,
+      "kind": "photo_thumbnail_and_fitment",
+      "db_verified": true,
+      "ui_verified": true,
+      "ui_url": "https://zpt.kz/hyundai-zpt-25131/",
+      "ui_http_status": 200,
+      "main_image_url": "https://zpt.kz/products/products/optimized/58726a94187f41b8945875348da8e339b81a7623b23b3567e046c65334d01cd9.webp",
+      "thumbnail_url": "https://zpt.kz/products/products/optimized/f1ae583cc085ff15ee8c3a0427ffb0d1f187e1349616ed3ea71716f63dce8aad.webp",
+      "main_dimensions": "516x353",
+      "thumbnail_dimensions": "180x123",
+      "fitment_ids": [
+        111538,
+        111539
+      ],
+      "configuration_count": 2,
+      "engine_rows": 1,
+      "verified_at": "2026-11-15T12:57:59.368Z"
     }
   ],
   "exceptions": [
@@ -9250,14 +9309,14 @@
   "publication_pending": null,
   "next": {
     "phase": "other_in_stock_control",
-    "sequence": 14,
+    "sequence": 15,
     "batch_size": 20,
     "supplier_id": 5,
-    "offer_id": 25131,
-    "product_id": 6714,
-    "task_id": 4687,
-    "brand": "HYUNDAI-KIA",
-    "article": "553112S400"
+    "offer_id": 25110,
+    "product_id": 6727,
+    "task_id": 4700,
+    "brand": "JASHI",
+    "article": "202000362AA"
   },
   "events": [
     {
@@ -9899,16 +9958,26 @@
       "at": "2026-11-15T12:42:00.000Z",
       "type": "lease_released",
       "detail": "Expanded checkpoint released after per-item save; canonical shared lease remains held until report checkpoint completes."
+    },
+    {
+      "at": "2026-11-15T12:57:59.368Z",
+      "type": "item_saved_verified_and_advance",
+      "detail": "HYUNDAI-KIA 553112S400: exact clean 516x353 photo, 180x123 thumbnail, two structured fitment rows and one confirmed engine configuration saved and DB/UI verified. Separate Hyundai 2010–2011 and open Kia 2010– periods were not merged. Batch20 now 14/20; resume offer 25110."
+    },
+    {
+      "at": "2026-11-15T12:57:59.368Z",
+      "type": "lease_released",
+      "detail": "Expanded checkpoint released after per-item save; canonical shared lease remains held until report checkpoint completes."
     }
   ],
   "last_success": {
-    "at": "2026-11-15T12:42:00.000Z",
+    "at": "2026-11-15T12:57:59.368Z",
     "supplier_id": 5,
-    "offer_id": 25085,
-    "product_id": 6832,
-    "task_id": 4805,
-    "brand": "SsangYong",
-    "article": "7145034004",
+    "offer_id": 25131,
+    "product_id": 6714,
+    "task_id": 4687,
+    "brand": "HYUNDAI-KIA",
+    "article": "553112S400",
     "saved": {
       "photo": true,
       "thumbnail": true,
@@ -9918,15 +9987,16 @@
     "db_verified": true,
     "ui_verified": true,
     "fitment_ids": [
-      111537
+      111538,
+      111539
     ],
-    "configuration_count": 1,
-    "engine_rows": 0,
-    "live_commit": "93ffdbb6f8be7caa6108c21f621cc0b3d6441f58",
-    "deploy_id": "dep-dbsqfrm7bikc73fbu6ug",
-    "ui_url": "https://zpt.kz/ssangyong-zpt-25085/"
+    "configuration_count": 2,
+    "engine_rows": 1,
+    "live_commit": "046b420383c4e71238f37a201012daa8754c2b12",
+    "deploy_id": "dep-dbsqmme417fc73fqh5l0",
+    "ui_url": "https://zpt.kz/hyundai-zpt-25131/"
   },
-  "last_commit": "8dddd3dc340f29de3dc6072340e0ad6b9bf1574f",
+  "last_commit": "67e64ae6264b9ff709b0d809c0633e58806a1214",
   "paused_at": "2026-11-14T19:16:20.438Z",
   "pause_reason": "Sequence 14 EX54661A7100 recheck completed. Two exact photo sources were temporarily unavailable to the background consumer (HTTP 403); existing fitment verified. Resume at sequence 15.",
   "remaining_live": {
@@ -10370,56 +10440,38 @@
     "service_memory_limit_bytes": 536870900,
     "decision": "research and read-only checks allowed; defer or throttle writes while memory remains above 90% on the web service"
   },
-  "updated_at": "2026-11-15T12:47:57.143Z",
-  "current_index": 13,
+  "updated_at": "2026-11-15T12:57:59.368Z",
+  "current_index": 14,
   "next_supplier_id": 5,
-  "next_offer_id": 25131,
-  "next_product_id": 6714,
-  "next_task_id": 4687,
+  "next_offer_id": 25110,
+  "next_product_id": 6727,
+  "next_task_id": 4700,
   "last_lease": {
-    "owner": "weekend-enrichment-20261115-1737-item25085",
-    "acquired_at": "2026-11-15T12:37:00.000Z",
-    "released_at": "2026-11-15T12:42:00.000Z",
-    "result": "completed_saved_and_verified_ssangyong_7145034004",
-    "checkpoint_path": "procurement/data/enrichment_queue_20261113.json",
-    "journal_commit": "8dddd3dc340f29de3dc6072340e0ad6b9bf1574f",
-    "next_offer_id": 25131
-  },
-  "lease": {
     "owner": "weekend-enrichment-20261115-1743-item25131",
     "acquired_at": "2026-11-15T12:43:00.000Z",
-    "heartbeat_at": "2026-11-15T12:47:57.143Z",
-    "expires_at": "2026-11-15T13:27:57.143Z",
+    "released_at": "2026-11-15T12:57:59.368Z",
+    "result": "completed_saved_and_verified_hyundai_kia_553112s400",
     "checkpoint_path": "procurement/data/enrichment_queue_20261113.json",
-    "supplier_id": 5,
-    "offer_id": 25131,
-    "product_id": 6714,
-    "task_id": 4687
+    "journal_commit": "67e64ae6264b9ff709b0d809c0633e58806a1214",
+    "next_offer_id": 25110
   },
-  "pending_candidate": {
+  "lease": null,
+  "pending_candidate": null,
+  "last_reviewed": {
     "supplier_id": 5,
     "offer_id": 25131,
     "product_id": 6714,
     "task_id": 4687,
     "brand": "HYUNDAI-KIA",
     "article": "553112S400",
-    "state": "researching_new_sources"
-  },
-  "last_reviewed": {
-    "supplier_id": 5,
-    "offer_id": 25085,
-    "product_id": 6832,
-    "task_id": 4805,
-    "brand": "SsangYong",
-    "article": "7145034004",
-    "kind": "exact_photo_thumbnail_side_and_open_period_saved",
+    "kind": "exact_photo_thumbnail_and_structured_fitment_saved",
     "photo_saved": true,
     "thumbnail_saved": true,
     "fitment_saved": true,
-    "fitment_rows": 1,
-    "configuration_rows": 1,
+    "fitment_rows": 2,
+    "configuration_rows": 2,
     "db_verified": true,
     "ui_verified": true,
-    "reviewed_at": "2026-11-15T12:42:00.000Z"
+    "reviewed_at": "2026-11-15T12:57:59.368Z"
   }
 }
