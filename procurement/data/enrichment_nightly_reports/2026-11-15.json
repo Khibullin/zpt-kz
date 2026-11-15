@@ -2,8 +2,8 @@
   "schema": 1,
   "night_end_date": "2026-11-15",
   "started_at": "2026-11-14T19:02:21.138Z",
-  "updated_at": "2026-11-15T10:12:00.000Z",
-  "status": "checkpointed_after_verified_jashi_54650h5100_resume_ready",
+  "updated_at": "2026-11-15T10:15:00.000Z",
+  "status": "processing_offer_25290_jashi_54660h5100",
   "supplier_stats": {
     "1": {
       "name": "Omega",
@@ -42,7 +42,7 @@
     "batch_size": 20,
     "next_supplier_id": 5,
     "next_offer_id": 25290,
-    "lease_owner": null,
+    "lease_owner": "weekend-enrichment-20261115-1515-item25290",
     "lease_released_at": "2026-11-15T10:12:00.000Z",
     "publication_pending": null,
     "pending_ui_verification": null,
@@ -62,7 +62,7 @@
     },
     "next_product_id": 6961,
     "next_task_id": 4934,
-    "lease_expires_at": null
+    "lease_expires_at": "2026-11-15T10:55:00.000Z"
   },
   "events": [
     {
@@ -259,6 +259,11 @@
       "at": "2026-11-15T10:12:00.000Z",
       "type": "lease_released",
       "detail": "Shared lease released after per-item checkpoint; queue resumes at ZakazAuto offer 25290."
+    },
+    {
+      "at": "2026-11-15T10:15:00.000Z",
+      "type": "lease_acquired",
+      "detail": "Shared lease acquired after canonical blob-SHA check; resuming frozen ZakazAuto batch20 at offer 25290 / JASHI 54660H5100. Recent deploy-transition 502s returned to zero before work began."
     }
   ],
   "last_success": {
