@@ -11,8 +11,8 @@
   },
   "shared_lease": null,
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-15T09:21:20.000Z",
-  "status": "checkpointed_after_verified_jashi_fitment_resume_ready",
+  "heartbeat_at": "2026-11-15T09:23:30.000Z",
+  "status": "processing_other_in_stock_control_batch20_zakazauto",
   "phase": "other_in_stock_control",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
@@ -9081,6 +9081,11 @@
       "at": "2026-11-15T09:21:20.000Z",
       "type": "lease_released",
       "detail": "Shared canonical lease released after verified JASHI fitment checkpoint; next offer 25213. No duplicate worker or schedule created."
+    },
+    {
+      "at": "2026-11-15T09:23:30.000Z",
+      "type": "lease_acquired",
+      "detail": "Shared lease acquired atomically for ZakazAuto offer 25213 JASHI 54651-D3000 after fresh live DB/load/task checks; zero active photo tasks and no second processor."
     }
   ],
   "last_success": {
@@ -9540,7 +9545,7 @@
     "service_memory_limit_bytes": 536870900,
     "decision": "research and read-only checks allowed; defer or throttle writes while memory remains above 90% on the web service"
   },
-  "updated_at": "2026-11-15T09:21:20.000Z",
+  "updated_at": "2026-11-15T09:23:30.000Z",
   "current_index": 3,
   "next_supplier_id": 5,
   "next_offer_id": 25213,
@@ -9553,7 +9558,14 @@
     "released_at": "2026-11-15T09:21:20.000Z",
     "reason": "offer_25088_jashi_fitment_saved_db_ui_verified_photo_source_http403_advance_to_25213"
   },
-  "lease": null,
+  "lease": {
+    "owner": "weekend-enrichment-20261115-1423-batch20",
+    "scope": "enrichment_queue_20261113_other_in_stock_control_batch20_zakazauto",
+    "acquired_at": "2026-11-15T09:23:30.000Z",
+    "heartbeat_at": "2026-11-15T09:23:30.000Z",
+    "expires_at": "2026-11-15T09:58:30.000Z",
+    "next_offer_id": 25213
+  },
   "pending_candidate": null,
   "last_reviewed": {
     "supplier_id": 5,
