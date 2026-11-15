@@ -2,8 +2,8 @@
   "schema": 1,
   "night_end_date": "2026-11-15",
   "started_at": "2026-11-14T19:02:21.138Z",
-  "updated_at": "2026-11-15T11:25:00.000Z",
-  "status": "checkpointed_after_verified_jashi_8405120p3011_set_resume_ready",
+  "updated_at": "2026-11-15T12:11:00.000Z",
+  "status": "checkpointed_after_verified_hyundai_kia_55100h5600_resume_ready",
   "supplier_stats": {
     "1": {
       "name": "Omega",
@@ -25,25 +25,25 @@
     },
     "5": {
       "name": "ЗаказАвто",
-      "processed_unique": 15,
-      "photos_added": 10,
-      "fitment_added": 7,
-      "years_or_engines_added": 5,
+      "processed_unique": 16,
+      "photos_added": 11,
+      "fitment_added": 8,
+      "years_or_engines_added": 6,
       "skips": {
         "temporary_source_unavailable_http_403": 4,
         "brand_article_conflict": 1
       },
       "pending_ui_verification": 0,
-      "thumbnails_added": 10
+      "thumbnails_added": 11
     }
   },
   "queue": {
     "phase": "other_in_stock_control",
     "batch_size": 20,
     "next_supplier_id": 5,
-    "next_offer_id": 25352,
+    "next_offer_id": 25159,
     "lease_owner": null,
-    "lease_released_at": "2026-11-15T11:25:00.000Z",
+    "lease_released_at": "2026-11-15T12:11:00.000Z",
     "publication_pending": null,
     "pending_ui_verification": null,
     "recheck": {
@@ -60,11 +60,11 @@
       "structured_fitment_missing_before": 5,
       "fitment_display_enhancements": 1
     },
-    "next_product_id": 6915,
-    "next_task_id": 4888,
+    "next_product_id": 6813,
+    "next_task_id": 4786,
     "lease_expires_at": null,
-    "current_index": 8,
-    "current_batch_processed": 8,
+    "current_index": 9,
+    "current_batch_processed": 9,
     "current_batch_total": 20
   },
   "events": [
@@ -307,36 +307,49 @@
       "at": "2026-11-15T11:25:00.000Z",
       "type": "lease_released",
       "detail": "Shared lease released after checkpoint; no pending publication or UI verification."
+    },
+    {
+      "at": "2026-11-15T12:03:00.000Z",
+      "type": "lease_acquired",
+      "detail": "Shared lease acquired after canonical blob-SHA check for ZakazAuto offer 25352 / HYUNDAI-KIA 55100H5600; service CPU low, memory about 425 MB, zero active photo tasks."
+    },
+    {
+      "at": "2026-11-15T12:11:00.000Z",
+      "type": "item_saved_verified_and_advance",
+      "detail": "HYUNDAI-KIA 55100H5600: exact 750x241 photo, 180x58 thumbnail and one HYUNDAI Accent / Solaris structured fitment row saved and verified in DB/UI. Only model year 2021 and engine G4LC stored. An exact G4FG catalogue mirror returned HTTP 502 and was not used. Batch20 now 9/20; resume offer 25159."
+    },
+    {
+      "at": "2026-11-15T12:11:00.000Z",
+      "type": "lease_released",
+      "detail": "Shared lease released after per-item checkpoint; no pending publication or UI verification."
     }
   ],
   "last_success": {
-    "at": "2026-11-15T11:25:00.000Z",
+    "at": "2026-11-15T12:11:00.000Z",
     "supplier_id": 5,
-    "offer_id": 28110,
-    "product_id": 9237,
-    "task_id": 7210,
-    "brand": "JASHI",
-    "article": "8405120P3011/SET/6p/",
+    "offer_id": 25352,
+    "product_id": 6915,
+    "task_id": 4888,
+    "brand": "HYUNDAI-KIA",
+    "article": "55100H5600",
     "saved": {
       "photo": true,
       "thumbnail": true,
       "fitment": true,
-      "years_or_engines": false,
-      "package_quantity": true
+      "years_or_engines": true
     },
     "db_verified": true,
     "ui_verified": true,
     "fitment_ids": [
-      111532
+      111533
     ],
     "configuration_count": 1,
-    "engine_rows": 0,
-    "package_quantity": 6,
-    "live_commit": "102ced5235c903b585d246d8c384eeef7cc26773",
-    "deploy_id": "dep-dbspc12jnfac73chbp30",
-    "ui_url": "https://zpt.kz/jac-zpt-28110/"
+    "engine_rows": 1,
+    "live_commit": "70230ed6818163210f96ba6fd616bdf9311ff673",
+    "deploy_id": "dep-dbsq18s9v7es73c6eib0",
+    "ui_url": "https://zpt.kz/hyundai-zpt-25352/"
   },
-  "last_commit": "861cfe53c13ca5653ca127c58af687a202509a31",
+  "last_commit": "0680ce8a9bbaea2c74759dc6ea90f20626893348",
   "morning_report": {
     "period_start": "2026-11-14T23:00:00+05:00",
     "period_end": "2026-11-15T06:00:00+05:00",
