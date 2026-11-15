@@ -1,0 +1,39 @@
+{
+  "article": "0420901",
+  "brand": "ASVA",
+  "cost": 4618,
+  "has_fitment": true,
+  "id": 23506,
+  "kaspi_price": 7386,
+  "kaspi_url": "https://kaspi.kz/shop/p/asva-opora-sharovaja-0420901-165502499/?c=750000000",
+  "main_image": "",
+  "name": "ОПОРА ШАРОВАЯ ВЕРХНЯЯ ПЕРЕДНЯЯ",
+  "photo_status": "skipped",
+  "product_id": 5228,
+  "profit": 1594.75,
+  "stock": "4",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 3201,
+  "offer_id": 23506,
+  "status": "reviewed_source_restriction",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "not_requested_due_source_restriction"
+  },
+  "reason": "ASVA:автоматическая проверка безопасности отклонила независимую карточку бренда0121-008. Запросы источников ASVA не выполнялись; недостающие данные не выдуманы, существующие сохранены.",
+  "checked_sources": [
+    {
+      "journal": "procurement/data/enrichment_queue_items/3-23081.json",
+      "result": "Current explicit auto-reviewdenial applies toASVA requests; no retries or other channels"
+    }
+  ],
+  "next_offer_id": 35154,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true,
+    "existing_photo_preserved": false
+  }
+}

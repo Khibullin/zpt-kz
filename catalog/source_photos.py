@@ -127,7 +127,7 @@ def process_photo_tasks(limit=10):
     if any(row['evidence'].get('block_kind')=='storage' or row['note'].startswith('Недостаточно свободного места') for row in blocked):return 0
     # Prepared work is activated by the deployed consumer, not the old process
     # while Render runs schema/data migrations for the next release.
-    SupplierPhotoTask.objects.filter(status__in=['prepared','maker_ready','web_ready','bilstein_ready','shock_ready','weekend14h_ready','weekend14i_ready','weekend14j_ready','weekend14k_ready','weekend14n_ready','weekend15a_ready','weekend15b_ready','weekend15c_ready','weekend15d_ready','weekend15e_ready','weekend15f_ready']).update(status='pending')
+    SupplierPhotoTask.objects.filter(status__in=['prepared','maker_ready','web_ready','bilstein_ready','shock_ready','weekend14h_ready','weekend14i_ready','weekend14j_ready','weekend14k_ready','weekend14n_ready','weekend15a_ready','weekend15b_ready','weekend15c_ready','weekend15d_ready','weekend15e_ready','weekend15f_ready','weekend15g_ready']).update(status='pending')
     from .reviewed_remaining2 import process_reviewed_photos as process_remaining2_photos
     done=process_remaining2_photos(limit=limit)
     from .reviewed_zakaz100 import process_reviewed_photos as process_zakaz100_photos
@@ -224,7 +224,15 @@ def process_photo_tasks(limit=10):
                         and evidence.get('image_url')=='https://resources.cdn-kaspi.kz/img/m/p/h6d/h92/67650614853662.jpg?format=gallery-large'
                         and evidence.get('checked_on')=='2026-11-15'
                     )
-                    if exact_jashi or exact_trialli:
+                    exact_hyundai_kia=(
+                        task.pk==4686 and product.pk==6713 and offer.pk==25129
+                        and offer.brand=='HYUNDAI-KIA' and offer.article=='553102P500'
+                        and task.source_url=='https://partsouq.com/shop/product/553102P500-hyundai-kia-shock-absorber-assy/17998151'
+                        and evidence.get('reviewed_batch')=='weekend-20261115-g'
+                        and evidence.get('image_url')=='https://partsouq.com/assets/tesseract/assets/partsimages/Hyundai-/-KIA/553102P500.jpg'
+                        and evidence.get('checked_on')=='2026-11-15'
+                    )
+                    if exact_jashi or exact_trialli or exact_hyundai_kia:
                         # The exact card and selected item image were visually checked before
                         # staging. Fetch only that immutable CDN object here; the guarded
                         # migration has already rechecked live identity, stock and fitment.

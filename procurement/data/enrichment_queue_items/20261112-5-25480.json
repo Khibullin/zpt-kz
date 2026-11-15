@@ -1,0 +1,41 @@
+{
+  "article": "2803101S55M0",
+  "brand": "JAC",
+  "cost": 40700,
+  "has_fitment": true,
+  "id": 25480,
+  "kaspi_price": 48560,
+  "kaspi_url": "https://kaspi.kz/shop/p/jac-bamper-2803101s55m0-dlja-jac-js8-2024-2025-170187225/?c=750000000",
+  "main_image": "",
+  "name": "Бампер передний JAC",
+  "photo_status": "needs_source",
+  "product_id": 7097,
+  "profit": 1540,
+  "stock": "3",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 5070,
+  "checked_at": "2026-11-12T03:12:02.052114+00:00",
+  "previous_journal": "procurement/data/enrichment_queue_items/5-25480.json",
+  "publication_status": "not_published",
+  "offer_id": 25480,
+  "status": "no_new_confirmed_source",
+  "new_queries": [
+    "JAC 2803101S55M0 точный артикул фото применимость"
+  ],
+  "reason": "Новый поиск не подтвердил недостающие поля точной позиции. Результаты по другим брендам, похожим артикулам, общим категориям и неподтверждённой комплектности исключены. Существующие корректные данные сохранены. Ограниченные ранее источники повторно не запрашивались.",
+  "new_sources": [
+    "https://www.magbossauto.pl/shop/2803101s55m0-gorna-nakladka-przedniego-zderzaka-jac-js8-pro-oem-5930",
+    "https://www.magbossauto.pl/marki/jac/js8pro/zderzaki-i-elementy-zderzakow",
+    "https://www.shindary.com/news/shindary-productsspare-parts-numbers-for-body-parts-47.html",
+    "https://shop.globalparts.kz/catalog/card/191635"
+  ],
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 25128
+}

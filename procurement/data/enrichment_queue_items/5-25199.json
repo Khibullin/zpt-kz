@@ -1,0 +1,41 @@
+{
+  "article": "13279327.GAS",
+  "brand": "JASHI",
+  "has_fitment": true,
+  "id": 25199,
+  "kaspi_url": "https://kaspi.kz/shop/p/jashi-perednii-13279327-gas-1-sht-137222621/?c=750000000",
+  "main_image": "",
+  "name": "Амортизатор передний Chevrolet",
+  "photo_status": "needs_source",
+  "product_id": 6723,
+  "profit": 4365,
+  "stock": "1",
+  "supplier_id": 5,
+  "task_id": 4696,
+  "offer_id": 25199,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "exact_source_not_found",
+    "reason": "Точный JASHI13279327.GAS не найден; результаты OEM13279327 и других брендов не использованы."
+  },
+  "checked_sources": [
+    {
+      "query": "\"JASHI\" \"13279327.GAS\" -site:kaspi.kz -site:alta-karter.com",
+      "tool": "system2_search",
+      "result": "no exact results"
+    },
+    {
+      "query": "\"JASHI\" \"13279327.GAS\" -site:kaspi.kz -site:alta-karter.com",
+      "tool": "system1_search",
+      "result": "only otherbrands/OEM, no exact JASHI fullarticle"
+    }
+  ],
+  "next_offer_id": 26817,
+  "verification": {
+    "existing_fitment_preserved": true,
+    "trade_data_unchanged": true
+  }
+}

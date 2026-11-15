@@ -1,0 +1,38 @@
+{
+  "article": "2905100U1555",
+  "brand": "JASHI",
+  "cost": 17900,
+  "has_fitment": true,
+  "id": 25183,
+  "kaspi_price": 24560,
+  "kaspi_url": "https://kaspi.kz/shop/p/jashi-perednii-2905100u1555-1-sht-118704148/?c=750000000",
+  "main_image": "",
+  "name": "Амортизатор передний JAC",
+  "photo_status": "needs_source",
+  "product_id": 6740,
+  "profit": 3340,
+  "stock": "14",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 4713,
+  "offer_id": 25183,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "JASHI2905100U1555: точный артикул найден у продавца под брендом JAC, не JASHI. GlobalParts/JASHI2905200U1555 — другой правый артикул, исключён. Kaspi/CDN ранее запрещены, не запрошены. Существующая применимость сохранена.",
+  "checked_sources": [
+    {
+      "query": "\"JASHI\" \"2905100U1555\"",
+      "result": "Bothengines:exactarticleotherbrandJAC;differentrightarticle2905200U1555excluded"
+    }
+  ],
+  "next_offer_id": 25344,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "schema": 1,
+  "checked_at": "2026-11-13T18:06:31.747Z",
+  "supplier_id": 5,
+  "supplier_name": "ЗаказАвто",
+  "offer_id": 25628,
+  "product_id": 7268,
+  "task_id": null,
+  "brand": "HYUNDAI-KIA",
+  "article": "914102S222",
+  "name": "Блок предохранителей Hyundai",
+  "stock": "1",
+  "before": {
+    "photo_url": "",
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "fitment": false
+  },
+  "research": {
+    "sources": [
+      {
+        "url": "https://partsouq.com/en/catalog/genuine/parts?c=HYUNDAI202404&gid=704&q=&vid=1546409837",
+        "kind": "independent_oem_catalog",
+        "checked_at": "2026-11-13T18:06:31.747Z",
+        "result": "Exact 914102S222 row on Hyundai Tucson 2009–2013 catalog; WIRING ASSY-CONTROL, 2.0 diesel, 6-speed automatic, 4WD, option-code restrictions."
+      },
+      {
+        "url": "https://kaspi.kz/shop/p/hyundai-kia-blok-predohranitelei-914102s222-1-sht-163978365/?c=750000000",
+        "kind": "retailer_listing",
+        "checked_at": "2026-11-07",
+        "result": "Not used: prior brand-format conflict HYUNDAI-KIA vs HYUNDAI / KIA remains."
+      }
+    ],
+    "photo": {
+      "status": "not_confirmed",
+      "reason": "No exact real product photo from an allowed confirmed source; no placeholder/analogue accepted."
+    },
+    "fitment": {
+      "status": "prepared",
+      "source_url": "https://partsouq.com/en/catalog/genuine/parts?c=HYUNDAI202404&gid=704&q=&vid=1546409837",
+      "make": "HYUNDAI",
+      "model": "Tucson",
+      "details": "2009; 2010; 2011; 2012; 2013 · 2.0 CRDi (R) · АКПП 6-ступ. · 4WD · ESC · conventional-clear cluster; without asserted completeness",
+      "configurations": [
+        {
+          "years": [
+            2009,
+            2010,
+            2011,
+            2012,
+            2013
+          ],
+          "engine": "2.0 CRDi (R)",
+          "transmission": "6-speed automatic",
+          "drive": "4WD",
+          "restrictions": [
+            "ESC",
+            "conventional-clear cluster"
+          ],
+          "source_scope": "exact catalog row; option-code applicability is VIN-specific"
+        }
+      ]
+    }
+  },
+  "after": {
+    "prepared_fitment": true,
+    "photo_unchanged": true,
+    "database_saved": true,
+    "ui_verified": true,
+    "db_verified": true,
+    "ui_url": "https://zpt.kz/hyundai-zpt-25628/",
+    "saved_at": "2026-11-13T18:18:15.905Z",
+    "deploy_id": "dep-dbrl76qjnfac73ars24g",
+    "live_commit": "89406af46aaaae6ad48d1b5b42c5c1fa1c1c6d14"
+  },
+  "state": "saved_and_verified",
+  "next_offer_id": 25396,
+  "recheck_20261114": {
+    "status": "rechecked_no_new_photo",
+    "checked_at": "2026-11-14T11:23:33.791Z",
+    "missing_after": [
+      "photo"
+    ],
+    "sources_checked": [
+      {
+        "url": "https://partsouq.com/en/catalog/genuine/parts?c=HYUNDAI202404&gid=704&q=&vid=1546409837",
+        "kind": "independent_oem_catalogue",
+        "result": "Exact article/fitment reconfirmed; no distinct real product photo exposed by the new search."
+      }
+    ],
+    "reason": "Expanded manufacturer/OEM/catalogue search did not produce a new exact real product photograph; existing verified structured fitment retained.",
+    "prepared": false,
+    "queued": false,
+    "saved": false,
+    "verified": true,
+    "next_offer_id": 25396
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "article": "12313002",
+  "brand": "RIVAL",
+  "cost": 12450,
+  "has_fitment": true,
+  "id": 26926,
+  "kaspi_price": 15847,
+  "kaspi_url": "https://kaspi.kz/shop/p/rival-12313002-hyundai-sonata-2019-2023-chernyi-103087091/?c=750000000",
+  "main_image": "",
+  "name": "Ковер багажника Hyundai",
+  "photo_status": "needs_source",
+  "product_id": 8501,
+  "profit": 1166.125,
+  "stock": "1",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 6474,
+  "checked_at": "2026-11-12T03:12:02.267840+00:00",
+  "previous_journal": "procurement/data/enrichment_queue_items/5-26926.json",
+  "publication_status": "saved_db_and_ui_verified",
+  "offer_id": 26926,
+  "status": "prepared_new_exact_sources",
+  "new_queries": [
+    "RIVAL 12313002 точный артикул фото применимость"
+  ],
+  "reason": "Точное фото одного коврика RIVAL 12313002 из товарного блока Империя-Картер: Hyundai Sonata VIII DN8 седан, полиуретан, без крепежа. Существующая применимость сохранена.",
+  "new_sources": [
+    "https://imperiya-karter.ru/ishop/84633_53"
+  ],
+  "prepared_photo": true,
+  "prepared_fitments": [],
+  "source_url": "https://imperiya-karter.ru/ishop/84633_53",
+  "source_label": "Империя-Картер — точная строка RIVAL 12313002",
+  "publication": {
+    "commit": "ac502e32921593bf8c9f8352da8a2697eb46106d",
+    "deploy": "dep-dbqisoijnfac73bjkkl0",
+    "db_verified": true,
+    "ui_verified": true,
+    "main_and_thumbnail_verified": true
+  },
+  "current_state": {
+    "main_image": "products/optimized/dc69ee6c6000c110a5124a9aea6b6e35dce2b6c06494d2a26fb6edcee7445bd1.webp",
+    "supplier_thumbnail": "products/optimized/8d7f61299c0424efab7b982410a36b5db30b3a4adda846a3648aa031150212a8.webp",
+    "has_fitment": true,
+    "photo_status": "done",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 26250
+}

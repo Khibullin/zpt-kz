@@ -1,0 +1,49 @@
+{
+  "article": "SLK-E060",
+  "brand": "555",
+  "cost": 4874,
+  "has_fitment": true,
+  "id": 22390,
+  "kaspi_price": 7607,
+  "kaspi_url": "https://kaspi.kz/shop/p/555-stoika-stabilizatora-slk-e060-174068964/?c=750000000",
+  "main_image": "",
+  "name": "555 Стойка стабилизатора",
+  "photo_status": "skipped",
+  "product_id": 4125,
+  "profit": 1532.125,
+  "stock": "10",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 2098,
+  "checked_at": "2026-11-12T03:12:02.781922+00:00",
+  "previous_journal": "procurement/data/enrichment_queue_items/3-22390.json",
+  "publication_status": "not_published",
+  "offer_id": 22390,
+  "status": "no_new_confirmed_source",
+  "new_queries": [
+    "555 SLK-E060 точный артикул фото применимость"
+  ],
+  "reason": "Новый поиск не подтвердил недостающие поля точной позиции. Результаты по другим брендам, похожим артикулам, общим категориям и неподтверждённой комплектности исключены. Существующие корректные данные сохранены. Ограниченные ранее источники повторно не запрашивались.",
+  "new_sources": [
+    "https://jps-osaka.co.jp/wp-content/uploads/2023/12/NEWS343A-555-Applications-to-European-Vehicles23.12.pdf",
+    "https://jps-osaka.co.jp/wp-content/uploads/2022/07/NEWS334A-555-Applications-to-European-Vehicles22.7.pdf",
+    "https://spareto.ee/tooted/moog-stabilisaator-stabilisaator/vo-ls-7327",
+    "https://jps-osaka.co.jp/wp-content/uploads/2021/12/News-No.-328A.pdf",
+    "https://www.motointegrator.de/artikel/399603-stangestrebe-stabilisator-febi-bilstein-36665",
+    "https://www.iparts.pl/auto-czesci/stabilizator-i-elementy-mocujace%2Cskoda%2Coctavia-ii-1z3-2004-02-2013-06%2C1-4%2C106-5120-19820-100210%2Cpage25.html",
+    "https://www.iparts.pl/auto-czesci/lacznik-stabilizatora%2Cskoda%2Coctavia-i-1u2-1996-09-2010-12%2C1-6%2C106-1904-15910-100577%2Cpage14.html",
+    "https://www.scribd.com/document/580237122/0a9c4995c3f370f6321937c6dbc3a11d1",
+    "https://www.auto-czesci-lipiec.pl/7/%C5%81%C4%84CZNIK-STABILIZATORA--S6013007--S6013007POL",
+    "https://proparts.md/stoyka-stabilizatora/auto/skoda/octavia/brand/555/",
+    "https://spareto.ee/tooted/monroe-stabilisaator-stabilisaator/l29673",
+    "https://www.iparts.pl/auto-czesci/lacznik-stabilizatora%2Cseat%2Cibiza-iv-sc-6j1-6p5%2C1-6-tdi%2C104-7567-32748-100577%2Cpage5.html"
+  ],
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "skipped",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 22802
+}

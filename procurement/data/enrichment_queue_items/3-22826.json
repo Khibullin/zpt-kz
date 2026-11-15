@@ -1,0 +1,42 @@
+{
+  "article": "AS-52",
+  "brand": "AKIKA",
+  "cost": 11084,
+  "has_fitment": false,
+  "id": 22826,
+  "kaspi_price": 14614,
+  "kaspi_url": "https://kaspi.kz/shop/p/akika-zadnii-as-52-1-sht-120868917/?c=750000000",
+  "main_image": "",
+  "name": "AKIKA Амортизатор, зад. левый",
+  "photo_status": "needs_source",
+  "product_id": 4555,
+  "profit": 1453.25,
+  "stock": "10",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 2528,
+  "offer_id": 22826,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "unconfirmed",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "Точные независимые фото и применимостьAKIKA AS-52/AS52 не найдены; AS12/AS77/AS98/AS164 и другие артикулы исключены.",
+  "checked_sources": [
+    {
+      "query": "\"AKIKA\" \"AS-52\"",
+      "result": "Other articles only"
+    },
+    {
+      "query": "\"AKIKA\" \"AS52\" амортизатор",
+      "result": "No results"
+    }
+  ],
+  "next_offer_id": 35187,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": false
+  }
+}

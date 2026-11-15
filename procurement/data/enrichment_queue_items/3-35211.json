@@ -1,0 +1,76 @@
+{
+  "article": "614-77K",
+  "brand": "MOTORAD",
+  "cost": 4750,
+  "has_fitment": true,
+  "id": 35211,
+  "kaspi_price": 9111,
+  "kaspi_url": "https://kaspi.kz/shop/p/motorad-termostat-614-77k-174078052/?c=750000000",
+  "main_image": "",
+  "name": "Термостат 77°С",
+  "photo_status": "needs_source",
+  "product_id": 16018,
+  "profit": 2972.125,
+  "stock": "2",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 13991,
+  "offer_id": 35211,
+  "status": "published_complete",
+  "checked_on": "2026-11-11",
+  "source_url": "https://cars245.com/en/item/motorad-61477K-thermostat-coolant/",
+  "source_label": "Cars245 — независимый каталог продавца",
+  "source_kind": "retailer_catalogue",
+  "source_article": "614-77K",
+  "fitments": [],
+  "fitment_note": "Существующая применимость сохранена.",
+  "image_url": "https://cars245images.cc/webp/big/motorad/c2/motorad-61477K.jpg.webp",
+  "image_note": "MOTORAD614-77K,77°C,безкорпуса,суплотнением и воздушнымклапаном. Точное исполнениеK,реальнаядетальвизуальнопроверена.",
+  "photo": {
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/303dadcf5fe7b4f9392e763f776ba4e27432b776be4472f7eb181eba34ced4b9.webp",
+    "thumbnail_path": "products/optimized/5a53368d8794e8bcceb8d89bf13a07ff42a97dcdeeddf525a98c66305ae9996c.webp",
+    "main_size": [
+      800,
+      800
+    ],
+    "thumbnail_size": [
+      180,
+      180
+    ]
+  },
+  "fitment_status": "existing_preserved",
+  "checked_sources": [
+    {
+      "url": "https://cars245.com/en/item/motorad-61477K-thermostat-coolant/",
+      "result": "MOTORAD614-77K,77°C,безкорпуса,суплотнением и воздушнымклапаном. Точное исполнениеK,реальнаядетальвизуальнопроверена."
+    }
+  ],
+  "next_offer_id": 24799,
+  "verification": {
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T10:00:50.064Z"
+  },
+  "source_sha256": "c5b888c5e808da9740baca575399852df38b02b4e5a6e23597e5ad4544f9b2f8",
+  "main_sha256": "303dadcf5fe7b4f9392e763f776ba4e27432b776be4472f7eb181eba34ced4b9",
+  "main_size": [
+    800,
+    800
+  ],
+  "thumbnail_sha256": "5a53368d8794e8bcceb8d89bf13a07ff42a97dcdeeddf525a98c66305ae9996c",
+  "thumbnail_size": [
+    180,
+    180
+  ],
+  "publication": {
+    "commit": "6d50b89ddbdaea78c8ee72c5f924121782c91caf",
+    "deploy": "dep-dbq3nju7bikc738hoo40",
+    "status": "live"
+  }
+}

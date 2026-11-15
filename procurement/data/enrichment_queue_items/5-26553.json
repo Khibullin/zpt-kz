@@ -1,0 +1,36 @@
+{
+  "article": "1042200GG01C",
+  "brand": "JASHI",
+  "has_fitment": true,
+  "id": 26553,
+  "kaspi_url": "https://kaspi.kz/shop/p/jashi-drossel-naja-zaslonka-1042200gg01c-119202262/?c=750000000",
+  "main_image": "",
+  "name": "Дроссельная заслонка JAC",
+  "photo_status": "needs_source",
+  "product_id": 8056,
+  "profit": 3765,
+  "stock": "1",
+  "supplier_id": 5,
+  "task_id": 6029,
+  "offer_id": 26553,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "exact_source_not_found",
+    "reason": "Точный независимый источник фото JASHI 1042200GG01C не найден;полный артикул не заменялся близким."
+  },
+  "checked_sources": [
+    {
+      "query": "\"JASHI\" \"1042200GG01C\" -site:kaspi.kz -site:alta-karter.com",
+      "tool": "system2+system1_search",
+      "result": "No independent exactphoto;noallowedsource fornewfitment"
+    }
+  ],
+  "next_offer_id": 25233,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true
+  }
+}

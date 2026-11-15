@@ -1,0 +1,18 @@
+{
+  "supplier": 5,
+  "offer_id": 26787,
+  "product_id": 8260,
+  "task_id": 6233,
+  "brand": "JASHI",
+  "article": "8402010U226KE",
+  "profit_kzt": 31255,
+  "photo": "unconfirmed",
+  "fitment": "already_saved",
+  "sources": [
+    "https://kaspi.kz/shop/p/jashi-kapot-8402010u226ke-dlja-jac-s3-pro-2022-2025-145082558/?c=750000000",
+    "https://shop.altynauto.kz/products/kapoty-kapot-jac-s3-pro-22-8402010u226ke/"
+  ],
+  "reason": "Kaspi image is vehicle, excluded by prior visual review. New AltynAuto result brand JAC, not JASHI; cannot substitute OEM image. Direct read of Kaspi timed out; no retry or altered route. Existing fitment preserved.",
+  "next_offer_id": 25193,
+  "checked_on": "2026-11-11"
+}

@@ -1,0 +1,36 @@
+{
+  "article": "2804104XST01A",
+  "brand": "JASHI",
+  "has_fitment": false,
+  "id": 25353,
+  "kaspi_url": "https://kaspi.kz/shop/p/jashi-bamper-2804104xst01a-dlja-haval-jolion-2021-2024-138267714/?c=750000000",
+  "main_image": "",
+  "name": "Бампер задний HAVAL",
+  "photo_status": "needs_source",
+  "product_id": 6936,
+  "profit": 3590,
+  "stock": "4",
+  "supplier_id": 5,
+  "task_id": 4909,
+  "offer_id": 25353,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "unconfirmed_allowed_source",
+  "photo": {
+    "status": "exact_allowed_source_not_found",
+    "reason": "Независимое подтверждение точного JASHI 2804104XST01A не найдено. В выдаче есть OEM/чужиебренды либоKaspi,для которого действует прежний отказ;данные не переносились обходнымспособом."
+  },
+  "checked_sources": [
+    {
+      "query": "\"JASHI\" \"2804104XST01A\" -site:kaspi.kz -site:alta-karter.com",
+      "tool": "system2+system1_search",
+      "result": "No independent exactsource;OEM/differentbrands/Kaspiresults excluded"
+    }
+  ],
+  "next_offer_id": 25182,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "article": "AS-109",
+  "brand": "AKIKA",
+  "cost": 12027,
+  "has_fitment": false,
+  "id": 22700,
+  "kaspi_price": 15647,
+  "kaspi_url": "https://kaspi.kz/shop/p/akika-perednii-as-109-1-sht-121023103/?c=750000000",
+  "main_image": "",
+  "name": "AKIKA Амортизатор, пер. правый",
+  "photo_status": "needs_source",
+  "product_id": 4431,
+  "profit": 1414.125,
+  "stock": "5",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 2404,
+  "offer_id": 22700,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "unconfirmed",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "Точные фото и применимостьAKIKA AS-109/AS109 не найдены: другие артикулыAS99/AS68/AS229 и нерелевантный Scribd исключены.",
+  "checked_sources": [
+    {
+      "query": "\"AKIKA\" \"AS-109\"",
+      "result": "Other articles only"
+    },
+    {
+      "query": "\"AKIKA\" \"AS109\" амортизатор",
+      "result": "Unrelated result"
+    }
+  ],
+  "next_offer_id": 22270,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": false
+  }
+}

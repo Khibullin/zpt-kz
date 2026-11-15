@@ -1,0 +1,49 @@
+{
+  "article": "SL-A410",
+  "brand": "555",
+  "cost": 7366,
+  "has_fitment": true,
+  "id": 22270,
+  "kaspi_price": 10320,
+  "kaspi_url": "https://kaspi.kz/shop/p/555-stoika-stabilizatora-sl-a410-179854423/?c=750000000",
+  "main_image": "",
+  "name": "555 Стойка стабилизатора",
+  "photo_status": "skipped",
+  "product_id": 4006,
+  "profit": 1414,
+  "stock": "10",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 1979,
+  "checked_at": "2026-11-12T03:12:03.013242+00:00",
+  "previous_journal": "procurement/data/enrichment_queue_items/3-22270.json",
+  "publication_status": "not_published",
+  "offer_id": 22270,
+  "status": "no_new_confirmed_source",
+  "new_queries": [
+    "555 SL-A410 точный артикул фото применимость"
+  ],
+  "reason": "Точная карточка содержит placeholder.png вместо фотографии. Уже сохранённая применимость не изменена.",
+  "new_sources": [
+    "https://spareto.com/products/monroe-rod-strut-stabiliser/l29673",
+    "https://oiler.pro/ua-ru/zapchasti/tjaga-stojka-stabilizator-555-sl-a410/",
+    "https://tachka.ru/stoyki-stabilizatora/toyota/camry/30/555-SL-A410-6281",
+    "https://shop.globalparts.kz/catalog/card/136023",
+    "https://shop.globalparts.kz/catalog/card/136251",
+    "https://shop.globalparts.kz/catalog/card/172908",
+    "https://jps-osaka.co.jp/wp-content/uploads/2024/03/NEWS34724.02-R.pdf",
+    "https://shop.globalparts.kz/catalog/card/159674",
+    "https://shop.globalparts.kz/catalog/card/219511",
+    "https://shop.globalparts.kz/catalog/card/158660",
+    "https://shop.globalparts.kz/catalog/card/127161",
+    "https://www.tokai-jd.jp/wp-content/uploads/receive/%E6%A0%AA%E5%BC%8F%E4%BC%9A%E7%A4%BETOKAI_2024%E5%B9%B407%E6%9C%88%E8%BF%BD%E5%8A%A0%E5%88%86_%E4%BE%A1%E6%A0%BC%E6%94%B9%E5%AE%9A%E6%83%85%E5%A0%B1.pdf"
+  ],
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "skipped",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 24768
+}

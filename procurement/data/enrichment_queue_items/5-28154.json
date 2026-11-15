@@ -1,0 +1,46 @@
+{
+  "article": "3774200U1532A",
+  "brand": "JASHI",
+  "cost": 5900,
+  "has_fitment": true,
+  "id": 28154,
+  "kaspi_price": 8530,
+  "kaspi_url": "https://kaspi.kz/shop/p/podrulevoi-shleif-jashi-3774200u1532a-128586078/?c=750000000",
+  "main_image": "",
+  "name": "Контакт рулевого JAC",
+  "photo_status": "needs_source",
+  "product_id": 9232,
+  "profit": 1313.75,
+  "stock": "55",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 7205,
+  "offer_id": 28154,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "Независимое точное фото JASHI 3774200U1532A не подтверждено двумя поисковыми движками. Найденные карточки и фото относятся к JAC/MOSKVICH или MOVELEX с суффиксом -MX, поэтому для JASHI исключены. Существующая применимость сохранена.",
+  "checked_sources": [
+    {
+      "query": "JASHI 3774200U1532A; два поисковых движка",
+      "result": "Точная фотография JASHI не найдена."
+    },
+    {
+      "url": "https://www.autoopt.ru/catalog/763900-kolco_moskvich_3_jac_js4_j7_s3_s5_s7_t6_kolesa_rulevogo_kontaktnoe_oe",
+      "result": "Поисковая карточка JAC/OE, другой бренд."
+    },
+    {
+      "url": "https://www.agatol.ru/product/3774200u1532a-original/",
+      "result": "Поисковая карточка оригинального MOSKVICH, другой бренд."
+    }
+  ],
+  "next_offer_id": 26806,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true
+  }
+}

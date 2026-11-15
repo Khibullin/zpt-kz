@@ -1,0 +1,36 @@
+{
+  "article": "1623163R",
+  "brand": "ASVA",
+  "cost": 4004,
+  "has_fitment": false,
+  "id": 23770,
+  "kaspi_price": 9183,
+  "kaspi_url": "https://kaspi.kz/shop/p/asva-tjaga-stabilizatora-1623163r-165506482/?c=750000000",
+  "main_image": "",
+  "name": "ТЯГА СТАБИЛИЗАТОРА ЗАДНЯЯ",
+  "photo_status": "needs_source",
+  "product_id": 5491,
+  "profit": 3781.125,
+  "stock": "1",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 3464,
+  "offer_id": 23770,
+  "status": "reviewed_source_restriction",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "photo": {
+    "status": "not_requested_due_source_restriction"
+  },
+  "reason": "ASVA:автоматическая проверка безопасности явно отклонила запрос независимой карточки этого бренда(0121-008). Повторные запросы ASVA не выполнялись, включая другие каналы; недостающие данные не выдуманы.",
+  "checked_sources": [
+    {
+      "journal": "procurement/data/enrichment_queue_items/3-23081.json",
+      "result": "Current source restriction auto-reviewdenied; source notrequested"
+    }
+  ],
+  "next_offer_id": 35200,
+  "verification": {
+    "trade_data_unchanged": true
+  }
+}

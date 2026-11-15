@@ -1,0 +1,38 @@
+{
+  "article": "AS-97",
+  "brand": "AKIKA",
+  "cost": 11789,
+  "has_fitment": false,
+  "id": 22858,
+  "kaspi_price": 16440,
+  "kaspi_url": "https://kaspi.kz/shop/p/akika-zadnii-as-97-1-sht-113162528/?c=750000000",
+  "main_image": "",
+  "name": "AKIKA Амортизатор, зад. правый",
+  "photo_status": "needs_source",
+  "product_id": 4587,
+  "profit": 2346,
+  "stock": "10",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 2560,
+  "offer_id": 22858,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "unconfirmed",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "AKIKA AS-97: оба поисковых движка не дали независимой точной карточки полного артикула с подтверждённой фотографией/применимостью. Похожие AS-артикулы исключены; данные не выдуманы.",
+  "checked_sources": [
+    {
+      "query": "\"AKIKA\" \"AS-97\"",
+      "result": "No independent exact result in two search engines"
+    }
+  ],
+  "next_offer_id": 23366,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": false
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "article": "202001686AA",
+  "brand": "JASHI",
+  "has_fitment": true,
+  "id": 25111,
+  "kaspi_url": "https://kaspi.kz/shop/p/jashi-zadnii-202001686aa-1-sht-130937038/?c=750000000",
+  "main_image": "",
+  "name": "Амортизатор задней Chery",
+  "photo_status": "needs_source",
+  "product_id": 6735,
+  "profit": 4302.5,
+  "stock": "7",
+  "supplier_id": 5,
+  "task_id": 4708,
+  "offer_id": 25111,
+  "status": "reviewed_photo_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "exact_source_not_found",
+    "reason": "Точное фото JASHI202001686AA не найдено; Cheryб/у/оригинал и комплекты из поиска не использованы."
+  },
+  "checked_sources": [
+    {
+      "query": "\"JASHI\" \"202001686AA\" -site:kaspi.kz -site:alta-karter.com",
+      "tool": "system2_search",
+      "result": "no exact result"
+    },
+    {
+      "query": "\"JASHI\" \"202001686AA\" -site:kaspi.kz -site:alta-karter.com",
+      "tool": "system1_search",
+      "result": "Cheryoriginal/used differentbrand/kit;excluded"
+    }
+  ],
+  "next_offer_id": 25109,
+  "verification": {
+    "existing_fitment_preserved": true,
+    "trade_data_unchanged": true
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "article": "1601100V5070",
+  "brand": "JASHI",
+  "has_fitment": true,
+  "id": 28173,
+  "kaspi_url": "https://kaspi.kz/shop/p/jashi-korzina-stseplenija-1601100v5070-118631632/?c=750000000",
+  "main_image": "",
+  "name": "Корзина сцепления JAC",
+  "photo_status": "needs_source",
+  "product_id": 9222,
+  "profit": 3865,
+  "stock": "5",
+  "supplier_id": 5,
+  "task_id": 7195,
+  "offer_id": 28173,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "exact_brand_unconfirmed",
+    "reason": "Точный JASHI 1601100V5070 не подтверждён в двух независимых поисках; OEM и чужиебренды не использованы."
+  },
+  "checked_sources": [
+    {
+      "query": "\"JASHI\" \"1601100V5070\" -site:kaspi.kz -site:alta-karter.com",
+      "tool": "system2+system1_search",
+      "result": "No independent exactJASHI photo;differentbrand/OEM"
+    }
+  ],
+  "next_offer_id": 26709,
+  "verification": {
+    "existing_fitment_preserved": true,
+    "trade_data_unchanged": true
+  }
+}

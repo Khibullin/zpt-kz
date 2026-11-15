@@ -1,0 +1,76 @@
+{
+  "article": "SEK-8141L",
+  "brand": "555",
+  "cost": 6400,
+  "has_fitment": true,
+  "id": 22168,
+  "kaspi_price": 9783,
+  "kaspi_url": "https://kaspi.kz/shop/p/555-rulevoi-nakonechnik-sek-8141l-174088525/?c=750000000",
+  "main_image": "",
+  "name": "555 Наконечник рулевой тяги",
+  "photo_status": "skipped",
+  "product_id": 3905,
+  "profit": 1910.125,
+  "stock": "1",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 1878,
+  "offer_id": 22168,
+  "status": "published_complete",
+  "checked_on": "2026-11-11",
+  "source_url": "https://cartex.kz/part/sek8141l-555",
+  "source_label": "Cartex — независимый каталог продавца",
+  "source_kind": "retailer_catalogue",
+  "source_article": "SEK-8141L",
+  "fitments": [],
+  "fitment_note": "Существующая применимость сохранена.",
+  "image_url": "https://img.cartex.kz/4010/d22eb47f932d7b3c479ea36290e2faa5d9d4008e.webp",
+  "image_note": "Точная карточка 555 SEK8141L, внешний левый, OEM56820-3X000. Визуально фотография одного чёрного наконечника с гайкой и водяным знаком 555; без пары/другой комплектности. Существующая применимость сохранена; противоречивые широкие fitment-списки продавца не переносились.",
+  "photo": {
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/4f0d0ab8d68c37630d0749d8758d709acee2b3520aaaac84bcfe834f7e6f8e83.webp",
+    "thumbnail_path": "products/optimized/5a07d7b52cb482021b567c4a280d6e9d78c0ec515803a6d89a65c6b375955eba.webp",
+    "main_size": [
+      600,
+      400
+    ],
+    "thumbnail_size": [
+      180,
+      120
+    ]
+  },
+  "fitment_status": "existing_preserved",
+  "checked_sources": [
+    {
+      "url": "https://cartex.kz/part/sek8141l-555",
+      "result": "Точная карточка 555 SEK8141L, внешний левый, OEM56820-3X000. Визуально фотография одного чёрного наконечника с гайкой и водяным знаком 555; без пары/другой комплектности. Существующая применимость сохранена; противоречивые широкие fitment-списки продавца не переносились."
+    }
+  ],
+  "next_offer_id": 35206,
+  "verification": {
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T12:10:36.104Z"
+  },
+  "source_sha256": "9ca74c093d90940ff2082eee5e8fc7f4ed483900bacb17c55faf0fb8ba36bf65",
+  "main_sha256": "4f0d0ab8d68c37630d0749d8758d709acee2b3520aaaac84bcfe834f7e6f8e83",
+  "main_size": [
+    600,
+    400
+  ],
+  "thumbnail_sha256": "5a07d7b52cb482021b567c4a280d6e9d78c0ec515803a6d89a65c6b375955eba",
+  "thumbnail_size": [
+    180,
+    120
+  ],
+  "publication": {
+    "commit": "5f2cf5c224c6b6ff8e2dbe7181a5ffc9b33ffd72",
+    "deploy": "dep-dbq5l0e7bikc738kc8fg",
+    "status": "live"
+  }
+}

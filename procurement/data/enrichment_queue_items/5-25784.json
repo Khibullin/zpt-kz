@@ -1,0 +1,133 @@
+{
+  "schema": 1,
+  "checked_at": "2026-11-13T18:13:06.742Z",
+  "supplier_id": 5,
+  "supplier_name": "ЗаказАвто",
+  "offer_id": 25784,
+  "product_id": 7360,
+  "task_id": 5333,
+  "brand": "SsangYong",
+  "article": "2132009052",
+  "name": "Вентилятор охлаждения SsangYong",
+  "research": {
+    "sources": [
+      {
+        "url": "https://luzar.ru/catalogue/elektroventilyatory/elektroventilyatory-okhlazhdeniya/elektroventilyator-okhlazhdeniya-dlya-avtomobiley-ssangyong-kyron-05-2-3i-s-kozhukhom-lfk-1750/",
+        "kind": "manufacturer_catalogue_cross_reference",
+        "result": "Exact OEM cross 2132009052; SsangYong Kyron from 2005, 2.3i, fan with shroud."
+      },
+      {
+        "url": "https://kaspi.kz/shop/p/ssang-yong-ventiljator-radiatora-2132009052-137156585/",
+        "kind": "retailer_listing",
+        "result": "Not used for structured years: broad 2005–2024 model list conflicts with narrower description and is not demonstrably complete."
+      }
+    ],
+    "photo": {
+      "status": "not_confirmed",
+      "reason": "No exact SsangYong-branded real product photo with confirmed execution and unit; analogue catalogue image not reused as OEM photo."
+    },
+    "fitment": {
+      "status": "prepared",
+      "source_url": "https://luzar.ru/catalogue/elektroventilyatory/elektroventilyatory-okhlazhdeniya/elektroventilyator-okhlazhdeniya-dlya-avtomobiley-ssangyong-kyron-05-2-3i-s-kozhukhom-lfk-1750/",
+      "make": "SSANGYONG",
+      "model": "Kyron",
+      "details": "с 2005 г. (открытый период источника) · 2.3i · вентилятор с кожухом · cross 2132009052",
+      "configurations": [
+        {
+          "date_from": "2005",
+          "date_to": null,
+          "engine": "2.3i",
+          "assembly": "with shroud",
+          "source_scope": "LUZAR manufacturer catalogue cross includes OEM 2132009052; end date not stated"
+        }
+      ]
+    }
+  },
+  "after": {
+    "prepared_fitment": true,
+    "photo_unchanged": true,
+    "database_saved": true,
+    "ui_verified": true,
+    "db_verified": true,
+    "ui_url": "https://zpt.kz/ssangyong-zpt-25784/",
+    "saved_at": "2026-11-14T12:13:26.645Z",
+    "deploy_id": "dep-dbs4ujtbedkc73bovrpg",
+    "live_commit": "6fa02c1ced549a909d2d7c6658aab4c991792706",
+    "photo_added": true,
+    "thumbnail_added": true
+  },
+  "state": "saved_and_verified",
+  "next_offer_id": 25765,
+  "recheck_20261114": {
+    "status": "photo_saved_and_verified",
+    "checked_at": "2026-11-14T12:13:26.645Z",
+    "missing_before": [
+      "photo"
+    ],
+    "missing_after": [],
+    "sources_checked": [
+      {
+        "url": "https://plenty.parts/parts/ssangyong/cooling-system/ssangyong-2132009052-electric-motor-radiator-fan-p3502292",
+        "kind": "independent_exact_catalogue",
+        "result": "Exact page found, but exposed image was a generic SVG silhouette and was rejected."
+      },
+      {
+        "url": "https://www.autoopt.ru/catalog/723986-ventiljator_ssangyong_actyon_06__kyron_07__ohlazhdenija_jelektricheskij_v_sbore_oe",
+        "kind": "ru_exact_oem_catalogue",
+        "result": "Exact SSANGYONG 2132009052 page and real assembled cooling-fan photo revalidated by the sole consumer."
+      },
+      {
+        "url": "https://www.avtoall.ru/ventilyator_ssangyong_actyon__06___kyron__07___ohlajdeniya_lektricheskiiy_v_sbore_oe-723986/",
+        "kind": "ru_exact_catalogue",
+        "result": "Exact candidate page checked; Autoopt was selected because it exposed a complete machine-readable OEM identity and exact image."
+      }
+    ],
+    "prepared": true,
+    "queued": true,
+    "saved": true,
+    "verified": true,
+    "source_url": "https://www.autoopt.ru/catalog/723986-ventiljator_ssangyong_actyon_06__kyron_07__ohlazhdenija_jelektricheskij_v_sbore_oe",
+    "image_url": "https://www.autoopt.ru/product_pictures/big/ccd/723986.jpg",
+    "source_image": {
+      "format": "JPEG",
+      "width": 768,
+      "height": 768,
+      "bytes": 126588,
+      "sha256": "b22a0fb7d08aee4236ae269b0f5b8f0be7fecb92b184a2e252fd26cbe45689df"
+    },
+    "saved_files": {
+      "main": {
+        "path": "products/optimized/004cbb0689150b866d27bab1be9b192a630c693c47de2ab4bff8331eccf85c91.webp",
+        "width": 768,
+        "height": 768,
+        "bytes": 41692,
+        "http_status": 200
+      },
+      "thumbnail": {
+        "path": "products/optimized/9cb1162bfde4ecb06f9fec4bcf2f166fb4850b835b6d4ace64397fe6ad3dc7eb.webp",
+        "width": 180,
+        "height": 180,
+        "bytes": 3970,
+        "http_status": 200
+      }
+    },
+    "database": {
+      "task_status": "done",
+      "product_id": 7360,
+      "offer_id": 25784,
+      "price_before": 53300,
+      "price_after": 53300,
+      "cost_before": "41000.00",
+      "cost_after": "41000.00",
+      "stock_before": "11",
+      "stock_after": "11",
+      "kaspi_unchanged": true
+    },
+    "fitment_unchanged_verified": true,
+    "ui_url": "https://zpt.kz/ssangyong-zpt-25784/",
+    "ui_verified": true,
+    "deploy_id": "dep-dbs4ujtbedkc73bovrpg",
+    "live_commit": "6fa02c1ced549a909d2d7c6658aab4c991792706",
+    "next_offer_id": 25765
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "article": "AS-163",
+  "brand": "AKIKA",
+  "cost": 12170,
+  "has_fitment": true,
+  "id": 22740,
+  "kaspi_price": 18640,
+  "kaspi_url": "https://kaspi.kz/shop/p/akika-perednii-as-163-1-sht-120961506/?c=750000000",
+  "main_image": "",
+  "name": "AKIKA Амортизатор, пер. правый",
+  "photo_status": "needs_source",
+  "product_id": 4471,
+  "profit": 3890,
+  "stock": "1",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 2444,
+  "offer_id": 22740,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "no_exact_photo"
+  },
+  "reason": "Точное фото AKIKAAS-163 не найдено двумя поисками; существующая применимость сохранена.",
+  "checked_sources": [
+    {
+      "query": "AKIKA AS163 / AS-163",
+      "tool": "system2+system1_search",
+      "result": "No exact photo source; other AKIKA numbers excluded"
+    }
+  ],
+  "next_offer_id": 23202,
+  "verification": {
+    "trade_data_unchanged": true
+  }
+}

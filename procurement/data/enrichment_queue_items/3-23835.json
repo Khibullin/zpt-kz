@@ -1,0 +1,39 @@
+{
+  "article": "2320001R",
+  "brand": "ASVA",
+  "cost": 6173,
+  "has_fitment": false,
+  "id": 23835,
+  "kaspi_price": 8759,
+  "kaspi_url": "https://kaspi.kz/shop/p/asva-opora-sharovaja-2320001r-164313238/?c=750000000",
+  "main_image": "",
+  "name": "ОПОРА ШАРОВАЯ ПРАВАЯ",
+  "photo_status": "needs_source",
+  "product_id": 5556,
+  "profit": 1241.125,
+  "stock": "2",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 3529,
+  "offer_id": 23835,
+  "status": "reviewed_source_restriction",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "unconfirmed",
+  "photo": {
+    "status": "not_requested_due_source_restriction"
+  },
+  "reason": "ASVA:автоматическая проверка безопасности отклонила независимую карточку бренда0121-008. Запросы источников ASVA не выполнялись; недостающие данные не выдуманы, существующие сохранены.",
+  "checked_sources": [
+    {
+      "journal": "procurement/data/enrichment_queue_items/3-23081.json",
+      "result": "Current explicit auto-reviewdenial applies toASVA requests; no retries or other channels"
+    }
+  ],
+  "next_offer_id": 22471,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": false,
+    "existing_photo_preserved": false
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "article": "NPA00-T31-736",
+  "brand": "NORPLAST",
+  "cost": 10800,
+  "has_fitment": false,
+  "id": 26954,
+  "kaspi_price": 14999,
+  "kaspi_url": "https://kaspi.kz/shop/p/norplast-npa00-t31-736-hyundai-tucson-2021-2025-chernyi-118775597/?c=750000000",
+  "main_image": "",
+  "name": "Коврик багажника Hyundai",
+  "photo_status": "needs_source",
+  "product_id": 8448,
+  "profit": 2074.125,
+  "stock": "5",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 6421,
+  "checked_at": "2026-11-12T03:12:01.917847+00:00",
+  "previous_journal": "procurement/data/enrichment_queue_items/5-26954.json",
+  "publication_status": "saved_db_and_ui_verified",
+  "offer_id": 26954,
+  "status": "prepared_new_exact_sources",
+  "new_queries": [
+    "NORPLAST NPA00-T31-736 точный артикул фото применимость"
+  ],
+  "reason": "Точное совпадение бренда NORPLAST и артикула NPA00-T31-736 в карточке МирДопов. Только Tucson с короткой базой; двигатель и прочие исполнения не подтверждены.",
+  "new_sources": [
+    "https://mirdopov.ru/katalog/dopolnitelnoe-oborudovanie/kovryki-v-bagazhnoe-otdelenye-poliuretan/hyundai/tucson/kovrik-v-bagazhnik-polimernyy-norplast-dlya-hyundai-tucson-korotkaya-baza-2021-2024.html"
+  ],
+  "prepared_photo": true,
+  "prepared_fitments": [
+    {
+      "make": "HYUNDAI",
+      "model": "TUCSON",
+      "years": "2021–2026",
+      "notes": "Только короткая база. Коврик багажника, полиуретан, чёрный, 1 деталь. Годы взяты из отображаемого названия точной карточки продавца; в URL сохранён старый диапазон. Двигатель не указан."
+    }
+  ],
+  "source_url": "https://mirdopov.ru/katalog/dopolnitelnoe-oborudovanie/kovryki-v-bagazhnoe-otdelenye-poliuretan/hyundai/tucson/kovrik-v-bagazhnik-polimernyy-norplast-dlya-hyundai-tucson-korotkaya-baza-2021-2024.html",
+  "source_label": "МирДопов — точная карточка NORPLAST NPA00-T31-736",
+  "publication": {
+    "commit": "ac502e32921593bf8c9f8352da8a2697eb46106d",
+    "deploy": "dep-dbqisoijnfac73bjkkl0",
+    "db_verified": true,
+    "ui_verified": true,
+    "main_and_thumbnail_verified": true
+  },
+  "current_state": {
+    "main_image": "products/optimized/83cf2a03baf065b8dfe68e0a4e1a6f771ff6309831f29d78120ef55007252b26.webp",
+    "supplier_thumbnail": "products/optimized/860c8c89359eef1b57d24ad045d69fc9ce70c5acd423333fcb2d1f8a5a41166d.webp",
+    "has_fitment": true,
+    "photo_status": "done",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 26271
+}

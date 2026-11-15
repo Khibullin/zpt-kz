@@ -1,0 +1,49 @@
+{
+  "article": "SLK-E080L",
+  "brand": "555",
+  "cost": 4515,
+  "has_fitment": true,
+  "id": 22392,
+  "kaspi_price": 7107,
+  "kaspi_url": "https://kaspi.kz/shop/p/555-stoika-stabilizatora-slk-e080l-174095185/?c=750000000",
+  "main_image": "",
+  "name": "555 Стойка стабилизатора",
+  "photo_status": "skipped",
+  "product_id": 4127,
+  "profit": 1453.625,
+  "stock": "10",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 2100,
+  "checked_at": "2026-11-12T03:12:02.880114+00:00",
+  "previous_journal": "procurement/data/enrichment_queue_items/3-22392.json",
+  "publication_status": "not_published",
+  "offer_id": 22392,
+  "status": "no_new_confirmed_source",
+  "new_queries": [
+    "555 SLK-E080L точный артикул фото применимость"
+  ],
+  "reason": "Новый поиск не подтвердил недостающие поля точной позиции. Результаты по другим брендам, похожим артикулам, общим категориям и неподтверждённой комплектности исключены. Существующие корректные данные сохранены. Ограниченные ранее источники повторно не запрашивались.",
+  "new_sources": [
+    "https://jps-osaka.co.jp/wp-content/uploads/2023/12/NEWS343A-555-Applications-to-European-Vehicles23.12.pdf",
+    "https://www.scribd.com/document/849380449/Altay-Topluluklar%C4%B1-Mesken-Ve-Mesken-Kulturu",
+    "https://jps-osaka.co.jp/wp-content/uploads/2022/07/NEWS334A-555-Applications-to-European-Vehicles22.7.pdf",
+    "https://www.motointegrator.at/artikel/2169573-stangestrebe-stabilisator-triclo-783750",
+    "https://www.scribd.com/document/580237122/0a9c4995c3f370f6321937c6dbc3a11d1",
+    "https://www.motointegrator.at/artikel/1561941-stangestrebe-stabilisator-febi-bilstein-17216-links",
+    "https://jps-osaka.co.jp/wp-content/uploads/2021/12/News-No.-328A.pdf",
+    "https://tachka.ru/stoyki-stabilizatora/audi/100/4",
+    "https://tachka.ru/stoyki-stabilizatora/skoda/superb/2?page=5",
+    "https://www.iparts.pl/auto-czesci/stabilizator-i-elementy-mocujace%2Caudi%2Ca4-b5-8d2-1994-11-2001-12%2C1-6%2C5-253-4613-100210%2Cpage17.html",
+    "https://www.motonet.fi/tuote/vakaajan-yhdystanko-18-1399?product=18-1399",
+    "https://spareto.com/products/moog-rod-strut-stabiliser/vo-ls-0157"
+  ],
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "skipped",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 22826
+}

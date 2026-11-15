@@ -1,0 +1,103 @@
+{
+  "schema": 1,
+  "checked_at": "2026-11-13T18:15:49.063Z",
+  "supplier_id": 5,
+  "supplier_name": "ЗаказАвто",
+  "offer_id": 25768,
+  "product_id": 7249,
+  "task_id": null,
+  "brand": "HYUNDAI-KIA",
+  "article": "495602S250",
+  "name": "Вал промежуточный Hyundai",
+  "research": {
+    "sources": [
+      {
+        "url": "https://partsouq.com/en/catalog/genuine/diagram?c=HYUNDAI202404&number=495602S150&vid=1738592031",
+        "kind": "independent_oem_catalogue",
+        "result": "Exact 495602S250 catalogue row. PartSouq exact-part search also lists IX35/Tucson 2009–2015 variants, but only the exact diagram configuration is structured here."
+      }
+    ],
+    "photo": {
+      "status": "not_confirmed",
+      "reason": "Catalogue page did not expose a confirmed real exact-item image distinct from branding/diagram; no photo saved."
+    },
+    "fitment": {
+      "status": "prepared",
+      "make": "HYUNDAI",
+      "model": "ix35 / Tucson",
+      "details": "модельные годы 2010; 2011 · EUR, Slovakia plant · 2.0 Theta II · АКПП 6-ступ. · 4WD",
+      "configurations": [
+        {
+          "years": [
+            2010,
+            2011
+          ],
+          "region": "EUR",
+          "plant": "Slovakia",
+          "engine": "2.0 Theta II",
+          "transmission": "6-speed automatic",
+          "drive": "4WD",
+          "source_scope": "Exact 495602S250 catalogue row; not asserted complete for all markets"
+        }
+      ],
+      "source_url": "https://partsouq.com/en/catalog/genuine/diagram?c=HYUNDAI202404&number=495602S150&vid=1738592031"
+    }
+  },
+  "after": {
+    "prepared_fitment": true,
+    "photo_unchanged": true,
+    "database_saved": true,
+    "ui_verified": true,
+    "db_verified": true,
+    "ui_url": "https://zpt.kz/hyundai-zpt-25768/",
+    "saved_at": "2026-11-14T11:23:33.791Z",
+    "deploy_id": "dep-dbs48i7f3r2c73dv4ch0",
+    "live_commit": "110eaf511252b2ab18f16d51a48660fc25728c57",
+    "photo_added": true,
+    "main_image": "products/optimized/9cfc89f1d2a53f29c835053adb1273841d16e1df45c03462204b88b40a9b490a.webp",
+    "supplier_thumbnail": "products/optimized/1a920cc38a1528a61a21a9b180786a2754c297e4aa78fa340d250005d30146f6.webp"
+  },
+  "state": "saved_and_verified",
+  "next_offer_id": 25765,
+  "recheck_20261114": {
+    "status": "photo_saved_and_verified",
+    "checked_at": "2026-11-14T11:23:33.791Z",
+    "missing_after": [],
+    "sources_checked": [
+      {
+        "url": "https://tachka.ru/hyundai-kia/495602S250",
+        "kind": "independent_exact_part_catalogue",
+        "result": "Exact Product JSON-LD: Hyundai / Kia, SKU and MPN 495602S250; real JPEG product image."
+      },
+      {
+        "url": "https://img.tachka.ru/Se9Y9wUg7aA5s5JNcNgnk4QuQFg=/trim:top-left:50/fit-in/1500x1875/brand/hyundai-kia/691b297c20bf6f7bd988450517a7db84.jpeg",
+        "kind": "exact_source_image",
+        "result": "JPEG 940x594, 42289 bytes; optimized by the sole deployed consumer."
+      }
+    ],
+    "reason": null,
+    "prepared": true,
+    "queued": true,
+    "saved": true,
+    "verified": true,
+    "task_status": "done",
+    "main_image": "products/optimized/9cfc89f1d2a53f29c835053adb1273841d16e1df45c03462204b88b40a9b490a.webp",
+    "thumbnail": "products/optimized/1a920cc38a1528a61a21a9b180786a2754c297e4aa78fa340d250005d30146f6.webp",
+    "main_size": [
+      800,
+      506
+    ],
+    "thumbnail_size": [
+      180,
+      114
+    ],
+    "source_date": "2026-11-14",
+    "deploy_id": "dep-dbs48i7f3r2c73dv4ch0",
+    "live_commit": "110eaf511252b2ab18f16d51a48660fc25728c57",
+    "db_verified": true,
+    "ui_verified": true,
+    "ui_url": "https://zpt.kz/hyundai-zpt-25768/",
+    "file_http_verified": true,
+    "next_offer_id": 25765
+  }
+}

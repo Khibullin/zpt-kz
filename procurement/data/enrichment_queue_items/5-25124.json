@@ -1,0 +1,42 @@
+{
+  "article": "W339747SA",
+  "brand": "WINKOD",
+  "cost": 9800,
+  "has_fitment": true,
+  "id": 25124,
+  "kaspi_price": 12870,
+  "kaspi_url": "https://kaspi.kz/shop/p/winkod-zadnii-w339747sa-1-sht-116134919/?c=750000000",
+  "main_image": "",
+  "name": "Амортизатор задний Hyundai",
+  "photo_status": "needs_source",
+  "product_id": 6849,
+  "profit": 1211.25,
+  "stock": "1",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 4822,
+  "offer_id": 25124,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "Точное независимое фото WINKOD W339747SA не найдено двумя поисковыми движками. Артикул присутствует только в списках заменителей Mando/CTR/KYB; фотографии этих брендов исключены. Существующая применимость сохранена. Фактический артикул текущей БД — W339747SA, без выдуманной приставки D.",
+  "checked_sources": [
+    {
+      "query": "WINKODW339747SA; два поисковых движка",
+      "result": "Найдены только кроссы других производителей, не фото точного WINKOD."
+    },
+    {
+      "url": "https://baza.drom.ru/g18316803693.html",
+      "result": "Поисковая основная карточка MandoEX553511F800, W339747SA лишь в заменах."
+    }
+  ],
+  "next_offer_id": 26926,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true
+  }
+}

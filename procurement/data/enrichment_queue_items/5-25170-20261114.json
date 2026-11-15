@@ -1,0 +1,361 @@
+{
+  "schema": 1,
+  "checked_on": "2026-11-15",
+  "checked_at": "2026-11-14T23:06:38.367086Z",
+  "supplier_id": 5,
+  "supplier": "ЗаказАвто",
+  "offer_id": 25170,
+  "product_id": 6841,
+  "task_id": 4814,
+  "brand": "TRIALLI",
+  "article": "AG 03007",
+  "name": "Амортизатор передний",
+  "stock_before": "4",
+  "cost_before": "6300.00",
+  "before": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "fitment_rows": 0,
+    "reviewed_applicability": null
+  },
+  "prepared": {
+    "photo": {
+      "status": "confirmed_exact",
+      "source_url": "https://shop.globalparts.kz/catalog/card/184634",
+      "image_url": "https://resources.cdn-kaspi.kz/img/m/p/h6d/h92/67650614853662.jpg?format=gallery-large",
+      "image_sha256": "be528163f9a869771d76beabf475f162dad3c2c58a7d747a67e79c187d06da44",
+      "source_size": [
+        627,
+        373
+      ],
+      "checked_on": "2026-11-15",
+      "execution": "front shock absorber",
+      "placement": "front",
+      "side": "left/right",
+      "package_quantity": 1,
+      "visual_check": "real shock absorber with TRIALLI package; no car or placeholder"
+    },
+    "fitment": {
+      "status": "published",
+      "make_model_pairs": 5,
+      "configuration_count": 11,
+      "engine_rows": 11,
+      "source_kind": "manufacturer_catalogue",
+      "source_url": "https://trialli.ru/catalogue/amortizatory-i-opory/amortizatory/ag-03007/",
+      "scope": "UAZ 3160 Closed Off-Road Vehicle, PICKUP, Patriot, SIMBIR (3162) Closed Off-Road Vehicle and UAZ 3160; 11 exact modification/engine/year configurations; front left/right; one supplied unit and two units per vehicle. Published ranges and open-ended periods preserved exactly."
+    }
+  },
+  "queued": {
+    "status": "github_commit_autodeploy",
+    "commit": "d39cbeba64f46d71dfe6d9abe089cc4b5bd122e3",
+    "deploy_id": "dep-dbseh2k9v7es73bs2p90",
+    "queued_at": "2026-11-14T23:02:34.797154Z",
+    "task_status_before": "needs_source",
+    "staged_status": "weekend15f_ready"
+  },
+  "saved": {
+    "status": "live_db_saved",
+    "photo_saved": true,
+    "thumbnail_saved": true,
+    "fitment_preserved": true,
+    "saved_at": "2026-11-14T23:04:57.777653Z",
+    "main_path": "products/optimized/a3982440592dd649ab7162893ededc1e7233ca9865866a457c16bfac719e8c13.webp",
+    "thumbnail_path": "products/optimized/02fb6c3ddd42330454c3f1b144dea9cb5d7278b340d7497a78977382d5c41453.webp",
+    "main_size": [
+      627,
+      373
+    ],
+    "thumbnail_size": [
+      180,
+      107
+    ],
+    "main_bytes": 13792,
+    "thumbnail_bytes": 1804,
+    "source_bytes": 46609,
+    "fitment_rows": 5,
+    "configuration_count": 11,
+    "task_status": "done"
+  },
+  "after": {
+    "main_image": "products/optimized/a3982440592dd649ab7162893ededc1e7233ca9865866a457c16bfac719e8c13.webp",
+    "supplier_thumbnail": "products/optimized/02fb6c3ddd42330454c3f1b144dea9cb5d7278b340d7497a78977382d5c41453.webp",
+    "fitments": [
+      {
+        "configurations": [
+          {
+            "engine": "2.9 · UMZ-4218",
+            "engine_cc": 2890,
+            "engine_code": "UMZ-4218",
+            "modification": "2.9",
+            "package_quantity": 1,
+            "placement": "front",
+            "power_hp": 104,
+            "quantity_per_vehicle": 2,
+            "side": "left/right",
+            "source_url": "https://trialli.ru/catalogue/amortizatory-i-opory/amortizatory/ag-03007/",
+            "years": "1994-2003"
+          },
+          {
+            "engine": "2.9 i · UMZ-4213.10",
+            "engine_cc": 2890,
+            "engine_code": "UMZ-4213.10",
+            "modification": "2.9 i",
+            "package_quantity": 1,
+            "placement": "front",
+            "power_hp": 120,
+            "quantity_per_vehicle": 2,
+            "side": "left/right",
+            "source_url": "https://trialli.ru/catalogue/amortizatory-i-opory/amortizatory/ag-03007/",
+            "years": "1994-2003"
+          },
+          {
+            "engine": "2.7 4x4 · ZMZ-409210",
+            "engine_cc": 2693,
+            "engine_code": "ZMZ-409210",
+            "modification": "2.7 4x4",
+            "package_quantity": 1,
+            "placement": "front",
+            "power_hp": 132,
+            "quantity_per_vehicle": 2,
+            "side": "left/right",
+            "source_url": "https://trialli.ru/catalogue/amortizatory-i-opory/amortizatory/ag-03007/",
+            "years": "2000-2003"
+          }
+        ],
+        "details": "Передний левый/правый, двухтрубный гидравлический с газовым подпором низкого давления; 1 шт. в комплекте, 2 шт. на автомобиль.",
+        "id": 111513,
+        "make": "UAZ",
+        "model": "3160 Closed Off-Road Vehicle",
+        "source_url": "https://trialli.ru/catalogue/amortizatory-i-opory/amortizatory/ag-03007/",
+        "verified": true
+      },
+      {
+        "configurations": [
+          {
+            "engine": "2.2 D 4x4 · ZMZ-51432",
+            "engine_cc": 2235,
+            "engine_code": "ZMZ-51432",
+            "modification": "2.2 D 4x4",
+            "package_quantity": 1,
+            "placement": "front",
+            "power_hp": 114,
+            "quantity_per_vehicle": 2,
+            "side": "left/right",
+            "source_url": "https://trialli.ru/catalogue/amortizatory-i-opory/amortizatory/ag-03007/",
+            "years": "2009-н.в."
+          },
+          {
+            "engine": "2.7 4x4 · ZMZ-40906 / ZMZ-409051 / ZMZ-40904",
+            "engine_cc": 2693,
+            "engine_code": "ZMZ-40906 / ZMZ-409051 / ZMZ-40904",
+            "modification": "2.7 4x4",
+            "package_quantity": 1,
+            "placement": "front",
+            "power_hp": "135,150,128",
+            "quantity_per_vehicle": 2,
+            "side": "left/right",
+            "source_url": "https://trialli.ru/catalogue/amortizatory-i-opory/amortizatory/ag-03007/",
+            "years": "2009-н.в."
+          }
+        ],
+        "details": "Передний левый/правый, двухтрубный гидравлический с газовым подпором низкого давления; 1 шт. в комплекте, 2 шт. на автомобиль.",
+        "id": 111514,
+        "make": "UAZ",
+        "model": "PICKUP",
+        "source_url": "https://trialli.ru/catalogue/amortizatory-i-opory/amortizatory/ag-03007/",
+        "verified": true
+      },
+      {
+        "configurations": [
+          {
+            "engine": "2.7 · ZMZ-409.10 / ZMZ-409210 / ZMZ-409051 / ZMZ-40906",
+            "engine_cc": 2693,
+            "engine_code": "ZMZ-409.10 / ZMZ-409210 / ZMZ-409051 / ZMZ-40906",
+            "modification": "2.7",
+            "package_quantity": 1,
+            "placement": "front",
+            "power_hp": "128,112,150,135",
+            "quantity_per_vehicle": 2,
+            "side": "left/right",
+            "source_url": "https://trialli.ru/catalogue/amortizatory-i-opory/amortizatory/ag-03007/",
+            "years": "2004-н.в."
+          },
+          {
+            "engine": "2.3 D · F1AE0481A",
+            "engine_cc": 2286,
+            "engine_code": "F1AE0481A",
+            "modification": "2.3 D",
+            "package_quantity": 1,
+            "placement": "front",
+            "power_hp": 116,
+            "quantity_per_vehicle": 2,
+            "side": "left/right",
+            "source_url": "https://trialli.ru/catalogue/amortizatory-i-opory/amortizatory/ag-03007/",
+            "years": "2006-н.в."
+          },
+          {
+            "engine": "2.2 D",
+            "engine_cc": 2235,
+            "engine_code": "",
+            "modification": "2.2 D",
+            "package_quantity": 1,
+            "placement": "front",
+            "power_hp": 114,
+            "quantity_per_vehicle": 2,
+            "side": "left/right",
+            "source_url": "https://trialli.ru/catalogue/amortizatory-i-opory/amortizatory/ag-03007/",
+            "years": "2004-н.в."
+          },
+          {
+            "engine": "2.7 LPG (3164) · ZMZ-40904",
+            "engine_cc": 2693,
+            "engine_code": "ZMZ-40904",
+            "modification": "2.7 LPG (3164)",
+            "package_quantity": 1,
+            "placement": "front",
+            "power_hp": 128,
+            "quantity_per_vehicle": 2,
+            "side": "left/right",
+            "source_url": "https://trialli.ru/catalogue/amortizatory-i-opory/amortizatory/ag-03007/",
+            "years": "2004-н.в."
+          }
+        ],
+        "details": "Передний левый/правый, двухтрубный гидравлический с газовым подпором низкого давления; 1 шт. в комплекте, 2 шт. на автомобиль.",
+        "id": 111515,
+        "make": "UAZ",
+        "model": "Patriot",
+        "source_url": "https://trialli.ru/catalogue/amortizatory-i-opory/amortizatory/ag-03007/",
+        "verified": true
+      },
+      {
+        "configurations": [
+          {
+            "engine": "2.7 4x4 · ZMZ-409210",
+            "engine_cc": 2693,
+            "engine_code": "ZMZ-409210",
+            "modification": "2.7 4x4",
+            "package_quantity": 1,
+            "placement": "front",
+            "power_hp": 128,
+            "quantity_per_vehicle": 2,
+            "side": "left/right",
+            "source_url": "https://trialli.ru/catalogue/amortizatory-i-opory/amortizatory/ag-03007/",
+            "years": "2004-2007"
+          }
+        ],
+        "details": "Передний левый/правый, двухтрубный гидравлический с газовым подпором низкого давления; 1 шт. в комплекте, 2 шт. на автомобиль.",
+        "id": 111516,
+        "make": "UAZ",
+        "model": "SIMBIR (3162) Closed Off-Road Vehicle",
+        "source_url": "https://trialli.ru/catalogue/amortizatory-i-opory/amortizatory/ag-03007/",
+        "verified": true
+      },
+      {
+        "configurations": [
+          {
+            "engine": "2.9 (31601) · UMZ 4210",
+            "engine_cc": 2890,
+            "engine_code": "UMZ 4210",
+            "modification": "2.9 (31601)",
+            "package_quantity": 1,
+            "placement": "front",
+            "power_hp": 98,
+            "quantity_per_vehicle": 2,
+            "side": "left/right",
+            "source_url": "https://trialli.ru/catalogue/amortizatory-i-opory/amortizatory/ag-03007/",
+            "years": "1997-2004"
+          }
+        ],
+        "details": "Передний левый/правый, двухтрубный гидравлический с газовым подпором низкого давления; 1 шт. в комплекте, 2 шт. на автомобиль.",
+        "id": 111517,
+        "make": "UAZ",
+        "model": "UAZ 3160",
+        "source_url": "https://trialli.ru/catalogue/amortizatory-i-opory/amortizatory/ag-03007/",
+        "verified": true
+      }
+    ],
+    "stock": "4",
+    "cost": "6300.00",
+    "kaspi_price": "15200.00",
+    "product_price": "8190.00",
+    "task_status": "done"
+  },
+  "verification": {
+    "source_verified": true,
+    "db_verified": true,
+    "fitment_verified": true,
+    "photo_verified": true,
+    "thumbnail_verified": true,
+    "ui_verified": true,
+    "ui_url": "https://zpt.kz/product-zpt-25170/",
+    "ui_verified_at": "2026-11-14T23:06:38.367086Z",
+    "ui_http_status": 200,
+    "ui_evidence": [
+      "Основное изображение отображается в карточке 627x373",
+      "TRIALLI AG 03007",
+      "UAZ 3160 / Patriot / PICKUP / SIMBIR",
+      "11 подтверждённых конфигураций",
+      "Передний левый/правый",
+      "1 шт. в комплекте; 2 шт. на автомобиль"
+    ],
+    "image_rendered": true,
+    "main_size": [
+      627,
+      373
+    ],
+    "thumbnail_size": [
+      180,
+      107
+    ]
+  },
+  "sources": [
+    {
+      "kind": "manufacturer_catalogue",
+      "url": "https://trialli.ru/catalogue/amortizatory-i-opory/amortizatory/ag-03007/",
+      "checked_on": "2026-11-14",
+      "exact_brand": "TRIALLI",
+      "exact_article": "AG 03007",
+      "scope": "Characteristics, package quantity, placement, side and full applicability table; manufacturer CDN returned 403 and was not bypassed."
+    },
+    {
+      "kind": "exact_kz_catalogue_card_and_item_image",
+      "url": "https://shop.globalparts.kz/catalog/card/184634",
+      "image_url": "https://resources.cdn-kaspi.kz/img/m/p/h6d/h92/67650614853662.jpg?format=gallery-large",
+      "checked_on": "2026-11-15",
+      "exact_brand": "TRIALLI",
+      "source_article": "AG03007",
+      "matched_article": "AG 03007",
+      "scope": "Front shock absorber; left/right; one unit; real product image with TRIALLI package.",
+      "used_for": "photo and independent exact identity confirmation"
+    }
+  ],
+  "status": "photo_saved_and_verified_fitment_preserved",
+  "skip_reason": null,
+  "next": {
+    "supplier_id": 5,
+    "offer_id": 25129,
+    "product_id": 6713,
+    "task_id": 4686,
+    "brand": "HYUNDAI-KIA",
+    "article": "553102P500",
+    "action": "recheck exact sources after fresh time/load/DB/lease checks"
+  },
+  "trade_data_unchanged": true,
+  "rechecked_on": "2026-11-15",
+  "rechecked_at": "2026-11-14T23:06:38.367086Z",
+  "recheck": {
+    "directive": "owner-directed repeat review of first 19 items with expanded manufacturer/KZ/RU/international/OEM/cross-number search",
+    "source_result": "new_exact_kz_catalogue_photo_confirmed_and_saved",
+    "exact_identity": {
+      "brand": "TRIALLI",
+      "article": "AG 03007",
+      "source_article": "AG03007",
+      "execution": "front shock absorber",
+      "placement": "front",
+      "side": "left/right",
+      "package_quantity": 1
+    },
+    "new_fitment_written": false,
+    "existing_fitment_preserved": true
+  }
+}

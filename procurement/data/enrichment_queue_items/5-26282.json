@@ -1,0 +1,46 @@
+{
+  "article": "3550200U2230",
+  "brand": "JASHI",
+  "cost": 4500,
+  "has_fitment": true,
+  "id": 26282,
+  "kaspi_price": 6630,
+  "kaspi_url": "https://kaspi.kz/shop/p/jashi-datchik-abs-3550200u2230-120304791/?c=750000000",
+  "main_image": "",
+  "name": "Датчик системы JAC",
+  "photo_status": "needs_source",
+  "product_id": 7873,
+  "profit": 1051.25,
+  "stock": "11",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 5846,
+  "offer_id": 26282,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "Точное независимое фото JASHI3550200U2230 не найдено. Первый поисковый движок не дал результатов; второй нашёл JAC/OE и авторазбор JAC, а не JASHI. Фото других брендов исключены; существующая применимость сохранена.",
+  "checked_sources": [
+    {
+      "query": "JASHI3550200U2230; два поисковых движка",
+      "result": "Точное фотоJASHIне найдено; JAC/OEиразбордругогобренда."
+    },
+    {
+      "url": "https://www.tcrossa.ru/catalog/jac/zapchasti/datchik-abs",
+      "result": "Поисковая карточка JAC3550200U2230, неJASHI."
+    },
+    {
+      "url": "https://jacspb.ru/originalnyie-zapchasti-jac/elektrika/?page=8",
+      "result": "Поисковая карточка оригинальногоJAC, неJASHI."
+    }
+  ],
+  "next_offer_id": null,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true
+  }
+}

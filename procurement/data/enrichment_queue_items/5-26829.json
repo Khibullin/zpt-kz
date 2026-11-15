@@ -1,0 +1,76 @@
+{
+  "article": "PCI1150",
+  "brand": "PATRON",
+  "cost": 7200,
+  "has_fitment": true,
+  "id": 26829,
+  "kaspi_price": 10746,
+  "kaspi_url": "https://kaspi.kz/shop/p/katushka-zazhiganija-patron-pci1150-114774851/?c=750000000",
+  "main_image": "",
+  "name": "Катушка зажигания Chevrolet",
+  "photo_status": "needs_source",
+  "product_id": 8478,
+  "profit": 1952.75,
+  "stock": "2",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 6451,
+  "offer_id": 26829,
+  "status": "published_complete",
+  "checked_on": "2026-11-11",
+  "source_url": "https://texkom.ru/catalog/katushka-zazhiganiya/katushka-zazhiganiya-patron-pci1150/",
+  "source_label": "Техком — независимый каталог продавца",
+  "source_kind": "retailer_catalogue",
+  "source_article": "PCI1150",
+  "fitments": [],
+  "fitment_note": "Существующая применимость сохранена.",
+  "image_url": "https://texkom.ru/upload/texkom/catalog/e0a/2799241/460976/322x322/katushka-zazhiganiya-patron-pci1150.jpeg",
+  "image_note": "ТочнаяPATRONPCI1150: реальнаяфотографияоднойкатушкизажиганияспроизводственнымводянымзнакомPATRON,разъёмикреплениевидны. Существующаяприменимостьсохранена.",
+  "photo": {
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/e9a141b793a092770e4a21abc914723482eea2f8ca80fb4a4bcf16bb56d130e8.webp",
+    "thumbnail_path": "products/optimized/580fb67ed90cb1cfa5be37451df6cd17d72dd950f0d9c832740acf1d5b72c6b4.webp",
+    "main_size": [
+      450,
+      450
+    ],
+    "thumbnail_size": [
+      180,
+      180
+    ]
+  },
+  "fitment_status": "existing_preserved",
+  "checked_sources": [
+    {
+      "url": "https://texkom.ru/catalog/katushka-zazhiganiya/katushka-zazhiganiya-patron-pci1150/",
+      "result": "ТочнаяPATRONPCI1150: реальнаяфотографияоднойкатушкизажиганияспроизводственнымводянымзнакомPATRON,разъёмикреплениевидны. Существующаяприменимостьсохранена."
+    }
+  ],
+  "next_offer_id": 26288,
+  "verification": {
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T11:06:11.850Z"
+  },
+  "source_sha256": "5bedd6025ed091e950ef0ca000f1e97233cda8d37a1daec76af4f7f24dc53bc0",
+  "main_sha256": "e9a141b793a092770e4a21abc914723482eea2f8ca80fb4a4bcf16bb56d130e8",
+  "main_size": [
+    450,
+    450
+  ],
+  "thumbnail_sha256": "580fb67ed90cb1cfa5be37451df6cd17d72dd950f0d9c832740acf1d5b72c6b4",
+  "thumbnail_size": [
+    180,
+    180
+  ],
+  "publication": {
+    "commit": "44a99fc6d2aca7ad840396d2d3d5420d4cbea950",
+    "deploy": "dep-dbq4mt7f3r2c73b8rv50",
+    "status": "live"
+  }
+}

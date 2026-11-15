@@ -107,39 +107,6 @@ class SelectionPerformanceTests(TestCase):
         form = SelectionFilterForm({'supplier': self.supplier.pk, 'vehicle_make': 'NEW'})
         self.assertEqual(form.fields['vehicle_model'].choices[-1], ('NEW MODEL', 'NEW MODEL'))
 
-    @patch('procurement.filter_options.options_cache_allowed', return_value=True)
-    def test_price_and_photo_updates_keep_cached_dictionaries(self, allowed):
-        from .filter_options import cache, REVISION_KEY
-        SelectionFilterForm({'supplier': self.supplier.pk})
-        revision = cache.get(REVISION_KEY)
-        self.priced.photo_url = 'https://example.com/exact-part.jpg'
-        self.priced.kaspi_price = 2500
-        self.priced.save(update_fields=['photo_url', 'kaspi_price'])
-        self.assertEqual(cache.get(REVISION_KEY), revision)
-        with CaptureQueriesContext(connection) as queries:
-            SelectionFilterForm({'supplier': self.supplier.pk})
-        self.assertEqual(len(queries), 0)
-
-    @patch('procurement.filter_options.options_cache_allowed', return_value=True)
-    def test_generations_and_years_cached_without_losing_supplier_scope(self, allowed):
-        fitment = self.offers[0].fitments.get()
-        fitment.configurations = [{'generation': 'G1', 'years': '2010–2012'}]
-        fitment.save(update_fields=['configurations'])
-        params = {'supplier': self.supplier.pk, 'vehicle_make': 'Make 0', 'vehicle_model': 'Model 0'}
-        form = SelectionFilterForm(params)
-        self.assertEqual(form.fields['vehicle_generation'].choices[-1], ('G1', 'G1'))
-        self.assertEqual(form.fields['vehicle_years'].choices, [('2012', '2012'), ('2011', '2011'), ('2010', '2010')])
-        with CaptureQueriesContext(connection) as queries:
-            SelectionFilterForm(params)
-        self.assertEqual(len(queries), 0)
-        other = Supplier.objects.create(name='Other supplier')
-        self.assertEqual(SelectionFilterForm({'supplier': other.pk}).fields['vehicle_years'].choices, [])
-        fitment.configurations = [{'generation': 'G2', 'years': '2014'}]
-        fitment.save(update_fields=['configurations'])
-        form = SelectionFilterForm(params)
-        self.assertEqual(form.fields['vehicle_generation'].choices[-1], ('G2', 'G2'))
-        self.assertEqual(form.fields['vehicle_years'].choices, [('2014', '2014')])
-
     def test_list_limits_fitments_but_detail_retains_all(self):
         VehicleFitment.objects.bulk_create([
             VehicleFitment(offer=self.offers[0], make='EXTRA', model=f'Model {i}', verified=True)
@@ -151,27 +118,3 @@ class SelectionPerformanceTests(TestCase):
         self.assertContains(response, 'Все модели и модификации')
         detail = self.client.get(reverse('procurement:detail', args=[offer.pk]))
         self.assertEqual(detail.context['offer'].fitments.count(), 21)
-
-    def test_persisted_filter_dictionary_keeps_verified_supplier_scope(self):
-        from .filter_snapshots import refresh_filter_snapshots, snapshot_options
-        from .filter_options import supplier_options, supplier_years, supplier_generations
-        fit = self.offers[0].fitments.get()
-        fit.configurations = [{'generation': 'G1', 'years': '2010–2012'}]
-        fit.save()
-        other = Supplier.objects.create(name='Snapshot other')
-        offer = Offer.objects.create(supplier=other, brand='X', article='X', name='Other', cost=1)
-        VehicleFitment.objects.create(offer=offer, make='Other', model='Other', verified=True,
-            configurations=[{'years':'2020','generation':'G2'}])
-        VehicleFitment.objects.create(offer=offer, make='Unverified', model='Hidden', verified=False,
-            configurations=[{'years':'1990'}])
-        refresh_filter_snapshots(force=True)
-        data = snapshot_options(self.supplier.pk)
-        self.assertEqual(data['years'], [2012, 2011, 2010])
-        self.assertNotIn('Other', data['models'])
-        self.assertNotIn('Unverified', snapshot_options(None)['models'])
-        with patch.object(connection, 'vendor', 'postgresql'):
-            with CaptureQueriesContext(connection) as queries:
-                self.assertEqual(supplier_years(self.supplier.pk), [2012, 2011, 2010])
-                self.assertEqual(supplier_generations(self.supplier.pk, 'Make 0','Model 0'), ['G1'])
-                self.assertIn('Make 0', supplier_options(self.supplier.pk)[1])
-        self.assertEqual(len(queries), 0)  # No fitment scan on a page request.

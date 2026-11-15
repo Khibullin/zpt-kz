@@ -68,8 +68,6 @@ class Offer(models.Model):
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=['supplier', 'brand', 'article'], name='procurement_supplier_article')]
-        indexes = [models.Index(fields=['supplier', 'category'], name='proc_offer_supplier_category'),
-                   models.Index(fields=['supplier', 'id'], include=['cost', 'kaspi_price'], name='proc_offer_catalog_rank')]
         ordering = ['brand', 'article', 'pk']
 
 
@@ -146,7 +144,6 @@ class VehicleFitment(models.Model):
 
     class Meta:
         ordering = ['make', 'model', 'pk']
-        indexes = [models.Index(fields=['verified', 'make', 'model', 'offer'], name='proc_fitment_filter_options')]
         constraints = [models.UniqueConstraint(fields=['offer', 'make', 'model', 'details'], name='procurement_vehicle_fitment')]
 
     def __str__(self):
@@ -278,6 +275,3 @@ class RetailPublicationRun(models.Model):
     summary = models.JSONField(default=dict)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
-
-from .kaspi_models import KaspiPreparedCard, KaspiCardImage, KaspiCardPrice, KaspiPricingRule, KaspiCardJob, KaspiPriceFeed  # noqa: E402,F401

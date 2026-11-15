@@ -1,0 +1,42 @@
+{
+  "article": "1721580103",
+  "brand": "SsangYong",
+  "cost": 10900,
+  "has_fitment": true,
+  "id": 26806,
+  "kaspi_price": 14199,
+  "kaspi_url": "https://kaspi.kz/shop/p/katushka-zazhiganija-ssang-yong-1721580103-113193077/?c=750000000",
+  "main_image": "",
+  "name": "Катушка зажигания SsangYong",
+  "photo_status": "needs_source",
+  "product_id": 8329,
+  "profit": 1274.125,
+  "stock": "2",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 6302,
+  "checked_at": "2026-11-12T03:12:02.163916+00:00",
+  "previous_journal": "procurement/data/enrichment_queue_items/5-26806.json",
+  "publication_status": "not_published",
+  "offer_id": 26806,
+  "status": "no_new_confirmed_source",
+  "new_queries": [
+    "SsangYong 1721580103 точный артикул фото применимость"
+  ],
+  "reason": "Новый поиск не подтвердил недостающие поля точной позиции. Результаты по другим брендам, похожим артикулам, общим категориям и неподтверждённой комплектности исключены. Существующие корректные данные сохранены. Ограниченные ранее источники повторно не запрашивались.",
+  "new_sources": [
+    "https://www.tcrossa.ru/catalog/jac/zapchasti/generator",
+    "https://kaspi.kz/shop/p/katushka-zazhiganija-ssang-yong-1721580103-120304869/",
+    "https://startvolt.com/catalogue/detali-sistemy-zazhiganiya-i-nakalivaniya/katushki-zazhiganiya/katushka-zazhiganiya-dlya-avtomobiley-actyon-12-korando-c-12-2-0i-sc-1702/",
+    "https://b2b.autorus.ru/get_brand_full_info?brandName=SSANG+YONG&source=brandslist&start=140",
+    "https://kaspi.kz/shop/p/jac-zaglushka-2803105u226k-jac-s3-pro-120544348/"
+  ],
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 26301
+}

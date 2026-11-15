@@ -1,0 +1,35 @@
+{
+  "article": "86512L1100",
+  "brand": "JASHI",
+  "has_fitment": true,
+  "id": 25532,
+  "kaspi_url": "https://kaspi.kz/shop/p/jashi-bamper-86512l1100-dlja-hyundai-sonata-2019-2024-119672283/?c=750000000",
+  "main_image": "",
+  "name": "Бампер передний Hyundai",
+  "photo_status": "needs_source",
+  "product_id": 7149,
+  "profit": 3815,
+  "stock": "1",
+  "supplier_id": 5,
+  "task_id": 5122,
+  "offer_id": 25532,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "source_access_restricted",
+    "reason": "Точная карточка GlobalParts используетKaspiCDN. После прежнего отказа изображение не запрашивалось;существующая применимость сохранена."
+  },
+  "checked_sources": [
+    {
+      "url": "https://shop.globalparts.kz/catalog/card/258402",
+      "result": "exactbrandarticle;photoKaspiCDN notrequestedafterdenial"
+    }
+  ],
+  "next_offer_id": 26490,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true
+  }
+}

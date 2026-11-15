@@ -1,5 +1,4 @@
 import os
-import tempfile
 import sys
 from pathlib import Path
 
@@ -498,13 +497,6 @@ TELEGRAM_SUBSCRIBER_DELIVERY_SINCE = os.getenv('TELEGRAM_SUBSCRIBER_DELIVERY_SIN
 # Cache only public facet counts, never prices, availability, users or carts.
 CACHES = {
     "default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
-    # Shared by request threads/processes on this instance. Only non-personal
-    # filter dictionaries live here; never prices, stock, baskets or sessions.
-    "procurement_options": {
-        "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
-        "LOCATION": os.path.join(tempfile.gettempdir(), "zpt-procurement-options"),
-        "OPTIONS": {"MAX_ENTRIES": 128},
-    },
     "storefront_common": {
         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
         "LOCATION": "storefront-common",
@@ -521,9 +513,3 @@ CACHES = {
         "OPTIONS": {"MAX_ENTRIES": 32},
     },
 }
-
-# The existing full price feed is merged, never replaced by just purchased items.
-KASPI_BASELINE_PRICE_FEED_URL = os.getenv('KASPI_BASELINE_PRICE_FEED_URL', '').strip()
-KASPI_POINT_OF_SERVICE = os.getenv('KASPI_POINT_OF_SERVICE', '').strip()
-KASPI_LOCAL_WAREHOUSE = os.getenv('KASPI_LOCAL_WAREHOUSE', 'PP2').strip()
-KASPI_PRICE_FEED_CONNECTED = _env_flag('KASPI_PRICE_FEED_CONNECTED', False)

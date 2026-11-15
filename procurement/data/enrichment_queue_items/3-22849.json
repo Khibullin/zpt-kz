@@ -1,0 +1,42 @@
+{
+  "article": "AS-82",
+  "brand": "AKIKA",
+  "cost": 11120,
+  "has_fitment": false,
+  "id": 22849,
+  "kaspi_price": 14328,
+  "kaspi_url": "https://kaspi.kz/shop/p/akika-zadnii-as-82-1-sht-113239680/?c=750000000",
+  "main_image": "",
+  "name": "AKIKA Амортизатор, зад. левый&правый",
+  "photo_status": "needs_source",
+  "product_id": 4578,
+  "profit": 1167,
+  "stock": "10",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 2551,
+  "offer_id": 22849,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "unconfirmed",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "AKIKA AS-82: два независимых поисковых индекса не нашли точной независимой карточки бренда/полного артикула. Нерелевантные совпадения AS-82 не подходят; фото и применимость не подтверждены.",
+  "checked_sources": [
+    {
+      "query": "\"AKIKA\" \"AS-82\"",
+      "result": "system2: no exact automotive result"
+    },
+    {
+      "query": "\"AKIKA\" \"AS-82\" автозапчасти",
+      "result": "system1: only own ZPT catalogue, no independent exact source"
+    }
+  ],
+  "next_offer_id": 22680,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": false
+  }
+}

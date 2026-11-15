@@ -1,0 +1,42 @@
+{
+  "article": "AS-57",
+  "brand": "AKIKA",
+  "cost": 13519,
+  "has_fitment": true,
+  "id": 22829,
+  "kaspi_price": 17980,
+  "kaspi_url": "https://kaspi.kz/shop/p/akika-perednii-as-57-1-sht-175071502/?c=750000000",
+  "main_image": "",
+  "name": "AKIKA Амортизатор, пер. правый",
+  "photo_status": "needs_source",
+  "product_id": 4558,
+  "profit": 1963.5,
+  "stock": "6",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 2531,
+  "offer_id": 22829,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "Точное независимое фото AKIKA AS-57 не найдено двумя поисковыми системами; результаты AS37/AS67/AS77/AS229 не соответствуют полному артикулу. Существующая применимость сохранена.",
+  "checked_sources": [
+    {
+      "query": "\"AKIKA\" \"AS-57\" амортизатор",
+      "result": "No exact independent result; unrelated Scribd"
+    },
+    {
+      "query": "\"AKIKA\" \"AS57\" амортизатор",
+      "result": "Other articles only; not accepted"
+    }
+  ],
+  "next_offer_id": 23297,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true
+  }
+}

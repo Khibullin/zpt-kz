@@ -1,0 +1,47 @@
+{
+  "article": "3705100XEN01",
+  "brand": "HAVAL",
+  "has_fitment": false,
+  "id": 26817,
+  "kaspi_url": "https://kaspi.kz/shop/p/katushka-zazhiganija-haval-3705100xen01-130359487/?c=750000000",
+  "main_image": "",
+  "name": "Катушка зажигания HAVAL",
+  "photo_status": "needs_source",
+  "product_id": 8192,
+  "profit": 4340,
+  "stock": "1",
+  "supplier_id": 5,
+  "task_id": 6165,
+  "offer_id": 26817,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "unconfirmed",
+  "photo": {
+    "status": "unconfirmed_brand_and_source",
+    "reason": "РОССА:точный номер,но нет фото и совместимость сформулирована «возможно,уточнитеVIN». Другие страницы дают KORTEX/STARTVOLT/BOSCH либо б/у HAVAL с неоднозначными годами; не импортировано."
+  },
+  "checked_sources": [
+    {
+      "url": "https://www.tcrossa.ru/part/detail-3705100xen01",
+      "result": "No photo; DARGO2.0GW4N20two configs listed,FAQ says possible confirmVIN. Insufficient firm fitment."
+    },
+    {
+      "url": "https://hyperauto.ru/brands/haval-gwm/",
+      "result": "Haval-GWM brand item seen insearch; follow-upfetch400BadRequest, not retried throughotherroute."
+    },
+    {
+      "url": "https://gw-store.ru/catalog/haval-dargo-2022-n-v-/katushka-zazhiganiya-haval-dargo-dargo-x-f7-ii-pokolenie-h7-tank-500-urban-gibrid-original-bosch-f-0/",
+      "result": "BOSCH F01R00A151; brand notexactHAVAL, notused."
+    },
+    {
+      "query": "\"HAVAL\" \"3705100XEN01\" -site:kaspi.kz -site:alta-karter.com",
+      "tool": "system2_search",
+      "result": "KORTEX/STARTVOLTanalogs and usedHAVAL listings; no accepted photo or firm sourcedfitment"
+    }
+  ],
+  "next_offer_id": 25111,
+  "verification": {
+    "trade_data_unchanged": true
+  }
+}

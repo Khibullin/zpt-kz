@@ -1,0 +1,36 @@
+{
+  "article": "546602B500",
+  "brand": "JASHI",
+  "has_fitment": true,
+  "id": 25271,
+  "kaspi_url": "https://kaspi.kz/shop/p/jashi-perednii-546602b500-1-sht-146877841/?c=750000000",
+  "main_image": "",
+  "name": "Амортизатор передний Hyundai",
+  "photo_status": "needs_source",
+  "product_id": 6960,
+  "profit": 3940,
+  "stock": "4",
+  "supplier_id": 5,
+  "task_id": 4933,
+  "offer_id": 25271,
+  "status": "reviewed_photo_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "exact_source_not_found",
+    "reason": "Точное фото JASHI 546602B500 в двух поисках не подтверждено. Имеющаяся применимость сохранена; фото иных артикулов/брендов не переносились."
+  },
+  "checked_sources": [
+    {
+      "query": "\"JASHI\" \"546602B500\" -site:kaspi.kz -site:alta-karter.com",
+      "tool": "system2+system1_search",
+      "result": "No independent exactphoto. Kaspi origin/CDN notrequested afterprior rejection."
+    }
+  ],
+  "next_offer_id": 25108,
+  "verification": {
+    "existing_fitment_preserved": true,
+    "trade_data_unchanged": true
+  }
+}

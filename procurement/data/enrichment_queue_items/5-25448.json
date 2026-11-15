@@ -1,0 +1,45 @@
+{
+  "article": "2803101U7300",
+  "brand": "JASHI",
+  "has_fitment": false,
+  "id": 25448,
+  "kaspi_url": "https://kaspi.kz/shop/p/jashi-bamper-2803101u7300-dlja-jac-j7-2020-2024-119282687/?c=750000000",
+  "main_image": "",
+  "name": "Бампер передний JAC",
+  "photo_status": "needs_source",
+  "product_id": 7116,
+  "profit": 4202.5,
+  "stock": "40",
+  "supplier_id": 5,
+  "task_id": 5089,
+  "offer_id": 25448,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "source_url": "",
+  "fitments": [],
+  "fitment_status": "unconfirmed",
+  "photo": {
+    "status": "unconfirmed_brand",
+    "reason": "Точный JASHI2803101U7300 не подтверждён:ATCT указывает JAC,RenoShop — аналог безбренда. Фото/применимость чужого бренда не перенесены."
+  },
+  "checked_sources": [
+    {
+      "url": "https://atct.kz/bamper-perednii-j7",
+      "result": "JACmanufacturer notJASHI;placeholder"
+    },
+    {
+      "url": "https://reno-shop.kz/product-tag/jac-j7/",
+      "result": "unnamedanalog2803101U7300,noconfirmedJASHI"
+    },
+    {
+      "query": "\"JASHI\" \"2803101U7300\" -site:kaspi.kz -site:alta-karter.com",
+      "tool": "system1+system2_search",
+      "result": "no exactJASHI"
+    }
+  ],
+  "next_offer_id": 26235,
+  "verification": {
+    "existing_fitment_preserved": true,
+    "trade_data_unchanged": true
+  }
+}

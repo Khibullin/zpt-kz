@@ -1,0 +1,38 @@
+{
+  "article": "602001963AADQJ",
+  "brand": "JASHI",
+  "cost": 22900,
+  "has_fitment": false,
+  "id": 25499,
+  "kaspi_price": 29460,
+  "kaspi_url": "https://kaspi.kz/shop/p/jashi-bamper-602001963aadqj-dlja-chery-tiggo-8-pro-max-2021-2024-130421638/?c=750000000",
+  "main_image": "",
+  "name": "Бампер передний Chery",
+  "photo_status": "needs_source",
+  "product_id": 7136,
+  "profit": 2627.5,
+  "stock": "16",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 5109,
+  "offer_id": 25499,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "unconfirmed",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "JASHI602001963AADQJ: в обоих движках найденатолько точнаяKaspiкарточка. Kaspi origin/CDNранееотклоненыавтопроверкой, повтордругимURL/каналом не выполнялся. Независимогоподтверждениянет;данныеневыдуманы.",
+  "checked_sources": [
+    {
+      "query": "\"JASHI\" \"602001963AADQJ\"",
+      "result": "OnlyrestrictedKaspisource;independentsourceabsent"
+    }
+  ],
+  "next_offer_id": 26208,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": false
+  }
+}

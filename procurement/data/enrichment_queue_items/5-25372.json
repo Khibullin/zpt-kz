@@ -1,0 +1,38 @@
+{
+  "article": "CD569F271303-1901",
+  "brand": "JASHI",
+  "cost": 23100,
+  "has_fitment": false,
+  "id": 25372,
+  "kaspi_price": 29660,
+  "kaspi_url": "https://kaspi.kz/shop/p/jashi-bamper-cd569f271303-1901-dlja-changan-uni-k-2020-2026-180077368/?c=750000000",
+  "main_image": "",
+  "name": "Бампер задний Changan",
+  "photo_status": "needs_source",
+  "product_id": 6978,
+  "profit": 2602.5,
+  "stock": "1",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 4951,
+  "offer_id": 25372,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "unconfirmed",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "JASHICD569F271303-1901: точныйOEM найден в каталоге CHANGANи его бюллетене, не JASHI. Снимки/применимость другого производителя не перенесены;точныхJASHIподтвержденийпоследвухдвижковнет.",
+  "checked_sources": [
+    {
+      "query": "\"JASHI\" \"CD569F271303-1901\"",
+      "result": "Bothengines onlyCHANGANoriginal/OEMlist;differentbrandexcluded"
+    }
+  ],
+  "next_offer_id": 26185,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": false
+  }
+}

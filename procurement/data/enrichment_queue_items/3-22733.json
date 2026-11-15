@@ -1,0 +1,42 @@
+{
+  "article": "AS-151",
+  "brand": "AKIKA",
+  "cost": 15666,
+  "has_fitment": false,
+  "id": 22733,
+  "kaspi_price": 20386,
+  "kaspi_url": "https://kaspi.kz/shop/p/akika-perednii-as-151-1-sht-120966953/?c=750000000",
+  "main_image": "",
+  "name": "AKIKA Амортизатор, пер. левый",
+  "photo_status": "needs_source",
+  "product_id": 4464,
+  "profit": 1921.75,
+  "stock": "4",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 2437,
+  "offer_id": 22733,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "unconfirmed",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "Точные фото и применимость AKIKA AS-151 не подтверждены: поиск по полному AS-151/AS151 даёт другие артикулы либо пустой результат. Аналоги не перенесены.",
+  "checked_sources": [
+    {
+      "query": "\"AKIKA\" \"AS-151\" амортизатор",
+      "result": "Other articles only"
+    },
+    {
+      "query": "\"AKIKA\" \"AS151\"",
+      "result": "No results"
+    }
+  ],
+  "next_offer_id": 23365,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": false
+  }
+}

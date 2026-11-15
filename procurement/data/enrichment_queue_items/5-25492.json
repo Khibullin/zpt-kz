@@ -1,0 +1,38 @@
+{
+  "article": "F01-2803501NA-DQ",
+  "brand": "JASHI",
+  "cost": 31100,
+  "has_fitment": false,
+  "id": 25492,
+  "kaspi_price": 37660,
+  "kaspi_url": "https://kaspi.kz/shop/p/jashi-bamper-f01-2803501na-dq-dlja-jetour-x70-2020-2024-160215149/?c=750000000",
+  "main_image": "",
+  "name": "Бампер передний JETOUR",
+  "photo_status": "needs_source",
+  "product_id": 7158,
+  "profit": 1602.5,
+  "stock": "1",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 5131,
+  "offer_id": 25492,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "unconfirmed",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "JASHI F01-2803501NA-DQ: оба поисковых движка дали только точную карточку Kaspi. Ранее отклонённые Kaspi origin/CDN не запрашивались повторно; независимого подтверждения фото и применимости нет.",
+  "checked_sources": [
+    {
+      "query": "\"JASHI\" \"F01-2803501NA-DQ\"",
+      "result": "Only restricted Kaspi source; no new independent exact evidence"
+    }
+  ],
+  "next_offer_id": 26260,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": false
+  }
+}

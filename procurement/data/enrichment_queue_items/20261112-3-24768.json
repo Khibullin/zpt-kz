@@ -1,0 +1,48 @@
+{
+  "article": "AW1930014L",
+  "brand": "AYWIPARTS",
+  "cost": 5263,
+  "has_fitment": false,
+  "id": 24768,
+  "kaspi_price": 7894,
+  "kaspi_url": "https://kaspi.kz/shop/p/aywiparts-aw1930014l-ksenonovaja-d4s-1-sht-119071956/?c=750000000",
+  "main_image": "products/optimized/97dddd1e38a0b110cffcbb42e15c25f0786173e72323e8e8313bb56284d8912d.webp",
+  "name": "AYWIPARTS Лампа газоразрядная D4S 12V 35W P32d-5 4300K",
+  "photo_status": "done",
+  "product_id": 6474,
+  "profit": 1394.25,
+  "stock": "1",
+  "supplier_id": 3,
+  "supplier_thumbnail": "products/optimized/8bb9e9ed40290982b723e04d0f8e38f56ea2d76f3d05ade905d57beca5637c4d.webp",
+  "task_id": 4447,
+  "checked_at": "2026-11-12T03:12:03.030157+00:00",
+  "previous_journal": "procurement/data/enrichment_queue_items/3-24768.json",
+  "publication_status": "not_published",
+  "offer_id": 24768,
+  "status": "no_new_confirmed_source",
+  "new_queries": [
+    "AYWIPARTS AW1930014L точный артикул фото применимость"
+  ],
+  "reason": "Подтверждены лишь электрические характеристики D4S; универсальность и применимость к моделям не подтверждены. Не выводились из типа цоколя.",
+  "new_sources": [
+    "https://zap-pro.ru/brands/aywiparts",
+    "https://plenty.parts/parts/herth-buss-elparts/body/herth-buss-elparts-89901314-bulb-spotlight-t5065996",
+    "https://plenty.parts/parts/miles/body/miles-bl008xy-bulb-spotlight-t16228218",
+    "https://www.detaluga.ru/catalog/528182",
+    "https://www.farpost.ru/voronezh/zapchasti/%2B/%D0%BB%D0%B0%D0%BC%D0%BF%D0%B0%2B%D0%BA%D1%81%D0%B5%D0%BD%D0%BE%D0%BD%D0%BE%D0%B2%D0%B0%D1%8F/",
+    "https://baza.drom.ru/moskovskaya-obl/oem/NX4S1SCB/",
+    "https://www.farpost.ru/zapchasti/%2B/%D0%BE%D0%BF%D1%82%D0%B8%D0%BA%D0%B0/model/lexus%2Bls460/body/usf46/?query=%D0%BE%D0%BF%D1%82%D0%B8%D0%BA%D0%B0%2C+%D1%80%D0%B0%D1%81%D1%85%D0%BE%D0%B4%D0%BD%D0%B8%D0%BA%D0%B8%2B%D0%B8%2B%D0%BA%D0%BE%D0%BC%D0%BF%D0%BB%D0%B5%D0%BA%D1%82%D1%83%D1%8E%D1%89%D0%B8%D0%B5",
+    "https://baza.drom.ru/novorossiisk/sell_spare_parts/%2B/%EF%BF%BD%EF%BF%BD%EF%BF%BD%EF%BF%BD%EF%BF%BD%EF%BF%BD/model/lexus/body/lfa10/",
+    "https://prom.ua/ua/m2850134646768247193-lampa-ksenonovaya-d4s.html",
+    "https://prom.ua/m2850134646768247193-lampa-ksenonovaya-d4s.html",
+    "https://www.farpost.ru/khabarovsk/zapchasti/%2B/%D0%BE%D0%BF%D1%82%D0%B8%D0%BA%D0%B0/model/toyota%2Bcaldina/body/zzt241/?manufacturer=Aywiparts"
+  ],
+  "current_state": {
+    "main_image": "products/optimized/97dddd1e38a0b110cffcbb42e15c25f0786173e72323e8e8313bb56284d8912d.webp",
+    "supplier_thumbnail": "products/optimized/8bb9e9ed40290982b723e04d0f8e38f56ea2d76f3d05ade905d57beca5637c4d.webp",
+    "has_fitment": false,
+    "photo_status": "done",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 23270
+}

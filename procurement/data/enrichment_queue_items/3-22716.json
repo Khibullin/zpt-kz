@@ -1,0 +1,42 @@
+{
+  "article": "AS-128",
+  "brand": "AKIKA",
+  "cost": 9963,
+  "has_fitment": false,
+  "id": 22716,
+  "kaspi_price": 13133,
+  "kaspi_url": "https://kaspi.kz/shop/p/akika-perednii-as-128-1-sht-120971881/?c=750000000",
+  "main_image": "",
+  "name": "AKIKA Амортизатор, пер. левый&правый",
+  "photo_status": "needs_source",
+  "product_id": 4447,
+  "profit": 1278.375,
+  "stock": "10",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 2420,
+  "offer_id": 22716,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "unconfirmed",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "Точные фото и применимостьAKIKA AS-128/AS128 не подтверждены; результаты толькообщийкаталогбренда/нерелевантные,без точной детали.",
+  "checked_sources": [
+    {
+      "query": "\"AKIKA\" \"AS-128\"",
+      "result": "Brand catalogue only, no exact photo/fitment"
+    },
+    {
+      "query": "\"AKIKA\" \"AS128\" амортизатор",
+      "result": "No results"
+    }
+  ],
+  "next_offer_id": 23222,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": false
+  }
+}

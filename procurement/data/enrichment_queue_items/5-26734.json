@@ -1,0 +1,38 @@
+{
+  "article": "8210200U7311",
+  "brand": "JASHI",
+  "cost": 37600,
+  "has_fitment": true,
+  "id": 26734,
+  "kaspi_price": 45760,
+  "kaspi_url": "https://kaspi.kz/shop/p/zerkalo-v-sbore-jashi-8210200u7311-pravoe-dlja-jac-j7-2022-2024-120745095/?c=750000000",
+  "main_image": "",
+  "name": "Зеркало заднего JAC",
+  "photo_status": "needs_source",
+  "product_id": 8255,
+  "profit": 2190,
+  "stock": "1",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 6228,
+  "offer_id": 26734,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "JASHI 8210200U7311: Оба движка не дали точной независимой фотографии. Существующая применимость сохранена.",
+  "checked_sources": [
+    {
+      "query": "\"JASHI\" \"8210200U7311\"",
+      "result": "Оба движка не дали точной независимой фотографии."
+    }
+  ],
+  "next_offer_id": 25077,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true
+  }
+}

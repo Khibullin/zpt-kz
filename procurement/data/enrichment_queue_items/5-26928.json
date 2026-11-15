@@ -1,0 +1,42 @@
+{
+  "article": "12805005",
+  "brand": "RIVAL",
+  "cost": 10350,
+  "has_fitment": false,
+  "id": 26928,
+  "kaspi_price": 14980,
+  "kaspi_url": "https://kaspi.kz/shop/p/rival-12805005-kia-sportage-2021-2025-chernyi-118495062/?c=750000000",
+  "main_image": "",
+  "name": "Ковер багажника Kia",
+  "photo_status": "needs_source",
+  "product_id": 8503,
+  "profit": 2507.5,
+  "stock": "1",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 6476,
+  "offer_id": 26928,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "unconfirmed",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "RIVAL12805005: найденныеописанияТачкапротиворечатдругдругу(с/безсабвуфера)длятого жеартикула; комплектация неподтверждена. НезависимаяAvto-centerточнаястраницанедоступна. Повтордругимканаломневыполнялся; ВсеИнструменты/МегамаркетCAPTCHAнеобходились. Фото/применимостьневыдуманы.",
+  "checked_sources": [
+    {
+      "query": "\"RIVAL\" \"12805005\"",
+      "result": "Bothengines:Tachkaconflictingwith/withoutsubwoofer;noindependentconfirmedvariant"
+    },
+    {
+      "url": "https://avto-center.kz/parts/Rival/12805005",
+      "result": "Webnotaccessible;samereadfailedagain;noalternativechannel"
+    }
+  ],
+  "next_offer_id": 25279,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": false
+  }
+}

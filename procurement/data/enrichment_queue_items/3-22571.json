@@ -1,0 +1,43 @@
+{
+  "article": "AN-745WK",
+  "brand": "AKEBONO",
+  "cost": 6989,
+  "has_fitment": true,
+  "id": 22571,
+  "kaspi_price": 9628,
+  "kaspi_url": "https://kaspi.kz/shop/p/kolodki-akebono-zadnie-an-745wk-174097243/?c=750000000",
+  "main_image": "",
+  "name": "AKEBONO JAPAN Колодки задние",
+  "photo_status": "needs_source",
+  "product_id": 4305,
+  "profit": 1185.5,
+  "stock": "10",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 2278,
+  "offer_id": 22571,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "AKEBONOAN-745WK:Optipartвременныйtimeoutпослеодногообычногоповтора. В точной Plenty.Parts карточке скачан и визуально проверен размерный чертёж,не фотография комплекта; отклонён. Существующая применимость сохранена.",
+  "checked_sources": [
+    {
+      "url": "https://optipart.ru/product/akebono/an745wk/",
+      "result": "Temporary connection timeout; one ordinary reload, not permanent block"
+    },
+    {
+      "url": "https://plenty.parts/parts/akebono/braking-system/akebono-an745wk-brake-pads-nissan-qashqai-x-trail-teana-p2915806",
+      "image": "https://i.plenty.parts/i/850/pictures_custom_akebonos_AN-745WK.gif",
+      "result": "Visually technical dimension drawing; not imported"
+    }
+  ],
+  "next_offer_id": 22818,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true
+  }
+}

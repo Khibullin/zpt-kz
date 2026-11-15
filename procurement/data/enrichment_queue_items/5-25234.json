@@ -1,0 +1,36 @@
+{
+  "article": "2905200U2400",
+  "brand": "JASHI",
+  "has_fitment": true,
+  "id": 25234,
+  "kaspi_url": "https://kaspi.kz/shop/p/jashi-perednii-2905200u2400-1-sht-118703986/?c=750000000",
+  "main_image": "",
+  "name": "Амортизатор передний JAC",
+  "photo_status": "needs_source",
+  "product_id": 6946,
+  "profit": 3715,
+  "stock": "6",
+  "supplier_id": 5,
+  "task_id": 4919,
+  "offer_id": 25234,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "exact_source_not_found",
+    "reason": "Точный независимый источник фото JASHI 2905200U2400 не найден;полный артикул не заменялся близким."
+  },
+  "checked_sources": [
+    {
+      "query": "\"JASHI\" \"2905200U2400\" -site:kaspi.kz -site:alta-karter.com",
+      "tool": "system2+system1_search",
+      "result": "No independent exactphoto;noallowedsource fornewfitment"
+    }
+  ],
+  "next_offer_id": 26466,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true
+  }
+}

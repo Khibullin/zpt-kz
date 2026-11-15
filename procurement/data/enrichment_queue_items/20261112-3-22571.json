@@ -1,0 +1,43 @@
+{
+  "article": "AN-745WK",
+  "brand": "AKEBONO",
+  "cost": 6989,
+  "has_fitment": true,
+  "id": 22571,
+  "kaspi_price": 9628,
+  "kaspi_url": "https://kaspi.kz/shop/p/kolodki-akebono-zadnie-an-745wk-174097243/?c=750000000",
+  "main_image": "",
+  "name": "AKEBONO JAPAN Колодки задние",
+  "photo_status": "needs_source",
+  "product_id": 4305,
+  "profit": 1185.5,
+  "stock": "10",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 2278,
+  "checked_at": "2026-11-12T03:12:03.395723+00:00",
+  "previous_journal": "procurement/data/enrichment_queue_items/3-22571.json",
+  "publication_status": "not_published",
+  "offer_id": 22571,
+  "status": "no_new_confirmed_source",
+  "new_queries": [
+    "AKEBONO AN-745WK точный артикул фото применимость"
+  ],
+  "reason": "Новый поиск не подтвердил недостающие поля точной позиции. Результаты по другим брендам, похожим артикулам, общим категориям и неподтверждённой комплектности исключены. Существующие корректные данные сохранены. Ограниченные ранее источники повторно не запрашивались.",
+  "new_sources": [
+    "https://kz.alta-karter.com/tormozniye-kolodki/infiniti/akebono",
+    "https://am.alta-karter.com/tormozniye-kolodki/nissan/tiida/1/akebono-AN-745WK-5267",
+    "https://www.akebono-brake.com/product_technology/aftermarket/docs/pf02_nissan.pdf",
+    "https://www.drive2.ru/parts/akebono/an745wk/B9bkAEACepc",
+    "https://m.integration.vs.market.yandex.net/card/akebono-an-745wk-kolodki-tormoznyye-szadi-infiniti-fx35-02-08--nissan-juke-10-20--murano-02-16--pathfinder-12-21/4668562519",
+    "https://kaspi.kz/shop/p/akika-amortizator-zad-levyi-pravyi-as261-130006660/"
+  ],
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 22818
+}

@@ -1,0 +1,41 @@
+{
+  "article": "AW2220478",
+  "brand": "AYWIPARTS",
+  "cost": 11521,
+  "has_fitment": true,
+  "id": 24803,
+  "kaspi_price": 17051,
+  "kaspi_url": "https://kaspi.kz/shop/p/aywiparts-stupitsa-aw2220478-165692543/?c=750000000",
+  "main_image": "",
+  "name": "AYWIPARTS Ступица задняя",
+  "photo_status": "skipped",
+  "product_id": 6508,
+  "profit": 3148.625,
+  "stock": "1",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 4481,
+  "offer_id": 24803,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "captcha_blocked"
+  },
+  "reason": "Точная карточка производителя AW2220478 недоступна через web. Новый независимый продавецMILZAP на Мегамаркет подтвердил бренд/артикул текстом,но браузер перенаправлен наCAPTCHA«не робот». CAPTCHAне обходилась,фото не загружено,прежняя применимость сохранена.",
+  "checked_sources": [
+    {
+      "url": "https://aywiparts.ru/product/view/22970",
+      "result": "Not accessible via web tool; no retry alternatechannel"
+    },
+    {
+      "url": "https://megamarket.ru/catalog/details/stupica-aywiparts-aw2220478-600001815860_40109/",
+      "result": "Webtextbrand/article confirmed; browserCAPTCHA,stopped,noimage"
+    }
+  ],
+  "next_offer_id": 23015,
+  "verification": {
+    "trade_data_unchanged": true
+  }
+}

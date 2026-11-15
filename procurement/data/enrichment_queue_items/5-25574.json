@@ -1,0 +1,42 @@
+{
+  "article": "571500U000",
+  "brand": "JASHI",
+  "cost": 4400,
+  "has_fitment": true,
+  "id": 25574,
+  "kaspi_price": 6830,
+  "kaspi_url": "https://kaspi.kz/shop/p/jashi-bachok-gur-571500u000-147768771/?c=750000000",
+  "main_image": "",
+  "name": "Бачок гидроусилителя Hyundai",
+  "photo_status": "needs_source",
+  "product_id": 7134,
+  "profit": 1326.25,
+  "stock": "7",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 5107,
+  "offer_id": 25574,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "Точное независимое фото бренда JASHI 571500U000 не подтверждено. YM.kg показывает только рекомендацию на странице другого бачка; независимые карточки того же номера относятся к Hyundai/Kia, AMD и другим брендам. Существующая применимость сохранена.",
+  "checked_sources": [
+    {
+      "url": "https://ym.kg/product/bachok-gur-6614663306-119368639/",
+      "result": "Поисковая рекомендация JASHI, основная карточка другого номера; не использована."
+    },
+    {
+      "query": "JASHI 571500U000; два поисковых движка",
+      "result": "Независимое точное фото JASHI не найдено. Фото иных брендов не использованы."
+    }
+  ],
+  "next_offer_id": 25622,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true
+  }
+}

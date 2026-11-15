@@ -1,0 +1,39 @@
+{
+  "article": "1221-38R",
+  "brand": "ASVA",
+  "cost": 5274,
+  "has_fitment": false,
+  "id": 23717,
+  "kaspi_price": 10320,
+  "kaspi_url": "https://kaspi.kz/shop/p/asva-rulevoi-nakonechnik-1221-38r-177987094/?c=750000000",
+  "main_image": "",
+  "name": "НАКОНЕЧНИК РУЛЕВОЙ ПРАВЫЙ",
+  "photo_status": "needs_source",
+  "product_id": 5438,
+  "profit": 3506,
+  "stock": "2",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 3411,
+  "offer_id": 23717,
+  "status": "reviewed_source_restriction",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "unconfirmed",
+  "photo": {
+    "status": "not_requested_due_source_restriction"
+  },
+  "reason": "ASVA:автоматическая проверка безопасности отклонила независимую карточку бренда0121-008. Запросы источников ASVA не выполнялись; недостающие данные не выдуманы, существующие сохранены.",
+  "checked_sources": [
+    {
+      "journal": "procurement/data/enrichment_queue_items/3-23081.json",
+      "result": "Current explicit auto-reviewdenial applies toASVA requests; no retries or other channels"
+    }
+  ],
+  "next_offer_id": 22861,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": false,
+    "existing_photo_preserved": false
+  }
+}

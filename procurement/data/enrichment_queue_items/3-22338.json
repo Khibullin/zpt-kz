@@ -1,0 +1,76 @@
+{
+  "article": "SL-T770R",
+  "brand": "555",
+  "cost": 6824,
+  "has_fitment": true,
+  "id": 22338,
+  "kaspi_price": 9969,
+  "kaspi_url": "https://kaspi.kz/shop/p/555-stoika-stabilizatora-sl-t770r-174068958/?c=750000000",
+  "main_image": "",
+  "name": "555 Стойка стабилизатора",
+  "photo_status": "skipped",
+  "product_id": 4074,
+  "profit": 1648.875,
+  "stock": "10",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 2047,
+  "offer_id": 22338,
+  "status": "published_complete",
+  "checked_on": "2026-11-11",
+  "source_url": "https://baza.drom.ru/g17589365573.html",
+  "source_label": "Auto_nhk125 на Drom — независимый каталог продавца",
+  "source_kind": "retailer_catalogue",
+  "source_article": "SL-T770R",
+  "fitments": [],
+  "fitment_note": "Существующая применимость сохранена.",
+  "image_url": "https://static.baza.drom.ru/farpost_catalog/1785835220837_default",
+  "image_note": "Точная карточка 555 SL-T770R,передняя правая. Фото одной короткой стойки с гайками,синяя метка R,водяной знак555,визуально проверено. SL-T770R-M не использован. Существующая применимость сохранена.",
+  "photo": {
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/a3c943d8ebbe1cbee466926dc682340ab93e95adf76c28a9c0e8a3134d10935b.webp",
+    "thumbnail_path": "products/optimized/4751f7085abb229daf30694b4d2e4ff9d6a555a5ef5f6658db1b65d7ed2e5fd2.webp",
+    "main_size": [
+      600,
+      400
+    ],
+    "thumbnail_size": [
+      180,
+      120
+    ]
+  },
+  "fitment_status": "existing_preserved",
+  "checked_sources": [
+    {
+      "url": "https://baza.drom.ru/g17589365573.html",
+      "result": "Точная карточка 555 SL-T770R,передняя правая. Фото одной короткой стойки с гайками,синяя метка R,водяной знак555,визуально проверено. SL-T770R-M не использован. Существующая применимость сохранена."
+    }
+  ],
+  "next_offer_id": 23231,
+  "verification": {
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T12:10:51.633Z"
+  },
+  "source_sha256": "4ed42a005b71e7b32cb3a132c33275bc4c9ef0c9b7f00d42e6998ecd7beb6a32",
+  "main_sha256": "a3c943d8ebbe1cbee466926dc682340ab93e95adf76c28a9c0e8a3134d10935b",
+  "main_size": [
+    600,
+    400
+  ],
+  "thumbnail_sha256": "4751f7085abb229daf30694b4d2e4ff9d6a555a5ef5f6658db1b65d7ed2e5fd2",
+  "thumbnail_size": [
+    180,
+    120
+  ],
+  "publication": {
+    "commit": "5f2cf5c224c6b6ff8e2dbe7181a5ffc9b33ffd72",
+    "deploy": "dep-dbq5l0e7bikc738kc8fg",
+    "status": "live"
+  }
+}

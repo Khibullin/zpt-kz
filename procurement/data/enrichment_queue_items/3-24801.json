@@ -1,0 +1,37 @@
+{
+  "article": "AW2220464",
+  "brand": "AYWIPARTS",
+  "cost": 20132,
+  "has_fitment": true,
+  "id": 24801,
+  "kaspi_price": 27096,
+  "kaspi_url": "https://kaspi.kz/shop/p/aywiparts-stupitsa-aw2220464-165691818/?c=750000000",
+  "main_image": "",
+  "name": "AYWIPARTS Ступица передняя",
+  "photo_status": "skipped",
+  "product_id": 6506,
+  "profit": 3327,
+  "stock": "2",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 4479,
+  "offer_id": 24801,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "exact_photo_unconfirmed"
+  },
+  "reason": "Точная карточка Деталюга AW2220464 содержит только логотип разработчика сайта; фотографии ступицы нет. АналогFebest0182ACA30MF из другой выдачи не использован.",
+  "checked_sources": [
+    {
+      "url": "https://www.detaluga.ru/catalog/25450351",
+      "result": "Exactbrand/article; browser document.images onlysiteagencylogo,no productphoto"
+    }
+  ],
+  "next_offer_id": 22855,
+  "verification": {
+    "trade_data_unchanged": true
+  }
+}

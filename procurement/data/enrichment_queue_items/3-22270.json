@@ -1,0 +1,42 @@
+{
+  "article": "SL-A410",
+  "brand": "555",
+  "cost": 7366,
+  "has_fitment": true,
+  "id": 22270,
+  "kaspi_price": 10320,
+  "kaspi_url": "https://kaspi.kz/shop/p/555-stoika-stabilizatora-sl-a410-179854423/?c=750000000",
+  "main_image": "",
+  "name": "555 Стойка стабилизатора",
+  "photo_status": "skipped",
+  "product_id": 4006,
+  "profit": 1414,
+  "stock": "10",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 1979,
+  "offer_id": 22270,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "Точное независимое фото555SL-A410 не подтверждено: am25временныйremoteconnectionfailureпослеодногоштатногоповтора; GPиспользует ранее запрещённыйKaspiCDN,не запрашивался. ФотоSL-A410-Mдругойкомплектности не использованы. Существующая применимость сохранена.",
+  "checked_sources": [
+    {
+      "url": "https://am25.ru/products/555/SLA410.html",
+      "result": "Temporary upstream remote connection failure, one ordinary reload; not permanent block"
+    },
+    {
+      "url": "https://shop.globalparts.kz/product/555/sla410",
+      "result": "Image points to restricted resources.cdn-kaspi.kz, not requested"
+    }
+  ],
+  "next_offer_id": 22388,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true
+  }
+}

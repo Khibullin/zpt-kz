@@ -1,0 +1,38 @@
+{
+  "article": "AS-144",
+  "brand": "AKIKA",
+  "cost": 10583,
+  "has_fitment": false,
+  "id": 22728,
+  "kaspi_price": 14779,
+  "kaspi_url": "https://kaspi.kz/shop/p/akika-perednii-as-144-5430231u85-1-sht-179596743/?c=750000000",
+  "main_image": "",
+  "name": "AKIKA Амортизатор, пер. правый",
+  "photo_status": "needs_source",
+  "product_id": 4459,
+  "profit": 2098.625,
+  "stock": "10",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 2432,
+  "offer_id": 22728,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "unconfirmed",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "AKIKA AS-144: оба поисковых движка не дали точного независимого подтверждения полного артикула, фотографии и применимости. Похожие AS-артикулы не использованы.",
+  "checked_sources": [
+    {
+      "query": "\"AKIKA\" \"AS-144\"",
+      "result": "No exact independent result in bothengines"
+    }
+  ],
+  "next_offer_id": 35197,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": false
+  }
+}

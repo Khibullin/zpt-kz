@@ -1,0 +1,80 @@
+{
+  "article": "7121034021",
+  "brand": "SsangYong",
+  "has_fitment": false,
+  "id": 26623,
+  "kaspi_url": "https://kaspi.kz/shop/p/ssang-yong-zamok-7121034021-118066866/?c=750000000",
+  "main_image": "",
+  "name": "Замок двери SsangYong",
+  "photo_status": "needs_source",
+  "product_id": 8331,
+  "profit": 3960,
+  "stock": "1",
+  "supplier_id": 5,
+  "task_id": 6304,
+  "offer_id": 26623,
+  "status": "published_complete",
+  "checked_on": "2026-11-11",
+  "source_url": "https://www.dvsavto.ru/catalog/zapchasti_po_proizvoditelyam_i_modelyam/zapchasti_ssangyong/detali_kuzova_1/actyon_ii_korando_c/vnutrennyaya_i_vneshnyaya_otdelka/perednie_dveri_otdelka_i_komponenty/zamok_peredney_levoy_dveri_7121034021_ssangyong_new_actyon_original/",
+  "source_label": "Глобал Авто (dvsavto.ru) — независимый каталог продавца",
+  "source_kind": "retailer_catalogue",
+  "source_article": "7121034021",
+  "fitments": [
+    {
+      "make": "SsangYong",
+      "model": "New Actyon",
+      "notes": "Замок передней левой/водительской двери,новый оригинал7121034021. Годы,двигатель,регион не указаны и не добавлены."
+    }
+  ],
+  "fitment_note": "Точный SsangYong7121034021. NewActyon однозначно указан в карточке и описании;общие сведенияOEM/другихмоделей не переносились.",
+  "image_url": "https://www.dvsavto.ru/upload/iblock/d13/y3nmxbmesm7uj9baf0fqrukw9qg2z1bm.jpeg",
+  "image_note": "Новый оригинальный замок с тросами;на упаковке SSANGYONG MOTOR GENUINEPARTS и точный7121034021. Фото визуально проверено.",
+  "photo": {
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/a778edc66d3fded35d5e1915594af2b41e0e54435c2e945482a8e4e2397f5e73.webp",
+    "thumbnail_path": "products/optimized/299acce292ed1e0c4f61846c9cb54e75e3bb973a6c24a76fb4181a11f71cb6ce.webp",
+    "main_size": [
+      788,
+      600
+    ],
+    "thumbnail_size": [
+      180,
+      137
+    ]
+  },
+  "checked_sources": [
+    {
+      "url": "https://www.dvsavto.ru/catalog/zapchasti_po_proizvoditelyam_i_modelyam/zapchasti_ssangyong/detali_kuzova_1/actyon_ii_korando_c/vnutrennyaya_i_vneshnyaya_otdelka/perednie_dveri_otdelka_i_komponenty/zamok_peredney_levoy_dveri_7121034021_ssangyong_new_actyon_original/",
+      "result": "Exactbrandarticle neworiginal;NewActyon model;photo packaginglabel matches7121034021"
+    }
+  ],
+  "next_offer_id": 25185,
+  "verification": {
+    "db_verified": true,
+    "ui_verified": true,
+    "photo_visually_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T09:12:59.798Z"
+  },
+  "source_sha256": "640d54d4146a05e505bf666683394e009feacfaf3fdb59f45e30e304f88de829",
+  "main_sha256": "a778edc66d3fded35d5e1915594af2b41e0e54435c2e945482a8e4e2397f5e73",
+  "main_size": [
+    788,
+    600
+  ],
+  "thumbnail_sha256": "299acce292ed1e0c4f61846c9cb54e75e3bb973a6c24a76fb4181a11f71cb6ce",
+  "thumbnail_size": [
+    180,
+    137
+  ],
+  "publication": {
+    "commit": "cd711d8063dc25b30ee190472db94956bff02d0b",
+    "deploy": "dep-dbq313ijnfac739omoi0",
+    "status": "live"
+  },
+  "fitment_status": "saved_db_and_ui_verified"
+}

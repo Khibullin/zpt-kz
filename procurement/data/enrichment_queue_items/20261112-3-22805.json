@@ -1,0 +1,36 @@
+{
+  "article": "AS-272",
+  "brand": "AKIKA",
+  "cost": 9452,
+  "has_fitment": false,
+  "id": 22805,
+  "kaspi_price": 12403,
+  "kaspi_url": "https://kaspi.kz/shop/p/akika-zadnii-as-272-1-sht-120857751/?c=750000000",
+  "main_image": "",
+  "name": "AKIKA Амортизатор, зад. левый&правый",
+  "photo_status": "needs_source",
+  "product_id": 4535,
+  "profit": 1150.625,
+  "stock": "6",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 2508,
+  "checked_at": "2026-11-12T03:12:03.607003+00:00",
+  "previous_journal": "procurement/data/enrichment_queue_items/3-22805.json",
+  "publication_status": "not_published",
+  "offer_id": 22805,
+  "status": "no_new_confirmed_source",
+  "new_queries": [
+    "AKIKA AS-272 точный артикул фото применимость"
+  ],
+  "reason": "Новый поиск не подтвердил недостающие поля точной позиции. Результаты по другим брендам, похожим артикулам, общим категориям и неподтверждённой комплектности исключены. Существующие корректные данные сохранены. Ограниченные ранее источники повторно не запрашивались.",
+  "new_sources": [],
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": false,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 23522
+}

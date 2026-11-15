@@ -1,0 +1,36 @@
+{
+  "article": "F18-2804501-DQ",
+  "brand": "JASHI",
+  "has_fitment": false,
+  "id": 25380,
+  "kaspi_url": "https://kaspi.kz/shop/p/jashi-bamper-f18-2804501-dq-dlja-jetour-x70-plus-2023-2026-180073986/?c=750000000",
+  "main_image": "",
+  "name": "Бампер задний JETOUR",
+  "photo_status": "needs_source",
+  "product_id": 6980,
+  "profit": 3848.75,
+  "stock": "1",
+  "supplier_id": 5,
+  "task_id": 4953,
+  "offer_id": 25380,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "unconfirmed_exact_brand",
+  "photo": {
+    "status": "exact_source_not_found",
+    "reason": "Точный JASHI F18-2804501-DQ не найден в двух независимых поисках. Аналоги и близкиеартикулы не использованы."
+  },
+  "checked_sources": [
+    {
+      "query": "\"JASHI\" \"F18-2804501-DQ\" -site:kaspi.kz -site:alta-karter.com",
+      "tool": "system2+system1_search",
+      "result": "empty"
+    }
+  ],
+  "next_offer_id": 25532,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "article": "PSA343398",
+  "brand": "PATRON",
+  "cost": 6900,
+  "has_fitment": true,
+  "id": 25120,
+  "kaspi_price": 9599,
+  "kaspi_url": "https://kaspi.kz/shop/p/patron-zadnii-psa343398-1-sht-171918052/?c=750000000",
+  "main_image": "",
+  "name": "Амортизатор задний Hyundai",
+  "photo_status": "needs_source",
+  "product_id": 6817,
+  "profit": 1249.125,
+  "stock": "5",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 4790,
+  "checked_at": "2026-11-12T03:12:02.197955+00:00",
+  "previous_journal": "procurement/data/enrichment_queue_items/5-25120.json",
+  "publication_status": "not_published",
+  "offer_id": 25120,
+  "status": "no_new_confirmed_source",
+  "new_queries": [
+    "PATRON PSA343398 точный артикул фото применимость"
+  ],
+  "reason": "Точная строка Patron PSA343398 найдена, но изображение noimage.svg — заглушка. Не загружено.",
+  "new_sources": [
+    "https://kg.alta-karter.com/amortizatory-i-stoyki/hyundai/getz/1/patron-PSA343398-3730",
+    "https://shop.altynauto.kz/shop/hodovaya-chast/amortizatory-zadnie/?p=16",
+    "https://fortluft.ru/catalog/podveska/?PAGEN_1=18&bxajaxid=1798536df7de876c23787f891fc76ae4&order=desc&sort=quantity"
+  ],
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 26144
+}

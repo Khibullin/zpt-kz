@@ -1,0 +1,38 @@
+{
+  "article": "13579666",
+  "brand": "JASHI",
+  "cost": 55200,
+  "has_fitment": true,
+  "id": 26143,
+  "kaspi_price": 67190,
+  "kaspi_url": "https://kaspi.kz/shop/p/generator-jashi-13579666-148829713/?c=750000000",
+  "main_image": "",
+  "name": "Генератор (в Chevrolet",
+  "photo_status": "needs_source",
+  "product_id": 7679,
+  "profit": 3341.25,
+  "stock": "3",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 5652,
+  "offer_id": 26143,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "JASHI13579666: независимой точной фотографии бренда не подтверждено. YM.kg — связанное предложение с изображением в рекомендациях; снимок не подтверждает исполнение. Каталог другого производителя по OEM не подтверждает JASHI. Существующая применимость сохранена.",
+  "checked_sources": [
+    {
+      "query": "\"JASHI\" \"13579666\"",
+      "result": "Bothengines:YMkg relatedcard, othermanufacturerOEMcatalogue notphotoevidence"
+    }
+  ],
+  "next_offer_id": 25183,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true
+  }
+}

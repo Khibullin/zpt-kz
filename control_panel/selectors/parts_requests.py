@@ -20,9 +20,7 @@ from core.models import (
     SellerRequestAccess,
     SellerRequestPageEvent,
 )
-from control_panel.request_workspace import with_workspace_stage, STAGES, STAGE_LABELS, STAGE_PREFIX
-from django.contrib.admin.models import LogEntry
-from django.contrib.contenttypes.models import ContentType
+from control_panel.request_workspace import with_workspace_stage, STAGES, STAGE_LABELS
 from control_panel.display import (
     dash,
     event_label,
@@ -185,23 +183,8 @@ def _apply_filters(queryset, params: QueryDict):
 def list_parts_requests(params: QueryDict) -> dict:
     # Count stages on one row per request. Combining these correlated lookups
     # with the match/event aggregate multiplies history rows and can time out.
-    candidates = dict(_apply_filters(Request.objects.all(), params).values_list('pk','purchase_result'))
-    ids = list(candidates)
-    dispatched = set(RequestDispatch.objects.filter(request_id__in=ids).order_by().values_list('request_id',flat=True).distinct())
-    matched = set(Match.objects.filter(request_id__in=ids).order_by().values_list('request_id',flat=True).distinct())
-    latest_stages = {}
-    if ids:
-        logs = LogEntry.objects.filter(content_type_id=ContentType.objects.get_for_model(Request).pk,
-            object_id__in=[str(pk) for pk in ids],change_message__startswith=STAGE_PREFIX
-        ).order_by('-action_time','-pk').values_list('object_id','change_message')
-        for object_id,message in logs:
-            latest_stages.setdefault(int(object_id),message)
-    stages_by_id = {}
-    for pk,result in candidates.items():
-        operator = latest_stages.get(pk,'')
-        stages_by_id[pk] = ('done' if result in ('purchased','closed') else
-            'waiting' if operator == STAGE_PREFIX+'waiting' else
-            'active' if operator == STAGE_PREFIX+'active' or pk in dispatched or pk in matched else 'new')
+    stage_source = _apply_filters(with_workspace_stage(Request.objects.all()), params)
+    stages_by_id = dict(stage_source.values_list('pk', 'workspace_stage'))
     stage_counts = Counter(stages_by_id.values())
     stage = first_value(params, 'stage')
     if stage not in dict(STAGES):
@@ -211,30 +194,8 @@ def list_parts_requests(params: QueryDict) -> dict:
         query = params.copy(); query.pop('page', None); query['stage'] = key
         stage_tabs.append({'key': key, 'label': label, 'count': len(stages_by_id) if key == 'all' else stage_counts[key], 'url': '?' + query.urlencode()})
     selected_ids = [pk for pk, value in stages_by_id.items() if stage == 'all' or value == stage]
-    # Page request IDs before reading their many-to-many history. Joining both
-    # matches and events multiplies rows (M × E), even with COUNT(DISTINCT).
-    queryset = Request.objects.filter(pk__in=selected_ids).only(
-        'id','created_at','brand','model','category','city','status','purchase_result','description'
-    ).order_by('-created_at', '-id')
+    queryset = _base_queryset().filter(pk__in=selected_ids).order_by('-created_at', '-id')
     page = paginate(queryset, params)
-    visible_ids = [item.pk for item in page.object_list]
-    received = dict(Match.objects.filter(request_id__in=visible_ids).filter(
-        Q(sent_at__isnull=False) | Q(status='sent')
-    ).values('request_id').annotate(n=Count('pk')).values_list('request_id','n'))
-    event_totals = {item['request_id']: item for item in SellerRequestPageEvent.objects.filter(
-        request_id__in=visible_ids
-    ).values('request_id').annotate(
-        opened=Count('seller_id',filter=Q(event_type='page_open'),distinct=True),
-        whatsapp=Count('seller_id',filter=Q(event_type='whatsapp_click'),distinct=True),
-        called=Count('seller_id',filter=Q(event_type='call_click'),distinct=True),
-        stock_count=Count('pk',filter=Q(event_type='out_of_stock')),
-        decline_count=Count('pk',filter=Q(event_type='cannot_fulfill')),
-    )}
-    for item in page.object_list:
-        item.sellers_received = received.get(item.pk,0)
-        totals = event_totals.get(item.pk,{})
-        for field in ('opened','whatsapp','called','stock_count','decline_count'):
-            setattr(item,field,totals.get(field,0))
     rows = [
         PartsRequestRow(
             description=item.description, stage=stages_by_id[item.pk], stage_label=STAGE_LABELS[stages_by_id[item.pk]],

@@ -1,0 +1,36 @@
+{
+  "article": "3501030R0284",
+  "brand": "JASHI",
+  "has_fitment": true,
+  "id": 26520,
+  "kaspi_url": "https://kaspi.kz/shop/p/diski-jashi-perednie-3501030r0284-141335968/?c=750000000",
+  "main_image": "",
+  "name": "Диск тормозной JAC",
+  "photo_status": "needs_source",
+  "product_id": 8081,
+  "profit": 4002.5,
+  "stock": "6",
+  "supplier_id": 5,
+  "task_id": 6054,
+  "offer_id": 26520,
+  "status": "reviewed_photo_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "exact_source_not_found",
+    "reason": "Точное фото JASHI 3501030R0284 в двух независимых поисках не подтверждено; похожие артикулы/бренды не использованы."
+  },
+  "checked_sources": [
+    {
+      "query": "\"JASHI\" \"3501030R0284\" -site:kaspi.kz -site:alta-karter.com",
+      "tool": "system2+system1_search",
+      "result": "No exactphoto. Differentarticles excluded."
+    }
+  ],
+  "next_offer_id": 25410,
+  "verification": {
+    "existing_fitment_preserved": true,
+    "trade_data_unchanged": true
+  }
+}

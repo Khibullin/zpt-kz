@@ -1,0 +1,40 @@
+{
+  "article": "1721543102",
+  "brand": "SsangYong",
+  "cost": 80700,
+  "has_fitment": true,
+  "id": 26144,
+  "kaspi_price": 93920,
+  "kaspi_url": "https://kaspi.kz/shop/p/generator-ssang-yong-1721543102-136221488/?c=750000000",
+  "main_image": "",
+  "name": "Генератор (в SsangYong",
+  "photo_status": "needs_source",
+  "product_id": 7756,
+  "profit": 1230,
+  "stock": "2",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 5729,
+  "checked_at": "2026-11-12T03:12:02.213656+00:00",
+  "previous_journal": "procurement/data/enrichment_queue_items/5-26144.json",
+  "publication_status": "not_published",
+  "offer_id": 26144,
+  "status": "no_new_confirmed_source",
+  "new_queries": [
+    "SsangYong 1721543102 точный артикул фото применимость"
+  ],
+  "reason": "Новый результат АвтоALL перенаправил на /vpn/ с требованием отключить VPN. Обход не выполнялся; фото и применимость не подтверждены.",
+  "new_sources": [
+    "https://www.avtoall.ru/generator_ssangyong_actyon__10____g20___120a_12v__oe-454149/",
+    "https://motorland.by/auto-parts/category/elektrooborudovanie-4321/ssangyong/",
+    "https://www.avtoall.ru"
+  ],
+  "current_state": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "has_fitment": true,
+    "photo_status": "needs_source",
+    "verified_universal": false
+  },
+  "next_in_frozen_queue": 26593
+}

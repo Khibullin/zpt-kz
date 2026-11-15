@@ -1,0 +1,46 @@
+{
+  "article": "S111F271301-0209",
+  "brand": "Changan",
+  "cost": 33400,
+  "has_fitment": true,
+  "id": 25537,
+  "kaspi_price": 39960,
+  "kaspi_url": "https://kaspi.kz/shop/p/changan-bamper-s111f271301-0209-dlja-changan-cs35-plus-2021-2024-130189314/?c=750000000",
+  "main_image": "",
+  "name": "Бампер передний Changan",
+  "photo_status": "needs_source",
+  "product_id": 7045,
+  "profit": 1315,
+  "stock": "3",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 5018,
+  "offer_id": 25537,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "Независимое фото точного оригинального Changan S111F271301-0209 с подтверждённым исполнением не найдено. Global Parts дал точное название, но фото не подтверждено; Shi-deaney/Alibaba предлагают изготовление и окраску по OEM-номеру, что не подтверждает оригинальный бренд и исполнение текущего предложения. Существующая применимость сохранена.",
+  "checked_sources": [
+    {
+      "url": "https://shop.globalparts.kz/catalog/car-body-parts/car-bumpers",
+      "result": "Точная строка Changan S111F271301-0209; источник фото не проверен."
+    },
+    {
+      "url": "https://www.shideaney.com/cs35-plus-2023-2024.html",
+      "result": "Поисковая карточка изготовителя с customizable colors, оригинальность Changan и исполнение не подтверждены."
+    },
+    {
+      "query": "Changan S111F271301-0209; два поисковых движка",
+      "result": "Фото точного оригинального бренда и исполнения не подтверждено."
+    }
+  ],
+  "next_offer_id": 28154,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "article": "CD569F260204-0101",
+  "brand": "JASHI",
+  "has_fitment": false,
+  "id": 25196,
+  "kaspi_url": "https://kaspi.kz/shop/p/jashi-perednii-cd569f260204-0101-1-sht-180055881/?c=750000000",
+  "main_image": "",
+  "name": "Амортизатор передний Changan",
+  "photo_status": "needs_source",
+  "product_id": 6789,
+  "profit": 4065,
+  "stock": "1",
+  "supplier_id": 5,
+  "task_id": 4762,
+  "offer_id": 25196,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "unconfirmed_exact_brand",
+  "photo": {
+    "status": "exact_brand_unconfirmed",
+    "reason": "Найдены оригинал Changan и аналогSenSen по OEMCD569F260204-0101;точный JASHI не подтверждён. Их фото/применимость не перенесены."
+  },
+  "checked_sources": [
+    {
+      "query": "\"JASHI\" \"CD569F260204-0101\" -site:kaspi.kz -site:alta-karter.com",
+      "tool": "system2+system1_search",
+      "result": "no exactJASHI;otherbrandsChangan/SenSen"
+    }
+  ],
+  "next_offer_id": 25550,
+  "verification": {
+    "trade_data_unchanged": true
+  }
+}

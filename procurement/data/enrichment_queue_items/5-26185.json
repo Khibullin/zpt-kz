@@ -1,0 +1,38 @@
+{
+  "article": "MBA010550",
+  "brand": "Mando",
+  "cost": 4900,
+  "has_fitment": true,
+  "id": 26185,
+  "kaspi_price": 8830,
+  "kaspi_url": "https://kaspi.kz/shop/p/mando-datchik-abs-mba010550-119812269/?c=750000000",
+  "main_image": "",
+  "name": "Датчик ABS Hyundai",
+  "photo_status": "needs_source",
+  "product_id": 7716,
+  "profit": 2576.25,
+  "stock": "1",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 5689,
+  "offer_id": 26185,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "MandoMBA010550: оба поисковыхдвижка не дали точной карточки/фотографии полного артикула. Найденные MBA010535 и другие артикулы исключены; прежняя применимость сохранена.",
+  "checked_sources": [
+    {
+      "query": "\"Mando\" \"MBA010550\"",
+      "result": "Twoengines noexactarticle;MBA010535differentexcluded"
+    }
+  ],
+  "next_offer_id": 26821,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true
+  }
+}

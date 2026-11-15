@@ -1,0 +1,88 @@
+{
+  "article": "602001263AA",
+  "brand": "Chery",
+  "has_fitment": false,
+  "id": 25519,
+  "kaspi_url": "https://kaspi.kz/shop/p/chery-bamper-602001263aa-dlja-chery-tiggo-4-pro-2020-2024-130421987/?c=750000000",
+  "main_image": "",
+  "name": "Бампер передний Chery",
+  "photo_status": "needs_source",
+  "product_id": 7050,
+  "profit": 4140,
+  "stock": "4",
+  "supplier_id": 5,
+  "task_id": 5023,
+  "offer_id": 25519,
+  "status": "published_complete",
+  "checked_on": "2026-11-11",
+  "source_url": "https://kitaec.ua/bamper-peredniy-nizhnyaya-chast-602001263aa/",
+  "source_label": "Kitaec.ua — независимый каталог продавца оригинальных деталей",
+  "source_kind": "retailer_catalogue",
+  "source_article": "602001263AA",
+  "fitments": [
+    {
+      "make": "Chery",
+      "model": "Tiggo 4 Pro",
+      "notes": "Передний бампер,нижняя часть,оригинал602001263AA. В источнике противоречивые годы2006–2010 и2023-,поэтому годы/двигатели не импортированы."
+    }
+  ],
+  "fitment_note": "Точный полный артикул и оригинальный бренд Chery из карточки Kitaec. Модель Tiggo4Pro однозначна; годы/двигатели исключены из-за противоречивого поля годов.",
+  "image_url": "https://kitaec.ua/upload/resize_cache/iblock/023/800_800_1b24bf9e35bfbc8de9fc7f31afe648f50/bamper-peredniy-nizhnyaya-chast-602001263aa_602001263aa-oe_foto1.webp",
+  "image_note": "Фото одной нижней части оригинального бампера Chery602001263AA из точной карточки Kitaec. Визуально проверено.",
+  "photo": {
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/9138ecd0d364f1d70d2063aa7e6dd8eed1136e844a655a638b1ed71ccc69bd34.webp",
+    "thumbnail_path": "products/optimized/ca79171a00841c7edc60768f97408f85790ee017bee51d2dc4ff622121507f19.webp",
+    "main_size": [
+      800,
+      800
+    ],
+    "thumbnail_size": [
+      180,
+      180
+    ]
+  },
+  "checked_sources": [
+    {
+      "url": "https://kitaec.ua/bamper-peredniy-nizhnyaya-chast-602001263aa/",
+      "result": "OriginalChery exactfullarticle modelTiggo4Pro; conflictingyearfields excluded; realphoto visuallyverified"
+    },
+    {
+      "url": "https://www.reformauto.ru/catalog/602001263AA/",
+      "result": "temporarytimeout"
+    },
+    {
+      "url": "https://xn--80actcpdfk0f.xn--p1ai/magazin/product/nizhnyaya-chast-perednego-bampera-344",
+      "result": "fullarticle, no usefulphotofitment"
+    }
+  ],
+  "next_offer_id": 26528,
+  "verification": {
+    "db_verified": true,
+    "ui_verified": true,
+    "photo_visually_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T09:12:48.582Z"
+  },
+  "source_sha256": "108c3b402c5f01d110140e6c9b1e70b573aea135fdc1bc0fdb0bbf4f29a34cf6",
+  "main_sha256": "9138ecd0d364f1d70d2063aa7e6dd8eed1136e844a655a638b1ed71ccc69bd34",
+  "main_size": [
+    800,
+    800
+  ],
+  "thumbnail_sha256": "ca79171a00841c7edc60768f97408f85790ee017bee51d2dc4ff622121507f19",
+  "thumbnail_size": [
+    180,
+    180
+  ],
+  "publication": {
+    "commit": "cd711d8063dc25b30ee190472db94956bff02d0b",
+    "deploy": "dep-dbq313ijnfac739omoi0",
+    "status": "live"
+  },
+  "fitment_status": "saved_db_and_ui_verified"
+}

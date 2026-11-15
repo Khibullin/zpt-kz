@@ -1,0 +1,22 @@
+{
+  "article": "PBD4855",
+  "brand": "PATRON",
+  "has_fitment": true,
+  "id": 26493,
+  "kaspi_url": "https://kaspi.kz/shop/p/diski-patron-perednie-pbd4855-165403052/?c=750000000",
+  "main_image": "",
+  "name": "Диск тормозной",
+  "photo_status": "needs_source",
+  "product_id": 8123,
+  "profit": 9947,
+  "stock": "2",
+  "supplier_id": 5,
+  "task_id": 6096,
+  "status": "unconfirmed_missing_fields",
+  "sources": [
+    "https://kaspi.kz/shop/p/diski-patron-perednie-pbd4855-165403052/?c=750000000"
+  ],
+  "reason": "Previous exact Kaspi source image is placeholder. New search located independent retailer exact PBD4855 but no verified photograph yet. Current exact Kaspi retrieval returned not accessible; no alternative retry.",
+  "checked_on": "2026-11-11",
+  "next_offer_id": 25225
+}

@@ -1,0 +1,241 @@
+{
+  "schema": 1,
+  "checked_on": "2026-11-15",
+  "checked_at": "2026-11-14T19:16:20.438Z",
+  "supplier_id": 5,
+  "supplier": "ЗаказАвто",
+  "offer_id": 25268,
+  "product_id": 6994,
+  "task_id": 4967,
+  "brand": "Mando",
+  "article": "EX54661A7100",
+  "name": "Амортизатор передний Kia",
+  "stock_before": "1",
+  "cost_before": "20400.00",
+  "before": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "fitment_rows": 0,
+    "reviewed_applicability": null
+  },
+  "prepared": {
+    "photo": {
+      "status": "temporarily_unavailable",
+      "reason": "Two different exact catalogue pages were visually and semantically confirmed, but the existing background consumer received HTTP 403 from each. Access restrictions were not bypassed.",
+      "source_attempts": [
+        {
+          "url": "https://www.autodoc.co.uk/mando/14579627",
+          "image_url": "https://cdn.autodoc.de/thumb?id=14579627&m=0&n=0&lng=en&rev=94078121",
+          "checked_on": "2026-11-15",
+          "exact_brand": "Mando",
+          "exact_article": "EX54661A7100",
+          "execution": "front right gas-pressure twin-tube suspension strut",
+          "package_quantity": 1,
+          "result": "temporary_source_unavailable_http_403",
+          "retry_policy": "only_after_changed_access_state_or_new_source"
+        },
+        {
+          "url": "https://evocar.ua/ru/mando/ex54661a7100",
+          "image_url": "https://cdn.evocar.ua/786ef0b604d0b4428b926fc1db1a4185/mando-ex54661a7100.jpg",
+          "checked_on": "2026-11-15",
+          "exact_brand": "Mando",
+          "exact_article": "EX54661A7100",
+          "execution": "front right gas-oil twin-tube suspension strut",
+          "result": "temporary_source_unavailable_http_403",
+          "retry_policy": "only_after_changed_access_state_or_new_source"
+        }
+      ]
+    },
+    "fitment": {
+      "status": "preserved_and_reverified",
+      "make_model_pairs": 1,
+      "configuration_count": 1,
+      "source_kind": "manufacturer_catalogue_pdf_mirror",
+      "source_url": "https://download.part-kom.ru/catalogs/MANDO_Catalogue.pdf",
+      "scope": "KIA K3 (YD), from 2012-10 with no asserted end date, front right gas, market GEN, OE 54661A7100; no engine configuration claimed."
+    }
+  },
+  "queued": {
+    "status": "github_commit_autodeploy",
+    "commit": "a570af7323d3fccf9875756895faa21612a9b197",
+    "deploy_id": "dep-dbs1d068bjmc73e17ae0",
+    "queued_at": "2026-11-14T08:06:22.000Z",
+    "presentation_commit": "6db9fa34630ec022efe7bb01d4a4e25287fb17f3",
+    "presentation_deploy_id": "dep-dbs1f0u7bikc73ehv3r0"
+  },
+  "saved": {
+    "status": "live_db_unchanged_after_source_failures",
+    "fitment_saved_at": "2026-11-14T08:08:24.586454Z",
+    "fitment_rows": 1,
+    "configuration_count": 1,
+    "photo_saved": false,
+    "thumbnail_saved": false,
+    "task_status": "blocked",
+    "task_updated_at": "2026-11-14T19:14:05.799034Z"
+  },
+  "after": {
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "fitments": [
+      {
+        "id": 111510,
+        "make": "KIA",
+        "model": "K3 (YD)",
+        "verified": true,
+        "source_url": "https://download.part-kom.ru/catalogs/MANDO_Catalogue.pdf",
+        "configurations": [
+          {
+            "date_from": "2012-10",
+            "date_to": null,
+            "market": "GEN",
+            "oem_article": "54661A7100",
+            "placement": "front",
+            "shock_type": "gas",
+            "side": "right",
+            "source_scope": "Exact Mando EX54661A7100 row; open-ended 201210~ retained and no engine configuration inferred",
+            "source_url": "https://download.part-kom.ru/catalogs/MANDO_Catalogue.pdf"
+          }
+        ]
+      }
+    ],
+    "stock": "1",
+    "cost": "20400.00",
+    "kaspi_price": "33321.00"
+  },
+  "verification": {
+    "source_verified": true,
+    "db_verified": true,
+    "fitment_verified": true,
+    "photo_verified": false,
+    "thumbnail_verified": false,
+    "ui_verified": true,
+    "ui_url": "https://zpt.kz/kia-zpt-25268/",
+    "ui_verified_at": "2026-11-14T19:16:20.438Z",
+    "ui_http_status": 200,
+    "ui_evidence": [
+      "EX54661A7100",
+      "Mando",
+      "KIA K3 (YD)",
+      "с 10.2012",
+      "Рынок: GEN",
+      "Установка: спереди",
+      "Сторона: справа",
+      "Тип: газовый",
+      "OEM: 54661A7100",
+      "placeholder remains; no unverified photo saved"
+    ],
+    "task_status": "blocked",
+    "source_access_failures": 2
+  },
+  "sources": [
+    {
+      "kind": "manufacturer_catalogue_pdf_mirror",
+      "url": "https://download.part-kom.ru/catalogs/MANDO_Catalogue.pdf",
+      "checked_on": "2026-11-14",
+      "exact_brand": "Mando",
+      "exact_article": "EX54661A7100"
+    },
+    {
+      "kind": "oem_catalog_exact_part",
+      "url": "https://partsouq.com/en/catalog/genuine/parts?c=KIA&gid=13397&q=&ssd=$*KwGDvoOS54LUwsnwzJeLxMCT-_rz4uD2gtnU2J2S0pSLkvz8qcTWk8OVjJPglciWubqJ4uaCgtbmhqXViZDO6Onxho-H2QAAAACDIr4u$&vid=490443987",
+      "checked_on": "2026-11-14",
+      "exact_brand": "KIA",
+      "exact_article": "54661A7100",
+      "scope": "CERATO 12 (2012-2016), STRUT ASSY FRONT RH; exact row has package/suspension constraints but no complete engine configuration."
+    },
+    {
+      "kind": "independent_exact_part_page_photo_unverified",
+      "url": "https://dok.dbroker.com.ua/art-EX54661A7100-MANDO-15644811/",
+      "checked_on": "2026-11-14",
+      "exact_brand": "Mando",
+      "exact_article": "EX54661A7100"
+    },
+    {
+      "kind": "independent_exact_part_page_photo_unverified",
+      "url": "https://www.avtoall.ru/amortizator_kia_cerato_13_peredniy_pravyy_gazovyy_mando-949481/",
+      "checked_on": "2026-11-14",
+      "exact_brand": "Mando",
+      "exact_article": "EX54661A7100"
+    },
+    {
+      "kind": "checked_international_exact_catalogue_temporarily_unavailable",
+      "url": "https://www.autodoc.co.uk/mando/14579627",
+      "checked_on": "2026-11-15",
+      "exact_brand": "Mando",
+      "exact_article": "EX54661A7100",
+      "access_result": "background_consumer_http_403"
+    },
+    {
+      "kind": "checked_international_exact_catalogue_temporarily_unavailable",
+      "url": "https://evocar.ua/ru/mando/ex54661a7100",
+      "checked_on": "2026-11-15",
+      "exact_brand": "Mando",
+      "exact_article": "EX54661A7100",
+      "access_result": "background_consumer_http_403"
+    }
+  ],
+  "status": "rechecked_fitment_verified_photo_sources_temporarily_unavailable",
+  "skip_reason": "temporary_source_unavailable_http_403",
+  "next": {
+    "supplier_id": 5,
+    "offer_id": 25114,
+    "sequence": 15,
+    "brand": "SsangYong",
+    "article": "4530132100",
+    "action": "review photo and fitment after fresh time/load/DB checks"
+  },
+  "trade_data_unchanged": true,
+  "publication_attempts": [
+    {
+      "at": "2026-11-14T07:16:56.000Z",
+      "result": "deferred_before_write",
+      "reason": "database CPU and memory were near plan limits"
+    },
+    {
+      "at": "2026-11-14T08:13:42.000Z",
+      "result": "saved_and_verified",
+      "commit": "a570af7323d3fccf9875756895faa21612a9b197",
+      "deploy_id": "dep-dbs1d068bjmc73e17ae0"
+    },
+    {
+      "at": "2026-11-14T19:09:15.290837Z",
+      "result": "temporary_source_unavailable_http_403",
+      "commit": "312ad02af4f04a86ae8b0f0e56e55e80d74bfbc5",
+      "deploy_id": "dep-dbsb2s2jnfac73c3m2pg",
+      "source_url": "https://www.autodoc.co.uk/mando/14579627"
+    },
+    {
+      "at": "2026-11-14T19:14:05.799034Z",
+      "result": "temporary_source_unavailable_http_403",
+      "commit": "a219d536e1c73abd90a0726f1480346f19e7d6ed",
+      "deploy_id": "dep-dbsb57u7bikc73et61a0",
+      "source_url": "https://evocar.ua/ru/mando/ex54661a7100"
+    }
+  ],
+  "recheck": {
+    "directive": "owner_directed_first19_recheck",
+    "rechecked_at": "2026-11-14T19:16:20.438Z",
+    "expanded_search_scope": [
+      "manufacturer catalogues",
+      "KZ/RU/international exact catalogues",
+      "OEM and cross numbers"
+    ],
+    "result": "existing structured fitment reverified; two exact photo sources temporarily unavailable to background consumer; no photo write"
+  },
+  "recheck_publications": [
+    {
+      "commit": "312ad02af4f04a86ae8b0f0e56e55e80d74bfbc5",
+      "deploy_id": "dep-dbsb2s2jnfac73c3m2pg",
+      "source_url": "https://www.autodoc.co.uk/mando/14579627",
+      "result": "temporary_source_unavailable_http_403",
+      "finished_at": "2026-11-14T19:09:11.018255Z"
+    },
+    {
+      "commit": "a219d536e1c73abd90a0726f1480346f19e7d6ed",
+      "deploy_id": "dep-dbsb57u7bikc73et61a0",
+      "source_url": "https://evocar.ua/ru/mando/ex54661a7100",
+      "result": "temporary_source_unavailable_http_403",
+      "finished_at": "2026-11-14T19:13:56.949872Z"
+    }
+  ]
+}
