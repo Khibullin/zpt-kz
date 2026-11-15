@@ -9430,7 +9430,7 @@
     "service_memory_limit_bytes": 536870900,
     "decision": "research and read-only checks allowed; defer or throttle writes while memory remains above 90% on the web service"
   },
-  "updated_at": "2026-11-15T00:14:12.428Z",
+  "updated_at": "2026-11-15T08:00:29.695Z",
   "current_index": 0,
   "next_supplier_id": 5,
   "next_offer_id": 25081,
@@ -9441,5 +9441,13 @@
     "scope": "enrichment_queue_20261113_recheck_first19",
     "released_at": "2026-11-15T00:14:12.428Z",
     "reason": "sequence_19_checkpointed_first19_completed_resume_frozen_batch20"
+  },
+  "lease": {
+    "owner": "weekend-enrichment-20261115-1300-batch20",
+    "scope": "enrichment_queue_20261113_other_in_stock_control_batch20_zakazauto",
+    "acquired_at": "2026-11-15T08:00:29.695Z",
+    "heartbeat_at": "2026-11-15T08:00:29.695Z",
+    "expires_at": "2026-11-15T08:25:29.695Z",
+    "next_offer_id": 25081
   }
 }
