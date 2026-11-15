@@ -9,20 +9,10 @@
     "phase": "completed_with_documented_exceptions_20261112",
     "reviewed_offer_ids": 408
   },
-  "shared_lease": {
-    "owner": "weekend-enrichment-20261115-1703-item25352",
-    "acquired_at": "2026-11-15T12:03:00.000Z",
-    "heartbeat_at": "2026-11-15T12:03:00.000Z",
-    "expires_at": "2026-11-15T12:43:00.000Z",
-    "checkpoint_path": "procurement/data/enrichment_queue_20261113.json",
-    "supplier_id": 5,
-    "offer_id": 25352,
-    "product_id": 6915,
-    "task_id": 4888
-  },
+  "shared_lease": null,
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-15T12:03:00.000Z",
-  "status": "lease_acquired_researching_hyundai_kia_55100h5600",
+  "heartbeat_at": "2026-11-15T12:11:00.000Z",
+  "status": "checkpointed_after_verified_hyundai_kia_55100h5600_resume_ready",
   "phase": "other_in_stock_control",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
@@ -7200,7 +7190,7 @@
     }
   ],
   "current_batch_index": 0,
-  "current_item_index": 8,
+  "current_item_index": 9,
   "reviewed": [
     {
       "supplier_id": 5,
@@ -7444,6 +7434,17 @@
       "checked_at": "2026-11-15T11:25:00.000Z",
       "status": "saved_and_ui_verified_photo_thumbnail_fitment_and_quantity",
       "journal": "procurement/data/enrichment_queue_items/5-28110-20261115.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25352,
+      "product_id": 6915,
+      "task_id": 4888,
+      "brand": "HYUNDAI-KIA",
+      "article": "55100H5600",
+      "checked_at": "2026-11-15T12:11:00.000Z",
+      "status": "saved_and_ui_verified_photo_thumbnail_and_fitment",
+      "journal": "procurement/data/enrichment_queue_items/5-25352-20261115.json"
     }
   ],
   "prepared": [
@@ -7848,6 +7849,18 @@
       "source_url": "https://kaspi.kz/shop/p/jashi-kreplenie-8405120p3011-jac-t6-120901371/",
       "image_url": "https://resources.cdn-kaspi.kz/img/m/p/hcb/h6e/86407480410142.jpg?format=gallery-large",
       "journal": "procurement/data/enrichment_queue_items/5-28110-20261115.json"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25352,
+      "product_id": 6915,
+      "task_id": 4888,
+      "kind": "photo_and_fitment",
+      "prepared_at": "2026-11-15T12:05:00.000Z",
+      "status": "published_and_verified",
+      "source_url": "https://kaspi.kz/shop/p/hyundai-kia-balka-zadnei-podveski-55100h5600-146288405/",
+      "image_url": "https://resources.cdn-kaspi.kz/img/m/p/p58/pa8/66804531.png?format=gallery-medium",
+      "journal": "procurement/data/enrichment_queue_items/5-25352-20261115.json"
     }
   ],
   "queued": [
@@ -7946,6 +7959,16 @@
       "quantity_commit": "102ced5235c903b585d246d8c384eeef7cc26773",
       "deploy_id": "dep-dbspc12jnfac73chbp30",
       "task_id": 7210
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25352,
+      "kind": "photo_and_fitment_publication",
+      "queued_at": "2026-11-15T12:08:01.000Z",
+      "guard_commit": "120edd9f14286c70e502ff9deb5635480fe53684",
+      "commit": "70230ed6818163210f96ba6fd616bdf9311ff673",
+      "deploy_id": "dep-dbsq18s9v7es73c6eib0",
+      "task_id": 4888
     }
   ],
   "saved": [
@@ -8234,6 +8257,20 @@
       "supplier_thumbnail": "products/optimized/43ae7003b56b280a3a63b61b6270d7e942888588721e3e8a3d5d0bc0985252fd.webp",
       "deploy_id": "dep-dbspc12jnfac73chbp30",
       "live_commit": "102ced5235c903b585d246d8c384eeef7cc26773"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25352,
+      "kind": "photo_thumbnail_and_fitment",
+      "saved_at": "2026-11-15T12:08:26.610003Z",
+      "task_id": 4888,
+      "fitment_ids": [
+        111533
+      ],
+      "main_image": "products/optimized/8c6434f235babf22017a14e675d4290ff68a8dfa0ead4bec464966bdb7e4f0a6.webp",
+      "supplier_thumbnail": "products/optimized/7ef91a8c7653ca844f10ce37ef410d82fc467b16d4eaef56c489908a0a86cafc.webp",
+      "deploy_id": "dep-dbsq18s9v7es73c6eib0",
+      "live_commit": "70230ed6818163210f96ba6fd616bdf9311ff673"
     }
   ],
   "verified": [
@@ -8672,6 +8709,25 @@
       "engine_rows": 0,
       "package_quantity": 6,
       "verified_at": "2026-11-15T11:25:00.000Z"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25352,
+      "kind": "photo_thumbnail_and_fitment",
+      "db_verified": true,
+      "ui_verified": true,
+      "ui_url": "https://zpt.kz/hyundai-zpt-25352/",
+      "ui_http_status": 200,
+      "main_image_url": "https://zpt.kz/products/products/optimized/8c6434f235babf22017a14e675d4290ff68a8dfa0ead4bec464966bdb7e4f0a6.webp",
+      "thumbnail_url": "https://zpt.kz/products/products/optimized/7ef91a8c7653ca844f10ce37ef410d82fc467b16d4eaef56c489908a0a86cafc.webp",
+      "main_dimensions": "750x241",
+      "thumbnail_dimensions": "180x58",
+      "fitment_ids": [
+        111533
+      ],
+      "configuration_count": 1,
+      "engine_rows": 1,
+      "verified_at": "2026-11-15T12:11:00.000Z"
     }
   ],
   "exceptions": [
@@ -8913,14 +8969,14 @@
   "publication_pending": null,
   "next": {
     "phase": "other_in_stock_control",
-    "sequence": 9,
+    "sequence": 10,
     "batch_size": 20,
     "supplier_id": 5,
-    "offer_id": 25352,
-    "product_id": 6915,
-    "task_id": 4888,
-    "brand": "HYUNDAI-KIA",
-    "article": "55100H5600"
+    "offer_id": 25159,
+    "product_id": 6813,
+    "task_id": 4786,
+    "brand": "Parts-Mall",
+    "article": "pqb-007"
   },
   "events": [
     {
@@ -9487,33 +9543,49 @@
       "at": "2026-11-15T11:25:00.000Z",
       "type": "lease_released",
       "detail": "Shared lease released after per-item checkpoint; queue resumes at ZakazAuto offer 25352."
+    },
+    {
+      "at": "2026-11-15T12:03:00.000Z",
+      "type": "lease_acquired",
+      "detail": "Shared lease acquired after canonical blob-SHA check; resumed frozen ZakazAuto batch20 at offer 25352 / HYUNDAI-KIA 55100H5600."
+    },
+    {
+      "at": "2026-11-15T12:11:00.000Z",
+      "type": "item_saved_verified_and_advance",
+      "detail": "HYUNDAI-KIA 55100H5600: exact photo 750x241, thumbnail 180x58 and one sourced HYUNDAI Accent / Solaris fitment row saved and verified. Only model year 2021 and engine G4LC stored; generation and other years remain unknown. Resume offer 25159."
+    },
+    {
+      "at": "2026-11-15T12:11:00.000Z",
+      "type": "lease_released",
+      "detail": "Expanded checkpoint released after per-item save; canonical shared lease remains held until report checkpoint completes."
     }
   ],
   "last_success": {
-    "at": "2026-11-15T11:25:00.000Z",
+    "at": "2026-11-15T12:11:00.000Z",
     "supplier_id": 5,
-    "offer_id": 28110,
-    "product_id": 9237,
-    "task_id": 7210,
-    "brand": "JASHI",
-    "article": "8405120P3011/SET/6p/",
+    "offer_id": 25352,
+    "product_id": 6915,
+    "task_id": 4888,
+    "brand": "HYUNDAI-KIA",
+    "article": "55100H5600",
     "saved": {
       "photo": true,
       "thumbnail": true,
       "fitment": true,
-      "years_or_engines": false,
-      "package_quantity": true
+      "years_or_engines": true
     },
     "db_verified": true,
     "ui_verified": true,
     "fitment_ids": [
-      111532
+      111533
     ],
-    "live_commit": "102ced5235c903b585d246d8c384eeef7cc26773",
-    "deploy_id": "dep-dbspc12jnfac73chbp30",
-    "ui_url": "https://zpt.kz/jac-zpt-28110/"
+    "configuration_count": 1,
+    "engine_rows": 1,
+    "live_commit": "70230ed6818163210f96ba6fd616bdf9311ff673",
+    "deploy_id": "dep-dbsq18s9v7es73c6eib0",
+    "ui_url": "https://zpt.kz/hyundai-zpt-25352/"
   },
-  "last_commit": "102ced5235c903b585d246d8c384eeef7cc26773",
+  "last_commit": "70230ed6818163210f96ba6fd616bdf9311ff673",
   "paused_at": "2026-11-14T19:16:20.438Z",
   "pause_reason": "Sequence 14 EX54661A7100 recheck completed. Two exact photo sources were temporarily unavailable to the background consumer (HTTP 403); existing fitment verified. Resume at sequence 15.",
   "remaining_live": {
@@ -9957,55 +10029,38 @@
     "service_memory_limit_bytes": 536870900,
     "decision": "research and read-only checks allowed; defer or throttle writes while memory remains above 90% on the web service"
   },
-  "updated_at": "2026-11-15T12:03:00.000Z",
-  "current_index": 8,
+  "updated_at": "2026-11-15T12:11:00.000Z",
+  "current_index": 9,
   "next_supplier_id": 5,
-  "next_offer_id": 25352,
-  "next_product_id": 6915,
-  "next_task_id": 4888,
+  "next_offer_id": 25159,
+  "next_product_id": 6813,
+  "next_task_id": 4786,
   "last_lease": {
-    "owner": "weekend-enrichment-20261115-1616-item28110",
-    "acquired_at": "2026-11-15T11:16:00.000Z",
-    "released_at": "2026-11-15T11:25:00.000Z",
-    "result": "completed_saved_and_verified",
-    "canonical_path": "procurement/data/enrichment_queue_20261111.json"
-  },
-  "lease": {
     "owner": "weekend-enrichment-20261115-1703-item25352",
     "acquired_at": "2026-11-15T12:03:00.000Z",
-    "heartbeat_at": "2026-11-15T12:03:00.000Z",
-    "expires_at": "2026-11-15T12:43:00.000Z",
+    "released_at": "2026-11-15T12:11:00.000Z",
+    "result": "completed_saved_and_verified_hyundai_kia_55100h5600",
     "checkpoint_path": "procurement/data/enrichment_queue_20261113.json",
-    "supplier_id": 5,
-    "offer_id": 25352,
-    "product_id": 6915,
-    "task_id": 4888
+    "journal_commit": "206eeff445ec99e019aef504774f08e815c0387c",
+    "next_offer_id": 25159
   },
-  "pending_candidate": {
+  "lease": null,
+  "pending_candidate": null,
+  "last_reviewed": {
     "supplier_id": 5,
     "offer_id": 25352,
     "product_id": 6915,
     "task_id": 4888,
     "brand": "HYUNDAI-KIA",
     "article": "55100H5600",
-    "state": "researching_new_sources"
-  },
-  "last_reviewed": {
-    "supplier_id": 5,
-    "offer_id": 28110,
-    "product_id": 9237,
-    "task_id": 7210,
-    "brand": "JASHI",
-    "article": "8405120P3011/SET/6p/",
-    "kind": "exact_photo_thumbnail_confirmed_model_and_quantity_saved",
+    "kind": "exact_photo_thumbnail_confirmed_model_year_engine_saved",
     "photo_saved": true,
     "thumbnail_saved": true,
     "fitment_saved": true,
     "fitment_rows": 1,
     "configuration_rows": 1,
-    "package_quantity": 6,
     "db_verified": true,
     "ui_verified": true,
-    "reviewed_at": "2026-11-15T11:25:00.000Z"
+    "reviewed_at": "2026-11-15T12:11:00.000Z"
   }
 }
