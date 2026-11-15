@@ -2,13 +2,7 @@
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
   "checked_at": "2026-11-15T09:34:00.000Z",
-  "lease": {
-    "owner": "weekend-enrichment-20261115-1616-item28110",
-    "acquired_at": "2026-11-15T11:16:00.000Z",
-    "heartbeat_at": "2026-11-15T11:16:00.000Z",
-    "expires_at": "2026-11-15T11:56:00.000Z",
-    "purpose": "single-item exact-source enrichment JASHI 8405120P3011/SET/6p offer 28110"
-  },
+  "lease": null,
   "next_supplier": 3,
   "batch_size": 100,
   "queue": [
@@ -15637,9 +15631,11 @@
   "last_lease": {
     "owner": "weekend-enrichment-20261115-1616-item28110",
     "acquired_at": "2026-11-15T11:16:00.000Z",
-    "heartbeat_at": "2026-11-15T11:16:00.000Z",
-    "expires_at": "2026-11-15T11:56:00.000Z",
-    "purpose": "single-item exact-source enrichment JASHI 8405120P3011/SET/6p offer 28110"
+    "released_at": "2026-11-15T11:25:00.000Z",
+    "result": "completed_saved_and_verified_jashi_8405120p3011_set",
+    "checkpoint_path": "procurement/data/enrichment_queue_20261113.json",
+    "checkpoint_commit": "861cfe53c13ca5653ca127c58af687a202509a31",
+    "next_offer_id": 25352
   },
   "continuation_20261112": {
     "started_at": "2026-11-12T02:20:46.660Z",
@@ -16364,6 +16360,6 @@
     "make_model_pairs_added": 146,
     "configurations_added": 185
   },
-  "updated_at": "2026-11-15T11:16:00.000Z",
-  "heartbeat_at": "2026-11-15T11:16:00.000Z"
+  "updated_at": "2026-11-15T11:25:00.000Z",
+  "heartbeat_at": "2026-11-15T11:25:00.000Z"
 }
