@@ -2,8 +2,8 @@
   "schema": 1,
   "night_end_date": "2026-11-15",
   "started_at": "2026-11-14T19:02:21.138Z",
-  "updated_at": "2026-11-15T12:11:00.000Z",
-  "status": "checkpointed_after_verified_hyundai_kia_55100h5600_resume_ready",
+  "updated_at": "2026-11-15T12:22:00.000Z",
+  "status": "checkpointed_after_verified_parts_mall_pqb007_resume_ready",
   "supplier_stats": {
     "1": {
       "name": "Omega",
@@ -25,25 +25,25 @@
     },
     "5": {
       "name": "ЗаказАвто",
-      "processed_unique": 16,
-      "photos_added": 11,
-      "fitment_added": 8,
-      "years_or_engines_added": 6,
+      "processed_unique": 17,
+      "photos_added": 12,
+      "fitment_added": 9,
+      "years_or_engines_added": 7,
       "skips": {
         "temporary_source_unavailable_http_403": 4,
         "brand_article_conflict": 1
       },
       "pending_ui_verification": 0,
-      "thumbnails_added": 11
+      "thumbnails_added": 12
     }
   },
   "queue": {
     "phase": "other_in_stock_control",
     "batch_size": 20,
     "next_supplier_id": 5,
-    "next_offer_id": 25159,
+    "next_offer_id": 25206,
     "lease_owner": null,
-    "lease_released_at": "2026-11-15T12:11:00.000Z",
+    "lease_released_at": "2026-11-15T12:22:00.000Z",
     "publication_pending": null,
     "pending_ui_verification": null,
     "recheck": {
@@ -60,11 +60,11 @@
       "structured_fitment_missing_before": 5,
       "fitment_display_enhancements": 1
     },
-    "next_product_id": 6813,
-    "next_task_id": 4786,
+    "next_product_id": 6766,
+    "next_task_id": 4739,
     "lease_expires_at": null,
-    "current_index": 9,
-    "current_batch_processed": 9,
+    "current_index": 10,
+    "current_batch_processed": 10,
     "current_batch_total": 20
   },
   "events": [
@@ -322,16 +322,31 @@
       "at": "2026-11-15T12:11:00.000Z",
       "type": "lease_released",
       "detail": "Shared lease released after per-item checkpoint; no pending publication or UI verification."
+    },
+    {
+      "at": "2026-11-15T12:13:00.000Z",
+      "type": "lease_acquired",
+      "detail": "Shared lease acquired after canonical blob-SHA check for ZakazAuto offer 25159 / Parts-Mall PQB-007; one existing photo consumer remained in use."
+    },
+    {
+      "at": "2026-11-15T12:22:00.000Z",
+      "type": "item_saved_verified_and_advance",
+      "detail": "Parts-Mall PQB-007: exact 750x491 photo, 180x118 thumbnail and KIA Sorento (BL) structured fitment saved and verified in DB/UI. Manufacturer catalogue confirms period 01.2002–03.2006 with D4CB 2.5L diesel and G6CU 3.5L gasoline. Side and package quantity were not inferred. Batch20 now 10/20; resume offer 25206."
+    },
+    {
+      "at": "2026-11-15T12:22:00.000Z",
+      "type": "lease_released",
+      "detail": "Shared lease released after per-item checkpoint; no pending publication or UI verification."
     }
   ],
   "last_success": {
-    "at": "2026-11-15T12:11:00.000Z",
+    "at": "2026-11-15T12:22:00.000Z",
     "supplier_id": 5,
-    "offer_id": 25352,
-    "product_id": 6915,
-    "task_id": 4888,
-    "brand": "HYUNDAI-KIA",
-    "article": "55100H5600",
+    "offer_id": 25159,
+    "product_id": 6813,
+    "task_id": 4786,
+    "brand": "Parts-Mall",
+    "article": "pqb-007",
     "saved": {
       "photo": true,
       "thumbnail": true,
@@ -341,15 +356,15 @@
     "db_verified": true,
     "ui_verified": true,
     "fitment_ids": [
-      111533
+      111534
     ],
-    "configuration_count": 1,
-    "engine_rows": 1,
-    "live_commit": "70230ed6818163210f96ba6fd616bdf9311ff673",
-    "deploy_id": "dep-dbsq18s9v7es73c6eib0",
-    "ui_url": "https://zpt.kz/hyundai-zpt-25352/"
+    "configuration_count": 2,
+    "engine_rows": 2,
+    "live_commit": "9949c2f9b5402a407fd303367d013a4a4e095f9f",
+    "deploy_id": "dep-dbsq5glbedkc73cfa6tg",
+    "ui_url": "https://zpt.kz/kia-zpt-25159/"
   },
-  "last_commit": "0680ce8a9bbaea2c74759dc6ea90f20626893348",
+  "last_commit": "579d111752f561847485ab900becf81ed75c8ed2",
   "morning_report": {
     "period_start": "2026-11-14T23:00:00+05:00",
     "period_end": "2026-11-15T06:00:00+05:00",
