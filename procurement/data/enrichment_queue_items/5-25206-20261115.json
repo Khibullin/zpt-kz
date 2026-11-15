@@ -1,0 +1,109 @@
+{
+  "schema": 1,
+  "supplier_id": 5,
+  "supplier_name": "ЗаказАвто",
+  "offer_id": 25206,
+  "product_id": 6766,
+  "task_id": 4739,
+  "brand": "JASHI",
+  "article": "54651-F2500",
+  "checked_at": "2026-11-15T12:29:00.000Z",
+  "local_time": "2026-11-15T17:29:00+05:00",
+  "status": "saved_and_ui_verified_fitment_photo_unconfirmed",
+  "fields_before": {
+    "product_main_image": "",
+    "product_supplier_thumbnail": "",
+    "offer_photo_url": "",
+    "task_status": "needs_source",
+    "fitment_rows": 0
+  },
+  "sources": [
+    {
+      "kind": "official_manufacturer_cross_catalogue",
+      "url": "https://aftermarket.ctr.co.kr/files/214f77492147bb699d6fb2030be19ec2.pdf",
+      "result": "OEM 54651-F2500; HYUNDAI Avante AD / Elantra AD; 2015–2020; FRONT L"
+    },
+    {
+      "kind": "checked_catalogue_search",
+      "url": "https://shop.globalparts.kz/getCatalog?partNumber=54651F2500",
+      "result": "exact article and left-side execution, but brand Hyundai/Kia rather than JASHI; photo not reused"
+    },
+    {
+      "kind": "conflicting_exact_kaspi_card",
+      "url": "https://kaspi.kz/shop/p/expert-perednii-54651-f2500-1-sht-119619624/",
+      "result": "exact article but brand Expert; rejected for JASHI photo"
+    }
+  ],
+  "prepared": {
+    "photo": false,
+    "thumbnail": false,
+    "fitment": true,
+    "exact_article_and_oem_cross_checked": true
+  },
+  "queued": {
+    "fitment_commit": "708cdbdfa7f0c4b860a598f58cb9d17e00e044d9",
+    "deploy_id": "dep-dbsq9fc9v7es73c6njng"
+  },
+  "saved": {
+    "photo": false,
+    "thumbnail": false,
+    "fitment_ids": [
+      111535
+    ],
+    "configurations": [
+      {
+        "make": "HYUNDAI",
+        "model": "Avante / Elantra (AD)",
+        "generation": "AD",
+        "years": "2015–2020",
+        "placement": "front left",
+        "engine": null
+      }
+    ]
+  },
+  "verified": {
+    "database": true,
+    "public_ui": true,
+    "ui_url": "https://zpt.kz/hyundai-zpt-25206/",
+    "fitment_visible": true,
+    "placeholder_still_visible": true,
+    "photo_saved": false
+  },
+  "exclusion": {
+    "field": "photo",
+    "reason": "exact_jashi_photo_not_found_brand_conflict",
+    "retry_condition": "new exact JASHI product-photo source only",
+    "checked_at": "2026-11-15T12:29:00.000Z",
+    "sources": [
+      "https://shop.globalparts.kz/getCatalog?partNumber=54651F2500",
+      "https://kaspi.kz/shop/p/expert-perednii-54651-f2500-1-sht-119619624/"
+    ]
+  },
+  "trade_data": {
+    "price_before_after": [
+      13000,
+      13000
+    ],
+    "cost_before_after": [
+      10000,
+      10000
+    ],
+    "stock_before_after": [
+      1,
+      1
+    ],
+    "kaspi_price_before_after": [
+      16997,
+      16997
+    ],
+    "changed": false
+  },
+  "next": {
+    "supplier_id": 5,
+    "offer_id": 25086,
+    "product_id": 6834,
+    "task_id": 4807,
+    "brand": "SsangYong",
+    "article": "7146034004"
+  }
+}
