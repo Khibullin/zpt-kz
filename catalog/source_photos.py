@@ -127,7 +127,7 @@ def process_photo_tasks(limit=10):
     if any(row['evidence'].get('block_kind')=='storage' or row['note'].startswith('Недостаточно свободного места') for row in blocked):return 0
     # Prepared work is activated by the deployed consumer, not the old process
     # while Render runs schema/data migrations for the next release.
-    SupplierPhotoTask.objects.filter(status__in=['prepared','maker_ready','web_ready','bilstein_ready','shock_ready','weekend14h_ready','weekend14i_ready','weekend14j_ready','weekend14k_ready','weekend14n_ready','weekend15a_ready','weekend15b_ready','weekend15c_ready','weekend15d_ready','weekend15e_ready','weekend15f_ready','weekend15g_ready','weekend15h_ready','weekend15i_ready','weekend15j_ready']).update(status='pending')
+    SupplierPhotoTask.objects.filter(status__in=['prepared','maker_ready','web_ready','bilstein_ready','shock_ready','weekend14h_ready','weekend14i_ready','weekend14j_ready','weekend14k_ready','weekend14n_ready','weekend15a_ready','weekend15b_ready','weekend15c_ready','weekend15d_ready','weekend15e_ready','weekend15f_ready','weekend15g_ready','weekend15h_ready','weekend15i_ready','weekend15j_ready','weekend15k_ready']).update(status='pending')
     from .reviewed_remaining2 import process_reviewed_photos as process_remaining2_photos
     done=process_remaining2_photos(limit=limit)
     from .reviewed_zakaz100 import process_reviewed_photos as process_zakaz100_photos
@@ -259,7 +259,16 @@ def process_photo_tasks(limit=10):
                         and evidence.get('verified_image_sha256')=='b75b65ea9254a36b432e5b51c7111eec80c5a4ee222d3120b8d2cf6074bfc9c9'
                         and evidence.get('checked_on')=='2026-11-15'
                     )
-                    if exact_jashi or exact_trialli or exact_hyundai_kia or exact_ssangyong or exact_haval or exact_jashi_54651:
+                    exact_jashi_54650=(
+                        task.pk==4930 and product.pk==6957 and offer.pk==25289
+                        and offer.brand=='JASHI' and offer.article=='54650H5100'
+                        and task.source_url=='https://kaspi.kz/shop/p/jashi-perednii-54650h5100-1-sht-144183578/'
+                        and evidence.get('reviewed_batch')=='weekend-20261115-k'
+                        and evidence.get('image_url')=='https://resources.cdn-kaspi.kz/img/m/p/p88/p76/58890227.png?format=gallery-medium'
+                        and evidence.get('verified_image_sha256')=='cde6c7ba0589258b38fffe912858fecbc633341d7c0a19a408fad67c093f38e1'
+                        and evidence.get('checked_on')=='2026-11-15'
+                    )
+                    if exact_jashi or exact_trialli or exact_hyundai_kia or exact_ssangyong or exact_haval or exact_jashi_54651 or exact_jashi_54650:
                         # The exact card and selected item image were visually checked before
                         # staging. Fetch only that immutable CDN object here; the guarded
                         # migration has already rechecked live identity, stock and fitment.
