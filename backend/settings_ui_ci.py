@@ -5,6 +5,11 @@ temporary SQLite schema without executing data-dependent historical migrations.
 """
 from .settings import *  # noqa: F403,F401
 
+CACHES['procurement_options'] = {
+    'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    'LOCATION': 'procurement-test-options',
+}
+
 DATABASES["default"]["TEST"] = {"MIGRATE": False}
 
 # Exercise normal routing with mocked senders; manual-mode tests opt in explicitly.

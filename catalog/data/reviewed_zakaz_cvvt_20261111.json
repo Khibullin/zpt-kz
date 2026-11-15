@@ -1,0 +1,66 @@
+{
+  "checked_on": "2026-11-11",
+  "sources": [
+    {
+      "offer_id": 26720,
+      "brand": "HYUNDAI-KIA",
+      "article": "2435025000",
+      "source_url": "https://www.hyundaipartsdeal.com/genuine/hyundai-cvvt-assy-int~24350-25000.html",
+      "source_label": "HyundaiPartsDeal, каталог продавца оригинальных деталей Hyundai",
+      "source_kind": "retailer_catalogue",
+      "note": "Регион каталога США. Источник прямо указывает 2435025000 и 24350-25000 как одну деталь. Перенесена только таблица Vehicle Fitment. Не замена 24350-2G600; фото и другие поля не меняются.",
+      "fitments": [
+        {
+          "make": "HYUNDAI",
+          "model": "GENESIS COUPE",
+          "years": "2008-2016",
+          "engine": "DOHC - TCI/MPI",
+          "body": "Coupe - 2Door 4P",
+          "notes": "Каталог США; подбор по VIN, объём/код двигателя не указаны."
+        },
+        {
+          "make": "HYUNDAI",
+          "model": "SANTA FE",
+          "years": "2009-2012",
+          "engine": "DOHC - MPI",
+          "body": "Wagon - 5Door 5P",
+          "notes": "Каталог США; подбор по VIN, объём/код двигателя не указаны."
+        },
+        {
+          "make": "HYUNDAI",
+          "model": "SONATA",
+          "years": "2005-2010",
+          "engine": "DOHC - MPI",
+          "body": "4 Door Sedan; Sedan - 4Door 5P",
+          "notes": "High Grade; Middle Grade. Каталог США; подбор по VIN, объём/код двигателя не указаны."
+        },
+        {
+          "make": "HYUNDAI",
+          "model": "TUCSON",
+          "years": "2009-2013",
+          "engine": "DOHC - MPI",
+          "body": "Wagon - 5Door 5P",
+          "notes": "Каталог США; подбор по VIN, объём/код двигателя не указаны."
+        }
+      ],
+      "source_article": "2435025000",
+      "fitment_note": "Регион каталога США. Источник прямо указывает 2435025000 и 24350-25000 как одну деталь. Перенесена только таблица Vehicle Fitment. Не замена 24350-2G600; фото и другие поля не меняются.",
+      "image_source_url": "https://www.hyundaipartsdeal.com/genuine/hyundai-cvvt-assy-int~24350-25000.html",
+      "image_url": "https://www.hyundaipartsdeal.com/resources/encry/actual-picture/hpd/large/29f72a38b4defebf2db84e08da1b0026/a1acf081876447fab5bcd74e0cbec782.jpg",
+      "image_note": "Фото точной позиции из каталога продавца оригинальных деталей Hyundai; показаны два ракурса одной детали. Комплектность не изменена.",
+      "source_sha256": "9a1733dbd13aaf2d70b20a7526d71058da0ed0be8b4cd27f14bff9efdcfc0fae",
+      "main_b64": "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",
+      "main_sha256": "0c7cae65509b2b236f54bf2042d54973eab6c2ac4abeec702ffbb312251dadf3",
+      "main_size": [
+        400,
+        300
+      ],
+      "thumbnail_b64": "UklGRgYFAABXRUJQVlA4IPoEAACQHQCdASq0AIcAPpVIn0wlpCKiJDEpiLASiWlu4XVBxy6re+vzBhNjaDrZf2mtmmeWdBKPIQMhPx2VFR5CBjq1KRrQDYP6Uwi3UPPGzPZGi5KjljdTf73mFHsPQfvimg5y1fZOx+IxrMANfoZ/4b81TcBs+g6h4qLQPvBzL8qGa6X1goGh62h0fC81QF2M/Oe55+JspYpa2N60sgo5ocC/4FgJEm5Cb0YOToPSrRoFttDen49FDy44rh4LcnntuS09nxw/XYon2TR1yQm2FtVXrvq5EsnVCkJdokCtaXmA5tHM/HZUVnNMOyoqPIQMhPx2VFRcAAD+/450Bw5qZ162kraxrSdaaLrbr0zLElufrTOfL8ASG0F06b0Th7pkiz4/6kytYmvJFDU7555MSBQHAOUOvSxg/J2yPWbV9P6Efd/mopLapdtxW2t/tT+xQf8ZzWRhu7TWyYd1pY9yuCzCOe2SlT1im23YiVIWX1kJHn6UV31KcRB8+46x+NHYz4O2MTulzU37cmo8QO9GM8wUUFU5mnvKZPOIPjuCqnVfdTRXyfE4weICfLQOXVN3bJbBZazzoKY0GG/a/L8Fh+vhLDZJr1tG5qt/Rmlg0HAV/E6Ou38Oik0fkV4sJMch+jhFvLI/JcPWVU5amLZ2XqFJWVY4yn3Bip/GAd6jGpwpqMjdxeqScAhCMAx7O6MgXdjpfF+9SJHUvgVFVc1KATT76W1qEZFvhLNjtYwLNqfoaxPfxpvX9mv1qQ3UCQqG3xlVsxRt7zrUmM5RAYmIysERT3n9f9PewqL7Aq9BFXgbaErrVYFVsJpm+eAtrtgie8k6NOWQBr/nlH0MLMBCYkr2//JUWCjdjXkCFjpZs01IIMSfSdlHWY8SVkoPv+pkcKVklb5iPcwtiCd/9lTleDHfwvi4r3APaL5egkKubs0xKLDNPG7NNKr4+lgVwW6MojfXK7O3gF7oIZCp7oEbbNVXOIEErJ36WXZ2LV+tqfbtoTDS304fb0JZHyYFWdXkXD4XFLplZ7JYgN0nCNVxFlGHvVl/1lkScdf9SoewsElOv4YFvfaAMDiyqIlwwePn+YROzy6Y6E2M5lOBtmLjsS1czaxDOg+dEdBKGDxYLaIuxMsJ3uQLwvM4SBCCGC3ye09d0CFbBkj56/iWPHIwEC/ZD5nO+zYbLUj5XT0xbkjizFmhCkvDJRx8h8bwDJ+OGCd14swASFAvT2Zdi7whq0UVwfCT7KU9/1oyAU38jWhJXAt6Sui6n/0qJDKJDjBhiDIXfvgvjm/jo3BYqsxucRGkoKpNZ4V29NlervZ+w2hug9u4/5DIZB1v38DhBN0q4UUODNNKamoaGEgGJnfa0cT4USUO2ick+95L/ZACtGNqOCfkOeLgSNG3OyzxJYlgodJol27bOO+X/xm0eJuhRe5hAAJzbPOJUUA5tgtRxP1O8YkHMjWIPyDoBhMlhYzK3Ae+ERd3xEjhTGyaIAP6XxIOhfiBXzbdnMWJltIRCaoWRBhMryaAL2TvvvxJ84ourL16iTJMNtaH8nu14AGNlKF2hiW53JkJsCf8GUW3jZRIm6YJS48bf8TN3sK1Hawwr3wt7hSaza6C6NxVp8yvhHyglx0Y1MWs7bIDeEz0PBNOK7ExQDkGDEWQuwcPUjeH9GBNLJsyNbpqaiD1cF41JW/fvowE7HgSQEAAAA==",
+      "thumbnail_sha256": "9d9a99985cac336b0b1515d9608f03924e900b1015fd2f717195d50ab7478a99",
+      "thumbnail_size": [
+        180,
+        135
+      ]
+    }
+  ]
+}

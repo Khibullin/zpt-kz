@@ -1,0 +1,74 @@
+{
+  "checked_on": "2026-11-12",
+  "offers": [
+    {
+      "article": "1115-82",
+      "brand": "MOTORAD",
+      "cost": 18760,
+      "has_fitment": false,
+      "id": 35166,
+      "kaspi_price": 26640,
+      "kaspi_url": "https://kaspi.kz/shop/p/motorad-termostat-1115-82-174077975/?c=750000000",
+      "main_image": "products/optimized/9b087d4484b0feda847b5db3e618809a98fc2011a6b91c2be67405e10d44dbd7.webp",
+      "name": "Термостат 82°С",
+      "photo_status": "done",
+      "product_id": 15974,
+      "profit": 4300,
+      "stock": "1",
+      "supplier_id": 3,
+      "supplier_thumbnail": "products/optimized/be09a93c42fbaed7c5764f48d2d5669bdadd830faaefab39e58165d6966f82e0.webp",
+      "task_id": 13947,
+      "fitments": [
+        {
+          "make": "TOYOTA",
+          "model": "CAMRY",
+          "generation": "VIII (_V7_, _VA7_, _VH7_)",
+          "chassis": "AXVH71_, AXVH70",
+          "years": "2017–2026",
+          "engine": "A25A-FXS",
+          "capacity": "2.5 л",
+          "fuel": "Бензин/электричество, гибрид",
+          "notes": "Только 2.5 Hybrid, 218 л.с. / 160 кВт. MOTORAD 1115-82: 82°C, с корпусом, OE 1603125010. Годы отображены в выбранной модификации каталога AUTODOC; это сведения продавца, а не подтверждение производителя. Другие двигатели и модели по кросс-номерам не добавлялись."
+        }
+      ],
+      "source_url": "https://www.autodoc.co.uk/car-parts/thermostat-10195/toyota/camry/camry-v7-va7-vh7/128630-2-5-hybrid-axvh71-axvh70",
+      "source_label": "AUTODOC — каталог продавца, точная строка MOTORAD1115-82",
+      "source_kind": "retailer_catalogue",
+      "note": "Точный MOTORAD 1115-82 в каталоге AUTODOC для Toyota Camry VIII 2.5 Hybrid A25A-FXS, 218 л.с. / 160 кВт. Сведения каталога продавца; применимость производителя в этом проходе не подтверждена."
+    }
+  ],
+  "display_note_repairs": [
+    {
+      "offer_id": 26817,
+      "brand": "HAVAL",
+      "article": "3705100XEN01",
+      "source_url": "https://gw-store.ru/catalog/haval-dargo-2022-n-v-/katushka-zazhiganiya-haval-dargo-dargo-x-f7-ii-pokolenie-h7-tank-500-urban-gibrid-original-bosch-f-0/",
+      "expected_note": "Exact seller page manufacturer HAVAL and article3705100XEN01. Two photographs downloaded and inspected: genuine GWM label on BOSCH box explicitly3705100XEN01, one ignition coil. Retain watermark. Not substitute Startvolt/Kortex cross-reference photo.",
+      "note": "Точный артикул 3705100XEN01 в каталоге продавца оригинальных запчастей HAVAL. Сохранены перечисленные модели и поколения; Tank 500 — только Urban, гибрид. Двигатели и неуказанные годы не добавлены."
+    },
+    {
+      "offer_id": 25225,
+      "brand": "Changan",
+      "article": "S111F260204-0103",
+      "source_url": "https://www.cigmaglobal.com/products/changan-cs35-plus-amortiguador-del.html",
+      "expected_note": "Newly inspected PDF page157 explicitly identifies exact full article as front LH strut; resolves previous side conflict. Cigma exact CHANGAN article independently identifies CS35 PLUS. Years and engines not established.",
+      "note": "Модель CS35 PLUS подтверждена точным каталогом Cigma. Передняя левая стойка по прайс-листу Changan от 07.09.2021, стр. 157. Годы и двигатель источником не установлены."
+    },
+    {
+      "offer_id": 25401,
+      "brand": "Chery",
+      "article": "602000499AADQJ",
+      "source_url": "https://www.shindary.com/news/shindary-productsspare-parts-numbers-for-chery-tiggo-4-pro.html",
+      "expected_note": "Both Shindary catalogue sheets explicitly list exact 602000499AADQJ and CHERY model. Source scope Uruguay preserved. No OEM-photo identity established; aftermarket and used images excluded.",
+      "note": "Точный артикул 602000499AADQJ в таблицах Shindary для Tiggo 4 иTiggo 4 Pro. Источники ограничены рынком Уругвая; годы и двигатель не указаны."
+    },
+    {
+      "offer_id": 26477,
+      "brand": "SsangYong",
+      "article": "4840134100",
+      "source_url": "https://autopiter.kg/service-parts/ssangyong/new-actyon-(korando)-855/20-e-xdi-4wd-5206",
+      "expected_note": "Independent exact OEM maintenance catalogue lists 4840134100 as rear brake disc for New Actyon(Korando)2.0e-XDi4WD. Adjacent wiper dates not assigned to brake disc.",
+      "note": "Точная строка 4840134100 в каталоге ТО для SsangYong New Actyon (Korando) 2.0 e-XDi 4WD. Для тормозного диска годы не указаны."
+    }
+  ]
+}

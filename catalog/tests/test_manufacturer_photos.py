@@ -48,6 +48,78 @@ class ManufacturerPhotoTests(SimpleTestCase):
         self.assertEqual(matching_manufacturer_image(html,url,'AYWIPARTS','AW1310010R'),'')
         self.assertEqual(matching_manufacturer_image(html.replace('/AW1310010L/','/AW1310010R/'),url,'AYWIPARTS','AW1310010L'),'')
 
+    def test_autodoc_mando_requires_exact_jsonld_identity_and_first_product_image(self):
+        url='https://www.autodoc.co.uk/mando/14579627'
+        image='https://cdn.autodoc.de/thumb?id=14579627&m=0&n=0&lng=en&rev=94078121'
+        data={
+            '@type':'Product','name':'Mando EX54661A7100 Shock absorber for KIA CERATO',
+            'sku':'EX54661A7100','mpn':'EX54661A7100','brand':{'name':'Mando'},
+            'additionalProperty':[
+                {'name':'Item number','value':'EX54661A7100'},
+                {'name':'Manufacturer','value':'Mando'},
+            ],
+            'image':[image,'https://cdn.autodoc.de/thumb?id=14579627&m=0&n=1&lng=en&rev=94078121'],
+        }
+        def markup():return '<script type="application/ld+json">'+json.dumps(data)+'</script>'
+        self.assertEqual(matching_manufacturer_image(markup(),url,'Mando','EX54661A7100'),image)
+        self.assertEqual(matching_manufacturer_image(markup(),url,'OTHER','EX54661A7100'),'')
+        self.assertEqual(matching_manufacturer_image(markup(),url,'Mando','EX54661A7200'),'')
+        data['image'][0]=image.replace('n=0','n=1')
+        self.assertEqual(matching_manufacturer_image(markup(),url,'Mando','EX54661A7100'),'')
+
+    def test_evocar_mando_requires_exact_page_execution_and_product_photo(self):
+        url='https://evocar.ua/ru/mando/ex54661a7100'
+        image='https://cdn.evocar.ua/786ef0b604d0b4428b926fc1db1a4185/mando-ex54661a7100.jpg'
+        html=(
+            '<h1>Амортизатор Mando EX54661A7100</h1>'
+            '<div>Сторона установки Передний мост справа</div>'
+            '<div>Парные номера артикулов EX54651A7100</div>'
+            '<img alt="Mando EX54661A7100" src="'+image+'">'
+        )
+        self.assertEqual(matching_manufacturer_image(html,url,'Mando','EX54661A7100'),image)
+        self.assertEqual(matching_manufacturer_image(html,url,'Mando','EX54661A7200'),'')
+        self.assertEqual(matching_manufacturer_image(html.replace('справа','слева'),url,'Mando','EX54661A7100'),'')
+        self.assertEqual(matching_manufacturer_image(html.replace('cdn.evocar.ua','evil.example'),url,'Mando','EX54661A7100'),'')
+
+    def test_ebay_ssangyong_requires_exact_article_single_unit_and_main_photo(self):
+        url='https://www.ebay.com/itm/157310193004'
+        image='https://i.ebayimg.com/images/g/XLIAAeSwdGFowS-W/s-l1600.webp'
+        html=(
+            '<h1>Genuine Rear Gas Shock Absorber 4530132100 for Ssangyong Korando Sports</h1>'
+            '<div>Buy 1$159.00/ea</div>'
+            '<img alt="4530132100" src="'+image+'">'
+        )
+        self.assertEqual(matching_manufacturer_image(html,url,'SsangYong','4530132100'),image)
+        self.assertEqual(matching_manufacturer_image(html,url,'SsangYong','4530132200'),'')
+        self.assertEqual(matching_manufacturer_image(html.replace('Buy 1','Buy 2'),url,'SsangYong','4530132100'),'')
+        self.assertEqual(matching_manufacturer_image(html.replace('s-l1600','s-l500'),url,'SsangYong','4530132100'),'')
+
+    def test_gmarket_ssangyong_requires_exact_article_single_unit_and_main_photo(self):
+        url='https://item.gmarket.co.kr/Item?goodsCode=4348280358'
+        image='https://gdimg.gmarket.co.kr/4348280358/still/600?ver=1741740426'
+        html=(
+            '<h1>쌍용/엑티언 스포츠/자동차 뒷쇽업쇼바/GAS타입/45301-32100/1개당</h1>'
+            '<img alt="45301-32100" src="'+image+'">'
+        )
+        self.assertEqual(matching_manufacturer_image(html,url,'SsangYong','4530132100'),image)
+        self.assertEqual(matching_manufacturer_image(html,url,'SsangYong','4530132200'),'')
+        self.assertEqual(matching_manufacturer_image(html.replace('/1개당','/2개'),url,'SsangYong','4530132100'),'')
+        self.assertEqual(matching_manufacturer_image(html.replace('/still/600','/still/80'),url,'SsangYong','4530132100'),'')
+
+    def test_kaspi_jashi_requires_exact_card_identity_and_main_photo(self):
+        url='https://kaspi.kz/shop/p/jashi-perednii-c281f260202-0200-1-sht-130050225/'
+        image='https://resources.cdn-kaspi.kz/img/m/p/p62/p7d/8356815.png?format=gallery-large'
+        html=(
+            '<h1>Амортизатор JASHI передний C281F260202-0200 1 шт</h1>'
+            '<div>Код товара: 130050225</div>'
+            '<meta property="og:image" content="'+image+'">'
+        )
+        self.assertEqual(matching_manufacturer_image(html,url,'JASHI','C281F260202-0200'),image)
+        self.assertEqual(matching_manufacturer_image(html,url,'JASHI','C281F260202-0400'),'')
+        self.assertEqual(matching_manufacturer_image(html,url,'OTHER','C281F260202-0200'),'')
+        self.assertEqual(matching_manufacturer_image(html.replace('130050225','130050226'),url,'JASHI','C281F260202-0200'),'')
+        self.assertEqual(matching_manufacturer_image(html.replace('gallery-large','gallery-medium'),url,'JASHI','C281F260202-0200'),'')
+
     def test_unapproved_pages_are_rejected(self):
         for url in ['http://aywiparts.ru/product/view/7','https://aywiparts.ru.evil.example/product/view/7','https://aywiparts.ru/product/view/7?redirect=1','https://[',None]:
             self.assertFalse(valid_page(url,'AYWIPARTS'))

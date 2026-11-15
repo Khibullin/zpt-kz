@@ -1,0 +1,121 @@
+{
+  "checked_on": "2026-11-14",
+  "sources": [
+    {
+      "offer_id": 25285,
+      "product_id": 7013,
+      "supplier_id": 5,
+      "brand": "Parts-Mall",
+      "article": "PJD007",
+      "stock": "2",
+      "cost": "8790.00",
+      "source_label": "Parts-Mall 2019 product catalogue (manufacturer catalogue copy)",
+      "source_kind": "manufacturer_catalogue_pdf_mirror",
+      "source_urls": [
+        "https://catalog.parts-mall.com/",
+        "https://file.euroauto.ru/file/catalogs/firms/5011.pdf"
+      ],
+      "fitment_note": "The exact Parts-Mall catalogue table lists PJD-007 as a front gas shock absorber for SSANGYONG KORANDO-NEW (KJ), catalogue period 1996-07 through 2005-10, and the seven engine rows retained here. The separate MUSSO table lists other PMC numbers, so Musso is deliberately not inferred. Coverage is limited to this manufacturer table and is not asserted for unlisted markets or configurations.",
+      "fitments": [
+        {
+          "make": "SSANGYONG",
+          "model": "Korando-NEW (KJ)",
+          "date_from": "1996-07",
+          "date_to": "2005-10",
+          "engine": "M161(E20)",
+          "displacement": "2.0L",
+          "valvetrain": "DOHC",
+          "fuel": "gasoline",
+          "placement": "front",
+          "shock_type": "gas",
+          "source_url": "https://file.euroauto.ru/file/catalogs/firms/5011.pdf",
+          "source_scope": "Exact PJD-007 row in the Parts-Mall manufacturer catalogue; no completeness claim outside this table"
+        },
+        {
+          "make": "SSANGYONG",
+          "model": "Korando-NEW (KJ)",
+          "date_from": "1996-07",
+          "date_to": "2005-10",
+          "engine": "M161(E23)",
+          "displacement": "2.3L",
+          "valvetrain": "DOHC",
+          "fuel": "gasoline",
+          "placement": "front",
+          "shock_type": "gas",
+          "source_url": "https://file.euroauto.ru/file/catalogs/firms/5011.pdf",
+          "source_scope": "Exact PJD-007 row in the Parts-Mall manufacturer catalogue; no completeness claim outside this table"
+        },
+        {
+          "make": "SSANGYONG",
+          "model": "Korando-NEW (KJ)",
+          "date_from": "1996-07",
+          "date_to": "2005-10",
+          "engine": "M162(E32)",
+          "displacement": "3.2L",
+          "valvetrain": "DOHC",
+          "fuel": "gasoline",
+          "placement": "front",
+          "shock_type": "gas",
+          "source_url": "https://file.euroauto.ru/file/catalogs/firms/5011.pdf",
+          "source_scope": "Exact PJD-007 row in the Parts-Mall manufacturer catalogue; no completeness claim outside this table"
+        },
+        {
+          "make": "SSANGYONG",
+          "model": "Korando-NEW (KJ)",
+          "date_from": "1996-07",
+          "date_to": "2005-10",
+          "engine": "OM661",
+          "displacement": "2.3L",
+          "valvetrain": "SOHC",
+          "fuel": "diesel",
+          "placement": "front",
+          "shock_type": "gas",
+          "source_url": "https://file.euroauto.ru/file/catalogs/firms/5011.pdf",
+          "source_scope": "Exact PJD-007 row in the Parts-Mall manufacturer catalogue; no completeness claim outside this table"
+        },
+        {
+          "make": "SSANGYONG",
+          "model": "Korando-NEW (KJ)",
+          "date_from": "1996-07",
+          "date_to": "2005-10",
+          "engine": "OM661LA",
+          "displacement": "2.3L",
+          "valvetrain": "SOHC",
+          "fuel": "diesel",
+          "placement": "front",
+          "shock_type": "gas",
+          "source_url": "https://file.euroauto.ru/file/catalogs/firms/5011.pdf",
+          "source_scope": "Exact PJD-007 row in the Parts-Mall manufacturer catalogue; no completeness claim outside this table"
+        },
+        {
+          "make": "SSANGYONG",
+          "model": "Korando-NEW (KJ)",
+          "date_from": "1996-07",
+          "date_to": "2005-10",
+          "engine": "OM662",
+          "displacement": "2.9L",
+          "valvetrain": "SOHC",
+          "fuel": "diesel",
+          "placement": "front",
+          "shock_type": "gas",
+          "source_url": "https://file.euroauto.ru/file/catalogs/firms/5011.pdf",
+          "source_scope": "Exact PJD-007 row in the Parts-Mall manufacturer catalogue; no completeness claim outside this table"
+        },
+        {
+          "make": "SSANGYONG",
+          "model": "Korando-NEW (KJ)",
+          "date_from": "1996-07",
+          "date_to": "2005-10",
+          "engine": "OM662LA",
+          "displacement": "2.9L",
+          "valvetrain": "SOHC",
+          "fuel": "diesel",
+          "placement": "front",
+          "shock_type": "gas",
+          "source_url": "https://file.euroauto.ru/file/catalogs/firms/5011.pdf",
+          "source_scope": "Exact PJD-007 row in the Parts-Mall manufacturer catalogue; no completeness claim outside this table"
+        }
+      ]
+    }
+  ]
+}

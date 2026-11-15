@@ -90,6 +90,8 @@ class StorefrontTests(TestCase):
     def test_default_photos_lead_but_explicit_sort_and_all_products_remain(self):
         photo=Product.objects.create(title='Я — товар с фото', main_image='products/photo.webp',
             price=5000, seller_profile=self.seller, stock_qty=2)
+        from catalog.storefront import refresh_home_facets
+        refresh_home_facets(force=True)  # Existing consumer publishes the next home snapshot.
         r=self.client.get('/')
         self.assertEqual(r.context['result_count'],2)
         self.assertEqual([p.pk for p in r.context['products']],[photo.pk,self.product.pk])
@@ -114,6 +116,8 @@ class StorefrontTests(TestCase):
                 photos.append(Product.objects.create(title=f'{prefix} деталь {i:02}',
                     main_image='products/test.webp',category=category,
                     seller_profile=self.seller,price=1000+i,stock_qty=2))
+        from catalog.storefront import refresh_home_facets
+        refresh_home_facets(force=True)
         first=self.client.get('/').context['products']
         self.assertEqual(len({p.category_id for p in list(first)[:3]}),3)
         self.assertTrue(all(p.main_image for p in first))

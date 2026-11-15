@@ -1,0 +1,35 @@
+{
+  "checked_on": "2026-11-14",
+  "sources": [
+    {
+      "offer_id": 25129,
+      "product_id": 6713,
+      "supplier_id": 5,
+      "brand": "HYUNDAI-KIA",
+      "article": "553102P500",
+      "stock": "6",
+      "cost": "33700.00",
+      "source_label": "Hyundai Mobis authorized genuine-parts dealer exact product page with exact Mando catalogue confirmation",
+      "source_kind": "authorized_mobis_dealer_and_mando_catalogue",
+      "source_urls": [
+        "https://capom.co.kr/product/%EB%A6%AC%EC%96%B4-%EC%87%BC%ED%81%AC-%EC%97%85%EC%86%8C%EB%B2%84-553102p500-%EC%8F%98%EB%A0%8C%ED%86%A0/112396/",
+        "https://ipex.com.pe/wp-content/uploads/2021/08/2-Catalogo-Amortiguadores.pdf"
+      ],
+      "fitment_note": "The Hyundai Mobis authorized dealer identifies exact part 553102P500 as a rear shock absorber assembly for New Sorento R (XM), 2012-07 through 2014-08. The exact Mando catalogue independently identifies OE 553102P500 for Sorento R (XM) as a rear gas shock absorber with the 4WD restriction. The narrower Mobis-dealer period is retained; no engine, side, broader period or package quantity is inferred.",
+      "fitments": [
+        {
+          "make": "KIA",
+          "model": "New Sorento R (XM)",
+          "details": "Задний газовый амортизатор; только 4WD. Двигатель и сторона установки источниками не указаны.",
+          "years": "2012-07–2014-08",
+          "placement": "rear",
+          "type": "gas",
+          "restriction": "4WD",
+          "oem_article": "553102P500",
+          "source_url": "https://capom.co.kr/product/%EB%A6%AC%EC%96%B4-%EC%87%BC%ED%81%AC-%EC%97%85%EC%86%8C%EB%B2%84-553102p500-%EC%8F%98%EB%A0%8C%ED%86%A0/112396/",
+          "confirmation_url": "https://ipex.com.pe/wp-content/uploads/2021/08/2-Catalogo-Amortiguadores.pdf"
+        }
+      ]
+    }
+  ]
+}

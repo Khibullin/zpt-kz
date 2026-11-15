@@ -35,6 +35,26 @@ def valid_page(url,brand):
     if p.netloc=='www.sankei-555.com' and brand=='555':
         q=parse_qs(p.query)
         return p.path=='/search/detail.php' and set(q)=={'p_id','sch_p_555no'} and len(q['p_id'])==1 and q['p_id'][0].isdigit() and len(q['sch_p_555no'])==1
+    if p.netloc=='tachka.ru' and brand=='HYUNDAI-KIA':
+        return not p.query and bool(re.fullmatch(r'/hyundai-kia/[A-Za-z0-9.-]{1,120}',p.path))
+    if p.netloc=='www.autoopt.ru' and brand=='SSANGYONG':
+        return not p.query and bool(re.fullmatch(r'/catalog/\d+-[a-z0-9_]+',p.path))
+    if p.netloc=='catalog.parts-mall.com' and brand in ('PARTS-MALL','PARTS MALL'):
+        q=parse_qs(p.query)
+        return p.path=='/shop-detail' and set(q)=={'factory_no'} and len(q['factory_no'])==1 and bool(re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9-]{0,119}',q['factory_no'][0]))
+    if p.netloc=='www.autodoc.co.uk' and brand=='MANDO':
+        return not p.query and bool(re.fullmatch(r'/mando/\d+',p.path))
+    if p.netloc=='evocar.ua' and brand=='MANDO':
+        return not p.query and bool(re.fullmatch(r'/ru/mando/[A-Za-z0-9.-]{1,120}',p.path))
+    if p.netloc=='item.gmarket.co.kr' and brand=='SSANGYONG':
+        q=parse_qs(p.query)
+        return p.path=='/Item' and set(q)=={'goodsCode'} and q['goodsCode']==['4348280358']
+    if p.netloc=='www.ebay.com' and brand=='SSANGYONG':
+        return not p.query and p.path=='/itm/157310193004'
+    if p.netloc=='kaspi.kz' and brand=='JASHI':
+        return not p.query and p.path=='/shop/p/jashi-perednii-c281f260202-0200-1-sht-130050225/'
+    if p.netloc=='rebornfj.com' and brand=='HAVAL':
+        return not p.query and p.path=='/product-detail/front-left-shock-absorber-assembly-for_197499.html'
     if p.query:return False
     return (p.netloc=='asva-trading.com' and brand=='ASVA' and p.path.startswith('/catalog/')) or (
         p.netloc=='aywiparts.ru' and brand=='AYWIPARTS' and bool(re.fullmatch(r'/product/view/\d+',p.path)))
@@ -98,6 +118,144 @@ def matching_manufacturer_image(html,url,brand,article):
             params=parse_qs(target.query,keep_blank_values=True)
             if params and not (set(params)=={'v'} and len(params['v'])==1 and params['v'][0].isdigit()):continue
             if target.scheme=='https' and target.netloc==p.netloc and not target.fragment and re.fullmatch(r'/newfolder/product_image/'+re.escape(expected)+r'\.(?:jpg|jpeg|png|webp)',target.path,re.I):return src
+    elif p.netloc=='rebornfj.com':
+        if expected!='2905110AKZ16A' or p.path!='/product-detail/front-left-shock-absorber-assembly-for_197499.html':return ''
+        canonicals=[attrs.get('href') for tag,attrs in tags if tag=='link' and attrs.get('rel')=='canonical']
+        if canonicals!=[url]:return ''
+        headings=re.findall(r'<h1\b[^>]*>(.*?)</h1>',html,re.I|re.S)
+        if not any(expected in text(heading) and 'FRONT LEFT SHOCK ABSORBER ASSEMBLY FOR HAVAL H6 SPORT' in text(heading) for heading in headings):return ''
+        if not re.search(r'Drawing\s+No\b.*?'+re.escape(expected),html,re.I|re.S):return ''
+        if not re.search(r'Brand.*?Haval',html,re.I|re.S):return ''
+        if not re.search(r'SKU.*?'+re.escape(expected),html,re.I|re.S):return ''
+        wanted='/wp-content/uploads/2026/05/white_bg_23f1e6e22d5147b5891fd12002e53527.webp'
+        for tag,attrs in tags:
+            if tag!='img':continue
+            src=attrs.get('src','');target=urlsplit(src)
+            large=attrs.get('data-large_image','');large_target=urlsplit(large)
+            if target.scheme!='https' or target.netloc!=p.netloc or target.query or target.fragment or target.path!=wanted:continue
+            if large_target.scheme!='https' or large_target.netloc!=p.netloc or large_target.query or large_target.fragment or large_target.path!=wanted:continue
+            if attrs.get('data-large_image_width')!='1000' or attrs.get('data-large_image_height')!='1000':continue
+            if (attrs.get('alt') or '')!='white_bg_23f1e6e22d5147b5891fd12002e53527.jpg':continue
+            return src
+    elif p.netloc=='www.autodoc.co.uk':
+        product_id=p.path.rsplit('/',1)[-1]
+        for raw in re.findall(r'<script\b[^>]*type=["\']application/ld\+json["\'][^>]*>(.*?)</script>',html,re.S|re.I):
+            try:data=json.loads(raw)
+            except (TypeError,ValueError):continue
+            if not isinstance(data,dict) or data.get('@type')!='Product':continue
+            maker=data.get('brand',{})
+            if not isinstance(maker,dict) or str(maker.get('name','')).strip().upper()!='MANDO':continue
+            if str(data.get('sku','')).strip().upper()!=expected or str(data.get('mpn','')).strip().upper()!=expected:continue
+            name=str(data.get('name','')).strip().upper()
+            if expected not in name or 'MANDO' not in name:continue
+            props=data.get('additionalProperty',[])
+            if not isinstance(props,list):continue
+            values={str(prop.get('name','')).strip().upper():str(prop.get('value','')).strip().upper() for prop in props if isinstance(prop,dict)}
+            if values.get('ITEM NUMBER')!=expected or values.get('MANUFACTURER')!='MANDO':continue
+            images=data.get('image',[])
+            if isinstance(images,str):images=[images]
+            for src in images if isinstance(images,list) else []:
+                if not isinstance(src,str):continue
+                target=urlsplit(src);params=parse_qs(target.query)
+                if target.scheme!='https' or target.netloc!='cdn.autodoc.de' or target.path!='/thumb' or target.fragment:continue
+                if set(params)!={'id','m','n','lng','rev'}:continue
+                if params.get('id')!=[product_id] or params.get('m')!=['0'] or params.get('n')!=['0'] or params.get('lng')!=['en']:continue
+                if len(params.get('rev',[]))!=1 or not params['rev'][0].isdigit():continue
+                return src
+    elif p.netloc=='www.ebay.com':
+        if expected!='4530132100' or p.path!='/itm/157310193004':return ''
+        page_text=text(html)
+        title='GENUINE REAR GAS SHOCK ABSORBER 4530132100 FOR SSANGYONG KORANDO SPORTS'
+        if title not in page_text or 'BUY 1$159.00/EA' not in page_text:return ''
+        wanted='/images/g/XLIAAeSwdGFowS-W/s-l1600.webp'
+        for tag,attrs in tags:
+            if tag!='img':continue
+            src=urljoin(url,attrs.get('src',''));target=urlsplit(src)
+            if target.scheme=='https' and target.netloc=='i.ebayimg.com' and not target.query and not target.fragment and target.path==wanted:return src
+    elif p.netloc=='kaspi.kz':
+        if expected!='C281F260202-0200' or p.path!='/shop/p/jashi-perednii-c281f260202-0200-1-sht-130050225/':return ''
+        page_text=text(html)
+        required=(
+            'АМОРТИЗАТОР JASHI ПЕРЕДНИЙ C281F260202-0200 1 ШТ',
+            'КОД ТОВАРА: 130050225',
+        )
+        if not all(value in page_text for value in required):return ''
+        wanted='/img/m/p/p62/p7d/8356815.png'
+        for tag,attrs in tags:
+            if tag!='meta' or attrs.get('property')!='og:image':continue
+            src=attrs.get('content','');target=urlsplit(src);params=parse_qs(target.query)
+            if target.scheme!='https' or target.netloc!='resources.cdn-kaspi.kz' or target.fragment or target.path!=wanted:continue
+            if params!={'format':['gallery-large']}:continue
+            return src
+    elif p.netloc=='item.gmarket.co.kr':
+        q=parse_qs(p.query)
+        if expected!='4530132100' or q.get('goodsCode')!=['4348280358']:return ''
+        page_text=text(html)
+        # The exact listing identifies OEM 45301-32100 and explicitly says
+        # 1개당 (per one unit), resolving the earlier two-piece photo conflict.
+        if '45301-32100/1개당' not in page_text or '쌍용' not in page_text:return ''
+        for tag,attrs in tags:
+            if tag!='img':continue
+            src=urljoin(url,attrs.get('src',''));target=urlsplit(src)
+            params=parse_qs(target.query)
+            if target.scheme!='https' or target.netloc!='gdimg.gmarket.co.kr' or target.fragment:continue
+            if target.path!='/4348280358/still/600':continue
+            if set(params)!={'ver'} or len(params['ver'])!=1 or not params['ver'][0].isdigit():continue
+            return src
+    elif p.netloc=='evocar.ua':
+        if p.path.casefold()!=('/ru/mando/'+expected).casefold():return ''
+        headings=re.findall(r'<h1\b[^>]*>(.*?)</h1>',html,re.I|re.S)
+        if not any(text(heading)=='АМОРТИЗАТОР MANDO '+expected for heading in headings):return ''
+        page_text=text(html)
+        if 'СТОРОНА УСТАНОВКИ' not in page_text or 'ПЕРЕДНИЙ МОСТ СПРАВА' not in page_text:return ''
+        if 'ПАРНЫЕ НОМЕРА АРТИКУЛОВ' not in page_text or 'EX54651A7100' not in page_text:return ''
+        for tag,attrs in tags:
+            if tag!='img' or (attrs.get('alt') or '').strip().upper()!='MANDO '+expected:continue
+            src=urljoin(url,attrs.get('src',''));target=urlsplit(src)
+            wanted=r'/[0-9a-f]{32}/mando-'+re.escape(expected.lower())+r'\.jpg'
+            if target.scheme=='https' and target.netloc=='cdn.evocar.ua' and not target.query and not target.fragment and re.fullmatch(wanted,target.path,re.I):return src
+    elif p.netloc=='tachka.ru':
+        if p.path.upper()!='/HYUNDAI-KIA/'+expected:return ''
+        canonicals=[attrs.get('href') for tag,attrs in tags if tag=='link' and attrs.get('rel')=='canonical']
+        if canonicals!=[url]:return ''
+        for raw in re.findall(r'<script\b[^>]*type=["\']application/ld\+json["\'][^>]*>(.*?)</script>',html,re.S|re.I):
+            try:data=json.loads(raw)
+            except (TypeError,ValueError):continue
+            if not isinstance(data,dict) or data.get('@type')!='Product':continue
+            maker=data.get('brand',{})
+            if not isinstance(maker,dict) or str(maker.get('name','')).strip().upper()!='HYUNDAI / KIA':continue
+            if str(data.get('sku','')).strip().upper()!=expected or str(data.get('mpn','')).strip().upper()!=expected:continue
+            name=str(data.get('name','')).strip().upper()
+            if expected not in name or 'HYUNDAI / KIA' not in name:continue
+            src=data.get('image','')
+            if not isinstance(src,str):continue
+            target=urlsplit(src);leaf=target.path.rsplit('/',1)[-1].rsplit('.',1)[0].casefold()
+            if leaf in ('spg','no_image','no-image','noimage','placeholder','default'):continue
+            if target.scheme=='https' and target.netloc=='img.tachka.ru' and not target.query and not target.fragment and re.search(r'\.(?:jpg|jpeg|png|webp)$',target.path,re.I):return src
+    elif p.netloc=='catalog.parts-mall.com':
+        q=parse_qs(p.query);factory=q['factory_no'][0].strip().upper()
+        if re.sub(r'[-\\s]','',factory)!=re.sub(r'[-\\s]','',expected):return ''
+        page_text=text(html)
+        if not re.search(r'(?<![A-Z0-9])'+re.escape(factory)+r'(?![A-Z0-9])',page_text):return ''
+        if 'PMC' not in page_text or 'SHOCK ABSORBER' not in page_text:return ''
+        wanted='/IMAGES/'+factory+'_0300-1F.JPG'
+        for tag,attrs in tags:
+            if tag!='img':continue
+            src=urljoin(url,attrs.get('src',''));target=urlsplit(src)
+            if target.scheme=='https' and target.netloc==p.netloc and not target.query and not target.fragment and target.path.upper()==wanted:return src
+    elif p.netloc=='www.autoopt.ru':
+        product_id=p.path.split('/',2)[2].split('-',1)[0]
+        canonicals=[attrs.get('href') for tag,attrs in tags if tag=='link' and attrs.get('rel')=='canonical']
+        if canonicals!=[url]:return ''
+        titles=[attrs.get('content','') for tag,attrs in tags if tag=='meta' and attrs.get('property')=='og:title']
+        descriptions=[attrs.get('content','') for tag,attrs in tags if tag=='meta' and attrs.get('property')=='og:description']
+        if len(titles)!=1 or len(descriptions)!=1:return ''
+        if not re.search(r'(?<!\w)'+re.escape(expected)+r'(?!\w)',titles[0].upper()):return ''
+        if 'SSANGYONG' not in titles[0].upper() or not descriptions[0].strip().upper().startswith(expected+' '):return ''
+        for tag,attrs in tags:
+            if tag!='meta' or attrs.get('property')!='og:image':continue
+            src=attrs.get('content','');target=urlsplit(src)
+            if target.scheme=='https' and target.netloc==p.netloc and not target.query and not target.fragment and re.fullmatch(r'/product_pictures/big/[a-z0-9]+/'+re.escape(product_id)+r'\.(?:jpg|jpeg|png|webp)',target.path,re.I):return src
     return ''
 
 

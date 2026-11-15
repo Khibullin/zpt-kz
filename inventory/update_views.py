@@ -1,10 +1,11 @@
 """One upload desk with an owner-bound, expiring review before import."""
 from datetime import timedelta
+from decimal import Decimal
 from django import forms
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from django.db.models import Sum
+from django.db.models import Sum, Min, Max, Count
 from django.http import Http404
 from django.shortcuts import render,redirect,get_object_or_404
 from django.urls import reverse
@@ -40,9 +41,42 @@ class UpdateForm(forms.Form):
         return data
 
 
+def review_metrics(kind, rows):
+    if kind == 'sales':
+        dates=[r['occurred_on'] for r in rows if r.get('occurred_on')]
+        revenue=[r['revenue'] for r in rows if r.get('revenue') is not None]
+        return {'assortment':len({r['product'] for r in rows if r.get('product')}),
+                'quantity':None,'total_amount':sum(revenue,Decimal('0')) if revenue else None,
+                'period_start':min(dates) if dates else None,
+                'period_end':max(dates) if dates else None,
+                'orders':len({r['order_id'] for r in rows if r.get('order_id')})}
+    quantities=[r['quantity'] for r in rows if r.get('quantity') is not None]
+    complete_qty=len(quantities)==len(rows)
+    valued=[Decimal(str(r['price']))*r['quantity'] for r in rows
+            if r.get('price') is not None and r.get('quantity') is not None]
+    return {'assortment':len({r['sku'] for r in rows}),
+            'quantity':sum(quantities) if complete_qty else None,
+            'total_amount':sum(valued,Decimal('0')) if len(valued)==len(rows) else None}
+
+
+def batch_metrics(kind,batch):
+    if not batch:return {}
+    if kind=='sales':
+        qs=KaspiOperation.objects.filter(batch=batch)
+        a=qs.aggregate(total_amount=Sum('revenue'),period_start=Min('occurred_on'),period_end=Max('occurred_on'))
+        return {**a,'assortment':qs.exclude(product='').values('product').distinct().count(),
+                'quantity':None,'orders':qs.values('order_id').distinct().count()}
+    qs=StockSnapshot.objects.filter(batch=batch)
+    stats=qs.aggregate(assortment=Count('sku',distinct=True),quantity=Sum('quantity'))
+    if qs.filter(quantity__isnull=True).exists():stats['quantity']=None
+    priced=qs.exclude(quantity__isnull=True).exclude(price__isnull=True).values_list('quantity','price')
+    stats['total_amount']=sum((Decimal(q)*p for q,p in priced),Decimal('0')) if not qs.filter(price__isnull=True).exists() else None
+    return stats
+
+
 def file_review(kind,raw):
     rows=parse_file(raw,kind)
-    out={'kind':kind,'label':LABELS[kind],'count':len(rows),'rows':rows[:8]}
+    out={'kind':kind,'label':LABELS[kind],'count':len(rows),'rows':rows[:8], 'metrics':review_metrics(kind,rows)}
     if kind=='sales':
         known=set(KaspiOperation.objects.filter(fingerprint__in=[r['fingerprint'] for r in rows]).values_list('fingerprint',flat=True))
         out.update(new=sum(r['fingerprint'] not in known for r in rows),unchanged=sum(r['fingerprint'] in known for r in rows),changed=0,removed=0,conflicts=[])
@@ -101,6 +135,28 @@ def updates(request):
                 messages.success(request,'Выбранные файлы загружены. Складские движения и банковские выплаты автоматически не создавались.')
             else:messages.info(request,'Эта загрузка уже сохранена. Повторных строк не добавлено.')
         return redirect(reverse('inventory:updates')+'?preview='+str(preview.pk))
+    # One click: validate all chosen files before committing any source.
+    if request.method=='POST' and request.POST.get('action')=='quick' and form.is_valid():
+        selected=[]
+        for kind,_,_ in SOURCES:
+            uploaded=form.cleaned_data.get(kind+'_file')
+            if uploaded is None:continue
+            raw=uploaded.read()
+            try:
+                parse_file(raw,kind)
+            except Exception as exc:
+                if not parse_error(exc):raise
+                form.add_error(kind+'_file',f'Файл не принят: {exc}')
+                continue
+            selected.append((kind,uploaded.name,form.cleaned_data[kind+'_date'],raw))
+        if not form.errors and selected:
+            with transaction.atomic():
+                totals=[]
+                for kind,name,as_of,raw in selected:
+                    batch,count=import_file(raw,kind,name,as_of,request.user)
+                    totals.append(f'{LABELS[kind]}: {count} новых строк')
+            messages.success(request,'Проверено и сохранено. '+', '.join(totals)+'. Повторные файлы не дублируются.')
+            return redirect('inventory:updates')
     if request.method=='POST' and request.POST.get('action')=='preview' and form.is_valid():
         selected=[]
         for kind,_,_ in SOURCES:
@@ -124,10 +180,37 @@ def updates(request):
             review.update(filename=f.filename,as_of=f.as_of,result=f.result)
             latest=ImportBatch.objects.filter(kind=f.kind).order_by('-as_of','-pk').first()
             review['older']=bool(latest and latest.as_of>f.as_of)
+            if preview.committed_at:review['metrics']=batch_metrics(f.kind,ImportBatch.objects.filter(kind=f.kind,digest=__import__('hashlib').sha256(bytes(f.data)).hexdigest()).first()) if f.data else batch_metrics(f.kind,latest)
             reviews.append(review)
     blocks=[]
     for kind,label,hint in SOURCES:
         latest=ImportBatch.objects.filter(kind=kind).defer('original_data').order_by('-pk').first()
         count=(KaspiOperation.objects.filter(batch=latest).count() if kind=='sales' else StockSnapshot.objects.filter(batch=latest).count()) if latest else 0
-        blocks.append({'kind':kind,'label':label,'hint':hint,'file':form[kind+'_file'],'date':form[kind+'_date'],'latest':latest,'count':count,'focus':request.GET.get('section')==kind})
-    return render(request,'inventory/updates.html',{'form':form,'blocks':blocks,'preview':preview,'reviews':reviews,'expired':expired})
+        blocks.append({'kind':kind,'label':label,'hint':hint,'file':form[kind+'_file'],'date':form[kind+'_date'],'latest':latest,'count':count,'focus':request.GET.get('section')==kind,'metrics':batch_metrics(kind,latest)})
+    from .check_workspace import analyze
+    from django.core.paginator import Paginator
+    chosen=request.GET.getlist('source')
+    if not chosen:chosen=['pp2','stock']
+    analysis=analyze(chosen) if request.GET.get('analyze')=='1' else None
+    result_page=Paginator(analysis['comparisons'],60).get_page(request.GET.get('page')) if analysis else None
+    return render(request,'inventory/updates.html',{'form':form,'blocks':blocks,'preview':preview,
+        'reviews':reviews,'expired':expired,'analysis':analysis,'result_page':result_page,
+        'selected_sources':chosen})
+
+
+@never_cache
+@accounting_access
+@require_http_methods(['POST'])
+def delete_original(request, pk):
+    """Delete only stored XLSX bytes; preserve imported rows, snapshots and audit metadata."""
+    batch=get_object_or_404(ImportBatch,pk=pk)
+    if request.POST.get('confirm') != 'delete_original':
+        messages.error(request,'Удаление оригинала не подтверждено.')
+        return redirect('inventory:updates')
+    if batch.original_data:
+        batch.original_data=None
+        batch.save(update_fields=['original_data'])
+        messages.success(request,f'Оригинал файла «{batch.filename}» удалён. Остатки, операции и история загрузки сохранены.')
+    else:
+        messages.info(request,'Оригинал уже удалён или не сохранялся.')
+    return redirect('inventory:updates')

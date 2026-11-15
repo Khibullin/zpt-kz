@@ -12,6 +12,14 @@ from procurement.price_updates import advance_update
 logger = logging.getLogger(__name__)
 
 
+def photo_window_open(now):
+    """Keep one consumer: nights on weekdays, all day on Saturday and Sunday."""
+    from zoneinfo import ZoneInfo
+
+    local_now = now.astimezone(ZoneInfo('Asia/Qyzylorda'))
+    return local_now.weekday() >= 5 or local_now.hour >= 23 or local_now.hour < 6
+
+
 class Command(BaseCommand):
     help = 'Continue authorized supplier uploads, optionally as a background consumer.'
 
@@ -30,7 +38,17 @@ class Command(BaseCommand):
         while running:
             close_old_connections()
             photo_progress = 0
+            facet_progress = False
             try:
+                if options['watch']:
+                    from procurement.kaspi_card_jobs import process_card_jobs
+                    process_card_jobs()
+                    from procurement.kaspi_price_feed import refresh_price_feed
+                    refresh_price_feed()
+                    from procurement.filter_snapshots import refresh_filter_snapshots
+                    refresh_filter_snapshots()
+                    from procurement.kaspi_materials import process_purchased_cards
+                    process_purchased_cards(fetch_photos=True, throttle=True)
                 query = PriceUpdate.objects.filter(status__in=['ready', 'running']).order_by('pk')
                 if options['batch']:
                     query = query.filter(pk=options['batch'])
@@ -50,14 +68,22 @@ class Command(BaseCommand):
                         retail_run = advance_publication(retail_run.pk)
                     self.stdout.write(f'Retail publication {retail_run.pk}: {retail_run.processed}/{retail_run.total}')
                 if options['watch'] and running:
-                    from catalog.storefront import refresh_home_facets
+                    from catalog.storefront import refresh_home_facets, refresh_country_facets, refresh_brand_facets
                     if refresh_home_facets():
                         self.stdout.write('Public storefront filter snapshot refreshed')
+                    facet_progress=refresh_country_facets()
+                    # Fill public make/model snapshots in bounded batches before
+                    # resuming other idle work; price uploads stay first.
+                    for _ in range(8):
+                        if not running or not refresh_brand_facets():
+                            break
+                        facet_progress=True
                     from core.seo_views import refresh_sitemap_snapshots
                     if refresh_sitemap_snapshots():
                         self.stdout.write('Public sitemap snapshots refreshed')
                     from catalog.source_photos import process_photo_tasks
-                    photo_progress = process_photo_tasks(limit=10)
+                    if photo_window_open(timezone.now()):
+                        photo_progress = process_photo_tasks(limit=10)
                 if options['watch']:
                     KaspiReviewTask.objects.filter(status='checking', updated_at__lt=timezone.now()-timedelta(minutes=30)).update(status='pending')
                     tasks = KaspiReviewTask.objects.filter(status='pending', offer__match_verified=True,
@@ -74,7 +100,7 @@ class Command(BaseCommand):
                 logger.exception('Price update paused; committed progress is retained')
             # Polling delays are for an idle queue. Recheck price jobs and other
             # work between photo batches, then keep draining staged photos.
-            if options['watch'] and photo_progress:
+            if options['watch'] and (photo_progress or facet_progress):
                 continue
             if not options['watch']:
                 break

@@ -1,0 +1,53 @@
+{
+  "checked_on": "2026-11-14",
+  "scope": "Exact positive-stock ZakazAuto fitment for offer 25177; no price, stock, profit, Kaspi identity, or photo fields",
+  "sources": [
+    {
+      "offer_id": 25177,
+      "product_id": 6703,
+      "supplier_id": 5,
+      "brand": "HAVAL",
+      "article": "2905110AKZ16A",
+      "name": "Амортизатор передний HAVAL",
+      "stock": "1",
+      "cost": "17050.00",
+      "source_label": "JIKIU manufacturer catalogue cross-reference and exact Kaspi characteristics",
+      "source_kind": "manufacturer_cross_reference_plus_exact_kaspi_characteristics",
+      "source_urls": [
+        "https://www.jikiu.com/catalogue/59772881",
+        "https://kaspi.kz/shop/p/haval-perednii-2905110akz16a-1-sht-130189369/"
+      ],
+      "fitment_note": "Каталог производителя JIKIU связывает точный OEM HAVAL 2905110AKZ16A с H6, передней левой стойкой, датой начала 09.2014 и двигателем 1.5L GW4G15. Отдельная точная карточка Kaspi с тем же артикулом подтверждает M6 2WD, 1.5L Turbo и только перечисленные годы 2021–2024. Открытые даты не закрывались, отдельные годы не растягивались в диапазон.",
+      "fitments": [
+        {
+          "make": "HAVAL",
+          "model": "H6",
+          "date_from": "2014-09",
+          "date_to": null,
+          "engine": "1.5L GW4G15",
+          "placement": "front",
+          "side": "left",
+          "source_url": "https://www.jikiu.com/catalogue/59772881",
+          "source_scope": "JIKIU manufacturer cross-reference to exact HAVAL OEM 2905110AKZ16A; end date not stated"
+        },
+        {
+          "make": "HAVAL",
+          "model": "M6",
+          "years": [
+            2021,
+            2022,
+            2023,
+            2024
+          ],
+          "engine": "1.5L Turbo",
+          "drive": "2WD",
+          "placement": "front",
+          "side": "left",
+          "assembly": "strut without spring",
+          "source_url": "https://kaspi.kz/shop/p/haval-perednii-2905110akz16a-1-sht-130189369/",
+          "source_scope": "Exact Kaspi card characteristics for HAVAL 2905110AKZ16A; only explicitly listed years retained"
+        }
+      ]
+    }
+  ]
+}

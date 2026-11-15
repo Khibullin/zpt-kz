@@ -1,0 +1,23 @@
+{
+  "checked_on": "2026-11-14",
+  "scope": "One exact positive-stock ZakazAuto photo task; no price, stock, profit, Kaspi, fitment, or unrelated field changes",
+  "sources": [
+    {
+      "offer_id": 25784,
+      "product_id": 7360,
+      "task_id": 5333,
+      "supplier_id": 5,
+      "brand": "SsangYong",
+      "article": "2132009052",
+      "stock": "11",
+      "cost": "41000.00",
+      "source_label": "Autoopt exact public SSANGYONG catalogue page",
+      "source_kind": "independent_exact_oem_catalogue",
+      "source_url": "https://www.autoopt.ru/catalog/723986-ventiljator_ssangyong_actyon_06__kyron_07__ohlazhdenija_jelektricheskij_v_sbore_oe",
+      "verified_image_url": "https://www.autoopt.ru/product_pictures/big/ccd/723986.jpg",
+      "verified_image_sha256": "b22a0fb7d08aee4236ae269b0f5b8f0be7fecb92b184a2e252fd26cbe45689df",
+      "verified_image_size": "768x768",
+      "image_note": "Exact page identifies SSANGYONG article 2132009052 and shows the complete electric cooling fan assembly; the sole consumer must revalidate page identity before saving."
+    }
+  ]
+}

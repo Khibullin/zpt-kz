@@ -1,0 +1,35 @@
+{
+  "checked_on": "2026-11-14",
+  "sources": [
+    {
+      "offer_id": 25114,
+      "product_id": 6829,
+      "supplier_id": 5,
+      "brand": "SsangYong",
+      "article": "4530132100",
+      "stock": "1",
+      "cost": "18700.00",
+      "source_label": "Mando shock absorber catalogue 2018 (manufacturer catalogue copy)",
+      "source_kind": "manufacturer_catalogue_pdf_mirror",
+      "source_urls": [
+        "https://ipex.com.pe/wp-content/uploads/2021/08/2-Catalogo-Amortiguadores.pdf",
+        "https://www.scribd.com/document/572816424/MANDO-CATALOGUE-2018",
+        "https://www.sparekorea.com/product/parts/1001326/4530132100-shock-absorber-assy-rr-gas.html"
+      ],
+      "fitment_note": "The exact Mando catalogue row lists OEM 4530132100 and Mando EX4530132100 for KORANDO SPORTS [Q150], 2012-2017, rear gas shock absorber. The exact source does not specify an engine, side, or regional restriction, so none is inferred. Exact retail pages disagree on whether their pictured offer is one shock absorber or a pair; no photo is imported for this one-piece ZakazAuto offer without matching package evidence.",
+      "fitments": [
+        {
+          "make": "SSANGYONG",
+          "model": "Korando Sports (Q150)",
+          "years": "2012–2017",
+          "placement": "rear",
+          "shock_type": "gas",
+          "oem_article": "4530132100",
+          "mando_article": "EX4530132100",
+          "source_url": "https://ipex.com.pe/wp-content/uploads/2021/08/2-Catalogo-Amortiguadores.pdf",
+          "source_scope": "Exact Mando 2018 catalogue row; no engine, side, or regional restriction inferred"
+        }
+      ]
+    }
+  ]
+}

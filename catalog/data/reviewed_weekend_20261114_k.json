@@ -1,0 +1,143 @@
+{
+  "checked_on": "2026-11-14",
+  "scope": "One exact positive-stock ZakazAuto photo and fitment candidate; no price, stock, profit, Kaspi, or unrelated field changes",
+  "sources": [
+    {
+      "offer_id": 25251,
+      "product_id": 7012,
+      "task_id": 4985,
+      "supplier_id": 5,
+      "brand": "Parts-Mall",
+      "article": "PJC129FR",
+      "manufacturer_article": "PJC-129FR",
+      "stock": "1",
+      "cost": "5900.00",
+      "source_label": "Parts Mall official manufacturer catalogue with exact independent vehicle corroboration",
+      "source_kind": "manufacturer_catalogue",
+      "source_urls": [
+        "https://catalog.parts-mall.com/shop-detail?factory_no=PJC-129FR",
+        "https://www.gm-city.ru/catalog/Chevrolet_Aveo/T300/suspension/amortizator_perednij_pravyj_parts-mall/"
+      ],
+      "source_url": "https://catalog.parts-mall.com/shop-detail?factory_no=PJC-129FR",
+      "verified_image_url": "https://catalog.parts-mall.com/images/PJC-129FR_0300-1F.jpg",
+      "verified_image_sha256": "cf91e4f9f36358f3e3580135013d3dc48a842e454bf1f5035940a541b351aaa9",
+      "verified_image_size": "480x640",
+      "fitment_note": "The Parts Mall manufacturer catalogue search for PJC129FR resolves to exact PJC-129FR, PMC, SHOCK ABSORBER & DAMPER, FRT RH and RHD, with exact DAEWOO AVEO/SONIC(T300) configuration rows. GM-City independently confirms exact PartsMall PJC-129FR for Chevrolet Aveo T300, front right. The manufacturer row dates and engines are retained as written; no continuous range, LHD, extra market, side or package quantity is inferred.",
+      "fitments": [
+        {
+          "make": "CHEVROLET",
+          "model": "Aveo / Sonic (T300)",
+          "details": "Передний правый амортизатор; каталог производителя указывает RHD. В каталоге производителя группа названа DAEWOO AVEO/SONIC (T300); Chevrolet Aveo T300 подтверждён точным независимым каталогом.",
+          "configurations": [
+            {
+              "date_from": "2010-10-27",
+              "date_to": null,
+              "engine": "1.6L 1598 4CYL gasoline DOHC NA · F16D4 (LDE)",
+              "source_scope": "manufacturer row; end date not stated",
+              "placement": "front",
+              "side": "right",
+              "drive": "RHD",
+              "oem_article": "PJC-129FR"
+            },
+            {
+              "years": "2011–2013",
+              "engine": "1.2L diesel · A13DTE (LSF)",
+              "source_scope": "explicit manufacturer range",
+              "placement": "front",
+              "side": "right",
+              "drive": "RHD",
+              "oem_article": "PJC-129FR"
+            },
+            {
+              "years": "2011–2013",
+              "engine": "1.2L diesel · A13DTR (LDV)",
+              "source_scope": "explicit manufacturer range",
+              "placement": "front",
+              "side": "right",
+              "drive": "RHD",
+              "oem_article": "PJC-129FR"
+            },
+            {
+              "years": "2011–2013",
+              "engine": "1.6L gasoline · A16XER (LDE)",
+              "source_scope": "explicit manufacturer range",
+              "placement": "front",
+              "side": "right",
+              "drive": "RHD",
+              "oem_article": "PJC-129FR"
+            },
+            {
+              "years": "2011–2013",
+              "engine": "1.6L gasoline · F16D4 (LDE)",
+              "source_scope": "explicit manufacturer range",
+              "placement": "front",
+              "side": "right",
+              "drive": "RHD",
+              "oem_article": "PJC-129FR"
+            },
+            {
+              "date_from": "2011-08-31",
+              "date_to": null,
+              "engine": "1.2L gasoline · A12XER (LDC)",
+              "source_scope": "manufacturer row; end date not stated",
+              "placement": "front",
+              "side": "right",
+              "drive": "RHD",
+              "oem_article": "PJC-129FR"
+            },
+            {
+              "date_from": "2011-08-31",
+              "date_to": null,
+              "engine": "1.2L diesel · A13DTE (LSF)",
+              "source_scope": "manufacturer row; end date not stated",
+              "placement": "front",
+              "side": "right",
+              "drive": "RHD",
+              "oem_article": "PJC-129FR"
+            },
+            {
+              "date_from": "2011-08-31",
+              "date_to": null,
+              "engine": "1.2L diesel · A13DTR (LDV)",
+              "source_scope": "manufacturer row; end date not stated",
+              "placement": "front",
+              "side": "right",
+              "drive": "RHD",
+              "oem_article": "PJC-129FR"
+            },
+            {
+              "date_from": "2011-08-31",
+              "date_to": null,
+              "engine": "1.4L gasoline · A14XER (LDD)",
+              "source_scope": "manufacturer row; end date not stated",
+              "placement": "front",
+              "side": "right",
+              "drive": "RHD",
+              "oem_article": "PJC-129FR"
+            },
+            {
+              "date_from": "2011-08-31",
+              "date_to": null,
+              "engine": "1.6L gasoline · F16D4 (LDE)",
+              "source_scope": "manufacturer row; end date not stated",
+              "placement": "front",
+              "side": "right",
+              "drive": "RHD",
+              "oem_article": "PJC-129FR"
+            },
+            {
+              "date_from": "2013-05-23",
+              "date_to": null,
+              "engine": null,
+              "source_scope": "manufacturer row; engine and end date not stated",
+              "placement": "front",
+              "side": "right",
+              "drive": "RHD",
+              "oem_article": "PJC-129FR"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

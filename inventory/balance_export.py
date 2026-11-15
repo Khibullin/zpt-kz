@@ -54,20 +54,9 @@ def filter_labels(request):
 
 
 def export_balances(request,rows,totals):
-    book=Workbook();sheet=book.active;sheet.title='Остатки товаров'
+    book=Workbook();sheet=book.active;sheet.title='Товары PP2' if request.GET.get('warehouse')=='PP2' else 'Товары по складам'
+    summary=book.create_sheet('Сводка и фильтры')
     now=timezone.localtime()
-    sheet.append(['Остатки товаров по складам'])
-    sheet.append(['Дата выгрузки',now.replace(tzinfo=None)])
-    for label,value in filter_labels(request):sheet.append([label,value])
-    sheet.append(['Наименований',len(rows)])
-    for group in totals['groups']:sheet.append(['Количество, '+group['unit'],group['quantity']])
-    if not rows:sheet.append(['Количество, шт.',0])
-    if totals['unknown']:sheet.append(['Нет однозначных данных о количестве, товаров',totals['unknown']])
-    sheet.append(['Известная закупочная стоимость остатка, ₸' if totals['unknown_value'] else 'Закупочная стоимость остатка, ₸',totals['known_value']])
-    sheet.cell(sheet.max_row,2).number_format='#,##0.00'
-    if totals['unknown_value']:sheet.append(['Стоимость не определена, товаров',totals['unknown_value']])
-    sheet.append(['Источник стоимости','Оставшиеся партии по складскому учёту. Цена Kaspi не является закупочной стоимостью.'])
-    sheet.append([])
     headers=['Артикул','Бренд','Товар','Поставщик','Единица']
     single=request.GET.get('warehouse') in ['PP1','PP2','Kaspi'] and request.GET.get('compare')!='1'
     if single:headers+=['Остаток '+request.GET['warehouse'],'Источник и дата остатка']
@@ -88,16 +77,21 @@ def export_balances(request,rows,totals):
         for cell in row:
             if isinstance(cell.value,str):cell.data_type='s'
             cell.alignment=Alignment(vertical='top',wrap_text=True)
-    sheet['A1'].font=Font(size=16,bold=True,color='183451')
-    sheet['B2'].number_format='dd.mm.yyyy hh:mm'
+    summary['A1'].font=Font(size=16,bold=True,color='183451')
+    summary['B2'].number_format='dd.mm.yyyy hh:mm'
     for cell in sheet[header_row]:
         cell.font=Font(bold=True,color='FFFFFF');cell.fill=PatternFill('solid',fgColor='183451')
-    sheet.merge_cells(start_row=1,start_column=1,end_row=1,end_column=len(headers))
-    sheet.row_dimensions[1].height=30
-    for r in range(2,header_row):
-        if sheet.cell(r,1).value is not None:
-            sheet.merge_cells(start_row=r,start_column=2,end_row=r,end_column=min(5,len(headers)))
-            sheet.row_dimensions[r].height=34
+    summary.merge_cells(start_row=1,start_column=1,end_row=1,end_column=5)
+    summary.row_dimensions[1].height=30
+    for r in range(2,summary.max_row+1):
+        if summary.cell(r,1).value is not None:
+            summary.merge_cells(start_row=r,start_column=2,end_row=r,end_column=5)
+            summary.row_dimensions[r].height=34
+    summary.column_dimensions['A'].width=48
+    for col in 'BCDE':summary.column_dimensions[col].width=22
+    for row in summary:
+        for cell in row:
+            cell.alignment=Alignment(vertical='top',wrap_text=True)
     sheet.row_dimensions[header_row].height=44
     sheet.freeze_panes=f'F{header_row+1}'
     sheet.auto_filter.ref=f'A{header_row}:{get_column_letter(len(headers))}{max(header_row,sheet.max_row)}'
@@ -110,6 +104,19 @@ def export_balances(request,rows,totals):
     sheet.sheet_properties.pageSetUpPr.fitToPage=True
     sheet.page_setup.orientation='landscape';sheet.page_setup.paperSize=sheet.PAPERSIZE_A3;sheet.page_setup.fitToWidth=1;sheet.page_setup.fitToHeight=0
     sheet.print_title_rows=f'{header_row}:{header_row}'
+    summary.append(['Остатки товаров по складам'])
+    summary.append(['Дата выгрузки',now.replace(tzinfo=None)])
+    for label,value in filter_labels(request):summary.append([label,value])
+    summary.append(['Наименований',len(rows)])
+    for group in totals['groups']:summary.append(['Количество, '+group['unit'],group['quantity']])
+    if not rows:summary.append(['Количество, шт.',0])
+    if totals['unknown']:summary.append(['Нет однозначных данных о количестве, товаров',totals['unknown']])
+    summary.append(['Известная закупочная стоимость остатка, ₸' if totals['unknown_value'] else 'Закупочная стоимость остатка, ₸',totals['known_value']])
+    summary.cell(summary.max_row,2).number_format='#,##0.00'
+    if totals['unknown_value']:summary.append(['Стоимость не определена, товаров',totals['unknown_value']])
+    summary.append(['Источник стоимости','Оставшиеся партии по складскому учёту. Цена Kaspi не является закупочной стоимостью.'])
+    summary.append([])
+
     stream=BytesIO();book.save(stream)
     filename='Остатки_'+(request.GET.get('warehouse') or 'PP1+PP2')+'_'+(request.GET.get('supplier') or 'Все поставщики')+'_'+now.strftime('%d.%m.%Y')+'.xlsx'
     filename=re.sub(r'[\x00-\x1f/\\]+','-',filename)[:210]+('.xlsx' if len(filename)>210 else '')
