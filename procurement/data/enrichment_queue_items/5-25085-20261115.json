@@ -1,0 +1,108 @@
+{
+  "schema": 1,
+  "supplier_id": 5,
+  "supplier_name": "ЗаказАвто",
+  "offer_id": 25085,
+  "product_id": 6832,
+  "task_id": 4805,
+  "brand": "SsangYong",
+  "article": "7145034004",
+  "checked_at": "2026-11-15T12:42:00.000Z",
+  "local_time": "2026-11-15T17:42:00+05:00",
+  "status": "saved_and_ui_verified_photo_thumbnail_and_fitment",
+  "fields_before": {
+    "product_main_image": "",
+    "product_supplier_thumbnail": "",
+    "offer_photo_url": "",
+    "task_status": "needs_source",
+    "fitment_rows": 0
+  },
+  "sources": [
+    {
+      "kind": "exact_checked_catalogue_card",
+      "url": "https://www.autoopt.ru/catalog/912907-amortizator_ssangyong_actyon_10__kryshki_bagazhnika_levyj_oe",
+      "result": "SSANGYONG 7145034004; left Actyon tailgate strut; 2010 onward"
+    },
+    {
+      "kind": "exact_image",
+      "url": "https://www.autoopt.ru/product_pictures/big/0fe/912907.jpg",
+      "sha256": "f3748cf1663c711d9ec25b01031a0400df5d3bf2614dbd5f5e460a9a060baf07",
+      "source_dimensions": "922x768",
+      "visual_check": "real isolated black gas strut; no car, diagram, analogue or placeholder"
+    },
+    {
+      "kind": "secondary_catalogue",
+      "url": "https://koreanaparts.ru/catalog/ssang-yong/actyon-new-korando-c-c200-2011",
+      "result": "exact left fifth-door strut 7145034004 for Actyon New / Korando C C200"
+    }
+  ],
+  "prepared": {
+    "photo": true,
+    "thumbnail": true,
+    "fitment": true,
+    "exact_brand_article_side_checked": true
+  },
+  "queued": {
+    "guard_commit": "37be4a7d4be66590596cc79c8a1ec0ad2d5b8fce",
+    "data_commit": "93ffdbb6f8be7caa6108c21f621cc0b3d6441f58",
+    "deploy_id": "dep-dbsqfrm7bikc73fbu6ug"
+  },
+  "saved": {
+    "task_status": "done",
+    "main_image": "products/optimized/b8681df0b9c8c04771afd8ca9cf43a1136d8c40f5b4ce6002aee6bf22d90f96e.webp",
+    "supplier_thumbnail": "products/optimized/d2bcf5f8e5ae9de5246082690cb3ad11d2d3e92df291fdb36d67e712a5ffcbdf.webp",
+    "offer_photo_url": "https://www.autoopt.ru/product_pictures/big/0fe/912907.jpg",
+    "fitment_ids": [
+      111537
+    ],
+    "configurations": [
+      {
+        "make": "SSANGYONG",
+        "model": "Actyon / New Actyon",
+        "years": "2010–",
+        "placement": "tailgate left",
+        "engine": null
+      }
+    ]
+  },
+  "verified": {
+    "database": true,
+    "public_ui": true,
+    "ui_url": "https://zpt.kz/ssangyong-zpt-25085/",
+    "main_dimensions": "800x666",
+    "thumbnail_dimensions": "180x150",
+    "fitment_visible": true
+  },
+  "trade_data": {
+    "price_before_after": [
+      14170,
+      14170
+    ],
+    "cost_before_after": [
+      10900,
+      10900
+    ],
+    "stock_before_after": [
+      1,
+      1
+    ],
+    "kaspi_price_before_after": [
+      17960,
+      17960
+    ],
+    "changed": false
+  },
+  "limitations": {
+    "generation_unknown": true,
+    "end_year_unknown": true,
+    "engines_unknown": true
+  },
+  "next": {
+    "supplier_id": 5,
+    "offer_id": 25131,
+    "product_id": 6714,
+    "task_id": 4687,
+    "brand": "HYUNDAI-KIA",
+    "article": "553112S400"
+  }
+}
