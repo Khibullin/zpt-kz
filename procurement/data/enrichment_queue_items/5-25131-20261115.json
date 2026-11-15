@@ -1,0 +1,133 @@
+{
+  "schema": 1,
+  "supplier_id": 5,
+  "supplier_name": "ЗаказАвто",
+  "offer_id": 25131,
+  "product_id": 6714,
+  "task_id": 4687,
+  "brand": "HYUNDAI-KIA",
+  "article": "553112S400",
+  "checked_at": "2026-11-15T12:57:09.406Z",
+  "local_time": "2026-11-15T17:57:09+05:00",
+  "status": "saved_and_ui_verified_photo_thumbnail_and_structured_fitment",
+  "fields_before": {
+    "product_main_image": "",
+    "product_supplier_thumbnail": "",
+    "offer_photo_url": "",
+    "task_status": "needs_source",
+    "fitment_rows": 0
+  },
+  "sources": [
+    {
+      "kind": "exact_kaspi_card",
+      "url": "https://kaspi.kz/shop/p/hyundai-kia-zadnii-553112s400-1-sht-142570155/?c=750000000",
+      "result": "exact HYUNDAI / KIA 553112S400, rear, one piece"
+    },
+    {
+      "kind": "exact_clean_image",
+      "url": "https://resources.cdn-kaspi.kz/img/m/p/p9b/p96/53188476.png?format=gallery-medium",
+      "source_dimensions": "516x353",
+      "visual_check": "clean isolated rear shock absorber; no car, diagram, analogue, placeholder or promotional text"
+    },
+    {
+      "kind": "manufacturer_catalogue",
+      "url": "https://partsouq.com/en/catalog/genuine/diagram?c=HYUNDAI202404&number=553112S400&ssd=%24%2AKwHJ9MnYrcieiIO6ht3BjorZqbipqaqpsvidgNnW35nZwN-3-_n-v7u0zsvIyc-WjpzZid_G2bvfgtzz8Kylq6uUsbSLkpX52oSio7vMxc2T0u-LiYm8tL-wgf3cw426yMnIy8zN8ZiAywAAAABcGbua%24&vid=1092930139",
+      "result": "Hyundai ix35/Tucson 10 Slovakia EUR 2010-2011, 2.0 R diesel, 6AT, 4WD, Russia suspension spec"
+    },
+    {
+      "kind": "exact_compatibility_card",
+      "url": "https://partsouq.com/shop/product/553112S400-hyundai-kia-shock-absorber-assy-rr/14115351",
+      "result": "exact Hyundai/KIA 553112S400 rear shock absorber; regional periods kept separate"
+    },
+    {
+      "kind": "verified_cross_catalogue",
+      "url": "https://www.autoopt.ru/catalog/430106-amortizator_hyundai_ix35_10__4wd_kia_sportage_10__4wd_zadnij_levyjpravyj_gazovyj_kyb/pdf",
+      "result": "cross 55311-2S400; Kia Sportage III 4WD from 2010, rear left/right; end year and engines not stated"
+    }
+  ],
+  "prepared": {
+    "photo": true,
+    "thumbnail": true,
+    "fitment": true,
+    "exact_brand_article_execution_package_checked": true
+  },
+  "queued": {
+    "guard_commit": "9c33b1ca0dad521cd3f1da5c276f0d24cfedcff1",
+    "data_commit": "4cf370e808d3e9d3d878e92ce43b81d27f3b1c10",
+    "consumer_commit": "046b420383c4e71238f37a201012daa8754c2b12",
+    "deploy_id": "dep-dbsqmme417fc73fqh5l0"
+  },
+  "saved": {
+    "task_status": "done",
+    "main_image": "products/optimized/58726a94187f41b8945875348da8e339b81a7623b23b3567e046c65334d01cd9.webp",
+    "supplier_thumbnail": "products/optimized/f1ae583cc085ff15ee8c3a0427ffb0d1f187e1349616ed3ea71716f63dce8aad.webp",
+    "offer_photo_url": "https://resources.cdn-kaspi.kz/img/m/p/p9b/p96/53188476.png?format=gallery-medium",
+    "fitment_ids": [
+      111538,
+      111539
+    ],
+    "configurations": [
+      {
+        "make": "HYUNDAI",
+        "model": "ix35 / Tucson 10",
+        "generation": "IX35/TUCSON 10 (SLOVAKIA PLANT-EUR)",
+        "years": "2010–2011",
+        "engine": "2.0 R diesel",
+        "transmission": "6-speed automatic",
+        "drivetrain": "4WD",
+        "placement": "rear axle",
+        "side": "left/right"
+      },
+      {
+        "make": "KIA",
+        "model": "Sportage III",
+        "generation": "Sportage III",
+        "years": "2010–",
+        "engine": null,
+        "drivetrain": "4WD",
+        "placement": "rear axle",
+        "side": "left/right"
+      }
+    ]
+  },
+  "verified": {
+    "database": true,
+    "public_ui": true,
+    "ui_url": "https://zpt.kz/hyundai-zpt-25131/",
+    "main_dimensions": "516x353",
+    "thumbnail_dimensions": "180x123",
+    "fitment_visible": true
+  },
+  "trade_data": {
+    "price_before_after": [
+      15145,
+      15145
+    ],
+    "cost_before_after": [
+      11650,
+      11650
+    ],
+    "stock_before_after": [
+      4,
+      4
+    ],
+    "kaspi_price_before_after": [
+      18560,
+      18560
+    ],
+    "changed": false
+  },
+  "limitations": {
+    "hyundai_other_regional_periods_not_merged": true,
+    "kia_end_year_unknown": true,
+    "kia_engines_unknown": true
+  },
+  "next": {
+    "supplier_id": 5,
+    "offer_id": 25110,
+    "product_id": 6727,
+    "task_id": 4700,
+    "brand": "JASHI",
+    "article": "202000362AA"
+  }
+}
