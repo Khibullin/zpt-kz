@@ -9,10 +9,17 @@
     "phase": "completed_with_documented_exceptions_20261112",
     "reviewed_offer_ids": 408
   },
-  "shared_lease": null,
+  "shared_lease": {
+    "owner": "weekend-enrichment-20261115-1604-item25142",
+    "acquired_at": "2026-11-15T11:04:00.000Z",
+    "heartbeat_at": "2026-11-15T11:04:00.000Z",
+    "expires_at": "2026-11-15T11:44:00.000Z",
+    "canonical_path": "procurement/data/enrichment_queue_20261111.json",
+    "canonical_blob_sha": "160ae7e93c44eced38ac1024d11780a432f9da90"
+  },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-15T10:21:00.000Z",
-  "status": "checkpointed_after_verified_jashi_54660h5100_resume_ready",
+  "heartbeat_at": "2026-11-15T11:04:00.000Z",
+  "status": "processing_fenox_a12254",
   "phase": "other_in_stock_control",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
