@@ -1,15 +1,8 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-15T09:23:30.000Z",
-  "lease": {
-    "owner": "weekend-enrichment-20261115-1423-batch20",
-    "scope": "enrichment_queue_20261113_other_in_stock_control_batch20_zakazauto",
-    "acquired_at": "2026-11-15T09:23:30.000Z",
-    "heartbeat_at": "2026-11-15T09:23:30.000Z",
-    "expires_at": "2026-11-15T09:58:30.000Z",
-    "next_offer_id": 25213
-  },
+  "checked_at": "2026-11-15T09:34:00.000Z",
+  "lease": null,
   "next_supplier": 3,
   "batch_size": 100,
   "queue": [
@@ -15636,11 +15629,11 @@
     "reason": "All293 new-source reviews completed and all prepared additions saved and DB/UI verified;281 unsupported exceptions documented; no unreviewed or pending publication."
   },
   "last_lease": {
-    "owner": "weekend-enrichment-20261115-1417-batch20",
+    "owner": "weekend-enrichment-20261115-1423-batch20",
     "scope": "enrichment_queue_20261113_other_in_stock_control_batch20_zakazauto",
-    "acquired_at": "2026-11-15T09:17:30.000Z",
-    "released_at": "2026-11-15T09:21:20.000Z",
-    "reason": "offer_25088_jashi_fitment_saved_db_ui_verified_photo_source_http403_advance_to_25213"
+    "acquired_at": "2026-11-15T09:23:30.000Z",
+    "released_at": "2026-11-15T09:34:00.000Z",
+    "reason": "offer_25213_jashi_photo_thumbnail_two_fitments_saved_db_ui_verified_advance_to_25289"
   },
   "continuation_20261112": {
     "started_at": "2026-11-12T02:20:46.660Z",
@@ -16365,5 +16358,5 @@
     "make_model_pairs_added": 146,
     "configurations_added": 185
   },
-  "updated_at": "2026-11-15T09:23:30.000Z"
+  "updated_at": "2026-11-15T09:34:00.000Z"
 }

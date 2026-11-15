@@ -11,8 +11,8 @@
   },
   "shared_lease": null,
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-15T09:23:30.000Z",
-  "status": "processing_other_in_stock_control_batch20_zakazauto",
+  "heartbeat_at": "2026-11-15T09:34:00.000Z",
+  "status": "checkpointed_after_verified_jashi_54651_d3000_resume_ready",
   "phase": "other_in_stock_control",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
@@ -8006,6 +8006,30 @@
       "configuration_count": 1,
       "deploy_id": "dep-dbsnhq2jnfac73cfm4tg",
       "live_commit": "e80095f723121d1a51a53a040c17202f5089715a"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25213,
+      "kind": "photo_and_thumbnail",
+      "saved_at": "2026-11-15T09:31:32.796Z",
+      "task_id": 4737,
+      "deploy_id": "dep-dbsnnkqjnfac73cfrs2g",
+      "live_commit": "59fabed863130f464d42e379999dfa5b5121e870",
+      "main_path": "products/optimized/05e214b7645262bde0db2d6bda9d0ee2ee3341aeedee076c99a5426ed0e695b2.webp",
+      "thumbnail_path": "products/optimized/920239fdd4dcd3247a177a72ff58b52a3d366d1a2fcf08805a05003ce213721c.webp"
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25213,
+      "kind": "fitment",
+      "saved_at": "2026-11-15T09:26:36.119Z",
+      "fitment_ids": [
+        111523,
+        111524
+      ],
+      "configuration_count": 13,
+      "deploy_id": "dep-dbsnkms9v7es73c42oo0",
+      "live_commit": "118078f347b84820cf5d9090f176f8bda60454be"
     }
   ],
   "verified": [
@@ -8336,6 +8360,33 @@
         "1 шт.",
         "Годы, поколение и двигатель источниками не подтверждены."
       ]
+    },
+    {
+      "supplier_id": 5,
+      "offer_id": 25213,
+      "kind": "photo_thumbnail_and_fitment",
+      "db_verified": true,
+      "ui_verified": true,
+      "ui_url": "https://zpt.kz/hyundai-zpt-25213/",
+      "ui_http_status": 200,
+      "ui_response_seconds": 6.680435,
+      "main_image_url": "https://zpt.kz/products/products/optimized/05e214b7645262bde0db2d6bda9d0ee2ee3341aeedee076c99a5426ed0e695b2.webp",
+      "thumbnail_url": "https://zpt.kz/products/products/optimized/920239fdd4dcd3247a177a72ff58b52a3d366d1a2fcf08805a05003ce213721c.webp",
+      "main_dimensions": "483x322",
+      "thumbnail_dimensions": "180x120",
+      "fitment_ids": [
+        111523,
+        111524
+      ],
+      "verified_at": "2026-11-15T09:34:00.000Z",
+      "ui_evidence": [
+        "JASHI 54651-D3000",
+        "HYUNDAI Tucson (TL) 2015,2016,2017,2018,2019,2020,2021",
+        "KIA Sportage (QL) 2016,2017,2018,2019,2020,2021",
+        "Передняя левая стойка",
+        "1 шт.",
+        "Двигатель не указан"
+      ]
     }
   ],
   "exceptions": [
@@ -8577,14 +8628,14 @@
   "publication_pending": null,
   "next": {
     "phase": "other_in_stock_control",
-    "sequence": 4,
+    "sequence": 5,
     "batch_size": 20,
     "supplier_id": 5,
-    "offer_id": 25213,
-    "product_id": 6764,
-    "task_id": 4737,
+    "offer_id": 25289,
+    "product_id": 6957,
+    "task_id": 4930,
     "brand": "JASHI",
-    "article": "54651-D3000"
+    "article": "54650H5100"
   },
   "events": [
     {
@@ -9086,22 +9137,40 @@
       "at": "2026-11-15T09:23:30.000Z",
       "type": "lease_acquired",
       "detail": "Shared lease acquired atomically for ZakazAuto offer 25213 JASHI 54651-D3000 after fresh live DB/load/task checks; zero active photo tasks and no second processor."
+    },
+    {
+      "at": "2026-11-15T09:26:48.628Z",
+      "type": "photo_activation_race_detected",
+      "detail": "Initial JASHI 54651-D3000 photo activation was safely skipped before the exact-card guard became live; no product image or trade data changed."
+    },
+    {
+      "at": "2026-11-15T09:34:00.000Z",
+      "type": "item_saved_verified_and_advance",
+      "detail": "ZakazAuto JASHI 54651-D3000: exact Global Parts KZ card and exact CTR OEM catalogue confirmed front-left one-piece strut. Existing sole consumer saved 483x322 WebP and 180x120 thumbnail. Two structured fitment rows saved for HYUNDAI Tucson (TL) and KIA Sportage (QL) with each confirmed year stored separately and no engine inferred. DB, files and public card verified; trade/Kaspi unchanged. Resume offer 25289."
+    },
+    {
+      "at": "2026-11-15T09:34:00.000Z",
+      "type": "lease_released",
+      "detail": "Shared canonical lease released after verified JASHI 54651-D3000 checkpoint; next offer 25289. No duplicate worker or schedule created."
     }
   ],
   "last_success": {
-    "at": "2026-11-15T09:21:20.000Z",
-    "stage": "exact_make_model_fitment_saved_db_ui_verified_photo_not_saved_http403",
+    "at": "2026-11-15T09:34:00.000Z",
+    "stage": "exact_photo_thumbnail_and_two_fitments_saved_db_ui_verified",
     "supplier_id": 5,
-    "offer_id": 25088,
-    "product_id": 6788,
-    "task_id": 4761,
-    "article": "C281F260203-1100",
-    "fitment_id": 111522,
-    "commit": "e80095f723121d1a51a53a040c17202f5089715a",
-    "deploy_id": "dep-dbsnhq2jnfac73cfm4tg",
-    "ui_url": "https://zpt.kz/changan-zpt-25088/"
+    "offer_id": 25213,
+    "product_id": 6764,
+    "task_id": 4737,
+    "article": "54651-D3000",
+    "fitment_ids": [
+      111523,
+      111524
+    ],
+    "commit": "59fabed863130f464d42e379999dfa5b5121e870",
+    "deploy_id": "dep-dbsnnkqjnfac73cfrs2g",
+    "ui_url": "https://zpt.kz/hyundai-zpt-25213/"
   },
-  "last_commit": "e80095f723121d1a51a53a040c17202f5089715a",
+  "last_commit": "59fabed863130f464d42e379999dfa5b5121e870",
   "paused_at": "2026-11-14T19:16:20.438Z",
   "pause_reason": "Sequence 14 EX54661A7100 recheck completed. Two exact photo sources were temporarily unavailable to the background consumer (HTTP 403); existing fitment verified. Resume at sequence 15.",
   "remaining_live": {
@@ -9545,41 +9614,35 @@
     "service_memory_limit_bytes": 536870900,
     "decision": "research and read-only checks allowed; defer or throttle writes while memory remains above 90% on the web service"
   },
-  "updated_at": "2026-11-15T09:23:30.000Z",
-  "current_index": 3,
+  "updated_at": "2026-11-15T09:34:00.000Z",
+  "current_index": 4,
   "next_supplier_id": 5,
-  "next_offer_id": 25213,
-  "next_product_id": 6764,
-  "next_task_id": 4737,
+  "next_offer_id": 25289,
+  "next_product_id": 6957,
+  "next_task_id": 4930,
   "last_lease": {
-    "owner": "weekend-enrichment-20261115-1417-batch20",
-    "scope": "enrichment_queue_20261113_other_in_stock_control_batch20_zakazauto",
-    "acquired_at": "2026-11-15T09:17:30.000Z",
-    "released_at": "2026-11-15T09:21:20.000Z",
-    "reason": "offer_25088_jashi_fitment_saved_db_ui_verified_photo_source_http403_advance_to_25213"
-  },
-  "lease": {
     "owner": "weekend-enrichment-20261115-1423-batch20",
     "scope": "enrichment_queue_20261113_other_in_stock_control_batch20_zakazauto",
     "acquired_at": "2026-11-15T09:23:30.000Z",
-    "heartbeat_at": "2026-11-15T09:23:30.000Z",
-    "expires_at": "2026-11-15T09:58:30.000Z",
-    "next_offer_id": 25213
+    "released_at": "2026-11-15T09:34:00.000Z",
+    "reason": "offer_25213_jashi_photo_thumbnail_two_fitments_saved_db_ui_verified_advance_to_25289"
   },
+  "lease": null,
   "pending_candidate": null,
   "last_reviewed": {
     "supplier_id": 5,
-    "offer_id": 25088,
-    "product_id": 6788,
-    "task_id": 4761,
+    "offer_id": 25213,
+    "product_id": 6764,
+    "task_id": 4737,
     "brand": "JASHI",
-    "article": "C281F260203-1100",
-    "kind": "exact_fitment_saved_photo_source_http403_no_bypass",
-    "photo_saved": false,
-    "thumbnail_saved": false,
+    "article": "54651-D3000",
+    "kind": "exact_photo_thumbnail_and_confirmed_fitments_saved",
+    "photo_saved": true,
+    "thumbnail_saved": true,
     "fitment_saved": true,
+    "fitment_rows": 2,
     "db_verified": true,
     "ui_verified": true,
-    "reviewed_at": "2026-11-15T09:21:20.000Z"
+    "reviewed_at": "2026-11-15T09:34:00.000Z"
   }
 }

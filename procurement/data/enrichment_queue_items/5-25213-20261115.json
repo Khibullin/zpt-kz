@@ -1,0 +1,133 @@
+{
+  "schema": 1,
+  "night_end_date": "2026-11-15",
+  "supplier_id": 5,
+  "supplier_name": "ЗаказАвто",
+  "offer_id": 25213,
+  "product_id": 6764,
+  "task_id": 4737,
+  "brand": "JASHI",
+  "article": "54651-D3000",
+  "name": "Амортизатор передний Hyundai",
+  "checked_on": "2026-11-15",
+  "before": {
+    "stock": "2",
+    "cost": "11800.00",
+    "price": "15340.00",
+    "kaspi_price": "20000.00",
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "fitment_rows": 0,
+    "task_status": "needs_source"
+  },
+  "prepared": {
+    "photo": {
+      "status": "confirmed_exact",
+      "source_kind": "exact_kz_catalogue_card",
+      "source_url": "https://shop.globalparts.kz/catalog/card/210534",
+      "image_url": "https://resources.cdn-kaspi.kz/img/m/p/p65/pe2/68673997.png?format=gallery-large",
+      "source_dimensions": "483x322",
+      "source_bytes": 29638,
+      "sha256": "b75b65ea9254a36b432e5b51c7111eec80c5a4ee222d3120b8d2cf6074bfc9c9",
+      "visual_check": "real isolated front-left strut; no car, diagram, analogue or placeholder"
+    },
+    "fitment": {
+      "status": "confirmed_exact",
+      "rows": [
+        {
+          "make": "HYUNDAI",
+          "model": "Tucson (TL)",
+          "years": [
+            2015,
+            2016,
+            2017,
+            2018,
+            2019,
+            2020,
+            2021
+          ],
+          "engine": null,
+          "placement": "front",
+          "side": "left"
+        },
+        {
+          "make": "KIA",
+          "model": "Sportage (QL)",
+          "years": [
+            2016,
+            2017,
+            2018,
+            2019,
+            2020,
+            2021
+          ],
+          "engine": null,
+          "placement": "front",
+          "side": "left"
+        }
+      ],
+      "package_quantity": 1,
+      "source_url": "https://shop.globalparts.kz/catalog/card/210534",
+      "confirmation_url": "https://aftermarket.ctr.co.kr/files/214f77492147bb699d6fb2030be19ec2.pdf"
+    }
+  },
+  "queued": {
+    "status": "queued_deployed_and_guarded",
+    "initial_commit": "118078f347b84820cf5d9090f176f8bda60454be",
+    "guard_commit": "af28e414cb6715212bd52a9f1c9d0b0a9a532ce8",
+    "restage_commit": "59fabed863130f464d42e379999dfa5b5121e870",
+    "deploy_id": "dep-dbsnnkqjnfac73cfrs2g",
+    "activation_race": "initial task safely skipped before guard; no write; final guarded restage succeeded"
+  },
+  "saved": {
+    "status": "saved",
+    "saved_at": "2026-11-15T09:31:32.796Z",
+    "photo_saved": true,
+    "thumbnail_saved": true,
+    "fitment_saved": true,
+    "fitment_ids": [
+      111523,
+      111524
+    ],
+    "task_status": "done",
+    "main_path": "products/optimized/05e214b7645262bde0db2d6bda9d0ee2ee3341aeedee076c99a5426ed0e695b2.webp",
+    "thumbnail_path": "products/optimized/920239fdd4dcd3247a177a72ff58b52a3d366d1a2fcf08805a05003ce213721c.webp"
+  },
+  "verification": {
+    "source_verified": true,
+    "db_verified": true,
+    "photo_verified": true,
+    "thumbnail_verified": true,
+    "fitment_verified": true,
+    "ui_verified": true,
+    "ui_http_status": 200,
+    "ui_response_seconds": 6.680435,
+    "main_http_status": 200,
+    "thumbnail_http_status": 200,
+    "main_dimensions": "483x322",
+    "thumbnail_dimensions": "180x120",
+    "ui_url": "https://zpt.kz/hyundai-zpt-25213/",
+    "verified_at": "2026-11-15T09:34:00.000Z"
+  },
+  "after": {
+    "stock": "2",
+    "cost": "11800.00",
+    "price": "15340.00",
+    "kaspi_price": "20000.00",
+    "main_image": "products/optimized/05e214b7645262bde0db2d6bda9d0ee2ee3341aeedee076c99a5426ed0e695b2.webp",
+    "supplier_thumbnail": "products/optimized/920239fdd4dcd3247a177a72ff58b52a3d366d1a2fcf08805a05003ce213721c.webp",
+    "fitment_rows": 2,
+    "task_status": "done"
+  },
+  "trade_data_unchanged": true,
+  "status": "completed_saved_and_verified",
+  "next": {
+    "supplier_id": 5,
+    "offer_id": 25289,
+    "product_id": 6957,
+    "task_id": 4930,
+    "brand": "JASHI",
+    "article": "54650H5100",
+    "action": "recheck lease, live stock/load/task state, then research exact execution and package sources"
+  }
+}

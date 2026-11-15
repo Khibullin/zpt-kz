@@ -2,8 +2,8 @@
   "schema": 1,
   "night_end_date": "2026-11-15",
   "started_at": "2026-11-14T19:02:21.138Z",
-  "updated_at": "2026-11-15T09:23:30.000Z",
-  "status": "processing_other_in_stock_control_batch20_zakazauto",
+  "updated_at": "2026-11-15T09:34:00.000Z",
+  "status": "checkpointed_after_verified_jashi_54651_d3000_resume_ready",
   "supplier_stats": {
     "1": {
       "name": "Omega",
@@ -25,10 +25,10 @@
     },
     "5": {
       "name": "ЗаказАвто",
-      "processed_unique": 10,
-      "photos_added": 5,
-      "fitment_added": 2,
-      "years_or_engines_added": 1,
+      "processed_unique": 11,
+      "photos_added": 6,
+      "fitment_added": 3,
+      "years_or_engines_added": 2,
       "skips": {
         "temporary_source_unavailable_http_403": 4,
         "brand_article_conflict": 1
@@ -41,9 +41,9 @@
     "phase": "other_in_stock_control",
     "batch_size": 20,
     "next_supplier_id": 5,
-    "next_offer_id": 25213,
-    "lease_owner": "weekend-enrichment-20261115-1423-batch20",
-    "lease_released_at": "2026-11-15T09:21:20.000Z",
+    "next_offer_id": 25289,
+    "lease_owner": null,
+    "lease_released_at": "2026-11-15T09:34:00.000Z",
     "publication_pending": null,
     "pending_ui_verification": null,
     "recheck": {
@@ -60,9 +60,9 @@
       "structured_fitment_missing_before": 5,
       "fitment_display_enhancements": 1
     },
-    "next_product_id": 6764,
-    "next_task_id": 4737,
-    "lease_expires_at": "2026-11-15T09:58:30.000Z"
+    "next_product_id": 6957,
+    "next_task_id": 4930,
+    "lease_expires_at": null
   },
   "events": [
     {
@@ -224,28 +224,46 @@
       "at": "2026-11-15T09:23:30.000Z",
       "type": "lease_acquired",
       "detail": "Shared lease acquired for offer 25213 after confirming stock 2, empty photo/fitment, task 4737 needs_source, zero active photo tasks and service memory about 58%."
+    },
+    {
+      "at": "2026-11-15T09:26:48.628Z",
+      "type": "photo_activation_race_detected",
+      "detail": "First activation of task 4737 was skipped by the old process during deploy transition; no product data changed."
+    },
+    {
+      "at": "2026-11-15T09:34:00.000Z",
+      "type": "item_saved_verified_and_advance",
+      "detail": "JASHI 54651-D3000: exact photo 483x322, thumbnail 180x120 and two sourced Tucson TL / Sportage QL fitment rows saved and verified. Thirteen discrete year configurations stored; engines remain unknown. Resume 25289."
+    },
+    {
+      "at": "2026-11-15T09:34:00.000Z",
+      "type": "lease_released",
+      "detail": "Shared lease released after per-item checkpoint; queue resumes at ZakazAuto offer 25289."
     }
   ],
   "last_success": {
-    "at": "2026-11-15T09:21:20.000Z",
+    "at": "2026-11-15T09:34:00.000Z",
     "supplier_id": 5,
-    "offer_id": 25088,
-    "product_id": 6788,
-    "task_id": 4761,
+    "offer_id": 25213,
+    "product_id": 6764,
+    "task_id": 4737,
     "brand": "JASHI",
-    "article": "C281F260203-1100",
+    "article": "54651-D3000",
     "saved": {
-      "photo": false,
-      "thumbnail": false,
+      "photo": true,
+      "thumbnail": true,
       "fitment": true,
-      "years_or_engines": false
+      "years_or_engines": true
     },
     "db_verified": true,
     "ui_verified": true,
-    "fitment_id": 111522,
-    "live_commit": "e80095f723121d1a51a53a040c17202f5089715a",
-    "deploy_id": "dep-dbsnhq2jnfac73cfm4tg",
-    "ui_url": "https://zpt.kz/changan-zpt-25088/"
+    "fitment_ids": [
+      111523,
+      111524
+    ],
+    "live_commit": "59fabed863130f464d42e379999dfa5b5121e870",
+    "deploy_id": "dep-dbsnnkqjnfac73cfrs2g",
+    "ui_url": "https://zpt.kz/hyundai-zpt-25213/"
   },
   "last_commit": "45c3c196f0fed28d4195d11f1a49127826e7c61e",
   "morning_report": {
