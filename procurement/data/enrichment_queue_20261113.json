@@ -9,10 +9,20 @@
     "phase": "completed_with_documented_exceptions_20261112",
     "reviewed_offer_ids": 408
   },
-  "shared_lease": null,
+  "shared_lease": {
+    "owner": "weekend-enrichment-20261115-1713-item25159",
+    "acquired_at": "2026-11-15T12:13:00.000Z",
+    "heartbeat_at": "2026-11-15T12:13:00.000Z",
+    "expires_at": "2026-11-15T12:53:00.000Z",
+    "checkpoint_path": "procurement/data/enrichment_queue_20261113.json",
+    "supplier_id": 5,
+    "offer_id": 25159,
+    "product_id": 6813,
+    "task_id": 4786
+  },
   "started_at": "2026-11-13T18:05:41.445Z",
-  "heartbeat_at": "2026-11-15T12:11:00.000Z",
-  "status": "checkpointed_after_verified_hyundai_kia_55100h5600_resume_ready",
+  "heartbeat_at": "2026-11-15T12:13:00.000Z",
+  "status": "lease_acquired_researching_parts_mall_pqb_007",
   "phase": "other_in_stock_control",
   "phase_reconciliation": {
     "best_zakazauto_and_phaeton": "no unreviewed positive-stock incomplete candidates after excluding the 408 authoritative old reviews",
@@ -10029,7 +10039,7 @@
     "service_memory_limit_bytes": 536870900,
     "decision": "research and read-only checks allowed; defer or throttle writes while memory remains above 90% on the web service"
   },
-  "updated_at": "2026-11-15T12:11:00.000Z",
+  "updated_at": "2026-11-15T12:13:00.000Z",
   "current_index": 9,
   "next_supplier_id": 5,
   "next_offer_id": 25159,
@@ -10044,8 +10054,26 @@
     "journal_commit": "206eeff445ec99e019aef504774f08e815c0387c",
     "next_offer_id": 25159
   },
-  "lease": null,
-  "pending_candidate": null,
+  "lease": {
+    "owner": "weekend-enrichment-20261115-1713-item25159",
+    "acquired_at": "2026-11-15T12:13:00.000Z",
+    "heartbeat_at": "2026-11-15T12:13:00.000Z",
+    "expires_at": "2026-11-15T12:53:00.000Z",
+    "checkpoint_path": "procurement/data/enrichment_queue_20261113.json",
+    "supplier_id": 5,
+    "offer_id": 25159,
+    "product_id": 6813,
+    "task_id": 4786
+  },
+  "pending_candidate": {
+    "supplier_id": 5,
+    "offer_id": 25159,
+    "product_id": 6813,
+    "task_id": 4786,
+    "brand": "Parts-Mall",
+    "article": "pqb-007",
+    "state": "researching_new_sources"
+  },
   "last_reviewed": {
     "supplier_id": 5,
     "offer_id": 25352,
