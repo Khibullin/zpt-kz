@@ -250,7 +250,16 @@ def process_photo_tasks(limit=10):
                         and evidence.get('verified_image_sha256')=='393d76bd812e5dcc9f086c8a4001cdfd2216bed2ce5990bb1a791f613fa92dab'
                         and evidence.get('checked_on')=='2026-11-15'
                     )
-                    if exact_jashi or exact_trialli or exact_hyundai_kia or exact_ssangyong or exact_haval:
+                    exact_jashi_54651=(
+                        task.pk==4737 and product.pk==6764 and offer.pk==25213
+                        and offer.brand=='JASHI' and offer.article=='54651-D3000'
+                        and task.source_url=='https://shop.globalparts.kz/catalog/card/210534'
+                        and evidence.get('reviewed_batch')=='weekend-20261115-j'
+                        and evidence.get('image_url')=='https://resources.cdn-kaspi.kz/img/m/p/p65/pe2/68673997.png?format=gallery-large'
+                        and evidence.get('verified_image_sha256')=='b75b65ea9254a36b432e5b51c7111eec80c5a4ee222d3120b8d2cf6074bfc9c9'
+                        and evidence.get('checked_on')=='2026-11-15'
+                    )
+                    if exact_jashi or exact_trialli or exact_hyundai_kia or exact_ssangyong or exact_haval or exact_jashi_54651:
                         # The exact card and selected item image were visually checked before
                         # staging. Fetch only that immutable CDN object here; the guarded
                         # migration has already rechecked live identity, stock and fitment.
