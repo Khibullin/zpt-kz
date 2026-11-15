@@ -1,0 +1,78 @@
+from django.db import migrations
+
+
+SOURCE_URL = "https://shop.globalparts.kz/catalog/card/210534"
+
+
+def restage_after_guard(apps, schema_editor):
+    """Restage only after the exact image guard is already live on the old instance."""
+    if schema_editor.connection.alias != "default":
+        return
+
+    from django.db import transaction
+
+    Task = apps.get_model("catalog", "SupplierPhotoTask")
+    Product = apps.get_model("catalog", "Product")
+    Offer = apps.get_model("procurement", "Offer")
+    Fitment = apps.get_model("procurement", "VehicleFitment")
+    Activity = apps.get_model("procurement", "Activity")
+
+    restaged = 0
+    with transaction.atomic():
+        offer = Offer.objects.select_for_update().filter(
+            pk=25213,
+            supplier_id=5,
+            brand="JASHI",
+            article="54651-D3000",
+            stock="2",
+            cost="11800.00",
+            kaspi_price="20000.00",
+        ).first()
+        product = Product.objects.select_for_update().filter(
+            pk=6764,
+            article="54651-D3000",
+            status="active",
+            main_image="",
+            supplier_thumbnail="",
+            price=15340,
+            cost_price=11800,
+            stock_qty=2,
+        ).first()
+        task = Task.objects.select_for_update().filter(
+            pk=4737,
+            product_id=6764,
+            offer_id=25213,
+            status="skipped",
+            source_url=SOURCE_URL,
+            evidence__reviewed_batch="weekend-20261115-j",
+        ).first()
+        fitments_ok = Fitment.objects.filter(
+            offer_id=25213,
+            verified=True,
+            source_url=SOURCE_URL,
+        ).count() == 2
+
+        if offer is not None and product is not None and task is not None and fitments_ok:
+            task.status = "weekend15j_ready"
+            task.note = "Финальный адресный restage после подтверждённого live exact-card guard."
+            task.save(update_fields=["status", "note", "updated_at"])
+            restaged = 1
+
+        Activity.objects.create(
+            user_id=None,
+            action="reviewed_weekend_jashi_54651_d3000_photo_restaged_after_guard",
+            details={
+                "batch": "weekend-20261115-j",
+                "offer_id": 25213,
+                "product_id": 6764,
+                "task_id": 4737,
+                "photo_tasks": restaged,
+            },
+        )
+
+
+class Migration(migrations.Migration):
+    dependencies = [("procurement", "0102_restage_jashi_54651_d3000_photo")]
+    operations = [
+        migrations.RunPython(restage_after_guard, migrations.RunPython.noop),
+    ]
