@@ -34,12 +34,32 @@ def stage_exact_hyundai_kia_photo(apps, schema_editor):
             status="needs_source", source_url="",
         ).first()
         fitments = VehicleFitment.objects.filter(offer_id=25129, verified=True)
+        fitment = fitments.filter(
+            pk=111518, make="KIA", model="New Sorento R (XM)",
+            source_url=(
+                "https://capom.co.kr/product/%EB%A6%AC%EC%96%B4-%EC%87%BC%ED%81%AC-"
+                "%EC%97%85%EC%86%8C%EB%B2%84-553102p500-%EC%8F%98%EB%A0%8C%ED%86%A0/112396/"
+            ),
+        ).first()
         fitment_ok = (
             fitments.count() == 1
-            and fitments.filter(
-                make="KIA", model="New Sorento R (XM)",
-                year_from="2012-07", year_to="2014-08",
-            ).exists()
+            and fitment is not None
+            and fitment.details == (
+                "Задний газовый амортизатор; только 4WD. "
+                "Двигатель и сторона установки источниками не указаны."
+            )
+            and fitment.configurations == [{
+                "type": "gas",
+                "years": "2012-07–2014-08",
+                "placement": "rear",
+                "source_url": (
+                    "https://capom.co.kr/product/%EB%A6%AC%EC%96%B4-%EC%87%BC%ED%81%AC-"
+                    "%EC%97%85%EC%86%8C%EB%B2%84-553102p500-%EC%8F%98%EB%A0%8C%ED%86%A0/112396/"
+                ),
+                "oem_article": "553102P500",
+                "restriction": "4WD",
+                "confirmation_url": "https://ipex.com.pe/wp-content/uploads/2021/08/2-Catalogo-Amortiguadores.pdf",
+            }]
         )
         if offer is not None and product is not None and task is not None and fitment_ok:
             task.source_url = SOURCE_URL
