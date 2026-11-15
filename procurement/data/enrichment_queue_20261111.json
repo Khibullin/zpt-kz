@@ -2,7 +2,13 @@
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
   "checked_at": "2026-11-15T09:34:00.000Z",
-  "lease": null,
+  "lease": {
+    "owner": "weekend-enrichment-20261115-1616-item28110",
+    "acquired_at": "2026-11-15T11:16:00.000Z",
+    "heartbeat_at": "2026-11-15T11:16:00.000Z",
+    "expires_at": "2026-11-15T11:56:00.000Z",
+    "purpose": "single-item exact-source enrichment JASHI 8405120P3011/SET/6p offer 28110"
+  },
   "next_supplier": 3,
   "batch_size": 100,
   "queue": [
@@ -15629,13 +15635,11 @@
     "reason": "All293 new-source reviews completed and all prepared additions saved and DB/UI verified;281 unsupported exceptions documented; no unreviewed or pending publication."
   },
   "last_lease": {
-    "owner": "weekend-enrichment-20261115-1604-item25142",
-    "acquired_at": "2026-11-15T11:04:00.000Z",
-    "released_at": "2026-11-15T11:14:00.000Z",
-    "result": "completed_saved_and_verified_fenox_a12254",
-    "checkpoint_path": "procurement/data/enrichment_queue_20261113.json",
-    "checkpoint_commit": "dbe3ea04fe56052fec0ab066a23d72c05db30150",
-    "next_offer_id": 28110
+    "owner": "weekend-enrichment-20261115-1616-item28110",
+    "acquired_at": "2026-11-15T11:16:00.000Z",
+    "heartbeat_at": "2026-11-15T11:16:00.000Z",
+    "expires_at": "2026-11-15T11:56:00.000Z",
+    "purpose": "single-item exact-source enrichment JASHI 8405120P3011/SET/6p offer 28110"
   },
   "continuation_20261112": {
     "started_at": "2026-11-12T02:20:46.660Z",
@@ -16360,6 +16364,6 @@
     "make_model_pairs_added": 146,
     "configurations_added": 185
   },
-  "updated_at": "2026-11-15T11:14:00.000Z",
-  "heartbeat_at": "2026-11-15T11:14:00.000Z"
+  "updated_at": "2026-11-15T11:16:00.000Z",
+  "heartbeat_at": "2026-11-15T11:16:00.000Z"
 }
