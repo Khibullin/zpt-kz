@@ -2,8 +2,8 @@
   "schema": 1,
   "night_end_date": "2026-11-15",
   "started_at": "2026-11-14T19:02:21.138Z",
-  "updated_at": "2026-11-15T12:22:00.000Z",
-  "status": "checkpointed_after_verified_parts_mall_pqb007_resume_ready",
+  "updated_at": "2026-11-15T12:29:00.000Z",
+  "status": "checkpointed_after_verified_jashi_54651_f2500_fitment_resume_ready",
   "supplier_stats": {
     "1": {
       "name": "Omega",
@@ -25,13 +25,13 @@
     },
     "5": {
       "name": "ЗаказАвто",
-      "processed_unique": 17,
+      "processed_unique": 18,
       "photos_added": 12,
-      "fitment_added": 9,
-      "years_or_engines_added": 7,
+      "fitment_added": 10,
+      "years_or_engines_added": 8,
       "skips": {
         "temporary_source_unavailable_http_403": 4,
-        "brand_article_conflict": 1
+        "brand_article_conflict": 2
       },
       "pending_ui_verification": 0,
       "thumbnails_added": 12
@@ -41,9 +41,9 @@
     "phase": "other_in_stock_control",
     "batch_size": 20,
     "next_supplier_id": 5,
-    "next_offer_id": 25206,
+    "next_offer_id": 25086,
     "lease_owner": null,
-    "lease_released_at": "2026-11-15T12:22:00.000Z",
+    "lease_released_at": "2026-11-15T12:29:00.000Z",
     "publication_pending": null,
     "pending_ui_verification": null,
     "recheck": {
@@ -60,11 +60,11 @@
       "structured_fitment_missing_before": 5,
       "fitment_display_enhancements": 1
     },
-    "next_product_id": 6766,
-    "next_task_id": 4739,
+    "next_product_id": 6834,
+    "next_task_id": 4807,
     "lease_expires_at": null,
-    "current_index": 10,
-    "current_batch_processed": 10,
+    "current_index": 11,
+    "current_batch_processed": 11,
     "current_batch_total": 20
   },
   "events": [
@@ -337,34 +337,49 @@
       "at": "2026-11-15T12:22:00.000Z",
       "type": "lease_released",
       "detail": "Shared lease released after per-item checkpoint; no pending publication or UI verification."
+    },
+    {
+      "at": "2026-11-15T12:24:00.000Z",
+      "type": "lease_acquired",
+      "detail": "Shared lease acquired after fresh DB/process/load checks for ZakazAuto offer 25206 / JASHI 54651-F2500."
+    },
+    {
+      "at": "2026-11-15T12:29:00.000Z",
+      "type": "item_saved_verified_and_advance",
+      "detail": "JASHI 54651-F2500: HYUNDAI Avante/Elantra (AD), 2015–2020, front-left fitment saved from official CTR OEM cross and verified in DB/UI. Engines remain unknown. No photo or thumbnail: exact-article cards had conflicting Expert or Hyundai/Kia brands. Batch20 now 11/20; resume offer 25086."
+    },
+    {
+      "at": "2026-11-15T12:29:00.000Z",
+      "type": "lease_released",
+      "detail": "Shared lease released after per-item checkpoint; no pending publication or UI verification."
     }
   ],
   "last_success": {
-    "at": "2026-11-15T12:22:00.000Z",
+    "at": "2026-11-15T12:29:00.000Z",
     "supplier_id": 5,
-    "offer_id": 25159,
-    "product_id": 6813,
-    "task_id": 4786,
-    "brand": "Parts-Mall",
-    "article": "pqb-007",
+    "offer_id": 25206,
+    "product_id": 6766,
+    "task_id": 4739,
+    "brand": "JASHI",
+    "article": "54651-F2500",
     "saved": {
-      "photo": true,
-      "thumbnail": true,
+      "photo": false,
+      "thumbnail": false,
       "fitment": true,
       "years_or_engines": true
     },
     "db_verified": true,
     "ui_verified": true,
     "fitment_ids": [
-      111534
+      111535
     ],
-    "configuration_count": 2,
-    "engine_rows": 2,
-    "live_commit": "9949c2f9b5402a407fd303367d013a4a4e095f9f",
-    "deploy_id": "dep-dbsq5glbedkc73cfa6tg",
-    "ui_url": "https://zpt.kz/kia-zpt-25159/"
+    "configuration_count": 1,
+    "engine_rows": 0,
+    "live_commit": "708cdbdfa7f0c4b860a598f58cb9d17e00e044d9",
+    "deploy_id": "dep-dbsq9fc9v7es73c6njng",
+    "ui_url": "https://zpt.kz/hyundai-zpt-25206/"
   },
-  "last_commit": "579d111752f561847485ab900becf81ed75c8ed2",
+  "last_commit": "4f3ec0c370879ceffa21bb1858d82be80d94c4ec",
   "morning_report": {
     "period_start": "2026-11-14T23:00:00+05:00",
     "period_end": "2026-11-15T06:00:00+05:00",
