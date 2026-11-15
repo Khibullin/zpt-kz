@@ -1,0 +1,120 @@
+{
+  "schema": 1,
+  "night_end_date": "2026-11-15",
+  "supplier_id": 5,
+  "supplier_name": "ЗаказАвто",
+  "offer_id": 28110,
+  "product_id": 9237,
+  "task_id": 7210,
+  "brand": "JASHI",
+  "article": "8405120P3011/SET/6p/",
+  "name": "Комплект крепления JAC",
+  "checked_on": "2026-11-15",
+  "before": {
+    "stock": "2",
+    "cost": "17400.00",
+    "price": "22620.00",
+    "kaspi_price": "26060.00",
+    "main_image": "",
+    "supplier_thumbnail": "",
+    "fitment_rows": 0,
+    "task_status": "needs_source",
+    "description_quantity": "1 шт."
+  },
+  "prepared": {
+    "photo": {
+      "status": "confirmed_exact",
+      "source_kind": "exact_kaspi_card_and_seller_merchant_sku",
+      "source_url": "https://kaspi.kz/shop/p/jashi-kreplenie-8405120p3011-jac-t6-120901371/",
+      "image_url": "https://resources.cdn-kaspi.kz/img/m/p/hcb/h6e/86407480410142.jpg?format=gallery-large",
+      "source_dimensions": "263x160",
+      "visual_check": "real isolated set of six black metal brackets; no car, diagram, analogue or placeholder"
+    },
+    "fitment": {
+      "status": "confirmed_partial",
+      "rows": [
+        {
+          "make": "JAC",
+          "model": "T6",
+          "generation": null,
+          "years": null,
+          "engine": null,
+          "execution": "six-piece left/right step mounting bracket set",
+          "package_quantity": 6
+        }
+      ],
+      "source_url": "https://kaspi.kz/shop/p/jashi-kreplenie-8405120p3011-jac-t6-120901371/",
+      "catalogue_url": "https://service-forward.ru/запчасти/запчасти-для-грузовиков-jac/каталог-легковых-запчастей-jac/",
+      "merchant_sku": "8405120P3011/SET/6p/",
+      "component_articles": [
+        "8405120P3011",
+        "8405130P3011",
+        "8405140P3011",
+        "8405220P3011",
+        "8405230P3011",
+        "8405240P3011"
+      ],
+      "limitations": "Years, generation and engines were not stated; no values inferred."
+    }
+  },
+  "queued": {
+    "status": "queued_deployed_and_guarded",
+    "guard_commit": "c349acf7bdcff87d187d9a21fd16d5f8029a6c84",
+    "stage_commit": "a8b7b0adaba156287ff88ef4deb79ed4b83f1b12",
+    "quantity_commit": "102ced5235c903b585d246d8c384eeef7cc26773",
+    "deploy_id": "dep-dbspc12jnfac73chbp30",
+    "activation": "single existing consumer only; guard was live before task staging"
+  },
+  "saved": {
+    "status": "saved",
+    "saved_at": "2026-11-15T11:19:46.601198Z",
+    "photo_saved": true,
+    "thumbnail_saved": true,
+    "fitment_saved": true,
+    "fitment_ids": [
+      111532
+    ],
+    "task_status": "done",
+    "main_path": "products/optimized/32d181d93f61df508bae0cd50ba5736d59ac261b4bec54489c74ddfe8c975d16.webp",
+    "thumbnail_path": "products/optimized/43ae7003b56b280a3a63b61b6270d7e942888588721e3e8a3d5d0bc0985252fd.webp",
+    "description_quantity_corrected_to": 6
+  },
+  "verification": {
+    "source_verified": true,
+    "db_verified": true,
+    "photo_verified": true,
+    "thumbnail_verified": true,
+    "fitment_verified": true,
+    "ui_verified": true,
+    "ui_http_status": 200,
+    "main_http_status": 200,
+    "thumbnail_http_status": 200,
+    "main_dimensions": "263x160",
+    "thumbnail_dimensions": "180x110",
+    "ui_url": "https://zpt.kz/jac-zpt-28110/",
+    "verified_at": "2026-11-15T11:25:00.000Z"
+  },
+  "after": {
+    "stock": "2",
+    "cost": "17400.00",
+    "price": "22620.00",
+    "kaspi_price": "26060.00",
+    "main_image": "products/optimized/32d181d93f61df508bae0cd50ba5736d59ac261b4bec54489c74ddfe8c975d16.webp",
+    "supplier_thumbnail": "products/optimized/43ae7003b56b280a3a63b61b6270d7e942888588721e3e8a3d5d0bc0985252fd.webp",
+    "fitment_rows": 1,
+    "fitment_configurations": 1,
+    "task_status": "done",
+    "description_quantity": "комплект 6 шт."
+  },
+  "trade_data_unchanged": true,
+  "status": "completed_saved_and_verified",
+  "next": {
+    "supplier_id": 5,
+    "offer_id": 25352,
+    "product_id": 6915,
+    "task_id": 4888,
+    "brand": "HYUNDAI-KIA",
+    "article": "55100H5600",
+    "action": "recheck lease, weekend time, live stock/load/task state, then confirm exact brand identity, complete rear axle assembly and fitment"
+  }
+}
