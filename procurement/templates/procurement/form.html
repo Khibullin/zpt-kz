@@ -3,6 +3,9 @@
 <a href="{{ catalog_url }}">← Подбор товаров</a>
 </header>
 <section class="panel">
+{% if title == 'Алгоритм и настройки' and role == 'admin' %}
+<div class="actions" style="margin-bottom:15px"><a class="button" href="{% url 'procurement:users' %}">Пользователи и роли</a></div>
+{% endif %}
 <p class="help">{{ help }}</p>
 <form class="form" method="post" enctype="multipart/form-data">{% csrf_token %}{% if title == 'Алгоритм и настройки' %}
 <h2>Общие расходы</h2>{{ form.commission.as_field_group }}<p>{{ form.expenses.as_field_group }}</p>
