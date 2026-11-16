@@ -29,6 +29,7 @@ urlpatterns = [
     path('batches/<int:pk>/file/', workspace.batch_file, name='batch_file'),
     path('sales/<int:pk>/link/', workspace.sale_link, name='sale_link'),
     path('purchases/',purchasing.purchases,name='purchases'),
+    path('purchases/<int:pk>/',purchasing.purchase_register_detail,name='purchase_register_detail'),
     path('purchases/<int:pk>/action/<str:action>/',purchasing.purchase_action,name='purchase_action'),
     path('purchases/<int:pk>/listing/<int:line>/',purchasing.listing,name='purchase_listing'),
     path('cash/check/',tools_views.bank_check,name='bank_check'),
