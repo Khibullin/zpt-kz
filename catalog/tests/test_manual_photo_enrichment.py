@@ -22,14 +22,17 @@ class ManualPhotoEnrichmentTests(SimpleTestCase):
         processor.assert_not_called()
         self.assertIn('DRY RUN', out.getvalue())
 
+    @patch('catalog.management.commands.run_manual_photo_enrichment.send_mail')
     @patch('catalog.management.commands.run_manual_photo_enrichment.SupplierPhotoTask')
     @patch('catalog.management.commands.run_manual_photo_enrichment.process_photo_tasks')
-    def test_explicit_run_uses_bounded_limit(self, processor, tasks):
+    def test_explicit_run_uses_bounded_limit(self, processor, tasks, mailer):
         processor.return_value = 2
         out = StringIO()
         call_command('run_manual_photo_enrichment', '--run', '--limit', '10', stdout=out)
         processor.assert_called_once_with(limit=10)
         self.assertIn('processed=2', out.getvalue())
+        mailer.assert_called_once()
+        self.assertEqual(mailer.call_args.args[3], ['rkhaibullin@gmail.com'])
 
     def test_invalid_limit_rejected(self):
         with self.assertRaises(CommandError):
