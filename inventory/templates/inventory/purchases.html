@@ -1,81 +1,111 @@
 {% extends 'procurement/base.html' %}
+{% block title %}Учёт закупок · ZPT.KZ{% endblock %}
 {% block content %}
 <style>
-.purchase-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}
-.purchase-head h1{margin:0}.purchase-head p{margin:5px 0 0;color:#647083}
-.purchase-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px}
-.purchase-stat{background:white;border:1px solid #d6dfe7;border-radius:12px;padding:19px}
-.purchase-stat .number{font-weight:750;font-size:29px;color:#142e4d}.purchase-stat .label{color:#647083;font-size:13px;margin-top:5px}
-.purchase-tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
-.purchase-tools input[name=q]{flex:1;min-width:220px}
-.purchase-tools button{white-space:nowrap}
-.purchase-table{width:100%;min-width:1010px}
-.purchase-table th{font-size:13px;color:#344357}.purchase-table td{vertical-align:middle}
-.purchase-name{font-weight:750;color:#142e4d;display:block}.purchase-meta{display:block;font-size:12px;color:#647083;margin-top:4px}
-.purchase-stock strong{display:block;white-space:nowrap}.purchase-stock small{display:block;font-size:11px}
-.purchase-meter{height:7px;border-radius:20px;background:#e0e6ee;width:145px;max-width:100%;overflow:hidden;margin:6px 0}
-.purchase-meter span{height:100%;display:block;background:#159a57;border-radius:20px}
-.purchase-tag{font-size:12px;background:#e6f2ff;color:#215d98;border-radius:8px;padding:6px 9px;display:inline-block}
-.purchase-note{color:#647083;font-size:13px;line-height:1.5}
-.purchase-filters{margin-top:10px}
-.purchase-filters summary{cursor:pointer;font-weight:650}
-.purchase-filters .filters{margin:12px 0 0}
-@media(max-width:900px){.purchase-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.purchase-stat{padding:13px}.purchase-stat .number{font-size:23px}}
+.purchase-page{font-family:Arial,Helvetica,sans-serif;color:#142c4b}
+.purchase-page h1{font-size:32px;line-height:1.12;margin:0 0 6px;color:#10243b}
+.purchase-page .purchase-subtitle{color:#64758a;font-size:14px;margin:0}
+.purchase-top{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:12px 0 24px}
+.purchase-top .button{white-space:nowrap}
+.purchase-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:24px}
+.purchase-kpi{display:flex;align-items:center;gap:14px;padding:21px 17px;border:1px solid #e0e7ef;border-radius:14px;background:white;min-height:110px}
+.purchase-kpi .symbol{display:grid;place-items:center;flex:0 0 44px;height:44px;border-radius:12px;background:#edf4ff;font-size:24px}
+.purchase-kpi:nth-child(2) .symbol{background:#edf8f1}.purchase-kpi:nth-child(3) .symbol{background:#f3efff}.purchase-kpi:nth-child(4) .symbol{background:#fff3e8}
+.purchase-kpi .value{font-size:29px;line-height:1;font-weight:750;letter-spacing:-.6px;color:#13253d}
+.purchase-kpi .description{font-size:13px;color:#607088;margin-top:8px}
+.purchase-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+.purchase-toolbar input[type=search]{padding:14px 15px;flex:1;min-width:210px;border-radius:9px;font-size:14px}
+.purchase-toolbar .button,.purchase-toolbar button{padding:12px 15px;border-radius:9px;font-weight:bold}
+.purchase-filters{position:relative}
+.purchase-filters summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;border:1px solid #cbd8e7;border-radius:9px;padding:12px 15px;background:white;font-weight:bold;color:#183754}
+.purchase-filters summary::-webkit-details-marker{display:none}
+.purchase-filters[open] summary{background:#eef6fa}
+.purchase-filters .filter-panel{margin-top:12px;background:white;border:1px solid #dce5ef;border-radius:12px;padding:15px;display:flex;gap:12px;align-items:end;flex-wrap:wrap}
+.purchase-filters label{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:bold}
+.purchase-filters select{min-width:125px}
+.purchase-register{background:white;border:1px solid #dce5ef;border-radius:15px;overflow:hidden}
+.purchase-tablewrap{overflow-x:auto}
+.purchase-table{width:100%;min-width:995px;border-collapse:collapse}
+.purchase-table th{background:#f2f5f9;color:#24344a;font-size:13px;white-space:nowrap;padding:20px 14px}
+.purchase-table td{padding:18px 14px;font-size:14px;border-bottom:1px solid #e8edf4;vertical-align:middle}
+.purchase-table tr:last-child td{border-bottom:0}
+.purchase-table tbody tr:hover{background:#f8fbfd}
+.purchase-title{font-weight:750;display:block;color:#153456;margin-bottom:4px}
+.purchase-secondary{font-size:12px;color:#697a8e;display:block;margin-top:5px}
+.purchase-status{display:inline-block;border-radius:8px;background:#e8f6ed;color:#138343;padding:7px 10px;font-size:12px;font-weight:700;white-space:nowrap}
+.purchase-status.waiting{background:#fff1e4;color:#ae610c}
+.purchase-stock{min-width:145px}
+.purchase-stock strong{display:block;font-size:14px;white-space:nowrap}
+.purchase-track{margin-top:8px;width:165px;max-width:100%;height:8px;background:#e1e6ec;border-radius:8px;overflow:hidden}
+.purchase-track div{height:100%;background:#15a34a;border-radius:8px}
+.purchase-open{white-space:nowrap;font-weight:bold}
+.purchase-foot{padding:18px;border-top:1px solid #e6edf3;color:#607088;font-size:13px;line-height:1.5}
+.purchase-foot p{margin:0 0 8px}.purchase-foot p:last-child{margin:0}
+.purchase-tabs{display:flex;gap:18px;margin:0 0 15px;font-size:14px}
+.purchase-tabs a{color:#506a86}.purchase-tabs a.active{font-weight:700;color:#075fbd}
+.purchase-notice{margin-top:14px;color:#66788b;font-size:12px}
+@media(max-width:1150px){.purchase-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.purchase-top{margin-top:0}.purchase-page h1{font-size:26px}.purchase-kpis{gap:9px}.purchase-kpi{padding:12px;min-height:85px;gap:8px}.purchase-kpi .symbol{display:none}.purchase-kpi .value{font-size:23px}.purchase-kpi .description{font-size:12px}.purchase-toolbar{gap:7px}.purchase-toolbar input[type=search]{width:100%}}
 </style>
-<div class="purchase-head"><div><h1>Учёт закупок</h1><p>История закупок, поставки и остатки на складах</p></div><div class="actions"><a class="button secondary" href="{% url 'procurement:basket' %}">Список закупки</a><a class="button" href="{% url 'procurement:dashboard' %}">+ Новая закупка</a></div></div>
-<div class="purchase-stats">
- <div class="purchase-stat"><div class="number">{{ count }}</div><div class="label">Закупок</div></div>
- <div class="purchase-stat"><div class="number">{{ ordered }}</div><div class="label">Единиц заказано</div></div>
- <div class="purchase-stat"><div class="number">{{ received }}</div><div class="label">Единиц принято</div></div>
- <div class="purchase-stat"><div class="number">{{ awaiting }}</div><div class="label">Ожидается по заказам</div></div>
-</div>
-<form method="get" class="purchase-tools">
- <input name="q" type="search" value="{{ request.GET.q }}" aria-label="Поиск закупок" placeholder="Поиск по закупке, поставщику, артикулу или товару">
- {% if request.GET.deleted %}<input type="hidden" name="deleted" value="1">{% endif %}
- <button>Найти</button><a class="button secondary" href="?{% if request.GET.deleted %}deleted=1{% endif %}">Сбросить</a>
- <button name="export" value="xlsx" class="secondary">Excel</button>
-</form>
-<details class="purchase-filters" {% if request.GET.supplier or request.GET.warehouse or request.GET.stage or request.GET.payment %}open{% endif %}>
- <summary>Фильтры по поставщику, складу, поставке и оплате</summary>
- <form method="get" class="panel filters">
-  {% if request.GET.q %}<input type="hidden" name="q" value="{{ request.GET.q }}">{% endif %}
-  {% if request.GET.deleted %}<input type="hidden" name="deleted" value="1">{% endif %}
-  <label>Поставщик<select name="supplier"><option value="">Все</option>{% for s in suppliers %}<option value="{{ s.pk }}" {% if request.GET.supplier == s.pk|stringformat:'s' %}selected{% endif %}>{{ s.name }}</option>{% endfor %}</select></label>
-  <label>Склад<select name="warehouse"><option value="">Все</option><option value="PP1" {% if request.GET.warehouse == 'PP1' %}selected{% endif %}>PP1</option><option value="PP2" {% if request.GET.warehouse == 'PP2' %}selected{% endif %}>PP2</option></select></label>
-  <label>Поставка<select name="stage"><option value="">Все</option><option value="expected" {% if request.GET.stage == 'expected' %}selected{% endif %}>Ожидается</option><option value="partial" {% if request.GET.stage == 'partial' %}selected{% endif %}>Частично принято</option><option value="received" {% if request.GET.stage == 'received' %}selected{% endif %}>Принято полностью</option></select></label>
-  <label>Оплата<select name="payment"><option value="">Все</option><option value="unpaid" {% if request.GET.payment == 'unpaid' %}selected{% endif %}>Не оплачено</option><option value="paid" {% if request.GET.payment == 'paid' %}selected{% endif %}>Оплачено</option></select></label>
-  <button>Применить</button>
+<div class="purchase-page">
+ <div class="purchase-top">
+  <div><h1>Учёт закупок</h1><p class="purchase-subtitle">История закупок, поставки и остатки товаров</p></div>
+  <a class="button primary" href="{% url 'procurement:dashboard' %}">＋ Новая закупка</a>
+ </div>
+ <div class="purchase-kpis">
+  <div class="purchase-kpi"><span class="symbol" aria-hidden="true">🛒</span><div><div class="value">{{ count }}</div><div class="description">Закупок всего</div></div></div>
+  <div class="purchase-kpi"><span class="symbol" aria-hidden="true">▣</span><div><div class="value">{{ ordered }}</div><div class="description">Единиц закуплено</div></div></div>
+  <div class="purchase-kpi"><span class="symbol" aria-hidden="true">▤</span><div><div class="value">{{ received }}</div><div class="description">Единиц принято на склад</div></div></div>
+  <div class="purchase-kpi"><span class="symbol" aria-hidden="true">🚚</span><div><div class="value">{{ awaiting }}</div><div class="description">Ожидается по заказам</div></div></div>
+ </div>
+ <form method="get" class="purchase-toolbar">
+  <input type="search" name="q" value="{{ request.GET.q }}" aria-label="Поиск закупок" placeholder="Поиск по № закупки, поставщику, артикулу или названию товара">
+  {% if deleted %}<input type="hidden" name="deleted" value="1">{% endif %}
+  <button class="primary">Найти</button>
+  <a class="button" href="?{% if deleted %}deleted=1{% endif %}">Сбросить</a>
+  <button type="submit" name="export" value="xlsx">Excel</button>
  </form>
-</details>
-<p class="actions"><a href="?">Действующие</a><a href="?deleted=1">Удалённые</a></p>
-<section class="panel"><div style="overflow-x:auto"><table class="purchase-table">
- <thead><tr><th>Закупка</th><th>Поставщик</th><th>Дата</th><th>Ассортимент</th><th>Количество</th><th>Остаток на складе</th><th>Сумма</th><th>Состояние</th><th></th></tr></thead>
- <tbody>{% for order in page %}
- <tr>
-  <td><a class="purchase-name" href="{% url 'procurement:purchase_detail' order.pk %}">{{ order.display_title }}</a><span class="purchase-meta">{{ order.order_number }}</span></td>
-  <td>{{ order.supplier.name }}</td><td style="white-space:nowrap">{{ order.created_at|date:'d.m.Y' }}</td>
-  <td>{{ order.workflow.positions }} наимен.</td>
-  <td><strong>{{ order.workflow.ordered }}</strong><span class="purchase-meta">Принято: {{ order.workflow.received }}</span></td>
-  <td class="purchase-stock">{% if order.stock_known %}<strong>{{ order.stock_available }} из {{ order.stock_denominator }}</strong><div class="purchase-meter" aria-label="Расчётная доступность по артикулам {{ order.stock_percent }}%"><span style="width:{{ order.stock_percent }}%"></span></div><small>По артикулам, оценка · {{ order.stock_percent }}%</small>{% else %}<span class="purchase-meta">Нет подтверждённого прихода</span>{% endif %}</td>
-  <td style="white-space:nowrap">{{ order.total|floatformat:0 }} ₸<span class="purchase-meta">{{ order.workflow.payment_state }}</span></td>
-  <td><span class="purchase-tag">{{ order.workflow.delivery_state }}</span></td>
-  <td><a href="{% url 'procurement:purchase_detail' order.pk %}" aria-label="Подробности закупки {{ order.order_number }}">Открыть ›</a></td>
- </tr>{% empty %}<tr><td colspan="9">Закупок по выбранным условиям не найдено.</td></tr>{% endfor %}</tbody>
- </table></div>
- <p class="purchase-note"><strong>Об остатках:</strong> указана доступность на складах по артикулам из проведённых приходов, с ограничением закупленным количеством. Это оценка, а не точный остаток конкретной партии: продажи пока не привязаны к партиям. Ожидаемые поставки в складской остаток не включаются.</p>
- <p class="purchase-note">Всего по фильтру: {{ count }} оформленных заказов на {{ total|floatformat:0 }} ₸. На странице показаны записи по 25.</p>
-</section>
-{% if receipts_without_order %}
-<section class="panel">
- <h2>Поступления без связанного закупочного заказа</h2>
- <p class="purchase-note">Это реальные накладные из склада, но пока не оформленные или не связанные с закупочными заказами. Они показаны отдельно, чтобы не терять историю и не считать их повторно.</p>
- <div style="overflow-x:auto"><table class="purchase-table">
- <thead><tr><th>Накладная</th><th>Поставщик</th><th>Дата</th><th>Ассортимент</th><th>Склад</th><th>Действие</th></tr></thead><tbody>
- {% for doc in receipts_without_order %}
- <tr><td>{{ doc.number|default:"Без номера" }}</td><td>{{ doc.counterparty|default:"Не указан" }}</td><td>{{ doc.date|date:'d.m.Y' }}</td><td>{{ doc.line_count }} поз.</td><td>{{ doc.warehouse }}</td><td><a href="{% url 'inventory:goods_detail' doc.pk %}">Открыть накладную ›</a></td></tr>
- {% endfor %}
- </tbody></table></div>
-</section>
-{% endif %}
-{% include 'inventory/pagination.html' %}
+ <details class="purchase-filters" {% if request.GET.supplier or request.GET.warehouse or request.GET.stage or request.GET.payment %}open{% endif %}>
+  <summary>⚲ Фильтры</summary>
+  <form method="get" class="filter-panel">
+   {% if request.GET.q %}<input type="hidden" name="q" value="{{ request.GET.q }}">{% endif %}
+   {% if deleted %}<input type="hidden" name="deleted" value="1">{% endif %}
+   <label>Поставщик<select name="supplier"><option value="">Все</option>{% for s in suppliers %}<option value="{{ s.pk }}" {% if request.GET.supplier == s.pk|stringformat:'s' %}selected{% endif %}>{{ s.name }}</option>{% endfor %}</select></label>
+   <label>Склад<select name="warehouse"><option value="">Все</option><option value="PP1" {% if request.GET.warehouse == 'PP1' %}selected{% endif %}>PP1</option><option value="PP2" {% if request.GET.warehouse == 'PP2' %}selected{% endif %}>PP2</option></select></label>
+   <label>Поставка<select name="stage"><option value="">Все</option><option value="expected" {% if request.GET.stage == 'expected' %}selected{% endif %}>Ожидается</option><option value="partial" {% if request.GET.stage == 'partial' %}selected{% endif %}>Частично принято</option><option value="received" {% if request.GET.stage == 'received' %}selected{% endif %}>Принято полностью</option></select></label>
+   <label>Оплата<select name="payment"><option value="">Все</option><option value="unpaid" {% if request.GET.payment == 'unpaid' %}selected{% endif %}>Не оплачено</option><option value="paid" {% if request.GET.payment == 'paid' %}selected{% endif %}>Оплачено</option></select></label>
+   <button class="primary">Применить</button>
+  </form>
+ </details>
+ <nav class="purchase-tabs" aria-label="Вид закупок"><a href="?" {% if not deleted %}class="active"{% endif %}>Действующие</a><a href="?deleted=1" {% if deleted %}class="active"{% endif %}>Удалённые</a></nav>
+ <section class="purchase-register">
+  <div class="purchase-tablewrap">
+   <table class="purchase-table">
+    <thead><tr><th>№ закупки</th><th>Поставщик</th><th>Дата</th><th>Ассортимент<br>(наимен.)</th><th>Количество<br>(ед.)</th><th>Остаток на складе</th><th>Сумма</th><th>Статус</th><th></th></tr></thead>
+    <tbody>
+    {% for entry in page %}
+    <tr>
+     <td><span class="purchase-title">{{ entry.number }}</span><span class="purchase-secondary">{% if entry.kind == 'receipt' %}По накладной{% else %}Закупочный заказ{% endif %}</span></td>
+     <td><strong>{{ entry.supplier }}</strong></td>
+     <td style="white-space:nowrap">{{ entry.date|date:'d.m.Y' }}</td>
+     <td>{{ entry.positions }}</td>
+     <td><strong>{{ entry.quantity }}</strong><span class="purchase-secondary">Принято: {{ entry.received }}</span></td>
+     <td class="purchase-stock">{% if entry.stock_known %}<strong>{{ entry.stock_available }} из {{ entry.stock_denominator }}</strong><div class="purchase-track" role="img" aria-label="Расчётная доступность {{ entry.stock_percent }} процентов"><div style="width:{{ entry.stock_percent }}%"></div></div><span class="purchase-secondary">Оценка по артикулам · {{ entry.stock_percent }}%</span>{% else %}<span class="purchase-secondary">Не принято на склад</span>{% endif %}</td>
+     <td style="white-space:nowrap">{% if entry.amount != None %}<strong>{{ entry.amount|floatformat:0 }} ₸</strong>{% else %}Не установлена{% endif %}</td>
+     <td><span class="purchase-status {% if entry.awaiting %}waiting{% endif %}">{{ entry.status }}</span></td>
+     <td>{% if entry.kind == 'receipt' %}<a class="purchase-open" href="{% url 'inventory:goods_detail' entry.receipt.pk %}">Открыть ›</a>{% else %}<a class="purchase-open" href="{% url 'procurement:purchase_detail' entry.order.pk %}">Открыть ›</a>{% endif %}</td>
+    </tr>
+    {% empty %}<tr><td colspan="9">Закупок по выбранным условиям не найдено.</td></tr>
+    {% endfor %}
+    </tbody>
+   </table>
+  </div>
+  <div class="purchase-foot">
+   <p>Показано закупок: {{ count }}. Общая подтверждённая сумма: {{ total|floatformat:0 }} ₸{% if unpriced_count %} (для {{ unpriced_count }} записей сумма не установлена){% endif %}.</p>
+   <p>Остаток по каждой закупке — расчётная доступность по артикулам, а не точный остаток партии. Продажи пока не распределяются по партиям. Поступления по накладным отображаются без повторного прихода.</p>
+  </div>
+ </section>
+ {% include 'inventory/pagination.html' %}
+ <p class="purchase-notice">Закупочные заказы и фактические накладные отображаются вместе, но сохраняют исходные документы и отдельные идентификаторы.</p>
+</div>
 {% endblock %}
