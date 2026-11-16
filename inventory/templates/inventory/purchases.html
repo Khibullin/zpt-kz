@@ -89,8 +89,8 @@
      <td><strong>{{ entry.supplier }}</strong></td>
      <td style="white-space:nowrap">{% if entry.date %}{{ entry.date|date:'d.m.Y' }}{% else %}<span class="purchase-secondary">Не указана</span>{% endif %}</td>
      <td>{{ entry.positions }}</td>
-     <td><strong>{{ entry.quantity }}</strong><span class="purchase-secondary">Принято: {{ entry.received }}</span></td>
-     <td class="purchase-stock">{% if entry.stock_known %}<strong>{{ entry.stock_available }} из {{ entry.stock_denominator }}</strong><div class="purchase-track" role="img" aria-label="Расчётная доступность {{ entry.stock_percent }} процентов"><div style="width:{{ entry.stock_percent }}%"></div></div><span class="purchase-secondary">Оценка по артикулам · {{ entry.stock_percent }}%</span>{% else %}<span class="purchase-secondary">Не принято на склад</span>{% endif %}</td>
+     <td><strong>{{ entry.quantity }}</strong>{% if entry.stock_label %}<span class="purchase-secondary">Приход по закупке не связан</span>{% else %}<span class="purchase-secondary">Принято: {{ entry.received }}</span>{% endif %}</td>
+     <td class="purchase-stock">{% if entry.stock_known %}<strong>{{ entry.stock_available }} из {{ entry.stock_denominator }}</strong><div class="purchase-track" role="img" aria-label="Складские остатки по артикулам {{ entry.stock_percent }} процентов"><div style="width:{{ entry.stock_percent }}%"></div></div>{% if entry.stock_label %}<span class="purchase-secondary">PP1: {{ entry.stock_pp1 }} · {{ entry.pp1_date|date:'d.m.Y' }}</span><span class="purchase-secondary">PP2: {{ entry.stock_pp2 }} · {{ entry.pp2_date|date:'d.m.Y' }}</span><span class="purchase-secondary">{{ entry.matched_articles }} из 67 артикулов сопоставлено</span>{% else %}<span class="purchase-secondary">Оценка по артикулам · {{ entry.stock_percent }}%</span>{% endif %}{% else %}<span class="purchase-secondary">Нет данных об остатке</span>{% endif %}</td>
      <td style="white-space:nowrap">{% if entry.amount != None %}<strong>{{ entry.amount|floatformat:0 }} ₸</strong>{% else %}Не установлена{% endif %}</td>
      <td><span class="purchase-status {% if entry.awaiting %}waiting{% endif %}">{{ entry.status }}</span></td>
      <td>{% if entry.kind == 'receipt' %}<a class="purchase-open" href="{% url 'inventory:goods_detail' entry.receipt.pk %}">Открыть ›</a>{% else %}<a class="purchase-open" href="{% url 'inventory:purchase_register_detail' entry.order.pk %}">Открыть ›</a>{% endif %}</td>
@@ -102,7 +102,7 @@
   </div>
   <div class="purchase-foot">
    <p>Показано закупок: {{ count }}. Общая подтверждённая сумма: {{ total|floatformat:0 }} ₸{% if unpriced_count %} (для {{ unpriced_count }} записей сумма не установлена){% endif %}.</p>
-   <p>Остаток по каждой закупке — расчётная доступность по артикулам, а не точный остаток партии. Продажи пока не распределяются по партиям. Поступления по накладным отображаются без повторного прихода.</p>
+   <p>Остатки показаны по совпавшим артикулам: для Китая — последние загруженные файлы PP1 и PP2 с разными датами, для остальных — проведённые складские движения. Это не точный остаток закупочной партии. Неопознанные артикулы не считаются нулевым остатком. Новых приходов не создаётся.</p>
   </div>
  </section>
  {% include 'inventory/pagination.html' %}
