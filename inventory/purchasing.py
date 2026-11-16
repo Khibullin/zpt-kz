@@ -88,82 +88,113 @@ def locked_order(pk,user):
 @never_cache
 @accounting_access
 def purchases(request):
-    """Compact register; no invented per-batch stock allocation."""
+    """Combined register of supplier orders and verified standalone receipts."""
     from collections import defaultdict
     from django.core.paginator import Paginator
     from procurement.models import Supplier
-    rows=PurchaseOrder.objects.filter(user=request.user,archived=request.GET.get('deleted')=='1').select_related('supplier').order_by('-created_at','-pk')
-    q=request.GET.get('q','').strip()
-    if q:
-        query=Q(title__icontains=q)|Q(supplier__name__icontains=q)|Q(comment__icontains=q)|Q(supplier_order_number__icontains=q)
-        number=q.upper().replace('ЗК-','')
-        if number.isdigit():query |= Q(pk=int(number))
-        # Article, brand and product name live in the JSON order lines.
-        matching_ids=[]
-        for pk,items in rows.values_list('pk','items').iterator():
-            if any(q.casefold() in str(line.get(field,'')).casefold() for line in items for field in ('article','brand','name')):
-                matching_ids.append(pk)
-        rows=rows.filter(query|Q(pk__in=matching_ids))
-    if request.GET.get('warehouse') in ['PP1','PP2']:rows=rows.filter(destination=request.GET['warehouse'])
-    if request.GET.get('supplier','').isdigit():rows=rows.filter(supplier_id=request.GET['supplier'])
-    results=[]
-    for order in rows:
-        order.workflow=order_summary(order)
-        if request.GET.get('stage')=='expected' and (not order.workflow['remaining'] or order.delivery_stage in ['draft','cancelled'] or order.status=='cancelled'):continue
-        if request.GET.get('stage')=='partial' and not (order.workflow['received'] and order.workflow['remaining']):continue
-        if request.GET.get('stage')=='received' and not (order.workflow['received'] and not order.workflow['remaining']):continue
-        if request.GET.get('payment')=='unpaid' and order.workflow['paid']>0:continue
-        if request.GET.get('payment')=='paid' and order.workflow['payment_state'] not in ['Оплачено','Переплата']:continue
-        results.append(order)
+    from procurement.views import context as procurement_context
+    from .models import GoodsDocument
 
-    # StockEntry is the authoritative warehouse ledger, but sales do not carry
-    # a purchase batch identifier. Display a capped available quantity by
-    # linked SKUs, explicitly NOT an exact batch remainder.
-    receipt_rows=list(StockDocument.objects.filter(
-        purchase_order_id__in=[o.pk for o in results],kind='receipt',status='posted'
-    ).values('purchase_order_id','item_id','quantity'))
-    by_order=defaultdict(lambda:defaultdict(int))
-    item_ids=set()
-    for row in receipt_rows:
-        by_order[row['purchase_order_id']][row['item_id']]+=row['quantity']
-        item_ids.add(row['item_id'])
-    stock=defaultdict(int)
-    for item_id,quantity in StockEntry.objects.filter(
-        document__item_id__in=item_ids,warehouse__in=['PP1','PP2']
-    ).values('document__item_id').annotate(q=Sum('quantity')).values_list('document__item_id','q'):
-        stock[item_id]=quantity or 0
-    for order in results:
-        purchases_for_items=by_order[order.pk]
-        order.stock_known=bool(purchases_for_items)
-        order.stock_available=sum(min(purchased,max(0,stock[item_id])) for item_id,purchased in purchases_for_items.items())
-        order.stock_denominator=sum(purchases_for_items.values())
-        order.stock_percent=round(100*order.stock_available/order.stock_denominator) if order.stock_denominator else 0
+    deleted=request.GET.get('deleted')=='1'
+    query_text=request.GET.get('q','').strip()
+    warehouse=request.GET.get('warehouse','')
+    supplier_id=request.GET.get('supplier','')
+    stage=request.GET.get('stage','')
+    payment=request.GET.get('payment','')
+    entries=[]
+    orders=PurchaseOrder.objects.filter(user=request.user,archived=deleted).select_related('supplier').order_by('-created_at','-pk')
+    if warehouse in ('PP1','PP2'):
+        orders=orders.filter(destination=warehouse)
+    if supplier_id.isdigit():
+        orders=orders.filter(supplier_id=int(supplier_id))
+    for order in orders:
+        if query_text:
+            needle=query_text.casefold()
+            text=' '.join([order.title or '',order.order_number,order.supplier.name,
+                           order.supplier_order_number or '',order.comment or '']+
+                          [str(line.get(key,'')) for line in (order.items or []) for key in ('name','article','brand')])
+            if needle not in text.casefold():continue
+        wf=order_summary(order)
+        if stage=='expected' and (not wf['remaining'] or order.delivery_stage in ('draft','cancelled') or order.status=='cancelled'):continue
+        if stage=='partial' and not(wf['received'] and wf['remaining']):continue
+        if stage=='received' and not(wf['received'] and not wf['remaining']):continue
+        if payment=='unpaid' and wf['paid']>0:continue
+        if payment=='paid' and wf['payment_state'] not in ('Оплачено','Переплата'):continue
+        entries.append({'kind':'order','order':order,'number':order.order_number,
+                        'title':order.display_title,'supplier':order.supplier.name,
+                        'date':order.created_at.date(),'positions':wf['positions'],
+                        'quantity':wf['ordered'],'received':wf['received'],
+                        'awaiting':wf['remaining'],'amount':order.total,
+                        'status':wf['delivery_state'],'payment':wf['payment_state'],
+                        'item_quantities':{},'receipt_quantity':0,'stock_known':False})
+
+    receipts=[] if deleted else list(GoodsDocument.objects.filter(
+        kind='receipt',purchase_order__isnull=True,evidence_only=False,
+    ).prefetch_related('lines__item').order_by('-date','-pk'))
+    supplier_name=Supplier.objects.filter(pk=int(supplier_id)).values_list('name',flat=True).first() if supplier_id.isdigit() else None
+    for doc in receipts:
+        if warehouse in ('PP1','PP2') and doc.warehouse!=warehouse:continue
+        if supplier_id.isdigit() and (not supplier_name or doc.counterparty.casefold()!=supplier_name.casefold()):continue
+        lines=[line for line in doc.lines.all() if line.kind=='receipt' and line.status=='posted']
+        if not lines:continue
+        if query_text:
+            searchable=' '.join([doc.number or '',doc.counterparty or '',doc.note or '']+
+                                [str(line.item) for line in lines])
+            if query_text.casefold() not in searchable.casefold():continue
+        if stage in ('expected','partial') or payment in ('unpaid','paid'):continue
+        quantities=defaultdict(int)
+        for line in lines:quantities[line.item_id]+=line.quantity
+        qty=sum(quantities.values())
+        priced=all(line.unit_cost is not None for line in lines)
+        amount=sum((line.quantity*line.unit_cost for line in lines),Decimal(0)) if priced else None
+        entries.append({'kind':'receipt','receipt':doc,'number':doc.number or f'Приход №{doc.pk}',
+                        'title':'Закупка по накладной','supplier':doc.counterparty or 'Поставщик не указан',
+                        'date':doc.date,'positions':len(quantities),'quantity':qty,
+                        'received':qty,'awaiting':0,'amount':amount,
+                        'status':'Принято на склад','payment':'Оплата не связана',
+                        'item_quantities':dict(quantities),'receipt_quantity':qty,'stock_known':True})
+
+    # Only actual stock entries count toward available goods. Shipment/return
+    # attribution to a particular purchase lot is not yet recorded.
+    orders_by_id={e['order'].pk:e for e in entries if e['kind']=='order'}
+    from .models import StockDocument, StockEntry
+    if orders_by_id:
+        for row in StockDocument.objects.filter(
+            purchase_order_id__in=orders_by_id,kind='receipt',status='posted'
+        ).values('purchase_order_id','item_id','quantity'):
+            e=orders_by_id[row['purchase_order_id']]
+            e['item_quantities'][row['item_id']]=e['item_quantities'].get(row['item_id'],0)+row['quantity']
+            e['receipt_quantity']+=row['quantity']
+            e['stock_known']=True
+    item_ids={item_id for e in entries for item_id in e['item_quantities']}
+    current_stock=dict(StockEntry.objects.filter(
+        document__item_id__in=item_ids,warehouse__in=('PP1','PP2')
+    ).values('document__item_id').annotate(q=Sum('quantity')).values_list('document__item_id','q')) if item_ids else {}
+    for e in entries:
+        e['stock_available']=sum(min(qty,max(0,current_stock.get(item_id,0) or 0))
+                                 for item_id,qty in e['item_quantities'].items())
+        e['stock_denominator']=e['receipt_quantity']
+        e['stock_percent']=round(100*e['stock_available']/e['stock_denominator']) if e['stock_denominator'] else 0
+    entries.sort(key=lambda e:(e['date'],e['kind']=='order',e['number']),reverse=True)
+    total=sum((e['amount'] or Decimal(0) for e in entries),Decimal(0))
+    total_unpriced=sum(e['amount'] is None for e in entries)
+    count=len(entries)
+    ordered=sum(e['quantity'] for e in entries)
+    accepted=sum(e['received'] for e in entries)
+    awaiting=sum(e['awaiting'] for e in entries)
     if request.GET.get('export')=='xlsx':
         from .tools_views import xlsx_response
-        return xlsx_response('purchase-register',['Номер','Закупка','Поставщик','Склад','План доставки','Поставка','Оплата','Позиций','Заказано','Принято','Ожидается','Доступно по артикулам (оценка)','Сумма заказа','Оплачено','Сальдо по фактическим приходам'],([o.order_number,o.display_title,o.supplier.name,o.destination,o.expected_date,o.workflow['delivery_state'],o.workflow['payment_state'],o.workflow['positions'],o.workflow['ordered'],o.workflow['received'],o.workflow['remaining'],o.stock_available if o.stock_known else None,o.total,o.workflow['paid'],o.workflow['balance']] for o in results))
-    count=len(results)
-    page=Paginator(results,25).get_page(request.GET.get('page'))
-    total=sum((o.total for o in results),Decimal(0))
-    ordered=sum(o.workflow['ordered'] for o in results)
-    received=sum(o.workflow['received'] for o in results)
-    awaiting=sum(o.workflow['remaining'] for o in results)
-    # Distinct item current stock avoids counting the same physical goods twice.
-    current_stock=sum(max(0,qty) for qty in stock.values())
-    # Standalone receipt documents can predate the PurchaseOrder workflow.
-    # Show them separately rather than misleadingly presenting an empty history.
-    from .models import GoodsDocument
-    from django.db.models import Count
-    receipts_without_order=GoodsDocument.objects.filter(
-        kind='receipt',purchase_order__isnull=True,
-    ).annotate(line_count=Count('lines')).order_by('-date','-pk')[:25]
-    from procurement.views import context as procurement_context
+        return xlsx_response('purchase-register',
+            ['Номер','Тип','Поставщик','Дата','Позиций','Закуплено','Принято','Ожидается','Доступно по артикулам (оценка)','Сумма','Статус'],
+            ([e['number'],e['kind'],e['supplier'],e['date'],e['positions'],e['quantity'],
+              e['received'],e['awaiting'],e['stock_available'] if e['stock_known'] else None,
+              e['amount'],e['status']] for e in entries))
     query=request.GET.copy();query.pop('page',None)
     return render(request,'inventory/purchases.html',{**procurement_context(request),
-        'page':page,'query':query.urlencode(),'count':count,'total':total,
-        'ordered':ordered,'received':received,'awaiting':awaiting,
-        'current_stock':current_stock,'suppliers':Supplier.objects.all(),
-        'receipts_without_order':receipts_without_order,
-    })
+        'page':Paginator(entries,25).get_page(request.GET.get('page')),
+        'query':query.urlencode(),'count':count,'total':total,'unpriced_count':total_unpriced,
+        'ordered':ordered,'received':accepted,'awaiting':awaiting,
+        'suppliers':Supplier.objects.order_by('name'),'deleted':deleted})
 
 
 @never_cache
