@@ -1,1 +1,69 @@
-{% extends 'inventory/base.html' %}{% block content %}<h1>Заказы поставщикам и ожидаемые поставки</h1><p class="actions"><a class="button" href="{% url 'procurement:dashboard' %}">Подобрать запчасти</a><a href="{% url 'procurement:basket' %}">Список подбора</a><a href="?deleted=1">Удалённые</a><a href="?">Действующие</a></p><form class="panel filters"><label>Поставщик, название, номер ЗК<input name="q" value="{{ request.GET.q }}"></label><label>Поставщик<select name="supplier"><option value="">Все</option>{% for s in suppliers %}<option value="{{ s.pk }}" {% if request.GET.supplier == s.pk|stringformat:'s' %}selected{% endif %}>{{ s.name }}</option>{% endfor %}</select></label><label>Склад<select name="warehouse"><option value="">Все</option><option {% if request.GET.warehouse == 'PP1' %}selected{% endif %}>PP1</option><option {% if request.GET.warehouse == 'PP2' %}selected{% endif %}>PP2</option></select></label><label>Поставка<select name="stage"><option value="">Все</option><option value="expected" {% if request.GET.stage == 'expected' %}selected{% endif %}>Ожидается</option><option value="partial" {% if request.GET.stage == 'partial' %}selected{% endif %}>Частично принято</option><option value="received" {% if request.GET.stage == 'received' %}selected{% endif %}>Принято полностью</option></select></label><label>Оплата<select name="payment"><option value="">Все</option><option value="unpaid" {% if request.GET.payment == 'unpaid' %}selected{% endif %}>Не оплачено</option><option value="paid" {% if request.GET.payment == 'paid' %}selected{% endif %}>Оплачено / переплата</option></select></label>{% if request.GET.deleted %}<input type="hidden" name="deleted" value="1">{% endif %}<button>Применить</button><button name="export" value="xlsx">Excel</button></form><section class="panel"><h2>Заказов: {{ count }} · сумма: {{ total }} ₸</h2><p>Один заказ из подбора — одна запись в учёте. Количества ожидаемой поставки не увеличивают фактический запас. Поставка и оплата учитываются независимо.</p><table><tr><th>Закупка</th><th>Склад / доставка</th><th>Поставка</th><th>Количество</th><th>Сумма / оплата</th><th>Действия</th></tr>{% for order in page %}<tr><td><a href="{% url 'procurement:purchase_detail' order.pk %}">{{ order.display_title }}</a><br>{{ order.supplier.name }}</td><td>{{ order.destination }}<br>{{ order.expected_date|date:'d.m.Y'|default:'Дата не указана' }}</td><td>{{ order.workflow.delivery_state }}{% if order.workflow.overdue %}<br>Срок поставки прошёл{% endif %}</td><td>Позиций: {{ order.workflow.positions }}<br>Заказано: {{ order.workflow.ordered }}<br>Принято: {{ order.workflow.received }}<br>Ожидается: {{ order.workflow.remaining }}</td><td>{{ order.total }} ₸<br>{{ order.workflow.payment_state }}<br>Оплачено: {{ order.workflow.paid }} ₸</td><td><a href="{% url 'procurement:purchase_detail' order.pk %}">Открыть</a>{% if order.archived %}<br><a href="{% url 'inventory:purchase_action' order.pk 'restore' %}">Восстановить</a>{% else %}<br><a href="{% url 'inventory:purchase_action' order.pk 'plan' %}">План поставки</a>{% endif %}</td></tr>{% empty %}<tr><td colspan="6">Нет закупок по выбранным условиям.</td></tr>{% endfor %}</table></section>{% include 'inventory/pagination.html' %}{% endblock %}
+{% extends 'inventory/base.html' %}
+{% block content %}
+<style>
+.purchase-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.purchase-head h1{margin:0}.purchase-head p{margin:5px 0 0;color:#647083}
+.purchase-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px}
+.purchase-stat{background:white;border:1px solid #d6dfe7;border-radius:12px;padding:19px}
+.purchase-stat .number{font-weight:750;font-size:29px;color:#142e4d}.purchase-stat .label{color:#647083;font-size:13px;margin-top:5px}
+.purchase-tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+.purchase-tools input[name=q]{flex:1;min-width:220px}
+.purchase-tools button{white-space:nowrap}
+.purchase-table{width:100%;min-width:1010px}
+.purchase-table th{font-size:13px;color:#344357}.purchase-table td{vertical-align:middle}
+.purchase-name{font-weight:750;color:#142e4d;display:block}.purchase-meta{display:block;font-size:12px;color:#647083;margin-top:4px}
+.purchase-stock strong{display:block;white-space:nowrap}.purchase-stock small{display:block;font-size:11px}
+.purchase-meter{height:7px;border-radius:20px;background:#e0e6ee;width:145px;max-width:100%;overflow:hidden;margin:6px 0}
+.purchase-meter span{height:100%;display:block;background:#159a57;border-radius:20px}
+.purchase-tag{font-size:12px;background:#e6f2ff;color:#215d98;border-radius:8px;padding:6px 9px;display:inline-block}
+.purchase-note{color:#647083;font-size:13px;line-height:1.5}
+.purchase-filters{margin-top:10px}
+.purchase-filters summary{cursor:pointer;font-weight:650}
+.purchase-filters .filters{margin:12px 0 0}
+@media(max-width:900px){.purchase-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.purchase-stat{padding:13px}.purchase-stat .number{font-size:23px}}
+</style>
+<div class="purchase-head"><div><h1>Учёт закупок</h1><p>История закупок, поставки и остатки на складах</p></div><div class="actions"><a class="button secondary" href="{% url 'procurement:basket' %}">Список закупки</a><a class="button" href="{% url 'procurement:dashboard' %}">+ Новая закупка</a></div></div>
+<div class="purchase-stats">
+ <div class="purchase-stat"><div class="number">{{ count }}</div><div class="label">Закупок</div></div>
+ <div class="purchase-stat"><div class="number">{{ ordered }}</div><div class="label">Единиц заказано</div></div>
+ <div class="purchase-stat"><div class="number">{{ received }}</div><div class="label">Единиц принято</div></div>
+ <div class="purchase-stat"><div class="number">{{ awaiting }}</div><div class="label">Ожидается по заказам</div></div>
+</div>
+<form method="get" class="purchase-tools">
+ <input name="q" type="search" value="{{ request.GET.q }}" aria-label="Поиск закупок" placeholder="Поиск по закупке, поставщику, артикулу или товару">
+ {% if request.GET.deleted %}<input type="hidden" name="deleted" value="1">{% endif %}
+ <button>Найти</button><a class="button secondary" href="?{% if request.GET.deleted %}deleted=1{% endif %}">Сбросить</a>
+ <button name="export" value="xlsx" class="secondary">Excel</button>
+</form>
+<details class="purchase-filters" {% if request.GET.supplier or request.GET.warehouse or request.GET.stage or request.GET.payment %}open{% endif %}>
+ <summary>Фильтры по поставщику, складу, поставке и оплате</summary>
+ <form method="get" class="panel filters">
+  {% if request.GET.q %}<input type="hidden" name="q" value="{{ request.GET.q }}">{% endif %}
+  {% if request.GET.deleted %}<input type="hidden" name="deleted" value="1">{% endif %}
+  <label>Поставщик<select name="supplier"><option value="">Все</option>{% for s in suppliers %}<option value="{{ s.pk }}" {% if request.GET.supplier == s.pk|stringformat:'s' %}selected{% endif %}>{{ s.name }}</option>{% endfor %}</select></label>
+  <label>Склад<select name="warehouse"><option value="">Все</option><option value="PP1" {% if request.GET.warehouse == 'PP1' %}selected{% endif %}>PP1</option><option value="PP2" {% if request.GET.warehouse == 'PP2' %}selected{% endif %}>PP2</option></select></label>
+  <label>Поставка<select name="stage"><option value="">Все</option><option value="expected" {% if request.GET.stage == 'expected' %}selected{% endif %}>Ожидается</option><option value="partial" {% if request.GET.stage == 'partial' %}selected{% endif %}>Частично принято</option><option value="received" {% if request.GET.stage == 'received' %}selected{% endif %}>Принято полностью</option></select></label>
+  <label>Оплата<select name="payment"><option value="">Все</option><option value="unpaid" {% if request.GET.payment == 'unpaid' %}selected{% endif %}>Не оплачено</option><option value="paid" {% if request.GET.payment == 'paid' %}selected{% endif %}>Оплачено</option></select></label>
+  <button>Применить</button>
+ </form>
+</details>
+<p class="actions"><a href="?">Действующие</a><a href="?deleted=1">Удалённые</a></p>
+<section class="panel"><div style="overflow-x:auto"><table class="purchase-table">
+ <thead><tr><th>Закупка</th><th>Поставщик</th><th>Дата</th><th>Ассортимент</th><th>Количество</th><th>Остаток на складе</th><th>Сумма</th><th>Состояние</th><th></th></tr></thead>
+ <tbody>{% for order in page %}
+ <tr>
+  <td><a class="purchase-name" href="{% url 'procurement:purchase_detail' order.pk %}">{{ order.display_title }}</a><span class="purchase-meta">{{ order.order_number }}</span></td>
+  <td>{{ order.supplier.name }}</td><td style="white-space:nowrap">{{ order.created_at|date:'d.m.Y' }}</td>
+  <td>{{ order.workflow.positions }} наимен.</td>
+  <td><strong>{{ order.workflow.ordered }}</strong><span class="purchase-meta">Принято: {{ order.workflow.received }}</span></td>
+  <td class="purchase-stock">{% if order.stock_known %}<strong>{{ order.stock_available }} из {{ order.stock_denominator }}</strong><div class="purchase-meter" aria-label="Расчётная доступность по артикулам {{ order.stock_percent }}%"><span style="width:{{ order.stock_percent }}%"></span></div><small>По артикулам, оценка · {{ order.stock_percent }}%</small>{% else %}<span class="purchase-meta">Нет подтверждённого прихода</span>{% endif %}</td>
+  <td style="white-space:nowrap">{{ order.total|floatformat:0 }} ₸<span class="purchase-meta">{{ order.workflow.payment_state }}</span></td>
+  <td><span class="purchase-tag">{{ order.workflow.delivery_state }}</span></td>
+  <td><a href="{% url 'procurement:purchase_detail' order.pk %}" aria-label="Подробности закупки {{ order.order_number }}">Открыть ›</a></td>
+ </tr>{% empty %}<tr><td colspan="9">Закупок по выбранным условиям не найдено.</td></tr>{% endfor %}</tbody>
+ </table></div>
+ <p class="purchase-note"><strong>Об остатках:</strong> указана доступность на складах по артикулам из проведённых приходов, с ограничением закупленным количеством. Это оценка, а не точный остаток конкретной партии: продажи пока не привязаны к партиям. Ожидаемые поставки в складской остаток не включаются.</p>
+ <p class="purchase-note">Всего по фильтру: {{ count }} закупок на {{ total|floatformat:0 }} ₸. На странице показаны записи по 25.</p>
+</section>
+{% include 'inventory/pagination.html' %}
+{% endblock %}
