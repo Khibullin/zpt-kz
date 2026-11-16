@@ -22,6 +22,33 @@ def best_candidates_query(query, preferences, today):
                             _best_profit=profit).filter(_best_profit__gte=max(Decimal(1000), preferences.best_min_profit))
 
 
+
+def stale_price_candidates_query(query, preferences, today):
+    """Historical profit candidates only, never a confirmed buying recommendation.
+
+    An old or undated Kaspi price is retained for review; prices, stock, demand
+    and verification timestamps must not be refreshed merely by rendering.
+    """
+    if preferences.commission is None or preferences.expenses is None:
+        return query.none()
+    profit = ExpressionWrapper(
+        F('kaspi_price') * Value((Decimal(100) - preferences.commission) / Decimal(100))
+        - F('cost') - Value(max(Decimal(250), preferences.expenses)),
+        output_field=DecimalField(max_digits=38, decimal_places=12))
+    cutoff = today - timedelta(days=7)
+    return query.exclude(
+        Q(name__iregex='подшипник|bearing') | Q(category__iregex='подшипник|bearing')
+    ).filter(
+        kaspi_price__isnull=False, cost__gt=0, match_verified=True,
+        supplier_checked_on__gte=cutoff, supplier_checked_on__lte=today,
+    ).filter(
+        Q(kaspi_price_checked_on__lt=cutoff) |
+        Q(kaspi_price_checked_on__isnull=True)
+    ).annotate(
+        _stale_profit=profit,
+    ).filter(_stale_profit__gte=max(Decimal(1000), preferences.best_min_profit))
+
+
 def catalog_page(query, preferences, filters, mode, number, today):
     fresh = today - timedelta(days=preferences.no_sellers_days)
     # Determine status from the small set of fresh observations. Do not join
