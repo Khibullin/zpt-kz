@@ -93,8 +93,10 @@ def kaspi_status(offer, preferences, today):
 def filtered_rows(request, preferences, filters, paginate=False):
     # Ranking uses scalar offer facts; detailed descriptions/JSON and seller lists
     # are not needed for every item in the supplier catalogue.
-    query = Offer.objects.select_related('supplier', 'kaspi_sellers', 'kaspi_card_search', 'profitable_record').defer('description', 'characteristics', 'supplier_url')
+    query = Offer.objects.select_related('supplier', 'kaspi_sellers', 'kaspi_card_search').defer('description', 'characteristics', 'supplier_url')
     mode = request.GET.get('mode', 'roi')
+    if mode == 'best':
+        query = query.select_related('profitable_record')
     today = timezone.localdate()
     if mode == 'best':
         filters = {key: value for key, value in filters.items() if key not in ('kaspi_status', 'verified', 'sort')}
