@@ -87,13 +87,13 @@
     <tr>
      <td><span class="purchase-title">{{ entry.number }}</span><span class="purchase-secondary">{% if entry.kind == 'receipt' %}По накладной{% else %}Закупочный заказ{% endif %}</span></td>
      <td><strong>{{ entry.supplier }}</strong></td>
-     <td style="white-space:nowrap">{{ entry.date|date:'d.m.Y' }}</td>
+     <td style="white-space:nowrap">{% if entry.date %}{{ entry.date|date:'d.m.Y' }}{% else %}<span class="purchase-secondary">Не указана</span>{% endif %}</td>
      <td>{{ entry.positions }}</td>
      <td><strong>{{ entry.quantity }}</strong><span class="purchase-secondary">Принято: {{ entry.received }}</span></td>
      <td class="purchase-stock">{% if entry.stock_known %}<strong>{{ entry.stock_available }} из {{ entry.stock_denominator }}</strong><div class="purchase-track" role="img" aria-label="Расчётная доступность {{ entry.stock_percent }} процентов"><div style="width:{{ entry.stock_percent }}%"></div></div><span class="purchase-secondary">Оценка по артикулам · {{ entry.stock_percent }}%</span>{% else %}<span class="purchase-secondary">Не принято на склад</span>{% endif %}</td>
      <td style="white-space:nowrap">{% if entry.amount != None %}<strong>{{ entry.amount|floatformat:0 }} ₸</strong>{% else %}Не установлена{% endif %}</td>
      <td><span class="purchase-status {% if entry.awaiting %}waiting{% endif %}">{{ entry.status }}</span></td>
-     <td>{% if entry.kind == 'receipt' %}<a class="purchase-open" href="{% url 'inventory:goods_detail' entry.receipt.pk %}">Открыть ›</a>{% else %}<a class="purchase-open" href="{% url 'procurement:purchase_detail' entry.order.pk %}">Открыть ›</a>{% endif %}</td>
+     <td>{% if entry.kind == 'receipt' %}<a class="purchase-open" href="{% url 'inventory:goods_detail' entry.receipt.pk %}">Открыть ›</a>{% else %}<a class="purchase-open" href="{% url 'inventory:purchase_register_detail' entry.order.pk %}">Открыть ›</a>{% endif %}</td>
     </tr>
     {% empty %}<tr><td colspan="9">Закупок по выбранным условиям не найдено.</td></tr>
     {% endfor %}
