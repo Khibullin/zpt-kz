@@ -416,6 +416,17 @@ def product_processing(request):
         SupplierPhotoTask.objects.values('status').annotate(total=Count('pk'))
         .order_by('status')
     )
+    labels = {
+        'done': 'Проверено, результат сохранён',
+        'pending': 'Ожидает проверки',
+        'prepared': 'Подготовлено к проверке',
+        'needs_source': 'Не найден надёжный источник',
+        'skipped': 'Пропущено',
+        'blocked': 'Источник недоступен',
+        'failed': 'Ошибка проверки',
+    }
+    for item in statuses:
+        item['label'] = labels.get(item['status'], 'На дополнительной проверке')
     return render(request, 'procurement/product_processing.html',
                   context(request, task_statuses=statuses,
                           photo_total=sum(item['total'] for item in statuses)))
