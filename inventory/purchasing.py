@@ -170,7 +170,41 @@ def purchases(request):
             e['item_quantities'][row['item_id']]=e['item_quantities'].get(row['item_id'],0)+row['quantity']
             e['receipt_quantity']+=row['quantity']
             e['stock_known']=True
-    item_ids={item_id for e in entries for item_id in e['item_quantities']}
+    # China source lines are not tied to receiving documents, but exact SKU
+    # matches exist in the last imported PP1 / Rapida PP2 stock snapshots.
+    # These snapshot balances must NEVER be treated as received lot quantities.
+    china_source_hash='e03cf42556bc1d5ba57c9756bde19c44c664d96830bc4de465f2c2af24f1a325'
+    from .models import ImportBatch, StockSnapshot
+    china_entries=[e for e in entries if e['kind']=='order' and china_source_hash in (e['order'].comment or '')]
+    snapshot_batches={kind:ImportBatch.objects.filter(kind=kind).order_by('-as_of','-pk').first() for kind in ('pp1','pp2')} if china_entries else {}
+    if china_entries:
+        snap_ids=[b.pk for b in snapshot_batches.values() if b]
+        snapshot_rows=StockSnapshot.objects.filter(batch_id__in=snap_ids).values('batch__kind','sku','quantity')
+        stock_by_sku={}
+        for r in snapshot_rows:
+            key=(r['batch__kind'],r['sku'].strip().upper())
+            stock_by_sku[key]=r['quantity']
+        for e in china_entries:
+            pp1=pp2=0
+            matched=0
+            unavailable=[]
+            for line in e['order'].items:
+                article=str(line.get('article','')).strip().upper()
+                a=stock_by_sku.get(('pp1',article))
+                b=stock_by_sku.get(('pp2',article))
+                if a is None and b is None:
+                    unavailable.append(article)
+                    continue
+                matched+=1
+                pp1+=max(0,a or 0)
+                pp2+=max(0,b or 0)
+            e['snapshot_stock']={
+                'pp1':pp1,'pp2':pp2,'total':pp1+pp2,
+                'matched':matched,'unmatched':unavailable,
+                'pp1_date':snapshot_batches['pp1'].as_of if snapshot_batches['pp1'] else None,
+                'pp2_date':snapshot_batches['pp2'].as_of if snapshot_batches['pp2'] else None,
+            }
+        item_ids={item_id for e in entries for item_id in e['item_quantities']}
     current_stock=dict(StockEntry.objects.filter(
         document__item_id__in=item_ids,warehouse__in=('PP1','PP2')
     ).values('document__item_id').annotate(q=Sum('quantity')).values_list('document__item_id','q')) if item_ids else {}
@@ -179,7 +213,20 @@ def purchases(request):
                                  for item_id,qty in e['item_quantities'].items())
         e['stock_denominator']=e['receipt_quantity']
         e['stock_percent']=round(100*e['stock_available']/e['stock_denominator']) if e['stock_denominator'] else 0
-    entries.sort(key=lambda e:(e['sort_date'],e['kind']=='order',e['number']),reverse=True)
+    for e in china_entries:
+        snapshot=e['snapshot_stock']
+        e['stock_known']=True
+        e['stock_available']=snapshot['total']
+        e['stock_denominator']=e['quantity']
+        e['stock_percent']=min(100,round(100*e['stock_available']/e['quantity'])) if e['quantity'] else 0
+        e['stock_pp1']=snapshot['pp1']
+        e['stock_pp2']=snapshot['pp2']
+        e['stock_label']='По снимкам PP1 / PP2'
+        e['matched_articles']=snapshot['matched']
+        e['unmatched_articles']=len(snapshot['unmatched'])
+        e['pp1_date']=snapshot['pp1_date']
+        e['pp2_date']=snapshot['pp2_date']
+        entries.sort(key=lambda e:(e['sort_date'],e['kind']=='order',e['number']),reverse=True)
     total=sum((e['amount'] or Decimal(0) for e in entries),Decimal(0))
     total_unpriced=sum(e['amount'] is None for e in entries)
     count=len(entries)
@@ -211,9 +258,33 @@ def purchase_register_detail(request, pk):
         from django.http import Http404
         raise Http404
     summary = order_summary(order)
+    china_unconfirmed='e03cf42556bc1d5ba57c9756bde19c44c664d96830bc4de465f2c2af24f1a325' in (order.comment or '')
+    pp1_batch=pp2_batch=None
+    china_stock=None
+    if china_unconfirmed:
+        from .models import ImportBatch, StockSnapshot
+        pp1_batch=ImportBatch.objects.filter(kind='pp1').order_by('-as_of','-pk').first()
+        pp2_batch=ImportBatch.objects.filter(kind='pp2').order_by('-as_of','-pk').first()
+        batch_ids=[b.pk for b in (pp1_batch,pp2_batch) if b]
+        rows=StockSnapshot.objects.filter(batch_id__in=batch_ids).values('batch__kind','sku','quantity')
+        snapshot={(r['batch__kind'],r['sku'].strip().upper()):r['quantity'] for r in rows}
+        china_stock={'pp1':0,'pp2':0,'matched':0,'unmatched':[]}
+        for line in summary['lines']:
+            article=str(line['source'].get('article','')).strip().upper()
+            pp1=snapshot.get(('pp1',article))
+            pp2=snapshot.get(('pp2',article))
+            line['pp1_stock']=pp1
+            line['pp2_stock']=pp2
+            if pp1 is not None or pp2 is not None:
+                china_stock['matched']+=1
+                china_stock['pp1']+=max(0,pp1 or 0)
+                china_stock['pp2']+=max(0,pp2 or 0)
+            else:
+                china_stock['unmatched'].append(article)
     return render(request, 'inventory/purchase_register_detail.html', {
         **procurement_context(request), 'order': order, 'summary': summary,
-        'is_china_unconfirmed': 'e03cf42556bc1d5ba57c9756bde19c44c664d96830bc4de465f2c2af24f1a325' in (order.comment or ''),
+        'is_china_unconfirmed': china_unconfirmed,
+        'china_stock':china_stock,'pp1_batch':pp1_batch,'pp2_batch':pp2_batch,
         'attachments': order.documents.all(), 'receipts': order.goods_documents.all(),
     })
 
