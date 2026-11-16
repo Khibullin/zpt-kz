@@ -442,6 +442,10 @@ HOME_PARTS_MAX_PER_PHONE_HOUR = _env_int('HOME_PARTS_MAX_PER_PHONE_HOUR', 5)
 HOME_PARTS_RATE_LIMIT_WINDOW = _env_int('HOME_PARTS_RATE_LIMIT_WINDOW', 3600)
 HOME_PARTS_NUM_PROXIES = _env_int('HOME_PARTS_NUM_PROXIES', 1)
 
+# Explicit owner control: photo enrichment never runs from the background
+# price-update worker unless manually opted in. Keep production False.
+CATALOG_PHOTO_AUTORUN_ENABLED = False
+
 MEDIA_URL = '/products/'
 MEDIA_ROOT = resolve_media_root(os.getenv('MEDIA_ROOT'), BASE_DIR)
 
