@@ -203,6 +203,23 @@ def purchases(request):
 
 @never_cache
 @accounting_access
+def purchase_register_detail(request, pk):
+    """Read-only purchase detail for the shared procurement register."""
+    from procurement.views import context as procurement_context
+    order = get_object_or_404(PurchaseOrder.objects.select_related('supplier'), pk=pk)
+    if not request.user.is_superuser and order.user_id != request.user.pk:
+        from django.http import Http404
+        raise Http404
+    summary = order_summary(order)
+    return render(request, 'inventory/purchase_register_detail.html', {
+        **procurement_context(request), 'order': order, 'summary': summary,
+        'is_china_unconfirmed': 'e03cf42556bc1d5ba57c9756bde19c44c664d96830bc4de465f2c2af24f1a325' in (order.comment or ''),
+        'attachments': order.documents.all(), 'receipts': order.goods_documents.all(),
+    })
+
+
+@never_cache
+@accounting_access
 def purchase_action(request,pk,action):
     order=get_object_or_404(PurchaseOrder.objects.select_related('supplier'),pk=pk,user=request.user)
     summary=order_summary(order)
