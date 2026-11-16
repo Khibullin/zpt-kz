@@ -354,10 +354,35 @@ def settings(request):
 
 
 @access('sales', 'admin')
-def upload(request):
+def product_processing(request):
+    """Read-only manual-enrichment dashboard; never processes tasks in a request."""
+    from catalog.models import SupplierPhotoTask
+    from django.db.models import Count
+    statuses = list(
+        SupplierPhotoTask.objects.values('status').annotate(total=Count('pk'))
+        .order_by('status')
+    )
+    return render(request, 'procurement/product_processing.html',
+                  context(request, task_statuses=statuses,
+                          photo_total=sum(item['total'] for item in statuses)))
+
+
+@access('sales', 'admin')
+def kaspi_data(request):
+    """Kaspi-only import view; the legacy importer remains at its old URL."""
+    return upload(request, kaspi_only=True)
+
+
+@access('sales', 'admin')
+def upload(request, kaspi_only=False):
     supplier = request_supplier(request)
     form = UploadForm(request.POST or None, request.FILES or None,
                       initial={'supplier': supplier.name if supplier else ''})
+    if kaspi_only:
+        allowed_kinds = {'demand', 'competitors', 'matches', 'card_searches'}
+        form.fields['kind'].choices = [
+            item for item in form.fields['kind'].choices if item[0] in allowed_kinds
+        ]
     if request.method == 'POST' and form.is_valid():
         if form.cleaned_data['checked_on'] > timezone.localdate():
             form.add_error('checked_on', 'Дата не может быть в будущем.')
@@ -373,7 +398,7 @@ def upload(request):
                 imported_supplier = Supplier.objects.get(name=form.cleaned_data['supplier'].strip())
                 request.session['procurement_supplier'] = imported_supplier.pk
                 return redirect(reverse('procurement:dashboard') + f'?supplier={imported_supplier.pk}')
-    return render(request, 'procurement/form.html', context(request, form=form, title='Загрузка данных', help='Каталожная применимость: JSON с checked_on и offers (brand, article, source_brand, source_article, source_url, status=sourced, rows с make, model, years, engine, notes). Сохраняются источники и ограничения; уже заполненные записи не перезаписываются. Продавцы Kaspi: JSON с checked_on и offers (brand, article, source_url, city, complete, sellers). Цены самого предложения и спрос не изменяются. Применимость Omega: JSON с датой checked_on и массивом offers (brand, article, source_url, category, fitments). Импорт применимости не изменяет цены и спрос. Прайс: article, brand, name, cost; необязательно category, stock, min_order, kaspi_price, kaspi_url, supplier_url. Поддерживается исходный Excel Omega. Отчёт спроса: article, brand, sales_30, review_count, recent_reviews, last_review (YYYY-MM-DD). Неизвестные значения оставьте пустыми. Для sales_30 обязательны period_start и period_end: ровно 30 календарных дней включительно до указанной даты. Отчёт спроса должен быть приведён к этим колонкам; автоматическое чтение любого формата Kaspi пока не поддерживается. Импорт атомарный.'))
+    return render(request, 'procurement/form.html', context(request, form=form, title=('Цены и спрос Kaspi' if kaspi_only else 'Загрузка данных'), help='Каталожная применимость: JSON с checked_on и offers (brand, article, source_brand, source_article, source_url, status=sourced, rows с make, model, years, engine, notes). Сохраняются источники и ограничения; уже заполненные записи не перезаписываются. Продавцы Kaspi: JSON с checked_on и offers (brand, article, source_url, city, complete, sellers). Цены самого предложения и спрос не изменяются. Применимость Omega: JSON с датой checked_on и массивом offers (brand, article, source_url, category, fitments). Импорт применимости не изменяет цены и спрос. Прайс: article, brand, name, cost; необязательно category, stock, min_order, kaspi_price, kaspi_url, supplier_url. Поддерживается исходный Excel Omega. Отчёт спроса: article, brand, sales_30, review_count, recent_reviews, last_review (YYYY-MM-DD). Неизвестные значения оставьте пустыми. Для sales_30 обязательны period_start и period_end: ровно 30 календарных дней включительно до указанной даты. Отчёт спроса должен быть приведён к этим колонкам; автоматическое чтение любого формата Kaspi пока не поддерживается. Импорт атомарный.'))
 
 
 @access()
