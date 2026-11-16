@@ -43,4 +43,4 @@ class CatalogFilterTests(TestCase):
         self.empty.sales_30 = None
         self.empty.recent_reviews = 3
         self.empty.save()
-        self.assertEqual(self.rows(mode='best'), [])
+        self.assertEqual(len(self.rows(mode='best')), 1)  # History does not expire with sales evidence.
