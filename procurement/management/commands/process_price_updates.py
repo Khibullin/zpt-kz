@@ -4,6 +4,7 @@ import logging
 import signal
 import time
 from django.core.management.base import BaseCommand
+from django.conf import settings
 from django.db import close_old_connections
 from procurement.models import PriceUpdate, KaspiReviewTask
 from procurement.kaspi_refresh import refresh_task
@@ -82,7 +83,9 @@ class Command(BaseCommand):
                     if refresh_sitemap_snapshots():
                         self.stdout.write('Public sitemap snapshots refreshed')
                     from catalog.source_photos import process_photo_tasks
-                    if photo_window_open(timezone.now()):
+                    # Photo enrichment is owner-triggered only. The price worker
+                    # must not drain the photo queue automatically during idle loops.
+                    if getattr(settings, 'CATALOG_PHOTO_AUTORUN_ENABLED', False) and photo_window_open(timezone.now()):
                         photo_progress = process_photo_tasks(limit=10)
                 if options['watch']:
                     KaspiReviewTask.objects.filter(status='checking', updated_at__lt=timezone.now()-timedelta(minutes=30)).update(status='pending')
