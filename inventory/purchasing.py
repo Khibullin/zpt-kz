@@ -204,7 +204,7 @@ def purchases(request):
                 'pp1_date':snapshot_batches['pp1'].as_of if snapshot_batches['pp1'] else None,
                 'pp2_date':snapshot_batches['pp2'].as_of if snapshot_batches['pp2'] else None,
             }
-        item_ids={item_id for e in entries for item_id in e['item_quantities']}
+    item_ids={item_id for e in entries for item_id in e['item_quantities']}
     current_stock=dict(StockEntry.objects.filter(
         document__item_id__in=item_ids,warehouse__in=('PP1','PP2')
     ).values('document__item_id').annotate(q=Sum('quantity')).values_list('document__item_id','q')) if item_ids else {}
@@ -226,7 +226,7 @@ def purchases(request):
         e['unmatched_articles']=len(snapshot['unmatched'])
         e['pp1_date']=snapshot['pp1_date']
         e['pp2_date']=snapshot['pp2_date']
-        entries.sort(key=lambda e:(e['sort_date'],e['kind']=='order',e['number']),reverse=True)
+    entries.sort(key=lambda e:(e['sort_date'],e['kind']=='order',e['number']),reverse=True)
     total=sum((e['amount'] or Decimal(0) for e in entries),Decimal(0))
     total_unpriced=sum(e['amount'] is None for e in entries)
     count=len(entries)
