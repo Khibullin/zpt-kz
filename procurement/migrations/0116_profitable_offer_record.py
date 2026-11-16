@@ -57,7 +57,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ProfitableOfferRecord',
             fields=[
-                ('id', models.BigAutoField(primary_key=True, serialize=False)),
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('source_cost', models.DecimalField(max_digits=14, decimal_places=2)),
                 ('source_kaspi_price', models.DecimalField(max_digits=14, decimal_places=2)),
                 ('source_profit', models.DecimalField(max_digits=18, decimal_places=2)),
