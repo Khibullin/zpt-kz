@@ -1,0 +1,49 @@
+"""Capture the first evidenced profitable result; price uploads must not erase it."""
+from decimal import Decimal
+
+from django.utils import timezone
+
+from .analysis import stock_status
+from .models import Preferences, ProfitableOfferRecord
+
+
+def owner_terms():
+    """Use an actual configured owner algorithm; never invent a commission."""
+    return Preferences.objects.filter(
+        user__is_superuser=True, commission__isnull=False, expenses__isnull=False,
+    ).order_by('user_id').first()
+
+
+def capture_profitable_offer(offer, *, batch=None, terms=None):
+    """Idempotent first snapshot. No Kaspi calls, external work or stale-date renewal."""
+    if getattr(offer, 'pk', None) is None:
+        return False
+    if not offer.match_verified or offer.kaspi_price is None or offer.cost <= 0:
+        return False
+    if stock_status(offer.stock) != 'in_stock':
+        return False
+    if any(x in (offer.name + ' ' + offer.category).casefold()
+           for x in ('подшипник', 'bearing')):
+        return False
+    terms = terms or owner_terms()
+    if terms is None:
+        return False
+    cost = Decimal(offer.cost)
+    commission = Decimal(terms.commission)
+    expenses = max(Decimal('250'), Decimal(terms.expenses))
+    profit = Decimal(offer.kaspi_price) * (Decimal('100') - commission) / Decimal('100') - cost - expenses
+    if profit < max(Decimal('1000'), Decimal(terms.best_min_profit)):
+        return False
+    _, created = ProfitableOfferRecord.objects.get_or_create(
+        offer_id=offer.pk,
+        defaults={
+            'source_cost': cost, 'source_kaspi_price': offer.kaspi_price,
+            'source_profit': profit, 'source_roi': profit / cost * Decimal('100'),
+            'commission': commission, 'expenses': expenses,
+            'supplier_date': offer.supplier_checked_on,
+            'kaspi_date': offer.kaspi_price_checked_on,
+            'processed_at': timezone.now() if batch else None,
+            'first_batch': batch, 'initial_import': batch is None,
+        },
+    )
+    return created
