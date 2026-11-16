@@ -1,4 +1,4 @@
-{% extends 'inventory/base.html' %}
+{% extends 'procurement/base.html' %}
 {% block content %}
 <style>
 .purchase-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}
@@ -63,7 +63,19 @@
  </tr>{% empty %}<tr><td colspan="9">Закупок по выбранным условиям не найдено.</td></tr>{% endfor %}</tbody>
  </table></div>
  <p class="purchase-note"><strong>Об остатках:</strong> указана доступность на складах по артикулам из проведённых приходов, с ограничением закупленным количеством. Это оценка, а не точный остаток конкретной партии: продажи пока не привязаны к партиям. Ожидаемые поставки в складской остаток не включаются.</p>
- <p class="purchase-note">Всего по фильтру: {{ count }} закупок на {{ total|floatformat:0 }} ₸. На странице показаны записи по 25.</p>
+ <p class="purchase-note">Всего по фильтру: {{ count }} оформленных заказов на {{ total|floatformat:0 }} ₸. На странице показаны записи по 25.</p>
 </section>
+{% if receipts_without_order %}
+<section class="panel">
+ <h2>Поступления без связанного закупочного заказа</h2>
+ <p class="purchase-note">Это реальные накладные из склада, но пока не оформленные или не связанные с закупочными заказами. Они показаны отдельно, чтобы не терять историю и не считать их повторно.</p>
+ <div style="overflow-x:auto"><table class="purchase-table">
+ <thead><tr><th>Накладная</th><th>Поставщик</th><th>Дата</th><th>Ассортимент</th><th>Склад</th><th>Действие</th></tr></thead><tbody>
+ {% for doc in receipts_without_order %}
+ <tr><td>{{ doc.number|default:"Без номера" }}</td><td>{{ doc.counterparty|default:"Не указан" }}</td><td>{{ doc.date|date:'d.m.Y' }}</td><td>{{ doc.line_count }} поз.</td><td>{{ doc.warehouse }}</td><td><a href="{% url 'inventory:goods_detail' doc.pk %}">Открыть накладную ›</a></td></tr>
+ {% endfor %}
+ </tbody></table></div>
+</section>
+{% endif %}
 {% include 'inventory/pagination.html' %}
 {% endblock %}
