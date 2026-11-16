@@ -12,20 +12,21 @@
 <h1>{{ order.display_title }}</h1>
 <p class="muted">{{ order.supplier.name }} · {{ order.order_number }}</p>
 {% if is_china_unconfirmed %}
-<div class="china-note"><strong>Исторический закупочный список.</strong> Дата закупки, точный поставщик, факт оплаты и поступления на склад в исходном файле не указаны. Приход на склад не проводился. Дата создания записи в системе не является датой закупки.</div>
+<div class="china-note"><strong>Исторический закупочный список.</strong> Дата закупки, точный поставщик, факт оплаты и поступления на склад в исходном файле не указаны. По последним файлам PP1 и PP2 остатки по артикулам есть, но приёмка именно этой закупки документально с ней не связана. Новых складских операций не создавалось. Дата создания записи в системе не является датой закупки.</div>
 {% endif %}
 <div class="china-summary">
 <div>Ассортимент<strong>{{ summary.positions }} наимен.</strong></div>
 <div>Закуплено<strong>{{ summary.ordered }} ед.</strong></div>
-<div>Принято на склад<strong>{{ summary.received }} ед.</strong></div>
+{% if china_stock %}<div>PP1 · остаток по артикулам<strong>{{ china_stock.pp1 }} ед.</strong><small>Снимок {{ pp1_batch.as_of|date:'d.m.Y' }}</small></div><div>PP2 · остаток по артикулам<strong>{{ china_stock.pp2 }} ед.</strong><small>Снимок {{ pp2_batch.as_of|date:'d.m.Y' }}</small></div>{% else %}<div>Принято на склад<strong>{{ summary.received }} ед.</strong></div>{% endif %}
 <div>Стоимость закупки<strong>{{ order.total|floatformat:2 }} ₸</strong></div>
 </div>
+{% if china_stock %}<p class="muted">Всего по совпавшим артикулам: <strong>{{ china_stock.pp1|add:china_stock.pp2 }} ед.</strong> · сопоставлено {{ china_stock.matched }} из {{ summary.positions }} артикулов. Это складские снимки, а не остаток точно установленной закупочной партии. Несопоставленные артикулы: {{ china_stock.unmatched|join:", " }}.</p>{% endif %}
 <section class="panel">
 <h2>Состав закупки</h2>
 <div class="china-scroll"><table>
-<thead><tr><th>№</th><th>Артикул</th><th>Товар</th><th>Бренд</th><th>Кол-во</th><th>Цена за ед., ₸</th><th>Принято</th></tr></thead>
+<thead><tr><th>№</th><th>Артикул</th><th>Товар</th><th>Бренд</th><th>Кол-во</th><th>Цена за ед., ₸</th>{% if china_stock %}<th>PP1</th><th>PP2</th>{% else %}<th>Принято</th>{% endif %}</tr></thead>
 <tbody>{% for line in summary.lines %}
-<tr><td>{{ forloop.counter }}</td><td>{{ line.source.article }}</td><td>{{ line.source.name }}</td><td>{{ line.source.brand }}</td><td>{{ line.source.quantity }}</td><td>{{ line.source.cost|floatformat:2 }}</td><td>{{ line.received }}</td></tr>
+<tr><td>{{ forloop.counter }}</td><td>{{ line.source.article }}</td><td>{{ line.source.name }}</td><td>{{ line.source.brand }}</td><td>{{ line.source.quantity }}</td><td>{{ line.source.cost|floatformat:2 }}</td>{% if china_stock %}<td>{{ line.pp1_stock|default_if_none:"—" }}</td><td>{{ line.pp2_stock|default_if_none:"—" }}</td>{% else %}<td>{{ line.received }}</td>{% endif %}</tr>
 {% endfor %}</tbody>
 </table></div>
 </section>
