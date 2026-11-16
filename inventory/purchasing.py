@@ -102,7 +102,9 @@ def purchases(request):
     stage=request.GET.get('stage','')
     payment=request.GET.get('payment','')
     entries=[]
-    orders=PurchaseOrder.objects.filter(user=request.user,archived=deleted).select_related('supplier').order_by('-created_at','-pk')
+    orders=PurchaseOrder.objects.filter(archived=deleted).select_related('supplier').order_by('-created_at','-pk')
+    if not request.user.is_superuser:
+        orders=orders.filter(user=request.user)
     if warehouse in ('PP1','PP2'):
         orders=orders.filter(destination=warehouse)
     if supplier_id.isdigit():
@@ -115,6 +117,7 @@ def purchases(request):
                           [str(line.get(key,'')) for line in (order.items or []) for key in ('name','article','brand')])
             if needle not in text.casefold():continue
         wf=order_summary(order)
+        china_unconfirmed=('e03cf42556bc1d5ba57c9756bde19c44c664d96830bc4de465f2c2af24f1a325' in (order.comment or ''))
         if stage=='expected' and (not wf['remaining'] or order.delivery_stage in ('draft','cancelled') or order.status=='cancelled'):continue
         if stage=='partial' and not(wf['received'] and wf['remaining']):continue
         if stage=='received' and not(wf['received'] and not wf['remaining']):continue
@@ -122,10 +125,11 @@ def purchases(request):
         if payment=='paid' and wf['payment_state'] not in ('Оплачено','Переплата'):continue
         entries.append({'kind':'order','order':order,'number':order.order_number,
                         'title':order.display_title,'supplier':order.supplier.name,
-                        'date':order.created_at.date(),'positions':wf['positions'],
+                        'date':None if china_unconfirmed else order.created_at.date(),
+                        'sort_date':order.created_at.date(),'positions':wf['positions'],
                         'quantity':wf['ordered'],'received':wf['received'],
-                        'awaiting':wf['remaining'],'amount':order.total,
-                        'status':wf['delivery_state'],'payment':wf['payment_state'],
+                        'awaiting':0 if china_unconfirmed else wf['remaining'],'amount':order.total,
+                        'status':'Поставка не подтверждена' if china_unconfirmed else wf['delivery_state'],'payment':wf['payment_state'],
                         'item_quantities':{},'receipt_quantity':0,'stock_known':False})
 
     receipts=[] if deleted else list(GoodsDocument.objects.filter(
@@ -149,7 +153,7 @@ def purchases(request):
         amount=sum((line.quantity*line.unit_cost for line in lines),Decimal(0)) if priced else None
         entries.append({'kind':'receipt','receipt':doc,'number':doc.number or f'Приход №{doc.pk}',
                         'title':'Закупка по накладной','supplier':doc.counterparty or 'Поставщик не указан',
-                        'date':doc.date,'positions':len(quantities),'quantity':qty,
+                        'date':doc.date,'sort_date':doc.date,'positions':len(quantities),'quantity':qty,
                         'received':qty,'awaiting':0,'amount':amount,
                         'status':'Принято на склад','payment':'Оплата не связана',
                         'item_quantities':dict(quantities),'receipt_quantity':qty,'stock_known':True})
@@ -175,7 +179,7 @@ def purchases(request):
                                  for item_id,qty in e['item_quantities'].items())
         e['stock_denominator']=e['receipt_quantity']
         e['stock_percent']=round(100*e['stock_available']/e['stock_denominator']) if e['stock_denominator'] else 0
-    entries.sort(key=lambda e:(e['date'],e['kind']=='order',e['number']),reverse=True)
+    entries.sort(key=lambda e:(e['sort_date'],e['kind']=='order',e['number']),reverse=True)
     total=sum((e['amount'] or Decimal(0) for e in entries),Decimal(0))
     total_unpriced=sum(e['amount'] is None for e in entries)
     count=len(entries)
