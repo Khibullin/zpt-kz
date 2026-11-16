@@ -1,6 +1,6 @@
 from .catalogue_import import import_catalogue_fitments
 from .shared_fitments import fill_from_shared_base
-from .catalog_paging import catalog_page, best_candidates_query
+from .catalog_paging import catalog_page, best_candidates_query, stale_price_candidates_query
 from .fitment_filters import matches_configuration
 from .supplier_terms import supplier_terms
 from .vehicle_countries import country_makes
@@ -100,6 +100,8 @@ def filtered_rows(request, preferences, filters, paginate=False):
         filters = {key: value for key, value in filters.items() if key not in ('kaspi_status', 'verified', 'sort')}
     if mode == 'best':
         query = best_candidates_query(query, preferences, today)
+    elif mode == 'stale_prices':
+        query = stale_price_candidates_query(query, preferences, today)
     elif mode == 'reviewed':
         pass  # Legacy URL now opens the complete supplier catalogue.
     elif mode == 'no_sellers':
@@ -200,6 +202,13 @@ def filtered_rows(request, preferences, filters, paginate=False):
         for row in rows:
             row['markup'] = row['profit'] / row['offer'].cost * 100
         rows.sort(key=lambda r: (-r['markup'], -r['profit'], r['offer'].pk))
+    elif mode == 'stale_prices':
+        # An old Kaspi price is only a review lead: require actual stock and
+        # preserve historical price/date as-is, never claim a confirmed deal.
+        rows = [r for r in rows if r['stock_status'] == 'in_stock' and r['supplier_fresh']
+                and r['profit'] is not None
+                and r['profit'] >= max(MIN_BEST_PROFIT, preferences.best_min_profit)]
+        rows.sort(key=lambda r: (-(r['profit'] or Decimal(0)), r['offer'].pk))
     elif mode == 'reviewed':
         rows.sort(key=lambda r: (r['markup'] is None, -(r['markup'] or Decimal(0)), r['offer'].pk))
     elif mode == 'difference':
@@ -247,7 +256,7 @@ def dashboard(request):
     started = perf_counter()
     preferences, _ = Preferences.objects.get_or_create(user=request.user)
     filter_data = request.GET
-    if request.GET.get('mode') == 'best':
+    if request.GET.get('mode') in ('best', 'stale_prices'):
         filter_data = request.GET.copy()
         for key in ('kaspi_status', 'verified', 'sort'):
             filter_data.pop(key, None)
@@ -292,7 +301,7 @@ def dashboard(request):
                 exported_number(row['markup']), exported_number(row['profit']), row['signal'], offer.sales_30,
                 offer.recent_reviews, offer.checked_on, offer.evidence_date, offer.kaspi_url,
                 exported_number(row['commission_rate']), exported_number(row['commission_amount']),
-                exported_number(row['kaspi_after_commission']), exported_number(row['expenses']), 'Предварительная подборка — требует проверки спроса и продавцов Kaspi' if preliminary else 'Основная подборка']])
+                exported_number(row['kaspi_after_commission']), exported_number(row['expenses']), 'Устаревшая или недатированная цена Kaspi — только для повторной проверки' if request.GET.get('mode') == 'stale_prices' else 'Предварительная подборка — требует проверки спроса и продавцов Kaspi' if preliminary else 'Основная подборка']])
         return response
     page = getattr(request, 'catalog_page', None) or Paginator(displayed_rows, 40).get_page(request.GET.get('page'))
     prefetch_related_objects([row['offer'] for row in page.object_list],
@@ -302,7 +311,7 @@ def dashboard(request):
                   commission_rate=preferences.commission.normalize() if preferences.commission is not None else None,
                   effective_expenses=max(PACKAGING_COST, preferences.expenses) if preferences.expenses is not None else None,
                   filter_form=form, preliminary=preliminary, preliminary_total=len(displayed_rows) if preliminary else 0, best_empty_reason=best_empty_reason, supplier_stats=supplier_stats, catalogue_total=supplier_stats['loaded'] if supplier_stats else Offer.objects.count(),
-                  reset_url=reverse('procurement:dashboard') + (f'?supplier={supplier.pk}' if supplier else '?supplier=') + ('&mode=' + request.GET['mode'] if request.GET.get('mode') in ('best', 'difference', 'no_sellers', 'reviewed') else ''),
+                  reset_url=reverse('procurement:dashboard') + (f'?supplier={supplier.pk}' if supplier else '?supplier=') + ('&mode=' + request.GET['mode'] if request.GET.get('mode') in ('best', 'stale_prices', 'difference', 'no_sellers', 'reviewed') else ''),
                   page_numbers=page.paginator.get_elided_page_range(page.number, on_each_side=2, on_ends=1), basic_filters=[form[name] for name in ('brand', 'category', 'vehicle_country', 'vehicle_make', 'vehicle_model', 'vehicle_generation', 'vehicle_year', 'kaspi_seller_count')],
                   advanced_filters=[form[name] for name in (('sort', 'fitment', 'availability', 'demand', 'max_cost', 'min_profit', 'min_markup', 'verified', 'favorites') if request.GET.get('mode') != 'best' else ('fitment', 'availability', 'demand', 'max_cost', 'min_profit', 'min_markup', 'favorites'))],
                   mode=request.GET.get('mode', 'roi'), favorites=bool(form.cleaned_data.get('favorites')) if valid else False), status=200 if valid else 400)
