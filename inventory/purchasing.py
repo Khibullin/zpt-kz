@@ -88,13 +88,22 @@ def locked_order(pk,user):
 @never_cache
 @accounting_access
 def purchases(request):
-    rows=PurchaseOrder.objects.filter(user=request.user,archived=request.GET.get('deleted')=='1').select_related('supplier').order_by('-pk')
+    """Compact register; no invented per-batch stock allocation."""
+    from collections import defaultdict
+    from django.core.paginator import Paginator
+    from procurement.models import Supplier
+    rows=PurchaseOrder.objects.filter(user=request.user,archived=request.GET.get('deleted')=='1').select_related('supplier').order_by('-created_at','-pk')
     q=request.GET.get('q','').strip()
     if q:
         query=Q(title__icontains=q)|Q(supplier__name__icontains=q)|Q(comment__icontains=q)|Q(supplier_order_number__icontains=q)
         number=q.upper().replace('ЗК-','')
         if number.isdigit():query |= Q(pk=int(number))
-        rows=rows.filter(query)
+        # Article, brand and product name live in the JSON order lines.
+        matching_ids=[]
+        for pk,items in rows.values_list('pk','items').iterator():
+            if any(q.casefold() in str(line.get(field,'')).casefold() for line in items for field in ('article','brand','name')):
+                matching_ids.append(pk)
+        rows=rows.filter(query|Q(pk__in=matching_ids))
     if request.GET.get('warehouse') in ['PP1','PP2']:rows=rows.filter(destination=request.GET['warehouse'])
     if request.GET.get('supplier','').isdigit():rows=rows.filter(supplier_id=request.GET['supplier'])
     results=[]
@@ -106,14 +115,46 @@ def purchases(request):
         if request.GET.get('payment')=='unpaid' and order.workflow['paid']>0:continue
         if request.GET.get('payment')=='paid' and order.workflow['payment_state'] not in ['Оплачено','Переплата']:continue
         results.append(order)
+
+    # StockEntry is the authoritative warehouse ledger, but sales do not carry
+    # a purchase batch identifier. Display a capped available quantity by
+    # linked SKUs, explicitly NOT an exact batch remainder.
+    receipt_rows=list(StockDocument.objects.filter(
+        purchase_order_id__in=[o.pk for o in results],kind='receipt',status='posted'
+    ).values('purchase_order_id','item_id','quantity'))
+    by_order=defaultdict(lambda:defaultdict(int))
+    item_ids=set()
+    for row in receipt_rows:
+        by_order[row['purchase_order_id']][row['item_id']]+=row['quantity']
+        item_ids.add(row['item_id'])
+    stock=defaultdict(int)
+    for item_id,quantity in StockEntry.objects.filter(
+        document__item_id__in=item_ids,warehouse__in=['PP1','PP2']
+    ).values('document__item_id').annotate(q=Sum('quantity')).values_list('document__item_id','q'):
+        stock[item_id]=quantity or 0
+    for order in results:
+        purchases_for_items=by_order[order.pk]
+        order.stock_known=bool(purchases_for_items)
+        order.stock_available=sum(min(purchased,max(0,stock[item_id])) for item_id,purchased in purchases_for_items.items())
+        order.stock_denominator=sum(purchases_for_items.values())
+        order.stock_percent=round(100*order.stock_available/order.stock_denominator) if order.stock_denominator else 0
     if request.GET.get('export')=='xlsx':
         from .tools_views import xlsx_response
-        return xlsx_response('purchase-register',['Номер','Закупка','Поставщик','Склад','План доставки','Поставка','Оплата','Позиций','Заказано','Принято','Ожидается','Сумма заказа','Оплачено','Сальдо по фактическим приходам'],([o.order_number,o.display_title,o.supplier.name,o.destination,o.expected_date,o.workflow['delivery_state'],o.workflow['payment_state'],o.workflow['positions'],o.workflow['ordered'],o.workflow['received'],o.workflow['remaining'],o.total,o.workflow['paid'],o.workflow['balance']] for o in results))
-    from django.core.paginator import Paginator
-    from procurement.models import Supplier
+        return xlsx_response('purchase-register',['Номер','Закупка','Поставщик','Склад','План доставки','Поставка','Оплата','Позиций','Заказано','Принято','Ожидается','Доступно по артикулам (оценка)','Сумма заказа','Оплачено','Сальдо по фактическим приходам'],([o.order_number,o.display_title,o.supplier.name,o.destination,o.expected_date,o.workflow['delivery_state'],o.workflow['payment_state'],o.workflow['positions'],o.workflow['ordered'],o.workflow['received'],o.workflow['remaining'],o.stock_available if o.stock_known else None,o.total,o.workflow['paid'],o.workflow['balance']] for o in results))
+    count=len(results)
+    page=Paginator(results,25).get_page(request.GET.get('page'))
     total=sum((o.total for o in results),Decimal(0))
+    ordered=sum(o.workflow['ordered'] for o in results)
+    received=sum(o.workflow['received'] for o in results)
+    awaiting=sum(o.workflow['remaining'] for o in results)
+    # Distinct item current stock avoids counting the same physical goods twice.
+    current_stock=sum(max(0,qty) for qty in stock.values())
     query=request.GET.copy();query.pop('page',None)
-    return render(request,'inventory/purchases.html',{'page':Paginator(results,50).get_page(request.GET.get('page')),'query':query.urlencode(),'count':len(results),'total':total,'suppliers':Supplier.objects.all()})
+    return render(request,'inventory/purchases.html',{
+        'page':page,'query':query.urlencode(),'count':count,'total':total,
+        'ordered':ordered,'received':received,'awaiting':awaiting,
+        'current_stock':current_stock,'suppliers':Supplier.objects.all(),
+    })
 
 
 @never_cache
