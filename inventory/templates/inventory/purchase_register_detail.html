@@ -1,0 +1,39 @@
+{% extends 'procurement/base.html' %}
+{% block title %}{{ order.display_title }} · Учёт закупок{% endblock %}
+{% block content %}
+<style>
+.china-detail{max-width:1400px}.china-detail h1{font-size:27px}.china-summary{display:flex;gap:12px;flex-wrap:wrap;margin:17px 0}
+.china-summary>div{flex:1;min-width:170px;padding:15px;border:1px solid #dce5ef;border-radius:10px;background:white}
+.china-summary strong{display:block;font-size:20px;margin-top:8px}
+.china-scroll{overflow-x:auto}.china-scroll table{min-width:900px}.china-note{background:#fff7e6;border:1px solid #efdda7;border-radius:8px;padding:13px;margin:14px 0}
+</style>
+<div class="china-detail">
+<p><a class="button" href="{% url 'inventory:purchases' %}">← Учёт закупок</a></p>
+<h1>{{ order.display_title }}</h1>
+<p class="muted">{{ order.supplier.name }} · {{ order.order_number }}</p>
+{% if is_china_unconfirmed %}
+<div class="china-note"><strong>Исторический закупочный список.</strong> Дата закупки, точный поставщик, факт оплаты и поступления на склад в исходном файле не указаны. Приход на склад не проводился. Дата создания записи в системе не является датой закупки.</div>
+{% endif %}
+<div class="china-summary">
+<div>Ассортимент<strong>{{ summary.positions }} наимен.</strong></div>
+<div>Закуплено<strong>{{ summary.ordered }} ед.</strong></div>
+<div>Принято на склад<strong>{{ summary.received }} ед.</strong></div>
+<div>Стоимость закупки<strong>{{ order.total|floatformat:2 }} ₸</strong></div>
+</div>
+<section class="panel">
+<h2>Состав закупки</h2>
+<div class="china-scroll"><table>
+<thead><tr><th>№</th><th>Артикул</th><th>Товар</th><th>Бренд</th><th>Кол-во</th><th>Цена за ед., ₸</th><th>Принято</th></tr></thead>
+<tbody>{% for line in summary.lines %}
+<tr><td>{{ forloop.counter }}</td><td>{{ line.source.article }}</td><td>{{ line.source.name }}</td><td>{{ line.source.brand }}</td><td>{{ line.source.quantity }}</td><td>{{ line.source.cost|floatformat:2 }}</td><td>{{ line.received }}</td></tr>
+{% endfor %}</tbody>
+</table></div>
+</section>
+<section class="panel">
+<h2>Документы и поступления</h2>
+{% for file in attachments %}<p>{{ file.name }} · {{ file.get_kind_display }}</p>{% empty %}<p class="muted">Оригинал файла хранится в переписке; документ ещё не прикреплён к записи закупки.</p>{% endfor %}
+{% for receipt in receipts %}<p><a href="{% url 'inventory:goods_detail' receipt.pk %}">Накладная {{ receipt.number }}</a> · {{ receipt.date }}</p>{% endfor %}
+<p class="muted">Платежи и складские документы учитываются независимо от состава закупочного списка.</p>
+</section>
+</div>
+{% endblock %}
