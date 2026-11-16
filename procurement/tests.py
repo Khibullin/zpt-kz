@@ -170,7 +170,7 @@ class WorkspaceTests(TestCase):
         self.login()
         response = self.client.get(self.url('dashboard'), {'q': '00123', 'mode': 'difference'})
         self.assertContains(response, 'data-selection-form')
-        self.assertContains(response, 'data-basket-count', count=2)
+        self.assertContains(response, 'data-basket-count', count=1)  # Sidebar no longer duplicates basket.
         self.assertContains(response, '?q=00123&amp;mode=difference')
         self.assertContains(response, 'procurement/selection.js')
         compact = self.client.get(self.url('detail', pk=self.offer.pk), {'compact': 1})
