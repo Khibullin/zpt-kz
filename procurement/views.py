@@ -170,8 +170,8 @@ def filtered_rows(request, preferences, filters, paginate=False):
     rows = []
     latest_batches = {}
     if mode == 'best':
-        for supplier_id, batch_id in PriceUpdate.objects.filter(status='done').order_by('-pk').values_list('supplier_id', 'pk'):
-            latest_batches.setdefault(supplier_id, batch_id)
+        for supplier_id, batch_id, batch_created in PriceUpdate.objects.filter(status='done').order_by('-pk').values_list('supplier_id', 'pk', 'created_at'):
+            latest_batches.setdefault(supplier_id, (batch_id, batch_created))
     for offer in query:
         row = {'offer': offer, 'favorite': offer.pk in favorites, **evaluate(offer, preferences, today=today)}
         row.update(kaspi_status(offer, preferences, today))
@@ -191,10 +191,12 @@ def filtered_rows(request, preferences, filters, paginate=False):
             if not is_current and record is None:
                 continue
             row['historical'] = not is_current
+            latest = latest_batches.get(offer.supplier_id)
             row['is_new'] = bool(
-                is_current and record and not record.initial_import
-                and record.first_batch_id is not None
-                and latest_batches.get(offer.supplier_id) == record.first_batch_id
+                is_current and latest and (
+                    (record and not record.initial_import and record.first_batch_id == latest[0]) or
+                    (record is None and offer.created_at >= latest[1])
+                )
             )
             row['processed_at'] = record.processed_at if record else None
             row['display_cost'] = offer.cost
