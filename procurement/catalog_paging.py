@@ -23,6 +23,31 @@ def best_candidates_query(query, preferences, today):
 
 
 
+
+def cumulative_profitable_query(query, preferences):
+    """Current opportunities OR already archived previously profitable offers.
+
+    No date-age gate. Do not change the strict best_candidates_query used by
+    other application workflows.
+    """
+    if preferences.commission is None or preferences.expenses is None:
+        return query.none()
+    profit = ExpressionWrapper(
+        F('kaspi_price') * Value((Decimal('100') - preferences.commission) / Decimal('100'))
+        - F('cost') - Value(max(Decimal('250'), preferences.expenses)),
+        output_field=DecimalField(max_digits=38, decimal_places=12),
+    )
+    active = Q(match_verified=True, kaspi_price__isnull=False, cost__gt=0) & Q(
+        _cumulative_profit__gte=max(Decimal('1000'), preferences.best_min_profit)
+    )
+    return query.annotate(_cumulative_profit=profit).filter(
+        active | Q(profitable_record__isnull=False)
+    ).exclude(
+        Q(name__iregex='подшипник|bearing', profitable_record__isnull=True) |
+        Q(category__iregex='подшипник|bearing', profitable_record__isnull=True)
+    )
+
+
 def stale_price_candidates_query(query, preferences, today):
     """Historical profit candidates only, never a confirmed buying recommendation.
 
