@@ -129,7 +129,7 @@ def purchases(request):
                         'sort_date':order.created_at.date(),'positions':wf['positions'],
                         'quantity':wf['ordered'],'received':wf['received'],
                         'awaiting':0 if china_unconfirmed else wf['remaining'],'amount':order.total,
-                        'status':'Поставка не подтверждена' if china_unconfirmed else wf['delivery_state'],'payment':wf['payment_state'],
+                        'status':'Остатки PP1 / PP2' if china_unconfirmed else wf['delivery_state'],'payment':wf['payment_state'],
                         'item_quantities':{},'receipt_quantity':0,'stock_known':False})
 
     receipts=[] if deleted else list(GoodsDocument.objects.filter(
