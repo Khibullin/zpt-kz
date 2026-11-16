@@ -73,6 +73,31 @@ class Offer(models.Model):
         ordering = ['brand', 'article', 'pk']
 
 
+class ProfitableOfferRecord(models.Model):
+    """Immutable first qualifying calculation; preserve it through later price uploads.
+
+    Historical processing dates are nullable: old catalogue rows do not prove
+    when the first profitability calculation actually occurred.
+    """
+    offer = models.OneToOneField(Offer, on_delete=models.PROTECT, related_name='profitable_record')
+    source_cost = models.DecimalField(max_digits=14, decimal_places=2)
+    source_kaspi_price = models.DecimalField(max_digits=14, decimal_places=2)
+    source_profit = models.DecimalField(max_digits=18, decimal_places=2)
+    source_roi = models.DecimalField(max_digits=18, decimal_places=4)
+    commission = models.DecimalField(max_digits=5, decimal_places=2)
+    expenses = models.DecimalField(max_digits=12, decimal_places=2)
+    supplier_date = models.DateField(null=True, blank=True)
+    kaspi_date = models.DateField(null=True, blank=True)
+    captured_at = models.DateTimeField(auto_now_add=True)
+    processed_at = models.DateTimeField(null=True, blank=True)
+    first_batch = models.ForeignKey('PriceUpdate', null=True, blank=True,
+                                    on_delete=models.SET_NULL, related_name='new_profitable_offers')
+    initial_import = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['offer_id']
+
+
 class RetailListing(models.Model):
     catalog_key = models.CharField(max_length=250, null=True, blank=True, unique=True)
     offer = models.OneToOneField(Offer, on_delete=models.PROTECT, related_name='retail_listing')

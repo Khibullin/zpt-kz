@@ -60,21 +60,20 @@ class WorkspaceTests(TestCase):
         catalog = self.client.get(self.url('dashboard'), {'supplier': self.supplier.pk})
         self.assertContains(catalog, 'class="selection-filters"')
 
-    def test_best_restores_preliminary_candidates_without_faking_sales(self):
+    def test_best_preserves_candidates_without_requiring_fresh_sales(self):
         self.login()
         self.qualify_best()
         self.offer.sales_30 = None
         self.offer.save()
         Preferences.objects.update_or_create(user=self.user, defaults={'commission': Decimal('12.5'), 'expenses': Decimal('250')})
         response = self.client.get(self.url('dashboard'), {'mode': 'best', 'supplier': self.supplier.pk})
-        self.assertEqual(response.context['total'], 0)
-        self.assertTrue(response.context['preliminary'])
-        self.assertEqual(response.context['preliminary_total'], 1)
+        self.assertEqual(response.context['total'], 1)
+        self.assertFalse(response.context['preliminary'])
         self.assertContains(response, '00123')
-        self.assertContains(response, 'Спрос не подтверждён')
+        self.assertContains(response, 'Выгодный по сохранённым данным')
         exported = self.client.get(self.url('dashboard'), {'mode': 'best', 'supplier': self.supplier.pk, 'download': 'csv'})
         self.assertContains(exported, '00123')
-        self.assertContains(exported, 'Предварительная подборка')
+        self.assertContains(exported, 'Выгодный по сохранённым данным')
         self.offer.refresh_from_db()
         self.assertIsNone(self.offer.sales_30)
 
@@ -171,7 +170,7 @@ class WorkspaceTests(TestCase):
         self.login()
         response = self.client.get(self.url('dashboard'), {'q': '00123', 'mode': 'difference'})
         self.assertContains(response, 'data-selection-form')
-        self.assertContains(response, 'data-basket-count', count=2)
+        self.assertContains(response, 'data-basket-count', count=1)  # Sidebar no longer duplicates basket.
         self.assertContains(response, '?q=00123&amp;mode=difference')
         self.assertContains(response, 'procurement/selection.js')
         compact = self.client.get(self.url('detail', pk=self.offer.pk), {'compact': 1})
@@ -492,12 +491,16 @@ class WorkspaceTests(TestCase):
         self.offer.save()
         self.assertEqual(self.client.get(self.url('dashboard'), {'mode': 'best'}).context['total'], 0)
 
-    def test_best_mode_excludes_unknown_demand_stock_or_freshness(self):
+    def test_best_ignores_old_dates_but_requires_stock_and_identity(self):
         self.login()
         Preferences.objects.create(user=self.user, commission=10, expenses=250)
         self.qualify_best()
         self.assertEqual(self.client.get(self.url('dashboard'), {'mode': 'best'}).context['total'], 1)
-        for field, value in [('evidence_date', None), ('kaspi_price_checked_on', None), ('stock', ''), ('sales_30', None), ('match_verified', False)]:
+        for field in ('evidence_date', 'kaspi_price_checked_on', 'sales_30'):
+            self.qualify_best()
+            Offer.objects.filter(pk=self.offer.pk).update(**{field: None})
+            self.assertEqual(self.client.get(self.url('dashboard'), {'mode': 'best'}).context['total'], 1)
+        for field, value in [('stock', ''), ('match_verified', False)]:
             self.qualify_best()
             Offer.objects.filter(pk=self.offer.pk).update(**{field: value})
             self.assertEqual(self.client.get(self.url('dashboard'), {'mode': 'best'}).context['total'], 0)

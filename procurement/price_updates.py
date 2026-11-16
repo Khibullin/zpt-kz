@@ -9,6 +9,7 @@ from django.db.models import Max
 from django.utils import timezone
 
 from .analysis import stock_status
+from .opportunities import capture_profitable_offer, owner_terms
 from .importing import load_rows, money
 from .matching import compare_identity
 from .models import (Activity, Offer, Supplier, PriceUpdate, KaspiReviewTask,
@@ -146,6 +147,10 @@ def advance_update(batch_id, prepared_rows=None):
     articles = {row['article'] for row in rows}
     existing = {(o.brand, o.article): o for o in Offer.objects.filter(
         supplier=batch.supplier, brand__in=brands, article__in=articles)}
+    # Capture the last qualified quote BEFORE the supplier overwrites it.
+    terms = owner_terms()
+    for previous_offer in existing.values():
+        capture_profitable_offer(previous_offer, batch=batch, terms=terms)
     creates, updates, affected, invalidated = [], [], [], []
     update_fields = ['name', 'category', 'supplier_url', 'applicability', 'description', 'cost', 'stock', 'min_order',
                      'supplier_checked_on', 'match_verified', 'characteristics']
@@ -195,6 +200,8 @@ def advance_update(batch_id, prepared_rows=None):
             continue
         if not offer.kaspi_url and not offer.match_verified and reuse_identity(offer):
             batch.summary['reused'] += 1
+        if capture_profitable_offer(offer, batch=batch, terms=terms):
+            batch.summary['profitable_new'] = batch.summary.get('profitable_new', 0) + 1
         price_fresh = offer.kaspi_price_checked_on and today - timedelta(days=7) <= offer.kaspi_price_checked_on <= today
         snapshot = KaspiSellerSnapshot.objects.filter(offer=offer, source_url=offer.kaspi_url, city='750000000', complete=True, checked_on__gte=today-timedelta(days=7), checked_on__lte=today).exists()
         if not offer.match_verified or not price_fresh or not snapshot:
@@ -203,6 +210,9 @@ def advance_update(batch_id, prepared_rows=None):
             KaspiReviewTask.objects.update_or_create(offer=offer, defaults={
                 'batch': batch, 'reason': reason, 'priority': 1 if offer.match_verified else 3, 'status': 'pending'})
             batch.summary['queued'] += 1
+    # Actual price processing date, without changing original supplier/Kaspi dates.
+    from .models import ProfitableOfferRecord
+    ProfitableOfferRecord.objects.filter(offer_id__in=[o.pk for o in affected]).update(processed_at=timezone.now())
     batch.cursor += len(rows)
     if batch.cursor >= batch.row_count:
         if batch.full_catalog:

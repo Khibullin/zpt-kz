@@ -46,8 +46,8 @@ class SelectionPerformanceTests(TestCase):
     def test_best_does_not_evaluate_unpriced_catalogue(self):
         with patch('procurement.views.evaluate', wraps=evaluate) as calculator:
             rows = filtered_rows(self.request('best'), self.prefs, {})
-        self.assertEqual(rows, [])  # Price alone does not qualify without confirmed sales.
-        self.assertEqual(calculator.call_count, 0)  # Stale/undated prices are excluded in SQL.
+        self.assertEqual([row['offer'].pk for row in rows], [self.priced.pk])
+        self.assertEqual(calculator.call_count, 1)  # Only the priced candidate is evaluated.
 
     def test_no_sellers_does_not_evaluate_unchecked_catalogue(self):
         with patch('procurement.views.evaluate', wraps=evaluate) as calculator:

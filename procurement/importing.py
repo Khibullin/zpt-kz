@@ -98,7 +98,12 @@ def import_offers(file, supplier_name, date, user):
     from .models import PriceUpdate
     if PriceUpdate.objects.filter(supplier=supplier, status__in=['ready', 'running']).exists():
         raise ValueError('Сначала завершите обновление прайса этого поставщика.')
+    from .opportunities import capture_profitable_offer, owner_terms
+    from django.utils import timezone
+    from .models import ProfitableOfferRecord
+    terms = owner_terms()
     seen = set()
+    affected_ids = []
     for number, row in rows:
         article, brand, name = [str(row.get(k) or '').strip() for k in ('article', 'brand', 'name')]
         if not article or not brand or not name:
@@ -132,6 +137,8 @@ def import_offers(file, supplier_name, date, user):
                 defaults['checked_on'] = date
             offer, created = Offer.objects.get_or_create(supplier=supplier, brand=brand, article=article, defaults=defaults)
             if not created:
+                # The old upload endpoint must not erase the previous winning quote.
+                capture_profitable_offer(offer, terms=terms)
                 changed_match = (defaults.get('kaspi_url', offer.kaspi_url) != offer.kaspi_url
                                  or defaults['name'] != offer.name)
                 for field, value in defaults.items():
@@ -146,8 +153,11 @@ def import_offers(file, supplier_name, date, user):
                 offer.save()
             else:
                 offer.full_clean()
+            capture_profitable_offer(offer, terms=terms)
+            affected_ids.append(offer.pk)
         except (ValueError, TypeError, OverflowError, ValidationError) as error:
             raise ValueError(f'Строка {number}: {error}')
+    ProfitableOfferRecord.objects.filter(offer_id__in=affected_ids).update(processed_at=timezone.now())
     Activity.objects.create(user=user, action='import', details={'supplier': supplier.name, 'rows': len(rows)})
     return len(rows)
 

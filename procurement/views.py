@@ -1,6 +1,6 @@
 from .catalogue_import import import_catalogue_fitments
 from .shared_fitments import fill_from_shared_base
-from .catalog_paging import catalog_page, best_candidates_query, stale_price_candidates_query
+from .catalog_paging import catalog_page, best_candidates_query, stale_price_candidates_query, cumulative_profitable_query
 from .fitment_filters import matches_configuration
 from .supplier_terms import supplier_terms
 from .vehicle_countries import country_makes
@@ -34,7 +34,7 @@ from .analysis import evaluate, MIN_BEST_PROFIT, PACKAGING_COST
 from .permissions import workspace_role
 from .forms import PreferencesForm, UploadForm, DraftForm, SelectionFilterForm, PurchaseConfirmationForm, PurchaseEditForm, PurchaseLineFormSet
 from .importing import import_offers, import_demand, import_enrichment, import_competitors, import_matches, import_card_searches
-from .models import Membership, Supplier, Offer, Selection, Preferences, Draft, Activity, Favorite, VehicleFitment, PurchaseOrder, PurchaseDocument
+from .models import Membership, Supplier, Offer, Selection, Preferences, Draft, Activity, Favorite, VehicleFitment, PurchaseOrder, PurchaseDocument, PriceUpdate
 
 
 def access(*roles):
@@ -95,11 +95,13 @@ def filtered_rows(request, preferences, filters, paginate=False):
     # are not needed for every item in the supplier catalogue.
     query = Offer.objects.select_related('supplier', 'kaspi_sellers', 'kaspi_card_search').defer('description', 'characteristics', 'supplier_url')
     mode = request.GET.get('mode', 'roi')
+    if mode == 'best':
+        query = query.select_related('profitable_record')
     today = timezone.localdate()
     if mode == 'best':
         filters = {key: value for key, value in filters.items() if key not in ('kaspi_status', 'verified', 'sort')}
     if mode == 'best':
-        query = best_candidates_query(query, preferences, today)
+        query = cumulative_profitable_query(query, preferences)
     elif mode == 'stale_prices':
         query = stale_price_candidates_query(query, preferences, today)
     elif mode == 'reviewed':
@@ -168,12 +170,64 @@ def filtered_rows(request, preferences, filters, paginate=False):
         request.catalog_total = request.catalog_page.paginator.count
         query = request.catalog_page.object_list
     rows = []
+    latest_batches = {}
+    if mode == 'best':
+        for supplier_id, batch_id, batch_created in PriceUpdate.objects.filter(status='done').order_by('-pk').values_list('supplier_id', 'pk', 'created_at'):
+            latest_batches.setdefault(supplier_id, (batch_id, batch_created))
     for offer in query:
         row = {'offer': offer, 'favorite': offer.pk in favorites, **evaluate(offer, preferences, today=today)}
         row.update(kaspi_status(offer, preferences, today))
         row['kaspi_price'] = offer.kaspi_price
-        if row['kaspi_status_code'] in ('empty', 'missing'):
+        if row['kaspi_status_code'] in ('empty', 'missing') and mode != 'best':
             row.update({key: None for key in ('kaspi_price', 'difference', 'markup', 'profit', 'margin', 'commission_amount', 'kaspi_after_commission')})
+        if mode == 'best':
+            record = getattr(offer, 'profitable_record', None)
+            threshold = max(MIN_BEST_PROFIT, preferences.best_min_profit)
+            is_bearing = any(x in (offer.name + ' ' + offer.category).casefold()
+                             for x in ('подшипник', 'bearing'))
+            is_current = bool(
+                offer.match_verified and not is_bearing and offer.cost > 0
+                and row['stock_status'] == 'in_stock' and row['profit'] is not None
+                and row['profit'] >= threshold
+            )
+            if not is_current and record is None:
+                continue
+            row['historical'] = not is_current
+            latest = latest_batches.get(offer.supplier_id)
+            row['is_new'] = bool(
+                is_current and latest and (
+                    (record and not record.initial_import and record.first_batch_id == latest[0]) or
+                    (record is None and offer.created_at >= latest[1])
+                )
+            )
+            row['processed_at'] = record.processed_at if record else None
+            row['display_cost'] = offer.cost
+            row['display_supplier_date'] = offer.supplier_checked_on
+            row['display_kaspi_date'] = offer.kaspi_price_checked_on
+            if not is_current:
+                # The current offer may no longer match or be profitable. Only
+                # show the frozen, previously documented profitable calculation.
+                row['display_cost'] = record.source_cost
+                row['display_supplier_date'] = record.supplier_date
+                row['display_kaspi_date'] = record.kaspi_date
+                row['kaspi_price'] = record.source_kaspi_price
+                row['profit'] = record.source_profit
+                row['markup'] = record.source_roi
+                row['commission_rate'] = record.commission
+                row['expenses'] = record.expenses
+                row['commission_amount'] = record.source_kaspi_price * record.commission / Decimal('100')
+                row['kaspi_after_commission'] = record.source_kaspi_price - row['commission_amount']
+                row['difference'] = row['kaspi_after_commission'] - record.source_cost
+                row['historical_reason'] = (
+                    'Нет подтверждённого остатка по последнему прайсу'
+                    if row['stock_status'] != 'in_stock'
+                    else 'Не подтверждено совпадение с Kaspi'
+                    if not offer.match_verified else
+                    'Расчёт по последним данным больше не проходит порог прибыли'
+                )
+            else:
+                row['markup'] = row['profit'] / offer.cost * Decimal('100')
+            row['best_status'] = 'Ранее выгодный' if row['historical'] else 'Новый' if row['is_new'] else 'Выгодный по сохранённым данным'
         if filters.get('availability') and row['stock_status'] != filters['availability']:
             continue
         demand = filters.get('demand')
@@ -188,20 +242,15 @@ def filtered_rows(request, preferences, filters, paginate=False):
             continue
         rows.append(row)
     if mode == 'best':
-        request.best_candidates = [r for r in rows if r['offer'].match_verified
-            and r['stock_status'] == 'in_stock' and r['supplier_fresh'] and r['price_fresh']
-            and r['profit'] is not None and r['profit'] >= max(MIN_BEST_PROFIT, preferences.best_min_profit)
-            and r['kaspi_status_code'] not in ('empty', 'missing')]
-        for candidate in request.best_candidates:
-            candidate['markup'] = candidate['profit'] / candidate['offer'].cost * 100
-        request.best_candidates.sort(key=lambda r: (-r['markup'], -r['profit'], r['offer'].pk))
-        rows = [r for r in rows if r['markup'] is not None and r['markup'] > 0
-                and r['profit'] is not None and r['profit'] >= max(MIN_BEST_PROFIT, preferences.best_min_profit)
-                and r['offer'].match_verified and r['stock_status'] == 'in_stock'
-                and r['supplier_fresh'] and r['price_fresh'] and r['confirmed_sales'] and r['kaspi_status_code'] == 'sellers']
-        for row in rows:
-            row['markup'] = row['profit'] / row['offer'].cost * 100
-        rows.sort(key=lambda r: (-r['markup'], -r['profit'], r['offer'].pk))
+        scope = request.GET.get('best_scope', 'all')
+        if scope == 'new':
+            rows = [r for r in rows if r['is_new']]
+        elif scope == 'history':
+            rows = [r for r in rows if r['historical']]
+        elif scope == 'current':
+            rows = [r for r in rows if not r['historical']]
+        rows.sort(key=lambda r: (-(r['markup'] or Decimal('0')),
+                                -(r['profit'] or Decimal('0')), r['offer'].pk))
     elif mode == 'stale_prices':
         # An old Kaspi price is only a review lead: require actual stock and
         # preserve historical price/date as-is, never claim a confirmed deal.
@@ -275,15 +324,11 @@ def dashboard(request):
     rows_finished = perf_counter()
     best_empty_reason = ''
     if request.GET.get('mode') == 'best' and not rows:
-        scope = Offer.objects.filter(supplier=supplier) if supplier else Offer.objects.all()
-        if not scope.filter(sales_30__gt=0, evidence_date__gte=timezone.localdate() - timedelta(days=7), evidence_date__lte=timezone.localdate()).exists():
-            best_empty_reason = 'У поставщика нет товаров со свежими подтверждёнными продажами за 30 дней. Для подборки нужен загруженный отчёт о продажах; отзывы Kaspi его не заменяют.'
-        else:
-            best_empty_reason = 'Пока ни один товар не соответствует всем условиям алгоритма одновременно. Проверьте остатки, совпадения, даты цен, продавцов Kaspi и прибыль после расходов.'
+        best_empty_reason = 'По выбранным фильтрам выгодные товары не найдены. Исторические записи не удалены; сбросьте фильтры или выберите другой режим.'
     counts = getattr(request, 'catalog_status_counts', {})
     form.fields['kaspi_status'].choices = [(key, f'{label} ({counts.get(key, 0)})') for key, label in form.fields['kaspi_status'].choices]
-    preliminary = request.GET.get('mode') == 'best' and not rows and bool(getattr(request, 'best_candidates', []))
-    displayed_rows = request.best_candidates if preliminary else rows
+    preliminary = False
+    displayed_rows = rows
     if request.GET.get('download') == 'csv' and valid:
         response = HttpResponse(content_type='text/csv; charset=utf-8')
         response['Content-Disposition'] = 'attachment; filename="procurement-selection.csv"'
@@ -291,17 +336,17 @@ def dashboard(request):
         writer = csv.writer(response, delimiter=';')
         def exported_number(value):
             return Decimal(value).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP) if value is not None else None
-        writer.writerow(['Артикул', 'Бренд', 'Наименование', 'Поставщик', 'Закупка, ₸', 'Kaspi, ₸', 'Разница после комиссии, ₸', 'Доходность после комиссии, %', 'Прибыль после комиссии и прочих расходов, ₸', 'Спрос', 'Продажи / 30 дней', 'Найдено отзывов / 90 дней', 'Дата цены', 'Дата проверки спроса', 'Ссылка Kaspi', 'Комиссия без НДС, %', 'Комиссия, ₸', 'Kaspi после комиссии, ₸', 'Прочие расходы, ₸', 'Статус подбора'])
+        writer.writerow(['Артикул', 'Бренд', 'Наименование', 'Поставщик', 'Закупка, ₸', 'Kaspi, ₸', 'Разница после комиссии, ₸', 'Доходность после комиссии, %', 'Прибыль после комиссии и прочих расходов, ₸', 'Спрос', 'Продажи / 30 дней', 'Найдено отзывов / 90 дней', 'Дата цены', 'Дата проверки спроса', 'Ссылка Kaspi', 'Комиссия без НДС, %', 'Комиссия, ₸', 'Kaspi после комиссии, ₸', 'Прочие расходы, ₸', 'Статус подбора', 'Дата прайса', 'Дата обработки', 'Дата Kaspi'])
         for row in displayed_rows:
             offer = row['offer']
             if request.GET.get('mode') == 'no_sellers':
                 row = {**row, **{key: None for key in ('difference', 'markup', 'profit', 'commission_amount', 'kaspi_after_commission')}}
             writer.writerow([safe_csv(x) for x in [offer.article, offer.brand, offer.name, offer.supplier.name,
-                exported_number(offer.cost), exported_number(row['kaspi_price']) if request.GET.get('mode') != 'no_sellers' else None, exported_number(row['difference']),
+                exported_number(row.get('display_cost', offer.cost)), exported_number(row['kaspi_price']) if request.GET.get('mode') != 'no_sellers' else None, exported_number(row['difference']),
                 exported_number(row['markup']), exported_number(row['profit']), row['signal'], offer.sales_30,
                 offer.recent_reviews, offer.checked_on, offer.evidence_date, offer.kaspi_url,
                 exported_number(row['commission_rate']), exported_number(row['commission_amount']),
-                exported_number(row['kaspi_after_commission']), exported_number(row['expenses']), 'Устаревшая или недатированная цена Kaspi — только для повторной проверки' if request.GET.get('mode') == 'stale_prices' else 'Предварительная подборка — требует проверки спроса и продавцов Kaspi' if preliminary else 'Основная подборка']])
+                exported_number(row['kaspi_after_commission']), exported_number(row['expenses']), row.get('best_status', 'Устаревшая цена Kaspi' if request.GET.get('mode') == 'stale_prices' else 'Общий каталог'), row.get('display_supplier_date', offer.supplier_checked_on), row.get('processed_at'), row.get('display_kaspi_date', offer.kaspi_price_checked_on)]])
         return response
     page = getattr(request, 'catalog_page', None) or Paginator(displayed_rows, 40).get_page(request.GET.get('page'))
     prefetch_related_objects([row['offer'] for row in page.object_list],
@@ -314,7 +359,7 @@ def dashboard(request):
                   reset_url=reverse('procurement:dashboard') + (f'?supplier={supplier.pk}' if supplier else '?supplier=') + ('&mode=' + request.GET['mode'] if request.GET.get('mode') in ('best', 'stale_prices', 'difference', 'no_sellers', 'reviewed') else ''),
                   page_numbers=page.paginator.get_elided_page_range(page.number, on_each_side=2, on_ends=1), basic_filters=[form[name] for name in ('brand', 'category', 'vehicle_country', 'vehicle_make', 'vehicle_model', 'vehicle_generation', 'vehicle_year', 'kaspi_seller_count')],
                   advanced_filters=[form[name] for name in (('sort', 'fitment', 'availability', 'demand', 'max_cost', 'min_profit', 'min_markup', 'verified', 'favorites') if request.GET.get('mode') != 'best' else ('fitment', 'availability', 'demand', 'max_cost', 'min_profit', 'min_markup', 'favorites'))],
-                  mode=request.GET.get('mode', 'roi'), favorites=bool(form.cleaned_data.get('favorites')) if valid else False), status=200 if valid else 400)
+                  mode=request.GET.get('mode', 'roi'), best_scope=request.GET.get('best_scope', 'all'), favorites=bool(form.cleaned_data.get('favorites')) if valid else False), status=200 if valid else 400)
     finished = perf_counter()
     durations = [(form_finished-started)*1000, (rows_finished-form_finished)*1000, (finished-rows_finished)*1000]
     response['Server-Timing'] = ', '.join(f'{name};dur={duration:.1f}' for name, duration in zip(('filters', 'catalogue', 'render'), durations))
