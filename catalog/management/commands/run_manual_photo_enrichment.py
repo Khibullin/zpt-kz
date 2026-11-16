@@ -15,9 +15,9 @@ def snapshot(product_ids):
     if not product_ids:
         return {}
     return {
-        row[0]: (bool(row[1]), bool(row[2]), bool(row[3]))
+        row[0]: (bool(row[1]) or bool(row[2]), bool(row[3]), bool(row[4]))
         for row in Product.objects.filter(pk__in=product_ids)
-        .values_list('pk', 'main_image', 'compatibility', 'engine_compatibility')
+        .values_list('pk', 'main_image', 'supplier_thumbnail', 'compatibility', 'engine_compatibility')
     }
 
 
