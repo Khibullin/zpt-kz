@@ -149,11 +149,20 @@ def purchases(request):
     awaiting=sum(o.workflow['remaining'] for o in results)
     # Distinct item current stock avoids counting the same physical goods twice.
     current_stock=sum(max(0,qty) for qty in stock.values())
+    # Standalone receipt documents can predate the PurchaseOrder workflow.
+    # Show them separately rather than misleadingly presenting an empty history.
+    from .models import GoodsDocument
+    from django.db.models import Count
+    receipts_without_order=GoodsDocument.objects.filter(
+        kind='receipt',purchase_order__isnull=True,
+    ).annotate(line_count=Count('lines')).order_by('-date','-pk')[:25]
+    from procurement.views import context as procurement_context
     query=request.GET.copy();query.pop('page',None)
-    return render(request,'inventory/purchases.html',{
+    return render(request,'inventory/purchases.html',{**procurement_context(request),
         'page':page,'query':query.urlencode(),'count':count,'total':total,
         'ordered':ordered,'received':received,'awaiting':awaiting,
         'current_stock':current_stock,'suppliers':Supplier.objects.all(),
+        'receipts_without_order':receipts_without_order,
     })
 
 
