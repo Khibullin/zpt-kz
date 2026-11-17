@@ -6,7 +6,8 @@
 <div class="actions">{% if can_manage %}<a class="button" href="{{ upload_url }}">Загрузить файл</a>{% endif %}<a class="button primary" href="{{ basket_url }}">Список закупки · <span data-basket-count>{{ basket_count }}</span></a></div>
 </header>
 <nav class="compact-tabs" aria-label="Разделы товаров">
-<a class="button catalog-tab" href="{% querystring mode=None page=None download=None %}" {% if mode != 'best' and mode != 'stale_prices' %}aria-current="page"{% endif %}>Все товары · {{ catalogue_total }}</a>
+<a class="button catalog-tab" href="{% querystring mode=None page=None download=None %}" {% if mode != 'best' and mode != 'stale_prices' and mode != 'kaspi_prices' %}aria-current="page"{% endif %}>Все товары · {{ catalogue_total }}</a>
+<a class="button" href="{% querystring mode='kaspi_prices' best_scope=None page=None download=None kaspi_status=None verified=None sort=None %}" {% if mode == 'kaspi_prices' %}aria-current="page"{% endif %}>Цены Kaspi · {{ kaspi_saved_total }}</a>
 <a class="button teal" href="{% querystring mode='best' best_scope=None page=None download=None kaspi_status=None kaspi_presence=None verified=None sort=None %}" {% if mode == 'best' %}aria-current="page"{% endif %}>Выгодные к закупке · {% if preliminary %}{{ preliminary_total }}{% elif mode == 'best' %}{{ total }}{% else %}→{% endif %}</a>
 <a class="button" href="{% url 'procurement:kaspi_products' %}" style="background:#3563a9;color:#fff;border-color:#3563a9">Товары для Kaspi</a>
 </nav>
@@ -38,10 +39,11 @@
 </section>
 {% endif %}
 {% endif %}
+{% if mode == 'kaspi_prices' %}<div class="notice" role="status"><strong>Сохранённые цены Kaspi — не актуальное предложение.</strong> Показаны ранее найденные цены с исходной датой проверки и статусом соответствия карточки. Старые и неподтверждённые цены не дают права добавлять товар в выгодную закупку или автоматически публиковать на Kaspi.</div>{% endif %}
 {% if mode == 'stale_prices' %}<div class="notice" role="status"><strong>Цены Kaspi устарели или дата проверки неизвестна.</strong> Это кандидаты на повторную проверку, а не подтверждённые выгодные закупки. Показанная прибыль рассчитана по сохранённой старой цене. Даты не обновляются автоматически. Добавление в закупку из этого списка отключено.</div>{% endif %}
-<section class="catalog-filters{% if mode == 'best' or mode == 'stale_prices' %} best-filters{% endif %}" aria-label="Фильтры товаров">
+<section class="catalog-filters{% if mode == 'best' or mode == 'stale_prices' or mode == 'kaspi_prices' %} best-filters{% endif %}" aria-label="Фильтры товаров">
 <form method="get" class="selection-filters">
-{% if mode != 'best' and mode != 'stale_prices' and request.GET.kaspi_presence %}<input type="hidden" name="kaspi_presence" value="{{ request.GET.kaspi_presence }}">{% endif %}
+{% if mode != 'best' and mode != 'stale_prices' and mode != 'kaspi_prices' and request.GET.kaspi_presence %}<input type="hidden" name="kaspi_presence" value="{{ request.GET.kaspi_presence }}">{% endif %}
 <input type="hidden" name="mode" value="{{ mode }}">{% if mode == 'best' %}<input type="hidden" name="best_scope" value="{{ best_scope }}">{% endif %}<input type="hidden" name="supplier" value="{{ selected_supplier.pk|default:'' }}">
 {{ filter_form.non_field_errors }}
 
@@ -57,7 +59,7 @@
 <div class="year-range" id="seller-range"><label id="seller-min">От {{ filter_form.seller_min }}{{ filter_form.seller_min.errors }}</label><label>До {{ filter_form.seller_max }}{{ filter_form.seller_max.errors }}</label></div></div>
 {% else %}<label class="filter-field">{{ field.label }}{{ field }}{{ field.errors }}</label>{% endif %}{% endfor %}
 </div>
-{% if mode != 'best' and mode != 'stale_prices' %}<fieldset><legend>Статус на Kaspi</legend>{{ filter_form.kaspi_status }}{{ filter_form.kaspi_status.errors }}</fieldset>{% endif %}<details style="margin-top:12px" {% if filter_form.errors %}open{% endif %}><summary>Дополнительные фильтры: бюджет, прибыль, доходность и проверка</summary><div class="filter-grid" style="margin-top:12px">{% for field in advanced_filters %}<label class="filter-field">{{ field.label }}{{ field }}{{ field.errors }}</label>{% endfor %}</div></details>
+{% if mode != 'best' and mode != 'stale_prices' and mode != 'kaspi_prices' %}<fieldset><legend>Статус на Kaspi</legend>{{ filter_form.kaspi_status }}{{ filter_form.kaspi_status.errors }}</fieldset>{% endif %}<details style="margin-top:12px" {% if filter_form.errors %}open{% endif %}><summary>Дополнительные фильтры: бюджет, прибыль, доходность и проверка</summary><div class="filter-grid" style="margin-top:12px">{% for field in advanced_filters %}<label class="filter-field">{{ field.label }}{{ field }}{{ field.errors }}</label>{% endfor %}</div></details>
 
 <div class="actions" style="margin:12px 0 18px"><button>Показать товары</button>
 <a class="button" href="{{ reset_url }}">Сбросить фильтры</a>
@@ -82,8 +84,8 @@
 <th>Поставщик</th>
 <th>Закупка, ₸</th>
 <th>{% if mode == 'no_sellers' %}Проверка Kaspi{% else %}Kaspi, ₸{% endif %}</th>
-<th>{% if mode == 'no_sellers' %}Цена продажи{% elif mode == 'difference' %}Разница, ₸{% else %}Доходность, %{% endif %}</th>
-<th>Прибыль, ₸</th>
+<th>{% if mode == 'kaspi_prices' %}Совпадение товара{% elif mode == 'no_sellers' %}Цена продажи{% elif mode == 'difference' %}Разница, ₸{% else %}Доходность, %{% endif %}</th>
+<th>{% if mode == 'kaspi_prices' %}Дата проверки{% else %}Прибыль, ₸{% endif %}</th>
 <th>Действия</th>
 </tr>
 </thead>
@@ -106,20 +108,20 @@
 <td>{{ row.offer.supplier.name }}</td>
 <td class="money">{% if mode == 'best' %}{{ row.display_cost|floatformat:0 }}{% else %}{{ row.offer.cost|floatformat:0 }}{% endif %}{% if row.historical %}<small>Цена прежнего расчёта</small>{% endif %}</td>
 {% if mode == 'no_sellers' %}<td>{% if row.kaspi_presence == 'no_card' %}Карточка не найдена после проверки{% else %}Карточка есть — продавцов нет{% endif %}<small>Алматы · {{ row.kaspi_checked_on|date:'d.m.Y' }}</small></td><td>Цена продажи не задана</td><td>Прибыль не рассчитана</td>{% else %}
-<td class="money">{{ row.kaspi_price|floatformat:0|default:'Нет данных' }}{% if mode == 'stale_prices' %}<small class="preliminary-status">Старая цена · {{ row.offer.kaspi_price_checked_on|date:'d.m.Y'|default:'без даты' }}</small>{% elif mode == 'best' %}<small>{{ row.display_kaspi_date|date:'d.m.Y'|default:'без даты' }}</small>{% endif %}</td>
-<td class="money">
+<td class="money">{{ row.kaspi_price|floatformat:0|default:'Нет данных' }}{% if mode == 'kaspi_prices' %}<small class="preliminary-status">Сохранённая цена</small>{% elif mode == 'stale_prices' %}<small class="preliminary-status">Старая цена · {{ row.offer.kaspi_price_checked_on|date:'d.m.Y'|default:'без даты' }}</small>{% elif mode == 'best' %}<small>{{ row.display_kaspi_date|date:'d.m.Y'|default:'без даты' }}</small>{% endif %}</td>
+{% if mode == 'kaspi_prices' %}<td>{% if row.offer.match_verified %}Совпадение подтверждено{% else %}Не подтверждено{% endif %}</td><td>{{ row.offer.kaspi_price_checked_on|date:'d.m.Y'|default:'Нет даты' }}</td>{% else %}<td class="money">
 {% if mode != 'difference' %}<span class="delta">{{ row.markup|floatformat:2|default:'—' }}%</span>{% else %}
 <span class="delta">{{ row.difference|floatformat:2|default:'Нет данных' }}</span>
 <small>{{ row.markup|floatformat:1|default:'—' }}%</small>{% endif %}
 </td>
 <td class="money">{{ row.profit|floatformat:2|default:'Прибыль не рассчитана' }}
-</td>
+</td>{% endif %}
 {% endif %}<td class="row-actions">
 <button type="button" class="quick-view" data-url="{% url 'procurement:detail' row.offer.pk %}?compact=1" aria-haspopup="dialog">Просмотр</button>
-{% if mode == 'stale_prices' %}<small class="preliminary-status">Сначала обновите цену Kaspi</small>{% elif row.historical %}<small class="preliminary-status">История — не для новой закупки</small>{% else %}<form method="post" action="{% url 'procurement:select' row.offer.pk %}" data-selection-form>{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button class="primary">+ В закупку</button><small data-selection-status role="status" aria-live="polite"></small></form>{% endif %}
+{% if mode == 'kaspi_prices' %}<small class="preliminary-status">Только для ознакомления — нужна повторная проверка</small>{% elif mode == 'stale_prices' %}<small class="preliminary-status">Сначала обновите цену Kaspi</small>{% elif row.historical %}<small class="preliminary-status">История — не для новой закупки</small>{% else %}<form method="post" action="{% url 'procurement:select' row.offer.pk %}" data-selection-form>{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button class="primary">+ В закупку</button><small data-selection-status role="status" aria-live="polite"></small></form>{% endif %}
 </td>
 </tr>{% empty %}<tr>
-<td colspan="7">{% if mode == 'no_sellers' %}Подтверждённых товаров без продавцов по выбранным фильтрам пока нет.{% elif mode == 'best' %}{{ best_empty_reason }}{% elif mode == 'stale_prices' %}Нет подходящих товаров с устаревшей ценой Kaspi по выбранным фильтрам.{% else %}Товаров пока нет. Менеджер может загрузить прайс поставщика.{% endif %}</td>
+<td colspan="7">{% if mode == 'no_sellers' %}Подтверждённых товаров без продавцов по выбранным фильтрам пока нет.{% elif mode == 'best' %}{{ best_empty_reason }}{% elif mode == 'kaspi_prices' %}Сохранённых цен Kaspi по выбранным фильтрам нет.{% elif mode == 'stale_prices' %}Нет подходящих товаров с устаревшей ценой Kaspi по выбранным фильтрам.{% else %}Товаров пока нет. Менеджер может загрузить прайс поставщика.{% endif %}</td>
 </tr>{% endfor %}</tbody>
 </table>
 </div>
