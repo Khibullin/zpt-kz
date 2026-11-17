@@ -7,6 +7,9 @@ from django.db.models import Case, When, Value, Q, F, Count, DecimalField, Expre
 from django.db.models.functions import Coalesce, NullIf
 from .models import KaspiSellerSnapshot, KaspiCardSearch
 
+# Approved purchasing rules: net gain >= 1000 KZT and ROI >= 25%.
+MIN_BEST_ROI = Decimal('25')
+
 
 def best_candidates_query(query, preferences, today):
     if preferences.commission is None or preferences.expenses is None:
@@ -19,29 +22,39 @@ def best_candidates_query(query, preferences, today):
     return query.filter(kaspi_price__isnull=False, cost__gt=0, match_verified=True,
                         supplier_checked_on__gte=today - timedelta(days=7), supplier_checked_on__lte=today,
                         kaspi_price_checked_on__gte=today - timedelta(days=7), kaspi_price_checked_on__lte=today).annotate(
-                            _best_profit=profit).filter(_best_profit__gte=max(Decimal(1000), preferences.best_min_profit))
+                            _best_profit=profit).filter(
+                                _best_profit__gte=max(Decimal(1000), preferences.best_min_profit),
+                                _best_profit__gte=F('cost') * Value(MIN_BEST_ROI / Decimal(100)))
 
 
 
 
-def cumulative_profitable_query(query, preferences):
-    """Current opportunities OR already archived previously profitable offers.
+def cumulative_profitable_query(query, preferences, today=None):
+    """Fresh, stock-confirmed profitable candidates plus clearly marked history.
 
-    No date-age gate. Do not change the strict best_candidates_query used by
-    other application workflows.
+    Old price quotes remain visible only as historical evidence. Photographs and
+    vehicle fitments are intentionally irrelevant to financial qualification.
     """
+    from django.utils import timezone
+    today = today or timezone.localdate()
     if preferences.commission is None or preferences.expenses is None:
         return query.none()
     profit = ExpressionWrapper(
         F('kaspi_price') * Value((Decimal('100') - preferences.commission) / Decimal('100'))
-        - F('cost') - Value(max(Decimal('250'), preferences.expenses)),
+        - F('cost') - Value(max(Decimal(250), preferences.expenses)),
         output_field=DecimalField(max_digits=38, decimal_places=12),
     )
-    active = Q(match_verified=True, kaspi_price__isnull=False, cost__gt=0) & Q(
-        _cumulative_profit__gte=max(Decimal('1000'), preferences.best_min_profit)
+    fresh = Q(
+        match_verified=True, kaspi_price__isnull=False, cost__gt=0,
+        supplier_checked_on__gte=today-timedelta(days=7),
+        supplier_checked_on__lte=today,
+        kaspi_price_checked_on__gte=today-timedelta(days=7),
+        kaspi_price_checked_on__lte=today,
     )
+    eligible = fresh & Q(_cumulative_profit__gte=max(Decimal('1000'), preferences.best_min_profit)) & Q(
+        _cumulative_profit__gte=F('cost') * Value(MIN_BEST_ROI / Decimal(100)))
     return query.annotate(_cumulative_profit=profit).filter(
-        active | Q(profitable_record__isnull=False)
+        eligible | Q(profitable_record__isnull=False)
     ).exclude(
         Q(name__iregex='подшипник|bearing', profitable_record__isnull=True) |
         Q(category__iregex='подшипник|bearing', profitable_record__isnull=True)
