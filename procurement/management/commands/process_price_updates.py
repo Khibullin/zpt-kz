@@ -26,8 +26,10 @@ def verify_catalog_readonly():
     from procurement.kaspi_catalog_api import CatalogClient, CatalogError, connected
     token_set = connected()
     merchant_set = bool(getattr(settings, 'KASPI_MERCHANT_ID', '').strip())
-    logger.info('Kaspi official API configuration: token_present=%s merchant_present=%s',
-                token_set, merchant_set)
+    baseline_set = bool(getattr(settings, 'KASPI_BASELINE_PRICE_FEED_URL', '').strip())
+    feed_point_set = bool(getattr(settings, 'KASPI_POINT_OF_SERVICE', '').strip())
+    logger.warning('Kaspi official API configuration: token_present=%s merchant_present=%s baseline_xml_present=%s point_of_service_present=%s',
+                token_set, merchant_set, baseline_set, feed_point_set)
     if not token_set:
         logger.warning('Kaspi official catalogue GET skipped: token is not configured')
         return False
