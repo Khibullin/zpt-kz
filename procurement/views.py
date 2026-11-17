@@ -330,7 +330,7 @@ def filtered_rows(request, preferences, filters, paginate=False):
         if scope == 'new':
             rows = [r for r in rows if r['is_new']]
         elif scope == 'history':
-            rows = [r for r in rows if r['historical']]
+            rows = [r for r in rows if r['historical'] and not r.get('firsthand_recent')]
         elif scope == 'current':
             # Include fresh three-city Firsthand financial candidates, while
             # their purchase action remains blocked by omega_review.
