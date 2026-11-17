@@ -90,6 +90,17 @@ def kaspi_status(offer, preferences, today):
     return {'kaspi_status_code': code, 'kaspi_status': labels[code], 'kaspi_checked_on': max((x.checked_on for x in (snapshot, search) if x), default=None)}
 
 
+def preserved_best_scope(supplier):
+    """Keep a supplier's last uploaded price and found deals visible until replacement.
+
+    Historical records retain their original observation dates and are NOT
+    relabelled as current or automatically authorised to purchase.
+    Omega is deliberately unchanged: it received the new price list.
+    """
+    name = str(getattr(supplier, 'name', '') or '').strip().casefold()
+    return 'all' if name.startswith(('zakazauto', 'фаетон')) else 'current'
+
+
 def filtered_rows(request, preferences, filters, paginate=False):
     # Ranking uses scalar offer facts; detailed descriptions/JSON and seller lists
     # are not needed for every item in the supplier catalogue.
@@ -248,7 +259,7 @@ def filtered_rows(request, preferences, filters, paginate=False):
             continue
         rows.append(row)
     if mode == 'best':
-        scope = request.GET.get('best_scope', 'current')
+        scope = request.GET.get('best_scope') or preserved_best_scope(filters.get('supplier'))
         if scope == 'new':
             rows = [r for r in rows if r['is_new']]
         elif scope == 'history':
@@ -370,6 +381,13 @@ def dashboard(request):
         if not rows:
             best_empty_reason = ('Пока нет подтверждённых актуальных выгодных товаров. '
                                  'Проверки Kaspi и сохранённые прежние результаты учитываются отдельно.')
+        if supplier and preserved_best_scope(supplier) == 'all':
+            from .models import PriceUpdate
+            latest_supplier_file = PriceUpdate.objects.filter(
+                supplier=supplier, status='done').order_by('-pk').first()
+            if latest_supplier_file:
+                best_kaspi_status = best_kaspi_status or totals
+                best_kaspi_status['preserved_price_date'] = latest_supplier_file.checked_on
     counts = getattr(request, 'catalog_status_counts', {})
     form.fields['kaspi_status'].choices = [(key, f'{label} ({counts.get(key, 0)})') for key, label in form.fields['kaspi_status'].choices]
     preliminary = False
@@ -404,7 +422,7 @@ def dashboard(request):
                   reset_url=reverse('procurement:dashboard') + (f'?supplier={supplier.pk}' if supplier else '?supplier=') + ('&mode=' + request.GET['mode'] if request.GET.get('mode') in ('best', 'stale_prices', 'difference', 'no_sellers', 'reviewed') else ''),
                   page_numbers=page.paginator.get_elided_page_range(page.number, on_each_side=2, on_ends=1), basic_filters=[form[name] for name in ('brand', 'category', 'vehicle_country', 'vehicle_make', 'vehicle_model', 'vehicle_generation', 'vehicle_year', 'kaspi_seller_count')],
                   advanced_filters=[form[name] for name in (('sort', 'fitment', 'availability', 'demand', 'max_cost', 'min_profit', 'min_markup', 'verified', 'favorites') if request.GET.get('mode') != 'best' else ('fitment', 'availability', 'demand', 'max_cost', 'min_profit', 'min_markup', 'favorites'))],
-                  mode=request.GET.get('mode', 'roi'), best_scope=request.GET.get('best_scope', 'current'), favorites=bool(form.cleaned_data.get('favorites')) if valid else False), status=200 if valid else 400)
+                  mode=request.GET.get('mode', 'roi'), best_scope=request.GET.get('best_scope') or preserved_best_scope(supplier), favorites=bool(form.cleaned_data.get('favorites')) if valid else False), status=200 if valid else 400)
     finished = perf_counter()
     durations = [(form_finished-started)*1000, (rows_finished-form_finished)*1000, (finished-rows_finished)*1000]
     response['Server-Timing'] = ', '.join(f'{name};dur={duration:.1f}' for name, duration in zip(('filters', 'catalogue', 'render'), durations))
