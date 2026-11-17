@@ -329,8 +329,39 @@ def dashboard(request):
     rows = filtered_rows(request, preferences, form.cleaned_data, paginate=request.GET.get('download') != 'csv') if valid else []
     rows_finished = perf_counter()
     best_empty_reason = ''
-    if request.GET.get('mode') == 'best' and not rows:
-        best_empty_reason = 'По выбранным фильтрам выгодные товары не найдены. Исторические записи не удалены; сбросьте фильтры или выберите другой режим.'
+    best_kaspi_status = None
+    if request.GET.get('mode') == 'best':
+        from .models import KaspiReviewTask
+        from django.db.models import Count
+        tasks = KaspiReviewTask.objects.filter(status__in=('pending', 'checking', 'blocked'))
+        if supplier:
+            tasks = tasks.filter(offer__supplier=supplier)
+        totals = tasks.aggregate(
+            pending=Count('pk', filter=Q(status='pending')),
+            checking=Count('pk', filter=Q(status='checking')),
+            blocked=Count('pk', filter=Q(status='blocked')),
+            verified_ready=Count('pk', filter=Q(
+                status='pending', offer__match_verified=True) & ~Q(offer__kaspi_url='')),
+            has_link_unverified=Count('pk', filter=Q(
+                status='pending', offer__match_verified=False) & ~Q(offer__kaspi_url='')),
+        )
+        if any(totals.get(k, 0) for k in ('pending', 'checking', 'blocked')):
+            best_kaspi_status = totals
+            if totals['checking']:
+                best_kaspi_status['label'] = 'Идёт проверка цен Kaspi'
+                best_kaspi_status['explanation'] = 'Проверяются только карточки с подтверждённым соответствием бренда, артикула и исполнения.'
+            elif totals['verified_ready']:
+                best_kaspi_status['label'] = 'Ожидает проверки цен Kaspi'
+                best_kaspi_status['explanation'] = 'Есть подтверждённые карточки для проверки. Задания выполняются фоновым обработчиком, когда источник доступен.'
+            elif totals['blocked']:
+                best_kaspi_status['label'] = 'Часть проверок Kaspi приостановлена'
+                best_kaspi_status['explanation'] = 'Источник не подтвердил данные. Товары с неподтверждённой ценой не считаются выгодными.'
+            else:
+                best_kaspi_status['label'] = 'Ожидается подтверждение карточек Kaspi'
+                best_kaspi_status['explanation'] = 'Прайс обновлён, но нет подтверждённых карточек, по которым можно автоматически обновлять цены. Очередь не считается обработанной.'
+        if not rows:
+            best_empty_reason = ('Пока нет подтверждённых актуальных выгодных товаров. '
+                                 'Проверки Kaspi и сохранённые прежние результаты учитываются отдельно.')
     counts = getattr(request, 'catalog_status_counts', {})
     form.fields['kaspi_status'].choices = [(key, f'{label} ({counts.get(key, 0)})') for key, label in form.fields['kaspi_status'].choices]
     preliminary = False
@@ -361,7 +392,7 @@ def dashboard(request):
     response = render(request, 'procurement/dashboard.html', context(request, page=page, total=getattr(request, 'catalog_total', len(rows)), preferences=preferences,
                   commission_rate=preferences.commission.normalize() if preferences.commission is not None else None,
                   effective_expenses=max(PACKAGING_COST, preferences.expenses) if preferences.expenses is not None else None,
-                  filter_form=form, preliminary=preliminary, preliminary_total=len(displayed_rows) if preliminary else 0, best_empty_reason=best_empty_reason, supplier_stats=supplier_stats, catalogue_total=supplier_stats['loaded'] if supplier_stats else Offer.objects.count(),
+                  filter_form=form, preliminary=preliminary, preliminary_total=len(displayed_rows) if preliminary else 0, best_empty_reason=best_empty_reason, best_kaspi_status=best_kaspi_status, supplier_stats=supplier_stats, catalogue_total=supplier_stats['loaded'] if supplier_stats else Offer.objects.count(),
                   reset_url=reverse('procurement:dashboard') + (f'?supplier={supplier.pk}' if supplier else '?supplier=') + ('&mode=' + request.GET['mode'] if request.GET.get('mode') in ('best', 'stale_prices', 'difference', 'no_sellers', 'reviewed') else ''),
                   page_numbers=page.paginator.get_elided_page_range(page.number, on_each_side=2, on_ends=1), basic_filters=[form[name] for name in ('brand', 'category', 'vehicle_country', 'vehicle_make', 'vehicle_model', 'vehicle_generation', 'vehicle_year', 'kaspi_seller_count')],
                   advanced_filters=[form[name] for name in (('sort', 'fitment', 'availability', 'demand', 'max_cost', 'min_profit', 'min_markup', 'verified', 'favorites') if request.GET.get('mode') != 'best' else ('fitment', 'availability', 'demand', 'max_cost', 'min_profit', 'min_markup', 'favorites'))],
