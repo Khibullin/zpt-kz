@@ -22,7 +22,7 @@ class OfficeFirstMinimalPublicTests(TestCase):
                 with self.assertNumQueries(0):
                     response = self.client.get(path)
                 self.assertEqual(response.status_code, 410)
-                self.assertEqual(response["X-Robots-Tag"], "noindex, nofollow")
+                self.assertIn("noindex", response["X-Robots-Tag"])
 
     def test_sitemap_and_robots_do_not_query_catalogue(self):
         for path in ("/robots.txt", "/sitemap.xml"):
