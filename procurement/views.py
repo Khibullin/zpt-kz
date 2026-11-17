@@ -248,7 +248,7 @@ def filtered_rows(request, preferences, filters, paginate=False):
             continue
         rows.append(row)
     if mode == 'best':
-        scope = request.GET.get('best_scope', 'all')
+        scope = request.GET.get('best_scope', 'current')
         if scope == 'new':
             rows = [r for r in rows if r['is_new']]
         elif scope == 'history':
@@ -365,7 +365,7 @@ def dashboard(request):
                   reset_url=reverse('procurement:dashboard') + (f'?supplier={supplier.pk}' if supplier else '?supplier=') + ('&mode=' + request.GET['mode'] if request.GET.get('mode') in ('best', 'stale_prices', 'difference', 'no_sellers', 'reviewed') else ''),
                   page_numbers=page.paginator.get_elided_page_range(page.number, on_each_side=2, on_ends=1), basic_filters=[form[name] for name in ('brand', 'category', 'vehicle_country', 'vehicle_make', 'vehicle_model', 'vehicle_generation', 'vehicle_year', 'kaspi_seller_count')],
                   advanced_filters=[form[name] for name in (('sort', 'fitment', 'availability', 'demand', 'max_cost', 'min_profit', 'min_markup', 'verified', 'favorites') if request.GET.get('mode') != 'best' else ('fitment', 'availability', 'demand', 'max_cost', 'min_profit', 'min_markup', 'favorites'))],
-                  mode=request.GET.get('mode', 'roi'), best_scope=request.GET.get('best_scope', 'all'), favorites=bool(form.cleaned_data.get('favorites')) if valid else False), status=200 if valid else 400)
+                  mode=request.GET.get('mode', 'roi'), best_scope=request.GET.get('best_scope', 'current'), favorites=bool(form.cleaned_data.get('favorites')) if valid else False), status=200 if valid else 400)
     finished = perf_counter()
     durations = [(form_finished-started)*1000, (rows_finished-form_finished)*1000, (finished-rows_finished)*1000]
     response['Server-Timing'] = ', '.join(f'{name};dur={duration:.1f}' for name, duration in zip(('filters', 'catalogue', 'render'), durations))
