@@ -9,7 +9,6 @@
 <a class="button catalog-tab" href="{% querystring mode=None page=None download=None %}" {% if mode != 'best' and mode != 'stale_prices' %}aria-current="page"{% endif %}>Все товары · {{ catalogue_total }}</a>
 <a class="button teal" href="{% querystring mode='best' best_scope=None page=None download=None kaspi_status=None kaspi_presence=None verified=None sort=None %}" {% if mode == 'best' %}aria-current="page"{% endif %}>Выгодные к закупке · {% if preliminary %}{{ preliminary_total }}{% elif mode == 'best' %}{{ total }}{% else %}→{% endif %}</a>
 <a class="button" href="{% url 'procurement:kaspi_products' %}" style="background:#3563a9;color:#fff;border-color:#3563a9">Товары для Kaspi</a>
-<a class="button" href="{% querystring mode='stale_prices' page=None download=None kaspi_status=None kaspi_presence=None verified=None sort=None %}" {% if mode == 'stale_prices' %}aria-current="page"{% endif %}>Требуется обновить цену Kaspi · {% if mode == 'stale_prices' %}{{ total }}{% else %}→{% endif %}</a>
 </nav>
 {% if mode == 'best' %}
 <div class="actions" style="margin:0 0 10px">
