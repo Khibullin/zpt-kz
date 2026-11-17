@@ -154,6 +154,11 @@ class Command(BaseCommand):
                         batch = advance_update(batch.pk, prepared_rows=rows)
                     self.stdout.write(f'Price update {batch.pk}: {batch.cursor}/{batch.row_count}')
                 if options['watch']:
+                    # Explicitly requested ONE-OFF Omega investigation: log the
+                    # actual public HTTP code and independent official API GET.
+                    # Cache lease prevents repeated probes after restart.
+                    from procurement.kaspi_omega_diagnostic import check_omega_kaspi_once
+                    check_omega_kaspi_once()
                     # Kaspi validation and image work are independent from uploads.
                     # storefront and purchased-card work, so Kaspi does not
                     # starve behind unrelated enrichment queues.
