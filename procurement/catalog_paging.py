@@ -6,6 +6,7 @@ from django.core.paginator import Paginator
 from django.db.models import Case, When, Value, Q, F, Count, DecimalField, ExpressionWrapper
 from django.db.models.functions import Coalesce, NullIf
 from .models import KaspiSellerSnapshot, KaspiCardSearch
+from .omega_policy import POSITIVE_STOCK_PATTERN
 
 # Approved purchasing rules: net gain >= 1000 KZT and ROI >= 25%.
 MIN_BEST_ROI = Decimal('25')
@@ -63,7 +64,7 @@ def cumulative_profitable_query(query, preferences, today=None):
         & ~Q(category__iregex='подшипник|bearing', profitable_record__isnull=True)
     )
     # Exactly the same positive-stock notation accepted by stock_status().
-    omega_stock = Q(stock__regex=r'^\\s*(?:[>≥]\\s*)?[1-9][0-9]*(?:>|\\s|$)')
+    omega_stock = Q(stock__regex=POSITIVE_STOCK_PATTERN)
     omega_qualified = (
         Q(match_verified=True, cost__gte=Decimal('2000'), kaspi_price__gt=0) & ~Q(kaspi_url='')
         & omega_stock
