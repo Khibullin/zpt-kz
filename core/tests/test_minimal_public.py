@@ -1,0 +1,32 @@
+from django.test import SimpleTestCase
+from django.urls import resolve
+
+
+class OfficeFirstMinimalPublicTests(SimpleTestCase):
+    def test_home_is_db_free_and_links_to_office(self):
+        with self.assertNumQueries(0):
+            response = self.client.get("/")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "/office/login/")
+        self.assertNotContains(response, 'retail-results')
+
+    def test_office_routes_are_not_replaced(self):
+        self.assertEqual(resolve("/office/accounting/finance/").url_name, "finance")
+        self.assertEqual(resolve("/office/procurement/").url_name, "home")
+        self.assertEqual(resolve("/office/login/").url_name, "office_login")
+
+    def test_public_product_views_return_gone_without_database_work(self):
+        for path in ("/market/", "/our-products/", "/avtozapchasti/toyota/"):
+            with self.subTest(path=path):
+                with self.assertNumQueries(0):
+                    response = self.client.get(path)
+                self.assertEqual(response.status_code, 410)
+                self.assertEqual(response["X-Robots-Tag"], "noindex, nofollow")
+
+    def test_sitemap_and_robots_do_not_query_catalogue(self):
+        for path in ("/robots.txt", "/sitemap.xml"):
+            with self.subTest(path=path):
+                with self.assertNumQueries(0):
+                    response = self.client.get(path)
+                self.assertEqual(response.status_code, 200)
+        self.assertNotIn("/sitemap-products.xml", self.client.get("/sitemap.xml").content.decode())
