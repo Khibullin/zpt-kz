@@ -209,16 +209,21 @@ def filtered_rows(request, preferences, filters, paginate=False):
             threshold = max(MIN_BEST_PROFIT, preferences.best_min_profit)
             is_bearing = any(x in (offer.name + ' ' + offer.category).casefold()
                              for x in ('подшипник', 'bearing'))
+            firsthand = (offer.characteristics or {}).get('firsthand_omega_20261117') if is_omega else None
+            row['firsthand'] = firsthand
+            row['firsthand_images'] = (firsthand or {}).get('images', [])
             if is_omega:
-                # Quotes from a single city do not certify the lowest price in
-                # Kazakhstan. Preserve promising Omega quotes as REVIEW only.
+                # Genuine three-city offers are preliminary until variant and
+                # whole-country coverage are reviewed. Do not mark confirmed.
+                observed_match = bool(firsthand and firsthand.get('identity_status') in ('candidate', 'conflict'))
                 omega_margin_ok = bool(
-                    offer.match_verified and bool(offer.kaspi_url) and offer.cost >= Decimal('2000')
+                    (offer.match_verified or observed_match)
+                    and bool(offer.kaspi_url) and offer.cost >= Decimal('2000')
                     and row['stock_status'] == 'in_stock'
                     and row['profit'] is not None
                     and row['profit'] >= offer.cost * Decimal('0.50')
                 )
-                is_current = False  # nationwide seller coverage is not evidenced yet
+                is_current = False  # not yet all-Kazakhstan/variant confirmed
                 row['omega_review'] = omega_margin_ok
             else:
                 is_current = bool(
@@ -259,11 +264,19 @@ def filtered_rows(request, preferences, filters, paginate=False):
                     row['kaspi_after_commission'] = record.source_kaspi_price - row['commission_amount']
                     row['difference'] = row['kaspi_after_commission'] - record.source_cost
                 if row['omega_review']:
-                    row['historical_reason'] = (
-                        'Требуется повторная проверка цены Kaspi по Казахстану'
-                        if not row['price_fresh'] else
-                        'Требуется подтвердить цены и доступность по городам Казахстана'
-                    )
+                    if firsthand:
+                        row['historical_reason'] = (
+                            'Спорное соответствие: ' + firsthand.get('identity_note', '')
+                            if firsthand.get('identity_status') == 'conflict' else
+                            'Firsthand: цены и продавцы проверены в Алматы, Астане и Шымкенте; '
+                            'исполнение и комплектность пока не подтверждены'
+                        )
+                    else:
+                        row['historical_reason'] = (
+                            'Требуется повторная проверка цены Kaspi по Казахстану'
+                            if not row['price_fresh'] else
+                            'Требуется подтвердить цены и доступность по городам Казахстана'
+                        )
                     if not row['supplier_fresh']:
                         row['historical_reason'] += '; обновить прайс и остаток Омеги'
                 else:
@@ -281,6 +294,10 @@ def filtered_rows(request, preferences, filters, paginate=False):
             if row['profit'] is not None and row['display_cost'] > 0:
                 row['markup'] = row['profit'] / row['display_cost'] * Decimal('100')
             row['best_status'] = (
+                'Спорное соответствие Firsthand — проверить вручную'
+                if firsthand and firsthand.get('identity_status') == 'conflict' else
+                'Предварительно выгодный — Firsthand · 3 города'
+                if row['omega_review'] and firsthand else
                 'Предварительно выгодный — проверить Kaspi по Казахстану'
                 if row['omega_review'] else
                 'Ранее выгодный' if row['historical'] else
