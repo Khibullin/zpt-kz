@@ -260,7 +260,7 @@ def filtered_rows(request, preferences, filters, paginate=False):
                     row['difference'] = row['kaspi_after_commission'] - record.source_cost
                 if row['omega_review']:
                     row['historical_reason'] = (
-                        'Цена Kaspi устарела; требуется повторная проверка по Казахстану'
+                        'Требуется повторная проверка цены Kaspi по Казахстану'
                         if not row['price_fresh'] else
                         'Требуется подтвердить цены и доступность по городам Казахстана'
                     )
