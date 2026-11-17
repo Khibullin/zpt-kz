@@ -46,6 +46,37 @@ def check_kaspi_transport():
 
 
 
+def check_kaspi_direct_get():
+    """Single direct read-only GET to isolate environment proxy routing issues.
+
+    No proxy rotation, retries, CAPTCHA handling, product publication or keys
+    are logged. Test uses the same official documented endpoint and auth.
+    """
+    import os
+    import requests
+    configured = any(bool(os.environ.get(name))
+                     for name in ('HTTPS_PROXY','https_proxy','HTTP_PROXY','http_proxy'))
+    logger.warning('Kaspi transport diagnostic: environment_proxy_present=%s',configured)
+    session = requests.Session()
+    session.trust_env = False
+    try:
+        response = session.get(
+            'https://kaspi.kz/shop/api/products/classification/categories',
+            headers={'Accept':'application/json',
+                     'X-Auth-Token':settings.KASPI_API_TOKEN,
+                     'User-Agent':'ZPT.KZ-Kaspi-Integration/1.0'},
+            timeout=(3,6), allow_redirects=False,
+        )
+        logger.warning('Kaspi direct categories GET: http_status=%s',response.status_code)
+        return response.status_code
+    except requests.Timeout:
+        logger.warning('Kaspi direct categories GET: timed_out')
+    except requests.RequestException as error:
+        logger.warning('Kaspi direct categories GET: network_error=%s',
+                       type(error).__name__)
+    return None
+
+
 def verify_catalog_readonly():
     """One safe official Kaspi API GET on worker start, without leaking secrets."""
     from procurement.kaspi_catalog_api import CatalogClient, CatalogError, connected
@@ -75,6 +106,7 @@ def verify_catalog_readonly():
             check_kaspi_transport()
             # One additional DOCUMENTED, read-only API endpoint. Never POST,
             # enumerate products, or retry on authentication failures.
+            check_kaspi_direct_get()
             try:
                 schema = CatalogClient().call('import/schema')
                 logger.warning('Kaspi official import-schema GET: success=%s',
