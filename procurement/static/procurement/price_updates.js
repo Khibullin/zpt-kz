@@ -15,7 +15,10 @@
           });
           const data = await response.json();
           if (!response.ok) throw new Error(data.error || 'Не удалось продолжить.');
-          row.querySelector('[data-progress]').textContent = `${data.status === 'done' ? 'Каталог обновлён' : 'Обрабатывается'} · ${data.processed} / ${data.total}`;
+          const percent = data.total ? Math.min(100, Math.round(data.processed * 100 / data.total)) : 0;
+          row.querySelector('[data-progress-label]').textContent = `${data.status === 'done' ? 'Каталог обновлён' : 'Обрабатывается'} · ${data.processed} / ${data.total}`;
+          row.querySelector('[data-progress-bar]').style.width = percent + '%';
+          row.querySelector('[data-progress-percent]').textContent = percent + '% обработано';
           const s = data.summary;
           row.querySelector('[data-summary]').textContent = `Новых: ${s.new}; изменено: ${s.changed}; без изменений: ${s.unchanged}; снято с наличия: ${s.unavailable}; очередь Kaspi: ${s.queued}; использовано соответствий: ${s.reused}; конфликтов прайса: ${s.conflicts}`;
           if (data.status === 'done') delete row.dataset.priceUpdate;
