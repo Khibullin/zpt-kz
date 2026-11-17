@@ -23,12 +23,11 @@
   <strong>{{ best_kaspi_status.label }}</strong>
   <p style="margin:7px 0 10px">{{ best_kaspi_status.explanation }}</p>
   <div class="actions" style="gap:16px">
-    <span>Ожидают: <strong>{{ best_kaspi_status.pending }}</strong></span>
-    <span>Проверяются: <strong>{{ best_kaspi_status.checking }}</strong></span>
-    <span>Приостановлены: <strong>{{ best_kaspi_status.blocked }}</strong></span>
-    <span>Карточки со ссылкой, но без подтверждения: <strong>{{ best_kaspi_status.has_link_unverified }}</strong></span>
+    <span>Ожидают проверки цен: <strong>{{ best_kaspi_status.pending }}</strong></span>
+    <span>Сейчас проверяются: <strong>{{ best_kaspi_status.checking }}</strong></span>
+    <span>Не удалось проверить: <strong>{{ best_kaspi_status.blocked }}</strong></span>
   </div>
-  <small style="display:block;margin-top:9px">Значение «0 выгодных» не означает, что все товары проверены. Отбор не требует фотографий и применимости.</small>
+  <small style="display:block;margin-top:9px">Ноль подтверждённых выгодных не означает, что выгодных товаров нет: сравнение ещё не завершено. Фото и применимость здесь не требуются.</small>
   {% if can_manage %}<p style="margin:10px 0 0"><a href="{% url 'procurement:price_updates' %}">Прайс-листы и очередь Kaspi</a></p>{% endif %}
 </section>
 {% endif %}
