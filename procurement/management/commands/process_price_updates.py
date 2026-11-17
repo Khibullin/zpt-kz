@@ -89,6 +89,11 @@ class Command(BaseCommand):
                         photo_progress = process_photo_tasks(limit=10)
                 if options['watch']:
                     KaspiReviewTask.objects.filter(status='checking', updated_at__lt=timezone.now()-timedelta(minutes=30)).update(status='pending')
+                    # Verify existing bound Kaspi public URLs without guessing product
+                    # identity. One request per cycle; source denial stops further
+                    # probing and leaves the remainder for manual review.
+                    from procurement.kaspi_identity_worker import process_pending_bound_cards
+                    process_pending_bound_cards(limit=1)
                     tasks = KaspiReviewTask.objects.filter(status='pending', offer__match_verified=True,
                         batch__status='done').exclude(offer__kaspi_url='').order_by('priority', 'pk')
                     for task_id in list(tasks.values_list('pk', flat=True)[:10]):
