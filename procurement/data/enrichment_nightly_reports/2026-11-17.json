@@ -160,9 +160,18 @@
     "Positive stock uses procurement.retail.stock_quantity; photo missing means no offer photo URL and no linked main image; structured fitment missing means no procurement_vehiclefitment row with nonempty make and model."
   ],
   "delivery": {
-    "status": "prepared",
+    "status": "sent_and_verified",
     "recipient": "rkhaibullin@gmail.com",
     "subject": "ZPT.KZ — ночной отчёт по фото и применимости — 17.11.2026",
-    "duplicate_check": "No matching sent email; nightly report did not exist."
+    "duplicate_check": "No matching sent email; nightly report did not exist.",
+    "sent_at": "2026-11-17T06:08:12+05:00",
+    "verified_at": "2026-11-17T06:08:19+05:00",
+    "gmail_message_id": "1a1e70c1a0182d41",
+    "gmail_thread_id": "1a1e70c1a0182d41",
+    "labels": [
+      "UNREAD",
+      "SENT",
+      "INBOX"
+    ]
   }
 }
