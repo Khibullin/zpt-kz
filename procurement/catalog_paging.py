@@ -65,7 +65,7 @@ def cumulative_profitable_query(query, preferences, today=None):
     # Exactly the same positive-stock notation accepted by stock_status().
     omega_stock = Q(stock__regex=r'^\\s*(?:[>≥]\\s*)?[1-9][0-9]*(?:>|\\s|$)')
     omega_qualified = (
-        Q(match_verified=True, cost__gte=Decimal('2000'), kaspi_price__gt=0)
+        Q(match_verified=True, cost__gte=Decimal('2000'), kaspi_price__gt=0) & ~Q(kaspi_url='')
         & omega_stock
         & Q(_cumulative_profit__gte=F('cost') * Value(Decimal('0.50')))
     )
