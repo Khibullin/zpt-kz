@@ -486,6 +486,21 @@ AGPARTS_CATALOG_API_TOKEN = (os.getenv('AGPARTS_CATALOG_API_TOKEN', '') or '').s
 AGPARTS_CATALOG_MANIFEST_JSON = os.getenv('AGPARTS_CATALOG_MANIFEST_JSON', '')
 # Set only after verifying our merchant ID and per-SKU packaging. No price write actions.
 AGPARTS_KASPI_MERCHANT_ID = (os.getenv('AGPARTS_KASPI_MERCHANT_ID', '') or '').strip()
+# Only reuse the alternate AG Parts merchant identifier if a SECOND independent
+# existing configuration explicitly names it as an owned Kaspi merchant.
+# A blank or conflicting identity keeps all publishing fail-closed.
+_KASPI_OWN_IDS = {
+    candidate.strip() for candidate in KASPI_OWN_MERCHANT_IDS.split(',')
+    if candidate.strip()
+}
+KASPI_MERCHANT_ALIAS_CONFIRMED = bool(
+    AGPARTS_KASPI_MERCHANT_ID
+    and AGPARTS_KASPI_MERCHANT_ID in _KASPI_OWN_IDS
+    and (not KASPI_MERCHANT_ID or KASPI_MERCHANT_ID == AGPARTS_KASPI_MERCHANT_ID)
+)
+if not KASPI_MERCHANT_ID and KASPI_MERCHANT_ALIAS_CONFIRMED:
+    KASPI_MERCHANT_ID = AGPARTS_KASPI_MERCHANT_ID
+
 
 # Two-way contact rollout is separate from Meta broadcast and disabled until approved.
 TWO_WAY_REQUESTS_ENABLED = _env_flag('TWO_WAY_REQUESTS_ENABLED', False)
