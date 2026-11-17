@@ -382,6 +382,6 @@ def card_pricing_settings(request):
                 'method': obj.method, 'value': str(obj.value), 'min_profit': str(obj.min_profit), 'enabled': obj.enabled})
             messages.success(request, 'Алгоритм сохранён. Ручные цены не изменены.')
             return redirect('procurement:kaspi_card_pricing')
-    from .kaspi_price_feed import feed_url, integration_ready
-    return render(request, 'procurement/kaspi_pricing.html', context(request, form=form, preference=preference, feed_url=feed_url(), integration_connected=integration_ready()),
+    from .kaspi_price_feed import feed_url, integration_ready, connection_status
+    return render(request, 'procurement/kaspi_pricing.html', context(request, form=form, preference=preference, feed_url=feed_url(), integration_connected=integration_ready(), kaspi_setup=connection_status()),
         status=400 if request.method == 'POST' else 200)
