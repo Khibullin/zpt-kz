@@ -74,7 +74,10 @@ def freeze_publication(card,user,row,batch,source_token):
         raise ValueError('Нужно дополнить: '+', '.join([label for label,ok in checks if not ok]+missing))
     from .kaspi_price_feed import integration_ready
     if not integration_ready(): raise ValueError('Для автоматической публикации подключите API магазина и полный XML прайс-лист. Ручное размещение доступно.')
-    if row.get('stock') is None: raise ValueError('Нет подтверждённого складского остатка для автоматической публикации.')
+    if row.get('stock') is None or row.get('stock') <= 0 or row.get('stock_warehouse') is None:
+        raise ValueError('Нет подтверждённого положительного остатка этой закупки на складе магазина.')
+    if not price.get('meets_minimum'):
+        raise ValueError('Цена не обеспечивает минимальную прибыль 1 000 ₸ и доходность 25%.')
     from django.conf import settings
     return dict(merchant=settings.KASPI_MERCHANT_ID,batch=batch['key'],line=row['index'],revision=card.revision,source_token=source_token,
         material=dict(sku='ZPT-'+card.identity[:16],title=card.title,brand=card.brand,category=card.category,
@@ -103,6 +106,10 @@ def process_card_jobs():
         batch=next((b for b in purchased_batches(job.user) if b['key']==job.payload['batch']),None)
         if not batch: raise ValueError('Закупка больше недоступна.')
         rows,_,supplier=source_rows(batch,job.user)
+        # Recheck exact posted warehouse lots before any authorized catalogue POST,
+        # not merely the quantity stored when the job was queued.
+        if job.kind == 'publish' and not job.external_code and job.status == 'pending':
+            enrich_rows(batch, rows, supplier, compact=True)
         row=next((r for r in rows if r['index']==job.payload['line']),None)
         if not row or identity_for(batch,row,supplier)!=job.card.identity:
             raise ValueError('Состав закупки изменился. Операция остановлена.')
@@ -169,6 +176,19 @@ def process_card_jobs():
                 signed=signing.loads(job.payload['source_token'],salt='kaspi-card-source',max_age=86400)
                 if signed!={'batch':batch['key'],'source':source_signature(batch,rows)} or job.card.revision!=job.payload['revision']:
                     raise ValueError('Карточка или закупка изменились после постановки в очередь. Откройте обновлённую карточку.')
+                # The POST is at-most-once. A changed warehouse balance, cost
+                # or manual/automatic price invalidates the queued authorization.
+                current_quantity = row.get('stock')
+                if (current_quantity is None or current_quantity <= 0
+                        or not row.get('stock_warehouse')
+                        or str(current_quantity) != str(job.payload.get('quantity'))):
+                    raise ValueError('Остаток склада изменился или не подтверждён. Требуется повторная проверка карточки.')
+                from .kaspi_materials import pricing, competitor_data
+                current_price = pricing(job.user, job.card, row, competitor_data(row.get('offer')))
+                if (current_price['amount'] is None
+                        or not current_price.get('meets_minimum')
+                        or Decimal(str(current_price['amount'])) != Decimal(str(job.payload['price']))):
+                    raise ValueError('Цена или себестоимость изменились. Отправка остановлена до нового подтверждения.')
                 material=job.payload['material']
                 images=list(job.card.images.filter(pk__in=job.payload['image_ids'],active=True))
                 if len(images)!=len(job.payload['image_ids']): raise ValueError('Фотографии изменились. Обновите карточку.')
