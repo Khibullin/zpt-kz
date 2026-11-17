@@ -115,6 +115,8 @@ def filtered_rows(request, preferences, filters, paginate=False):
         query = cumulative_profitable_query(query, preferences, today)
     elif mode == 'stale_prices':
         query = stale_price_candidates_query(query, preferences, today)
+    elif mode == 'kaspi_prices':
+        query = query.filter(kaspi_price__gt=0)
     elif mode == 'reviewed':
         pass  # Legacy URL now opens the complete supplier catalogue.
     elif mode == 'no_sellers':
@@ -176,6 +178,13 @@ def filtered_rows(request, preferences, filters, paginate=False):
     favorites = set(Favorite.objects.filter(user=request.user).values_list('offer_id', flat=True))
     if filters.get('favorites'):
         query = query.filter(pk__in=favorites)
+    if paginate and mode == 'kaspi_prices' and not any(filters.get(key) for key in ('availability', 'demand')) and all(filters.get(key) is None for key in ('min_profit', 'min_markup')):
+        ranked = query.order_by(F('kaspi_price_checked_on').desc(nulls_last=True), 'pk')
+        request.catalog_page = Paginator(ranked.values_list('pk', flat=True), 40).get_page(request.GET.get('page'))
+        request.catalog_total = request.catalog_page.paginator.count
+        ids = list(request.catalog_page.object_list)
+        by_id = {offer.pk: offer for offer in query.filter(pk__in=ids).order_by()}
+        query = [by_id[pk] for pk in ids]
     if paginate and mode in ('roi', 'reviewed') and not any(filters.get(key) for key in ('availability', 'demand')) and all(filters.get(key) is None for key in ('min_profit', 'min_markup')):
         request.catalog_page, request.catalog_status_counts = catalog_page(query, preferences, filters, mode, request.GET.get('page'), today)
         request.catalog_total = request.catalog_page.paginator.count
@@ -189,8 +198,11 @@ def filtered_rows(request, preferences, filters, paginate=False):
         row = {'offer': offer, 'favorite': offer.pk in favorites, **evaluate(offer, preferences, today=today)}
         row.update(kaspi_status(offer, preferences, today))
         row['kaspi_price'] = offer.kaspi_price
-        if row['kaspi_status_code'] in ('empty', 'missing') and mode != 'best':
+        if row['kaspi_status_code'] in ('empty', 'missing') and mode not in ('best', 'kaspi_prices'):
             row.update({key: None for key in ('kaspi_price', 'difference', 'markup', 'profit', 'margin', 'commission_amount', 'kaspi_after_commission')})
+        if mode == 'kaspi_prices':
+            for field in ('difference', 'markup', 'profit', 'margin', 'commission_amount', 'kaspi_after_commission'):
+                row[field] = None
         if mode == 'best':
             record = getattr(offer, 'profitable_record', None)
             threshold = max(MIN_BEST_PROFIT, preferences.best_min_profit)
@@ -268,6 +280,10 @@ def filtered_rows(request, preferences, filters, paginate=False):
             rows = [r for r in rows if not r['historical']]
         rows.sort(key=lambda r: (-(r['markup'] or Decimal('0')),
                                 -(r['profit'] or Decimal('0')), r['offer'].pk))
+    elif mode == 'kaspi_prices':
+        rows.sort(key=lambda r: (r['offer'].kaspi_price_checked_on is None,
+                                 -(r['offer'].kaspi_price_checked_on.toordinal() if r['offer'].kaspi_price_checked_on else 0),
+                                 r['offer'].pk))
     elif mode == 'stale_prices':
         # An old Kaspi price is only a review lead: require actual stock and
         # preserve historical price/date as-is, never claim a confirmed deal.
@@ -322,7 +338,7 @@ def dashboard(request):
     started = perf_counter()
     preferences, _ = Preferences.objects.get_or_create(user=request.user)
     filter_data = request.GET
-    if request.GET.get('mode') in ('best', 'stale_prices'):
+    if request.GET.get('mode') in ('best', 'stale_prices', 'kaspi_prices'):
         filter_data = request.GET.copy()
         for key in ('kaspi_status', 'verified', 'sort'):
             filter_data.pop(key, None)
@@ -409,7 +425,7 @@ def dashboard(request):
                 exported_number(row['markup']), exported_number(row['profit']), row['signal'], offer.sales_30,
                 offer.recent_reviews, offer.checked_on, offer.evidence_date, offer.kaspi_url,
                 exported_number(row['commission_rate']), exported_number(row['commission_amount']),
-                exported_number(row['kaspi_after_commission']), exported_number(row['expenses']), row.get('best_status', 'Устаревшая цена Kaspi' if request.GET.get('mode') == 'stale_prices' else 'Общий каталог'), row.get('display_supplier_date', offer.supplier_checked_on), row.get('processed_at'), row.get('display_kaspi_date', offer.kaspi_price_checked_on)]])
+                exported_number(row['kaspi_after_commission']), exported_number(row['expenses']), row.get('best_status', 'Сохранённая цена Kaspi — проверка требуется' if request.GET.get('mode') == 'kaspi_prices' else 'Устаревшая цена Kaspi' if request.GET.get('mode') == 'stale_prices' else 'Общий каталог'), row.get('display_supplier_date', offer.supplier_checked_on), row.get('processed_at'), row.get('display_kaspi_date', offer.kaspi_price_checked_on)]])
         return response
     page = getattr(request, 'catalog_page', None) or Paginator(displayed_rows, 40).get_page(request.GET.get('page'))
     prefetch_related_objects([row['offer'] for row in page.object_list],
@@ -419,9 +435,10 @@ def dashboard(request):
                   commission_rate=preferences.commission.normalize() if preferences.commission is not None else None,
                   effective_expenses=max(PACKAGING_COST, preferences.expenses) if preferences.expenses is not None else None,
                   filter_form=form, preliminary=preliminary, preliminary_total=len(displayed_rows) if preliminary else 0, best_empty_reason=best_empty_reason, best_kaspi_status=best_kaspi_status, supplier_stats=supplier_stats, catalogue_total=supplier_stats['loaded'] if supplier_stats else Offer.objects.count(),
-                  reset_url=reverse('procurement:dashboard') + (f'?supplier={supplier.pk}' if supplier else '?supplier=') + ('&mode=' + request.GET['mode'] if request.GET.get('mode') in ('best', 'stale_prices', 'difference', 'no_sellers', 'reviewed') else ''),
+                  reset_url=reverse('procurement:dashboard') + (f'?supplier={supplier.pk}' if supplier else '?supplier=') + ('&mode=' + request.GET['mode'] if request.GET.get('mode') in ('best', 'stale_prices', 'kaspi_prices', 'difference', 'no_sellers', 'reviewed') else ''),
                   page_numbers=page.paginator.get_elided_page_range(page.number, on_each_side=2, on_ends=1), basic_filters=[form[name] for name in ('brand', 'category', 'vehicle_country', 'vehicle_make', 'vehicle_model', 'vehicle_generation', 'vehicle_year', 'kaspi_seller_count')],
-                  advanced_filters=[form[name] for name in (('sort', 'fitment', 'availability', 'demand', 'max_cost', 'min_profit', 'min_markup', 'verified', 'favorites') if request.GET.get('mode') != 'best' else ('fitment', 'availability', 'demand', 'max_cost', 'min_profit', 'min_markup', 'favorites'))],
+                  advanced_filters=[form[name] for name in (('fitment', 'availability', 'demand', 'max_cost', 'favorites') if request.GET.get('mode') == 'kaspi_prices' else ('sort', 'fitment', 'availability', 'demand', 'max_cost', 'min_profit', 'min_markup', 'verified', 'favorites') if request.GET.get('mode') != 'best' else ('fitment', 'availability', 'demand', 'max_cost', 'min_profit', 'min_markup', 'favorites'))],
+                  kaspi_saved_total=Offer.objects.filter(kaspi_price__gt=0, **({'supplier': supplier} if supplier else {})).count(),
                   mode=request.GET.get('mode', 'roi'), best_scope=request.GET.get('best_scope') or preserved_best_scope(supplier), favorites=bool(form.cleaned_data.get('favorites')) if valid else False), status=200 if valid else 400)
     finished = perf_counter()
     durations = [(form_finished-started)*1000, (rows_finished-form_finished)*1000, (finished-rows_finished)*1000]
