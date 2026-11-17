@@ -11,6 +11,11 @@ class OfficeFirstMinimalPublicTests(TestCase):
         self.assertContains(response, "/office/login/")
         self.assertNotContains(response, 'retail-results')
 
+    def test_head_probe_does_not_query_products(self):
+        with self.assertNumQueries(0):
+            response = self.client.head("/")
+        self.assertEqual(response.status_code, 200)
+
     def test_office_routes_are_not_replaced(self):
         self.assertEqual(resolve("/office/accounting/finance/").url_name, "finance")
         self.assertTrue(resolve("/office/procurement/").url_name)
