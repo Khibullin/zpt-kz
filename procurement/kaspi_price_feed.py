@@ -16,6 +16,36 @@ def feed_configured():
     return all(getattr(settings,key,'') for key in ('KASPI_MERCHANT_ID','KASPI_POINT_OF_SERVICE','KASPI_BASELINE_PRICE_FEED_URL'))
 
 
+def connection_status():
+    """Safe, read-only setup state. Never exposes API tokens or merchant IDs."""
+    from django.conf import settings
+    primary = bool(getattr(settings, 'KASPI_MERCHANT_ID', '').strip())
+    alternate = bool(getattr(settings, 'AGPARTS_KASPI_MERCHANT_ID', '').strip())
+    alias_confirmed = bool(getattr(settings, 'KASPI_MERCHANT_ALIAS_CONFIRMED', False))
+    source = bool(getattr(settings, 'KASPI_BASELINE_PRICE_FEED_URL', '').strip())
+    point = bool(getattr(settings, 'KASPI_POINT_OF_SERVICE', '').strip())
+    accepted = bool(getattr(settings, 'KASPI_PRICE_FEED_CONNECTED', False))
+    return {
+        'token_present': connected(),
+        'merchant_present': primary,
+        'alternate_present': alternate,
+        'alias_confirmed': alias_confirmed,
+        'baseline_present': source,
+        'point_present': point,
+        'feed_accepted': accepted,
+        'ready': integration_ready(),
+        'gaps': [
+            text for ok, text in (
+                (connected(), 'Подтвердить официальный API-ключ Kaspi'),
+                (primary, 'Подтвердить идентификатор магазина AG Parts'),
+                (source, 'Добавить исходный полный XML из кабинета продавца'),
+                (point, 'Указать реальный код склада магазина Kaspi'),
+                (accepted, 'Подключить итоговую XML-ссылку в кабинете Kaspi'),
+            ) if not ok
+        ],
+    }
+
+
 def integration_ready():
     return connected() and feed_configured() and getattr(settings,'KASPI_PRICE_FEED_CONNECTED',False)
 
