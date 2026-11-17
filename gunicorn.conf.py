@@ -18,6 +18,13 @@ def on_starting(server):
     enabled = os.environ.get('PRICE_UPDATE_WORKER_ENABLED', 'false').lower() == 'true'
     server.log.info('ZPT supplier/Kaspi background processor: %s',
                     'enabled' if enabled else 'disabled')
+    # Boolean-only diagnostics: no merchant identifiers, API keys or XML URLs.
+    from django.conf import settings
+    server.log.info(
+        'Kaspi merchant identity: alternate_match_confirmed=%s xml_baseline_present=%s',
+        bool(getattr(settings, 'KASPI_MERCHANT_ALIAS_CONFIRMED', False)),
+        bool(getattr(settings, 'KASPI_BASELINE_PRICE_FEED_URL', '').strip()),
+    )
     if enabled:
         server.price_update_worker = subprocess.Popen(
             [sys.executable, 'manage.py', 'process_price_updates', '--watch'])
