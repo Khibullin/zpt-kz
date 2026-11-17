@@ -301,13 +301,15 @@ def pricing(user, card, row, competitors, settings=None):
     if preference and preference.expenses is not None:
         result['expenses'] = max(Decimal('250'), preference.expenses)
     try:
-        cost = Decimal(str(row['cost']))
+        cost = Decimal(str(row.get('actual_cost') if row.get('actual_cost') is not None else row['cost']))
     except (InvalidOperation, TypeError):
         cost = None
     rate = result['commission']
     expenses = result['expenses']
     if rule and rule.enabled and cost is not None and cost > 0 and rate is not None and Decimal(0) <= rate < Decimal(100) and expenses is not None:
-        floor = ((cost + expenses + rule.min_profit) / (1 - rate / 100)).quantize(Decimal('1'), rounding=ROUND_CEILING)
+        # Protect the same approved 25% net ROI used for wholesale selection.
+        required_profit = max(rule.min_profit, cost * Decimal('0.25'))
+        floor = ((cost + expenses + required_profit) / (1 - rate / 100)).quantize(Decimal('1'), rounding=ROUND_CEILING)
         result['minimum'] = floor
         target = None
         if rule.method == 'cost_plus_percent':
@@ -330,6 +332,9 @@ def pricing(user, card, row, competitors, settings=None):
     result['amount'] = choice.amount if choice and choice.mode == 'manual' else result['recommended']
     if result['amount'] is not None and cost is not None and rate is not None and expenses is not None:
         result['profit'] = result['amount'] * (1 - rate / 100) - cost - expenses
+        result['meets_minimum'] = bool(result['profit'] >= max(rule.min_profit, cost * Decimal('0.25')))
+    else:
+        result['meets_minimum'] = False
     return result
 
 
