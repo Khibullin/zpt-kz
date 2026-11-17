@@ -18,6 +18,20 @@
 <a class="button" href="{% querystring best_scope='history' page=None download=None %}" {% if best_scope == 'history' %}aria-current="page"{% endif %}>Ранее выгодные</a>
 </div>
 <p class="muted" style="margin:2px 0 12px">Для актуальных выгодных: прибыль ≥ 1 000 ₸, доходность ≥ 25% после комиссии и расходов, цена Kaspi и прайс поставщика не старше 7 дней. Ранее выгодные предложения доступны отдельно.</p>
+{% if best_kaspi_status %}
+<section class="panel" role="status" aria-live="polite" style="padding:14px 18px;margin:0 0 14px">
+  <strong>{{ best_kaspi_status.label }}</strong>
+  <p style="margin:7px 0 10px">{{ best_kaspi_status.explanation }}</p>
+  <div class="actions" style="gap:16px">
+    <span>Ожидают: <strong>{{ best_kaspi_status.pending }}</strong></span>
+    <span>Проверяются: <strong>{{ best_kaspi_status.checking }}</strong></span>
+    <span>Приостановлены: <strong>{{ best_kaspi_status.blocked }}</strong></span>
+    <span>Карточки со ссылкой, но без подтверждения: <strong>{{ best_kaspi_status.has_link_unverified }}</strong></span>
+  </div>
+  <small style="display:block;margin-top:9px">Значение «0 выгодных» не означает, что все товары проверены. Отбор не требует фотографий и применимости.</small>
+  {% if can_manage %}<p style="margin:10px 0 0"><a href="{% url 'procurement:price_updates' %}">Прайс-листы и очередь Kaspi</a></p>{% endif %}
+</section>
+{% endif %}
 {% endif %}
 {% if mode == 'stale_prices' %}<div class="notice" role="status"><strong>Цены Kaspi устарели или дата проверки неизвестна.</strong> Это кандидаты на повторную проверку, а не подтверждённые выгодные закупки. Показанная прибыль рассчитана по сохранённой старой цене. Даты не обновляются автоматически. Добавление в закупку из этого списка отключено.</div>{% endif %}
 <section class="catalog-filters{% if mode == 'best' or mode == 'stale_prices' %} best-filters{% endif %}" aria-label="Фильтры товаров">
