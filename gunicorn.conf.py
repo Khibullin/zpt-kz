@@ -15,7 +15,10 @@ threads = 2
 
 
 def on_starting(server):
-    if os.environ.get('PRICE_UPDATE_WORKER_ENABLED', 'false').lower() == 'true':
+    enabled = os.environ.get('PRICE_UPDATE_WORKER_ENABLED', 'false').lower() == 'true'
+    server.log.info('ZPT supplier/Kaspi background processor: %s',
+                    'enabled' if enabled else 'disabled')
+    if enabled:
         server.price_update_worker = subprocess.Popen(
             [sys.executable, 'manage.py', 'process_price_updates', '--watch'])
 
