@@ -216,7 +216,7 @@ class Command(BaseCommand):
                 if options['watch']:
                     tasks = KaspiReviewTask.objects.filter(status='pending', offer__match_verified=True).filter(
                         Q(batch__isnull=True) | Q(batch__status='done')
-                    ).exclude(offer__kaspi_url='').order_by('priority', 'pk')
+                    ).exclude(offer__kaspi_url='').order_by('priority', 'offer__kaspi_price_checked_on', 'pk')
                     for task_id in list(tasks.values_list('pk', flat=True)[:10]):
                         if not running:
                             break
