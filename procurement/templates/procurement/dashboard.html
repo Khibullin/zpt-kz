@@ -12,12 +12,12 @@
 </nav>
 {% if mode == 'best' %}
 <div class="actions" style="margin:0 0 10px">
-<a class="button" href="{% querystring best_scope=None page=None download=None %}" {% if best_scope == 'all' %}aria-current="page"{% endif %}>Все найденные</a>
+<a class="button" href="{% querystring best_scope='all' page=None download=None %}" {% if best_scope == 'all' %}aria-current="page"{% endif %}>Все найденные</a>
 <a class="button" href="{% querystring best_scope='current' page=None download=None %}" {% if best_scope == 'current' %}aria-current="page"{% endif %}>Выгодные по последним данным</a>
 <a class="button" href="{% querystring best_scope='new' page=None download=None %}" {% if best_scope == 'new' %}aria-current="page"{% endif %}>Новые</a>
 <a class="button" href="{% querystring best_scope='history' page=None download=None %}" {% if best_scope == 'history' %}aria-current="page"{% endif %}>Ранее выгодные</a>
 </div>
-<p class="muted" style="margin:2px 0 12px">Показываем последние сохранённые прайсы и цены Kaspi независимо от даты. Перед оплатой уточняйте цену и наличие. Прежние результаты сохраняются.</p>
+<p class="muted" style="margin:2px 0 12px">Для актуальных выгодных: прибыль ≥ 1 000 ₸, доходность ≥ 25% после комиссии и расходов, цена Kaspi и прайс поставщика не старше 7 дней. Ранее выгодные предложения доступны отдельно.</p>
 {% endif %}
 {% if mode == 'stale_prices' %}<div class="notice" role="status"><strong>Цены Kaspi устарели или дата проверки неизвестна.</strong> Это кандидаты на повторную проверку, а не подтверждённые выгодные закупки. Показанная прибыль рассчитана по сохранённой старой цене. Даты не обновляются автоматически. Добавление в закупку из этого списка отключено.</div>{% endif %}
 <section class="catalog-filters{% if mode == 'best' or mode == 'stale_prices' %} best-filters{% endif %}" aria-label="Фильтры товаров">
