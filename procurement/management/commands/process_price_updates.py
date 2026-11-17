@@ -73,6 +73,14 @@ def verify_catalog_readonly():
         logger.warning('Kaspi official categories GET failed: %s', str(exc))
         if 'соединение' in str(exc) or 'тайм-аут' in str(exc):
             check_kaspi_transport()
+            # One additional DOCUMENTED, read-only API endpoint. Never POST,
+            # enumerate products, or retry on authentication failures.
+            try:
+                schema = CatalogClient().call('import/schema')
+                logger.warning('Kaspi official import-schema GET: success=%s',
+                               isinstance(schema, dict))
+            except CatalogError as secondary:
+                logger.warning('Kaspi official import-schema GET failed: %s', secondary)
         return False
     except Exception:
         logger.exception('Kaspi official categories GET failed unexpectedly (no secrets logged)')
