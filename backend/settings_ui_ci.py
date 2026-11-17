@@ -19,3 +19,6 @@ EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
 
 # Keep ordinary transactional email assertions deterministic; async tests opt in.
 REQUEST_OWNER_EMAIL_ASYNC = False
+
+# Existing public catalogue regression suites must test the legacy mode.
+PUBLIC_CATALOG_ENABLED = True
