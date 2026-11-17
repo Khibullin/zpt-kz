@@ -59,3 +59,16 @@ class SavedKaspiPriceListTests(TestCase):
         self.assertIn("5500", response.content.decode("utf-8"))
         self.assertIn(self.verified.kaspi_price_checked_on.isoformat(), response.content.decode("utf-8"))
         self.assertIn("Сохранённая цена Kaspi", response.content.decode("utf-8"))
+
+    def test_omega_rules_button_is_only_on_best_buy_tab(self):
+        best_url = reverse("procurement:dashboard") + "?mode=best&supplier=" + str(self.supplier.pk)
+        response = self.client.get(best_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="best-selection-rules"')
+        self.assertContains(response, "Правила отбора")
+        self.assertContains(response, "2 000 ₸ за единицу")
+        self.assertContains(response, "50%")
+        self.assertContains(response, "всей Республике Казахстан")
+        self.assertContains(response, "действующий программный алгоритм расчёта пока не изменён")
+        ordinary = self.client.get(self.url)
+        self.assertNotContains(ordinary, 'id="best-selection-rules"')
