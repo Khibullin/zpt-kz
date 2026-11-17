@@ -1,0 +1,45 @@
+{% with firsthand=offer.characteristics.firsthand_omega_20261117 %}
+{% if firsthand %}
+<section class="panel" id="firsthand-omega-evidence" style="margin:12px 0;padding:12px 16px">
+  <strong>Firsthand · Kaspi · 17.11.2026</strong>
+  <p class="muted" style="margin:5px 0">Цены и продавцы по Алматы, Астане и Шымкенту. Это не проверка всего Казахстана. Совпадение бренда/артикула ещё не подтверждает исполнение и комплектность товара.</p>
+  {% if firsthand.identity_status == 'conflict' %}
+    <p class="preliminary-status"><strong>Спорная карточка:</strong> {{ firsthand.identity_note }}. Закупку не подтверждать.</p>
+  {% else %}<small class="preliminary-status">{{ firsthand.identity_note }}</small>{% endif %}
+  <details>
+    <summary>Продавцы и цены по трём городам</summary>
+    {% for city in firsthand.cities %}
+      <div style="margin:12px 0">
+        <strong>{{ city.city }} · минимум {{ city.price|floatformat:0 }} ₸ · продавцов {{ city.sellers|length }}</strong>
+        <div class="tablewrap">
+        <table>
+          <thead><tr><th>Продавец</th><th>Цена, ₸</th><th>Рейтинг</th><th>Доставка, дней</th><th>Самовывоз</th></tr></thead>
+          <tbody>
+          {% for seller in city.sellers %}
+            <tr>
+            <td>{% if seller.url %}<a href="{{ seller.url }}" target="_blank" rel="noopener noreferrer">{{ seller.name }}</a>{% else %}{{ seller.name }}{% endif %}</td>
+            <td>{{ seller.price|floatformat:0 }}</td><td>{{ seller.rating|default_if_none:"—" }}</td>
+            <td>{{ seller.delivery_days|default_if_none:"—" }}</td>
+            <td>{% if seller.pickup_available %}Да{% else %}Нет{% endif %}</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table></div>
+      </div>
+    {% endfor %}
+  </details>
+  {% if firsthand.images %}
+    <details><summary>Фотографии Kaspi ({{ firsthand.images|length }}) · требуется сверка с Омегой</summary>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;margin:10px 0">
+      {% for image_url in firsthand.images %}
+        <a href="{{ image_url }}" target="_blank" rel="noopener noreferrer">
+          <img src="{{ image_url }}" alt="Фото Kaspi — предварительное совпадение" loading="lazy" style="width:90px;height:90px;object-fit:contain;border:1px solid #ccc;border-radius:6px">
+        </a>
+      {% endfor %}
+      </div>
+    </details>
+  {% endif %}
+  <small>Применимость Firsthand не содержит. Марки/модели/годы/двигатели — только из подтверждённых данных поставщика или производителя.</small>
+</section>
+{% endif %}
+{% endwith %}

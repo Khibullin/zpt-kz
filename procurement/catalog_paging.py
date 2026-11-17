@@ -66,11 +66,13 @@ def cumulative_profitable_query(query, preferences, today=None):
     # Exactly the same positive-stock notation accepted by stock_status().
     omega_stock = Q(stock__regex=POSITIVE_STOCK_PATTERN)
     omega_qualified = (
-        Q(match_verified=True, cost__gte=Decimal('2000'), kaspi_price__gt=0) & ~Q(kaspi_url='')
+        (Q(match_verified=True) |
+         Q(characteristics__firsthand_omega_20261117__identity_status__in=['candidate', 'conflict']))
+        & Q(cost__gte=Decimal('2000'), kaspi_price__gt=0) & ~Q(kaspi_url='')
         & omega_stock
         & Q(_cumulative_profit__gte=F('cost') * Value(Decimal('0.50')))
     )
-    # Previously captured profitability remains in the historical record,
+    # Imported candidates are financial leads only; they do not set match_verified.\n    # Previously captured profitability remains in the historical record,
     # even if a later supplier update removed stock or lowered the margin.
     omega = Q(supplier__name='Omega') & (
         omega_qualified | Q(profitable_record__isnull=False)

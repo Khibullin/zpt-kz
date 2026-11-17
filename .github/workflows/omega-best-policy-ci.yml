@@ -4,6 +4,12 @@ on:
   pull_request:
     paths:
       - 'procurement/omega_policy.py'
+      - 'procurement/firsthand_omega_import.py'
+      - 'procurement/data/omega_firsthand_20261117.json'
+      - 'procurement/migrations/0120_import_omega_firsthand_20261117.py'
+      - 'procurement/test_firsthand_omega_import.py'
+      - 'procurement/templates/procurement/firsthand_omega_sellers.html'
+      - 'procurement/templates/procurement/detail.html'
       - 'procurement/catalog_paging.py'
       - 'procurement/analysis.py'
       - 'procurement/views.py'
@@ -30,4 +36,4 @@ jobs:
       - run: pip install -r requirements.txt
       - run: python manage.py check --settings=backend.settings_ui_ci
       - run: python manage.py makemigrations procurement --check --dry-run --settings=backend.settings_ui_ci
-      - run: python manage.py test procurement.test_omega_best_policy procurement.test_best_filters procurement.test_saved_kaspi_prices --settings=backend.settings_ui_ci --noinput
+      - run: python manage.py test procurement.test_firsthand_omega_import procurement.test_omega_best_policy procurement.test_best_filters procurement.test_saved_kaspi_prices --settings=backend.settings_ui_ci --noinput
