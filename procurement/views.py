@@ -239,12 +239,19 @@ def filtered_rows(request, preferences, filters, paginate=False):
             if not is_current and record is None and not row['omega_review']:
                 continue
             row['historical'] = not is_current
+            # A newly imported Firsthand quote is a fresh financial lead, not
+            # a confirmed product match. Keep that distinction separate from
+            # the tab's "new" and "latest data" classifications.
+            row['firsthand_recent'] = bool(
+                row['omega_review'] and firsthand
+                and row['price_fresh'] and row['supplier_fresh']
+            )
             latest = latest_batches.get(offer.supplier_id)
             row['is_new'] = bool(
-                is_current and latest and (
+                (is_current and latest and (
                     (record and not record.initial_import and record.first_batch_id == latest[0]) or
                     (record is None and offer.created_at >= latest[1])
-                )
+                )) or row['firsthand_recent']
             )
             row['processed_at'] = record.processed_at if record else None
             row['display_cost'] = offer.cost
@@ -325,7 +332,9 @@ def filtered_rows(request, preferences, filters, paginate=False):
         elif scope == 'history':
             rows = [r for r in rows if r['historical']]
         elif scope == 'current':
-            rows = [r for r in rows if not r['historical']]
+            # Include fresh three-city Firsthand financial candidates, while
+            # their purchase action remains blocked by omega_review.
+            rows = [r for r in rows if not r['historical'] or r.get('firsthand_recent')]
         rows.sort(key=lambda r: (-(r['markup'] or Decimal('0')),
                                 -(r['profit'] or Decimal('0')), r['offer'].pk))
     elif mode == 'kaspi_prices':
