@@ -23,7 +23,7 @@ def best_candidates_query(query, preferences, today):
                         supplier_checked_on__gte=today - timedelta(days=7), supplier_checked_on__lte=today,
                         kaspi_price_checked_on__gte=today - timedelta(days=7), kaspi_price_checked_on__lte=today).annotate(
                             _best_profit=profit).filter(
-                                _best_profit__gte=max(Decimal(1000), preferences.best_min_profit),
+                                _best_profit__gte=max(Decimal(1000), preferences.best_min_profit)).filter(
                                 _best_profit__gte=F('cost') * Value(MIN_BEST_ROI / Decimal(100)))
 
 
