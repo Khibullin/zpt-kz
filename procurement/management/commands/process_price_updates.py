@@ -142,8 +142,19 @@ class Command(BaseCommand):
             photo_progress = 0
             facet_progress = False
             try:
+                # Supplier price uploads have absolute priority: Kaspi access
+                # errors, images or storefront snapshots must never delay a
+                # freshly uploaded supplier file or its profitable calculation.
+                query = PriceUpdate.objects.filter(status__in=['ready', 'running']).order_by('pk')
+                if options['batch']:
+                    query = query.filter(pk=options['batch'])
+                for batch in query.iterator(chunk_size=1):
+                    rows = batch.rows
+                    while running and batch.status != 'done':
+                        batch = advance_update(batch.pk, prepared_rows=rows)
+                    self.stdout.write(f'Price update {batch.pk}: {batch.cursor}/{batch.row_count}')
                 if options['watch']:
-                    # Run price identity checks before potentially slow photo,
+                    # Kaspi validation and image work are independent from uploads.
                     # storefront and purchased-card work, so Kaspi does not
                     # starve behind unrelated enrichment queues.
                     KaspiReviewTask.objects.filter(
@@ -166,14 +177,6 @@ class Command(BaseCommand):
                     refresh_filter_snapshots()
                     from procurement.kaspi_materials import process_purchased_cards
                     process_purchased_cards(fetch_photos=True, throttle=True)
-                query = PriceUpdate.objects.filter(status__in=['ready', 'running']).order_by('pk')
-                if options['batch']:
-                    query = query.filter(pk=options['batch'])
-                for batch in query.iterator(chunk_size=1):
-                    rows = batch.rows
-                    while running and batch.status != 'done':
-                        batch = advance_update(batch.pk, prepared_rows=rows)
-                    self.stdout.write(f'Price update {batch.pk}: {batch.cursor}/{batch.row_count}')
                 from procurement.models import RetailPublicationRun
                 from procurement.stock_retail import advance_publication, start_publication
                 # Continue an already-authorized run that previously deferred OEM variants.
