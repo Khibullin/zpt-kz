@@ -110,6 +110,12 @@
 <tbody>{% for row in page %}<tr>
 <td class="product"><a href="{% url 'procurement:detail' row.offer.pk %}"><strong>{{ row.offer.name }}</strong></a>
 <small>{{ row.offer.brand }} · {{ row.offer.article }}</small>
+{% if row.firsthand_images %}
+  <div style="display:flex;align-items:center;gap:8px;margin:6px 0">
+    <img src="{{ row.firsthand_images.0 }}" alt="Фото Kaspi, требует проверки" width="64" height="64" loading="lazy" style="object-fit:contain;border:1px solid #cbd5e1;border-radius:6px">
+    <small class="preliminary-status">Фото Firsthand · требуется проверка исполнения</small>
+  </div>
+{% endif %}
 {% if mode == 'best' %}<small><strong>{{ row.best_status }}</strong></small>
 <small>Прайс: {{ row.display_supplier_date|date:'d.m.Y'|default:'нет данных' }} · Обработано: {{ row.processed_at|date:'d.m.Y'|default:'не зафиксировано' }} · Kaspi: {{ row.display_kaspi_date|date:'d.m.Y'|default:'нет данных' }}</small>
 {% if row.historical %}<small class="preliminary-status">{{ row.historical_reason }}</small>{% endif %}{% endif %}
@@ -118,7 +124,7 @@
 <p>{% if row.offer.match_verified %}Совпадение с Kaspi подтверждено{% else %}Совпадение с Kaspi не проверено{% endif %}</p>
 <p>Категория: {{ row.offer.category }} · Остаток: {{ row.offer.stock|default:'неизвестен' }} · Дата прайса: {{ row.offer.supplier_checked_on|date:'d.m.Y'|default:'дата неизвестна' }} · Дата Kaspi: {{ row.offer.kaspi_price_checked_on|date:'d.m.Y'|default:'дата неизвестна' }}</p>
 {% include 'procurement/fitments.html' with offer=row.offer compact=True fitments=row.offer.compact_fitments %}
-{% include 'procurement/kaspi_sellers.html' with offer=row.offer compact=True %}
+{% if row.firsthand %}{% include 'procurement/firsthand_omega_sellers.html' with offer=row.offer %}{% else %}{% include 'procurement/kaspi_sellers.html' with offer=row.offer compact=True %}{% endif %}
 <p>{{ row.signal }} · Продажи / 30 дней: {{ row.offer.sales_30|default_if_none:'неизвестны' }} · Отзывы / 90 дней: {{ row.offer.recent_reviews|default_if_none:'нет данных' }} · Спрос проверен: {{ row.offer.evidence_date|date:'d.m.Y'|default:'не проверен' }}</p>
 <p>Комиссия: {{ row.commission_amount|floatformat:2|default:'Нет данных' }} ₸ · После комиссии: {{ row.kaspi_after_commission|floatformat:2|default:'Нет данных' }} ₸ · Заработок после комиссии: {{ row.difference|floatformat:2|default:'Нет данных' }} ₸</p>
 <form method="post" action="{% url 'procurement:favorite' row.offer.pk %}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><input type="hidden" name="action" value="{% if row.favorite %}remove{% else %}add{% endif %}"><button>{% if row.favorite %}Убрать из избранного{% else %}В избранное{% endif %}</button></form>
