@@ -91,6 +91,9 @@ class OfficialCatalogClientTests(TestCase):
         self.assertEqual(request.call_args.args[0],'GET')
         self.assertEqual(request.call_args.args[1],
                          'https://kaspi.kz/shop/api/products/classification/categories')
+        self.assertNotIn('Content-Type', request.call_args.kwargs['headers'])
+        self.assertEqual(request.call_args.kwargs['headers']['X-Auth-Token'],
+                         'ci-fake-token')
 
     def test_unknown_publication_result_is_not_resent(self):
         user=get_user_model().objects.create_user('bridge-publisher')
