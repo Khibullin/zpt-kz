@@ -26,10 +26,16 @@ class CatalogClient:
     def call(self, path, method='GET', params=None, payload=None):
         if not connected():
             raise CatalogError('Не подключён API-ключ магазина Kaspi. Ручное размещение доступно.')
+        headers = {
+            'Accept': 'application/json',
+            'X-Auth-Token': settings.KASPI_API_TOKEN,
+            'User-Agent': 'ZPT.KZ-Kaspi-Integration/1.0',
+        }
+        if method == 'POST':
+            headers['Content-Type'] = 'text/plain'
         try:
             response = requests.request(method, BASE+path, params=params,
-                headers={'Accept':'application/json', 'Content-Type':'text/plain',
-                    'X-Auth-Token':settings.KASPI_API_TOKEN},
+                headers=headers,
                 data=json.dumps(payload,ensure_ascii=False).encode() if payload is not None else None,
                 timeout=(4,15), allow_redirects=False)
         except requests.RequestException as error:
