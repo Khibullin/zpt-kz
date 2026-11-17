@@ -75,8 +75,12 @@ def sync_provisional_snapshot(offer, *, today=None):
 
 def sync_verified_preview_batch(limit=10):
     """Bounded database-only pass; no HTTP, image, fitment, price or stock writes."""
+    # Narrow the read to exact listed articles before any per-item checks.
+    listed_articles = ProductKaspiListing.objects.filter(
+        is_active=True, public_url_verified_at__isnull=False,
+    ).values('product__article')
     candidates = Offer.objects.filter(
-        match_verified=True,
+        match_verified=True, article__in=listed_articles,
     ).exclude(kaspi_url='').order_by('pk')[:500]
     done = 0
     for offer in candidates:
