@@ -156,9 +156,12 @@ def resume_source_blocked_after_recovery(*, reader=read_public_product_page):
         return 0
     try:
         evidence = validate_public_identity(sample.offer, reader(sample.offer.kaspi_url))
-    except (requests.RequestException, ValueError):
+    except (requests.RequestException, ValueError) as error:
+        logger.warning('Kaspi public source recovery: unavailable (%s); no retry today',
+                       type(error).__name__)
         return 0
     if not evidence:
+        logger.warning('Kaspi public source recovery: exact product evidence unavailable; no retry today')
         return 0
     count = KaspiReviewTask.objects.filter(
         status='blocked', reason__startswith='Источник Kaspi ограничил доступ.',
