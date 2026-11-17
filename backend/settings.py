@@ -13,7 +13,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
 # Preserve internal procurement while retiring public storefront work.
-PUBLIC_CATALOG_ENABLED = False
+PUBLIC_CATALOG_ENABLED = os.getenv('PUBLIC_CATALOG_ENABLED', 'false').lower() == 'true'
 
 _DEV_SECRET_KEY = 'django-insecure-dev-only-change-me'
 _BUILD_COMMANDS = {'collectstatic', 'migrate', 'check', 'makemigrations'}
