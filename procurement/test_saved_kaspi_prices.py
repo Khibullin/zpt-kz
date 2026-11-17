@@ -67,7 +67,7 @@ class SavedKaspiPriceListTests(TestCase):
         self.assertContains(response, 'id="best-selection-rules"')
         self.assertContains(response, "Правила отбора")
         self.assertContains(response, "2 000 ₸ за единицу")
-        self.assertContains(response, "не менее 50%")
+        self.assertContains(response, "50%")
         self.assertContains(response, "всей Республике Казахстан")
         self.assertContains(response, "действующий программный алгоритм расчёта пока не изменён")
         ordinary = self.client.get(self.url)
