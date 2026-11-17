@@ -230,7 +230,7 @@ def advance_update(batch_id, prepared_rows=None):
         # downloads images, fills vehicle fitments or invents Kaspi prices.
         from .catalog_paging import best_candidates_query
         if terms is not None:
-            valid_stock = r'^\\s*[><≥≤]?\\s*[1-9]\\d*(?:\\s|$)'
+            valid_stock = r'^\s*[><≥≤]?\s*[1-9]\d*(?:\s|$)'
             batch.summary['profitable_current'] = best_candidates_query(
                 Offer.objects.filter(supplier=batch.supplier, stock__regex=valid_stock),
                 terms, timezone.localdate(),
