@@ -95,5 +95,10 @@ def refresh_task(task_id, reader=read_complete_sellers):
             'brand': offer.brand, 'article': offer.article, 'source_url': offer.kaspi_url,
             'city': '750000000', 'complete': True, 'sellers': sellers}]}))
         import_competitors(payload, offer.supplier.name, date, task.batch.user)
+        # A verified, fresh Kaspi observation automatically refreshes the buy
+        # shortlist; photo/fitment enrichment is deliberately separate.
+        from .opportunities import capture_profitable_offer
+        current.refresh_from_db()
+        capture_profitable_offer(current, batch=task.batch)
         KaspiReviewTask.objects.filter(pk=task.pk).update(status='done', reason='Продавцы Kaspi проверены')
     return True
