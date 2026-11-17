@@ -3,12 +3,14 @@ from __future__ import annotations
 import json
 
 from django.conf import settings
+from django.db.models import OuterRef, Subquery
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET, require_POST
 
 from catalog.models import ProductKaspiListing
 from repricer.collector_auth import collector_auth_required
 from repricer.collector_ingest import CollectorIngestError, ingest_competitor_batch
+from repricer.models import KaspiCompetitorIngestBatch
 
 MAX_BODY_BYTES = 256 * 1024
 
@@ -50,7 +52,12 @@ def _manifest_undercut_amount() -> int:
 @collector_auth_required
 @require_GET
 def listings_manifest(request):
-    queryset = ProductKaspiListing.objects.select_related("product").filter(is_active=True)
+    last_collected = KaspiCompetitorIngestBatch.objects.filter(
+        listing_id=OuterRef("pk"), source="office_collector",
+    ).order_by("-captured_at").values("captured_at")[:1]
+    queryset = ProductKaspiListing.objects.select_related("product").filter(
+        is_active=True,
+    ).annotate(last_collected_at=Subquery(last_collected))
     raw_ids = request.GET.get("ids", "")
     if raw_ids.strip():
         try:
@@ -66,6 +73,9 @@ def listings_manifest(request):
             "merchant_sku": listing.merchant_sku or "",
             "last_known_our_price": listing.last_known_our_price,
             "public_url": listing.public_url or "",
+            "last_collected_at": (
+                listing.last_collected_at.isoformat() if listing.last_collected_at else None
+            ),
         }
         for listing in queryset.order_by("id")
     ]

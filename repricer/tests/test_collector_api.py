@@ -135,6 +135,7 @@ class CollectorApiTests(TestCase):
                 "merchant_sku",
                 "last_known_our_price",
                 "public_url",
+                "last_collected_at",
             },
         )
         encoded = json.dumps(payload)
@@ -168,6 +169,18 @@ class CollectorApiTests(TestCase):
         ids = [row["listing_id"] for row in response.json()["listings"]]
         self.assertEqual(ids, [self.listing.pk])
         self.assertNotIn(other.pk, ids)
+
+    def test_manifest_includes_last_office_collection_without_price_writes(self):
+        recent = timezone.now()
+        KaspiCompetitorIngestBatch.objects.create(
+            listing=self.listing, external_batch_id=uuid4(), source="office_collector",
+            captured_at=recent, offer_count=1,
+        )
+        response = self.client.get(LISTINGS_URL, **self._auth())
+        self.assertEqual(response.status_code, 200)
+        row = response.json()["listings"][0]
+        self.assertIsNotNone(row["last_collected_at"])
+        self.assertEqual(timezone.datetime.fromisoformat(row["last_collected_at"]), recent)
 
     def test_manifest_get_is_zero_write(self):
         before = (
