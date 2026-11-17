@@ -161,7 +161,13 @@ class Command(BaseCommand):
                         status='checking',
                         updated_at__lt=timezone.now()-timedelta(minutes=30),
                     ).update(status='pending')
-                    from procurement.kaspi_identity_worker import process_pending_bound_cards
+                    from procurement.kaspi_identity_worker import (
+                        process_pending_bound_cards,
+                        resume_source_blocked_after_recovery,
+                    )
+                    # At most one daily probe; no repeat request after access
+                    # denial. On verified recovery the pending queue resumes.
+                    resume_source_blocked_after_recovery()
                     process_pending_bound_cards(limit=1)
                     # Share existing, independently verified collector observations
                     # as INCOMPLETE evidence only, never as confirmed market prices.
