@@ -17,7 +17,13 @@
 <a class="button" href="{% querystring best_scope='new' page=None download=None %}" {% if best_scope == 'new' %}aria-current="page"{% endif %}>Новые</a>
 <a class="button" href="{% querystring best_scope='history' page=None download=None %}" {% if best_scope == 'history' %}aria-current="page"{% endif %}>Ранее выгодные</a>
 </div>
-<p class="muted" style="margin:2px 0 12px">Для актуальных выгодных: прибыль ≥ 1 000 ₸, доходность ≥ 25% после комиссии и расходов, цена Kaspi и прайс поставщика не старше 7 дней. Ранее выгодные предложения доступны отдельно.</p>
+<p class="muted" style="margin:2px 0 12px">Для актуальных выгодных: прибыль ≥ 1 000 ₸, доходность ≥ 25% после комиссии и расходов. Даты цен сохранены. Ранее найденные товары не удаляются при истечении срока проверки.</p>
+{% if best_kaspi_status.preserved_price_date %}
+<section class="panel" role="status" style="padding:12px 16px;margin:0 0 12px">
+  <strong>Показаны товары по сохранённому прайсу поставщика от {{ best_kaspi_status.preserved_price_date|date:"d.m.Y" }}</strong>
+  <p style="margin:6px 0 0">До загрузки нового файла этот прайс сохраняется. Ранее выгодные товары остаются в списке со своими прежними ценами и датами. Они не выдаются за проверенные сегодня; перед закупкой необходимо уточнить цену и наличие.</p>
+</section>
+{% endif %}
 {% if best_kaspi_status %}
 <section class="panel" role="status" aria-live="polite" style="padding:14px 18px;margin:0 0 14px">
   <strong>{{ best_kaspi_status.label }}</strong>
