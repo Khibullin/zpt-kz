@@ -110,6 +110,26 @@ class PriceUpdateTests(TestCase):
         self.offer.refresh_from_db()
         self.assertEqual(self.offer.applicability, 'MAZDA3 BLEFP 2009 -')
 
+    def test_supplier_update_does_not_reopen_access_blocked_kaspi_check(self):
+        KaspiReviewTask.objects.create(
+            offer=self.offer, status='blocked', priority=1,
+            reason='Источник Kaspi ограничил доступ. Автоматическая проверка остановлена.')
+        advance_update(self.stage().pk)
+        task = KaspiReviewTask.objects.get(offer=self.offer)
+        self.assertEqual(task.status, 'blocked')
+        self.assertIn('ограничил доступ', task.reason)
+        self.offer.refresh_from_db()
+        self.assertEqual(self.offer.cost, Decimal('900'))
+        self.assertEqual(self.offer.kaspi_price_checked_on, self.today-timedelta(days=6))
+
+    def test_supplier_update_keeps_price_source_blocked_until_verified_recovery(self):
+        KaspiReviewTask.objects.create(
+            offer=self.offer, status='blocked', priority=1,
+            reason='Проверки приостановлены после отказа источника Kaspi. Повторите вручную позже.')
+        advance_update(self.stage().pk)
+        task = KaspiReviewTask.objects.get(offer=self.offer)
+        self.assertEqual(task.status, 'blocked')
+
     def test_name_change_invalidates_matching_and_creates_review(self):
         KaspiSellerSnapshot.objects.create(offer=self.offer, source_url=self.offer.kaspi_url, checked_on=self.today, complete=True)
         batch = stage_update(self.file('BRAND;001A;Фильтр комплект 2 шт;900;5\n'), self.supplier, self.user, self.today)
