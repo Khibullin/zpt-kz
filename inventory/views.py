@@ -76,18 +76,31 @@ def dashboard(request, section='overview'):
     if section=='stock':
         for row in page: row.brand=brand_name(row.brand)
     query = request.GET.copy(); query.pop('page',None)
-    cash_accounts = list(MoneyAccount.objects.order_by('name'))
-    accounts_by_id = {a.pk:a for a in cash_accounts}
-    for a in cash_accounts: a.current_balance = a.opening_balance
-    for entry in CashEntry.objects.all(): accounts_by_id[entry.account_id].current_balance += entry.signed_amount
+    # Money balances and purchase reconciliations are displayed only on the
+    # overview. The sales/legacy finance report does not use either value.
+    # Avoid cross-app N+1 purchase/receipt queries on every finance-page GET.
+    cash_accounts = []
     receipt_debt = Decimal('0')
-    for receipt in StockDocument.objects.filter(kind='receipt',status='posted',purchase_order__isnull=True):
-        paid = CashEntry.objects.filter(stock_document=receipt,kind='supplier',cancelled=False).aggregate(total=Sum('amount'))['total'] or Decimal('0')
-        receipt_debt += receipt.quantity * receipt.unit_cost - paid
-    from procurement.models import PurchaseOrder
-    from .purchasing import order_summary
-    for purchase in PurchaseOrder.objects.filter(archived=False):
-        receipt_debt += order_summary(purchase)['balance']
+    if section == 'overview':
+        cash_accounts = list(MoneyAccount.objects.order_by('name'))
+        accounts_by_id = {a.pk: a for a in cash_accounts}
+        for account in cash_accounts:
+            account.current_balance = account.opening_balance
+        for entry in CashEntry.objects.all():
+            account = accounts_by_id.get(entry.account_id)
+            if account:
+                account.current_balance += entry.signed_amount
+        for receipt in StockDocument.objects.filter(
+            kind='receipt', status='posted', purchase_order__isnull=True
+        ):
+            paid = CashEntry.objects.filter(
+                stock_document=receipt, kind='supplier', cancelled=False
+            ).aggregate(total=Sum('amount'))['total'] or Decimal('0')
+            receipt_debt += receipt.quantity * receipt.unit_cost - paid
+        from procurement.models import PurchaseOrder
+        from .purchasing import order_summary
+        for purchase in PurchaseOrder.objects.filter(archived=False):
+            receipt_debt += order_summary(purchase)['balance']
     if request.GET.get('export')=='xlsx':
         from .tools_views import xlsx_response
         if section == 'overview':
