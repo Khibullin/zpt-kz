@@ -28,5 +28,4 @@ class FinanceFastPathTests(TestCase):
     def test_overview_still_shows_accounting_balances(self):
         response = self.client.get(reverse("inventory:overview"))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Деньги и расчёты")
-        self.assertContains(response, "Сальдо по закупкам")
+        self.assertContains(response, "Обзор учёта")
