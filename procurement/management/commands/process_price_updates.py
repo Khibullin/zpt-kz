@@ -21,6 +21,33 @@ def photo_window_open(now):
     return local_now.weekday() >= 5 or local_now.hour >= 23 or local_now.hour < 6
 
 
+def verify_catalog_readonly():
+    """One safe official Kaspi API GET on worker start, without leaking secrets."""
+    from procurement.kaspi_catalog_api import CatalogClient, CatalogError, connected
+    token_set = connected()
+    merchant_set = bool(getattr(settings, 'KASPI_MERCHANT_ID', '').strip())
+    logger.info('Kaspi official API configuration: token_present=%s merchant_present=%s',
+                token_set, merchant_set)
+    if not token_set:
+        logger.warning('Kaspi official catalogue GET skipped: token is not configured')
+        return False
+    try:
+        response = CatalogClient().categories()
+        if not isinstance(response, list):
+            logger.warning('Kaspi official categories GET returned unexpected JSON structure: %s',
+                           type(response).__name__)
+            return False
+        logger.info('Kaspi official categories GET success: category_count=%s', len(response))
+        return True
+    except CatalogError as exc:
+        # CatalogError is sanitized by CatalogClient: no header or token values.
+        logger.warning('Kaspi official categories GET failed: %s', str(exc))
+        return False
+    except Exception:
+        logger.exception('Kaspi official categories GET failed unexpectedly (no secrets logged)')
+        return False
+
+
 class Command(BaseCommand):
     help = 'Continue authorized supplier uploads, optionally as a background consumer.'
 
@@ -36,6 +63,7 @@ class Command(BaseCommand):
         if options['watch']:
             signal.signal(signal.SIGTERM, stop)
             signal.signal(signal.SIGINT, stop)
+            verify_catalog_readonly()
         while running:
             close_old_connections()
             photo_progress = 0
