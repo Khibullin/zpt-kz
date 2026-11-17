@@ -67,7 +67,16 @@ def read_complete_sellers(url, session=None, pause=time.sleep):
 def refresh_task(task_id, reader=read_complete_sellers):
     task = KaspiReviewTask.objects.select_related('offer', 'batch__user').get(pk=task_id)
     offer = task.offer
-    if task.status != 'pending' or not task.batch_id or not offer.match_verified or not offer.kaspi_url:
+    if task.status != 'pending' or not offer.match_verified or not offer.kaspi_url:
+        return False
+    # Standalone review tasks have no PriceUpdate owner; use the configured
+    # procurement owner for the existing audit trail, never a guessed user.
+    from .opportunities import owner_terms
+    audit_user = task.batch.user if task.batch_id else None
+    if audit_user is None:
+        terms = owner_terms()
+        audit_user = terms.user if terms else None
+    if audit_user is None:
         return False
     claimed = timezone.now()
     if not KaspiReviewTask.objects.filter(pk=task.pk, status='pending').update(status='checking', updated_at=claimed):
@@ -80,7 +89,7 @@ def refresh_task(task_id, reader=read_complete_sellers):
         sellers = saved.sellers if saved else reader(offer.kaspi_url)
     except (ValueError, requests.RequestException):
         KaspiReviewTask.objects.filter(pk=task.pk, status='checking', updated_at=claimed).update(status='blocked', reason='Источник Kaspi недоступен или не подтвердил полноту. Требуется повторная проверка.')
-        KaspiReviewTask.objects.filter(status='pending', batch__isnull=False, offer__match_verified=True).exclude(offer__kaspi_url='').update(status='blocked', reason='Проверки приостановлены после отказа источника Kaspi. Повторите вручную позже.')
+        KaspiReviewTask.objects.filter(status='pending', offer__match_verified=True).exclude(offer__kaspi_url='').update(status='blocked', reason='Проверки приостановлены после отказа источника Kaspi. Повторите вручную позже.')
         return False
     with transaction.atomic():
         current = Offer.objects.select_for_update().get(pk=offer.pk)
@@ -94,7 +103,7 @@ def refresh_task(task_id, reader=read_complete_sellers):
         payload = io.StringIO(json.dumps({'checked_on': date.isoformat(), 'offers': [{
             'brand': offer.brand, 'article': offer.article, 'source_url': offer.kaspi_url,
             'city': '750000000', 'complete': True, 'sellers': sellers}]}))
-        import_competitors(payload, offer.supplier.name, date, task.batch.user)
+        import_competitors(payload, offer.supplier.name, date, audit_user)
         # A verified, fresh Kaspi observation automatically refreshes the buy
         # shortlist; photo/fitment enrichment is deliberately separate.
         from .opportunities import capture_profitable_offer
