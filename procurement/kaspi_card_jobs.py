@@ -119,18 +119,32 @@ def process_card_jobs():
             if cache.get('kaspi-card-refresh-paused'):
                 raise ValueError('Источник Kaspi временно недоступен. Повторите обновление позже.')
             offer=job.card.offer
-            if not offer or not offer.kaspi_url: raise ValueError('Не найдена карточка Kaspi точного товара. Автоподстановка похожей карточки запрещена.')
-            original=(offer.brand,offer.article,offer.kaspi_url)
+            if not offer or not offer.kaspi_url or not offer.match_verified:
+                raise ValueError('Нет подтверждённого совпадения с карточкой Kaspi точного товара.')
+            original=(offer.brand,offer.article,offer.name,offer.kaspi_url)
             try: sellers=read_complete_sellers(offer.kaspi_url)
             except Exception:
                 cache.set('kaspi-card-refresh-paused',True,1800)
                 raise ValueError('Источник Kaspi не подтвердил полный список продавцов. Прежние данные сохранены; обновление приостановлено на 30 минут.')
             with transaction.atomic():
-                current=Offer.objects.select_for_update().get(pk=offer.pk)
-                if (current.brand,current.article,current.kaspi_url)!=original: raise ValueError('Товар изменён во время проверки.')
-                KaspiSellerSnapshot.objects.update_or_create(offer=current,defaults=dict(source_url=current.kaspi_url,
-                    city='750000000',checked_on=timezone.localdate(),complete=True,sellers=sellers))
-            job.status='done';job.reason='Продавцы и цены обновлены. Ручная цена сохранена.';job.result={'sellers':len(sellers)}
+                current=Offer.objects.select_for_update().select_related('supplier').get(pk=offer.pk)
+                if (current.brand,current.article,current.name,current.kaspi_url)!=original or not current.match_verified:
+                    raise ValueError('Товар изменён во время проверки.')
+                # Shared import validation updates BOTH the authoritative seller
+                # snapshot and min Kaspi price used by wholesale profitability.
+                import io, json
+                from .importing import import_competitors
+                date=timezone.localdate()
+                data=io.StringIO(json.dumps({'checked_on':date.isoformat(),'offers':[{
+                    'brand':current.brand,'article':current.article,
+                    'source_url':current.kaspi_url,'city':'750000000',
+                    'complete':True,'sellers':sellers,
+                }]}))
+                import_competitors(data,current.supplier.name,date,job.user)
+                current.refresh_from_db()
+                from .opportunities import capture_profitable_offer
+                capture_profitable_offer(current)
+            job.status='done';job.reason='Продавцы и цены обновлены в общей базе. Ручная цена сохранена.';job.result={'sellers':len(sellers)}
         else:
             from django.conf import settings
             if job.payload.get('merchant')!=settings.KASPI_MERCHANT_ID: raise ValueError('Подключённый магазин изменился. Отправка остановлена.')
