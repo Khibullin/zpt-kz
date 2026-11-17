@@ -213,7 +213,7 @@ def filtered_rows(request, preferences, filters, paginate=False):
                 # Quotes from a single city do not certify the lowest price in
                 # Kazakhstan. Preserve promising Omega quotes as REVIEW only.
                 omega_margin_ok = bool(
-                    offer.match_verified and offer.cost >= Decimal('2000')
+                    offer.match_verified and bool(offer.kaspi_url) and offer.cost >= Decimal('2000')
                     and row['stock_status'] == 'in_stock'
                     and row['profit'] is not None
                     and row['profit'] >= offer.cost * Decimal('0.50')
