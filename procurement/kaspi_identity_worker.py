@@ -133,7 +133,7 @@ def process_pending_bound_cards(limit=1):
 
 
 def resume_source_blocked_after_recovery(*, reader=read_public_product_page):
-    """One public-source recovery probe a day; never bypass source denial.
+    """At most one public-source recovery probe per 24 hours; never bypass denial.
 
     Exact source metadata must be readable before previously access-blocked
     jobs are rescheduled. This does not renew any Kaspi price or stock.
@@ -144,8 +144,9 @@ def resume_source_blocked_after_recovery(*, reader=read_public_product_page):
         batch__status='done',
     ).exists():
         return 0
-    today = timezone.localdate()
-    key = 'procurement:kaspi-source-recovery:' + today.isoformat()
+    # One shared cache lease for a full 24 hours, not one per calendar day.
+    # Server restarts and midnight must not trigger extra access-denied probes.
+    key = 'procurement:kaspi-source-recovery:24h'
     if not cache.add(key, 'probing', timeout=86400):
         return 0
     sample = KaspiReviewTask.objects.filter(
@@ -157,11 +158,11 @@ def resume_source_blocked_after_recovery(*, reader=read_public_product_page):
     try:
         evidence = validate_public_identity(sample.offer, reader(sample.offer.kaspi_url))
     except (requests.RequestException, ValueError) as error:
-        logger.warning('Kaspi public source recovery: unavailable (%s); no retry today',
+        logger.warning('Kaspi public source recovery: unavailable (%s); next probe no earlier than 24h',
                        type(error).__name__)
         return 0
     if not evidence:
-        logger.warning('Kaspi public source recovery: exact product evidence unavailable; no retry today')
+        logger.warning('Kaspi public source recovery: exact evidence unavailable; next probe no earlier than 24h')
         return 0
     count = KaspiReviewTask.objects.filter(
         status='blocked', reason__startswith='Источник Kaspi ограничил доступ.',
