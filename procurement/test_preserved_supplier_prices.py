@@ -9,8 +9,8 @@ class PreservedSupplierPriceScopeTests(SimpleTestCase):
         for name in ('ZakazAuto — Костанай', 'Фаетон'):
             self.assertEqual(preserved_best_scope(SimpleNamespace(name=name)), 'all')
 
-    def test_omega_new_upload_uses_latest_verified_only(self):
-        self.assertEqual(preserved_best_scope(SimpleNamespace(name='Omega')), 'current')
+    def test_omega_keeps_saved_quotes_for_repeat_verification(self):
+        self.assertEqual(preserved_best_scope(SimpleNamespace(name='Omega')), 'all')
 
     def test_unknown_supplier_uses_conservative_verified_only(self):
         self.assertEqual(preserved_best_scope(None), 'current')
