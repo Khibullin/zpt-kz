@@ -228,3 +228,55 @@ class PriceUpdateTests(TestCase):
         self.assertEqual(final.summary['conflicts'], 1)
         self.assertEqual(final.summary['unavailable'], 0)
         self.assertFalse(Offer.objects.filter(brand='').exists())
+
+
+class AutomaticBestBuyTests(TestCase):
+    """Agreed 25% net ROI, 1000 KZT, fresh Kaspi data; no photo/fitment gate."""
+
+    def setUp(self):
+        from .models import Preferences
+        self.owner = get_user_model().objects.create_superuser(
+            'best-buy-owner', 'best-buy-owner@example.test', 'local-test-password')
+        Preferences.objects.create(
+            user=self.owner, commission=Decimal('12.50'),
+            expenses=Decimal('250'), best_min_profit=Decimal('1000'))
+        self.supplier = Supplier.objects.create(name='Omega')
+        self.today = timezone.localdate()
+
+    def offer(self, article, cost, price, days_old=0):
+        return Offer.objects.create(
+            supplier=self.supplier, brand='TEST', article=article,
+            name='Фильтр ' + article, cost=Decimal(cost), stock='4',
+            match_verified=True, supplier_checked_on=self.today - timedelta(days=2),
+            kaspi_price=Decimal(price),
+            kaspi_price_checked_on=self.today - timedelta(days=days_old),
+            kaspi_url='https://kaspi.kz/shop/p/example-' + article + '-123/')
+
+    def test_upload_automatically_filters_25pct_and_1000kzt_without_photos(self):
+        from .models import ProfitableOfferRecord
+        a = self.offer('GOOD', '2000', '5000')
+        b = self.offer('LOWROI', '10000', '13000')
+        file = SimpleUploadedFile(
+            'prices.csv', b'brand;article;name;cost;stock\n'
+                          b'TEST;GOOD;Filter GOOD;2000;4\n'
+                          b'TEST;LOWROI;Filter LOWROI;10000;4\n')
+        # Keep identity unchanged: price uploads must not reverify Kaspi.
+        a.name = 'Filter GOOD'; a.save(update_fields=['name'])
+        b.name = 'Filter LOWROI'; b.save(update_fields=['name'])
+        batch = advance_update(stage_update(file, self.supplier, self.owner, self.today).pk)
+        self.assertEqual(batch.status, 'done')
+        self.assertEqual(batch.summary['profitable_current'], 1)
+        self.assertEqual(batch.summary['best_min_roi'], '25')
+        self.assertTrue(ProfitableOfferRecord.objects.filter(offer=a).exists())
+        self.assertFalse(ProfitableOfferRecord.objects.filter(offer=b).exists())
+        self.assertFalse(a.fitments.exists())
+        self.assertFalse(b.fitments.exists())
+
+    def test_stale_kaspi_price_never_qualifies_as_current(self):
+        from .catalog_paging import best_candidates_query
+        from .models import Preferences
+        stale = self.offer('STALE', '2000', '5000', days_old=9)
+        owner_terms = Preferences.objects.get(user=self.owner)
+        self.assertFalse(best_candidates_query(
+            Offer.objects.filter(pk=stale.pk), owner_terms, self.today
+        ).exists())
