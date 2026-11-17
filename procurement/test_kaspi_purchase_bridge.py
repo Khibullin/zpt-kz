@@ -46,6 +46,22 @@ class PurchaseLotIntegrationTests(TestCase):
             quantity=quantity, created_by=self.owner)
         return doc
 
+    def test_accounting_admin_sees_other_user_received_purchase_once(self):
+        from procurement.kaspi_workspace import purchased_batches
+        from procurement.models import Membership
+        admin = get_user_model().objects.create_superuser(
+            'bridge-accountant', 'bridge-accountant@example.test', 'test-password')
+        Membership.objects.create(user=admin, role='admin')
+        self.add_entry('receipt', 5, 'PP2', purchase=True)
+        batches = purchased_batches(admin)
+        self.assertEqual(
+            [b['key'] for b in batches if b['key'] == f'order:{self.order.pk}'],
+            [f'order:{self.order.pk}'])
+        self.assertFalse(any(b['key'].startswith('receipt:') for b in batches))
+        self.assertNotIn(f'order:{self.order.pk}',
+                         [b['key'] for b in purchased_batches(
+                             get_user_model().objects.create_user('unrelated-visitor'))])
+
     def test_order_quantity_is_not_a_warehouse_balance(self):
         self.assertEqual(confirmed_purchase_stock(
             self.batch,[{'index':0}]), {})
