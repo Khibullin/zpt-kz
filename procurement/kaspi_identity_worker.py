@@ -130,3 +130,40 @@ def process_pending_bound_cards(limit=1):
         if result == 'source_blocked':
             break
     return results
+
+
+def resume_source_blocked_after_recovery(*, reader=read_public_product_page):
+    """One public-source recovery probe a day; never bypass source denial.
+
+    Exact source metadata must be readable before previously access-blocked
+    jobs are rescheduled. This does not renew any Kaspi price or stock.
+    """
+    from django.core.cache import cache
+    if not KaspiReviewTask.objects.filter(
+        status='blocked', reason__startswith='Источник Kaspi ограничил доступ.',
+        batch__status='done',
+    ).exists():
+        return 0
+    today = timezone.localdate()
+    key = 'procurement:kaspi-source-recovery:' + today.isoformat()
+    if not cache.add(key, 'probing', timeout=86400):
+        return 0
+    sample = KaspiReviewTask.objects.filter(
+        status='blocked', reason__startswith='Источник Kaspi ограничил доступ.',
+        batch__status='done', offer__match_verified=False,
+    ).exclude(offer__kaspi_url='').select_related('offer').order_by('pk').first()
+    if sample is None:
+        return 0
+    try:
+        evidence = validate_public_identity(sample.offer, reader(sample.offer.kaspi_url))
+    except (requests.RequestException, ValueError):
+        return 0
+    if not evidence:
+        return 0
+    count = KaspiReviewTask.objects.filter(
+        status='blocked', reason__startswith='Источник Kaspi ограничил доступ.',
+        batch__status='done',
+    ).exclude(offer__kaspi_url='').update(
+        status='pending', reason='Источник восстановлен; ожидает точной проверки товара.')
+    logger.info('Kaspi source recovered; rescheduled %s exact-card checks', count)
+    return count
