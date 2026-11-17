@@ -85,6 +85,21 @@ class FirsthandOmegaImportTests(TestCase):
         self.assertNotContains(response, "+ В закупку")
         self.assertFalse(Offer.objects.get(pk=self.conflict.pk).match_verified)
 
+    def test_firsthand_appears_in_new_and_latest_without_purchase_permission(self):
+        from unittest.mock import patch
+        import_omega_firsthand(Offer, KaspiSellerSnapshot)
+        for scope in ("all", "new", "current"):
+            with patch("procurement.views.timezone.localdate", return_value=date(2026, 11, 17)):
+                response = self.client.get(reverse("procurement:dashboard"), {
+                    "supplier": self.supplier.pk, "mode": "best", "best_scope": scope,
+                })
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.context["total"], 3, scope)
+            self.assertContains(response, "42928")
+            self.assertContains(response, "Спорное соответствие Firsthand")
+            self.assertContains(response, "Фото Firsthand")
+            self.assertNotContains(response, "+ В закупку")
+
     def test_import_is_idempotent(self):
         import_omega_firsthand(Offer, KaspiSellerSnapshot)
         again = import_omega_firsthand(Offer, KaspiSellerSnapshot)
