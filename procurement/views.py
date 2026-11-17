@@ -107,7 +107,9 @@ def filtered_rows(request, preferences, filters, paginate=False):
     query = Offer.objects.select_related('supplier', 'kaspi_sellers', 'kaspi_card_search').defer('description', 'characteristics', 'supplier_url')
     mode = request.GET.get('mode', 'roi')
     if mode == 'best':
-        query = query.select_related('profitable_record')
+        # Firsthand offers are stored in JSON: load once with the row, not one
+        # additional query per visible product.
+        query = query.defer(None).defer('description', 'supplier_url').select_related('profitable_record')
     today = timezone.localdate()
     if mode == 'best':
         filters = {key: value for key, value in filters.items() if key not in ('kaspi_status', 'verified', 'sort')}
