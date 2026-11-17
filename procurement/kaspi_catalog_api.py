@@ -32,9 +32,13 @@ class CatalogClient:
                     'X-Auth-Token':settings.KASPI_API_TOKEN},
                 data=json.dumps(payload,ensure_ascii=False).encode() if payload is not None else None,
                 timeout=(4,15), allow_redirects=False)
-        except requests.RequestException:
+        except requests.RequestException as error:
             if method == 'POST':
                 raise CatalogUncertain('Ответ Kaspi не получен. Результат отправки неизвестен; повторная отправка заблокирована до проверки в кабинете Kaspi.')
+            if isinstance(error, requests.Timeout):
+                raise CatalogError('Официальный Kaspi API не ответил за отведённое время (тайм-аут).')
+            if isinstance(error, requests.ConnectionError):
+                raise CatalogError('Не установлено сетевое соединение с официальным Kaspi API.')
             raise CatalogError('Не удалось получить ответ Kaspi. Повторите проверку позже.')
         if response.status_code not in (200,201,202):
             if method == 'POST' and response.status_code >= 500:
