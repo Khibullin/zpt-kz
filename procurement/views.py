@@ -347,21 +347,26 @@ def dashboard(request):
         )
         if any(totals.get(k, 0) for k in ('pending', 'checking', 'blocked')):
             best_kaspi_status = totals
-            if totals['checking']:
-                best_kaspi_status['label'] = 'Идёт проверка цен Kaspi'
-                best_kaspi_status['explanation'] = 'Проверяются только карточки с подтверждённым соответствием бренда, артикула и исполнения.'
+            if totals['blocked']:
+                best_kaspi_status['label'] = 'Не удаётся получить цены Kaspi'
+                best_kaspi_status['explanation'] = (
+                    'Kaspi не предоставляет данные для автоматического сравнения. '
+                    'Проверенные ранее товары сохранены. Система проверяет '
+                    'восстановление доступа не чаще одного раза в 24 часа '
+                    'и продолжит обработку, когда источник станет доступен.')
+            elif totals['checking']:
+                best_kaspi_status['label'] = 'Сравниваем закупочные цены с Kaspi'
+                best_kaspi_status['explanation'] = (
+                    'Система проверяет точное соответствие товаров и цены продавцов.')
             elif totals['verified_ready']:
-                best_kaspi_status['label'] = 'Ожидает проверки цен Kaspi'
-                best_kaspi_status['explanation'] = 'Есть подтверждённые карточки для проверки. Задания выполняются фоновым обработчиком, когда источник доступен.'
-            elif totals['blocked']:
-                best_kaspi_status['label'] = 'Часть проверок Kaspi приостановлена'
-                best_kaspi_status['explanation'] = ('Kaspi ограничил доступ к публичным карточкам либо не подтвердил данные. '
-                    'Автоматические запросы приостановлены без обхода ограничений. '
-                    'Для остальных товаров требуется проверка соответствия карточек; '
-                    'неподтверждённые цены не участвуют в выгодных закупках.')
+                best_kaspi_status['label'] = 'Ожидаем цены Kaspi'
+                best_kaspi_status['explanation'] = (
+                    'Товары сопоставлены с Kaspi, ожидается обновление цен.')
             else:
-                best_kaspi_status['label'] = 'Ожидается подтверждение карточек Kaspi'
-                best_kaspi_status['explanation'] = 'Прайс обновлён, но нет подтверждённых карточек, по которым можно автоматически обновлять цены. Очередь не считается обработанной.'
+                best_kaspi_status['label'] = 'Не все товары проверены'
+                best_kaspi_status['explanation'] = (
+                    'Для оставшихся товаров нужно подтвердить точную карточку Kaspi. '
+                    'Непроверенные товары не учитываются как выгодные.')
         if not rows:
             best_empty_reason = ('Пока нет подтверждённых актуальных выгодных товаров. '
                                  'Проверки Kaspi и сохранённые прежние результаты учитываются отдельно.')
