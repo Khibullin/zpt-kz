@@ -1,9 +1,11 @@
 """Capture the first evidenced profitable result; price uploads must not erase it."""
 from decimal import Decimal
+from datetime import timedelta
 
 from django.utils import timezone
 
 from .analysis import stock_status
+from .catalog_paging import MIN_BEST_ROI
 from .models import Preferences, ProfitableOfferRecord
 
 
@@ -28,11 +30,16 @@ def capture_profitable_offer(offer, *, batch=None, terms=None):
     terms = terms or owner_terms()
     if terms is None:
         return False
+    today = timezone.localdate()
+    if not (offer.supplier_checked_on and today - timedelta(days=7) <= offer.supplier_checked_on <= today
+            and offer.kaspi_price_checked_on and today - timedelta(days=7) <= offer.kaspi_price_checked_on <= today):
+        return False
     cost = Decimal(offer.cost)
     commission = Decimal(terms.commission)
     expenses = max(Decimal('250'), Decimal(terms.expenses))
     profit = Decimal(offer.kaspi_price) * (Decimal('100') - commission) / Decimal('100') - cost - expenses
-    if profit < max(Decimal('1000'), Decimal(terms.best_min_profit)):
+    if (profit < max(Decimal('1000'), Decimal(terms.best_min_profit))
+            or profit < cost * MIN_BEST_ROI / Decimal('100')):
         return False
     _, created = ProfitableOfferRecord.objects.get_or_create(
         offer_id=offer.pk,
