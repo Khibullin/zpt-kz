@@ -21,6 +21,31 @@ def photo_window_open(now):
     return local_now.weekday() >= 5 or local_now.hour >= 23 or local_now.hour < 6
 
 
+
+def check_kaspi_transport():
+    """One bounded DNS/TCP/TLS diagnostic after a failed official GET."""
+    import socket
+    import ssl
+    for host in ('kaspi.kz', 'guide.kaspi.kz'):
+        try:
+            socket.getaddrinfo(host, 443, type=socket.SOCK_STREAM)
+        except OSError as error:
+            logger.warning('Kaspi transport check: host=%s stage=dns error=%s',
+                           host, type(error).__name__)
+            continue
+        try:
+            with socket.create_connection((host, 443), timeout=4) as tcp:
+                tcp.settimeout(4)
+                with ssl.create_default_context().wrap_socket(
+                    tcp, server_hostname=host) as sock:
+                    logger.warning('Kaspi transport check: host=%s stage=tls success=%s',
+                                   host, bool(sock.version()))
+        except OSError as error:
+            logger.warning('Kaspi transport check: host=%s stage=tcp_or_tls error=%s',
+                           host, type(error).__name__)
+
+
+
 def verify_catalog_readonly():
     """One safe official Kaspi API GET on worker start, without leaking secrets."""
     from procurement.kaspi_catalog_api import CatalogClient, CatalogError, connected
@@ -46,6 +71,8 @@ def verify_catalog_readonly():
     except CatalogError as exc:
         # CatalogError is sanitized by CatalogClient: no header or token values.
         logger.warning('Kaspi official categories GET failed: %s', str(exc))
+        if 'соединение' in str(exc) or 'тайм-аут' in str(exc):
+            check_kaspi_transport()
         return False
     except Exception:
         logger.exception('Kaspi official categories GET failed unexpectedly (no secrets logged)')
