@@ -77,11 +77,9 @@ class FirsthandOmegaImportTests(TestCase):
         })
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "42928")
-        self.assertContains(response, "27 999", html=False) if False else None
         self.assertContains(response, "Предварительно выгодный — Firsthand")
         self.assertContains(response, "Спорное соответствие Firsthand")
         self.assertContains(response, "колодки ручника")
-        self.assertContains(response, "Photos") if False else None
         self.assertContains(response, "Фото Firsthand")
         self.assertContains(response, "Продавцы и цены по трём городам")
         self.assertNotContains(response, "+ В закупку")
