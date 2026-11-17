@@ -30,3 +30,28 @@ a{color:#244c7b}footer{border-top:1px solid #dfe4ec;color:#647287;font-size:14px
 </body></html>""",
         content_type="text/html; charset=utf-8",
     )
+
+
+@require_GET
+def minimal_robots(request):
+    return HttpResponse(
+        "User-agent: *\\nDisallow: /office/\\nDisallow: /admin/\\n"
+        "Disallow: /control/\\nDisallow: /api/\\nDisallow: /internal/\\n"
+        "Disallow: /market/\\nDisallow: /seller/\\n"
+        "Disallow: /avtozapchasti/\\nDisallow: /maintenance-kits/\\n"
+        "Disallow: /our-products/\\n"
+        "Sitemap: https://zpt.kz/sitemap.xml\\n",
+        content_type="text/plain; charset=utf-8",
+    )
+
+
+@require_GET
+def minimal_sitemap(request):
+    return HttpResponse(
+        '<?xml version="1.0" encoding="UTF-8"?>'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+        '<url><loc>https://zpt.kz/</loc></url>'
+        '<url><loc>https://zpt.kz/contacts/</loc></url>'
+        '</urlset>',
+        content_type="application/xml; charset=utf-8",
+    )
