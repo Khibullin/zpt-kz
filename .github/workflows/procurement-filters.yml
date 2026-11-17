@@ -29,5 +29,6 @@ jobs:
       - run: python manage.py check
       - run: python manage.py makemigrations procurement --check --dry-run
       - run: python manage.py test procurement --settings=backend.settings_ui_ci --noinput
+      - run: python manage.py test core.tests.test_minimal_public --settings=backend.settings_ui_ci --noinput
 
       - run: python manage.py test control_panel.test_request_list_performance control_panel.tests.ControlPanelTests.test_parts_list_filters_search_and_hides_phone control_panel.tests.ControlPanelTests.test_pagination_keeps_filters --settings=backend.settings_ui_ci --noinput
