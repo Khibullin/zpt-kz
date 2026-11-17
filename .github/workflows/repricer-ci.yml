@@ -46,4 +46,4 @@ jobs:
         run: python manage.py makemigrations --check --dry-run
 
       - name: Repricer tests
-        run: python manage.py test catalog.tests.test_kaspi_repricing repricer.tests -v 2
+        run: python manage.py test catalog.tests.test_kaspi_repricing repricer.tests --settings=backend.settings_ui_ci -v 2
