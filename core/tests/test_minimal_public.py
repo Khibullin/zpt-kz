@@ -1,7 +1,8 @@
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import resolve
 
 
+@override_settings(PUBLIC_CATALOG_ENABLED=False)
 class OfficeFirstMinimalPublicTests(TestCase):
     def test_home_is_db_free_and_links_to_office(self):
         with self.assertNumQueries(0):
