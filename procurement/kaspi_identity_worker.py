@@ -9,6 +9,7 @@ from urllib.parse import urlsplit
 
 import requests
 from django.db import transaction
+from django.db.models import Q
 from django.utils import timezone
 
 from .matching import compare_identity
@@ -121,8 +122,8 @@ def verify_bound_card(task_id, *, reader=read_public_product_page):
 def process_pending_bound_cards(limit=1):
     """Bounded and safe to resume after a restart."""
     candidates = KaspiReviewTask.objects.filter(
-        status='pending', batch__status='done', offer__match_verified=False,
-    ).exclude(offer__kaspi_url='').order_by('priority', 'pk').values_list('pk', flat=True)[:max(0, min(int(limit), 2))]
+        status='pending', offer__match_verified=False,
+    ).filter(Q(batch__isnull=True) | Q(batch__status='done')).exclude(offer__kaspi_url='').order_by('priority', 'pk').values_list('pk', flat=True)[:max(0, min(int(limit), 2))]
     results = []
     for pk in list(candidates):
         result = verify_bound_card(pk)
@@ -141,8 +142,7 @@ def resume_source_blocked_after_recovery(*, reader=read_public_product_page):
     from django.core.cache import cache
     if not KaspiReviewTask.objects.filter(
         status='blocked', reason__startswith='Источник Kaspi ограничил доступ.',
-        batch__status='done',
-    ).exists():
+    ).filter(Q(batch__isnull=True) | Q(batch__status='done')).exists():
         return 0
     # One shared cache lease for a full 24 hours, not one per calendar day.
     # Server restarts and midnight must not trigger extra access-denied probes.
@@ -150,9 +150,8 @@ def resume_source_blocked_after_recovery(*, reader=read_public_product_page):
     if not cache.add(key, 'probing', timeout=86400):
         return 0
     sample = KaspiReviewTask.objects.filter(
-        status='blocked', reason__startswith='Источник Kaspi ограничил доступ.',
-        batch__status='done', offer__match_verified=False,
-    ).exclude(offer__kaspi_url='').select_related('offer').order_by('pk').first()
+        status='blocked', reason__startswith='Источник Kaspi ограничил доступ.', offer__match_verified=False,
+    ).filter(Q(batch__isnull=True) | Q(batch__status='done')).exclude(offer__kaspi_url='').select_related('offer').order_by('pk').first()
     if sample is None:
         return 0
     try:
@@ -166,8 +165,7 @@ def resume_source_blocked_after_recovery(*, reader=read_public_product_page):
         return 0
     count = KaspiReviewTask.objects.filter(
         status='blocked', reason__startswith='Источник Kaspi ограничил доступ.',
-        batch__status='done',
-    ).exclude(offer__kaspi_url='').update(
+    ).filter(Q(batch__isnull=True) | Q(batch__status='done')).exclude(offer__kaspi_url='').update(
         status='pending', reason='Источник восстановлен; ожидает точной проверки товара.')
     logger.info('Kaspi source recovered; rescheduled %s exact-card checks', count)
     return count
