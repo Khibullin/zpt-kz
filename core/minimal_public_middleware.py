@@ -4,6 +4,7 @@ The guard uses resolved view names: internal office, import, stock and Kaspi
 routes remain available, including their product detail screens.
 """
 from django.http import HttpResponseGone
+from django.conf import settings
 
 
 PUBLIC_CATALOG_VIEW_NAMES = frozenset({
@@ -26,6 +27,8 @@ class MinimalPublicCatalogueMiddleware:
         return self.get_response(request)
 
     def process_view(self, request, view_func, view_args, view_kwargs):
+        if getattr(settings, 'PUBLIC_CATALOG_ENABLED', False):
+            return None
         if request.path.startswith(("/office/", "/admin/", "/control/", "/api/", "/internal/")):
             return None
         if getattr(view_func, "__name__", "") in PUBLIC_CATALOG_VIEW_NAMES:
