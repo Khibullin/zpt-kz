@@ -80,8 +80,9 @@ def refresh_price_feed():
             batch,source,supplier=batches[key]
             row=next((row for row in source if row['index']==job.payload['line']),None)
             if not row or identity_for(batch,row,supplier)!=job.card.identity: raise ValueError('Опубликованный товар изменён в закупке.')
-            if getattr(batch['obj'],'warehouse',None)!=settings.KASPI_LOCAL_WAREHOUSE or row.get('stock') is None:
-                raise ValueError('Для опубликованного товара не подтверждено соответствие склада и фактический остаток.')
+            if (row.get('stock_warehouse') != settings.KASPI_LOCAL_WAREHOUSE
+                    or row.get('stock') is None):
+                raise ValueError('Для товара не подтверждён остаток на складе Kaspi по проведённым движениям.')
             price=pricing(job.user,job.card,row,competitor_data(row.get('offer')))['amount']
             if price is None: raise ValueError('Цена опубликованного товара требует обновления конкурентов или ручного ввода.')
             rows.append(dict(sku=job.payload['material']['sku'],title=job.card.title,brand=job.card.brand,quantity=row['stock'],price=price))
