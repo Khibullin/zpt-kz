@@ -51,6 +51,15 @@ class SourceRecoveryTests(TestCase):
         self.assertEqual(resume_source_blocked_after_recovery(reader=reader), 0)
         reader.assert_called_once_with(self.offer.kaspi_url)
 
+    def test_midnight_does_not_bypass_24_hour_cooldown(self):
+        reader = Mock(side_effect=KaspiAccessDenied('denied'))
+        from unittest.mock import patch
+        with patch('procurement.kaspi_identity_worker.timezone.localdate',
+                   side_effect=[date(2026,11,17), date(2026,11,18)]):
+            self.assertEqual(resume_source_blocked_after_recovery(reader=reader), 0)
+            self.assertEqual(resume_source_blocked_after_recovery(reader=reader), 0)
+        reader.assert_called_once()
+
     def test_denied_or_incomplete_response_keeps_queue_blocked(self):
         for response in (KaspiAccessDenied('denied'), '<html>No product metadata</html>'):
             cache.clear()
