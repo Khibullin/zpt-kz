@@ -80,7 +80,7 @@ class OmegaBestPolicyTests(TestCase):
 
     def test_phaeton_retains_old_threshold(self):
         self.offer("PHAETON", supplier=self.phaeton, cost=Decimal("1000"),
-                   kaspi_price=Decimal("2500"), kaspi_price_checked_on=self.today)
+                   kaspi_price=Decimal("2700"), kaspi_price_checked_on=self.today)
         self.assertIn("PHAETON", self.selected())
 
     def test_automatic_omega_check_skips_low_cost_and_unavailable_stock(self):
