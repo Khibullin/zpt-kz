@@ -1,4 +1,6 @@
 from decimal import Decimal
+from datetime import timedelta
+from django.utils import timezone
 from io import StringIO
 from unittest.mock import patch
 
@@ -339,6 +341,32 @@ class CollectorRemoteTests(TestCase):
         self.assertEqual(source.calls, [("272774M400", "272774M400")])
         self.assertIn("product_id=987654321", stdout.getvalue())
         self.assertNotIn("UNRESOLVED_MAPPING", stdout.getvalue())
+
+    def test_all_active_skips_recent_collections_but_collects_stale(self):
+        fresh = _listing(1, last_collected_at=timezone.now()-timedelta(hours=2))
+        stale = _listing(2, last_collected_at=timezone.now()-timedelta(days=2))
+        client = FakeZptClient([fresh, stale])
+        source = FakeOfferSource(_offers())
+        stdout = StringIO()
+        scan = collect_remote_listings(
+            source=source, client=client, dry_run=False,
+            sleep_seconds=1.0, stdout=stdout, all_active=True,
+        )
+        self.assertEqual(len(source.calls), 1)
+        self.assertEqual(len(client.posts), 1)
+        self.assertEqual(client.posts[0]["listing_id"], 2)
+        self.assertIn("SKIP_RECENT_24H", stdout.getvalue())
+        self.assertEqual(scan.kaspi_attempted, 1)
+
+    def test_explicit_listing_id_may_refresh_recent_card(self):
+        client = FakeZptClient([_listing(1, last_collected_at=timezone.now())])
+        source = FakeOfferSource(_offers())
+        scan = collect_remote_listings(
+            listing_ids=[1], source=source, client=client,
+            dry_run=False, sleep_seconds=1.0,
+        )
+        self.assertEqual(scan.kaspi_attempted, 1)
+        self.assertEqual(len(client.posts), 1)
 
     def test_all_active_uses_full_manifest_and_batches(self):
         listings = [_listing(index) for index in range(1, 12)]
