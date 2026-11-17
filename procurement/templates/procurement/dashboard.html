@@ -16,7 +16,7 @@
   <summary class="button" style="display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;list-style:none" aria-label="Правила отбора выгодных товаров Омега">⚙ Правила отбора</summary>
   <div style="margin-top:14px;max-width:960px">
     <h2 style="margin:0 0 6px;font-size:20px">Правила отбора выгодных товаров — Омега</h2>
-    <p class="muted">Закреплённые требования для поставщика «Омега». На этом этапе опубликован текст правил; действующий программный алгоритм расчёта пока не изменён.</p>
+    <p class="muted">Закреплённые требования для поставщика «Омега». Правила закреплены. Финансовый фильтр Омеги применён; общереспубликанский охват предложений Kaspi подтверждается отдельно. Без подтверждения такие цены остаются предварительными.</p>
     <ol style="padding-left:24px;line-height:1.65">
       <li><strong>Первичный отбор.</strong> Использовать прайс-лист Омеги. Проверять только товары в наличии с закупочной ценой не ниже <strong>2 000 ₸ за единицу</strong>. Более дешёвые товары не отправлять на проверку Kaspi.</li>
       <li><strong>Поиск и проверка на Kaspi.</strong> Искать предложения по всей Республике Казахстан, без ограничения Алматы. Подтверждать бренд, артикул, исполнение, модификацию и комплектность. Неподтверждённые соответствия направлять на дополнительную проверку.</li>
@@ -36,7 +36,7 @@
 <a class="button" href="{% querystring best_scope='new' page=None download=None %}" {% if best_scope == 'new' %}aria-current="page"{% endif %}>Новые</a>
 <a class="button" href="{% querystring best_scope='history' page=None download=None %}" {% if best_scope == 'history' %}aria-current="page"{% endif %}>Ранее выгодные</a>
 </div>
-<p class="muted" style="margin:2px 0 12px">Для актуальных выгодных: прибыль ≥ 1 000 ₸, доходность ≥ 25% после комиссии и расходов. Даты цен сохранены. Ранее найденные товары не удаляются при истечении срока проверки.</p>
+<p class="muted" style="margin:2px 0 12px">{% if selected_supplier.name == 'Omega' %}Омега: в наличии, закупка ≥ 2 000 ₸, чистая доходность ≥ 50%. Сохранённые цены не подтверждают минимальную цену по всему Казахстану и требуют проверки перед закупкой.{% else %}Для Фаэтона и ЗаказАвто действуют прежние правила: прибыль ≥ 1 000 ₸, доходность ≥ 25% после комиссии и расходов. Даты цен сохраняются.{% endif %}</p>
 {% if best_kaspi_status.preserved_price_date %}
 <section class="panel" role="status" style="padding:12px 16px;margin:0 0 12px">
   <strong>Показаны товары по сохранённому прайсу поставщика от {{ best_kaspi_status.preserved_price_date|date:"d.m.Y" }}</strong>
@@ -110,7 +110,7 @@
 <tbody>{% for row in page %}<tr>
 <td class="product"><a href="{% url 'procurement:detail' row.offer.pk %}"><strong>{{ row.offer.name }}</strong></a>
 <small>{{ row.offer.brand }} · {{ row.offer.article }}</small>
-{% if mode == 'best' %}<small><strong>{% if row.historical %}Ранее выгодный{% elif row.is_new %}Новый{% else %}Выгодный по сохранённым данным{% endif %}</strong></small>
+{% if mode == 'best' %}<small><strong>{{ row.best_status }}</strong></small>
 <small>Прайс: {{ row.display_supplier_date|date:'d.m.Y'|default:'нет данных' }} · Обработано: {{ row.processed_at|date:'d.m.Y'|default:'не зафиксировано' }} · Kaspi: {{ row.display_kaspi_date|date:'d.m.Y'|default:'нет данных' }}</small>
 {% if row.historical %}<small class="preliminary-status">{{ row.historical_reason }}</small>{% endif %}{% endif %}
 <details class="product-evidence"><summary>Подробнее</summary>
@@ -124,7 +124,7 @@
 <form method="post" action="{% url 'procurement:favorite' row.offer.pk %}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><input type="hidden" name="action" value="{% if row.favorite %}remove{% else %}add{% endif %}"><button>{% if row.favorite %}Убрать из избранного{% else %}В избранное{% endif %}</button></form>
 </details></td>
 <td>{{ row.offer.supplier.name }}</td>
-<td class="money">{% if mode == 'best' %}{{ row.display_cost|floatformat:0 }}{% else %}{{ row.offer.cost|floatformat:0 }}{% endif %}{% if row.historical %}<small>Цена прежнего расчёта</small>{% endif %}</td>
+<td class="money">{% if mode == 'best' %}{{ row.display_cost|floatformat:0 }}{% else %}{{ row.offer.cost|floatformat:0 }}{% endif %}{% if row.historical and not row.omega_review %}<small>Цена прежнего расчёта</small>{% endif %}</td>
 {% if mode == 'no_sellers' %}<td>{% if row.kaspi_presence == 'no_card' %}Карточка не найдена после проверки{% else %}Карточка есть — продавцов нет{% endif %}<small>Алматы · {{ row.kaspi_checked_on|date:'d.m.Y' }}</small></td><td>Цена продажи не задана</td><td>Прибыль не рассчитана</td>{% else %}
 <td class="money">{{ row.kaspi_price|floatformat:0|default:'Нет данных' }}{% if mode == 'kaspi_prices' %}<small class="preliminary-status">Сохранённая цена</small>{% elif mode == 'stale_prices' %}<small class="preliminary-status">Старая цена · {{ row.offer.kaspi_price_checked_on|date:'d.m.Y'|default:'без даты' }}</small>{% elif mode == 'best' %}<small>{{ row.display_kaspi_date|date:'d.m.Y'|default:'без даты' }}</small>{% endif %}</td>
 {% if mode == 'kaspi_prices' %}<td>{% if row.offer.match_verified %}Совпадение подтверждено{% else %}Не подтверждено{% endif %}</td><td>{{ row.offer.kaspi_price_checked_on|date:'d.m.Y'|default:'Нет даты' }}</td>{% else %}<td class="money">
@@ -136,7 +136,7 @@
 </td>{% endif %}
 {% endif %}<td class="row-actions">
 <button type="button" class="quick-view" data-url="{% url 'procurement:detail' row.offer.pk %}?compact=1" aria-haspopup="dialog">Просмотр</button>
-{% if mode == 'kaspi_prices' %}<small class="preliminary-status">Только для ознакомления — нужна повторная проверка</small>{% elif mode == 'stale_prices' %}<small class="preliminary-status">Сначала обновите цену Kaspi</small>{% elif row.historical %}<small class="preliminary-status">История — не для новой закупки</small>{% else %}<form method="post" action="{% url 'procurement:select' row.offer.pk %}" data-selection-form>{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button class="primary">+ В закупку</button><small data-selection-status role="status" aria-live="polite"></small></form>{% endif %}
+{% if mode == 'kaspi_prices' %}<small class="preliminary-status">Только для ознакомления — нужна повторная проверка</small>{% elif mode == 'stale_prices' %}<small class="preliminary-status">Сначала обновите цену Kaspi</small>{% elif row.omega_review %}<small class="preliminary-status">Предварительно: требуется проверка Kaspi по Казахстану</small>{% elif row.historical %}<small class="preliminary-status">История — не для новой закупки</small>{% else %}<form method="post" action="{% url 'procurement:select' row.offer.pk %}" data-selection-form>{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button class="primary">+ В закупку</button><small data-selection-status role="status" aria-live="polite"></small></form>{% endif %}
 </td>
 </tr>{% empty %}<tr>
 <td colspan="7">{% if mode == 'no_sellers' %}Подтверждённых товаров без продавцов по выбранным фильтрам пока нет.{% elif mode == 'best' %}{{ best_empty_reason }}{% elif mode == 'kaspi_prices' %}Сохранённых цен Kaspi по выбранным фильтрам нет.{% elif mode == 'stale_prices' %}Нет подходящих товаров с устаревшей ценой Kaspi по выбранным фильтрам.{% else %}Товаров пока нет. Менеджер может загрузить прайс поставщика.{% endif %}</td>

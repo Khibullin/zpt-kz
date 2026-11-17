@@ -11,7 +11,9 @@ MIN_BEST_PROFIT = Decimal('1000')
 
 def stock_status(stock):
     stock = (stock or '').strip().lower()
-    number = re.match(r'^\s*[><≥≤]?\s*(\d+)(?:\s|$)', stock)
+    # Omega denotes a quantity above twenty as '20>'; this is positive stock.
+    # Reject negative and ambiguous text, rather than inferring availability.
+    number = re.match(r'^\s*(?:[>≥]\s*)?(\d+)(?:>|\s|$)', stock)
     if number:
         return 'in_stock' if int(number.group(1)) > 0 else 'unavailable'
     return 'unavailable' if stock in ('нет', 'нет в наличии', 'отсутствует') else 'unknown'

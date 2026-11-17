@@ -6,6 +6,7 @@ from django.core.paginator import Paginator
 from django.db.models import Case, When, Value, Q, F, Count, DecimalField, ExpressionWrapper
 from django.db.models.functions import Coalesce, NullIf
 from .models import KaspiSellerSnapshot, KaspiCardSearch
+from .omega_policy import POSITIVE_STOCK_PATTERN
 
 # Approved purchasing rules: net gain >= 1000 KZT and ROI >= 25%.
 MIN_BEST_ROI = Decimal('25')
@@ -30,10 +31,12 @@ def best_candidates_query(query, preferences, today):
 
 
 def cumulative_profitable_query(query, preferences, today=None):
-    """Fresh, stock-confirmed profitable candidates plus clearly marked history.
+    """Supplier-scoped buying rules plus immutable earlier profitable records.
 
-    Old price quotes remain visible only as historical evidence. Photographs and
-    vehicle fitments are intentionally irrelevant to financial qualification.
+    Omega: in-stock cost >= 2,000 KZT and net ROI >= 50% using the saved
+    Kaspi quote. A historical quote is a REVIEW candidate, not authorization
+    to purchase. No automatic nationwide claim is inferred from Almaty data.
+    Other suppliers retain their existing minimum profit/ROI logic.
     """
     from django.utils import timezone
     today = today or timezone.localdate()
@@ -41,7 +44,7 @@ def cumulative_profitable_query(query, preferences, today=None):
         return query.none()
     profit = ExpressionWrapper(
         F('kaspi_price') * Value((Decimal('100') - preferences.commission) / Decimal('100'))
-        - F('cost') - Value(max(Decimal(250), preferences.expenses)),
+        - F('cost') - Value(max(Decimal('250'), preferences.expenses)),
         output_field=DecimalField(max_digits=38, decimal_places=12),
     )
     fresh = Q(
@@ -51,14 +54,29 @@ def cumulative_profitable_query(query, preferences, today=None):
         kaspi_price_checked_on__gte=today-timedelta(days=7),
         kaspi_price_checked_on__lte=today,
     )
-    eligible = fresh & Q(_cumulative_profit__gte=max(Decimal('1000'), preferences.best_min_profit)) & Q(
-        _cumulative_profit__gte=F('cost') * Value(MIN_BEST_ROI / Decimal(100)))
-    return query.annotate(_cumulative_profit=profit).filter(
-        eligible | Q(profitable_record__isnull=False)
-    ).exclude(
-        Q(name__iregex='подшипник|bearing', profitable_record__isnull=True) |
-        Q(category__iregex='подшипник|bearing', profitable_record__isnull=True)
+    legacy_threshold = Q(
+        _cumulative_profit__gte=max(Decimal('1000'), preferences.best_min_profit)
+    ) & Q(_cumulative_profit__gte=F('cost') * Value(MIN_BEST_ROI / Decimal('100')))
+    other_supplier = (
+        ~Q(supplier__name='Omega')
+        & (fresh & legacy_threshold | Q(profitable_record__isnull=False))
+        & ~Q(name__iregex='подшипник|bearing', profitable_record__isnull=True)
+        & ~Q(category__iregex='подшипник|bearing', profitable_record__isnull=True)
     )
+    # Exactly the same positive-stock notation accepted by stock_status().
+    omega_stock = Q(stock__regex=POSITIVE_STOCK_PATTERN)
+    omega_qualified = (
+        Q(match_verified=True, cost__gte=Decimal('2000'), kaspi_price__gt=0) & ~Q(kaspi_url='')
+        & omega_stock
+        & Q(_cumulative_profit__gte=F('cost') * Value(Decimal('0.50')))
+    )
+    # Previously captured profitability remains in the historical record,
+    # even if a later supplier update removed stock or lowered the margin.
+    omega = Q(supplier__name='Omega') & (
+        omega_qualified | Q(profitable_record__isnull=False)
+    )
+    return query.annotate(_cumulative_profit=profit).filter(other_supplier | omega)
+
 
 
 def stale_price_candidates_query(query, preferences, today):

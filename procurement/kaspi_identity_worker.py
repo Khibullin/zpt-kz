@@ -14,6 +14,7 @@ from django.utils import timezone
 
 from .matching import compare_identity
 from .models import KaspiReviewTask, Offer
+from .omega_policy import eligible_scheduled_kaspi_tasks
 
 logger = logging.getLogger(__name__)
 MAX_PAGE_BYTES = 1024 * 1024
@@ -121,9 +122,11 @@ def verify_bound_card(task_id, *, reader=read_public_product_page):
 
 def process_pending_bound_cards(limit=1):
     """Bounded and safe to resume after a restart."""
-    candidates = KaspiReviewTask.objects.filter(
-        status='pending', offer__match_verified=False,
-    ).filter(Q(batch__isnull=True) | Q(batch__status='done')).exclude(offer__kaspi_url='').order_by('priority', 'pk').values_list('pk', flat=True)[:max(0, min(int(limit), 2))]
+    candidates = eligible_scheduled_kaspi_tasks(
+        KaspiReviewTask.objects.filter(
+            status='pending', offer__match_verified=False,
+        ).filter(Q(batch__isnull=True) | Q(batch__status='done')).exclude(offer__kaspi_url='')
+    ).order_by('priority', 'pk').values_list('pk', flat=True)[:max(0, min(int(limit), 2))]
     results = []
     for pk in list(candidates):
         result = verify_bound_card(pk)
@@ -149,9 +152,11 @@ def resume_source_blocked_after_recovery(*, reader=read_public_product_page):
     key = 'procurement:kaspi-source-recovery:24h'
     if not cache.add(key, 'probing', timeout=86400):
         return 0
-    sample = KaspiReviewTask.objects.filter(
-        status='blocked', reason__startswith='Источник Kaspi ограничил доступ.', offer__match_verified=False,
-    ).filter(Q(batch__isnull=True) | Q(batch__status='done')).exclude(offer__kaspi_url='').select_related('offer').order_by('pk').first()
+    sample = eligible_scheduled_kaspi_tasks(
+        KaspiReviewTask.objects.filter(
+            status='blocked', reason__startswith='Источник Kaspi ограничил доступ.', offer__match_verified=False,
+        ).filter(Q(batch__isnull=True) | Q(batch__status='done')).exclude(offer__kaspi_url='')
+    ).select_related('offer').order_by('pk').first()
     if sample is None:
         return 0
     try:

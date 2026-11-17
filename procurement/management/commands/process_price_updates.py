@@ -9,6 +9,7 @@ from django.db import close_old_connections
 from django.db.models import Q
 from procurement.models import PriceUpdate, KaspiReviewTask
 from procurement.kaspi_refresh import refresh_task
+from procurement.omega_policy import eligible_scheduled_kaspi_tasks
 from procurement.price_updates import advance_update
 
 logger = logging.getLogger(__name__)
@@ -214,9 +215,13 @@ class Command(BaseCommand):
                     if getattr(settings, 'CATALOG_PHOTO_AUTORUN_ENABLED', False) and photo_window_open(timezone.now()):
                         photo_progress = process_photo_tasks(limit=10)
                 if options['watch']:
-                    tasks = KaspiReviewTask.objects.filter(status='pending', offer__match_verified=True).filter(
-                        Q(batch__isnull=True) | Q(batch__status='done')
-                    ).exclude(offer__kaspi_url='').order_by('priority', 'offer__kaspi_price_checked_on', 'pk')
+                    tasks = eligible_scheduled_kaspi_tasks(
+                        KaspiReviewTask.objects.filter(
+                            status='pending', offer__match_verified=True,
+                        ).filter(
+                            Q(batch__isnull=True) | Q(batch__status='done')
+                        ).exclude(offer__kaspi_url='')
+                    ).order_by('priority', 'offer__kaspi_price_checked_on', 'pk')
                     for task_id in list(tasks.values_list('pk', flat=True)[:10]):
                         if not running:
                             break

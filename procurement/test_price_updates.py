@@ -260,7 +260,7 @@ class AutomaticBestBuyTests(TestCase):
         Preferences.objects.create(
             user=self.owner, commission=Decimal('12.50'),
             expenses=Decimal('250'), best_min_profit=Decimal('1000'))
-        self.supplier = Supplier.objects.create(name='Omega')
+        self.supplier = Supplier.objects.create(name='Фаетон')
         self.today = timezone.localdate()
 
     def offer(self, article, cost, price, days_old=0):

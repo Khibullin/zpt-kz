@@ -38,6 +38,11 @@ def capture_profitable_offer(offer, *, batch=None, terms=None):
     commission = Decimal(terms.commission)
     expenses = max(Decimal('250'), Decimal(terms.expenses))
     profit = Decimal(offer.kaspi_price) * (Decimal('100') - commission) / Decimal('100') - cost - expenses
+    if offer.supplier.name == 'Omega':
+        # A regional Kaspi quote is not certified as the lowest in Kazakhstan.
+        # Preserve it on Offer for review; do not create a confirmed buying record
+        # until a nationwide source is verified and explicitly supported.
+        return False
     if (profit < max(Decimal('1000'), Decimal(terms.best_min_profit))
             or profit < cost * MIN_BEST_ROI / Decimal('100')):
         return False

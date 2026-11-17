@@ -95,10 +95,10 @@ def preserved_best_scope(supplier):
 
     Historical records retain their original observation dates and are NOT
     relabelled as current or automatically authorised to purchase.
-    Omega is deliberately unchanged: it received the new price list.
+    Omega retains calculated candidates while their Kaspi prices/region need checking.
     """
     name = str(getattr(supplier, 'name', '') or '').strip().casefold()
-    return 'all' if name.startswith(('zakazauto', 'фаетон')) else 'current'
+    return 'all' if name.startswith(('zakazauto', 'фаетон', 'omega')) else 'current'
 
 
 def filtered_rows(request, preferences, filters, paginate=False):
@@ -205,17 +205,31 @@ def filtered_rows(request, preferences, filters, paginate=False):
                 row[field] = None
         if mode == 'best':
             record = getattr(offer, 'profitable_record', None)
+            is_omega = offer.supplier.name == 'Omega'
             threshold = max(MIN_BEST_PROFIT, preferences.best_min_profit)
             is_bearing = any(x in (offer.name + ' ' + offer.category).casefold()
                              for x in ('подшипник', 'bearing'))
-            is_current = bool(
-                offer.match_verified and not is_bearing and offer.cost > 0
-                and row['stock_status'] == 'in_stock'
-                and row['supplier_fresh'] and row['price_fresh']
-                and row['profit'] is not None and row['profit'] >= threshold
-                and row['profit'] >= offer.cost * MIN_BEST_ROI / Decimal('100')
-            )
-            if not is_current and record is None:
+            if is_omega:
+                # Quotes from a single city do not certify the lowest price in
+                # Kazakhstan. Preserve promising Omega quotes as REVIEW only.
+                omega_margin_ok = bool(
+                    offer.match_verified and bool(offer.kaspi_url) and offer.cost >= Decimal('2000')
+                    and row['stock_status'] == 'in_stock'
+                    and row['profit'] is not None
+                    and row['profit'] >= offer.cost * Decimal('0.50')
+                )
+                is_current = False  # nationwide seller coverage is not evidenced yet
+                row['omega_review'] = omega_margin_ok
+            else:
+                is_current = bool(
+                    offer.match_verified and not is_bearing and offer.cost > 0
+                    and row['stock_status'] == 'in_stock'
+                    and row['supplier_fresh'] and row['price_fresh']
+                    and row['profit'] is not None and row['profit'] >= threshold
+                    and row['profit'] >= offer.cost * MIN_BEST_ROI / Decimal('100')
+                )
+                row['omega_review'] = False
+            if not is_current and record is None and not row['omega_review']:
                 continue
             row['historical'] = not is_current
             latest = latest_batches.get(offer.supplier_id)
@@ -230,33 +244,48 @@ def filtered_rows(request, preferences, filters, paginate=False):
             row['display_supplier_date'] = offer.supplier_checked_on
             row['display_kaspi_date'] = offer.kaspi_price_checked_on
             if not is_current:
-                # The current offer may no longer match or be profitable. Only
-                # show the frozen, previously documented profitable calculation.
-                row['display_cost'] = record.source_cost
-                row['display_supplier_date'] = record.supplier_date
-                row['display_kaspi_date'] = record.kaspi_date
-                row['kaspi_price'] = record.source_kaspi_price
-                row['profit'] = record.source_profit
-                row['markup'] = record.source_roi
-                row['commission_rate'] = record.commission
-                row['expenses'] = record.expenses
-                row['commission_amount'] = record.source_kaspi_price * record.commission / Decimal('100')
-                row['kaspi_after_commission'] = record.source_kaspi_price - row['commission_amount']
-                row['difference'] = row['kaspi_after_commission'] - record.source_cost
-                row['historical_reason'] = (
-                    'Нет подтверждённого остатка по последнему прайсу'
-                    if row['stock_status'] != 'in_stock'
-                    else 'Не подтверждено совпадение с Kaspi'
-                    if not offer.match_verified else
-                    'Цена Kaspi устарела или дата не подтверждена'
-                    if not row['price_fresh'] else
-                    'Прайс поставщика устарел'
-                    if not row['supplier_fresh'] else
-                    'Прибыль ниже 1 000 ₸ или доходность ниже 25%'
-                )
-            else:
-                row['markup'] = row['profit'] / offer.cost * Decimal('100')
-            row['best_status'] = 'Ранее выгодный' if row['historical'] else 'Новый' if row['is_new'] else 'Выгодный по сохранённым данным'
+                # Use first documented profit only for an actual historical
+                # record; a newly promising stale quote retains its true dates.
+                if record and not row['omega_review']:
+                    row['display_cost'] = record.source_cost
+                    row['display_supplier_date'] = record.supplier_date
+                    row['display_kaspi_date'] = record.kaspi_date
+                    row['kaspi_price'] = record.source_kaspi_price
+                    row['profit'] = record.source_profit
+                    row['markup'] = record.source_roi
+                    row['commission_rate'] = record.commission
+                    row['expenses'] = record.expenses
+                    row['commission_amount'] = record.source_kaspi_price * record.commission / Decimal('100')
+                    row['kaspi_after_commission'] = record.source_kaspi_price - row['commission_amount']
+                    row['difference'] = row['kaspi_after_commission'] - record.source_cost
+                if row['omega_review']:
+                    row['historical_reason'] = (
+                        'Требуется повторная проверка цены Kaspi по Казахстану'
+                        if not row['price_fresh'] else
+                        'Требуется подтвердить цены и доступность по городам Казахстана'
+                    )
+                    if not row['supplier_fresh']:
+                        row['historical_reason'] += '; обновить прайс и остаток Омеги'
+                else:
+                    row['historical_reason'] = (
+                        'Нет подтверждённого остатка по последнему прайсу'
+                        if row['stock_status'] != 'in_stock'
+                        else 'Не подтверждено совпадение с Kaspi'
+                        if not offer.match_verified else
+                        'Цена Kaspi устарела или дата не подтверждена'
+                        if not row['price_fresh'] else
+                        'Прайс поставщика устарел'
+                        if not row['supplier_fresh'] else
+                        'Расчётная доходность ниже утверждённого порога'
+                    )
+            if row['profit'] is not None and row['display_cost'] > 0:
+                row['markup'] = row['profit'] / row['display_cost'] * Decimal('100')
+            row['best_status'] = (
+                'Предварительно выгодный — проверить Kaspi по Казахстану'
+                if row['omega_review'] else
+                'Ранее выгодный' if row['historical'] else
+                'Новый' if row['is_new'] else 'Выгодный по сохранённым данным'
+            )
         if filters.get('availability') and row['stock_status'] != filters['availability']:
             continue
         demand = filters.get('demand')
