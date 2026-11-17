@@ -1,0 +1,26 @@
+name: Saved Kaspi prices CI
+
+on:
+  pull_request:
+    paths:
+      - 'procurement/views.py'
+      - 'procurement/templates/procurement/dashboard.html'
+      - 'procurement/test_saved_kaspi_prices.py'
+      - '.github/workflows/saved-kaspi-prices-ci.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      SECRET_KEY: saved-kaspi-prices-ci-only
+      DEBUG: 'True'
+      ALLOWED_HOSTS: localhost,127.0.0.1,testserver
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: python manage.py check --settings=backend.settings_ui_ci
+      - run: python manage.py test procurement.test_saved_kaspi_prices --settings=backend.settings_ui_ci --noinput
