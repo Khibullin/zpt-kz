@@ -152,6 +152,12 @@ class Command(BaseCommand):
                     ).update(status='pending')
                     from procurement.kaspi_identity_worker import process_pending_bound_cards
                     process_pending_bound_cards(limit=1)
+                    # Share existing, independently verified collector observations
+                    # as INCOMPLETE evidence only, never as confirmed market prices.
+                    from django.core.cache import cache
+                    if cache.add('procurement:collector-preview-scan', True, 900):
+                        from procurement.kaspi_snapshot_bridge import sync_verified_preview_batch
+                        sync_verified_preview_batch(limit=10)
                     from procurement.kaspi_card_jobs import process_card_jobs
                     process_card_jobs()
                     from procurement.kaspi_price_feed import refresh_price_feed
