@@ -1,5 +1,6 @@
 """Minimal public ZPT landing. No catalogue queries or background work."""
 from django.http import HttpResponse
+from django.conf import settings
 from django.views.decorators.http import require_GET
 
 
@@ -55,3 +56,27 @@ def minimal_sitemap(request):
         '</urlset>',
         content_type="application/xml; charset=utf-8",
     )
+
+
+@require_GET
+def public_home(request):
+    if getattr(settings, "PUBLIC_CATALOG_ENABLED", False):
+        from catalog.views import catalog_list
+        return catalog_list(request)
+    return minimal_public_home(request)
+
+
+@require_GET
+def public_robots(request):
+    if getattr(settings, "PUBLIC_CATALOG_ENABLED", False):
+        from core.seo_views import robots_txt
+        return robots_txt(request)
+    return minimal_robots(request)
+
+
+@require_GET
+def public_sitemap(request):
+    if getattr(settings, "PUBLIC_CATALOG_ENABLED", False):
+        from core.seo_views import sitemap_index
+        return sitemap_index(request)
+    return minimal_sitemap(request)
