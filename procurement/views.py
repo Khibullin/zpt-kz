@@ -1,6 +1,6 @@
 from .catalogue_import import import_catalogue_fitments
 from .shared_fitments import fill_from_shared_base
-from .catalog_paging import catalog_page, best_candidates_query, stale_price_candidates_query, cumulative_profitable_query
+from .catalog_paging import catalog_page, best_candidates_query, stale_price_candidates_query, cumulative_profitable_query, MIN_BEST_ROI
 from .fitment_filters import matches_configuration
 from .supplier_terms import supplier_terms
 from .vehicle_countries import country_makes
@@ -101,7 +101,7 @@ def filtered_rows(request, preferences, filters, paginate=False):
     if mode == 'best':
         filters = {key: value for key, value in filters.items() if key not in ('kaspi_status', 'verified', 'sort')}
     if mode == 'best':
-        query = cumulative_profitable_query(query, preferences)
+        query = cumulative_profitable_query(query, preferences, today)
     elif mode == 'stale_prices':
         query = stale_price_candidates_query(query, preferences, today)
     elif mode == 'reviewed':
@@ -187,8 +187,10 @@ def filtered_rows(request, preferences, filters, paginate=False):
                              for x in ('подшипник', 'bearing'))
             is_current = bool(
                 offer.match_verified and not is_bearing and offer.cost > 0
-                and row['stock_status'] == 'in_stock' and row['profit'] is not None
-                and row['profit'] >= threshold
+                and row['stock_status'] == 'in_stock'
+                and row['supplier_fresh'] and row['price_fresh']
+                and row['profit'] is not None and row['profit'] >= threshold
+                and row['profit'] >= offer.cost * MIN_BEST_ROI / Decimal('100')
             )
             if not is_current and record is None:
                 continue
@@ -223,7 +225,11 @@ def filtered_rows(request, preferences, filters, paginate=False):
                     if row['stock_status'] != 'in_stock'
                     else 'Не подтверждено совпадение с Kaspi'
                     if not offer.match_verified else
-                    'Расчёт по последним данным больше не проходит порог прибыли'
+                    'Цена Kaspi устарела или дата не подтверждена'
+                    if not row['price_fresh'] else
+                    'Прайс поставщика устарел'
+                    if not row['supplier_fresh'] else
+                    'Прибыль ниже 1 000 ₸ или доходность ниже 25%'
                 )
             else:
                 row['markup'] = row['profit'] / offer.cost * Decimal('100')
