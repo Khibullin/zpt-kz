@@ -40,6 +40,11 @@ class WorkspaceTests(TestCase):
         offer.save()
         KaspiSellerSnapshot.objects.update_or_create(offer=offer, defaults={'source_url': offer.kaspi_url, 'checked_on': timezone.localdate(), 'complete': True, 'sellers': [{'name': 'Shop', 'price': str(offer.kaspi_price)}]})
 
+    def use_legacy_supplier_for_best_test(self):
+        # Previous 1,000 KZT / 25% behavior still applies outside Omega.
+        self.supplier.name = 'Legacy supplier'
+        self.supplier.save(update_fields=['name'])
+
     def url(self, name, **kwargs):
         return reverse('procurement:' + name, kwargs=kwargs or None)
 
@@ -61,6 +66,7 @@ class WorkspaceTests(TestCase):
         self.assertContains(catalog, 'class="selection-filters"')
 
     def test_best_preserves_candidates_without_requiring_fresh_sales(self):
+        self.use_legacy_supplier_for_best_test()
         self.login()
         self.qualify_best()
         self.offer.sales_30 = None
@@ -447,6 +453,7 @@ class WorkspaceTests(TestCase):
         self.assertFalse(Membership.objects.get(user=self.user).active)
 
     def test_best_mode_excludes_profit_below_1000_after_expenses(self):
+        self.use_legacy_supplier_for_best_test()
         self.qualify_best()
         self.login()
         Preferences.objects.create(user=self.user, commission=10, expenses=100)
@@ -455,6 +462,7 @@ class WorkspaceTests(TestCase):
         self.assertNotContains(self.client.get(self.url('dashboard')+'?mode=best'), '00123')
 
     def test_best_mode_orders_by_return_then_after_commission_earnings(self):
+        self.use_legacy_supplier_for_best_test()
         self.qualify_best()
         self.login()
         Preferences.objects.create(user=self.user, commission=Decimal('10.9'), expenses=0,
@@ -506,6 +514,7 @@ class WorkspaceTests(TestCase):
             self.assertEqual(self.client.get(self.url('dashboard'), {'mode': 'best'}).context['total'], 0)
 
     def test_best_mode_orders_confirmed_candidates_by_net_return(self):
+        self.use_legacy_supplier_for_best_test()
         self.login()
         Preferences.objects.create(user=self.user, commission=Decimal('10.9'), expenses=250)
         self.offer.cost, self.offer.kaspi_price = 2919, 4881
@@ -545,6 +554,7 @@ class WorkspaceTests(TestCase):
         self.assertEqual([r['offer'].pk for r in difference.context['page']], [self.offer.pk, shock.pk])
 
     def test_packaging_once_and_best_profit_boundary(self):
+        self.use_legacy_supplier_for_best_test()
         self.qualify_best()
         self.login()
         Preferences.objects.create(user=self.user, commission=0, expenses=250)
