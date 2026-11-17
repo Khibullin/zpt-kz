@@ -225,6 +225,20 @@ def advance_update(batch_id, prepared_rows=None):
                 Offer.objects.filter(pk__in=absent[start:start+500]).update(stock='0', supplier_checked_on=batch.checked_on)
                 KaspiReviewTask.objects.filter(offer_id__in=absent[start:start+500]).update(status='done', reason='Нет в полном прайсе')
             batch.summary['unavailable'] = len(absent)
+        # Automatically produce the financial shortlist at the end of EACH
+        # supplier upload. This is a database calculation only: it never
+        # downloads images, fills vehicle fitments or invents Kaspi prices.
+        from .catalog_paging import best_candidates_query
+        if terms is not None:
+            valid_stock = r'^\\s*[><≥≤]?\\s*[1-9]\\d*(?:\\s|$)'
+            batch.summary['profitable_current'] = best_candidates_query(
+                Offer.objects.filter(supplier=batch.supplier, stock__regex=valid_stock),
+                terms, timezone.localdate(),
+            ).count()
+        else:
+            batch.summary['profitable_current'] = None
+        batch.summary['best_min_roi'] = '25'
+        batch.summary['best_min_profit'] = '1000'
         batch.status = 'done'
         Activity.objects.create(user=batch.user, action='price_update_done', details={'batch': batch.pk, **batch.summary})
     from .models import RetailListing
