@@ -17,15 +17,15 @@ class ExactVerifiedSnapshotTests(TestCase):
         self.offer = Offer.objects.create(
             supplier=self.supplier, brand='FILTER-BRAND', article='FA-01',
             name='FILTER-BRAND filter FA-01', cost=Decimal('1000.00'),
-            stock='5', kaspi_url='https://kaspi.kz/shop/p/filter-12345/',
+            stock='5', kaspi_url='https://kaspi.kz/shop/p/filter-123456/',
             match_verified=True, kaspi_price=Decimal('2000.00'),
             kaspi_price_checked_on=timezone.localdate()-timezone.timedelta(days=60))
         product = Product.objects.create(
             article='FA-01', title='Filter FA-01', seller_name='AG Parts',
             whatsapp_number='test-number')
         self.listing = ProductKaspiListing.objects.create(
-            product=product, master_sku='12345_export',
-            public_url='https://kaspi.kz/shop/p/filter-12345/',
+            product=product, master_sku='123456_export',
+            public_url='https://kaspi.kz/shop/p/filter-123456/',
             public_url_verified_at=timezone.now())
         self.batch = KaspiCompetitorIngestBatch.objects.create(
             external_batch_id=uuid.uuid4(), listing=self.listing,
