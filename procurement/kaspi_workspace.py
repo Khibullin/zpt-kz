@@ -32,7 +32,12 @@ def purchased_batches(user):
         kind__in=['supplier', 'supplier_refund']).order_by().values('purchase_order_id').annotate(
             net=Sum(Case(When(kind='supplier', then=F('amount')), default=-F('amount'),
                 output_field=DecimalField(max_digits=26, decimal_places=2)))).values('net')
-    orders = PurchaseOrder.objects.filter(user=user, archived=False).exclude(
+    # Administrators may review the existing warehouse-backed orders created
+    # by another account; regular users keep their current ownership boundary.
+    order_scope = PurchaseOrder.objects.filter(archived=False)
+    if not (user.is_superuser and can_access_accounting(user)):
+        order_scope = order_scope.filter(user=user)
+    orders = order_scope.exclude(
         Q(status='cancelled') | Q(delivery_stage='cancelled')).annotate(has_receipt=Exists(receipt),
             paid_amount=Subquery(payment)).filter(
         Q(status__in=['paid', 'received']) | Q(has_receipt=True) | Q(paid_amount__gt=0)).select_related('supplier')
@@ -41,7 +46,9 @@ def purchased_batches(user):
         batches.append(dict(key=f'order:{order.pk}', kind='order', obj=order,
             title=order.display_title, supplier=order.supplier.name,
             reference=order.order_number, date=order.created_at.date(), total=order.total,
-            source_url=reverse('procurement:purchase_detail', args=[order.pk])))
+            source_url=reverse(
+                'procurement:purchase_detail' if order.user_id == user.pk
+                else 'inventory:purchase_register_detail', args=[order.pk])))
     if can_access_accounting(user):
         posted = StockDocument.objects.filter(bundle_id=OuterRef('pk'), kind='receipt', status='posted')
         receipts = GoodsDocument.objects.filter(kind='receipt', evidence_only=False,
@@ -63,8 +70,12 @@ def source_rows(batch, user):
             ('brand', 'article', 'name', 'cost', 'quantity')}, received=received.get(i, 0),
             unit='По заказу', source_note='') for i, item in enumerate(obj.items) if item.get('quantity', 0) > 0]
         documents = list(obj.documents.defer('data').all())
+        # Purchase-document endpoint is owner-scoped. An administrator can
+        # review the posted receipt via its accounting link, but is not given
+        # a broken or unauthorized purchase-document URL.
         files = [dict(name=d.name, date=d.created_at,
-            url=reverse('procurement:purchase_document', args=[obj.pk, d.pk])) for d in documents]
+            url=reverse('procurement:purchase_document', args=[obj.pk, d.pk]))
+            for d in documents] if obj.user_id == user.pk else []
         # Original receipt attachments belong to the same batch, not another purchase.
         if can_access_accounting(user):
             for receipt in obj.goods_documents.all():
