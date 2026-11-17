@@ -134,7 +134,9 @@ class Command(BaseCommand):
         if options['watch']:
             signal.signal(signal.SIGTERM, stop)
             signal.signal(signal.SIGINT, stop)
-            verify_catalog_readonly()
+            # Never block the durable price worker on external API diagnostics.
+            # Use the one-shot diagnostic command instead (no publishing).
+            logger.info('Official Kaspi API health check is separate from the price consumer')
         while running:
             close_old_connections()
             photo_progress = 0
