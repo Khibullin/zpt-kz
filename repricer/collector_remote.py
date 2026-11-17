@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import timedelta
 from datetime import datetime, timezone as dt_timezone
 from decimal import Decimal
 from urllib.parse import urlencode, urljoin, urlparse
@@ -53,6 +54,7 @@ class RemoteListing:
     merchant_sku: str
     last_known_our_price: int | None = None
     public_url: str = ""
+    last_collected_at: datetime | None = None
 
 
 @dataclass(frozen=True)
@@ -142,6 +144,15 @@ def _parse_listing_row(row: dict) -> RemoteListing | None:
             last_price = int(raw_price)
         except (TypeError, ValueError):
             last_price = None
+    last_collected = None
+    raw_last_collected = row.get("last_collected_at")
+    if isinstance(raw_last_collected, str) and raw_last_collected:
+        try:
+            parsed = datetime.fromisoformat(raw_last_collected.replace("Z", "+00:00"))
+            if parsed.utcoffset() is not None:
+                last_collected = parsed
+        except ValueError:
+            pass
     return RemoteListing(
         listing_id=listing_id,
         article=str(row.get("article") or ""),
@@ -149,6 +160,7 @@ def _parse_listing_row(row: dict) -> RemoteListing | None:
         merchant_sku=str(row.get("merchant_sku") or ""),
         last_known_our_price=last_price,
         public_url=str(row.get("public_url") or ""),
+        last_collected_at=last_collected,
     )
 
 
@@ -473,6 +485,24 @@ def collect_remote_listings(
                     "UNRESOLVED_MAPPING"
                 )
             continue
+        # Scheduled all-active scans must not repeatedly fetch a recently
+        # captured listing. Explicit listing-id scans are deliberate overrides.
+        # A missing/unparseable timestamp preserves legacy collector behavior.
+        if all_active and listing.last_collected_at is not None:
+            now = timezone.now()
+            age = now - listing.last_collected_at
+            if timedelta(0) <= age < timedelta(hours=24):
+                result = _empty_result(
+                    listing, listing_id=listing.listing_id,
+                    skipped_reason="recently_collected", product_id=product_id,
+                )
+                results.append(result)
+                if stdout is not None:
+                    stdout.write(
+                        f"LISTING id={listing.listing_id} article={listing.article} "
+                        f"product_id={product_id} SKIP_RECENT_24H"
+                    )
+                continue
         kaspi_queue.append(listing)
 
     kaspi_remaining = len(kaspi_queue)
