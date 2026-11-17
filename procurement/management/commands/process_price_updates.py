@@ -42,6 +42,15 @@ class Command(BaseCommand):
             facet_progress = False
             try:
                 if options['watch']:
+                    # Run price identity checks before potentially slow photo,
+                    # storefront and purchased-card work, so Kaspi does not
+                    # starve behind unrelated enrichment queues.
+                    KaspiReviewTask.objects.filter(
+                        status='checking',
+                        updated_at__lt=timezone.now()-timedelta(minutes=30),
+                    ).update(status='pending')
+                    from procurement.kaspi_identity_worker import process_pending_bound_cards
+                    process_pending_bound_cards(limit=1)
                     from procurement.kaspi_card_jobs import process_card_jobs
                     process_card_jobs()
                     from procurement.kaspi_price_feed import refresh_price_feed
@@ -88,12 +97,6 @@ class Command(BaseCommand):
                     if getattr(settings, 'CATALOG_PHOTO_AUTORUN_ENABLED', False) and photo_window_open(timezone.now()):
                         photo_progress = process_photo_tasks(limit=10)
                 if options['watch']:
-                    KaspiReviewTask.objects.filter(status='checking', updated_at__lt=timezone.now()-timedelta(minutes=30)).update(status='pending')
-                    # Verify existing bound Kaspi public URLs without guessing product
-                    # identity. One request per cycle; source denial stops further
-                    # probing and leaves the remainder for manual review.
-                    from procurement.kaspi_identity_worker import process_pending_bound_cards
-                    process_pending_bound_cards(limit=1)
                     tasks = KaspiReviewTask.objects.filter(status='pending', offer__match_verified=True,
                         batch__status='done').exclude(offer__kaspi_url='').order_by('priority', 'pk')
                     for task_id in list(tasks.values_list('pk', flat=True)[:10]):
