@@ -207,8 +207,21 @@ def advance_update(batch_id, prepared_rows=None):
         if not offer.match_verified or not price_fresh or not snapshot:
             reason = 'Найти и проверить карточку Kaspi' if not offer.kaspi_url else (
                 'Проверить соответствие карточки' if not offer.match_verified else 'Обновить цену и продавцов Kaspi')
+            # A supplier upload must not reopen an access-blocked Kaspi task.
+            # The source-recovery probe is the only path that may resume it.
+            existing_review = KaspiReviewTask.objects.filter(offer=offer).only('status', 'reason').first()
+            access_blocked = bool(
+                existing_review and existing_review.status == 'blocked' and (
+                    existing_review.reason.startswith('Источник Kaspi ограничил доступ.')
+                    or existing_review.reason.startswith('Проверки приостановлены после отказа источника Kaspi.')
+                    or existing_review.reason.startswith('Источник Kaspi недоступен или не подтвердил полноту.')
+                )
+            )
             KaspiReviewTask.objects.update_or_create(offer=offer, defaults={
-                'batch': batch, 'reason': reason, 'priority': 1 if offer.match_verified else 3, 'status': 'pending'})
+                'batch': batch,
+                'reason': existing_review.reason if access_blocked else reason,
+                'priority': 1 if offer.match_verified else 3,
+                'status': 'blocked' if access_blocked else 'pending'})
             batch.summary['queued'] += 1
     # Actual price processing date, without changing original supplier/Kaspi dates.
     from .models import ProfitableOfferRecord
