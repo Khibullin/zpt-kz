@@ -1,5 +1,6 @@
 from service_requests.filter_views import request_filters as service_request_filters, personal_request as service_personal_request
 from core.office_views import office_home, OfficeLoginView
+from core.minimal_public import public_home, public_robots, public_sitemap
 from django.contrib.auth.views import LogoutView
 from django.contrib import admin
 from django.urls import path, include
@@ -45,6 +46,10 @@ from catalog.views_zpt_guide import zpt_guide_view
 from core.manual_short_link_views import short_link
 
 urlpatterns = [
+    # The root landing performs no product, stock, or finance DB work.
+    path('', public_home, name='home'),
+    path('robots.txt', public_robots, name='minimal_robots'),
+    path('sitemap.xml', public_sitemap, name='minimal_sitemap'),
     path('office/', office_home, name='office_home'),
     path('office/login/', OfficeLoginView.as_view(), name='office_login'),
     path('office/logout/', LogoutView.as_view(next_page='/office/login/'), name='office_logout'),

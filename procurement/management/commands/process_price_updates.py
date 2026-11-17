@@ -195,7 +195,7 @@ class Command(BaseCommand):
                     while running and retail_run.status == 'running':
                         retail_run = advance_publication(retail_run.pk)
                     self.stdout.write(f'Retail publication {retail_run.pk}: {retail_run.processed}/{retail_run.total}')
-                if options['watch'] and running:
+                if options['watch'] and running and getattr(settings, 'PUBLIC_CATALOG_ENABLED', True):
                     from catalog.storefront import refresh_home_facets, refresh_country_facets, refresh_brand_facets
                     if refresh_home_facets():
                         self.stdout.write('Public storefront filter snapshot refreshed')
