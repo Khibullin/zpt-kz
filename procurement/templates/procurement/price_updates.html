@@ -21,7 +21,9 @@
 <details class="omega-price-details">
   <summary>Подробнее о загрузке</summary>
   <p>Обработано: {{ batch.cursor }} из {{ batch.row_count }}. Без изменений: {{ batch.summary.unchanged|default:0 }}. Использовано подтверждённых соответствий: {{ batch.summary.reused|default:0 }}. Конфликтов исходного прайса: {{ batch.summary.conflicts|default:0 }}.</p>
-  <p>Очередь Kaspi — задания на проверку, а не уже подтверждённые выгодные товары. Отбор выгодных закупок выполняется отдельно.</p>
+  <p>Автоматический финансовый отбор после обновления прайса: прибыль от 1 000 ₸ и доходность от 25%. Фото и применимость не требуются.</p>
+  {% if batch.summary.profitable_current != None %}<p><strong>Выгодных по подтверждённым свежим данным: {{ batch.summary.profitable_current }}</strong>. <a href="{% url 'procurement:dashboard' %}?supplier={{ batch.supplier_id }}&mode=best&best_scope=current">Посмотреть рейтинг →</a></p>{% endif %}
+  <p>Очередь Kaspi — задания на проверку, а не уже подтверждённые выгодные товары. Если данные Kaspi не получены, товар не считается актуально выгодным.</p>
   {% if batch.source_conflicts %}<details><summary>Показать конфликты прайса</summary>{% for item in batch.source_conflicts %}<p>{{ item.brand }} {{ item.article }} — {{ item.name }}</p>{% endfor %}</details>{% endif %}
   {% if batch.status == 'done' %}<form method="post" action="{% url 'procurement:price_update_retry_kaspi' batch.pk %}">{% csrf_token %}<button type="submit">Повторить недоступные проверки Kaspi</button></form>{% endif %}
 </details>
