@@ -92,6 +92,72 @@ def source_rows(batch, user):
     return rows, files, supplier_id
 
 
+def confirmed_purchase_stock(batch, rows):
+    """Read-only quantity and cost from existing posted purchase lots.
+
+    Count the exact receipt origins still available at the configured Kaspi
+    warehouse, after sales/transfers/returns. No snapshot or ordered quantity
+    may substitute for the physical ledger. Missing receipts stay unknown.
+    """
+    from collections import defaultdict
+    from django.conf import settings
+    from django.core.exceptions import ValidationError
+    from inventory.costing import available_lots
+    from inventory.models import Item
+
+    warehouse = getattr(settings, 'KASPI_LOCAL_WAREHOUSE', 'PP2')
+    if warehouse not in ('PP1', 'PP2'):
+        return {}
+    origins = defaultdict(list)
+    if batch['kind'] == 'order':
+        documents = StockDocument.objects.filter(
+            purchase_order=batch['obj'], kind='receipt', status='posted',
+            purchase_line__isnull=False).values(
+                'pk', 'purchase_line', 'item_id', 'unit_cost')
+        for d in documents:
+            origins[d['purchase_line']].append(d)
+    else:
+        documents = StockDocument.objects.filter(
+            bundle=batch['obj'], kind='receipt', status='posted').values(
+                'pk', 'item_id', 'unit_cost')
+        by_document = {d['pk']: d for d in documents}
+        for row in rows:
+            if row['source_id'] in by_document:
+                origins[row['index']].append(by_document[row['source_id']])
+
+    ids = {d['item_id'] for parts in origins.values() for d in parts}
+    items = Item.objects.in_bulk(ids)
+    lots_by_item = {}
+    values = {}
+    for row in rows:
+        receipts = origins.get(row['index'], [])
+        item_ids = {d['item_id'] for d in receipts}
+        if not receipts or len(item_ids) != 1:
+            continue
+        item_id = next(iter(item_ids))
+        if item_id not in items:
+            continue
+        if item_id not in lots_by_item:
+            try:
+                lots_by_item[item_id] = available_lots(items[item_id]).get(warehouse, [])
+            except ValidationError:
+                lots_by_item[item_id] = None
+        lots = lots_by_item[item_id]
+        if lots is None:
+            continue
+        allowed = {d['pk'] for d in receipts}
+        remaining = sum(max(0, lot['quantity']) for lot in lots
+                        if lot['origin'] in allowed)
+        costs = [d['unit_cost'] for d in receipts if d['unit_cost'] is not None]
+        values[row['index']] = {
+            'stock': remaining,
+            'item_id': item_id,
+            'actual_cost': max(costs) if len(costs) == len(receipts) else None,
+            'warehouse': warehouse,
+        }
+    return values
+
+
 def enrich_rows(batch, rows, supplier_id, compact=False):
     identities = Q(pk__in=[])
     for row in rows:
@@ -106,11 +172,9 @@ def enrich_rows(batch, rows, supplier_id, compact=False):
     matches = {}
     for offer in offers:
         matches.setdefault((offer.brand.casefold(), offer.article.casefold()), []).append(offer)
-    # Stock is shown separately from purchased quantity, never inferred from it.
-    item_ids = [r['item_id'] for r in rows if r.get('item_id')]
-    stock = {r['document__item_id']: r['quantity'] for r in StockEntry.objects.filter(
-        document__item_id__in=item_ids, warehouse=batch['obj'].warehouse).values('document__item_id').annotate(
-            quantity=Sum('quantity'))} if batch['kind'] == 'receipt' else {}
+    # Use remaining quantities of this exact purchase's posted receipts,
+    # including any movements to/from PP1 and PP2; never order quantities.
+    stock = confirmed_purchase_stock(batch, rows)
     for row in rows:
         candidates = matches.get((row['brand'].casefold(), row['article'].casefold()), [])
         offer = candidates[0] if len(candidates) == 1 else None
@@ -119,7 +183,10 @@ def enrich_rows(batch, rows, supplier_id, compact=False):
             photo=(draft.photo_url if draft else offer.photo_url if offer else ''),
             description=('' if compact else draft.description if draft else offer.description if offer else ''),
             card_title=(draft.title if draft else row['name']),
-            stock=stock.get(row.get('item_id')), link_issue=not bool(offer),
+            stock=(stock.get(row['index']) or {}).get('stock'),
+            stock_warehouse=(stock.get(row['index']) or {}).get('warehouse'),
+            actual_cost=(stock.get(row['index']) or {}).get('actual_cost'),
+            link_issue=not bool(offer),
             url=batch_url(batch['key'], line=row['index']))
         row['checks'] = [('Фото', bool(row['photo'])), ('Описание', bool(row['description'])),
             ('Применимость', bool(row['fitments']))]
