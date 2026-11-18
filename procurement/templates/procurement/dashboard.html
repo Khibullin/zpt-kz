@@ -136,9 +136,9 @@ const sellerMode=document.getElementById('id_seller_mode');
 function updateSellerMode(){document.getElementById('seller-exact').hidden=sellerMode.value!=='exact';document.getElementById('seller-range').hidden=!['max','range'].includes(sellerMode.value);document.getElementById('seller-min').hidden=sellerMode.value!=='range';}
 sellerMode.addEventListener('change',updateSellerMode);updateSellerMode();
 const yearMode=document.getElementById('id_year_mode');
-function updateYearMode(){document.getElementById('year-selected').hidden=yearMode.value!=='selected';document.getElementById('year-range').hidden=yearMode.value!=='range';}
-yearMode.addEventListener('change',updateYearMode);updateYearMode();
-function updateYearCount(){const n=document.querySelectorAll('[name=vehicle_years]:checked').length;document.getElementById('year-count').textContent=n?'('+n+')':'';}
+function updateYearMode(){if(!yearMode)return;document.getElementById('year-selected').hidden=yearMode.value!=='selected';document.getElementById('year-range').hidden=yearMode.value!=='range';}
+yearMode?.addEventListener('change',updateYearMode);updateYearMode();
+function updateYearCount(){const n=document.querySelectorAll('[name=vehicle_years]:checked').length;if(document.getElementById('year-count'))document.getElementById('year-count').textContent=n?'('+n+')':'';}
 document.querySelectorAll('[name=vehicle_years]').forEach(x=>x.addEventListener('change',updateYearCount));updateYearCount();
 
 const makeSelect=document.getElementById("id_vehicle_make"),modelSelect=document.getElementById("id_vehicle_model");
