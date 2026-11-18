@@ -41,6 +41,28 @@
 <small>Для выгодных товаров: точный бренд и артикул; сохраняются годы, двигатели, ограничения и источники. Спорные и уже заполненные записи пропускаются.</small>
 </form>
 {% endif %}
+{% if mode == 'best' and apify_summary and apify_summary.total %}
+<section class="notice" style="margin:12px 0;padding:13px 16px" aria-label="Результаты Kaspi Apify">
+  <strong>Новые данные Kaspi: {{ apify_summary.total }} карточки</strong>
+  <div style="margin-top:6px">Подтверждено: {{ apify_summary.verified }} · Проверить совпадение: {{ apify_summary.candidate }} · Не сопоставлено: {{ apify_summary.unmatched }}</div>
+  <div style="margin-top:7px;font-size:13px">Ниже сохранён основной список выгодных закупок. Карточки Kaspi пока отдельно: они не становятся подтверждённой выгодной закупкой без проверки товара, наличия и расчёта прибыли.</div>
+  <a href="{% url 'procurement:selection_rules' %}#buying-step-title" style="display:inline-block;margin-top:8px;font-weight:700">Открыть все результаты Kaspi и расчёты</a>
+</section>
+{% if apify_leads %}
+<section class="notice" style="margin:12px 0;padding:12px 16px">
+  <strong>Новые предварительно выгодные позиции — требуют проверки</strong>
+  <div style="overflow-x:auto;margin-top:8px"><table style="width:100%;font-size:13px"><thead><tr><th>Товар</th><th>Оптовик</th><th>Kaspi</th><th>Расчётная прибыль</th></tr></thead><tbody>
+  {% for item in apify_leads %}<tr>
+    <td><a href="{{ item.url }}" target="_blank" rel="noopener">{{ item.title }}</a></td>
+    <td>{{ item.offer.supplier.name }} · {{ item.offer.article }}</td>
+    <td>{{ item.minimum_price|floatformat:0 }} ₸</td>
+    <td>{{ item.calculated_profit|floatformat:0 }} ₸</td>
+  </tr>{% endfor %}
+  </tbody></table></div>
+  <small>Расчёт предварительный; не добавлять в закупку автоматически.</small>
+</section>
+{% endif %}
+{% endif %}
 <div class="results-toolbar">
 <strong>{% if preliminary %}{{ preliminary_total }} товаров · <span class="preliminary-status">Спрос не подтверждён</span>{% else %}Найдено {{ total }}{% endif %}</strong>
 {% if mode == 'best' %}<form id="bulk-selection" method="post" action="{% url 'procurement:select_many' %}" data-selection-form data-bulk-selection>{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button class="primary" type="submit">Добавить выбранные</button><small data-selection-status role="status" aria-live="polite"></small></form>{% else %}<div class="actions"><a href="{{ settings_url }}">Алгоритм и настройки</a><a class="button" href="{% querystring download='csv' page=None %}">Скачать CSV</a></div>{% endif %}
