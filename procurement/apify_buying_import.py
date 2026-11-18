@@ -65,12 +65,17 @@ def _offer_index(brands):
     index = defaultdict(list)
     if not brands:
         return index
-    # Case-insensitive filtering can be addressed later; exact-brand rows are
-    # the only auto-linked candidates to avoid cross-manufacturer confusion.
-    for offer in Offer.objects.filter(brand__in=list(brands)).only(
-        'id', 'brand', 'article', 'name', 'kaspi_url', 'match_verified'
-    ).iterator(chunk_size=1500):
-        index[_token(offer.brand)].append(offer)
+    # Brand matching is case-insensitive; use only the three buying suppliers.
+    from django.db.models import Q
+    brand_filter = Q()
+    for brand in brands:
+        brand_filter |= Q(brand__iexact=brand)
+    for offer in Offer.objects.filter(
+        brand_filter, supplier__name__in=['Omega', 'Фаетон', 'ZakazAuto — Костанай']
+    ).only('id', 'brand', 'article', 'name', 'kaspi_url', 'match_verified',
+           'cost', 'stock').iterator(chunk_size=1500):
+        if offer.article:
+            index[_token(offer.brand)].append(offer)
     return index
 
 
@@ -143,13 +148,19 @@ def import_apify_results(upload, filename):
               'linked': 0, 'verified': 0, 'unmatched': 0}
     for p in grouped.values():
         brand = _token(p['brand'])
-        title = _token(p['title'])
-        linked = []
-        for offer in index.get(brand, []):
-            article = _token(offer.article)
-            if len(article) >= 4 and article in title:
-                linked.append(offer)
-        match = linked[0] if len(linked) == 1 else None
+        # Exactly the same article token, not a substring (e.g. 1234 != 12345).
+        article_tokens = {_token(token) for token in re.findall(
+            r'[A-Za-zА-Яа-яЁё0-9]+(?:[-./][A-Za-zА-Яа-яЁё0-9]+)*',
+            p['title']
+        )}
+        linked = [
+            offer for offer in index.get(brand, [])
+            if _token(offer.article) in article_tokens
+        ]
+        # One Kaspi card is linked to the cheapest supplier entry of the exact
+        # same brand+article; no title, fitment or category judgement here.
+        linked.sort(key=lambda offer: (offer.cost, offer.pk))
+        match = linked[0] if linked else None
         verified = bool(match and match.match_verified and
                         _item_id({'url': match.kaspi_url}) == p['id'])
         status = 'verified' if verified else 'candidate' if match else 'unmatched'
