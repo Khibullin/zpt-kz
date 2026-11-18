@@ -28,7 +28,7 @@ def import_apify_kaspi(file, supplier_name, date, user):
     by_identity = {}
     for offer in Offer.objects.filter(supplier=supplier).only(
             'id', 'brand', 'article', 'name', 'kaspi_url', 'match_verified',
-            'kaspi_price_checked_on', 'characteristics'):
+            'kaspi_price_checked_on').iterator(chunk_size=2000):
         if offer.article and offer.brand:
             by_identity.setdefault((normalize(offer.brand), normalize(offer.article)), []).append(offer)
     candidates = {}
@@ -37,7 +37,7 @@ def import_apify_kaspi(file, supplier_name, date, user):
         if not isinstance(product, dict) or product.get('error'):
             skipped += 1
             continue
-        if (product.get('cityId') != '750000000' or
+        if (str(product.get('cityId')) != '750000000' or product.get('currency') != 'KZT' or
                 not str(product.get('category') or '').startswith('Автотовары > Автозапчасти') or
                 not product.get('inStock') or not isinstance(product.get('offers'), list)):
             skipped += 1
@@ -98,7 +98,7 @@ def import_apify_kaspi(file, supplier_name, date, user):
                 skipped += 1
                 continue
             locked = Offer.objects.select_for_update().get(pk=offer.pk)
-            if locked.kaspi_url and locked.kaspi_url != product['url']:
+            if (locked.kaspi_url and locked.kaspi_url != product['url']) or (locked.kaspi_price_checked_on and locked.kaspi_price_checked_on > date):
                 skipped += 1
                 continue
             price = min(Decimal(item['price']) for item in sellers.values())
