@@ -6,7 +6,7 @@ No source Offer, warehouse, price or verification flag is mutated.
 from decimal import Decimal
 from django.core.paginator import Paginator
 from django.db.models import Q
-from .models import KaspiBuyingCandidate, Offer, Favorite, KaspiPreparedCard
+from .models import KaspiBuyingCandidate, Offer, Favorite, KaspiPreparedCard, RetailListing
 from .analysis import evaluate, PACKAGING_COST, stock_status
 from .catalog_paging import cumulative_profitable_query
 
@@ -136,6 +136,14 @@ def visible_buying_rows(request, preferences, filters):
         for item in KaspiPreparedCard.objects.filter(offer_id__in=offer_ids)
         .exclude(photo_url='').values('offer_id', 'photo_url')
     }
+    retail_photos = {}
+    for item in RetailListing.objects.filter(offer_id__in=offer_ids).values(
+        'offer_id', 'source_content'
+    ):
+        source = item['source_content'] if isinstance(item['source_content'], dict) else {}
+        images = source.get('images') or []
+        if isinstance(images, list) and images and isinstance(images[0], str) and images[0].startswith('https://'):
+            retail_photos[item['offer_id']] = images[0]
     rows = []
     today = timezone.localdate()
     for kind, payload, profit, roi in page.object_list:
@@ -182,7 +190,7 @@ def visible_buying_rows(request, preferences, filters):
             analysis['difference'] = None
         analysis.update({
             'offer': offer, 'candidate': candidate,
-            'display_photo_url': offer.photo_url or prepared_photo.get(offer.pk, ''),
+            'display_photo_url': offer.photo_url or prepared_photo.get(offer.pk, '') or retail_photos.get(offer.pk, ''),
             'display_cost': cost, 'kaspi_price': price,
             'profit': profit, 'markup': roi,
             'best_status': (
