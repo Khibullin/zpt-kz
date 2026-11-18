@@ -1,5 +1,54 @@
 {% extends 'procurement/base.html' %}
-{% block title %}Подготовка товаров к закупке · ZPT.KZ{% endblock %}
+{% block title %}Подготовка товаров к закупке · ZPT.KZ
+<section class="rule-card step-card" aria-labelledby="buying-step-title">
+  <div class="step-heading"><span class="step-number">5</span><div><h2 id="buying-step-title">Выгодные к закупке</h2><p class="muted">Загрузите JSON результатов Apify. Все найденные карточки сохраняются без порога доходности и ограничения по дате.</p></div></div>
+  <form method="post" enctype="multipart/form-data" class="buying-upload">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="import_apify">
+    <label>Файл результатов Apify (JSON)
+      <input type="file" name="apify_json" accept=".json,application/json" required>
+    </label>
+    <button type="submit" class="primary">↑ Загрузить результаты</button>
+  </form>
+  <div class="buying-summary">
+    <span>Найдено товаров: <strong>{{ buying_total }}</strong></span>
+    <span class="muted">Сортировка: доходность ↓, затем чистая прибыль ↓. Без отсечения убыточных позиций.</span>
+  </div>
+  {% if not buying_can_calculate %}
+  <div class="rule-hint">Для расчёта чистой прибыли задайте комиссию Kaspi и дополнительные расходы в <a href="{{ settings_url }}">«Алгоритм и настройки»</a>. Пока данные не заданы, ни прибыль, ни рейтинг не подменяются условными значениями.</div>
+  {% endif %}
+  {% if buying_total %}
+  <div class="buying-table">
+    <table>
+      <thead><tr><th>Найденный товар Kaspi</th><th>Соответствие оптовику</th><th>Мин. цена Kaspi, ₸</th><th>Закупка, ₸</th><th>Чистая прибыль, ₸</th><th>Доходность, %</th><th>Статус</th></tr></thead>
+      <tbody>
+      {% for item in buying_page %}
+        <tr>
+          <td><strong>{{ item.title }}</strong><small>{{ item.brand }}{% if item.url %} · <a href="{{ item.url }}" target="_blank" rel="noopener noreferrer">Kaspi</a>{% endif %}</small></td>
+          <td>{% if item.offer %}{{ item.offer.supplier.name }}<small>{{ item.offer.brand }} · {{ item.offer.article }}</small>{% else %}Не сопоставлен{% endif %}</td>
+          <td>{% if item.minimum_price is not None %}{{ item.minimum_price|floatformat:0 }}{% else %}Нет цены{% endif %}</td>
+          <td>{% if item.offer %}{{ item.offer.cost|floatformat:0 }}{% else %}—{% endif %}</td>
+          <td>{% if buying_can_calculate and item.calculated_profit is not None %}<span class="{% if item.calculated_profit >= 0 %}buying-positive{% else %}buying-negative{% endif %}">{{ item.calculated_profit|floatformat:0 }}</span>{% else %}—{% endif %}</td>
+          <td>{% if buying_can_calculate and item.calculated_roi is not None %}<span class="{% if item.calculated_roi >= 0 %}buying-positive{% else %}buying-negative{% endif %}">{{ item.calculated_roi|floatformat:1 }}%</span>{% else %}—{% endif %}</td>
+          <td>{% if item.match_status == 'verified' %}Подтверждено{% elif item.match_status == 'candidate' %}<span class="buying-pending">Проверить исполнение</span>{% else %}<span class="buying-pending">Нет подтверждённого совпадения</span>{% endif %}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if buying_page.has_other_pages %}
+  <nav class="buying-pages" aria-label="Страницы результатов">
+    {% if buying_page.has_previous %}<a class="button" href="?page={{ buying_page.previous_page_number }}#buying-step-title">← Предыдущая</a>{% endif %}
+    <span>Страница {{ buying_page.number }} из {{ buying_page.paginator.num_pages }}</span>
+    {% if buying_page.has_next %}<a class="button" href="?page={{ buying_page.next_page_number }}#buying-step-title">Следующая →</a>{% endif %}
+  </nav>
+  {% endif %}
+  <p class="muted" style="margin-top:12px">Предложения без проверенного соответствия остаются в списке для дальнейшего сопоставления. Расчёты по кандидатам предварительные. Исходные цены и остатки поставщиков не изменяются.</p>
+  {% else %}
+  <p class="muted">Результаты пока не загружены. Скачайте JSON из Apify и загрузите его в этот блок.</p>
+  {% endif %}
+</section>
+{% endblock %}
 {% block content %}
 <style>
 .rule-header{margin:0 0 22px}.rule-header h1{font-size:30px;letter-spacing:-.5px;margin:0 0 8px}.rule-header p{color:#687c92;margin:0}
@@ -66,7 +115,23 @@
 .apify-settings{border:1px solid #dbe7f2;background:#f5f8fd;border-radius:9px;padding:12px 15px;margin-top:13px}
 .apify-settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px 16px;margin-top:10px;font-size:13px}
 @media(max-width:650px){.apify-settings-grid{grid-template-columns:1fr}.step-heading h2{font-size:17px}}
-.result-criteria{display:flex;flex-wrap:wrap;gap:8px 18px;margin:0 0 14px;font-size:13px;color:#334b65}.result-criteria>span{background:#f3f7fc;padding:8px 11px;border-radius:7px}.result-actions{justify-content:space-between}.result-count{font-size:15px}.result-count strong{font-size:19px;color:#087a68}@media(max-width:600px){.result-criteria{display:grid;grid-template-columns:1fr}.result-actions{align-items:stretch}.result-actions .button{text-align:center}}</style>
+.result-criteria{display:flex;flex-wrap:wrap;gap:8px 18px;margin:0 0 14px;font-size:13px;color:#334b65}.result-criteria>span{background:#f3f7fc;padding:8px 11px;border-radius:7px}.result-actions{justify-content:space-between}.result-count{font-size:15px}.result-count strong{font-size:19px;color:#087a68}@media(max-width:600px){.result-criteria{display:grid;grid-template-columns:1fr}.result-actions{align-items:stretch}.result-actions .button{text-align:center}}
+.buying-upload{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;margin:10px 0 14px}
+.buying-upload label{display:flex;flex-direction:column;gap:6px;font-weight:700;font-size:13px;min-width:280px;flex:1}
+.buying-upload input[type=file]{font:inherit;max-width:100%;padding:9px;border:1px solid #cad8e7;border-radius:8px;background:#fff}
+.buying-upload button{font-weight:700}
+.buying-summary{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:12px 0}
+.buying-summary strong{font-size:20px;color:#087b69}
+.buying-table{max-height:520px;overflow:auto;border:1px solid #dbe4ee;border-radius:9px}
+.buying-table table{min-width:960px}
+.buying-table th,.buying-table td{padding:10px 12px;font-size:13px}
+.buying-table small{font-size:11px}
+.buying-positive{font-weight:700;color:#067448}
+.buying-negative{font-weight:700;color:#aa3325}
+.buying-pending{color:#825a09}
+.buying-pages{display:flex;align-items:center;gap:12px;margin-top:12px}
+@media(max-width:700px){.buying-upload label{min-width:100%}}
+</style>
 <div class="rule-header"><h1>Подготовка товаров к закупке</h1><p>Обновление прайса → предварительный отбор → Excel → JSON для ручной загрузки в Apify</p></div>
 <section class="rule-card step-card" aria-labelledby="upload-step-title">
   <div class="step-heading"><span class="step-number">1</span><div><h2 id="upload-step-title">Обновление прайс-листа</h2><p class="muted">Загрузите свежий прайс поставщика перед подготовкой товаров</p></div></div>
