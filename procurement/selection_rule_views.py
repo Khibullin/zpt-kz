@@ -141,13 +141,10 @@ def selection_rules(request):
     from .selection_exports import filtered_offers, JSON_BATCH_SIZE
     saved_rows = filtered_offers(rule)
     exported_total = saved_rows.count()
-    sample = list(saved_rows.select_related('supplier').only(
-        'supplier__name', 'brand', 'article', 'name', 'cost', 'stock', 'category',
-    )[:15])
     batches = (exported_total + JSON_BATCH_SIZE - 1) // JSON_BATCH_SIZE
     return render(request, 'procurement/selection_rules.html',
                   context(request, form=form, rule=rule, matched=exported_total,
                           year_unknown=unknown_years, before_years=before_years,
-                          group_choices=GROUPS, result_sample=sample,
+                          group_choices=GROUPS,
                           json_batches=range(1, batches + 1),
                           json_batch_size=JSON_BATCH_SIZE))
