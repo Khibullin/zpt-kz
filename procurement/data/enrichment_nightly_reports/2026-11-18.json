@@ -1,0 +1,191 @@
+{
+  "schema": 1,
+  "night_end_date": "2026-11-18",
+  "period_start": "2026-11-17T23:00:00+05:00",
+  "period_end": "2026-11-18T06:00:00+05:00",
+  "verified_at": "2026-11-18T06:02:44+05:00",
+  "status": "no_confirmed_overnight_results_processing_automation_disabled",
+  "supplier_stats": {
+    "1": {
+      "name": "Омега",
+      "processed_unique_confirmed": 0,
+      "photos_added_confirmed": 0,
+      "thumbnails_added_confirmed": 0,
+      "text_fitment_added_confirmed": 0,
+      "structured_fitment_added_confirmed": 0,
+      "years_added_confirmed": 0,
+      "engines_added_confirmed": 0,
+      "remaining_snapshot": {
+        "positive_stock": 8061,
+        "supplier_id": 1,
+        "without_photo": 754,
+        "without_structured": 7679
+      }
+    },
+    "3": {
+      "name": "Фаэтон",
+      "processed_unique_confirmed": 0,
+      "photos_added_confirmed": 0,
+      "thumbnails_added_confirmed": 0,
+      "text_fitment_added_confirmed": 0,
+      "structured_fitment_added_confirmed": 0,
+      "years_added_confirmed": 0,
+      "engines_added_confirmed": 0,
+      "remaining_snapshot": {
+        "positive_stock": 27939,
+        "supplier_id": 3,
+        "without_photo": 22481,
+        "without_structured": 26451
+      }
+    },
+    "5": {
+      "name": "ЗаказАвто",
+      "processed_unique_confirmed": 0,
+      "photos_added_confirmed": 0,
+      "thumbnails_added_confirmed": 0,
+      "text_fitment_added_confirmed": 0,
+      "structured_fitment_added_confirmed": 0,
+      "years_added_confirmed": 0,
+      "engines_added_confirmed": 0,
+      "remaining_snapshot": {
+        "positive_stock": 6977,
+        "supplier_id": 5,
+        "without_photo": 6781,
+        "without_structured": 6691
+      }
+    }
+  },
+  "reason": {
+    "automation_id": "Automation_53216c82774c819184d7b160c159c83f",
+    "is_enabled": false,
+    "last_updated_at": "2026-11-16T04:20:19.919164Z",
+    "last_recorded_run_completed_at": "2026-11-16T00:04:34.627908Z",
+    "last_recorded_run_status": "no_update",
+    "cause_of_disabling": "not established"
+  },
+  "evidence": {
+    "original_nightly_report": "not found HTTP 404 before reporting",
+    "night_photo_task_updates": [],
+    "photo_task_statuses": [
+      {
+        "count": 28831,
+        "last_update": "2026-11-15T12:25:51.714387Z",
+        "status": "needs_source"
+      },
+      {
+        "count": 1596,
+        "last_update": "2026-11-10T16:59:00.044368Z",
+        "status": "skipped"
+      },
+      {
+        "count": 3,
+        "last_update": "2026-11-15T09:05:11.089751Z",
+        "status": "blocked"
+      },
+      {
+        "count": 19063,
+        "last_update": "2026-11-15T12:55:09.801482Z",
+        "status": "done"
+      }
+    ],
+    "runtime_log_query": "no matching enrichment events returned",
+    "queue_heartbeat": "2026-11-15T12:59:04.663Z",
+    "queue_status": "lease_acquired_researching_jashi_202000362aa",
+    "stale_shared_lease": {
+      "owner": "weekend-enrichment-20261115-1759-item25110",
+      "acquired_at": "2026-11-15T12:59:04.663Z",
+      "heartbeat_at": "2026-11-15T12:59:04.663Z",
+      "expires_at": "2026-11-15T13:39:04.663Z",
+      "checkpoint_path": "procurement/data/enrichment_queue_20261113.json",
+      "supplier_id": 5,
+      "offer_id": 25110,
+      "product_id": 6727,
+      "task_id": 4700
+    },
+    "last_success": {
+      "at": "2026-11-15T12:57:59.368Z",
+      "supplier_id": 5,
+      "offer_id": 25131,
+      "product_id": 6714,
+      "task_id": 4687,
+      "brand": "HYUNDAI-KIA",
+      "article": "553112S400",
+      "saved": {
+        "photo": true,
+        "thumbnail": true,
+        "fitment": true,
+        "years_or_engines": true
+      },
+      "db_verified": true,
+      "ui_verified": true,
+      "fitment_ids": [
+        111538,
+        111539
+      ],
+      "configuration_count": 2,
+      "engine_rows": 1,
+      "live_commit": "046b420383c4e71238f37a201012daa8754c2b12",
+      "deploy_id": "dep-dbsqmme417fc73fqh5l0",
+      "ui_url": "https://zpt.kz/hyundai-zpt-25131/"
+    },
+    "last_success_live_db": [
+      {
+        "article": "202000362AA",
+        "brand": "JASHI",
+        "fitment_rows": 0,
+        "id": 25110,
+        "main_image": "",
+        "status": "needs_source",
+        "supplier_thumbnail": "",
+        "updated_at": "2026-11-10T04:59:24.236752Z"
+      },
+      {
+        "article": "553112S400",
+        "brand": "HYUNDAI-KIA",
+        "fitment_rows": 2,
+        "id": 25131,
+        "main_image": "products/optimized/58726a94187f41b8945875348da8e339b81a7623b23b3567e046c65334d01cd9.webp",
+        "status": "done",
+        "supplier_thumbnail": "products/optimized/f1ae583cc085ff15ee8c3a0427ffb0d1f187e1349616ed3ea71716f63dce8aad.webp",
+        "updated_at": "2026-11-15T12:55:09.801482Z"
+      }
+    ]
+  },
+  "queue": {
+    "next": {
+      "phase": "other_in_stock_control",
+      "sequence": 15,
+      "batch_size": 20,
+      "supplier_id": 5,
+      "offer_id": 25110,
+      "product_id": 6727,
+      "task_id": 4700,
+      "brand": "JASHI",
+      "article": "202000362AA"
+    },
+    "publication_pending": null,
+    "pending_candidate": {
+      "supplier_id": 5,
+      "offer_id": 25110,
+      "product_id": 6727,
+      "task_id": 4700,
+      "brand": "JASHI",
+      "article": "202000362AA",
+      "state": "researching_new_sources"
+    },
+    "active_photo_tasks": 0,
+    "live_process_state": "No active photo tasks; expired checkpoint lease does not prove current process liveness"
+  },
+  "limitations": [
+    "Zeros denote confirmed overnight results. Original summary and overnight events absent; unlogged fitment changes cannot be excluded because VehicleFitment has no write timestamp.",
+    "Current snapshot taken after 06:00; stock is from latest imported supplier data, not independently reconfirmed availability.",
+    "Positive stock parsed using procurement.retail.stock_quantity; missing photo means no offer.photo_url and no linked product main_image; missing structured fitment means no procurement_vehiclefitment with nonempty make and model.",
+    "Omega positive-stock population differs from prior report; population changes must not be counted as enrichment."
+  ],
+  "delivery": {
+    "status": "prepared",
+    "recipient": "rkhaibullin@gmail.com",
+    "subject": "ZPT.KZ — ночной отчёт по фото и применимости — 18.11.2026",
+    "duplicate_check": "No matching sent email; nightly report absent before creation."
+  }
+}
