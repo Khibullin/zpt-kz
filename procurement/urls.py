@@ -3,6 +3,7 @@ from django.contrib.auth.views import LogoutView
 from . import views
 from . import price_update_views
 from . import selection_rule_views
+from . import selection_exports
 from inventory.purchase_receiving import receive_purchase
 from .auth import WorkspaceLoginView
 from .invitations import invite_manager, accept_invitation, activate_invitation
@@ -14,6 +15,8 @@ from .kaspi_price_feed import price_feed
 app_name = 'procurement'
 urlpatterns = [
     path('selection-rules/', selection_rule_views.selection_rules, name='selection_rules'),
+    path('selection-rules/export/excel/', selection_exports.selection_excel, name='selection_excel'),
+    path('selection-rules/export/apify-json/', selection_exports.selection_apify_json, name='selection_apify_json'),
     path('kaspi-feed/<str:token>/', price_feed, name='kaspi_price_feed'),
     path('kaspi-photo/<str:token>/', shared_image, name='kaspi_shared_image'),
     path('kaspi-products/pricing/', card_pricing_settings, name='kaspi_card_pricing'),
