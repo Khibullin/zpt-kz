@@ -485,7 +485,26 @@ def dashboard(request):
     ).values_list('offer_id', flat=True))
     for row in page.object_list:
         row['in_basket'] = row['offer'].pk in selected_ids
-    response = render(request, 'procurement/dashboard.html', context(request, page=page, total=getattr(request, 'catalog_total', len(rows)), preferences=preferences,
+    apify_summary = None
+    apify_leads = []
+    if request.GET.get('mode') == 'best':
+        from .models import KaspiBuyingCandidate
+        from django.db.models import Count
+        from .apify_buying_import import ranked_buying_candidates
+        apify_counts = KaspiBuyingCandidate.objects.aggregate(
+            total=Count('pk'),
+            verified=Count('pk', filter=Q(match_status='verified')),
+            candidate=Count('pk', filter=Q(match_status='candidate')),
+            unmatched=Count('pk', filter=Q(match_status='unmatched')),
+        )
+        apify_summary = apify_counts
+        lead_queryset, can_calculate_apify = ranked_buying_candidates(request.user)
+        if can_calculate_apify:
+            apify_leads = list(lead_queryset.filter(
+                match_status='verified', offer__cost__gt=0,
+                calculated_profit__gte=Decimal('1000')
+            )[:12])
+    response = render(request, 'procurement/dashboard.html', context(request, apify_summary=apify_summary, apify_leads=apify_leads, page=page, total=getattr(request, 'catalog_total', len(rows)), preferences=preferences,
                   commission_rate=preferences.commission.normalize() if preferences.commission is not None else None,
                   effective_expenses=max(PACKAGING_COST, preferences.expenses) if preferences.expenses is not None else None,
                   filter_form=form, preliminary=preliminary, preliminary_total=len(displayed_rows) if preliminary else 0, best_empty_reason=best_empty_reason, supplier_stats=supplier_stats, catalogue_total=supplier_stats['loaded'] if supplier_stats else Offer.objects.count(),
