@@ -111,6 +111,7 @@ class FirsthandOmegaImportTests(TestCase):
         self.discs.refresh_from_db()
         evidence = self.discs.characteristics["firsthand_omega_20261117"]
         evidence["cities"] = [city for city in evidence["cities"] if city["city"] == "Almaty"]
+        evidence["region_scope"] = "Almaty; НЕ весь Казахстан"
         self.discs.save(update_fields=["characteristics"])
         responses = [
             self.client.get(reverse("procurement:dashboard"), {
