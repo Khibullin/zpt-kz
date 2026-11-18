@@ -640,6 +640,25 @@ def select_many(request):
 
 @access()
 @require_POST
+def remove_selected(request):
+    """Remove only explicitly checked items belonging to the signed-in purchaser."""
+    raw_ids = request.POST.getlist('selection_ids')
+    if not raw_ids or len(raw_ids) > 200 or any(not x.isdecimal() or len(x) > 18 for x in raw_ids):
+        messages.error(request, 'Отметьте товары, которые нужно убрать (не более 200).')
+        return redirect('procurement:basket')
+    ids = set(map(int, raw_ids))
+    with transaction.atomic():
+        matching = Selection.objects.select_for_update().filter(user=request.user, pk__in=ids)
+        if matching.count() != len(ids):
+            messages.error(request, 'Список изменился. Обновите страницу и повторите выбор.')
+            return redirect('procurement:basket')
+        matching.delete()
+    messages.success(request, f'Убрано позиций: {len(ids)}.')
+    return redirect('procurement:basket')
+
+
+@access()
+@require_POST
 def remove(request, pk):
     Selection.objects.filter(pk=pk, user=request.user).delete()
     return redirect('procurement:basket')
