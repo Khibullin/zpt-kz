@@ -3,6 +3,8 @@
 <section class="panel" id="firsthand-omega-evidence" style="margin:12px 0;padding:12px 16px">
   <strong>Firsthand · Kaspi · {{ firsthand.checked_on|default:"дата не указана" }}</strong>
   <p class="muted" style="margin:5px 0">Города в сохранённых данных: {% for city in firsthand.cities %}{{ city.city }}{% if not forloop.last %}, {% endif %}{% empty %}не указаны{% endfor %}. Это не проверка всего Казахстана. Совпадение бренда/артикула ещё не подтверждает исполнение и комплектность товара.</p>
+  <p class="preliminary-status">{{ firsthand.price_scope_note|default:"Минимум среди полученных карточек; полнота поиска Kaspi не подтверждена." }}</p>
+  {% if firsthand.kaspi_url %}<p><a href="{{ firsthand.kaspi_url }}" target="_blank" rel="noopener noreferrer">Карточка Kaspi для расчёта</a></p>{% endif %}
   {% if firsthand.identity_status == 'conflict' %}
     <p class="preliminary-status"><strong>Спорная карточка:</strong> {{ firsthand.identity_note }}. Закупку не подтверждать.</p>
   {% else %}<small class="preliminary-status">{{ firsthand.identity_note }}</small>{% endif %}
@@ -10,7 +12,7 @@
     <summary>Продавцы и цены по сохранённым городам</summary>
     {% for city in firsthand.cities %}
       <div style="margin:12px 0">
-        <strong>{{ city.city }} · минимум {{ city.price|floatformat:0 }} ₸ · продавцов {{ city.sellers|length }}</strong>
+        <strong>{{ city.city }} · цена карточки {{ city.price|floatformat:0 }} ₸ · продавцов {{ city.sellers|length }}</strong>
         <div class="tablewrap">
         <table>
           <thead><tr><th>Продавец</th><th>Цена, ₸</th><th>Рейтинг</th><th>Доставка, дней</th><th>Самовывоз</th></tr></thead>

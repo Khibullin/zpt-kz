@@ -3,7 +3,7 @@ from datetime import date
 from decimal import Decimal
 
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.test import TestCase, SimpleTestCase
 from django.urls import reverse
 
 from .firsthand_omega_import import import_omega_firsthand, DATA_FILE
@@ -122,7 +122,39 @@ class FirsthandOmegaImportTests(TestCase):
         for response in responses:
             self.assertEqual(response.status_code, 200)
             self.assertContains(response, "Almaty")
+            self.assertContains(response, "полнота поиска Kaspi не подтверждена")
             self.assertNotContains(response, "Astana")
             self.assertNotContains(response, "Shymkent")
             self.assertNotContains(response, "3 города")
             self.assertNotContains(response, "по трём городам")
+
+class LowestObservedQuoteTests(SimpleTestCase):
+    def quote(self, product_id, price, *, brand="WXQP", article="55364", city="750000000"):
+        return {
+            "id": str(product_id), "brand": brand,
+            "title": f"{brand} подушка двигателя {article}",
+            "url": f"https://kaspi.kz/shop/p/product-{product_id}/",
+            "cityId": city, "minPrice": price, "offers": [{"price": price}],
+        }
+
+    def test_cheaper_card_wins_independently_of_old_card_and_order(self):
+        from .apify_quote_selection import lowest_observed_quote
+        expensive = self.quote(106615694, 11000)
+        cheap = self.quote(179046228, 5490)
+        for rows in ([expensive, cheap], [cheap, expensive]):
+            self.assertIs(lowest_observed_quote(rows, brand="WXQP", article="55364"), cheap)
+
+    def test_verified_identity_remains_restricted_to_its_own_card(self):
+        from .apify_quote_selection import lowest_observed_quote
+        verified = self.quote(106615694, 11000)
+        cheap = self.quote(179046228, 5490)
+        self.assertIs(lowest_observed_quote(
+            [cheap, verified], brand="WXQP", article="55364",
+            verified_product_id="106615694"), verified)
+
+    def test_other_article_brand_or_city_does_not_lower_the_price(self):
+        from .apify_quote_selection import lowest_observed_quote
+        rows = [self.quote(1, 100, article="553640"),
+                self.quote(2, 100, brand="OTHER"),
+                self.quote(3, 100, city="710000000")]
+        self.assertIsNone(lowest_observed_quote(rows, brand="WXQP", article="55364"))
