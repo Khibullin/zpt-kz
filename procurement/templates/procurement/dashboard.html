@@ -87,11 +87,11 @@
 {% if mode == 'no_sellers' %}<td>{% if row.kaspi_presence == 'no_card' %}Карточка не найдена после проверки{% else %}Карточка есть — продавцов нет{% endif %}<small>Алматы · {{ row.kaspi_checked_on|date:'d.m.Y' }}</small></td><td>Цена продажи не задана</td><td>Прибыль не рассчитана</td>{% else %}
 <td class="money">{{ row.kaspi_price|floatformat:0|default:'Нет данных' }}{% if mode == 'kaspi_prices' %}<small class="preliminary-status">Сохранённая цена</small>{% elif mode == 'stale_prices' %}<small class="preliminary-status">Старая цена · {{ row.offer.kaspi_price_checked_on|date:'d.m.Y'|default:'без даты' }}</small>{% elif mode == 'best' %}<small>{{ row.display_kaspi_date|date:'d.m.Y'|default:'без даты' }}</small>{% endif %}</td>
 {% if mode == 'kaspi_prices' %}<td>{% if row.offer.match_verified %}Совпадение подтверждено{% else %}Не подтверждено{% endif %}</td><td>{{ row.offer.kaspi_price_checked_on|date:'d.m.Y'|default:'Нет даты' }}</td>{% else %}<td class="money">
-{% if mode != 'difference' %}<span class="delta">{{ row.markup|floatformat:2|default:'—' }}%</span>{% else %}
+{% if mode != 'difference' %}<span class="delta" {% if row.markup != None and row.markup < 0 %}style="color:#a32b20"{% endif %}>{{ row.markup|floatformat:2|default:'—' }}%</span>{% else %}
 <span class="delta">{{ row.difference|floatformat:2|default:'Нет данных' }}</span>
 <small>{{ row.markup|floatformat:1|default:'—' }}%</small>{% endif %}
 </td>
-<td class="money">{{ row.profit|floatformat:2|default:'Прибыль не рассчитана' }}
+<td class="money">{% if row.profit != None and row.profit < 0 %}<strong style="color:#a32b20">Убыток: {{ row.profit|floatformat:2 }} ₸</strong>{% elif row.profit != None %}<strong>{{ row.profit|floatformat:2 }} ₸</strong>{% else %}Прибыль не рассчитана{% endif %}
 </td>{% endif %}
 {% endif %}<td class="row-actions">
 <button type="button" class="quick-view" data-url="{% url 'procurement:detail' row.offer.pk %}?compact=1" aria-haspopup="dialog">Просмотр</button>
