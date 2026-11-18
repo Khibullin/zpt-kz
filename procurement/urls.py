@@ -38,6 +38,7 @@ urlpatterns = [
     path('activate/', activate_invitation, name='activate_invitation'),
     path('suppliers/<int:pk>/', views.supplier_detail, name='supplier_detail'),
     path('basket/', views.basket, name='basket'),
+    path('basket/add-selected/', views.select_many, name='select_many'),
     path('purchases/new/<int:supplier_id>/', views.purchase_confirm, name='purchase_confirm'),
     path('purchases/<int:pk>/receive/', receive_purchase, name='purchase_receive'),
     path('purchases/<int:pk>/', views.purchase_detail, name='purchase_detail'),

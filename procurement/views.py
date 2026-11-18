@@ -68,6 +68,7 @@ def context(request, **extra):
     catalog_url += scope_query
     return {'role': request.procurement_role, 'can_manage': request.procurement_role in ('sales', 'admin'),
             'selected_supplier': selected_supplier, 'catalog_url': catalog_url,
+            'best_url': catalog_url + '&mode=best',
             'favorites_url': catalog_url + '&favorites=1',
             'upload_url': reverse('procurement:upload') + scope_query,
             'settings_url': reverse('procurement:settings') + scope_query,
@@ -421,54 +422,8 @@ def dashboard(request):
     rows = filtered_rows(request, preferences, form.cleaned_data, paginate=request.GET.get('download') != 'csv') if valid else []
     rows_finished = perf_counter()
     best_empty_reason = ''
-    best_kaspi_status = None
-    if request.GET.get('mode') == 'best':
-        from .models import KaspiReviewTask
-        from django.db.models import Count
-        tasks = KaspiReviewTask.objects.filter(status__in=('pending', 'checking', 'blocked'))
-        if supplier:
-            tasks = tasks.filter(offer__supplier=supplier)
-        totals = tasks.aggregate(
-            pending=Count('pk', filter=Q(status='pending')),
-            checking=Count('pk', filter=Q(status='checking')),
-            blocked=Count('pk', filter=Q(status='blocked')),
-            verified_ready=Count('pk', filter=Q(
-                status='pending', offer__match_verified=True) & ~Q(offer__kaspi_url='')),
-            has_link_unverified=Count('pk', filter=Q(
-                status='pending', offer__match_verified=False) & ~Q(offer__kaspi_url='')),
-        )
-        if any(totals.get(k, 0) for k in ('pending', 'checking', 'blocked')):
-            best_kaspi_status = totals
-            if totals['blocked']:
-                best_kaspi_status['label'] = 'Не удаётся получить цены Kaspi'
-                best_kaspi_status['explanation'] = (
-                    'Kaspi не предоставляет данные для автоматического сравнения. '
-                    'Проверенные ранее товары сохранены. Система проверяет '
-                    'восстановление доступа не чаще одного раза в 24 часа '
-                    'и продолжит обработку, когда источник станет доступен.')
-            elif totals['checking']:
-                best_kaspi_status['label'] = 'Сравниваем закупочные цены с Kaspi'
-                best_kaspi_status['explanation'] = (
-                    'Система проверяет точное соответствие товаров и цены продавцов.')
-            elif totals['verified_ready']:
-                best_kaspi_status['label'] = 'Ожидаем цены Kaspi'
-                best_kaspi_status['explanation'] = (
-                    'Товары сопоставлены с Kaspi, ожидается обновление цен.')
-            else:
-                best_kaspi_status['label'] = 'Не все товары проверены'
-                best_kaspi_status['explanation'] = (
-                    'Для оставшихся товаров нужно подтвердить точную карточку Kaspi. '
-                    'Непроверенные товары не учитываются как выгодные.')
-        if not rows:
-            best_empty_reason = ('Пока нет подтверждённых актуальных выгодных товаров. '
-                                 'Проверки Kaspi и сохранённые прежние результаты учитываются отдельно.')
-        if supplier and preserved_best_scope(supplier) == 'all':
-            from .models import PriceUpdate
-            latest_supplier_file = PriceUpdate.objects.filter(
-                supplier=supplier, status='done').order_by('-pk').first()
-            if latest_supplier_file:
-                best_kaspi_status = best_kaspi_status or totals
-                best_kaspi_status['preserved_price_date'] = latest_supplier_file.checked_on
+    if request.GET.get('mode') == 'best' and not rows:
+        best_empty_reason = 'По выбранным фильтрам выгодных товаров нет.'
     counts = getattr(request, 'catalog_status_counts', {})
     form.fields['kaspi_status'].choices = [(key, f'{label} ({counts.get(key, 0)})') for key, label in form.fields['kaspi_status'].choices]
     preliminary = False
@@ -496,10 +451,15 @@ def dashboard(request):
     prefetch_related_objects([row['offer'] for row in page.object_list],
         Prefetch('fitments', queryset=VehicleFitment.objects.only('id', 'offer_id', 'make', 'model', 'verified')[:4], to_attr='compact_fitments'),
         'kaspi_sellers')
+    selected_ids = set(Selection.objects.filter(
+        user=request.user, offer_id__in=[row['offer'].pk for row in page.object_list]
+    ).values_list('offer_id', flat=True))
+    for row in page.object_list:
+        row['in_basket'] = row['offer'].pk in selected_ids
     response = render(request, 'procurement/dashboard.html', context(request, page=page, total=getattr(request, 'catalog_total', len(rows)), preferences=preferences,
                   commission_rate=preferences.commission.normalize() if preferences.commission is not None else None,
                   effective_expenses=max(PACKAGING_COST, preferences.expenses) if preferences.expenses is not None else None,
-                  filter_form=form, preliminary=preliminary, preliminary_total=len(displayed_rows) if preliminary else 0, best_empty_reason=best_empty_reason, best_kaspi_status=best_kaspi_status, supplier_stats=supplier_stats, catalogue_total=supplier_stats['loaded'] if supplier_stats else Offer.objects.count(),
+                  filter_form=form, preliminary=preliminary, preliminary_total=len(displayed_rows) if preliminary else 0, best_empty_reason=best_empty_reason, supplier_stats=supplier_stats, catalogue_total=supplier_stats['loaded'] if supplier_stats else Offer.objects.count(),
                   reset_url=reverse('procurement:dashboard') + (f'?supplier={supplier.pk}' if supplier else '?supplier=') + ('&mode=' + request.GET['mode'] if request.GET.get('mode') in ('best', 'stale_prices', 'kaspi_prices', 'difference', 'no_sellers', 'reviewed') else ''),
                   page_numbers=page.paginator.get_elided_page_range(page.number, on_each_side=2, on_ends=1), basic_filters=[form[name] for name in ('brand', 'category', 'vehicle_country', 'vehicle_make', 'vehicle_model', 'vehicle_generation', 'vehicle_year', 'kaspi_seller_count')],
                   advanced_filters=[form[name] for name in (('fitment', 'availability', 'demand', 'max_cost', 'favorites') if request.GET.get('mode') == 'kaspi_prices' else ('sort', 'fitment', 'availability', 'demand', 'max_cost', 'min_profit', 'min_markup', 'verified', 'favorites') if request.GET.get('mode') != 'best' else ('fitment', 'availability', 'demand', 'max_cost', 'min_profit', 'min_markup', 'favorites'))],
@@ -556,6 +516,7 @@ def settings(request):
 def product_processing(request):
     """Read-only manual-enrichment dashboard; never processes tasks in a request."""
     from catalog.models import SupplierPhotoTask
+    from .models import KaspiReviewTask
     from django.db.models import Count
     statuses = list(
         SupplierPhotoTask.objects.values('status').annotate(total=Count('pk'))
@@ -572,8 +533,17 @@ def product_processing(request):
     }
     for item in statuses:
         item['label'] = labels.get(item['status'], 'На дополнительной проверке')
+    queue = KaspiReviewTask.objects.all()
+    supplier = request_supplier(request)
+    if supplier:
+        queue = queue.filter(offer__supplier=supplier)
+    kaspi_statuses = queue.aggregate(
+        pending=Count('pk', filter=Q(status='pending')),
+        checking=Count('pk', filter=Q(status='checking')),
+        blocked=Count('pk', filter=Q(status='blocked')),
+    )
     return render(request, 'procurement/product_processing.html',
-                  context(request, task_statuses=statuses,
+                  context(request, task_statuses=statuses, kaspi_statuses=kaspi_statuses,
                           photo_total=sum(item['total'] for item in statuses)))
 
 
@@ -631,6 +601,34 @@ def select(request, pk):
     target = request.POST.get('next', '')
     if url_has_allowed_host_and_scheme(target, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
         messages.success(request, 'Добавлено в список закупки.')
+        return redirect(target)
+    return redirect('procurement:basket')
+
+
+@access()
+@require_POST
+def select_many(request):
+    """Add explicitly checked offers to the user's draft, preserving quantities."""
+    as_json = 'application/json' in request.headers.get('Accept', '')
+    ids = request.POST.getlist('offer_ids')
+    if not ids or len(ids) > 200 or any(not value.isdecimal() or len(value) > 18 for value in ids):
+        message = 'Отметьте от 1 до 200 товаров.'
+        return JsonResponse({'error': message}, status=400) if as_json else HttpResponse(message, status=400)
+    ids = set(map(int, ids))
+    with transaction.atomic():
+        offers = list(Offer.objects.filter(pk__in=ids).order_by('pk'))
+        if len(offers) != len(ids) or any(not 1 <= offer.min_order <= 100000 for offer in offers):
+            message = 'Состав списка изменился. Обновите страницу и повторите выбор.'
+            return JsonResponse({'error': message}, status=400) if as_json else HttpResponse(message, status=400)
+        for offer in offers:
+            Selection.objects.get_or_create(user=request.user, offer=offer,
+                                            defaults={'quantity': offer.min_order})
+    if as_json:
+        return JsonResponse({'basket_count': Selection.objects.filter(user=request.user).count(),
+                             'selected_ids': sorted(ids), 'message': 'Добавлено в список закупки.'})
+    target = request.POST.get('next', '')
+    messages.success(request, 'Добавлено в список закупки.')
+    if url_has_allowed_host_and_scheme(target, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
         return redirect(target)
     return redirect('procurement:basket')
 

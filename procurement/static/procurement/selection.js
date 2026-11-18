@@ -25,6 +25,12 @@
     form.dataset.pending = '1';
     button.disabled = true;
     status.classList.remove('danger');
+    if (form.matches('[data-bulk-selection]') && !document.querySelector('[form="bulk-selection"]:checked')) {
+      status.textContent = 'Отметьте товары справа в списке.';
+      button.disabled = false;
+      delete form.dataset.pending;
+      return;
+    }
     status.textContent = 'Добавляем…';
     try {
       const response = await fetch(form.action, {
@@ -39,6 +45,17 @@
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Не удалось добавить товар. Попробуйте ещё раз.');
       updateCount(data.basket_count);
+      if (Array.isArray(data.selected_ids)) {
+        const added = new Set(data.selected_ids.map(String));
+        document.querySelectorAll('[form="bulk-selection"]').forEach(input => {
+          if (!added.has(input.value)) return;
+          const label = input.closest('label');
+          const saved = document.createElement('small');
+          saved.dataset.inBasket = '';
+          saved.textContent = 'В списке закупки';
+          label.replaceWith(saved);
+        });
+      }
       if (window.parent !== window) {
         window.parent.postMessage({type: 'procurement:basket-updated', basket_count: data.basket_count}, window.location.origin);
       }

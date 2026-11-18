@@ -41,7 +41,7 @@ class SavedKaspiPriceListTests(TestCase):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context["total"], 2)
-        self.assertContains(response, "Цены Kaspi · 2")
+        self.assertEqual(response.context["kaspi_saved_total"], 2)
         self.assertContains(response, "Рычаг с ранее найденной ценой")
         self.assertContains(response, "Фильтр с неподтверждённой ценой")
         self.assertContains(response, self.verified.kaspi_price_checked_on.strftime("%d.%m.%Y"))
@@ -60,10 +60,12 @@ class SavedKaspiPriceListTests(TestCase):
         self.assertIn(self.verified.kaspi_price_checked_on.isoformat(), response.content.decode("utf-8"))
         self.assertIn("Сохранённая цена Kaspi", response.content.decode("utf-8"))
 
-    def test_omega_rules_button_is_only_on_best_buy_tab(self):
+    def test_omega_financial_rules_live_on_separate_rules_page(self):
         best_url = reverse("procurement:dashboard") + "?mode=best&supplier=" + str(self.supplier.pk)
         response = self.client.get(best_url)
         self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'id="best-selection-rules"')
+        response = self.client.get(reverse("procurement:selection_rules"))
         self.assertContains(response, 'id="best-selection-rules"')
         self.assertContains(response, "Правила отбора")
         self.assertContains(response, "2 000 ₸ за единицу")
