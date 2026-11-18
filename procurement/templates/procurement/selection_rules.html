@@ -1,53 +1,5 @@
 {% extends 'procurement/base.html' %}
 {% block title %}Подготовка товаров к закупке · ZPT.KZ
-<section class="rule-card step-card" aria-labelledby="buying-step-title">
-  <div class="step-heading"><span class="step-number">5</span><div><h2 id="buying-step-title">Выгодные к закупке</h2><p class="muted">Загрузите JSON результатов Apify. Все найденные карточки сохраняются без порога доходности и ограничения по дате.</p></div></div>
-  <form method="post" enctype="multipart/form-data" class="buying-upload">
-    {% csrf_token %}
-    <input type="hidden" name="action" value="import_apify">
-    <label>Файл результатов Apify (JSON)
-      <input type="file" name="apify_json" accept=".json,application/json" required>
-    </label>
-    <button type="submit" class="primary">↑ Загрузить результаты</button>
-  </form>
-  <div class="buying-summary">
-    <span>Найдено товаров: <strong>{{ buying_total }}</strong></span>
-    <span class="muted">Сортировка: доходность ↓, затем чистая прибыль ↓. Без отсечения убыточных позиций.</span>
-  </div>
-  {% if not buying_can_calculate %}
-  <div class="rule-hint">Для расчёта чистой прибыли задайте комиссию Kaspi и дополнительные расходы в <a href="{{ settings_url }}">«Алгоритм и настройки»</a>. Пока данные не заданы, ни прибыль, ни рейтинг не подменяются условными значениями.</div>
-  {% endif %}
-  {% if buying_total %}
-  <div class="buying-table">
-    <table>
-      <thead><tr><th>Найденный товар Kaspi</th><th>Соответствие оптовику</th><th>Мин. цена Kaspi, ₸</th><th>Закупка, ₸</th><th>Чистая прибыль, ₸</th><th>Доходность, %</th><th>Статус</th></tr></thead>
-      <tbody>
-      {% for item in buying_page %}
-        <tr>
-          <td><strong>{{ item.title }}</strong><small>{{ item.brand }}{% if item.url %} · <a href="{{ item.url }}" target="_blank" rel="noopener noreferrer">Kaspi</a>{% endif %}</small></td>
-          <td>{% if item.offer %}{{ item.offer.supplier.name }}<small>{{ item.offer.brand }} · {{ item.offer.article }}</small>{% else %}Не сопоставлен{% endif %}</td>
-          <td>{% if item.minimum_price is not None %}{{ item.minimum_price|floatformat:0 }}{% else %}Нет цены{% endif %}</td>
-          <td>{% if item.offer %}{{ item.offer.cost|floatformat:0 }}{% else %}—{% endif %}</td>
-          <td>{% if buying_can_calculate and item.calculated_profit is not None %}<span class="{% if item.calculated_profit >= 0 %}buying-positive{% else %}buying-negative{% endif %}">{{ item.calculated_profit|floatformat:0 }}</span>{% else %}—{% endif %}</td>
-          <td>{% if buying_can_calculate and item.calculated_roi is not None %}<span class="{% if item.calculated_roi >= 0 %}buying-positive{% else %}buying-negative{% endif %}">{{ item.calculated_roi|floatformat:1 }}%</span>{% else %}—{% endif %}</td>
-          <td>{% if item.match_status == 'verified' %}Подтверждено{% elif item.match_status == 'candidate' %}<span class="buying-pending">Проверить исполнение</span>{% else %}<span class="buying-pending">Нет подтверждённого совпадения</span>{% endif %}</td>
-        </tr>
-      {% endfor %}
-      </tbody>
-    </table>
-  </div>
-  {% if buying_page.has_other_pages %}
-  <nav class="buying-pages" aria-label="Страницы результатов">
-    {% if buying_page.has_previous %}<a class="button" href="?page={{ buying_page.previous_page_number }}#buying-step-title">← Предыдущая</a>{% endif %}
-    <span>Страница {{ buying_page.number }} из {{ buying_page.paginator.num_pages }}</span>
-    {% if buying_page.has_next %}<a class="button" href="?page={{ buying_page.next_page_number }}#buying-step-title">Следующая →</a>{% endif %}
-  </nav>
-  {% endif %}
-  <p class="muted" style="margin-top:12px">Предложения без проверенного соответствия остаются в списке для дальнейшего сопоставления. Расчёты по кандидатам предварительные. Исходные цены и остатки поставщиков не изменяются.</p>
-  {% else %}
-  <p class="muted">Результаты пока не загружены. Скачайте JSON из Apify и загрузите его в этот блок.</p>
-  {% endif %}
-</section>
 {% endblock %}
 {% block content %}
 <style>
@@ -198,6 +150,55 @@
     <div class="apify-settings-grid"><span>Города: Алматы, Астана, Шымкент</span><span>Max products per query: 3</span><span>Add every seller's offer: включено</span><span>Max offers per product: 0 (все)</span><span>Add reviews: выключено</span><span>Proxy: Residential, Kazakhstan</span><span>Memory: 256 MB</span><span>Timeout: 43 200 секунд</span></div>
     <p class="muted" style="margin:9px 0 0">Максимальную стоимость запуска установите вручную в Apify. JSON не запускает сбор автоматически; результаты и расходы зависят от настроек и ограничений самого сервиса.</p>
   </div>
+</section>
+
+<section class="rule-card step-card" aria-labelledby="buying-step-title">
+  <div class="step-heading"><span class="step-number">5</span><div><h2 id="buying-step-title">Выгодные к закупке</h2><p class="muted">Загрузите JSON результатов Apify. Все найденные карточки сохраняются без порога доходности и ограничения по дате.</p></div></div>
+  <form method="post" enctype="multipart/form-data" class="buying-upload">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="import_apify">
+    <label>Файл результатов Apify (JSON)
+      <input type="file" name="apify_json" accept=".json,application/json" required>
+    </label>
+    <button type="submit" class="primary">↑ Загрузить результаты</button>
+  </form>
+  <div class="buying-summary">
+    <span>Найдено товаров: <strong>{{ buying_total }}</strong></span>
+    <span class="muted">Сортировка: доходность ↓, затем чистая прибыль ↓. Без отсечения убыточных позиций.</span>
+  </div>
+  {% if not buying_can_calculate %}
+  <div class="rule-hint">Для расчёта чистой прибыли задайте комиссию Kaspi и дополнительные расходы в <a href="{{ settings_url }}">«Алгоритм и настройки»</a>. Пока данные не заданы, ни прибыль, ни рейтинг не подменяются условными значениями.</div>
+  {% endif %}
+  {% if buying_total %}
+  <div class="buying-table">
+    <table>
+      <thead><tr><th>Найденный товар Kaspi</th><th>Соответствие оптовику</th><th>Мин. цена Kaspi, ₸</th><th>Закупка, ₸</th><th>Чистая прибыль, ₸</th><th>Доходность, %</th><th>Статус</th></tr></thead>
+      <tbody>
+      {% for item in buying_page %}
+        <tr>
+          <td><strong>{{ item.title }}</strong><small>{{ item.brand }}{% if item.url %} · <a href="{{ item.url }}" target="_blank" rel="noopener noreferrer">Kaspi</a>{% endif %}</small></td>
+          <td>{% if item.offer %}{{ item.offer.supplier.name }}<small>{{ item.offer.brand }} · {{ item.offer.article }}</small>{% else %}Не сопоставлен{% endif %}</td>
+          <td>{% if item.minimum_price is not None %}{{ item.minimum_price|floatformat:0 }}{% else %}Нет цены{% endif %}</td>
+          <td>{% if item.offer %}{{ item.offer.cost|floatformat:0 }}{% else %}—{% endif %}</td>
+          <td>{% if buying_can_calculate and item.calculated_profit is not None %}<span class="{% if item.calculated_profit >= 0 %}buying-positive{% else %}buying-negative{% endif %}">{{ item.calculated_profit|floatformat:0 }}</span>{% else %}—{% endif %}</td>
+          <td>{% if buying_can_calculate and item.calculated_roi is not None %}<span class="{% if item.calculated_roi >= 0 %}buying-positive{% else %}buying-negative{% endif %}">{{ item.calculated_roi|floatformat:1 }}%</span>{% else %}—{% endif %}</td>
+          <td>{% if item.match_status == 'verified' %}Подтверждено{% elif item.match_status == 'candidate' %}<span class="buying-pending">Проверить исполнение</span>{% else %}<span class="buying-pending">Нет подтверждённого совпадения</span>{% endif %}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if buying_page.has_other_pages %}
+  <nav class="buying-pages" aria-label="Страницы результатов">
+    {% if buying_page.has_previous %}<a class="button" href="?page={{ buying_page.previous_page_number }}#buying-step-title">← Предыдущая</a>{% endif %}
+    <span>Страница {{ buying_page.number }} из {{ buying_page.paginator.num_pages }}</span>
+    {% if buying_page.has_next %}<a class="button" href="?page={{ buying_page.next_page_number }}#buying-step-title">Следующая →</a>{% endif %}
+  </nav>
+  {% endif %}
+  <p class="muted" style="margin-top:12px">Предложения без проверенного соответствия остаются в списке для дальнейшего сопоставления. Расчёты по кандидатам предварительные. Исходные цены и остатки поставщиков не изменяются.</p>
+  {% else %}
+  <p class="muted">Результаты пока не загружены. Скачайте JSON из Apify и загрузите его в этот блок.</p>
+  {% endif %}
 </section>
 
 {% load static %}<script src="{% static 'procurement/price_updates.js' %}" defer></script>

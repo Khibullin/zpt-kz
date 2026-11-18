@@ -1,6 +1,7 @@
 from datetime import timedelta
 from decimal import Decimal
 from io import BytesIO
+from html.parser import HTMLParser
 
 from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -154,3 +155,25 @@ class PreparationPriceUploadTests(TestCase):
         self.assertFalse(PriceUpdate.objects.exists())
         rule.refresh_from_db()
         self.assertEqual(rule.min_cost, Decimal('2345'))
+
+    def test_preparation_title_contains_no_forms_and_results_upload_is_in_body(self):
+        response = self.client.get(self.url)
+        class Page(HTMLParser):
+            in_title = False
+            title = ''
+            body_uploads = 0
+            def handle_starttag(self, tag, attrs):
+                if tag == 'title':
+                    self.in_title = True
+                if tag == 'form' and dict(attrs).get('class') == 'buying-upload' and not self.in_title:
+                    self.body_uploads += 1
+            def handle_endtag(self, tag):
+                if tag == 'title':
+                    self.in_title = False
+            def handle_data(self, data):
+                if self.in_title:
+                    self.title += data
+        page = Page()
+        page.feed(response.content.decode())
+        self.assertEqual(page.title.strip(), 'Подготовка товаров к закупке · ZPT.KZ')
+        self.assertEqual(page.body_uploads, 1)
