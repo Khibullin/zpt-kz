@@ -6,7 +6,7 @@ No source Offer, warehouse, price or verification flag is mutated.
 from decimal import Decimal
 from django.core.paginator import Paginator
 from django.db.models import Q
-from .models import KaspiBuyingCandidate, Offer, Favorite
+from .models import KaspiBuyingCandidate, Offer, Favorite, KaspiPreparedCard
 from .analysis import evaluate, PACKAGING_COST, stock_status
 from .catalog_paging import cumulative_profitable_query
 
@@ -131,6 +131,11 @@ def visible_buying_rows(request, preferences, filters):
     offers = {o.pk: o for o in Offer.objects.filter(pk__in=offer_ids).select_related(
         'supplier', 'kaspi_sellers', 'kaspi_card_search'
     )}
+    prepared_photo = {
+        item['offer_id']: item['photo_url']
+        for item in KaspiPreparedCard.objects.filter(offer_id__in=offer_ids)
+        .exclude(photo_url='').values('offer_id', 'photo_url')
+    }
     rows = []
     today = timezone.localdate()
     for kind, payload, profit, roi in page.object_list:
@@ -177,6 +182,7 @@ def visible_buying_rows(request, preferences, filters):
             analysis['difference'] = None
         analysis.update({
             'offer': offer, 'candidate': candidate,
+            'display_photo_url': offer.photo_url or prepared_photo.get(offer.pk, ''),
             'display_cost': cost, 'kaspi_price': price,
             'profit': profit, 'markup': roi,
             'best_status': (
