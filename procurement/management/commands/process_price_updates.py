@@ -152,9 +152,18 @@ class Command(BaseCommand):
                     query = query.filter(pk=options['batch'])
                 for batch in query.iterator(chunk_size=1):
                     rows = batch.rows
-                    while running and batch.status != 'done':
-                        batch = advance_update(batch.pk, prepared_rows=rows)
-                    self.stdout.write(f'Price update {batch.pk}: {batch.cursor}/{batch.row_count}')
+                    try:
+                        while running and batch.status != 'done':
+                            batch = advance_update(batch.pk, prepared_rows=rows)
+                        self.stdout.write(f'Price update {batch.pk}: {batch.cursor}/{batch.row_count}')
+                    finally:
+                        # A staged supplier import can contain a very large JSON
+                        # array. Release BOTH references before the long-lived
+                        # consumer continues with unrelated background jobs.
+                        # Otherwise the completed import can stay resident for
+                        # hours, causing a 512-MiB Render instance to be OOM killed.
+                        del rows
+                        del batch
                 if options['watch']:
                     # Kaspi validation and image work are independent from uploads.
                     # storefront and purchased-card work, so Kaspi does not
