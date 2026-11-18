@@ -70,7 +70,7 @@ def visible_buying_rows(request, preferences, filters):
                     counts.append(n)
                 elif isinstance(n, str) and n.isdecimal():
                     counts.append(int(n))
-                elif isinstance(city.get('sellers'), list):
+                elif isinstance(city, dict) and isinstance(city.get('sellers'), list):
                     # The source supplies the observed seller list but usually
                     # omits sellersCount. Never pretend it is an all-Kaspi total.
                     counts.append(len(city['sellers']))
@@ -148,7 +148,7 @@ def visible_buying_rows(request, preferences, filters):
                     counts.append(n)
                 elif isinstance(n, str) and n.isdecimal():
                     counts.append(int(n))
-                elif isinstance(city.get('sellers'), list):
+                elif isinstance(city, dict) and isinstance(city.get('sellers'), list):
                     # The source supplies the observed seller list but usually
                     # omits sellersCount. Never pretend it is an all-Kaspi total.
                     counts.append(len(city['sellers']))
