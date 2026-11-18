@@ -12,6 +12,22 @@ from .models import Supplier, Offer, KaspiSellerSnapshot, Activity
 from .matching import normalize, compare_identity
 
 
+def _compatible_existing_card(offer, product):
+    """Existing URL is only a hint; require part-type and side consistency too."""
+    if offer.kaspi_url != product.get('url'):
+        return False
+    title = normalize(product.get('title'))
+    category = normalize(product.get('category'))
+    name = normalize(offer.name)
+    for side in ('передний', 'задний', 'левый', 'правый', 'верхний', 'нижний'):
+        if re.search(r'(?<!\\w)' + side + r'(?!\\w)', name) and not re.search(r'(?<!\\w)' + side + r'(?!\\w)', title):
+            return False
+    stop = {'передний', 'задний', 'левый', 'правый', 'верхний', 'нижний', 'комплект', 'шт', 'для', 'авто'}
+    name_words = [word for word in re.findall(r'[\\w]+', name) if len(word) >= 4 and word not in stop]
+    # Reject a title/category that has none of the supplier's distinctive part type.
+    return bool(name_words) and any(word[:6] in title or word[:6] in category for word in name_words)
+
+
 def import_apify_kaspi(file, supplier_name, date, user):
     all_suppliers = supplier_name == 'Все поставщики'
     supplier = None if all_suppliers else Supplier.objects.filter(name=supplier_name.strip()).first()
@@ -57,17 +73,23 @@ def import_apify_kaspi(file, supplier_name, date, user):
         for article in tokens:
             for offer in by_identity.get((brand, article), []):
                 confirmed, _ = compare_identity(offer, product.get('title'), offer.article, product.get('brand'))
-                if not confirmed:
+                if not confirmed and not _compatible_existing_card(offer, product):
                     continue
                 # One supplier item may have several Kaspi IDs. Do not choose arbitrarily.
                 candidates.setdefault(offer.pk, {})[product_id] = (offer, product)
     imported = 0
     with transaction.atomic():
         for matches in candidates.values():
-            if len(matches) != 1:
-                skipped += 1
-                continue
-            offer, product = next(iter(matches.values()))
+            # If Kaspi returns multiple IDs for one SKU, use only a card whose
+            # URL was already bound to this supplier item; otherwise review.
+            if len(matches) == 1:
+                offer, product = next(iter(matches.values()))
+            else:
+                bound = [(offer, product) for offer, product in matches.values() if offer.kaspi_url == product['url']]
+                if len(bound) != 1:
+                    skipped += 1
+                    continue
+                offer, product = bound[0]
             if offer.kaspi_url and offer.kaspi_url != product['url']:
                 skipped += 1
                 continue
@@ -126,6 +148,9 @@ def import_apify_kaspi(file, supplier_name, date, user):
                 'sellers': list(sellers.values()),
             })
             imported += 1
+            if locked.supplier_id:
+                from .opportunities import capture_profitable_offer
+                capture_profitable_offer(locked)
         Activity.objects.create(user=user, action='competitors_import',
                                 details={'source': 'apify', 'supplier': 'Все поставщики' if all_suppliers else supplier.name,
                                          'matched': imported, 'skipped': skipped, 'date': date.isoformat()})
