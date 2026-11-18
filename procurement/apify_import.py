@@ -47,11 +47,11 @@ def import_apify_kaspi(file, supplier_name, date, user):
         url = str(product.get('url') or '')
         product_id = str(product.get('id') or '')
         if not brand or not product_id.isdigit() or not re.fullmatch(
-                r'https://kaspi\\.kz/shop/p/[^?#]+-' + re.escape(product_id) + r'/?', url):
+                r'https://kaspi\.kz/shop/p/[^?#]+-' + re.escape(product_id) + r'/?', url):
             skipped += 1
             continue
         # Search by actual product title, NOT searchQuery: it can point to unrelated goods.
-        tokens = set(re.findall(r'[\\w]+(?:-[\\w]+)*', title))
+        tokens = set(re.findall(r'[\w]+(?:-[\w]+)*', title))
         for article in tokens:
             for offer in by_identity.get((brand, article), []):
                 confirmed, _ = compare_identity(offer, product.get('title'), offer.article, product.get('brand'))
