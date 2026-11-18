@@ -70,6 +70,10 @@ def visible_buying_rows(request, preferences, filters):
                     counts.append(n)
                 elif isinstance(n, str) and n.isdecimal():
                     counts.append(int(n))
+                elif isinstance(city.get('sellers'), list):
+                    # The source supplies the observed seller list but usually
+                    # omits sellersCount. Never pretend it is an all-Kaspi total.
+                    counts.append(len(city['sellers']))
             if not counts or not bounds[0] <= max(counts) <= bounds[1]:
                 continue
         profit, roi = calculation(candidate['minimum_price'], candidate['offer__cost'])
@@ -144,6 +148,10 @@ def visible_buying_rows(request, preferences, filters):
                     counts.append(n)
                 elif isinstance(n, str) and n.isdecimal():
                     counts.append(int(n))
+                elif isinstance(city.get('sellers'), list):
+                    # The source supplies the observed seller list but usually
+                    # omits sellersCount. Never pretend it is an all-Kaspi total.
+                    counts.append(len(city['sellers']))
             count = max(counts) if counts else None
             candidate = {'id': payload['id'], 'url': payload['url'],
                          'seller_count': count, 'match_status': payload['match_status']}
