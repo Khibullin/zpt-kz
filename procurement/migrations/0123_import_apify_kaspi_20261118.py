@@ -15,6 +15,8 @@ from django.db import migrations
 
 def load_apify_snapshot(apps, schema_editor):
     from procurement.apify_import import import_apify_kaspi
+    from procurement.apify_buying_import import import_apify_results
+    from django.core.files.base import ContentFile
     from procurement.opportunities import owner_terms
 
     terms = owner_terms()
@@ -26,8 +28,14 @@ def load_apify_snapshot(apps, schema_editor):
     rows = json.loads(payload)
     if len(rows) != 6144:
         raise RuntimeError("Исходная выгрузка Apify повреждена.")
+    # Archive every observed card, including those awaiting identity review.
+    for row in rows:
+        if str(row.get('cityId')) == '750000000':
+            row['city'] = 'Алматы'
+    encoded_rows = json.dumps(rows, ensure_ascii=False).encode('utf-8')
+    import_apify_results(ContentFile(encoded_rows, name='apify_20261118.json'), 'apify_20261118.json')
     import_apify_kaspi(
-        io.StringIO(json.dumps(rows, ensure_ascii=False)),
+        io.StringIO(encoded_rows.decode('utf-8')),
         "Все поставщики",
         date(2026, 11, 18),
         terms.user,
