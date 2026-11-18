@@ -7,6 +7,8 @@ from datetime import date
 from decimal import Decimal
 
 from django import forms
+from django.core.exceptions import ValidationError
+from django.core.paginator import Paginator
 from django.contrib import messages
 from django.db.models import Q
 from django.shortcuts import redirect, render
@@ -84,6 +86,24 @@ def selection_rules(request):
         'in_stock_only': rule.in_stock_only,
         'classification_mode': rule.classification_mode,
     }
+    if request.method == 'POST' and request.POST.get('action') == 'import_apify':
+        from .apify_buying_import import import_apify_results
+        uploaded = request.FILES.get('apify_json')
+        if uploaded is None:
+            messages.error(request, 'Выберите JSON-файл результатов Apify.')
+        else:
+            try:
+                result = import_apify_results(uploaded, uploaded.name)
+            except ValidationError as error:
+                messages.error(request, '; '.join(error.messages))
+            except (ValueError, TypeError) as error:
+                messages.error(request, 'Не удалось прочитать данные Apify: неверный формат.')
+            else:
+                messages.success(request,
+                    f"Загружено: {result['products']} товаров; "
+                    f"связано с оптовыми позициями: {result['linked'] + result['verified']}; "
+                    f"требуют сопоставления: {result['unmatched']}.")
+        return redirect('procurement:selection_rules')
     if request.method == 'POST':
         form = SelectionRuleForm(request.POST)
         if request.POST.get('action') == 'reset':
@@ -142,9 +162,15 @@ def selection_rules(request):
     saved_rows = filtered_offers(rule)
     exported_total = saved_rows.count()
     batches = (exported_total + JSON_BATCH_SIZE - 1) // JSON_BATCH_SIZE
+    from .apify_buying_import import ranked_buying_candidates
+    candidates, can_calculate = ranked_buying_candidates(request.user)
+    buying_total = candidates.count()
+    buying_page = Paginator(candidates, 40).get_page(request.GET.get('page'))
     return render(request, 'procurement/selection_rules.html',
                   context(request, form=form, rule=rule, matched=exported_total,
                           year_unknown=unknown_years, before_years=before_years,
                           group_choices=GROUPS,
                           json_batches=range(1, batches + 1),
-                          json_batch_size=JSON_BATCH_SIZE))
+                          json_batch_size=JSON_BATCH_SIZE,
+                          buying_total=buying_total, buying_page=buying_page,
+                          buying_can_calculate=can_calculate))
