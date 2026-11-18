@@ -14,9 +14,11 @@ from openpyxl.utils import get_column_letter
 
 # Existing operator details and business contact from the ZPT.KZ contact pages.
 ORGANIZATION = {
-    'name': 'ТОО «Азия Грейт»', 'bin': '120140021357',
-    'address': 'Казахстан, г. Алматы, Бостандыкский район, мкр Нур Алатау, ул. Мурат, дом 94',
-    'phone': '+7 771 360 7040', 'email': 'rkhaibullin@gmail.com', 'site': 'https://zpt.kz',
+    'name': 'ИП «КВАНТ»', 'bin': '600710301320',
+    'address': 'Казахстан, Алматы, ул. Навои, дом 58, кв./офис 86',
+    'phone': '+7 701 191 00 00', 'email': 'rkhaibullin@gmail.com', 'site': 'https://zpt.kz',
+    'bank': 'АО «Kaspi Bank»', 'bik': 'CASPKZKA',
+    'account': 'KZ07722S000001183310', 'kbe': '19',
 }
 
 
@@ -71,12 +73,12 @@ def export_purchase_list(selections, buyer):
     title.font = Font(name='Arial', size=18, bold=True, color='FFFFFF')
     title.fill = PatternFill('solid', fgColor=navy)
     merged(2, f'Дата: {timezone.localtime():%d.%m.%Y %H:%M} · Планируемая закупка')
-    merged(3, f'Покупатель: {organization["name"]} · БИН: {organization["bin"]}')
+    merged(3, f'Покупатель: {organization["name"]} · ИИН: {organization["bin"]}')
     merged(4, f'Закупщик: {buyer}')
     merged(5, f'Адрес: {organization["address"]}', 30)
     merged(6, f'Телефон: {organization["phone"]} · Email: {organization["email"]}', 25)
-    merged(7, f'Сайт: {organization["site"]}')
-    merged(8, f'Товарных позиций: {len(selections)} · Валюта: казахстанский тенге (₸)')
+    merged(7, f'Банк: {organization["bank"]} · БИК: {organization["bik"]} · ИИК: {organization["account"]} · КБе: {organization["kbe"]}', 30)
+    merged(8, f'Позиций: {len(selections)} · Валюта: казахстанский тенге (₸) · Сайт: {organization["site"]}')
     headers = ['№', 'Поставщик', 'Бренд', 'Артикул', 'Наименование', 'Ед.', 'Количество', 'Цена, ₸', 'Сумма, ₸']
     for column, label in enumerate(headers, 1):
         cell = text(10, column, label)
@@ -139,6 +141,80 @@ def export_purchase_list(selections, buyer):
     sheet.print_area = f'A1:I{line + 2}'
     sheet.oddFooter.left.text = 'ZPT.KZ · Список закупки'
     sheet.oddFooter.right.text = 'Страница &P из &N'
+
+    # Separate printable supplier order sheets, while preserving the overall summary sheet.
+    used_titles = {sheet.title}
+    supplier_lines = defaultdict(list)
+    for selection in selections:
+        supplier_lines[selection.offer.supplier.name].append(selection)
+    for supplier, lines in sorted(supplier_lines.items()):
+        title_base = ''.join('_' if symbol in '[]:*?/\\\\' else symbol for symbol in supplier).strip()[:31] or 'Поставщик'
+        title = title_base
+        suffix = 2
+        while title in used_titles:
+            ending = f' {suffix}'
+            title = title_base[:31 - len(ending)] + ending
+            suffix += 1
+        used_titles.add(title)
+        tab = workbook.create_sheet(title)
+        tab.merge_cells('A1:I1')
+        tab['A1'] = f'ЗАКАЗ ПОСТАВЩИКУ · {supplier}'
+        tab['A1'].font = Font(name='Arial', size=17, bold=True, color='FFFFFF')
+        tab['A1'].fill = PatternFill('solid', fgColor=navy)
+        tab.row_dimensions[1].height = 35
+        for index, value in enumerate((
+            f'Дата: {timezone.localtime():%d.%m.%Y %H:%M} · Планируемая закупка',
+            f'Покупатель: {organization["name"]} · ИИН: {organization["bin"]}',
+            f'Закупщик: {buyer}',
+            f'Адрес: {organization["address"]}',
+            f'Телефон: {organization["phone"]} · Email: {organization["email"]}',
+            f'Банк: {organization["bank"]} · БИК: {organization["bik"]} · ИИК: {organization["account"]} · КБе: {organization["kbe"]}',
+            f'Сайт: {organization["site"]}',
+        ), 2):
+            tab.merge_cells(start_row=index, start_column=1, end_row=index, end_column=9)
+            cell = tab.cell(index, 1, str(value))
+            cell.data_type = 's'
+            cell.alignment = Alignment(wrap_text=True, vertical='center')
+            tab.row_dimensions[index].height = 30 if index in (5, 7) else 22
+        for col, label in enumerate(headers, 1):
+            cell = tab.cell(10, col, label)
+            cell.font = Font(name='Arial', bold=True, color='FFFFFF')
+            cell.fill = PatternFill('solid', fgColor=teal)
+        supplier_sum = Decimal('0')
+        for idx, selection in enumerate(lines, 1):
+            offer = selection.offer
+            row_no = 10 + idx
+            subtotal = offer.cost * selection.quantity
+            supplier_sum += subtotal
+            values = (idx, supplier, offer.brand, offer.article, offer.name, offer_unit(offer), selection.quantity, offer.cost, subtotal)
+            for col, value in enumerate(values, 1):
+                cell = tab.cell(row_no, col, value if col in (1, 7, 8, 9) else str(value))
+                if col in (2, 3, 4, 5, 6):
+                    cell.data_type = 's'
+                cell.border = Border(bottom=edge)
+                cell.alignment = Alignment(wrap_text=col <= 6, vertical='center')
+                if idx % 2 == 0:
+                    cell.fill = PatternFill('solid', fgColor='F3F7FB')
+                if col in (8, 9):
+                    cell.number_format = '#,##0.00'
+            tab.row_dimensions[row_no].height = 32
+        total_row = 12 + len(lines)
+        tab.merge_cells(start_row=total_row, start_column=1, end_row=total_row, end_column=8)
+        tab.cell(total_row, 1, 'ИТОГО ПО ПОСТАВЩИКУ')
+        tab.cell(total_row, 9, supplier_sum).number_format = '#,##0.00'
+        for cell in tab[total_row]:
+            cell.font = Font(name='Arial', size=12, bold=True, color=navy)
+            cell.fill = PatternFill('solid', fgColor='EAF8F4')
+        for col, width in enumerate([5, 20, 16, 24, 52, 10, 13, 18, 20], 1):
+            tab.column_dimensions[get_column_letter(col)].width = width
+        tab.freeze_panes = 'E11'
+        tab.auto_filter.ref = f'A10:I{10 + len(lines)}'
+        tab.print_title_rows = '1:10'
+        tab.sheet_properties.pageSetUpPr.fitToPage = True
+        tab.page_setup.orientation = 'landscape'
+        tab.page_setup.fitToWidth = 1
+        tab.page_setup.fitToHeight = 0
+        tab.print_area = f'A1:I{total_row}'
     output = BytesIO()
     workbook.save(output)
     output.seek(0)
