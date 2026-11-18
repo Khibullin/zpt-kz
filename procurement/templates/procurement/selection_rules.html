@@ -66,7 +66,7 @@
 .apify-settings{border:1px solid #dbe7f2;background:#f5f8fd;border-radius:9px;padding:12px 15px;margin-top:13px}
 .apify-settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px 16px;margin-top:10px;font-size:13px}
 @media(max-width:650px){.apify-settings-grid{grid-template-columns:1fr}.step-heading h2{font-size:17px}}
-</style>
+.result-criteria{display:flex;flex-wrap:wrap;gap:8px 18px;margin:0 0 14px;font-size:13px;color:#334b65}.result-criteria>span{background:#f3f7fc;padding:8px 11px;border-radius:7px}.result-actions{justify-content:space-between}.result-count{font-size:15px}.result-count strong{font-size:19px;color:#087a68}@media(max-width:600px){.result-criteria{display:grid;grid-template-columns:1fr}.result-actions{align-items:stretch}.result-actions .button{text-align:center}}</style>
 <div class="rule-header"><h1>Подготовка товаров к закупке</h1><p>Обновление прайса → предварительный отбор → Excel → JSON для ручной загрузки в Apify</p></div>
 <section class="rule-card step-card" aria-labelledby="upload-step-title">
   <div class="step-heading"><span class="step-number">1</span><div><h2 id="upload-step-title">Обновление прайс-листа</h2><p class="muted">Загрузите свежий прайс поставщика перед подготовкой товаров</p></div></div>
@@ -100,13 +100,19 @@
   </form>
 </section>
 <section class="rule-card step-card" aria-labelledby="results-step-title">
-  <div class="step-heading"><span class="step-number">3</span><div><h2 id="results-step-title">Результат отбора</h2><p class="muted">Список по последним сохранённым настройкам фильтра</p></div></div>
-  <div class="step-line"><span>Отобрано: <strong>{{ matched }}</strong> товаров</span><a class="button primary" href="{% url 'procurement:selection_excel' %}">↓ Скачать Excel</a></div>
-  {% if result_sample %}
-    <div class="tablewrap step-results"><table><thead><tr><th>Поставщик</th><th>Бренд / артикул</th><th>Товар</th><th>Закупка, ₸</th><th>Остаток</th></tr></thead><tbody>
-    {% for item in result_sample %}<tr><td>{{ item.supplier.name }}</td><td>{{ item.brand }}<small>{{ item.article }}</small></td><td>{{ item.name }}</td><td>{{ item.cost|floatformat:2 }}</td><td>{{ item.stock|default:"Не указан" }}</td></tr>{% endfor %}
-    </tbody></table></div><p class="muted" style="margin:9px 0 0">Показаны первые 15 строк. Excel содержит весь сохранённый отбор.</p>
-  {% else %}<p class="muted">По текущим правилам подходящие товары не найдены. Измените фильтр и сохраните его.</p>{% endif %}
+  <div class="step-heading"><span class="step-number">3</span><div><h2 id="results-step-title">Результат отбора</h2><p class="muted">Итог по последним сохранённым настройкам фильтра</p></div></div>
+  <div class="result-criteria">
+    <span><strong>Поставщик:</strong> {% if rule.supplier %}{{ rule.supplier.name }}{% else %}Все поставщики{% endif %}</span>
+    <span><strong>Закупочная цена:</strong> от {{ rule.min_cost|floatformat:0 }} ₸</span>
+    <span><strong>Категории:</strong> {% if rule.category_groups %}{% for key,label in group_choices %}{% if key in rule.category_groups %}{{ label }}{% if not forloop.last %}; {% endif %}{% endif %}{% endfor %}{% else %}Все категории{% endif %}</span>
+    <span><strong>Возраст автомобиля:</strong> до {{ rule.max_vehicle_age }} лет</span>
+    <span><strong>Наличие:</strong> {% if rule.in_stock_only %}Только в наличии{% else %}Все остатки{% endif %}</span>
+    <span><strong>Классификация:</strong> {% if rule.classification_mode == 'supplier' %}По категории поставщика{% else %}Из прайса или по наименованию{% endif %}</span>
+  </div>
+  <div class="step-line result-actions">
+    <span class="result-count">Отобрано: <strong>{{ matched }}</strong> товаров</span>
+    <a class="button primary" href="{% url 'procurement:selection_excel' %}">↓ Скачать Excel</a>
+  </div>
 </section>
 <section class="rule-card step-card" aria-labelledby="apify-step-title">
   <div class="step-heading"><span class="step-number">4</span><div><h2 id="apify-step-title">Подготовка для Apify</h2><p class="muted">Скачайте JSON и самостоятельно загрузите его в Kaspi API: Products, Prices, Sellers &amp; Reviews</p></div></div>
