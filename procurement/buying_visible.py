@@ -188,9 +188,22 @@ def visible_buying_rows(request, preferences, filters):
             analysis['commission_amount'] = None
             analysis['kaspi_after_commission'] = None
             analysis['difference'] = None
+        firsthand = (offer.characteristics or {}).get('firsthand_omega_20261117', {})
+        firsthand_images = firsthand.get('images') if isinstance(firsthand, dict) else []
+        firsthand_image = (
+            firsthand_images[0] if isinstance(firsthand_images, list)
+            and firsthand_images and isinstance(firsthand_images[0], str)
+            and firsthand_images[0].startswith('https://') else ''
+        )
+        fallback_image = (
+            prepared_photo.get(offer.pk, '') or retail_photos.get(offer.pk, '')
+        )
+        display_photo = offer.photo_url or fallback_image or firsthand_image
+        preliminary_photo = bool(display_photo and not offer.photo_url and not fallback_image)
         analysis.update({
             'offer': offer, 'candidate': candidate,
-            'display_photo_url': offer.photo_url or prepared_photo.get(offer.pk, '') or retail_photos.get(offer.pk, ''),
+            'display_photo_url': display_photo,
+            'preliminary_photo': preliminary_photo,
             'display_cost': cost, 'kaspi_price': price,
             'profit': profit, 'markup': roi,
             'best_status': (
