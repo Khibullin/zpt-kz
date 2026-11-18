@@ -133,6 +133,24 @@ class WholesaleSelectionRule(models.Model):
     updated_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
 
 
+class KaspiBuyingCandidate(models.Model):
+    """Current Apify observation for buying comparison, not a verified Kaspi identity."""
+    product_id = models.CharField(max_length=80, unique=True)
+    title = models.CharField(max_length=500)
+    brand = models.CharField(max_length=120, blank=True)
+    url = models.URLField(max_length=2048, blank=True)
+    minimum_price = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
+    city_offers = models.JSONField(default=list, blank=True)
+    offer = models.ForeignKey('Offer', null=True, blank=True, on_delete=models.SET_NULL,
+                              related_name='buying_candidates')
+    match_status = models.CharField(max_length=24, default='unmatched')
+    source_filename = models.CharField(max_length=255, blank=True)
+    imported_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-imported_at', 'pk']
+
+
 class Selection(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     offer = models.ForeignKey(Offer, on_delete=models.PROTECT)
