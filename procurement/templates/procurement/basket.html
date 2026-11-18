@@ -1,36 +1,5 @@
 {% extends 'procurement/base.html' %}{% load l10n %}
-{% block title %}Выбрано к закупке · ZPT.KZ<script>
-(function(){
-const money=value=>new Intl.NumberFormat('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2}).format(value);
-const selected=()=>[...document.querySelectorAll('.purchase-select:checked')];
-function refreshChecks(){
- document.querySelectorAll('[data-supplier-section]').forEach(section=>{const checks=[...section.querySelectorAll('.purchase-select')];const all=section.querySelector('.supplier-check-all');all.checked=checks.length>0&&checks.every(c=>c.checked);all.indeterminate=checks.some(c=>c.checked)&&!all.checked;});
- const count=selected().length;document.querySelector('#basket-selected-count').textContent='Выбрано: '+count;document.querySelector('#basket-remove-selected').disabled=!count;
-}
-document.querySelectorAll('.purchase-select').forEach(c=>c.addEventListener('change',refreshChecks));
-document.querySelectorAll('.supplier-check-all').forEach(c=>c.addEventListener('change',()=>{c.closest('[data-supplier-section]').querySelectorAll('.purchase-select').forEach(input=>input.checked=c.checked);refreshChecks()}));
-document.querySelector('#basket-clear-selection')?.addEventListener('click',()=>{document.querySelectorAll('.purchase-select').forEach(c=>c.checked=false);refreshChecks()});
-function updateTotals(){
- let allTotal=0;document.querySelectorAll('[data-supplier-section]').forEach(section=>{
-  let supplierTotal=0;section.querySelectorAll('[data-purchase-row]').forEach(row=>{const input=row.querySelector('input[name=quantity]');const sum=Number(row.dataset.price)*Number(input.value);supplierTotal+=sum;row.querySelector('[data-row-total]').textContent=money(sum)});
-  section.querySelector('[data-supplier-total]').textContent=money(supplierTotal)+' ₸';allTotal+=supplierTotal;
- });document.querySelectorAll('[data-basket-total]').forEach(el=>el.textContent=money(allTotal));
-}
-document.querySelectorAll('.quantity-form').forEach(form=>{
- const input=form.querySelector('input[name=quantity]'),status=form.querySelector('.save-status');let previous=input.value;
- form.addEventListener('submit',e=>e.preventDefault());
- input.addEventListener('change',async()=>{
-  if(!input.checkValidity()){input.reportValidity();input.value=previous;return;}
-  status.textContent='Сохранение…';
-  try{
-   const response=await fetch(form.action,{method:'POST',body:new FormData(form),headers:{'Accept':'application/json','X-Requested-With':'XMLHttpRequest'},credentials:'same-origin'});
-   if(!response.ok)throw new Error((await response.json().catch(()=>({}))).error||'Не удалось сохранить');
-   previous=input.value;updateTotals();status.textContent='Сохранено';
-  }catch(error){input.value=previous;status.textContent='Ошибка: '+error.message;}
- });
-});
-})();
-</script>
+{% block title %}Выбрано к закупке · ZPT.KZ
 {% endblock %}
 {% block content %}
 <header><h1>Выбрано к закупке</h1></header>
@@ -66,4 +35,36 @@ document.querySelectorAll('.quantity-form').forEach(form=>{
 <style>
 .purchase-export{display:flex;align-items:end;gap:12px;flex-wrap:wrap}.purchase-export label{display:flex;flex-direction:column;gap:6px;min-width:240px}.purchase-export input{width:320px}.buyer-details{margin-top:12px;color:#62748a;font-size:13px}.buyer-details p{margin-bottom:0}.basket-total,.basket-bottom-total{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:19px}.basket-total{padding:14px 18px;background:#eaf8f4;border:1px solid #b5dfd3;border-radius:8px;margin-bottom:16px}.basket-total span,.basket-bottom-total span{font-size:14px;color:#62748a}.quantity-form{display:flex;align-items:center;gap:6px}.quantity-form input{width:85px}.quantity-form .save-status{font-size:11px;color:#008f80}.purchase-select,.supplier-check-all{width:18px;height:18px;cursor:pointer}.basket-bulk-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}.basket-bulk-actions .danger{background:#9d302a;border-color:#9d302a;color:white}.basket-bulk-actions button{padding:8px 12px}.supplier-selection h2{margin-top:0}.supplier-selection th,.supplier-selection td{padding:10px}.supplier-selection details{font-size:12px;color:#62748a}.supplier-selection summary{cursor:pointer}.supplier-extra{margin-top:14px}.supplier-extra>summary{margin-bottom:12px}tfoot th,tfoot td{background:#eaf8f4}.purchase-order-history>summary{cursor:pointer;padding:12px 0}.purchase-order-history>.panel{margin-top:12px}button:disabled{opacity:.55;cursor:default}@media(max-width:600px){.basket-total,.basket-bottom-total{align-items:start;flex-direction:column;font-size:17px}.purchase-export label,.purchase-export input{width:100%;min-width:0}}
 </style>
+<script>
+(function(){
+const money=value=>new Intl.NumberFormat('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2}).format(value);
+const selected=()=>[...document.querySelectorAll('.purchase-select:checked')];
+function refreshChecks(){
+ document.querySelectorAll('[data-supplier-section]').forEach(section=>{const checks=[...section.querySelectorAll('.purchase-select')];const all=section.querySelector('.supplier-check-all');all.checked=checks.length>0&&checks.every(c=>c.checked);all.indeterminate=checks.some(c=>c.checked)&&!all.checked;});
+ const count=selected().length;document.querySelector('#basket-selected-count').textContent='Выбрано: '+count;document.querySelector('#basket-remove-selected').disabled=!count;
+}
+document.querySelectorAll('.purchase-select').forEach(c=>c.addEventListener('change',refreshChecks));
+document.querySelectorAll('.supplier-check-all').forEach(c=>c.addEventListener('change',()=>{c.closest('[data-supplier-section]').querySelectorAll('.purchase-select').forEach(input=>input.checked=c.checked);refreshChecks()}));
+document.querySelector('#basket-clear-selection')?.addEventListener('click',()=>{document.querySelectorAll('.purchase-select').forEach(c=>c.checked=false);refreshChecks()});
+function updateTotals(){
+ let allTotal=0;document.querySelectorAll('[data-supplier-section]').forEach(section=>{
+  let supplierTotal=0;section.querySelectorAll('[data-purchase-row]').forEach(row=>{const input=row.querySelector('input[name=quantity]');const sum=Number(row.dataset.price)*Number(input.value);supplierTotal+=sum;row.querySelector('[data-row-total]').textContent=money(sum)});
+  section.querySelector('[data-supplier-total]').textContent=money(supplierTotal)+' ₸';allTotal+=supplierTotal;
+ });document.querySelectorAll('[data-basket-total]').forEach(el=>el.textContent=money(allTotal));
+}
+document.querySelectorAll('.quantity-form').forEach(form=>{
+ const input=form.querySelector('input[name=quantity]'),status=form.querySelector('.save-status');let previous=input.value;
+ form.addEventListener('submit',e=>e.preventDefault());
+ input.addEventListener('change',async()=>{
+  if(!input.checkValidity()){input.reportValidity();input.value=previous;return;}
+  status.textContent='Сохранение…';
+  try{
+   const response=await fetch(form.action,{method:'POST',body:new FormData(form),headers:{'Accept':'application/json','X-Requested-With':'XMLHttpRequest'},credentials:'same-origin'});
+   if(!response.ok)throw new Error((await response.json().catch(()=>({}))).error||'Не удалось сохранить');
+   previous=input.value;updateTotals();status.textContent='Сохранено';
+  }catch(error){input.value=previous;status.textContent='Ошибка: '+error.message;}
+ });
+});
+})();
+</script>
 {% endblock %}
