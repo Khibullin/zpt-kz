@@ -43,6 +43,7 @@ urlpatterns = [
     path('basket/', views.basket, name='basket'),
     path('basket/excel/', views.basket_excel, name='basket_excel'),
     path('basket/add-selected/', views.select_many, name='select_many'),
+    path('basket/remove-selected/', views.remove_selected, name='remove_selected'),
     path('purchases/new/<int:supplier_id>/', views.purchase_confirm, name='purchase_confirm'),
     path('purchases/<int:pk>/receive/', receive_purchase, name='purchase_receive'),
     path('purchases/<int:pk>/', views.purchase_detail, name='purchase_detail'),
