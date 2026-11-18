@@ -92,6 +92,24 @@ def kaspi_status(offer, preferences, today):
     return {'kaspi_status_code': code, 'kaspi_status': labels[code], 'kaspi_checked_on': max((x.checked_on for x in (snapshot, search) if x), default=None)}
 
 
+def latest_price_list_keys(batch_id):
+    """Return exact article/brand pairs in a completed supplier upload.
+
+    Cached by immutable batch ID: a new finished upload automatically changes
+    the key, without rewriting old prices or loading the JSON on every request.
+    """
+    from django.core.cache import cache
+    cache_key = f'procurement:last-price-keys:{batch_id}'
+    keys = cache.get(cache_key)
+    if keys is None:
+        batch_rows = PriceUpdate.objects.filter(pk=batch_id, status='done').values_list('rows', flat=True).first() or []
+        keys = {(row.get('brand'), row.get('article')) for row in batch_rows
+                if isinstance(row, dict) and not row.get('_conflict')
+                and row.get('brand') and row.get('article')}
+        cache.set(cache_key, keys, 3600)
+    return keys
+
+
 def preserved_best_scope(supplier):
     """Keep a supplier's last uploaded price and found deals visible until replacement.
 
@@ -202,7 +220,8 @@ def filtered_rows(request, preferences, filters, paginate=False):
         if mode == 'best':
             latest_batch = latest_batches.get(offer.supplier_id)
             # The buying list is limited to the last completed supplier price list.
-            if latest_batch and offer.supplier_checked_on != latest_batch[1]:
+            if latest_batch and (offer.supplier_checked_on != latest_batch[1] or
+                                 (offer.brand, offer.article) not in latest_price_list_keys(latest_batch[0])):
                 continue
         row = {'offer': offer, 'favorite': offer.pk in favorites, **evaluate(offer, preferences, today=today)}
         row.update(kaspi_status(offer, preferences, today))
