@@ -42,15 +42,13 @@ class CumulativeProfitableTests(TestCase):
             '&' + key + '=' + str(value) for key,value in kwargs.items()
         )
 
-    def test_old_supplier_and_kaspi_dates_still_qualify(self):
+    def test_old_supplier_and_kaspi_dates_do_not_appear_in_current_buying_list(self):
         old = self.offer('OLD')
         queryset = cumulative_profitable_query(Offer.objects.all(), self.preferences)
         self.assertIn(old.pk, queryset.values_list('pk', flat=True))
         response = self.client.get(self.url())
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, old.article)
-        self.assertContains(response, self.past.strftime('%d.%m.%Y'))
-        self.assertContains(response, 'не зафиксировано')
+        self.assertNotContains(response, 'Рычаг OLD')
 
     def test_history_retains_first_profit_after_new_price_makes_unprofitable(self):
         old = self.offer('ARCHIVE')
@@ -62,18 +60,16 @@ class CumulativeProfitableTests(TestCase):
         old.supplier_checked_on = timezone.localdate()
         old.save(update_fields=['cost', 'stock', 'supplier_checked_on'])
         self.assertEqual(ProfitableOfferRecord.objects.get(offer=old).source_profit, frozen_profit)
-        response = self.client.get(self.url(best_scope='history'))
-        self.assertContains(response, 'Ранее выгодный')
-        self.assertContains(response, 'ARCHIVE')
-        self.assertContains(response, 'История — не для новой закупки')
-        self.assertNotContains(response, '+ В закупку')
+        response = self.client.get(self.url())
+        self.assertNotContains(response, 'Рычаг ARCHIVE')
+        self.assertNotContains(response, 'История — не для новой закупки')
 
     def test_new_current_item_without_history_is_visible(self):
         new = self.offer('ADDED', supplier_checked_on=timezone.localdate())
         response = self.client.get(self.url(best_scope='current'))
         self.assertContains(response, new.article)
-        response = self.client.get(self.url(best_scope='history'))
-        self.assertNotContains(response, 'Рычаг ADDED')
+        response = self.client.get(self.url(best_scope='new'))
+        self.assertNotContains(response, 'История — не для новой закупки')
 
     def test_bearing_not_shown_as_new_candidate(self):
         self.offer('BEARING', name='Подшипник TEST')
