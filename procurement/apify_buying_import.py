@@ -1,0 +1,196 @@
+"""Manual Firsthand/Apify result import and unrestricted buying comparison.
+
+Unlike the legacy 'best' screen, no ROI, profit, or freshness cutoff is used.
+An identity match is only certified if it was previously verified in ZPT.
+"""
+import hashlib
+import json
+import re
+from collections import defaultdict
+from decimal import Decimal, InvalidOperation
+from pathlib import PurePath
+from urllib.parse import urlsplit
+
+from django.core.exceptions import ValidationError
+from django.db import transaction
+from django.db.models import DecimalField, ExpressionWrapper, F, Value
+from django.db.models.functions import Coalesce
+
+from .models import KaspiBuyingCandidate, Offer, Preferences
+
+PRODUCT_ID_RE = re.compile(r'-(\d{6,15})/?$')
+
+
+def _money(value):
+    if value is None or value == '':
+        return None
+    try:
+        v = Decimal(str(value).replace(' ', '').replace(',', '.'))
+        if not v.is_finite() or v < 0 or v > Decimal('999999999999'):
+            return None
+        return v.quantize(Decimal('0.01'))
+    except (InvalidOperation, ValueError, TypeError):
+        return None
+
+
+def _token(value):
+    return re.sub(r'[^a-z0-9а-яё]', '', str(value or '').casefold())
+
+
+def _item_id(row):
+    url = str(row.get('url') or row.get('productUrl') or '').strip()
+    product_id = str(row.get('id') or row.get('productId') or '').strip()
+    if not product_id:
+        m = PRODUCT_ID_RE.search(urlsplit(url).path)
+        product_id = m.group(1) if m else ''
+    if product_id and re.fullmatch(r'\d{6,15}', product_id):
+        return product_id
+    if url.startswith('https://kaspi.kz/shop/p/'):
+        return 'url-' + hashlib.sha256(url.encode()).hexdigest()[:32]
+    return ''
+
+
+def _normalize_rows(payload):
+    if isinstance(payload, list):
+        return payload
+    if isinstance(payload, dict):
+        for key in ('entries', 'items', 'results', 'data'):
+            if isinstance(payload.get(key), list):
+                return payload[key]
+    raise ValidationError('Нужен JSON-массив результатов Apify либо объект с массивом entries/items/results.')
+
+
+def _offer_index(brands):
+    """Index exact catalogue brands only; do not guess matches from similar part names."""
+    index = defaultdict(list)
+    if not brands:
+        return index
+    # Case-insensitive filtering can be addressed later; exact-brand rows are
+    # the only auto-linked candidates to avoid cross-manufacturer confusion.
+    for offer in Offer.objects.filter(brand__in=list(brands)).only(
+        'id', 'brand', 'article', 'name', 'kaspi_url', 'match_verified'
+    ).iterator(chunk_size=1500):
+        index[_token(offer.brand)].append(offer)
+    return index
+
+
+def import_apify_results(upload, filename):
+    if upload.size > 50 * 1024 * 1024:
+        raise ValidationError('JSON должен быть не более 50 МБ.')
+    if not str(filename).lower().endswith('.json'):
+        raise ValidationError('Загрузите файл JSON, экспортированный из Apify.')
+    try:
+        payload = json.loads(upload.read().decode('utf-8-sig'))
+    except (UnicodeError, json.JSONDecodeError) as exc:
+        raise ValidationError('Файл не является корректным JSON.') from exc
+    raw = _normalize_rows(payload)
+    if not raw or len(raw) > 50000:
+        raise ValidationError('Файл пустой либо содержит более 50 000 записей.')
+    grouped = {}
+    invalid = 0
+    for row in raw:
+        if not isinstance(row, dict):
+            invalid += 1
+            continue
+        product_id = _item_id(row)
+        if not product_id:
+            invalid += 1
+            continue
+        product = grouped.setdefault(product_id, {
+            'id': product_id, 'title': '', 'brand': '', 'url': '', 'cities': {},
+            'prices': [],
+        })
+        product['title'] = str(row.get('title') or row.get('name') or product['title'])[:500]
+        product['brand'] = str(row.get('brand') or product['brand'])[:120]
+        product['url'] = str(row.get('url') or row.get('productUrl') or product['url'])[:2048]
+        city = str(row.get('city') or 'Город не указан')[:100]
+        city_id = str(row.get('cityId') or '')
+        prices = []
+        for key in ('minPrice', 'price'):
+            price = _money(row.get(key))
+            if price is not None:
+                prices.append(price)
+        offers = row.get('offers') or row.get('sellers') or []
+        if not isinstance(offers, list):
+            offers = []
+        sellers = []
+        for seller in offers[:200]:
+            if not isinstance(seller, dict):
+                continue
+            cost = _money(seller.get('price'))
+            if cost is None:
+                continue
+            prices.append(cost)
+            sellers.append({
+                'name': str(seller.get('sellerName') or seller.get('name') or '')[:180],
+                'price': str(cost),
+                'delivery_cost': seller.get('deliveryCost'),
+                'delivery_days': seller.get('deliveryDays'),
+            })
+        product['prices'].extend(prices)
+        product['cities'][city] = {
+            'city': city, 'city_id': city_id,
+            'min_price': str(min(prices)) if prices else None,
+            'sellers': sellers,
+            'sellers_count': row.get('sellersCount'),
+        }
+    if not grouped:
+        raise ValidationError('В JSON нет распознаваемых карточек Kaspi с идентификаторами.')
+    brands = {p['brand'] for p in grouped.values() if p['brand']}
+    index = _offer_index(brands)
+    candidates = []
+    counts = {'rows': len(raw), 'products': len(grouped), 'invalid': invalid,
+              'linked': 0, 'verified': 0, 'unmatched': 0}
+    for p in grouped.values():
+        brand = _token(p['brand'])
+        title = _token(p['title'])
+        linked = []
+        for offer in index.get(brand, []):
+            article = _token(offer.article)
+            if len(article) >= 4 and article in title:
+                linked.append(offer)
+        match = linked[0] if len(linked) == 1 else None
+        verified = bool(match and match.match_verified and
+                        _item_id({'url': match.kaspi_url}) == p['id'])
+        status = 'verified' if verified else 'candidate' if match else 'unmatched'
+        counts['verified' if verified else 'linked' if match else 'unmatched'] += 1
+        candidates.append(KaspiBuyingCandidate(
+            product_id=p['id'], title=p['title'], brand=p['brand'], url=p['url'],
+            minimum_price=min(p['prices']) if p['prices'] else None,
+            city_offers=list(p['cities'].values()), offer=match,
+            match_status=status, source_filename=PurePath(filename).name[:255],
+        ))
+    with transaction.atomic():
+        KaspiBuyingCandidate.objects.bulk_create(
+            candidates, batch_size=300, update_conflicts=True,
+            unique_fields=['product_id'],
+            update_fields=['title', 'brand', 'url', 'minimum_price', 'city_offers',
+                           'offer', 'match_status', 'source_filename', 'imported_at'],
+        )
+    return counts
+
+
+def ranked_buying_candidates(user):
+    prefs, _ = Preferences.objects.get_or_create(user=user)
+    qs = KaspiBuyingCandidate.objects.select_related('offer', 'offer__supplier')
+    commission = prefs.commission
+    expenses = prefs.expenses
+    if commission is None or expenses is None:
+        return qs.order_by('-imported_at', 'pk'), False
+    cost_field = DecimalField(max_digits=20, decimal_places=5)
+    # Packaging is included once, not in addition to the configured expenses.
+    expense = max(Decimal('250'), expenses)
+    margin = ExpressionWrapper(
+        F('minimum_price') * (Value(Decimal('1')) - Value(commission) / Value(Decimal('100')))
+        - F('offer__cost') - Value(expense),
+        output_field=cost_field,
+    )
+    qs = qs.annotate(
+        calculated_profit=margin,
+        calculated_roi=ExpressionWrapper(
+            margin * Value(Decimal('100')) / F('offer__cost'),
+            output_field=cost_field,
+        ),
+    ).order_by(F('calculated_roi').desc(nulls_last=True),
+               F('calculated_profit').desc(nulls_last=True), 'pk')
+    return qs, True
