@@ -131,6 +131,9 @@ def visible_buying_rows(request, preferences, filters):
     offers = {o.pk: o for o in Offer.objects.filter(pk__in=offer_ids).select_related(
         'supplier', 'kaspi_sellers', 'kaspi_card_search'
     )}
+    favorite_ids = set(Favorite.objects.filter(
+        user=request.user, offer_id__in=offer_ids,
+    ).values_list('offer_id', flat=True))
     prepared_photo = {
         item['offer_id']: item['photo_url']
         for item in KaspiPreparedCard.objects.filter(offer_id__in=offer_ids)
@@ -202,6 +205,7 @@ def visible_buying_rows(request, preferences, filters):
         preliminary_photo = bool(display_photo and not offer.photo_url and not fallback_image)
         analysis.update({
             'offer': offer, 'candidate': candidate,
+            'favorite': offer.pk in favorite_ids,
             'display_photo_url': display_photo,
             'preliminary_photo': preliminary_photo,
             'display_cost': cost, 'kaspi_price': price,
