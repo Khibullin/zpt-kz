@@ -15,7 +15,7 @@
 
 <div class="short-search"><label class="filter-field">{{ filter_form.q.label }}{{ filter_form.q }}{{ filter_form.q.errors }}</label><button>Найти</button></div>
 <details class="collapsed-filters" {% if filter_form.errors %}open{% endif %}><summary class="button">Фильтры</summary>
-{% if mode == 'best' %}<label class="filter-field scope-filter">Показать<select name="best_scope"><option value="all" {% if best_scope == 'all' %}selected{% endif %}>Из последнего прайса</option><option value="current" {% if best_scope == 'current' %}selected{% endif %}>Выгодные по последним данным</option><option value="new" {% if best_scope == 'new' %}selected{% endif %}>Новые</option></select></label>{% endif %}
+
 <div class="filter-grid">
 {% for field in basic_filters %}{% if field.name == 'vehicle_year' %}
 <div class="filter-field year-filter"><label for="id_year_mode">Годы выпуска автомобиля</label>{{ filter_form.year_mode }}{{ filter_form.year_mode.errors }}
@@ -42,7 +42,7 @@
 </form>
 {% endif %}
 <div class="results-toolbar">
-<strong>{% if preliminary %}{{ preliminary_total }} товаров · <span class="preliminary-status">Спрос не подтверждён</span>{% else %}Найдено {{ total }}{% endif %}{% if mode == 'best' and apify_in_best %} · По новой выгрузке Kaspi: {{ apify_in_best }}{% endif %}</strong>
+<strong>{% if preliminary %}{{ preliminary_total }} товаров · <span class="preliminary-status">Спрос не подтверждён</span>{% else %}Найдено {{ total }}{% endif %}{% if mode == 'best' and apify_in_best %} · Сопоставленных карточек Kaspi: {{ apify_in_best }}{% endif %}</strong>
 {% if mode == 'best' %}<form id="bulk-selection" method="post" action="{% url 'procurement:select_many' %}" data-selection-form data-bulk-selection>{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button class="primary" type="submit">Добавить выбранные</button><small data-selection-status role="status" aria-live="polite"></small></form>{% else %}<div class="actions"><a href="{{ settings_url }}">Алгоритм и настройки</a><a class="button" href="{% querystring download='csv' page=None %}">Скачать CSV</a></div>{% endif %}
 </div>
 <div class="tablewrap">
