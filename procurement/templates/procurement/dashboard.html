@@ -61,6 +61,7 @@
 <tbody>{% for row in page %}<tr>
 <td class="product"><a href="{% url 'procurement:detail' row.offer.pk %}"><strong>{{ row.offer.name }}</strong></a>
 <small>{{ row.offer.brand }} · {{ row.offer.article }}</small>
+{% if row.candidate and row.candidate.title %}<small>Карточка Kaspi: {{ row.candidate.title }}</small>{% endif %}
 {% if row.display_photo_url %}<div><img src="{{ row.display_photo_url }}" width="72" height="72" loading="lazy" alt="Фото товара" style="object-fit:contain;border-radius:6px">{% if row.preliminary_photo %}<small class="preliminary-status">Фото Firsthand — исполнение требует проверки</small>{% endif %}</div>{% else %}<small>Фото не найдено</small>{% endif %}
 {% if row.candidate %}<small>Продавцов в выгрузке (максимум по городам): {{ row.candidate.seller_count|default_if_none:'нет данных' }}</small><small><a href="{{ row.candidate.url }}" target="_blank" rel="noopener noreferrer">Карточка Kaspi</a></small>{% elif row.offer.kaspi_url %}<small><a href="{{ row.offer.kaspi_url }}" target="_blank" rel="noopener noreferrer">Карточка Kaspi</a></small>{% endif %}
 {% if row.firsthand_images %}

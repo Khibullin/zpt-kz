@@ -44,7 +44,7 @@ def visible_buying_rows(request, preferences, filters):
 
     # Keep the Kaspi-card identity as the row key, never DISTINCT(offer_id).
     candidates = list(qs.values(
-        'id', 'offer_id', 'minimum_price', 'url', 'city_offers', 'match_status',
+        'id', 'offer_id', 'title', 'minimum_price', 'url', 'city_offers', 'match_status',
         'offer__cost', 'offer__supplier_id',
     ))
     candidate_offer_ids = {item['offer_id'] for item in candidates}
@@ -181,7 +181,7 @@ def visible_buying_rows(request, preferences, filters):
                     # omits sellersCount. Never pretend it is an all-Kaspi total.
                     counts.append(len(city['sellers']))
             count = max(counts) if counts else None
-            candidate = {'id': payload['id'], 'url': payload['url'],
+            candidate = {'id': payload['id'], 'title': payload['title'], 'url': payload['url'],
                          'seller_count': count, 'match_status': payload['match_status']}
             cost = offer.cost
         else:

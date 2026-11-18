@@ -65,7 +65,31 @@ class MatchedBuyingPageTests(TestCase):
         self.assertEqual(len(last.context['page'].object_list), 5)
         self.assertContains(last, 'Убыток:')
         self.assertContains(last, 'regression-44')
+        self.assertContains(last, 'Карточка Kaspi: Kaspi matched card 44')
         self.assertEqual(first.context['page'].paginator.num_pages, 2)
+
+    def test_full_3961_card_batch_has_100_pages_with_last_card(self):
+        KaspiBuyingCandidate.objects.bulk_create([
+            KaspiBuyingCandidate(
+                product_id=f'bulk-{index}',
+                title=f'Batch card {index}', brand='BR',
+                url=f'https://kaspi.kz/shop/p/bulk-{index}/',
+                minimum_price=Decimal('4000') + index,
+                city_offers=[{'sellers_count': 2}],
+                offer=self.offer, match_status='candidate',
+            ) for index in range(3916)
+        ], batch_size=500)
+        first = self.dashboard()
+        self.assertEqual(first.status_code, 200)
+        self.assertEqual(first.context['total'], 3961)
+        self.assertEqual(first.context['apify_in_best'], 3961)
+        self.assertEqual(first.context['page'].paginator.num_pages, 100)
+        self.assertContains(first, 'Карточка Kaspi: Batch card')
+        last = self.dashboard(page=100)
+        self.assertEqual(last.status_code, 200)
+        self.assertEqual(len(last.context['page'].object_list), 1)
+        self.assertContains(last, 'regression-44')
+        self.assertContains(last, 'Убыток:')
 
     def test_filters_search_fitment_and_seller_bounds_without_losing_cards(self):
         self.assertEqual(self.dashboard(q='Camry').context['total'], 45)
