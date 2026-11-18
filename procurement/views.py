@@ -448,7 +448,11 @@ def dashboard(request):
     supplier_stats = None
     if supplier:
         supplier_stats = {'loaded': Offer.objects.filter(supplier=supplier).count()}
-    rows = filtered_rows(request, preferences, form.cleaned_data, paginate=request.GET.get('download') != 'csv') if valid else []
+    if valid and request.GET.get('mode') == 'best' and request.GET.get('download') != 'csv':
+        from .buying_visible import visible_buying_rows
+        rows = visible_buying_rows(request, preferences, form.cleaned_data)
+    else:
+        rows = filtered_rows(request, preferences, form.cleaned_data, paginate=request.GET.get('download') != 'csv') if valid else []
     rows_finished = perf_counter()
     best_empty_reason = ''
     if request.GET.get('mode') == 'best' and not rows:
@@ -489,12 +493,7 @@ def dashboard(request):
     if request.GET.get('mode') == 'best':
         # Count actual displayed profitable supplier rows backed by this Kaspi batch.
         # A search result is not an additional purchasing line until verified.
-        apify_in_best = sum(
-            1 for row in rows
-            if row['offer'].match_verified
-            and row['offer'].kaspi_price_checked_on
-            and row['offer'].kaspi_price_checked_on.isoformat() == '2026-11-18'
-        )
+        apify_in_best = getattr(request, 'apify_visible_total', 0)
     response = render(request, 'procurement/dashboard.html', context(request, apify_in_best=apify_in_best, page=page, total=getattr(request, 'catalog_total', len(rows)), preferences=preferences,
                   commission_rate=preferences.commission.normalize() if preferences.commission is not None else None,
                   effective_expenses=max(PACKAGING_COST, preferences.expenses) if preferences.expenses is not None else None,
