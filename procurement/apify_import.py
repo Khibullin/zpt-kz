@@ -13,8 +13,9 @@ from .matching import normalize, compare_identity
 
 
 def import_apify_kaspi(file, supplier_name, date, user):
-    supplier = Supplier.objects.filter(name=supplier_name.strip()).first()
-    if not supplier:
+    all_suppliers = supplier_name == 'Все поставщики'
+    supplier = None if all_suppliers else Supplier.objects.filter(name=supplier_name.strip()).first()
+    if not all_suppliers and not supplier:
         raise ValueError('Сначала выберите существующего поставщика.')
     if date > timezone.localdate():
         raise ValueError('Дата проверки не может быть в будущем.')
@@ -26,7 +27,8 @@ def import_apify_kaspi(file, supplier_name, date, user):
         raise ValueError('Ожидается список 1–20 000 результатов Apify.')
     # The supplier is already known; do not inject new products into its price list.
     by_identity = {}
-    for offer in Offer.objects.filter(supplier=supplier).only(
+    supplier_offers = Offer.objects.filter(supplier__name__in=['Omega', 'Фаетон', 'ZakazAuto — Костанай']) if all_suppliers else Offer.objects.filter(supplier=supplier)
+    for offer in supplier_offers.only(
             'id', 'brand', 'article', 'name', 'kaspi_url', 'match_verified',
             'kaspi_price_checked_on').iterator(chunk_size=2000):
         if offer.article and offer.brand:
@@ -125,6 +127,6 @@ def import_apify_kaspi(file, supplier_name, date, user):
             })
             imported += 1
         Activity.objects.create(user=user, action='competitors_import',
-                                details={'source': 'apify', 'supplier': supplier.name,
+                                details={'source': 'apify', 'supplier': 'Все поставщики' if all_suppliers else supplier.name,
                                          'matched': imported, 'skipped': skipped, 'date': date.isoformat()})
     return imported
