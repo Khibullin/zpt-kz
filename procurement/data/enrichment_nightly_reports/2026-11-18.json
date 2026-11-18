@@ -183,9 +183,18 @@
     "Omega positive-stock population differs from prior report; population changes must not be counted as enrichment."
   ],
   "delivery": {
-    "status": "prepared",
+    "status": "sent_and_verified",
     "recipient": "rkhaibullin@gmail.com",
     "subject": "ZPT.KZ — ночной отчёт по фото и применимости — 18.11.2026",
-    "duplicate_check": "No matching sent email; nightly report absent before creation."
+    "duplicate_check": "No matching sent email; nightly report absent before creation.",
+    "sent_at": "2026-11-18T06:03:35+05:00",
+    "verified_at": "2026-11-18T06:03:44+05:00",
+    "gmail_message_id": "1a1ec2e3dd990adb",
+    "gmail_thread_id": "1a1ec2e3dd990adb",
+    "labels": [
+      "UNREAD",
+      "SENT",
+      "INBOX"
+    ]
   }
 }
