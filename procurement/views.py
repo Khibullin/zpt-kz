@@ -1,3 +1,4 @@
+from .apify_quote_selection import INCOMPLETE_PRICE_SCOPE
 from .catalogue_import import import_catalogue_fitments
 from .shared_fitments import fill_from_shared_base
 from .catalog_paging import catalog_page, best_candidates_query, stale_price_candidates_query, cumulative_profitable_query, MIN_BEST_ROI
@@ -283,6 +284,9 @@ def filtered_rows(request, preferences, filters, paginate=False):
                                 if city.get('city')
                             ))
                             + '; исполнение и комплектность пока не подтверждены'
+                        )
+                        row['historical_reason'] += '; ' + (
+                            firsthand.get('price_scope_note') or INCOMPLETE_PRICE_SCOPE
                         )
                     else:
                         row['historical_reason'] = (
