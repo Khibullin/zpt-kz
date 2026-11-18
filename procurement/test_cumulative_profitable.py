@@ -7,7 +7,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from procurement.models import Offer, Preferences, Supplier, ProfitableOfferRecord
+from procurement.models import Offer, Preferences, Supplier, ProfitableOfferRecord, PriceUpdate
 from procurement.opportunities import capture_profitable_offer
 from procurement.catalog_paging import cumulative_profitable_query
 
@@ -46,6 +46,9 @@ class CumulativeProfitableTests(TestCase):
         old = self.offer('OLD')
         queryset = cumulative_profitable_query(Offer.objects.all(), self.preferences)
         self.assertIn(old.pk, queryset.values_list('pk', flat=True))
+        PriceUpdate.objects.create(supplier=self.supplier, user=self.user,
+            filename='new.csv', checked_on=timezone.localdate(), sha256='current',
+            status='done', rows=[{'brand': 'TEST', 'article': 'NEW'}], row_count=1)
         response = self.client.get(self.url())
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, 'Рычаг OLD')
