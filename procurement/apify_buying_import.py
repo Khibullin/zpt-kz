@@ -14,7 +14,7 @@ from urllib.parse import urlsplit
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import DecimalField, ExpressionWrapper, F, Value
-from django.db.models.functions import Coalesce
+from django.db.models.functions import NullIf
 
 from .models import KaspiBuyingCandidate, Offer, Preferences
 
@@ -188,7 +188,7 @@ def ranked_buying_candidates(user):
     qs = qs.annotate(
         calculated_profit=margin,
         calculated_roi=ExpressionWrapper(
-            margin * Value(Decimal('100')) / F('offer__cost'),
+            margin * Value(Decimal('100')) / NullIf(F('offer__cost'), Value(Decimal('0'))),
             output_field=cost_field,
         ),
     ).order_by(F('calculated_roi').desc(nulls_last=True),
