@@ -15,7 +15,7 @@
 
 <div class="short-search"><label class="filter-field">{{ filter_form.q.label }}{{ filter_form.q }}{{ filter_form.q.errors }}</label><button>Найти</button></div>
 <details class="collapsed-filters" {% if filter_form.errors %}open{% endif %}><summary class="button">Фильтры</summary>
-{% if mode == 'best' %}<label class="filter-field scope-filter">Показать<select name="best_scope"><option value="all" {% if best_scope == 'all' %}selected{% endif %}>Все найденные</option><option value="current" {% if best_scope == 'current' %}selected{% endif %}>Выгодные по последним данным</option><option value="new" {% if best_scope == 'new' %}selected{% endif %}>Новые</option><option value="history" {% if best_scope == 'history' %}selected{% endif %}>Ранее выгодные</option></select></label>{% endif %}
+{% if mode == 'best' %}<label class="filter-field scope-filter">Показать<select name="best_scope"><option value="all" {% if best_scope == 'all' %}selected{% endif %}>Из последнего прайса</option><option value="current" {% if best_scope == 'current' %}selected{% endif %}>Выгодные по последним данным</option><option value="new" {% if best_scope == 'new' %}selected{% endif %}>Новые</option></select></label>{% endif %}
 <div class="filter-grid">
 {% for field in basic_filters %}{% if field.name == 'vehicle_year' %}
 <div class="filter-field year-filter"><label for="id_year_mode">Годы выпуска автомобиля</label>{{ filter_form.year_mode }}{{ filter_form.year_mode.errors }}
@@ -43,7 +43,7 @@
 {% endif %}
 <div class="results-toolbar">
 <strong>{% if preliminary %}{{ preliminary_total }} товаров · <span class="preliminary-status">Спрос не подтверждён</span>{% else %}Найдено {{ total }}{% endif %}</strong>
-{% if mode == 'best' %}<form id="bulk-selection" method="post" action="{% url 'procurement:select_many' %}" data-selection-form data-bulk-selection>{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button class="primary" type="submit">В список закупки</button><small data-selection-status role="status" aria-live="polite"></small></form>{% else %}<div class="actions"><a href="{{ settings_url }}">Алгоритм и настройки</a><a class="button" href="{% querystring download='csv' page=None %}">Скачать CSV</a></div>{% endif %}
+{% if mode == 'best' %}<form id="bulk-selection" method="post" action="{% url 'procurement:select_many' %}" data-selection-form data-bulk-selection>{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button class="primary" type="submit">Добавить выбранные</button><small data-selection-status role="status" aria-live="polite"></small></form>{% else %}<div class="actions"><a href="{{ settings_url }}">Алгоритм и настройки</a><a class="button" href="{% querystring download='csv' page=None %}">Скачать CSV</a></div>{% endif %}
 </div>
 <div class="tablewrap">
 <table>
@@ -55,7 +55,7 @@
 <th>{% if mode == 'no_sellers' %}Проверка Kaspi{% else %}Kaspi, ₸{% endif %}</th>
 <th>{% if mode == 'kaspi_prices' %}Совпадение товара{% elif mode == 'no_sellers' %}Цена продажи{% elif mode == 'difference' %}Разница, ₸{% else %}Доходность, %{% endif %}</th>
 <th>{% if mode == 'kaspi_prices' %}Дата проверки{% else %}Прибыль, ₸{% endif %}</th>
-<th>{% if mode == 'best' %}В список закупки{% else %}Действия{% endif %}</th>
+<th>{% if mode == 'best' %}Выбрать к закупке{% else %}Действия{% endif %}</th>
 </tr>
 </thead>
 <tbody>{% for row in page %}<tr>
@@ -94,8 +94,8 @@
 {% endif %}<td class="row-actions">
 <button type="button" class="quick-view" data-url="{% url 'procurement:detail' row.offer.pk %}?compact=1" aria-haspopup="dialog">Просмотр</button>
 {% if mode == 'best' %}
-{% if row.in_basket %}<small data-in-basket>В списке закупки</small>{% elif row.historical and not row.omega_review %}<small class="preliminary-status">История — не для новой закупки</small>{% else %}<label class="purchase-check"><input type="checkbox" name="offer_ids" value="{{ row.offer.pk|unlocalize }}" form="bulk-selection" aria-label="В список закупки: {{ row.offer.brand }} {{ row.offer.article }}"> Выбрать</label>{% endif %}
-{% elif mode == 'kaspi_prices' %}<small class="preliminary-status">Только для ознакомления — нужна повторная проверка</small>{% elif mode == 'stale_prices' %}<small class="preliminary-status">Сначала обновите цену Kaspi</small>{% elif row.omega_review %}<small class="preliminary-status">Предварительно: требуется проверка Kaspi по Казахстану</small>{% elif row.historical %}<small class="preliminary-status">История — не для новой закупки</small>{% else %}<form method="post" action="{% url 'procurement:select' row.offer.pk %}" data-selection-form>{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button class="primary">+ В закупку</button><small data-selection-status role="status" aria-live="polite"></small></form>{% endif %}
+{% if row.in_basket %}<small data-in-basket>В списке закупки</small>{% else %}<label class="purchase-check"><input type="checkbox" name="offer_ids" value="{{ row.offer.pk|unlocalize }}" form="bulk-selection" aria-label="Выбрать к закупке: {{ row.offer.brand }} {{ row.offer.article }}"> Выбрать</label>{% endif %}
+{% elif mode == 'kaspi_prices' %}<small class="preliminary-status">Только для ознакомления — нужна повторная проверка</small>{% elif mode == 'stale_prices' %}<small class="preliminary-status">Сначала обновите цену Kaspi</small>{% elif row.omega_review %}<small class="preliminary-status">Предварительно: требуется проверка Kaspi по Казахстану</small>{% else %}<form method="post" action="{% url 'procurement:select' row.offer.pk %}" data-selection-form>{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button class="primary">+ В закупку</button><small data-selection-status role="status" aria-live="polite"></small></form>{% endif %}
 </td>
 </tr>{% empty %}<tr>
 <td colspan="7">{% if mode == 'no_sellers' %}Подтверждённых товаров без продавцов по выбранным фильтрам пока нет.{% elif mode == 'best' %}{{ best_empty_reason }}{% elif mode == 'kaspi_prices' %}Сохранённых цен Kaspi по выбранным фильтрам нет.{% elif mode == 'stale_prices' %}Нет подходящих товаров с устаревшей ценой Kaspi по выбранным фильтрам.{% else %}Товаров пока нет. Менеджер может загрузить прайс поставщика.{% endif %}</td>
