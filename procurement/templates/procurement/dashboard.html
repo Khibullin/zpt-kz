@@ -61,6 +61,8 @@
 <tbody>{% for row in page %}<tr>
 <td class="product"><a href="{% url 'procurement:detail' row.offer.pk %}"><strong>{{ row.offer.name }}</strong></a>
 <small>{{ row.offer.brand }} · {{ row.offer.article }}</small>
+{% if row.offer.photo_url %}<div><img src="{{ row.offer.photo_url }}" width="72" height="72" loading="lazy" alt="Фото товара" style="object-fit:contain;border-radius:6px"></div>{% else %}<small>Фото не найдено</small>{% endif %}
+{% if row.candidate %}<small>Продавцов Kaspi (максимум по городам): {{ row.candidate.seller_count|default_if_none:'нет данных' }}</small><small><a href="{{ row.candidate.url }}" target="_blank" rel="noopener noreferrer">Карточка Kaspi</a></small>{% elif row.offer.kaspi_url %}<small><a href="{{ row.offer.kaspi_url }}" target="_blank" rel="noopener noreferrer">Карточка Kaspi</a></small>{% endif %}
 {% if row.firsthand_images %}
   <div style="display:flex;align-items:center;gap:8px;margin:6px 0">
     <img src="{{ row.firsthand_images.0 }}" alt="Фото Kaspi, требует проверки" width="64" height="64" loading="lazy" style="object-fit:contain;border:1px solid #cbd5e1;border-radius:6px">
@@ -72,7 +74,7 @@
 {% if row.historical %}<small class="preliminary-status">{{ row.historical_reason }}</small>{% endif %}{% endif %}
 <details class="product-evidence"><summary>Подробнее</summary>
 <p><b>{{ row.kaspi_status }}</b> · {{ row.kaspi_checked_on|date:'d.m.Y'|default:'ещё не проверено' }}</p>
-<p>{% if row.offer.match_verified %}Совпадение с Kaspi подтверждено{% else %}Совпадение с Kaspi не проверено{% endif %}</p>
+<p>{% if row.candidate %}{% if row.candidate.match_status == 'verified' %}Совпадение с Kaspi ранее проверено{% else %}Совпадение по бренду и точному артикулу; исполнение не подтверждено{% endif %}{% else %}{% if row.offer.match_verified %}Совпадение с Kaspi подтверждено{% else %}Совпадение с Kaspi не проверено{% endif %}{% endif %}</p>
 <p>Категория: {{ row.offer.category }} · Остаток: {{ row.offer.stock|default:'неизвестен' }} · Дата прайса: {{ row.offer.supplier_checked_on|date:'d.m.Y'|default:'дата неизвестна' }} · Дата Kaspi: {{ row.offer.kaspi_price_checked_on|date:'d.m.Y'|default:'дата неизвестна' }}</p>
 {% include 'procurement/fitments.html' with offer=row.offer compact=True fitments=row.offer.compact_fitments %}
 {% if row.firsthand %}{% include 'procurement/firsthand_omega_sellers.html' with offer=row.offer %}{% else %}{% include 'procurement/kaspi_sellers.html' with offer=row.offer compact=True %}{% endif %}
