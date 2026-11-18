@@ -68,8 +68,8 @@ def _group_filter(groups, mode):
 def _stock_filter():
     # Unknown or zero stock must not be claimed available. Supplier stock is
     # stored as a string; accept positive quantities and explicit presence words.
-    return Q(stock__iregex=r'^\\s*[1-9][0-9]*(?:[.,][0-9]+)?(?:\\s|$)') | Q(
-        stock__iregex=r'(^|\\s)(в наличии|есть|available)(\\s|$)'
+    return Q(stock__iregex=r'^\s*[1-9][0-9]*(?:[.,][0-9]+)?(?:\s|$)') | Q(
+        stock__iregex=r'(^|\s)(в наличии|есть|available)(\s|$)'
     )
 
 
@@ -129,11 +129,11 @@ def selection_rules(request):
     # No source years: keep separately, rather than inventing fitment.
     # A year mentioned in applicability is a candidate, not a verified match.
     years = range(max(1980, date.today().year-age), date.today().year+2)
-    year_query = Q(pk__in=[])
-    for year in years:
-        year_query |= Q(applicability__contains=str(year))
-        year_query |= Q(fitments__verified=True, fitments__details__contains=str(year))
-    checked_rows = rows.filter(year_query).distinct()
+    year_pattern = '(' + '|'.join(str(year) for year in years) + ')'
+    checked_rows = rows.filter(
+        Q(applicability__regex=year_pattern) |
+        Q(fitments__verified=True, fitments__details__regex=year_pattern)
+    ).distinct()
     matched = checked_rows.count()
     unknown_years = max(0, before_years-matched)
     return render(request, 'procurement/selection_rules.html',
