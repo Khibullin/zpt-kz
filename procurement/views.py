@@ -277,8 +277,12 @@ def filtered_rows(request, preferences, filters, paginate=False):
                         row['historical_reason'] = (
                             'Спорное соответствие: ' + firsthand.get('identity_note', '')
                             if firsthand.get('identity_status') == 'conflict' else
-                            'Firsthand: цены и продавцы проверены в Алматы, Астане и Шымкенте; '
-                            'исполнение и комплектность пока не подтверждены'
+                            'Firsthand: сохранены цены и продавцы по городам: '
+                            + ', '.join(dict.fromkeys(
+                                city.get('city', '') for city in firsthand.get('cities', [])
+                                if city.get('city')
+                            ))
+                            + '; исполнение и комплектность пока не подтверждены'
                         )
                     else:
                         row['historical_reason'] = (
@@ -305,7 +309,7 @@ def filtered_rows(request, preferences, filters, paginate=False):
             row['best_status'] = (
                 'Спорное соответствие Firsthand — проверить вручную'
                 if firsthand and firsthand.get('identity_status') == 'conflict' else
-                'Предварительно выгодный — Firsthand · 3 города'
+                'Предварительно выгодный — Firsthand'
                 if row['omega_review'] and firsthand else
                 'Предварительно выгодный — проверить Kaspi по Казахстану'
                 if row['omega_review'] else
