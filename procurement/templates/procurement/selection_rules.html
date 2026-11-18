@@ -1,0 +1,42 @@
+{% extends 'procurement/base.html' %}
+{% block title %}Правила отбора товаров · ZPT.KZ{% endblock %}
+{% block content %}
+<style>
+.rule-header{margin:0 0 22px}.rule-header h1{font-size:30px;letter-spacing:-.5px;margin:0 0 8px}.rule-header p{color:#687c92;margin:0}
+.rule-card{background:#fff;border:1px solid #dbe4ee;border-radius:16px;box-shadow:0 9px 26px rgba(20,48,82,.06);padding:26px;margin:0 0 22px}
+.rule-card-head{display:flex;align-items:center;gap:16px;margin:0 0 25px}.rule-symbol{background:#dff8f3;color:#078a7a;border-radius:13px;display:grid;place-items:center;width:54px;height:54px;font-size:28px;flex:none}.rule-card h2{margin:0 0 6px;font-size:23px}.rule-card-head p{margin:0;color:#65778d}
+.rule-form-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:22px 24px}.rule-field{display:flex;flex-direction:column;gap:9px;min-width:0}.rule-field>label,.rule-field>span{font-weight:700;color:#1b304d}.rule-field input:not([type=checkbox]),.rule-field select{width:100%;min-height:44px}.rule-field-wide{grid-column:1/-1}
+.rule-categories{display:flex;flex-wrap:wrap;gap:9px;padding:12px;border:1px solid #dce5ee;border-radius:10px}.rule-categories label{display:inline-flex;align-items:center;gap:7px;background:#edf4ff;padding:9px 12px;border-radius:8px;cursor:pointer;font-size:13px}.rule-categories label:has(input:checked){background:#dbeafd;color:#123c72;font-weight:700}.rule-categories input{accent-color:#009c91}
+.rule-divider{border:0;border-top:1px solid #dce5ee;margin:26px 0 20px}.rule-small-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:12px 0 22px}.rule-stat{background:#f6f9fc;border:1px solid #e2eaf3;border-radius:10px;padding:13px 14px;min-width:0}.rule-stat small{display:block;color:#65778d;font-size:12px;margin-bottom:7px}.rule-stat strong{font-size:14px;overflow-wrap:anywhere}.rule-bottom{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}.rule-result{background:#ecfbf5;border:1px solid #cceee1;padding:13px 16px;border-radius:11px;display:flex;gap:10px;align-items:center}.rule-result strong{font-size:23px;color:#087753}.rule-buttons{display:flex;gap:10px;flex-wrap:wrap}.rule-buttons button{font-weight:700}.rule-hint{padding:12px 15px;background:#f3f7fd;color:#566c86;border-radius:9px;margin-top:18px;line-height:1.5}.rule-next{border:1px dashed #c5d5e8;border-radius:13px;padding:19px 24px;color:#6c7d94}.rule-next strong{display:block;color:#263b58;font-size:17px;margin-bottom:5px}.rule-errors{color:#a02f2f}.rule-inline-checkbox{display:flex;align-items:center;gap:10px;margin-top:3px}.rule-inline-checkbox input{accent-color:#009b8b;width:18px;height:18px}
+@media(max-width:820px){.rule-form-grid{grid-template-columns:1fr}.rule-field-wide{grid-column:auto}.rule-small-grid{grid-template-columns:repeat(2,1fr)}.rule-card{padding:17px}.rule-header h1{font-size:25px}}
+</style>
+<div class="rule-header"><h1>Правила отбора товаров</h1><p>Предварительный отбор из оптовых прайс-листов всех подключённых поставщиков</p></div>
+<section class="rule-card" aria-labelledby="rule-title">
+  <div class="rule-card-head"><div class="rule-symbol" aria-hidden="true">▽</div><div><h2 id="rule-title">Фильтр по прайс-листам поставщика</h2><p>Первый этап: отбираем потенциально интересные товары до проверки цен и продавцов</p></div></div>
+  <form method="post" id="selection-rule-form">{% csrf_token %}
+    {% if form.non_field_errors %}<div class="rule-errors">{{ form.non_field_errors }}</div>{% endif %}
+    <div class="rule-form-grid">
+      <div class="rule-field"><label for="{{ form.supplier.id_for_label }}">Поставщик</label>{{ form.supplier }}{{ form.supplier.errors }}</div>
+      <div class="rule-field"><label for="{{ form.min_cost.id_for_label }}">Минимальная закупочная цена, ₸</label>{{ form.min_cost }}{{ form.min_cost.errors }}</div>
+      <div class="rule-field rule-field-wide"><span>Категории товаров — выберите одну, несколько или оставьте все</span><div class="rule-categories">{{ form.category_groups }}</div>{{ form.category_groups.errors }}</div>
+      <div class="rule-field"><label for="{{ form.max_vehicle_age.id_for_label }}">Возраст автомобиля, до (лет)</label>{{ form.max_vehicle_age }}{{ form.max_vehicle_age.errors }}</div>
+      <div class="rule-field"><label for="{{ form.classification_mode.id_for_label }}">Классификация товара</label>{{ form.classification_mode }}{{ form.classification_mode.errors }}</div>
+      <div class="rule-field rule-field-wide"><span>Наличие</span><label class="rule-inline-checkbox">{{ form.in_stock_only }} Только товары в наличии у поставщика</label></div>
+    </div>
+    <hr class="rule-divider">
+    <h3>Текущие параметры предварительного отбора</h3>
+    <div class="rule-small-grid">
+      <div class="rule-stat"><small>Поставщик</small><strong>{% if rule.supplier %}{{ rule.supplier.name }}{% else %}Все поставщики{% endif %}</strong></div>
+      <div class="rule-stat"><small>Мин. закупка</small><strong>от {{ rule.min_cost|floatformat:0 }} ₸</strong></div>
+      <div class="rule-stat"><small>Возраст авто</small><strong>до {{ rule.max_vehicle_age }} лет</strong></div>
+      <div class="rule-stat"><small>Категории</small><strong>{% if rule.category_groups %}{{ rule.category_groups|length }} выбрано{% else %}Все категории{% endif %}</strong></div>
+    </div>
+    <div class="rule-bottom">
+      <div class="rule-result"><span>Подходят по возрасту и остальным критериям:</span><strong>{{ matched }}</strong></div>
+      <div class="rule-buttons"><button class="primary" type="submit" name="action" value="save">Сохранить и применить</button><button type="submit" name="action" value="reset" onclick="return confirm('Сбросить предварительный отбор к исходным значениям?')">Сбросить</button></div>
+    </div>
+    <div class="rule-hint"><strong>Требует уточнения по годам: {{ year_unknown }}</strong> позиций после остальных фильтров. Отсутствующий год выпуска или неподтверждённая применимость не подменяются предположениями. Эти товары не удаляются из прайс-листа.<p style="margin:8px 0 0">Классификация по наименованию предварительная: неизвестные категории и применимость требуют дальнейшей проверки. Сохранение фильтра не запускает Kaspi, не изменяет исходные цены и не удаляет товары.</p></div>
+  </form>
+</section>
+<section class="rule-next"><strong>Следующий блок правил</strong>Добавим после отдельного обсуждения и согласования. Сейчас работает только фильтр по прайс-листам.</section>
+{% endblock %}
