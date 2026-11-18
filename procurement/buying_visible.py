@@ -85,7 +85,7 @@ def visible_buying_rows(request, preferences, filters):
 
     # Previously saved profitable offers must not disappear on Apify import.
     # Include currently qualified legacy offers without duplicating an Apify supplier row.
-    old = Offer.objects.select_related('supplier', 'profitable_record').exclude(
+    old = Offer.objects.select_related('supplier', 'profitable_record', 'kaspi_sellers').exclude(
         pk__in=candidate_offer_ids
     )
     if supplier:
@@ -108,6 +108,16 @@ def visible_buying_rows(request, preferences, filters):
         ])
     legacy = cumulative_profitable_query(old, preferences)
     for offer in legacy.iterator(chunk_size=500):
+        if bounds is not None:
+            # Seller-count filters also apply to historical offers. Only use
+            # an observed, complete snapshot for the matching Kaspi card;
+            # unknown counts must not silently pass the filter.
+            snapshot = getattr(offer, 'kaspi_sellers', None)
+            if not (snapshot and snapshot.complete and snapshot.city == '750000000'
+                    and snapshot.source_url == offer.kaspi_url
+                    and isinstance(snapshot.sellers, list)
+                    and bounds[0] <= len(snapshot.sellers) <= bounds[1]):
+                continue
         record = getattr(offer, 'profitable_record', None)
         price = (record.source_kaspi_price if record else offer.kaspi_price)
         cost = (record.source_cost if record else offer.cost)
