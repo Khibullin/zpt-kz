@@ -159,8 +159,15 @@ def visible_buying_rows(request, preferences, filters):
         else:
             candidate = None
             cost, price = payload[1], payload[2]
-        if price is not None and commission is not None:
-            after_commission = price * (Decimal('1') - commission / Decimal('100'))
+        # Historical snapshots retain their original commission and expenses;
+        # today's account settings must not rewrite the explanation of old profits.
+        historical_record = payload[3] if kind == 'legacy' else None
+        effective_commission = historical_record.commission if historical_record else commission
+        effective_expenses = historical_record.expenses if historical_record else extra_cost
+        analysis['commission_rate'] = effective_commission
+        analysis['expenses'] = effective_expenses
+        if price is not None and effective_commission is not None:
+            after_commission = price * (Decimal('1') - effective_commission / Decimal('100'))
             analysis['commission_amount'] = price - after_commission
             analysis['kaspi_after_commission'] = after_commission
             analysis['difference'] = after_commission - cost
