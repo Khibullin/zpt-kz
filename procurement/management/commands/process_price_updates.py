@@ -127,6 +127,8 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('--batch', type=int)
         parser.add_argument('--watch', action='store_true')
+        parser.add_argument('--max-watch-passes', type=int, default=0,
+                            help='Gracefully exit after this many complete consumer passes; 0 disables recycling.')
 
     def handle(self, *args, **options):
         running = True
@@ -139,7 +141,15 @@ class Command(BaseCommand):
             # Never block the durable price worker on external API diagnostics.
             # Use the one-shot diagnostic command instead (no publishing).
             logger.info('Official Kaspi API health check is separate from the price consumer')
+        passes_started = 0
         while running:
+            # Exit only at a pass boundary. No in-flight supplier batch or
+            # confirmed price is interrupted; Gunicorn restarts the consumer.
+            if (options['watch'] and options['max_watch_passes'] > 0
+                    and passes_started >= options['max_watch_passes']):
+                logger.info('Price consumer recycling after %s passes', passes_started)
+                break
+            passes_started += 1
             close_old_connections()
             photo_progress = 0
             facet_progress = False

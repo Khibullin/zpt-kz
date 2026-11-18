@@ -6,12 +6,17 @@ Kaspi searches, purchases or messages. Database locks serialize multiple masters
 import os
 import subprocess
 import sys
+import time
 
 # Uploading two supplier files can exceed the sync worker's heartbeat timeout
 # while Django reads the request body. Keep the heartbeat in the main thread,
 # with a second request thread available while the upload is in progress.
 worker_class = 'gthread'
 threads = 2
+# Recycle the request worker before cumulative allocations hit Render's 512 MiB limit.
+# Gunicorn drains in-flight requests before replacing a worker.
+max_requests = 150
+max_requests_jitter = 25
 
 
 def on_starting(server):
@@ -32,8 +37,29 @@ def on_starting(server):
         bool(os.environ.get('KASPI_BASELINE_PRICE_FEED_URL', '').strip()),
     )
     if enabled:
-        server.price_update_worker = subprocess.Popen(
-            [sys.executable, 'manage.py', 'process_price_updates', '--watch'])
+        _spawn_price_update_worker(server)
+
+
+def _spawn_price_update_worker(server):
+    # Complete each durable import pass before recycling the long-lived
+    # consumer. Gunicorn's master supervises it separately from HTTP workers.
+    server.price_update_worker = subprocess.Popen(
+        [sys.executable, 'manage.py', 'process_price_updates', '--watch',
+         '--max-watch-passes', '120'])
+    server.price_update_worker_started = time.monotonic()
+
+
+def on_tick(server):
+    worker = getattr(server, 'price_update_worker', None)
+    if worker is None or worker.poll() is None:
+        return
+    # Back off if the command exits immediately because of a transient
+    # database failure; never start overlapping consumers.
+    if time.monotonic() - getattr(server, 'price_update_worker_started', 0) < 30:
+        return
+    server.log.warning('ZPT price consumer exited (code=%s); restarting',
+                       worker.returncode)
+    _spawn_price_update_worker(server)
 
 
 def on_exit(server):

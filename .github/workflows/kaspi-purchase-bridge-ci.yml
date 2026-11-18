@@ -23,6 +23,7 @@ on:
       - 'procurement/test_kaspi_snapshot_bridge.py'
       - 'procurement/templates/procurement/kaspi_pricing.html'
       - 'backend/settings.py'
+      - 'gunicorn.conf.py'
       - 'core/crawler_budget.py'
       - 'core/tests/test_crawler_budget.py'
       - '.github/workflows/kaspi-purchase-bridge-ci.yml'
@@ -51,7 +52,7 @@ jobs:
           cache: pip
       - run: python -m pip install -r requirements.txt
       - name: Python syntax
-        run: python -m compileall -q procurement/kaspi_catalog_api.py procurement/kaspi_card_jobs.py procurement/kaspi_materials.py procurement/kaspi_price_feed.py procurement/kaspi_workspace.py procurement/kaspi_snapshot_bridge.py procurement/kaspi_identity_worker.py procurement/test_kaspi_source_recovery.py procurement/kaspi_omega_diagnostic.py procurement/test_preserved_supplier_prices.py procurement/test_buying_visible.py procurement/buying_visible.py procurement/test_kaspi_purchase_bridge.py procurement/test_kaspi_snapshot_bridge.py core/crawler_budget.py core/tests/test_crawler_budget.py
+        run: python -m compileall -q procurement/kaspi_catalog_api.py procurement/kaspi_card_jobs.py procurement/kaspi_materials.py procurement/kaspi_price_feed.py procurement/kaspi_workspace.py procurement/kaspi_snapshot_bridge.py procurement/kaspi_identity_worker.py procurement/test_kaspi_source_recovery.py procurement/kaspi_omega_diagnostic.py procurement/test_preserved_supplier_prices.py procurement/test_buying_visible.py procurement/buying_visible.py procurement/test_kaspi_purchase_bridge.py procurement/test_kaspi_snapshot_bridge.py core/crawler_budget.py core/tests/test_crawler_budget.py gunicorn.conf.py procurement/management/commands/process_price_updates.py
       - name: Django validation
         run: python manage.py check --settings=backend.settings_ui_ci
       - name: No schema changes
