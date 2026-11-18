@@ -6,8 +6,8 @@ No source Offer, warehouse, price or verification flag is mutated.
 from decimal import Decimal
 from django.core.paginator import Paginator
 from django.db.models import Q
-from .models import KaspiBuyingCandidate, Offer, ProfitableOfferRecord
-from .analysis import evaluate, PACKAGING_COST
+from .models import KaspiBuyingCandidate, Offer, Favorite
+from .analysis import evaluate, PACKAGING_COST, stock_status
 from .catalog_paging import cumulative_profitable_query
 
 
@@ -30,6 +30,17 @@ def visible_buying_rows(request, preferences, filters):
     if filters.get('max_cost') is not None:
         qs = qs.filter(offer__cost__lte=filters['max_cost'])
 
+    if filters.get('favorites'):
+        favored = Favorite.objects.filter(user=request.user).values('offer_id')
+        qs = qs.filter(offer_id__in=favored)
+    if filters.get('availability'):
+        # Availability is evaluated from the exact supplier text, without
+        # treating missing stock as available.
+        allowed_ids = [pk for pk, stock in
+                       qs.values_list('offer_id', 'offer__stock').distinct()
+                       if stock_status(stock) == filters['availability']]
+        qs = qs.filter(offer_id__in=allowed_ids)
+
     # Keep the Kaspi-card identity as the row key, never DISTINCT(offer_id).
     candidates = list(qs.values(
         'id', 'offer_id', 'minimum_price', 'url', 'city_offers', 'match_status',
@@ -47,7 +58,20 @@ def visible_buying_rows(request, preferences, filters):
         return profit, profit * Decimal('100') / cost
 
     indexed = []
+    bounds = filters.get('seller_bounds')
     for candidate in candidates:
+        if bounds is not None:
+            counts = []
+            for city in candidate['city_offers'] or []:
+                if not isinstance(city, dict):
+                    continue
+                n = city.get('sellers_count')
+                if isinstance(n, int) and not isinstance(n, bool) and n >= 0:
+                    counts.append(n)
+                elif isinstance(n, str) and n.isdecimal():
+                    counts.append(int(n))
+            if not counts or not bounds[0] <= max(counts) <= bounds[1]:
+                continue
         profit, roi = calculation(candidate['minimum_price'], candidate['offer__cost'])
         if filters.get('min_profit') is not None and (profit is None or profit < filters['min_profit']):
             continue
@@ -71,6 +95,13 @@ def visible_buying_rows(request, preferences, filters):
         old = old.filter(Q(article__icontains=q) | Q(brand__icontains=q) | Q(name__icontains=q))
     if filters.get('max_cost') is not None:
         old = old.filter(cost__lte=filters['max_cost'])
+    if filters.get('favorites'):
+        old = old.filter(pk__in=Favorite.objects.filter(user=request.user).values('offer_id'))
+    if filters.get('availability'):
+        old = old.filter(pk__in=[
+            pk for pk, stock in old.values_list('pk', 'stock')
+            if stock_status(stock) == filters['availability']
+        ])
     legacy = cumulative_profitable_query(old, preferences)
     for offer in legacy.iterator(chunk_size=500):
         record = getattr(offer, 'profitable_record', None)
@@ -120,6 +151,15 @@ def visible_buying_rows(request, preferences, filters):
         else:
             candidate = None
             cost, price = payload[1], payload[2]
+        if price is not None and commission is not None:
+            after_commission = price * (Decimal('1') - commission / Decimal('100'))
+            analysis['commission_amount'] = price - after_commission
+            analysis['kaspi_after_commission'] = after_commission
+            analysis['difference'] = after_commission - cost
+        else:
+            analysis['commission_amount'] = None
+            analysis['kaspi_after_commission'] = None
+            analysis['difference'] = None
         analysis.update({
             'offer': offer, 'candidate': candidate,
             'display_cost': cost, 'kaspi_price': price,
@@ -134,6 +174,8 @@ def visible_buying_rows(request, preferences, filters):
             'processed_at': None,
             'historical': kind == 'legacy',
             'historical_reason': 'Сохранённый прежний расчёт' if kind == 'legacy' else '',
+            'kaspi_status': 'Карточка из Apify; проверка исполнения не завершена' if candidate else 'Сохранённое предложение Kaspi',
+            'kaspi_checked_on': None if candidate else offer.kaspi_price_checked_on,
         })
         rows.append(analysis)
     page.object_list = rows
