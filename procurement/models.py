@@ -120,6 +120,19 @@ class Preferences(models.Model):
     min_markup = models.DecimalField(max_digits=7, decimal_places=2, default=30, validators=[MinValueValidator(0)])
 
 
+class WholesaleSelectionRule(models.Model):
+    """Shared, explicitly saved preselection settings; never edits supplier source data."""
+    singleton_key = models.PositiveSmallIntegerField(default=1, unique=True)
+    supplier = models.ForeignKey('Supplier', null=True, blank=True, on_delete=models.SET_NULL)
+    min_cost = models.DecimalField(max_digits=14, decimal_places=2, default=2000)
+    max_vehicle_age = models.PositiveSmallIntegerField(default=20)
+    category_groups = models.JSONField(default=list, blank=True)
+    in_stock_only = models.BooleanField(default=True)
+    classification_mode = models.CharField(max_length=12, default='auto')
+    updated_at = models.DateTimeField(auto_now=True)
+    updated_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
+
+
 class Selection(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     offer = models.ForeignKey(Offer, on_delete=models.PROTECT)
