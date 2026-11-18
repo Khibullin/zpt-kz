@@ -213,6 +213,7 @@ def filtered_rows(request, preferences, filters, paginate=False):
         query = request.catalog_page.object_list
     rows = []
     latest_batches = {}
+    latest_batch_members = {}
     if mode == 'best':
         for supplier_id, batch_id, batch_date in PriceUpdate.objects.filter(status='done').order_by('-pk').values_list('supplier_id', 'pk', 'checked_on'):
             latest_batches.setdefault(supplier_id, (batch_id, batch_date))
@@ -220,9 +221,12 @@ def filtered_rows(request, preferences, filters, paginate=False):
         if mode == 'best':
             latest_batch = latest_batches.get(offer.supplier_id)
             # The buying list is limited to the last completed supplier price list.
-            if latest_batch and (offer.supplier_checked_on != latest_batch[1] or
-                                 (offer.brand, offer.article) not in latest_price_list_keys(latest_batch[0])):
-                continue
+            if latest_batch:
+                if offer.supplier_id not in latest_batch_members:
+                    latest_batch_members[offer.supplier_id] = latest_price_list_keys(latest_batch[0])
+                if (offer.supplier_checked_on != latest_batch[1] or
+                        (offer.brand, offer.article) not in latest_batch_members[offer.supplier_id]):
+                    continue
         row = {'offer': offer, 'favorite': offer.pk in favorites, **evaluate(offer, preferences, today=today)}
         row.update(kaspi_status(offer, preferences, today))
         row['kaspi_price'] = offer.kaspi_price
