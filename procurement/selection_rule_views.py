@@ -178,6 +178,7 @@ def selection_rules(request):
     batches = (exported_total + JSON_BATCH_SIZE - 1) // JSON_BATCH_SIZE
     from .apify_buying_import import ranked_buying_candidates
     candidates, can_calculate = ranked_buying_candidates(request.user)
+    candidates = candidates.exclude(match_status='unmatched')
     buying_total = candidates.count()
     buying_page = Paginator(candidates, 40).get_page(request.GET.get('page'))
     return render(request, 'procurement/selection_rules.html',
