@@ -67,6 +67,28 @@ class PurchaseListTests(TestCase):
         self.first.refresh_from_db()
         self.assertEqual((self.first.cost, self.first.stock), (Decimal('2247'), '4'))
 
+    def test_supplier_worksheets_have_independent_totals(self):
+        workbook = self.book()
+        self.assertIn('Omega', workbook.sheetnames)
+        self.assertIn('Фаетон', workbook.sheetnames)
+        self.assertEqual(workbook['Omega']['I11'].value, 6741)
+        self.assertEqual(workbook['Фаетон']['I11'].value, 200)
+        self.assertEqual(workbook['Omega']['I13'].value, 6741)
+        self.assertEqual(workbook['Фаетон']['I13'].value, 200)
+
+    def test_bulk_remove_checks_ownership_and_requires_post(self):
+        mine = list(Selection.objects.filter(user=self.user).order_by('pk'))
+        other = Selection.objects.get(user=self.other)
+        url = reverse('procurement:remove_selected')
+        self.assertEqual(self.client.get(url).status_code, 405)
+        response = self.client.post(url, {'selection_ids': [mine[0].pk, other.pk]})
+        self.assertRedirects(response, reverse('procurement:basket'), fetch_redirect_response=False)
+        self.assertEqual(Selection.objects.filter(user=self.user).count(), 2)
+        response = self.client.post(url, {'selection_ids': [row.pk for row in mine]})
+        self.assertRedirects(response, reverse('procurement:basket'), fetch_redirect_response=False)
+        self.assertFalse(Selection.objects.filter(user=self.user).exists())
+        self.assertTrue(Selection.objects.filter(user=self.other).exists())
+
     def test_export_has_no_text_formulas_and_print_layout(self):
         sheet = self.book(buyer='=HYPERLINK("example")').active
         self.assertEqual(sheet['D12'].value, '=2+2')
