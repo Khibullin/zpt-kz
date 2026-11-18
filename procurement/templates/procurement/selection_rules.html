@@ -1,5 +1,5 @@
 {% extends 'procurement/base.html' %}
-{% block title %}Правила отбора товаров · ZPT.KZ{% endblock %}
+{% block title %}Подготовка товаров к закупке · ZPT.KZ{% endblock %}
 {% block content %}
 <style>
 .rule-header{margin:0 0 22px}.rule-header h1{font-size:30px;letter-spacing:-.5px;margin:0 0 8px}.rule-header p{color:#687c92;margin:0}
@@ -52,10 +52,28 @@
 @media(max-width:950px){.rule-categories>div,.rule-categories #id_category_groups{gap:6px}}
 @media(max-width:820px){.rule-form-grid{grid-template-columns:1fr;gap:13px}.rule-card{padding:16px}.rule-header h1{font-size:25px}.rule-small-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.rule-field-wide:has(.rule-inline-checkbox){flex-wrap:wrap}.rule-bottom{align-items:stretch}.rule-result{width:100%;justify-content:space-between}.rule-buttons{width:100%}.rule-buttons button{flex:1}}
 @media(max-width:440px){.rule-categories label{padding:7px 9px;font-size:12px}.rule-stat{padding:9px}.rule-stat strong{font-size:12px}}
+
+.step-card{padding-top:17px;padding-bottom:17px}
+.step-heading{display:flex;align-items:center;gap:12px;margin:0 0 14px}
+.step-heading h2{font-size:19px;margin:0 0 3px}
+.step-heading p{margin:0}
+.step-number{display:inline-flex;align-items:center;justify-content:center;flex:0 0 35px;height:35px;background:#dff6f2;color:#087e79;border-radius:10px;font-weight:800;font-size:17px}
+.step-line{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.step-line .button{white-space:nowrap;font-weight:700;padding:9px 14px}
+.step-results{margin-top:14px;max-height:330px}
+.step-results table{min-width:690px}
+.step-results td,.step-results th{padding:9px 12px;font-size:12px}
+.apify-settings{border:1px solid #dbe7f2;background:#f5f8fd;border-radius:9px;padding:12px 15px;margin-top:13px}
+.apify-settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px 16px;margin-top:10px;font-size:13px}
+@media(max-width:650px){.apify-settings-grid{grid-template-columns:1fr}.step-heading h2{font-size:17px}}
 </style>
-<div class="rule-header"><h1>Правила отбора товаров</h1><p>Предварительный отбор из оптовых прайс-листов всех подключённых поставщиков</p></div>
+<div class="rule-header"><h1>Подготовка товаров к закупке</h1><p>Обновление прайса → предварительный отбор → Excel → JSON для ручной загрузки в Apify</p></div>
+<section class="rule-card step-card" aria-labelledby="upload-step-title">
+  <div class="step-heading"><span class="step-number">1</span><div><h2 id="upload-step-title">Обновление прайс-листа</h2><p class="muted">Загрузите свежий прайс поставщика перед подготовкой товаров</p></div></div>
+  <div class="step-line"><span>Прайс-лист загружается через существующий защищённый загрузчик ZPT.KZ.</span><a class="button primary" href="{% url 'procurement:upload' %}">Загрузить прайс-лист</a><a class="button" href="{% url 'procurement:price_updates' %}">История обновлений</a></div>
+</section>
 <section class="rule-card" aria-labelledby="rule-title">
-  <div class="rule-card-head"><div class="rule-symbol" aria-hidden="true">▽</div><div><h2 id="rule-title">Фильтр по прайс-листам поставщика</h2><p>Первый этап: отбираем потенциально интересные товары до проверки цен и продавцов</p></div></div>
+  <div class="rule-card-head"><span class="step-number">2</span><div><h2 id="rule-title">Предварительный отбор</h2><p>Фильтр по прайс-листам поставщика — до проверки цен Kaspi</p></div></div>
   <form method="post" id="selection-rule-form">{% csrf_token %}
     {% if form.non_field_errors %}<div class="rule-errors">{{ form.non_field_errors }}</div>{% endif %}
     <div class="rule-form-grid">
@@ -81,6 +99,28 @@
     <div class="rule-hint"><strong>Требует уточнения по годам: {{ year_unknown }}</strong> позиций после остальных фильтров. Отсутствующий год выпуска или неподтверждённая применимость не подменяются предположениями. Эти товары не удаляются из прайс-листа.<p style="margin:8px 0 0">Классификация по наименованию предварительная: неизвестные категории и применимость требуют дальнейшей проверки. Сохранение фильтра не запускает Kaspi, не изменяет исходные цены и не удаляет товары.</p></div>
   </form>
 </section>
-<section class="rule-next"><strong>Следующий блок правил</strong>Добавим после отдельного обсуждения и согласования. Сейчас работает только фильтр по прайс-листам.</section>
+<section class="rule-card step-card" aria-labelledby="results-step-title">
+  <div class="step-heading"><span class="step-number">3</span><div><h2 id="results-step-title">Результат отбора</h2><p class="muted">Список по последним сохранённым настройкам фильтра</p></div></div>
+  <div class="step-line"><span>Отобрано: <strong>{{ matched }}</strong> товаров</span><a class="button primary" href="{% url 'procurement:selection_excel' %}">↓ Скачать Excel</a></div>
+  {% if result_sample %}
+    <div class="tablewrap step-results"><table><thead><tr><th>Поставщик</th><th>Бренд / артикул</th><th>Товар</th><th>Закупка, ₸</th><th>Остаток</th></tr></thead><tbody>
+    {% for item in result_sample %}<tr><td>{{ item.supplier.name }}</td><td>{{ item.brand }}<small>{{ item.article }}</small></td><td>{{ item.name }}</td><td>{{ item.cost|floatformat:2 }}</td><td>{{ item.stock|default:"Не указан" }}</td></tr>{% endfor %}
+    </tbody></table></div><p class="muted" style="margin:9px 0 0">Показаны первые 15 строк. Excel содержит весь сохранённый отбор.</p>
+  {% else %}<p class="muted">По текущим правилам подходящие товары не найдены. Измените фильтр и сохраните его.</p>{% endif %}
+</section>
+<section class="rule-card step-card" aria-labelledby="apify-step-title">
+  <div class="step-heading"><span class="step-number">4</span><div><h2 id="apify-step-title">Подготовка для Apify</h2><p class="muted">Скачайте JSON и самостоятельно загрузите его в Kaspi API: Products, Prices, Sellers &amp; Reviews</p></div></div>
+  <div class="step-line">
+    {% if json_batches %}
+      <span>Одна партия — до {{ json_batch_size }} товаров. Выберите нужную партию:</span>
+      {% for batch in json_batches %}<a class="button primary" href="{% url 'procurement:selection_apify_json' %}?batch={{ batch }}">↓ JSON №{{ batch }}</a>{% endfor %}
+    {% else %}<span>Сначала сохраните фильтр с ненулевым количеством товаров.</span>{% endif %}
+  </div>
+  <div class="apify-settings">
+    <strong>Параметры Apify для ручного запуска</strong>
+    <div class="apify-settings-grid"><span>Города: Алматы, Астана, Шымкент</span><span>Max products per query: 3</span><span>Add every seller's offer: включено</span><span>Max offers per product: 0 (все)</span><span>Add reviews: выключено</span><span>Proxy: Residential, Kazakhstan</span><span>Memory: 256 MB</span><span>Timeout: 43 200 секунд</span></div>
+    <p class="muted" style="margin:9px 0 0">Максимальную стоимость запуска установите вручную в Apify. JSON не запускает сбор автоматически; результаты и расходы зависят от настроек и ограничений самого сервиса.</p>
+  </div>
+</section>
 {% include 'procurement/financial_rules.html' %}
 {% endblock %}
