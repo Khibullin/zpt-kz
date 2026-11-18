@@ -81,7 +81,7 @@ class FirsthandOmegaImportTests(TestCase):
         self.assertContains(response, "Спорное соответствие Firsthand")
         self.assertContains(response, "колодки ручника")
         self.assertContains(response, "Фото Firsthand")
-        self.assertContains(response, "Продавцы и цены по трём городам")
+        self.assertContains(response, "Продавцы и цены по сохранённым городам")
         self.assertNotContains(response, "+ В закупку")
         self.assertFalse(Offer.objects.get(pk=self.conflict.pk).match_verified)
 
@@ -105,3 +105,23 @@ class FirsthandOmegaImportTests(TestCase):
         again = import_omega_firsthand(Offer, KaspiSellerSnapshot)
         self.assertEqual(again["updated"], 0)
         self.assertEqual(KaspiSellerSnapshot.objects.count(), 3)
+
+    def test_single_city_dataset_does_not_claim_other_cities(self):
+        import_omega_firsthand(Offer, KaspiSellerSnapshot)
+        self.discs.refresh_from_db()
+        evidence = self.discs.characteristics["firsthand_omega_20261117"]
+        evidence["cities"] = [city for city in evidence["cities"] if city["city"] == "Almaty"]
+        self.discs.save(update_fields=["characteristics"])
+        responses = [
+            self.client.get(reverse("procurement:dashboard"), {
+                "supplier": self.supplier.pk, "mode": "best", "q": self.discs.article,
+            }),
+            self.client.get(reverse("procurement:detail", args=[self.discs.pk])),
+        ]
+        for response in responses:
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, "Almaty")
+            self.assertNotContains(response, "Astana")
+            self.assertNotContains(response, "Shymkent")
+            self.assertNotContains(response, "3 города")
+            self.assertNotContains(response, "по трём городам")
