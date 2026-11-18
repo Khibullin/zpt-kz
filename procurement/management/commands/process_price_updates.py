@@ -5,7 +5,7 @@ import signal
 import time
 from django.core.management.base import BaseCommand
 from django.conf import settings
-from django.db import close_old_connections
+from django.db import close_old_connections, connection
 from django.db.models import Q
 from procurement.models import PriceUpdate, KaspiReviewTask
 from procurement.kaspi_refresh import refresh_task
@@ -232,6 +232,10 @@ class Command(BaseCommand):
                 if not options['watch']:
                     raise
                 logger.exception('Price update paused; committed progress is retained')
+                # A lost PostgreSQL socket can remain attached to this long-lived
+                # worker after a transient failure. Start the next pass with a
+                # fresh connection; already committed progress is not rolled back.
+                connection.close()
             # Polling delays are for an idle queue. Recheck price jobs and other
             # work between photo batches, then keep draining staged photos.
             if options['watch'] and (photo_progress or facet_progress):
