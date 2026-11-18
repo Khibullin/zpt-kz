@@ -26,7 +26,8 @@ def visible_buying_rows(request, preferences, filters):
     if filters.get('q'):
         q = filters['q'].strip()
         qs = qs.filter(Q(offer__article__icontains=q) | Q(offer__brand__icontains=q)
-                       | Q(offer__name__icontains=q) | Q(title__icontains=q))
+                       | Q(offer__name__icontains=q) | Q(offer__applicability__icontains=q)
+                       | Q(title__icontains=q))
     if filters.get('max_cost') is not None:
         qs = qs.filter(offer__cost__lte=filters['max_cost'])
 
@@ -96,7 +97,8 @@ def visible_buying_rows(request, preferences, filters):
         old = old.filter(category=filters['category'])
     if filters.get('q'):
         q = filters['q'].strip()
-        old = old.filter(Q(article__icontains=q) | Q(brand__icontains=q) | Q(name__icontains=q))
+        old = old.filter(Q(article__icontains=q) | Q(brand__icontains=q)
+                         | Q(name__icontains=q) | Q(applicability__icontains=q))
     if filters.get('max_cost') is not None:
         old = old.filter(cost__lte=filters['max_cost'])
     if filters.get('favorites'):
