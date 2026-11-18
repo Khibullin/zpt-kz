@@ -69,7 +69,7 @@ def context(request, **extra):
     catalog_url += scope_query
     return {'role': request.procurement_role, 'can_manage': request.procurement_role in ('sales', 'admin'),
             'selected_supplier': selected_supplier, 'catalog_url': catalog_url,
-            'best_url': catalog_url + '&mode=best',
+            'best_url': reverse('procurement:dashboard') + '?supplier=&mode=best',
             'favorites_url': catalog_url + '&favorites=1',
             'upload_url': reverse('procurement:upload') + scope_query,
             'settings_url': reverse('procurement:settings') + scope_query,
@@ -426,7 +426,7 @@ def filtered_rows(request, preferences, filters, paginate=False):
 
 @access()
 def dashboard(request):
-    if 'supplier' not in request.GET and request.session.get('procurement_supplier'):
+    if request.GET.get('mode') != 'best' and 'supplier' not in request.GET and request.session.get('procurement_supplier'):
         params = request.GET.copy()
         params['supplier'] = request.session['procurement_supplier']
         return redirect(reverse('procurement:dashboard') + '?' + params.urlencode())
