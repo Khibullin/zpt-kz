@@ -78,6 +78,20 @@ def _stock_filter():
 @access('sales', 'admin')
 def selection_rules(request):
     rule, _ = WholesaleSelectionRule.objects.get_or_create(singleton_key=1)
+    from .price_update_views import SupplierPriceUploadForm, price_history_context
+    uploading_price = request.method == 'POST' and request.POST.get('action') == 'upload_price'
+    price_form = SupplierPriceUploadForm(request.POST if uploading_price else None,
+        request.FILES if uploading_price else None, initial={'supplier': rule.supplier_id}, auto_id='price_%s')
+    if uploading_price and price_form.is_valid():
+        from .price_updates import stage_update
+        try:
+            stage_update(price_form.cleaned_data['file'], price_form.cleaned_data['supplier'],
+                         request.user, price_form.cleaned_data['checked_on'], price_form.cleaned_data['full_catalog'])
+        except ValueError as error:
+            price_form.add_error(None, str(error))
+        else:
+            messages.success(request, 'Прайс принят. Ход обработки сохранён в истории загрузок.')
+            return redirect('procurement:selection_rules')
     initial = {
         'supplier': rule.supplier_id,
         'min_cost': rule.min_cost,
@@ -104,7 +118,7 @@ def selection_rules(request):
                     f"связано с оптовыми позициями: {result['linked'] + result['verified']}; "
                     f"требуют сопоставления: {result['unmatched']}.")
         return redirect('procurement:selection_rules')
-    if request.method == 'POST':
+    if request.method == 'POST' and not uploading_price:
         form = SelectionRuleForm(request.POST)
         if request.POST.get('action') == 'reset':
             rule.supplier = None
@@ -168,6 +182,7 @@ def selection_rules(request):
     buying_page = Paginator(candidates, 40).get_page(request.GET.get('page'))
     return render(request, 'procurement/selection_rules.html',
                   context(request, form=form, rule=rule, matched=exported_total,
+                          price_form=price_form, **price_history_context(request),
                           year_unknown=unknown_years, before_years=before_years,
                           group_choices=GROUPS,
                           json_batches=range(1, batches + 1),
