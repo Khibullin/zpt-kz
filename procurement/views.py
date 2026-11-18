@@ -119,7 +119,9 @@ def preserved_best_scope(supplier):
     Omega retains calculated candidates while their Kaspi prices/region need checking.
     """
     name = str(getattr(supplier, 'name', '') or '').strip().casefold()
-    return 'current'
+    # An existing supplier's earlier profitable findings remain visible for
+    # review. Unknown suppliers retain the conservative current-only scope.
+    return 'all' if name in {'omega', 'zakazauto — костанай', 'фаетон'} else 'current'
 
 
 def filtered_rows(request, preferences, filters, paginate=False):
