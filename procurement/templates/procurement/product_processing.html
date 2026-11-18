@@ -3,6 +3,11 @@
 {% block content %}
 <header><div><h1>Обработка товаров</h1><p class="muted">Подготавливаем фотографии и применимость запчастей. В первую очередь — товары из раздела «Выгодные к закупке».</p></div></header>
 <section class="panel">
+<h2>Проверка цен Kaspi{% if selected_supplier %} · {{ selected_supplier.name }}{% endif %}</h2>
+<p>Ожидают проверки: <strong>{{ kaspi_statuses.pending }}</strong> · Проверяются: <strong>{{ kaspi_statuses.checking }}</strong> · Источник недоступен: <strong>{{ kaspi_statuses.blocked }}</strong></p>
+<a href="{% url 'procurement:price_updates' %}">Прайс-листы и очередь Kaspi</a>
+</section>
+<section class="panel">
 <h2>Что и в каком порядке обрабатываем</h2>
 <ol style="line-height:1.8;padding-left:22px">
 <li><strong>Сначала выгодные товары в наличии.</strong> Самые прибыльные — раньше остальных. Затем, при необходимости, остальные товары.</li>
