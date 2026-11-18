@@ -35,6 +35,7 @@ from .analysis import evaluate, MIN_BEST_PROFIT, PACKAGING_COST
 from .permissions import workspace_role
 from .forms import PreferencesForm, UploadForm, DraftForm, SelectionFilterForm, PurchaseConfirmationForm, PurchaseEditForm, PurchaseLineFormSet
 from .importing import import_offers, import_demand, import_enrichment, import_competitors, import_matches, import_card_searches
+from .apify_import import import_apify_kaspi
 from .models import Membership, Supplier, Offer, Selection, Preferences, Draft, Activity, Favorite, VehicleFitment, PurchaseOrder, PurchaseDocument, PriceUpdate
 
 
@@ -587,7 +588,7 @@ def upload(request, kaspi_only=False):
     form = UploadForm(request.POST or None, request.FILES or None,
                       initial={'supplier': supplier.name if supplier else ''})
     if kaspi_only:
-        allowed_kinds = {'demand', 'competitors', 'matches', 'card_searches'}
+        allowed_kinds = {'demand', 'competitors', 'matches', 'card_searches', 'apify_kaspi'}
         form.fields['kind'].choices = [
             item for item in form.fields['kind'].choices if item[0] in allowed_kinds
         ]
@@ -596,7 +597,7 @@ def upload(request, kaspi_only=False):
             form.add_error('checked_on', 'Дата не может быть в будущем.')
         else:
             try:
-                handler = {'demand': import_demand, 'catalog': import_offers, 'enrichment': import_enrichment, 'catalogue_fitments': import_catalogue_fitments, 'competitors': import_competitors, 'matches': import_matches, 'card_searches': import_card_searches}[form.cleaned_data['kind']]
+                handler = {'demand': import_demand, 'catalog': import_offers, 'enrichment': import_enrichment, 'catalogue_fitments': import_catalogue_fitments, 'competitors': import_competitors, 'apify_kaspi': import_apify_kaspi, 'matches': import_matches, 'card_searches': import_card_searches}[form.cleaned_data['kind']]
                 count = handler(form.cleaned_data['file'], form.cleaned_data['supplier'], form.cleaned_data['checked_on'], request.user)
             except Exception as error:
                 # Import transaction rolls back completely; never expose file contents or credentials.
