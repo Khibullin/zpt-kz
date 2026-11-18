@@ -1,0 +1,13 @@
+<details class="rule-card" id="pricelist-history" {% if price_form.is_bound %}open{% endif %}>
+<summary><strong>История загрузок прайс-листов · {{ price_batches.paginator.count }}</strong></summary>
+<div class="tablewrap" style="margin-top:14px"><table><thead><tr><th>Поставщик / файл</th><th>Дата</th><th>Обработка</th><th>Результат</th></tr></thead><tbody>
+{% for batch in price_batches %}<tr {% if batch.status != 'done' %}data-price-update="{% url 'procurement:price_update_advance' batch.pk %}"{% endif %}>
+<td>{{ batch.supplier.name }}<small>{{ batch.filename }}</small><small>{% if batch.full_catalog %}Полный прайс-лист{% else %}Частичное обновление{% endif %}</small></td>
+<td>{{ batch.checked_on|date:'d.m.Y' }}</td>
+<td data-progress><span data-progress-label>{{ batch.get_status_display }} · {{ batch.cursor }} / {{ batch.row_count }}</span><div style="height:8px;width:180px;max-width:100%;background:#e3eaf0;border-radius:8px;margin-top:7px"><div data-progress-bar style="height:100%;background:#00a994;width:{% widthratio batch.cursor batch.row_count 100 %}%"></div></div><small data-progress-percent>{% widthratio batch.cursor batch.row_count 100 %}% обработано</small></td>
+<td><span data-summary>Новых: {{ batch.summary.new|default:0 }} · обновлено: {{ batch.summary.changed|default:0 }} · без изменений: {{ batch.summary.unchanged|default:0 }} · снято с наличия: {{ batch.summary.unavailable|default:0 }} · очередь Kaspi: {{ batch.summary.queued|default:0 }}</span>
+{% if batch.source_conflicts %}<details><summary>Конфликты прайса</summary>{% for item in batch.source_conflicts %}<p>{{ item.brand }} {{ item.article }} — {{ item.name }}</p>{% endfor %}</details>{% endif %}</td></tr>
+{% empty %}<tr><td colspan="4">Прайс-листы ещё не загружены.</td></tr>{% endfor %}</tbody></table></div>
+<button type="button" data-price-resume hidden>Продолжить обработку</button>
+{% if price_batches.paginator.num_pages > 1 %}<nav class="actions" aria-label="История прайс-листов">{% if price_batches.has_previous %}<a href="{% querystring price_page=price_batches.previous_page_number %}#pricelist-history">← Предыдущие</a>{% endif %}<span>{{ price_batches.number }} / {{ price_batches.paginator.num_pages }}</span>{% if price_batches.has_next %}<a href="{% querystring price_page=price_batches.next_page_number %}#pricelist-history">Следующие →</a>{% endif %}</nav>{% endif %}
+</details>

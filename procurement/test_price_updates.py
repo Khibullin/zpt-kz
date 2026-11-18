@@ -163,7 +163,7 @@ class PriceUpdateTests(TestCase):
         url = reverse('procurement:price_updates')
         self.assertEqual(self.client.get(url).status_code, 302)
         self.client.force_login(self.user)
-        self.assertContains(self.client.get(url), 'Обновление прайс-листов')
+        self.assertRedirects(self.client.get(url), reverse('procurement:selection_rules'))
         self.assertEqual(self.client.get(reverse('procurement:price_update_advance', args=[1])).status_code, 405)
         membership = Membership.objects.get(user=self.user); membership.role='user'; membership.save()
         self.assertEqual(self.client.get(url).status_code, 403)

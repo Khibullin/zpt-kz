@@ -25,7 +25,7 @@ from django.db.models import Q, Prefetch, prefetch_related_objects, Count, F
 from django.http import HttpResponse, FileResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_GET
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 from django.core.paginator import Paginator
 from django.urls import reverse
@@ -649,10 +649,12 @@ def purchase_snapshot(rows):
 
 @access()
 def basket(request):
+    from .purchase_list_excel import offer_unit, PurchaseListExportForm, purchaser_name, organization_details
     rows = list(Selection.objects.filter(user=request.user).select_related('offer__supplier').order_by('offer__supplier__name', 'pk'))
     grouped = {}
     for row in rows:
         row.subtotal = row.quantity * row.offer.cost
+        row.unit = offer_unit(row.offer)
         group = grouped.setdefault(row.offer.supplier_id, {'supplier': row.offer.supplier, 'rows': [], 'total': Decimal(0)})
         group['rows'].append(row)
         group['total'] += row.subtotal
@@ -665,7 +667,24 @@ def basket(request):
     from inventory.purchasing import order_summary
     for order in orders:order.workflow=order_summary(order)
     return render(request, 'procurement/basket.html', context(request, selections=rows, supplier_groups=list(grouped.values()),
-        purchases=orders, budget=sum((r.subtotal for r in rows), Decimal(0))))
+        purchases=orders, budget=sum((r.subtotal for r in rows), Decimal(0)),
+        export_form=PurchaseListExportForm(initial={'buyer': purchaser_name(request.user)}),
+        buyer_details=organization_details()))
+
+
+@access()
+@require_GET
+def basket_excel(request):
+    from .purchase_list_excel import PurchaseListExportForm, export_purchase_list, purchaser_name
+    form = PurchaseListExportForm(request.GET)
+    if not form.is_valid():
+        return HttpResponse('Укажите имя закупщика длиной до 200 символов.', status=400)
+    rows = Selection.objects.filter(user=request.user).select_related('offer__supplier').order_by('offer__supplier__name', 'pk')
+    buyer = form.cleaned_data['buyer'] or purchaser_name(request.user)
+    output = export_purchase_list(rows, buyer)
+    return FileResponse(output, as_attachment=True,
+        filename=f'Spisok_zakupki_ZPT_{timezone.localdate():%Y-%m-%d}.xlsx',
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
 
 @access()

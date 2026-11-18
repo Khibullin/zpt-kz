@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib import messages
+from django.core.paginator import Paginator
 from django.db import transaction
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -53,10 +54,44 @@ class PriceUpdateForm(forms.Form):
         return data
 
 
+class SupplierPriceUploadForm(forms.Form):
+    supplier = forms.ModelChoiceField(label='Поставщик', queryset=Supplier.objects.order_by('name'))
+    checked_on = forms.DateField(label='Дата прайса', initial=timezone.localdate,
+        widget=forms.DateInput(attrs={'type': 'date'}, format='%Y-%m-%d'))
+    file = forms.FileField(label='Прайс-лист XLSX / CSV',
+        widget=forms.ClearableFileInput(attrs={'accept': '.xlsx,.csv,.tsv'}))
+    full_catalog = forms.BooleanField(label='Полный прайс-лист поставщика', required=False,
+        help_text='С галочкой — товары, которых нет в полном файле, будут сняты с наличия. Без галочки — обновятся только товары из файла.')
+
+    def clean_file(self):
+        file = self.cleaned_data['file']
+        if file.size > 30 * 1024 * 1024:
+            raise forms.ValidationError('Файл превышает 30 МБ.')
+        if not file.name.lower().endswith(('.xlsx', '.csv', '.tsv')):
+            raise forms.ValidationError('Нужен XLSX или CSV / TSV.')
+        return file
+
+    def clean_checked_on(self):
+        value = self.cleaned_data['checked_on']
+        if value > timezone.localdate():
+            raise forms.ValidationError('Дата не может быть в будущем.')
+        return value
+
+
+def price_history_context(request):
+    batches = Paginator(PriceUpdate.objects.select_related('supplier').defer('rows'), 20).get_page(request.GET.get('price_page'))
+    for batch in batches:
+        batch.source_conflicts = batch.summary.get('conflict_items', [])
+    return {'price_batches': batches}
+
+
 @access('sales', 'admin')
 def updates(request):
-    form = PriceUpdateForm(request.POST or None, request.FILES or None)
-    if request.method == 'POST' and form.is_valid():
+    """Compatibility for old links/forms; the upload page now lives in preparation."""
+    if request.method != 'POST':
+        return redirect('procurement:selection_rules')
+    form = PriceUpdateForm(request.POST, request.FILES)
+    if form.is_valid():
         try:
             # Validate every supplied file before committing any staged run.
             with transaction.atomic():
@@ -68,15 +103,10 @@ def updates(request):
         except ValueError as error:
             form.add_error(None, str(error))
         else:
-            messages.success(request, 'Файлы проверены. Обновление каталога запущено на этой странице.')
-            return redirect('procurement:price_updates')
-    batches = PriceUpdate.objects.select_related('supplier').defer('rows')[:30]
-    for batch in batches:
-        batch.source_conflicts = batch.summary.get('conflict_items', [])
-    pending = KaspiReviewTask.objects.filter(status__in=['pending', 'checking', 'blocked']).count()
-    return render(request, 'procurement/price_updates.html', context(request,
-        form=form, batches=batches, pending=pending,
-        review_tasks=KaspiReviewTask.objects.filter(status__in=['pending', 'checking', 'blocked']).select_related('offer__supplier').order_by('priority', 'pk')[:50]))
+            messages.success(request, 'Файлы проверены. Ход обработки — в подготовке товаров к закупке.')
+    if form.errors:
+        messages.error(request, 'Файл не принят: ' + '; '.join(str(error) for errors in form.errors.values() for error in errors))
+    return redirect('procurement:selection_rules')
 
 
 @access('sales', 'admin')

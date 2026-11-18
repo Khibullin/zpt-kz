@@ -1,15 +1,37 @@
-{% extends 'procurement/base.html' %}{% block content %}
-<header><div><h1>Список закупки</h1><div class="muted">Выберите товары → создайте заказ в ZPT.KZ → выгрузите Excel</div></div></header>
-{% if selections %}<div class="basket-total" role="status"><strong>Итого к закупке: {{ budget|floatformat:2 }} ₸</strong><span>Позиций: {{ selections|length }}</span></div><p>Расчётная стоимость по прайсу. Окончательные цены и наличие подтвердит поставщик.</p>{% endif %}
-{% for group in supplier_groups %}<section class="panel">
-<h2><a href="{% url 'procurement:supplier_detail' group.supplier.pk %}">{{ group.supplier.name }}</a> · {{ group.total|floatformat:0 }} ₸</h2>
-{% include 'procurement/supplier_terms.html' with terms=group.terms %}<p>Создайте закупочный заказ в нашей системе. Он получит свой номер, а состав можно будет выгрузить в Excel.</p>
-<div class="actions" style="margin:16px 0"><a class="button primary" href="{% url 'procurement:purchase_confirm' group.supplier.pk %}">Создать закупочный заказ</a></div>
-<div class="tablewrap"><table><thead><tr><th>Товар</th><th>Количество</th><th>Закупка, ₸</th><th>Сумма, ₸</th><th>Действия</th></tr></thead><tbody>
-{% for item in group.rows %}<tr><td><a href="{% url 'procurement:detail' item.offer.pk %}">{{ item.offer.name }}</a><small>{{ item.offer.brand }} · {{ item.offer.article }}</small><small>У {{ group.supplier.name }} ранее заказано: {{ item.purchase_history.ordered }} · принято: {{ item.purchase_history.received }} · ожидается: {{ item.purchase_history.expected }} · остаток PP2: {{ item.purchase_history.pp2|default_if_none:"Не установлен" }}{% if item.purchase_history.last_date %} · последняя приёмка {{ item.purchase_history.last_date }}{% endif %}</small></td>
-<td><form method="post" action="{% url 'procurement:select' item.offer.pk %}">{% csrf_token %}<input name="quantity" type="number" min="{{ item.offer.min_order }}" max="100000" value="{{ item.quantity }}" style="width:90px" required><button>Изменить</button></form></td>
-<td>{{ item.offer.cost }}</td><td>{{ item.subtotal }}</td><td><form method="post" action="{% url 'procurement:remove' item.pk %}" style="margin-top:8px">{% csrf_token %}<button>Убрать</button></form></td></tr>{% endfor %}
-</tbody><tfoot><tr><th colspan="3" scope="row">Итого · {{ group.supplier.name }}</th><td class="supplier-total"><strong>{{ group.total|floatformat:2 }} ₸</strong></td><td></td></tr></tfoot></table></div></section>{% empty %}<section class="panel"><p>Список закупки пуст.</p><a class="button primary" href="{% url 'procurement:dashboard' %}">Подобрать товары</a></section>{% endfor %}
+{% extends 'procurement/base.html' %}{% load l10n %}
+{% block title %}Список закупки · ZPT.KZ{% endblock %}
+{% block content %}
+<header><h1>Список закупки</h1></header>
+<section class="panel purchase-document">
+<form method="get" action="{% url 'procurement:basket_excel' %}" class="purchase-export">
+<label>Закупщик {{ export_form.buyer }}</label>
+<button class="primary" {% if not selections %}disabled{% endif %}>Скачать Excel</button>
+</form>
+<details class="buyer-details"><summary>Наши реквизиты для Excel</summary>
+<p><strong>{{ buyer_details.name }}</strong> · БИН {{ buyer_details.bin }}<br>{{ buyer_details.address }}<br>{{ buyer_details.phone }} · {{ buyer_details.email }} · {{ buyer_details.site }}</p></details>
+</section>
+{% if selections %}<div class="basket-total" role="status"><strong>Итого к закупке: {{ budget|floatformat:2 }} ₸</strong><span>Позиций: {{ selections|length }}</span></div>{% endif %}
+{% for group in supplier_groups %}
+<section class="panel supplier-selection">
+<h2>{{ group.supplier.name }}</h2>
+<div class="tablewrap"><table><thead><tr><th>Артикул</th><th>Бренд</th><th>Наименование</th><th>Ед.</th><th>Количество</th><th>Цена, ₸</th><th>Сумма, ₸</th><th>Действия</th></tr></thead><tbody>
+{% for item in group.rows %}<tr><td>{{ item.offer.article }}</td><td>{{ item.offer.brand }}</td>
+<td class="product"><a href="{% url 'procurement:detail' item.offer.pk %}">{{ item.offer.name }}</a>
+<details><summary>История закупок</summary><small>Ранее заказано: {{ item.purchase_history.ordered }} · принято: {{ item.purchase_history.received }} · ожидается: {{ item.purchase_history.expected }} · остаток PP2: {{ item.purchase_history.pp2|default_if_none:'Не установлен' }}</small></details></td>
+<td>{{ item.unit }}</td><td><form class="quantity-form" method="post" action="{% url 'procurement:select' item.offer.pk %}">{% csrf_token %}<input name="quantity" type="number" min="{{ item.offer.min_order|unlocalize }}" max="100000" value="{{ item.quantity|unlocalize }}" required aria-label="Количество {{ item.offer.brand }} {{ item.offer.article }}"><button>Изменить</button></form></td>
+<td class="money">{{ item.offer.cost|floatformat:2 }}</td><td class="money">{{ item.subtotal|floatformat:2 }}</td><td><form method="post" action="{% url 'procurement:remove' item.pk %}">{% csrf_token %}<button>Убрать</button></form></td></tr>{% endfor %}
+</tbody><tfoot><tr><th colspan="6" scope="row">Итого · {{ group.supplier.name }}</th><td class="money"><strong>{{ group.total|floatformat:2 }} ₸</strong></td><td></td></tr></tfoot></table></div>
+<details class="supplier-extra"><summary>Условия поставщика и оформление заказа</summary>
+{% include 'procurement/supplier_terms.html' with terms=group.terms %}
+<a class="button" href="{% url 'procurement:purchase_confirm' group.supplier.pk %}">Создать закупочный заказ</a>
+</details>
+</section>
+{% empty %}<section class="panel"><p>Список закупки пуст.</p><a class="button primary" href="{{ best_url }}">Выбрать товары</a></section>{% endfor %}
 {% if selections %}<section class="panel basket-bottom-total"><strong>Общая сумма закупки: {{ budget|floatformat:2 }} ₸</strong><span>Позиций: {{ selections|length }}</span></section>{% endif %}
-<style>.basket-total{position:sticky;top:0;z-index:10;background:#eaf8f4;border:1px solid #b5dfd3;border-radius:8px;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:20px}.basket-total span,.basket-bottom-total span{font-size:14px;color:#62748a}.basket-bottom-total{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:20px}tfoot th,tfoot td{background:#eaf8f4;border-top:2px solid #b5dfd3;font-size:17px}.supplier-total{white-space:nowrap}@media(max-width:600px){.basket-total,.basket-bottom-total{align-items:flex-start;flex-direction:column;font-size:18px}}</style>
-<section class="panel"><h2>Закупочные заказы ZPT.KZ</h2><p><a href="{% url 'inventory:purchases' %}">Закупки в учёте</a></p><div class="tablewrap"><table><thead><tr><th>Дата</th><th>Наш номер</th><th>Поставщик</th><th>Статус</th><th>Сумма, ₸</th><th>Excel</th></tr></thead><tbody>{% for order in purchases %}<tr><td>{{ order.created_at|date:'d.m.Y H:i' }}</td><td><a href="{% url 'procurement:purchase_detail' order.pk %}">{{ order.display_title }}</a><br>{{ order.destination }} · {{ order.expected_date|default_if_none:"Дата не указана" }}<br>{{ order.workflow.delivery_state }} · {{ order.workflow.payment_state }}<br>Заказано: {{ order.workflow.ordered }} · принято: {{ order.workflow.received }} · ожидается: {{ order.workflow.remaining }}</td><td>{{ order.supplier.name }}</td><td>{{ order.get_status_display }}</td><td>{{ order.total }}</td><td><a class="button" href="{% url 'procurement:purchase_excel' order.pk %}">Выгрузить Excel</a></td></tr>{% empty %}<tr><td colspan="6">Закупочных заказов пока нет.</td></tr>{% endfor %}</tbody></table></div></section>{% endblock %}
+<details class="purchase-order-history"><summary>Созданные закупочные заказы</summary>
+<section class="panel"><h2>Закупочные заказы ZPT.KZ</h2><p><a href="{% url 'inventory:purchases' %}">Закупки в учёте</a></p><div class="tablewrap"><table><thead><tr><th>Дата</th><th>Наш номер</th><th>Поставщик</th><th>Статус</th><th>Сумма, ₸</th><th>Excel</th></tr></thead><tbody>{% for order in purchases %}<tr><td>{{ order.created_at|date:'d.m.Y H:i' }}</td><td><a href="{% url 'procurement:purchase_detail' order.pk %}">{{ order.display_title }}</a><br>{{ order.destination }} · {{ order.expected_date|default_if_none:"Дата не указана" }}<br>{{ order.workflow.delivery_state }} · {{ order.workflow.payment_state }}<br>Заказано: {{ order.workflow.ordered }} · принято: {{ order.workflow.received }} · ожидается: {{ order.workflow.remaining }}</td><td>{{ order.supplier.name }}</td><td>{{ order.get_status_display }}</td><td>{{ order.total }}</td><td><a class="button" href="{% url 'procurement:purchase_excel' order.pk %}">Выгрузить Excel</a></td></tr>{% empty %}<tr><td colspan="6">Закупочных заказов пока нет.</td></tr>{% endfor %}</tbody></table></div></section>
+</details>
+<style>
+.purchase-export{display:flex;align-items:end;gap:12px;flex-wrap:wrap}.purchase-export label{display:flex;flex-direction:column;gap:6px;min-width:240px}.purchase-export input{width:320px}.buyer-details{margin-top:12px;color:#62748a;font-size:13px}.buyer-details p{margin-bottom:0}.basket-total,.basket-bottom-total{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:19px}.basket-total{padding:14px 18px;background:#eaf8f4;border:1px solid #b5dfd3;border-radius:8px;margin-bottom:16px}.basket-total span,.basket-bottom-total span{font-size:14px;color:#62748a}.quantity-form{display:flex;align-items:center;gap:6px}.quantity-form input{width:85px}.quantity-form button,.supplier-selection td button{padding:8px}.supplier-selection h2{margin-top:0}.supplier-selection th,.supplier-selection td{padding:10px}.supplier-selection details{font-size:12px;color:#62748a}.supplier-selection summary{cursor:pointer}.supplier-extra{margin-top:14px}.supplier-extra>summary{margin-bottom:12px}tfoot th,tfoot td{background:#eaf8f4}.purchase-order-history>summary{cursor:pointer;padding:12px 0}.purchase-order-history>.panel{margin-top:12px}button:disabled{opacity:.55;cursor:default}@media(max-width:600px){.basket-total,.basket-bottom-total{align-items:start;flex-direction:column;font-size:17px}.purchase-export label,.purchase-export input{width:100%;min-width:0}}
+</style>
+{% endblock %}

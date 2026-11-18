@@ -135,8 +135,14 @@
 <div class="rule-header"><h1>Подготовка товаров к закупке</h1><p>Обновление прайса → предварительный отбор → Excel → JSON для ручной загрузки в Apify</p></div>
 <section class="rule-card step-card" aria-labelledby="upload-step-title">
   <div class="step-heading"><span class="step-number">1</span><div><h2 id="upload-step-title">Обновление прайс-листа</h2><p class="muted">Загрузите свежий прайс поставщика перед подготовкой товаров</p></div></div>
-  <div class="step-line"><span>Прайс-лист загружается через существующий защищённый загрузчик ZPT.KZ.</span><a class="button primary" href="{% url 'procurement:upload' %}">Загрузить прайс-лист</a><a class="button" href="{% url 'procurement:price_updates' %}">История обновлений</a></div>
+  <form method="post" enctype="multipart/form-data" class="price-upload-form">{% csrf_token %}<input type="hidden" name="action" value="upload_price">
+  {{ price_form.non_field_errors }}
+  <div class="rule-form-grid">{% for field in price_form %}{% if field.name != 'full_catalog' %}<label class="rule-field">{{ field.label }}{{ field }}{{ field.errors }}</label>{% endif %}{% endfor %}</div>
+  <p><label>{{ price_form.full_catalog }} {{ price_form.full_catalog.label }}</label><small style="display:block;margin-top:6px">{{ price_form.full_catalog.help_text }}</small>{{ price_form.full_catalog.errors }}</p>
+  <button class="primary" type="submit">Загрузить прайс-лист</button>
+  </form>
 </section>
+{% include 'procurement/price_update_history.html' %}
 <section class="rule-card" aria-labelledby="rule-title">
   <div class="rule-card-head"><span class="step-number">2</span><div><h2 id="rule-title">Предварительный отбор</h2><p>Фильтр по прайс-листам поставщика — до проверки цен Kaspi</p></div></div>
   <form method="post" id="selection-rule-form">{% csrf_token %}
@@ -194,4 +200,5 @@
   </div>
 </section>
 
+{% load static %}<script src="{% static 'procurement/price_updates.js' %}" defer></script>
 {% endblock %}
