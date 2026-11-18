@@ -1,4 +1,4 @@
-{% extends 'procurement/base.html' %}{% block content %}
+{% extends 'procurement/base.html' %}{% load l10n %}{% block content %}
 <div class="compact-dashboard">
 <header class="compact-header">
 <h1>{% if mode == 'best' %}Выгодные к закупке{% else %}Оптовые закупки{% endif %}</h1>
@@ -10,7 +10,7 @@
 <section class="catalog-filters{% if mode == 'best' or mode == 'stale_prices' or mode == 'kaspi_prices' %} best-filters{% endif %}" aria-label="Фильтры товаров">
 <form method="get" class="selection-filters">
 {% if mode != 'best' and mode != 'stale_prices' and mode != 'kaspi_prices' and request.GET.kaspi_presence %}<input type="hidden" name="kaspi_presence" value="{{ request.GET.kaspi_presence }}">{% endif %}
-<input type="hidden" name="mode" value="{{ mode }}"><input type="hidden" name="supplier" value="{{ selected_supplier.pk|default:'' }}">
+<input type="hidden" name="mode" value="{{ mode }}"><input type="hidden" name="supplier" value="{{ selected_supplier.pk|default:''|unlocalize }}">
 {{ filter_form.non_field_errors }}
 
 <div class="short-search"><label class="filter-field">{{ filter_form.q.label }}{{ filter_form.q }}{{ filter_form.q.errors }}</label><button>Найти</button></div>
@@ -94,7 +94,7 @@
 {% endif %}<td class="row-actions">
 <button type="button" class="quick-view" data-url="{% url 'procurement:detail' row.offer.pk %}?compact=1" aria-haspopup="dialog">Просмотр</button>
 {% if mode == 'best' %}
-{% if row.in_basket %}<small data-in-basket>В списке закупки</small>{% elif row.historical and not row.omega_review %}<small class="preliminary-status">История — не для новой закупки</small>{% else %}<label class="purchase-check"><input type="checkbox" name="offer_ids" value="{{ row.offer.pk }}" form="bulk-selection" aria-label="В список закупки: {{ row.offer.brand }} {{ row.offer.article }}"> Выбрать</label>{% endif %}
+{% if row.in_basket %}<small data-in-basket>В списке закупки</small>{% elif row.historical and not row.omega_review %}<small class="preliminary-status">История — не для новой закупки</small>{% else %}<label class="purchase-check"><input type="checkbox" name="offer_ids" value="{{ row.offer.pk|unlocalize }}" form="bulk-selection" aria-label="В список закупки: {{ row.offer.brand }} {{ row.offer.article }}"> Выбрать</label>{% endif %}
 {% elif mode == 'kaspi_prices' %}<small class="preliminary-status">Только для ознакомления — нужна повторная проверка</small>{% elif mode == 'stale_prices' %}<small class="preliminary-status">Сначала обновите цену Kaspi</small>{% elif row.omega_review %}<small class="preliminary-status">Предварительно: требуется проверка Kaspi по Казахстану</small>{% elif row.historical %}<small class="preliminary-status">История — не для новой закупки</small>{% else %}<form method="post" action="{% url 'procurement:select' row.offer.pk %}" data-selection-form>{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button class="primary">+ В закупку</button><small data-selection-status role="status" aria-live="polite"></small></form>{% endif %}
 </td>
 </tr>{% empty %}<tr>

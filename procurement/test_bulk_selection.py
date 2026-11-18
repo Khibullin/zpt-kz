@@ -3,8 +3,10 @@ from decimal import Decimal
 from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 from django.urls import reverse
+from django.utils import timezone
+from html.parser import HTMLParser
 
-from .models import Membership, Offer, Selection, Supplier
+from .models import Membership, Offer, Preferences, Selection, Supplier
 
 
 class BulkSelectionTests(TestCase):
@@ -69,3 +71,25 @@ class BulkSelectionTests(TestCase):
         self.assertNotContains(response, 'compact-tabs"')
         self.assertNotContains(response, 'Не удаётся получить цены Kaspi')
         self.assertNotContains(response, 'best-selection-rules')
+
+    def test_rendered_large_offer_id_can_be_submitted_from_checkbox(self):
+        Preferences.objects.create(user=self.user, commission=Decimal("12.5"), expenses=Decimal("250"))
+        offer = Offer.objects.create(pk=11776, supplier=self.supplier, brand='WXQP',
+            article='55364', name='Подушка двигателя', cost=Decimal('2247'),
+            stock='4', kaspi_price=Decimal('5490'), match_verified=True,
+            kaspi_url='https://kaspi.kz/shop/p/wxqp-55364-179046228/',
+            supplier_checked_on=timezone.localdate(), kaspi_price_checked_on=timezone.localdate())
+        response = self.client.get(reverse('procurement:dashboard'), {
+            'supplier': self.supplier.pk, 'mode': 'best', 'q': '55364'})
+        class Checkboxes(HTMLParser):
+            ids = []
+            def handle_starttag(self, tag, attrs):
+                attrs = dict(attrs)
+                if tag == 'input' and attrs.get('name') == 'offer_ids':
+                    self.ids.append(attrs['value'])
+        parser = Checkboxes()
+        parser.feed(response.content.decode())
+        self.assertEqual(parser.ids, ['11776'])
+        response = self.client.post(self.url, {'offer_ids': parser.ids}, HTTP_ACCEPT='application/json')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Selection.objects.get(user=self.user).offer_id, offer.pk)
