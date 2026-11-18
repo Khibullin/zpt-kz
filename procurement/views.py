@@ -100,7 +100,7 @@ def preserved_best_scope(supplier):
     Omega retains calculated candidates while their Kaspi prices/region need checking.
     """
     name = str(getattr(supplier, 'name', '') or '').strip().casefold()
-    return 'all' if name.startswith(('zakazauto', 'фаетон', 'omega')) else 'current'
+    return 'current'
 
 
 def filtered_rows(request, preferences, filters, paginate=False):
@@ -196,9 +196,14 @@ def filtered_rows(request, preferences, filters, paginate=False):
     rows = []
     latest_batches = {}
     if mode == 'best':
-        for supplier_id, batch_id, batch_created in PriceUpdate.objects.filter(status='done').order_by('-pk').values_list('supplier_id', 'pk', 'created_at'):
-            latest_batches.setdefault(supplier_id, (batch_id, batch_created))
+        for supplier_id, batch_id, batch_date in PriceUpdate.objects.filter(status='done').order_by('-pk').values_list('supplier_id', 'pk', 'checked_on'):
+            latest_batches.setdefault(supplier_id, (batch_id, batch_date))
     for offer in query:
+        if mode == 'best':
+            latest_batch = latest_batches.get(offer.supplier_id)
+            # The buying list is limited to the last completed supplier price list.
+            if latest_batch and offer.supplier_checked_on != latest_batch[1]:
+                continue
         row = {'offer': offer, 'favorite': offer.pk in favorites, **evaluate(offer, preferences, today=today)}
         row.update(kaspi_status(offer, preferences, today))
         row['kaspi_price'] = offer.kaspi_price
@@ -238,9 +243,9 @@ def filtered_rows(request, preferences, filters, paginate=False):
                     and row['profit'] >= offer.cost * MIN_BEST_ROI / Decimal('100')
                 )
                 row['omega_review'] = False
-            if not is_current and record is None and not row['omega_review']:
+            if not is_current and not row['omega_review']:
                 continue
-            row['historical'] = not is_current
+            row['historical'] = False
             # A newly imported Firsthand quote is a fresh financial lead, not
             # a confirmed product match. Keep that distinction separate from
             # the tab's "new" and "latest data" classifications.
@@ -252,7 +257,7 @@ def filtered_rows(request, preferences, filters, paginate=False):
             row['is_new'] = bool(
                 (is_current and latest and (
                     (record and not record.initial_import and record.first_batch_id == latest[0]) or
-                    (record is None and offer.created_at >= latest[1])
+                    (record is None and offer.supplier_checked_on == latest[1])
                 )) or row['firsthand_recent']
             )
             row['processed_at'] = record.processed_at if record else None
