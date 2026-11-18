@@ -587,8 +587,10 @@ def upload(request, kaspi_only=False):
     supplier = request_supplier(request)
     form = UploadForm(request.POST or None, request.FILES or None,
                       initial={'supplier': supplier.name if supplier else ''})
+    if request.method == 'POST' and request.POST.get('kind') == 'apify_kaspi_all':
+        form.fields['supplier'].required = False
     if kaspi_only:
-        allowed_kinds = {'demand', 'competitors', 'matches', 'card_searches', 'apify_kaspi'}
+        allowed_kinds = {'demand', 'competitors', 'matches', 'card_searches', 'apify_kaspi', 'apify_kaspi_all'}
         form.fields['kind'].choices = [
             item for item in form.fields['kind'].choices if item[0] in allowed_kinds
         ]
@@ -597,13 +599,15 @@ def upload(request, kaspi_only=False):
             form.add_error('checked_on', 'Дата не может быть в будущем.')
         else:
             try:
-                handler = {'demand': import_demand, 'catalog': import_offers, 'enrichment': import_enrichment, 'catalogue_fitments': import_catalogue_fitments, 'competitors': import_competitors, 'apify_kaspi': import_apify_kaspi, 'matches': import_matches, 'card_searches': import_card_searches}[form.cleaned_data['kind']]
+                handler = {'demand': import_demand, 'catalog': import_offers, 'enrichment': import_enrichment, 'catalogue_fitments': import_catalogue_fitments, 'competitors': import_competitors, 'apify_kaspi': import_apify_kaspi, 'apify_kaspi_all': lambda file, supplier, date, user: import_apify_kaspi(file, 'Все поставщики', date, user), 'matches': import_matches, 'card_searches': import_card_searches}[form.cleaned_data['kind']]
                 count = handler(form.cleaned_data['file'], form.cleaned_data['supplier'], form.cleaned_data['checked_on'], request.user)
             except Exception as error:
                 # Import transaction rolls back completely; never expose file contents or credentials.
                 form.add_error(None, str(error) if isinstance(error, ValueError) else 'Файл не прочитан. Проверьте формат и структуру.')
             else:
                 messages.success(request, f'Загружено товаров: {count}.')
+                if form.cleaned_data['kind'] == 'apify_kaspi_all':
+                    return redirect('procurement:dashboard')
                 imported_supplier = Supplier.objects.get(name=form.cleaned_data['supplier'].strip())
                 request.session['procurement_supplier'] = imported_supplier.pk
                 return redirect(reverse('procurement:dashboard') + f'?supplier={imported_supplier.pk}')
