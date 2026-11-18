@@ -11,7 +11,7 @@ from urllib.parse import urlsplit
 
 from PIL import Image, ImageOps, UnidentifiedImageError
 from django.contrib.auth import get_user_model
-from django.db import connection, transaction
+from django.db import DatabaseError, connection, transaction
 from django.db.models import Q
 from django.utils import timezone
 
@@ -271,8 +271,15 @@ def process_purchased_cards(limit=50, fetch_photos=False, throttle=False):
         return count
     finally:
         if locked:
-            with connection.cursor() as cursor:
-                cursor.execute('SELECT pg_advisory_unlock(88641233)')
+            try:
+                with connection.cursor() as cursor:
+                    cursor.execute('SELECT pg_advisory_unlock(88641233)')
+            except DatabaseError:
+                # PostgreSQL releases session advisory locks when a connection
+                # drops. Preserve the original worker error and discard the
+                # broken connection instead of masking it during cleanup.
+                logger.warning('Purchased-card worker lost its database connection during unlock')
+                connection.close()
 
 
 def competitor_data(offer, days=7):
