@@ -601,15 +601,20 @@ def upload(request, kaspi_only=False):
     supplier = request_supplier(request)
     form = UploadForm(request.POST or None, request.FILES or None,
                       initial={'supplier': supplier.name if supplier else ''})
-    if request.method == 'POST' and request.POST.get('kind') == 'apify_kaspi_all':
-        form.fields['supplier'].required = False
+    # Deprecated all-supplier imports must not refill the retired buying data.
+    form.fields['kind'].choices = [
+        item for item in form.fields['kind'].choices if item[0] != 'apify_kaspi_all'
+    ]
+    form.fields['supplier'].initial = 'Omega'
     if kaspi_only:
         allowed_kinds = {'demand', 'competitors', 'matches', 'card_searches', 'apify_kaspi', 'apify_kaspi_all'}
         form.fields['kind'].choices = [
             item for item in form.fields['kind'].choices if item[0] in allowed_kinds
         ]
     if request.method == 'POST' and form.is_valid():
-        if form.cleaned_data['checked_on'] > timezone.localdate():
+        if form.cleaned_data['supplier'].strip() != 'Omega':
+            form.add_error('supplier', 'Для новых закупочных данных разрешён только поставщик Omega.')
+        elif form.cleaned_data['checked_on'] > timezone.localdate():
             form.add_error('checked_on', 'Дата не может быть в будущем.')
         else:
             try:
