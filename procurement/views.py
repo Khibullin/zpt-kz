@@ -456,8 +456,8 @@ def dashboard(request):
     if supplier:
         supplier_stats = {'loaded': Offer.objects.filter(supplier=supplier).count()}
     if valid and request.GET.get('mode') == 'best' and request.GET.get('download') != 'csv':
-        from .buying_visible import visible_buying_rows
-        rows = visible_buying_rows(request, preferences, form.cleaned_data)
+        from .permanent_buying_visible import visible_permanent_buying_rows
+        rows = visible_permanent_buying_rows(request, preferences, form.cleaned_data)
     else:
         rows = filtered_rows(request, preferences, form.cleaned_data, paginate=request.GET.get('download') != 'csv') if valid else []
     rows_finished = perf_counter()
