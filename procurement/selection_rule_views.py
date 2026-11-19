@@ -103,23 +103,31 @@ def selection_rules(request):
         'classification_mode': rule.classification_mode,
     }
     if request.method == 'POST' and request.POST.get('action') == 'import_apify':
-        from .apify_buying_import import import_apify_results
+        from .apify_batch_intake import stage_apify_file
         uploaded = request.FILES.get('apify_json')
         if uploaded is None:
             messages.error(request, 'Выберите JSON-файл результатов Apify.')
         else:
             try:
-                result = import_apify_results(uploaded, uploaded.name)
+                staged = stage_apify_file(uploaded, request.user)
             except ValidationError as error:
                 messages.error(request, '; '.join(error.messages))
-            except (ValueError, TypeError) as error:
-                messages.error(request, 'Не удалось прочитать данные Apify: неверный формат.')
             else:
-                messages.success(request,
-                    f"Загружено: {result['products']} товаров; "
-                    f"связано с оптовыми позициями: {result['linked'] + result['verified']}; "
-                    f"требуют сопоставления: {result['unmatched']}.")
+                request.session['apify_buying_session_id'] = staged.pk
+                messages.success(request, 'Все исходные строки сохранены. Запустите обработку партиями по 500.')
         return redirect('procurement:selection_rules')
+    if request.method == 'POST' and request.POST.get('action') == 'process_apify_batch':
+        from django.http import JsonResponse
+        from .apify_batch_intake import process_next_apify_batch
+        session_id = request.session.get('apify_buying_session_id')
+        if not session_id:
+            return JsonResponse({'error': 'Сначала загрузите JSON Apify.'}, status=400)
+        try:
+            progress = process_next_apify_batch(session_id, request.user)
+        except Exception:
+            # A failed transaction leaves the batch cursor unchanged for retry.
+            return JsonResponse({'error': 'Партия не завершена. Повторите обработку.'}, status=500)
+        return JsonResponse(progress)
     if request.method == 'POST' and not uploading_price:
         form = SelectionRuleForm(request.POST)
         if request.POST.get('action') == 'reset':
@@ -213,8 +221,15 @@ def selection_rules(request):
                   unmatched=Count('id', filter=Q(match_status='unmatched')),
                   last_saved=Max('imported_at'))
         .order_by('-last_saved', 'source_filename').first())
+    from .models import Activity
+    apify_session = None
+    session_id = request.session.get('apify_buying_session_id')
+    if session_id:
+        apify_session = Activity.objects.filter(
+            pk=session_id, user=request.user, action='apify_upload_session'
+        ).first()
     return render(request, 'procurement/selection_rules.html',
-                  context(request, form=form, rule=rule, matched=exported_total,
+                  context(request, apify_session=apify_session, form=form, rule=rule, matched=exported_total,
                           price_form=price_form, **price_history_context(request),
                           year_unknown=unknown_years, before_years=before_years,
                           group_choices=GROUPS,
