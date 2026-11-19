@@ -4,10 +4,11 @@ from decimal import Decimal
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import timezone
 
 from .models import (
     KaspiBuyingCandidate, Membership, Offer, Preferences,
-    Selection, Supplier,
+    Selection, Supplier, VehicleFitment,
 )
 
 
@@ -103,6 +104,25 @@ class MatchedBuyingPageTests(TestCase):
             0,
         )
         self.assertEqual(self.dashboard(min_profit='1000').context['total'], 44)
+
+    def test_vehicle_and_demand_controls_filter_apify_rows(self):
+        self.assertEqual(self.dashboard(fitment='verified').context['total'], 0)
+        self.assertEqual(self.dashboard(fitment='unknown').context['total'], 45)
+        VehicleFitment.objects.create(
+            offer=self.offer, make='Toyota', model='Camry',
+            source_url='https://example.com/fitment', verified=True,
+        )
+        self.assertEqual(self.dashboard(fitment='verified').context['total'], 45)
+        self.assertEqual(self.dashboard(fitment='unknown').context['total'], 0)
+        self.assertEqual(
+            self.dashboard(vehicle_make='Toyota', vehicle_model='Camry').context['total'], 45,
+        )
+        self.assertEqual(self.dashboard(demand='sales').context['total'], 0)
+        self.offer.evidence_date = timezone.localdate()
+        self.offer.sales_30 = 2
+        self.offer.save(update_fields=['evidence_date', 'sales_30'])
+        self.assertEqual(self.dashboard(demand='sales').context['total'], 45)
+        self.assertEqual(self.dashboard(demand='reviews').context['total'], 0)
 
     def test_bulk_add_uses_unique_supplier_offer_and_preserves_quantity(self):
         url = reverse('procurement:select_many')

@@ -3,20 +3,76 @@
 A Kaspi card is a display row; several cards may point at one supplier Offer.
 No source Offer, warehouse, price or verification flag is mutated.
 """
+from datetime import timedelta
 from decimal import Decimal
 from django.core.paginator import Paginator
 from django.db.models import Q
-from .models import KaspiBuyingCandidate, Offer, Favorite, KaspiPreparedCard, RetailListing
+from django.utils import timezone
+from .models import KaspiBuyingCandidate, Offer, Favorite, KaspiPreparedCard, RetailListing, VehicleFitment
 from .analysis import evaluate, PACKAGING_COST, stock_status
 from .catalog_paging import cumulative_profitable_query
+from .fitment_filters import matches_configuration
+from .vehicle_countries import country_makes
+
+
+def filtered_offer_ids(filters):
+    """Apply real vehicle-fitment and demand filters to both Kaspi and legacy rows.
+
+    Keep the baseline unfiltered, and use a DB subquery rather than holding
+    the entire catalogue of supplier offers in RAM.
+    """
+    keys = ('vehicle_country', 'vehicle_make', 'vehicle_model',
+            'vehicle_generation', 'vehicle_year', 'selected_years', 'fitment', 'demand')
+    if not any(filters.get(key) for key in keys):
+        return None
+    offers = Offer.objects.all()
+    fitment_filters = {'fitments__verified': True}
+    if filters.get('vehicle_country'):
+        fitment_filters['fitments__make__in'] = country_makes(filters['vehicle_country'].pk)
+    if filters.get('vehicle_make'):
+        fitment_filters['fitments__make'] = filters['vehicle_make']
+    if filters.get('vehicle_model'):
+        fitment_filters['fitments__model'] = filters['vehicle_model']
+    if (any(filters.get(key) for key in ('vehicle_country', 'vehicle_make', 'vehicle_model'))
+            or filters.get('fitment') == 'verified'):
+        offers = offers.filter(**fitment_filters).distinct()
+    if filters.get('vehicle_generation') or filters.get('vehicle_year') or filters.get('selected_years'):
+        related = {key.removeprefix('fitments__'): value for key, value in fitment_filters.items()}
+        fitments = VehicleFitment.objects.filter(offer__in=offers.values('pk'), **related)
+        eligible = {
+            fitment.offer_id
+            for fitment in fitments.only('offer_id', 'configurations').iterator(chunk_size=100)
+            if matches_configuration(
+                fitment.configurations, filters.get('vehicle_generation', ''),
+                filters.get('vehicle_year'), filters.get('selected_years'),
+            )
+        }
+        offers = offers.filter(pk__in=eligible)
+    if filters.get('fitment') == 'unknown':
+        offers = offers.exclude(fitments__verified=True)
+    demand = filters.get('demand')
+    if demand:
+        today = timezone.localdate()
+        fresh = Q(evidence_date__gte=today - timedelta(days=7), evidence_date__lte=today)
+        sales = fresh & Q(sales_30__gt=0)
+        reviews = fresh & Q(recent_reviews__gt=0)
+        if demand == 'sales':
+            offers = offers.filter(sales)
+        elif demand == 'reviews':
+            offers = offers.filter(reviews)
+        elif demand == 'unknown':
+            offers = offers.exclude(sales | reviews)
+    return offers.values('pk')
 
 
 def visible_buying_rows(request, preferences, filters):
-    from django.utils import timezone
     supplier = filters.get('supplier')
+    offer_scope = filtered_offer_ids(filters)
     qs = KaspiBuyingCandidate.objects.filter(
         match_status__in=['candidate', 'verified'], offer__isnull=False,
     )
+    if offer_scope is not None:
+        qs = qs.filter(offer_id__in=offer_scope)
     if supplier:
         qs = qs.filter(offer__supplier=supplier)
     if filters.get('brand'):
@@ -89,6 +145,8 @@ def visible_buying_rows(request, preferences, filters):
     old = Offer.objects.select_related('supplier', 'profitable_record', 'kaspi_sellers').exclude(
         pk__in=candidate_offer_ids
     )
+    if offer_scope is not None:
+        old = old.filter(pk__in=offer_scope)
     if supplier:
         old = old.filter(supplier=supplier)
     if filters.get('brand'):
