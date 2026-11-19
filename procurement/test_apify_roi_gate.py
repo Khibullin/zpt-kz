@@ -31,11 +31,11 @@ class ApifyRoiGateTests(TestCase):
         # Prices are stored at two decimal places; 10277.78 is just above 50%.
         rows = [
             {'id': '123456789', 'brand': 'TESTBRAND', 'title': 'Амортизатор AB-101',
-             'minPrice': '10277.78'},
+             'offers': [{'sellerName': 'Проверенный продавец', 'price': '10277.78'}]},
             {'id': '123456790', 'brand': 'TESTBRAND', 'title': 'Амортизатор AB-102',
-             'minPrice': '10277.77'},
+             'offers': [{'sellerName': 'Проверенный продавец', 'price': '10277.77'}]},
             {'id': '123456791', 'brand': 'TESTBRAND', 'title': 'Амортизатор AB-103',
-             'minPrice': '20000'},
+             'offers': [{'sellerName': 'Проверенный продавец', 'offers': [{'sellerName': 'Проверенный продавец', 'price': '20000'}]}]},
             {'id': '123456792', 'brand': 'TESTBRAND', 'title': 'Амортизатор AB-104',
              'minPrice': '20000'},
         ]
@@ -55,4 +55,13 @@ class ApifyRoiGateTests(TestCase):
              'title': 'Амортизатор AB-101', 'price': '20000'},
         ]).encode('utf8'))
         import_apify_results(upload, upload.name, user=self.user)
+        self.assertEqual(KaspiBuyingCandidate.objects.count(), 0)
+
+    def test_card_minprice_without_seller_is_not_admitted(self):
+        upload = SimpleUploadedFile('apify.json', json.dumps([
+            {'id': '123456794', 'brand': 'TESTBRAND',
+             'title': 'Амортизатор AB-101', 'minPrice': '20000', 'offers': []},
+        ]).encode('utf8'))
+        result = import_apify_results(upload, upload.name, user=self.user)
+        self.assertEqual(result['rejected_unconfirmed_price'], 1)
         self.assertEqual(KaspiBuyingCandidate.objects.count(), 0)
