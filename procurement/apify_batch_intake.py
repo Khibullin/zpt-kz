@@ -1,12 +1,12 @@
 """Durable Apify JSON intake and 500-source-row checkpoints.
 
-Every original row, including invalid and unmatched ones, is retained in
-Activity.details for the upload. A failed batch is retried idempotently.
+Original rows are staged temporarily until processed; completed source batches
+are deleted so rejected low-margin products are not retained in the system.
+A failed batch remains available to retry idempotently.
 This is a browser-driven sequential worker; no unattended background promise.
 """
 import hashlib
 import json
-from io import BytesIO
 
 from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -79,4 +79,7 @@ def process_next_apify_batch(session_id, user):
         details['next_batch'] += 1
         session.details = details
         session.save(update_fields=['details'])
+        # Source rows were needed only for reliable retry. Do not keep
+        # rejected or below-threshold cards in permanent storage.
+        source.delete()
         return {'done': details['next_batch'] >= details['total_batches'], **details}
