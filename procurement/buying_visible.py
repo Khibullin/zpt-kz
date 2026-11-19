@@ -72,7 +72,8 @@ def visible_buying_rows(request, preferences, filters):
     supplier = filters.get('supplier')
     offer_scope = filtered_offer_ids(filters)
     qs = KaspiBuyingCandidate.objects.filter(
-        match_status__in=['candidate', 'verified'], offer__isnull=False,
+        match_status='verified', offer__isnull=False,
+        offer__supplier__name='Omega',
 
     )
     qs = qs.filter(buying_cost_query('offer__'), offer__stock__regex=POSITIVE_STOCK_PATTERN).exclude(profitable_product_exclusions('offer__')).exclude(
@@ -156,7 +157,8 @@ def visible_buying_rows(request, preferences, filters):
 
     # Previously saved profitable offers must not disappear on Apify import.
     # Include currently qualified legacy offers without duplicating an Apify supplier row.
-    old = Offer.objects.filter(buying_cost_query(), stock__regex=POSITIVE_STOCK_PATTERN).exclude(
+    old = Offer.objects.filter(buying_cost_query(), stock__regex=POSITIVE_STOCK_PATTERN,
+                               supplier__name='Omega', match_verified=True).exclude(
         profitable_product_exclusions()
     ).select_related(
         'supplier', 'profitable_record',
