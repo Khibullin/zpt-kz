@@ -109,7 +109,7 @@ def import_apify_results(upload, filename, user=None):
             continue
         product = grouped.setdefault(product_id, {
             'id': product_id, 'title': '', 'brand': '', 'url': '', 'cities': {},
-            'prices': [],
+            'prices': [], 'seller_prices': [],
         })
         product['title'] = str(row.get('title') or row.get('name') or product['title'])[:500]
         product['brand'] = str(row.get('brand') or product['brand'])[:120]
@@ -132,6 +132,7 @@ def import_apify_results(upload, filename, user=None):
             if cost is None:
                 continue
             prices.append(cost)
+            product['seller_prices'].append(cost)
             sellers.append({
                 'name': str(seller.get('sellerName') or seller.get('name') or '')[:180],
                 'price': str(cost),
@@ -155,7 +156,8 @@ def import_apify_results(upload, filename, user=None):
     expenses = prefs.expenses if prefs else None
     counts = {'rows': len(raw), 'products': len(grouped), 'invalid': invalid,
               'linked': 0, 'verified': 0, 'unmatched': 0,
-              'rejected_below_50': 0, 'rejected_unverifiable': 0}
+              'rejected_below_50': 0, 'rejected_unverifiable': 0,
+              'rejected_unconfirmed_price': 0}
     for p in grouped.values():
         brand = _token(p['brand'])
         # Exactly the same article token, not a substring (e.g. 1234 != 12345).
@@ -195,7 +197,13 @@ def import_apify_results(upload, filename, user=None):
         elif match.cost <= MIN_PROFITABLE_COST:
             counts['rejected_unverifiable'] += 1
             continue
-        minimum_price = min(p['prices'])
+        # Top-level minPrice is a card/search observation, not proof of
+        # the lowest available seller offer. For NEW buying opportunities,
+        # accept only actual seller-offer prices from the Apify payload.
+        if not p['seller_prices']:
+            counts['rejected_unconfirmed_price'] += 1
+            continue
+        minimum_price = min(p['seller_prices'])
         profit = net_buying_profit(minimum_price, match.cost, commission, expenses)
         if profit is None:
             counts['rejected_unverifiable'] += 1
