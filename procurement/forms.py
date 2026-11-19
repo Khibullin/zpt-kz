@@ -40,8 +40,17 @@ class SelectionFilterForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['supplier'].queryset = Supplier.objects.order_by('name')
-        selected_supplier = self.data.get('supplier', '') if self.is_bound else ''
+        # Omega is the sole active procurement supplier. Other suppliers remain
+        # in the database until the verified backup and destructive cleanup.
+        self.fields['supplier'].queryset = Supplier.objects.filter(name='Omega')
+        omega = Supplier.objects.filter(name='Omega').values_list('pk', flat=True).first()
+        if omega and (not self.is_bound or not self.data.get('supplier')):
+            if self.is_bound:
+                self.data = self.data.copy()
+                self.data['supplier'] = str(omega)
+            else:
+                self.fields['supplier'].initial = omega
+        selected_supplier = self.data.get('supplier', '') if self.is_bound else str(omega or '')
         supplier_id = int(selected_supplier) if str(selected_supplier).isdigit() else None
         category_values, models_by_make = supplier_options(supplier_id)
         categories = list(OMEGA_CATEGORIES) if not selected_supplier else []
