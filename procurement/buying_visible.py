@@ -13,6 +13,7 @@ from .analysis import evaluate, PACKAGING_COST, stock_status
 from .catalog_paging import cumulative_profitable_query
 from .fitment_filters import matches_configuration
 from .vehicle_countries import country_makes
+from .catalog_paging import profitable_product_exclusions, MIN_PROFITABLE_COST, MIN_PROFITABLE_ROI
 
 
 def filtered_offer_ids(filters):
@@ -25,7 +26,7 @@ def filtered_offer_ids(filters):
             'vehicle_generation', 'vehicle_year', 'selected_years', 'fitment', 'demand')
     if not any(filters.get(key) for key in keys):
         return None
-    offers = Offer.objects.filter(supplier__name='Omega')
+    offers = Offer.objects.all()
     fitment_filters = {'fitments__verified': True}
     if filters.get('vehicle_country'):
         fitment_filters['fitments__make__in'] = country_makes(filters['vehicle_country'].pk)
@@ -70,7 +71,10 @@ def visible_buying_rows(request, preferences, filters):
     offer_scope = filtered_offer_ids(filters)
     qs = KaspiBuyingCandidate.objects.filter(
         match_status__in=['candidate', 'verified'], offer__isnull=False,
-        offer__supplier__name='Omega',
+        offer__cost__gt=MIN_PROFITABLE_COST,
+    )
+    qs = qs.exclude(profitable_product_exclusions('offer__')).exclude(
+        Q(title__icontains='пружин') | Q(title__icontains='spring')
     )
     if offer_scope is not None:
         qs = qs.filter(offer_id__in=offer_scope)
@@ -140,6 +144,8 @@ def visible_buying_rows(request, preferences, filters):
             if not counts or not bounds[0] <= max(counts) <= bounds[1]:
                 continue
         profit, roi = calculation(candidate['minimum_price'], candidate['offer__cost'])
+        if roi is None or roi < MIN_PROFITABLE_ROI:
+            continue
         if filters.get('min_profit') is not None and (profit is None or profit < filters['min_profit']):
             continue
         if filters.get('min_markup') is not None and (roi is None or roi < filters['min_markup']):
@@ -148,7 +154,9 @@ def visible_buying_rows(request, preferences, filters):
 
     # Previously saved profitable offers must not disappear on Apify import.
     # Include currently qualified legacy offers without duplicating an Apify supplier row.
-    old = Offer.objects.filter(supplier__name='Omega').select_related(
+    old = Offer.objects.filter(cost__gt=MIN_PROFITABLE_COST).exclude(
+        profitable_product_exclusions()
+    ).select_related(
         'supplier', 'profitable_record',
     ).defer(
         'description', 'applicability', 'characteristics', 'photo_url', 'supplier_url'
@@ -194,15 +202,17 @@ def visible_buying_rows(request, preferences, filters):
         profit, roi = calculation(price, cost)
         if record:
             profit, roi = record.source_profit, record.source_roi
+        if cost <= MIN_PROFITABLE_COST or roi is None or roi < MIN_PROFITABLE_ROI:
+            continue
         if filters.get('min_profit') is not None and (profit is None or profit < filters['min_profit']):
             continue
         if filters.get('min_markup') is not None and (roi is None or roi < filters['min_markup']):
             continue
         indexed.append(('legacy', (offer.pk, cost, price, record), profit, roi))
 
-    # Unknown profit is last; all losses remain visible on the default screen.
-    indexed.sort(key=lambda r: (r[3] is None, -(r[3] or Decimal('0')),
-                                r[2] is None, -(r[2] or Decimal('0')),
+    # Approved ordering: highest tenge profit first.
+    indexed.sort(key=lambda r: (r[2] is None, -(r[2] or Decimal('0')),
+                                r[3] is None, -(r[3] or Decimal('0')),
                                 r[1]['id'] if r[0] == 'apify' else r[1][0]))
     paginator = Paginator(indexed, 40)
     page = paginator.get_page(request.GET.get('page'))
