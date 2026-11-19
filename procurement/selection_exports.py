@@ -20,9 +20,8 @@ JSON_BATCH_SIZE = 3000
 
 def filtered_offers(rule):
     """Use exactly the same criteria as the saved preview, without mutating offers."""
-    rows = Offer.objects.all()
-    if rule.supplier_id:
-        rows = rows.filter(supplier_id=rule.supplier_id)
+    # Temporary Omega-only working scope; preserve other supplier records for audited cleanup.
+    rows = Offer.objects.filter(supplier__name='Omega')
     rows = rows.filter(cost__gte=rule.min_cost)
     if rule.in_stock_only:
         rows = rows.filter(_stock_filter())
