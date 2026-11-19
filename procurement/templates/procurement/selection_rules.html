@@ -195,42 +195,24 @@
     </label>
     <button type="submit" class="primary">↑ Загрузить результаты</button>
   </form>
-  <div class="buying-summary">
-    <span>Найдено товаров: <strong>{{ buying_total }}</strong></span>
-    <span class="muted">Сортировка: доходность ↓, затем чистая прибыль ↓. Без отсечения убыточных позиций.</span>
+  <div class="buying-summary" role="status" aria-label="Результаты обработки Apify">
+    <span>Всего сопоставленных карточек: <strong>{{ buying_total }}</strong></span>
   </div>
-  {% if not buying_can_calculate %}
-  <div class="rule-hint">Для расчёта чистой прибыли задайте комиссию Kaspi и дополнительные расходы в <a href="{{ settings_url }}">«Алгоритм и настройки»</a>. Пока данные не заданы, ни прибыль, ни рейтинг не подменяются условными значениями.</div>
-  {% endif %}
-  {% if buying_total %}
-  <div class="buying-table">
-    <table>
-      <thead><tr><th>Найденный товар Kaspi</th><th>Соответствие оптовику</th><th>Мин. цена Kaspi, ₸</th><th>Закупка, ₸</th><th>Чистая прибыль, ₸</th><th>Доходность, %</th><th>Статус</th></tr></thead>
-      <tbody>
-      {% for item in buying_page %}
-        <tr>
-          <td><strong>{{ item.title }}</strong><small>{{ item.brand }}{% if item.url %} · <a href="{{ item.url }}" target="_blank" rel="noopener noreferrer">Kaspi</a>{% endif %}</small></td>
-          <td>{% if item.offer %}{{ item.offer.supplier.name }}<small>{{ item.offer.brand }} · {{ item.offer.article }}</small>{% else %}Не сопоставлен{% endif %}</td>
-          <td>{% if item.minimum_price is not None %}{{ item.minimum_price|floatformat:0 }}{% else %}Нет цены{% endif %}</td>
-          <td>{% if item.offer %}{{ item.offer.cost|floatformat:0 }}{% else %}—{% endif %}</td>
-          <td>{% if buying_can_calculate and item.calculated_profit is not None %}<span class="{% if item.calculated_profit >= 0 %}buying-positive{% else %}buying-negative{% endif %}">{{ item.calculated_profit|floatformat:0 }}</span>{% else %}—{% endif %}</td>
-          <td>{% if buying_can_calculate and item.calculated_roi is not None %}<span class="{% if item.calculated_roi >= 0 %}buying-positive{% else %}buying-negative{% endif %}">{{ item.calculated_roi|floatformat:1 }}%</span>{% else %}—{% endif %}</td>
-          <td>{% if item.match_status == 'verified' %}Подтверждено{% elif item.match_status == 'candidate' %}<span class="buying-pending">Проверить исполнение</span>{% else %}<span class="buying-pending">Нет подтверждённого совпадения</span>{% endif %}</td>
-        </tr>
-      {% endfor %}
-      </tbody>
-    </table>
+  {% if last_import %}
+  <div class="apify-settings">
+    <strong>Последняя сохранённая выгрузка Apify</strong>
+    <div class="apify-settings-grid">
+      <span><strong>Файл:</strong> {{ last_import.source_filename }}</span>
+      <span><strong>Последнее сохранение:</strong> {{ last_import.last_saved|date:"d.m.Y H:i" }}</span>
+      <span><strong>Карточек по файлу в базе:</strong> {{ last_import.saved }}</span>
+      <span><strong>Сопоставлено:</strong> {{ last_import.linked }}</span>
+      <span><strong>Из них ранее проверенных:</strong> {{ last_import.verified }}</span>
+      <span><strong>Не сопоставлено:</strong> {{ last_import.unmatched }}</span>
+    </div>
+    <p class="muted" style="margin:10px 0 0">Это состояние сохранённых записей PostgreSQL, а не журнал всех обработанных исходных строк. Новые и обновлённые карточки, спорные случаи, ошибки и проверка публикации на сайте отдельно не фиксируются текущим загрузчиком.</p>
   </div>
-  {% if buying_page.has_other_pages %}
-  <nav class="buying-pages" aria-label="Страницы результатов">
-    {% if buying_page.has_previous %}<a class="button" href="?page={{ buying_page.previous_page_number }}#buying-step-title">← Предыдущая</a>{% endif %}
-    <span>Страница {{ buying_page.number }} из {{ buying_page.paginator.num_pages }}</span>
-    {% if buying_page.has_next %}<a class="button" href="?page={{ buying_page.next_page_number }}#buying-step-title">Следующая →</a>{% endif %}
-  </nav>
-  {% endif %}
-  <p class="muted" style="margin-top:12px">Предложения без проверенного соответствия остаются в списке для дальнейшего сопоставления. Расчёты по кандидатам предварительные. Исходные цены и остатки поставщиков не изменяются.</p>
   {% else %}
-  <p class="muted">Результаты пока не загружены. Скачайте JSON из Apify и загрузите его в этот блок.</p>
+  <p class="muted">Пока нет сохранённых результатов загрузки Apify.</p>
   {% endif %}
 </section>
 
