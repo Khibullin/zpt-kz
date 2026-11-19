@@ -439,7 +439,10 @@ def dashboard(request):
         filter_data = request.GET.copy()
         for key in ('kaspi_status', 'verified', 'sort'):
             filter_data.pop(key, None)
-    form = SelectionFilterForm(filter_data)
+    form = SelectionFilterForm(
+        filter_data,
+        include_historical_suppliers=request.GET.get('mode') == 'best',
+    )
     valid = form.is_valid()
     form_finished = perf_counter()
     if valid:
