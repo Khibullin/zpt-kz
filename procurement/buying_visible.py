@@ -99,10 +99,16 @@ def visible_buying_rows(request, preferences, filters):
         qs = qs.filter(offer_id__in=allowed_ids)
 
     # Keep the Kaspi-card identity as the row key, never DISTINCT(offer_id).
-    candidates = list(qs.values(
-        'id', 'offer_id', 'title', 'minimum_price', 'url', 'city_offers', 'match_status',
+    # Large nested seller snapshots are only needed for seller-count filtering.
+    # Without that filter, read them only for the 40 visible cards below.
+    bounds = filters.get('seller_bounds')
+    candidate_fields = [
+        'id', 'offer_id', 'title', 'minimum_price', 'url', 'match_status',
         'offer__cost', 'offer__supplier_id',
-    ))
+    ]
+    if bounds is not None:
+        candidate_fields.append('city_offers')
+    candidates = list(qs.values(*candidate_fields))
     candidate_offer_ids = {item['offer_id'] for item in candidates}
     commission = preferences.commission
     expenses = preferences.expenses
@@ -115,7 +121,6 @@ def visible_buying_rows(request, preferences, filters):
         return profit, profit * Decimal('100') / cost
 
     indexed = []
-    bounds = filters.get('seller_bounds')
     for candidate in candidates:
         if bounds is not None:
             counts = []
@@ -142,9 +147,11 @@ def visible_buying_rows(request, preferences, filters):
 
     # Previously saved profitable offers must not disappear on Apify import.
     # Include currently qualified legacy offers without duplicating an Apify supplier row.
-    old = Offer.objects.select_related('supplier', 'profitable_record', 'kaspi_sellers').exclude(
-        pk__in=candidate_offer_ids
-    )
+    old = Offer.objects.select_related('supplier', 'profitable_record').defer(
+        'description', 'applicability', 'characteristics', 'photo_url', 'supplier_url'
+    ).exclude(pk__in=candidate_offer_ids)
+    if bounds is not None:
+        old = old.select_related('kaspi_sellers')
     if offer_scope is not None:
         old = old.filter(pk__in=offer_scope)
     if supplier:
@@ -196,6 +203,17 @@ def visible_buying_rows(request, preferences, filters):
                                 r[1]['id'] if r[0] == 'apify' else r[1][0]))
     paginator = Paginator(indexed, 40)
     page = paginator.get_page(request.GET.get('page'))
+    # Fetch heavyweight city-level seller data only for the visible page.
+    if bounds is None:
+        visible_candidate_ids = [
+            entry[1]['id'] for entry in page.object_list if entry[0] == 'apify'
+        ]
+        city_data = dict(KaspiBuyingCandidate.objects.filter(
+            pk__in=visible_candidate_ids,
+        ).values_list('pk', 'city_offers'))
+        for entry in page.object_list:
+            if entry[0] == 'apify':
+                entry[1]['city_offers'] = city_data.get(entry[1]['id']) or []
     offer_ids = [entry[1]['offer_id'] if entry[0] == 'apify' else entry[1][0]
                  for entry in page.object_list]
     offers = {o.pk: o for o in Offer.objects.filter(pk__in=offer_ids).select_related(
