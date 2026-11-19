@@ -15,6 +15,7 @@ from .fitment_filters import matches_configuration
 from .vehicle_countries import country_makes
 from .catalog_paging import (profitable_product_exclusions, buying_cost_query,
                              net_buying_profit, MIN_PROFITABLE_ROI)
+from .omega_policy import POSITIVE_STOCK_PATTERN
 
 
 def filtered_offer_ids(filters):
@@ -74,7 +75,7 @@ def visible_buying_rows(request, preferences, filters):
         match_status__in=['candidate', 'verified'], offer__isnull=False,
 
     )
-    qs = qs.filter(buying_cost_query('offer__')).exclude(profitable_product_exclusions('offer__')).exclude(
+    qs = qs.filter(buying_cost_query('offer__'), offer__stock__regex=POSITIVE_STOCK_PATTERN).exclude(profitable_product_exclusions('offer__')).exclude(
         Q(title__icontains='пружин') | Q(title__icontains='spring')
     )
     if offer_scope is not None:
@@ -155,7 +156,7 @@ def visible_buying_rows(request, preferences, filters):
 
     # Previously saved profitable offers must not disappear on Apify import.
     # Include currently qualified legacy offers without duplicating an Apify supplier row.
-    old = Offer.objects.filter(buying_cost_query()).exclude(
+    old = Offer.objects.filter(buying_cost_query(), stock__regex=POSITIVE_STOCK_PATTERN).exclude(
         profitable_product_exclusions()
     ).select_related(
         'supplier', 'profitable_record',
