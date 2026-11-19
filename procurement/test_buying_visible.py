@@ -52,6 +52,29 @@ class MatchedBuyingPageTests(TestCase):
             {'mode': 'best', 'supplier': str(self.supplier.pk), **query},
         )
 
+    def test_best_list_defaults_to_all_suppliers_but_can_filter_each(self):
+        omega = Supplier.objects.create(name='Omega')
+        omega_offer = Offer.objects.create(
+            supplier=omega, brand='NGK', article='55004',
+            name='Another supplier', cost=Decimal('1000'),
+            stock='7', min_order=1,
+        )
+        KaspiBuyingCandidate.objects.create(
+            product_id='another-supplier-kaspi', title='NGK 55004',
+            brand='NGK', url='https://kaspi.kz/shop/p/another-supplier/',
+            minimum_price=Decimal('2500'), offer=omega_offer,
+            match_status='candidate',
+        )
+        unfiltered = self.client.get(reverse('procurement:dashboard'), {'mode': 'best'})
+        self.assertEqual(unfiltered.status_code, 200)
+        self.assertEqual(unfiltered.context['apify_in_best'], 46)
+        self.assertEqual(unfiltered.context['page'].paginator.num_pages, 2)
+        self.assertEqual(self.dashboard().context['apify_in_best'], 45)
+        omega_only = self.client.get(
+            reverse('procurement:dashboard'), {'mode': 'best', 'supplier': omega.pk},
+        )
+        self.assertEqual(omega_only.context['apify_in_best'], 1)
+
     def test_every_matched_card_is_counted_and_last_page_keeps_losses(self):
         first = self.dashboard()
         self.assertEqual(first.status_code, 200)
