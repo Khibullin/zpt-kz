@@ -102,9 +102,43 @@ def selection_rules(request):
         'in_stock_only': rule.in_stock_only,
         'classification_mode': rule.classification_mode,
     }
+    if request.method == 'POST' and request.POST.get('action') in (
+            'begin_apify_chunk_upload', 'append_apify_chunk_upload'):
+        from django.http import JsonResponse
+        from .apify_batch_intake import begin_chunked_upload, append_chunked_upload
+        action = request.POST['action']
+        try:
+            if action == 'begin_apify_chunk_upload':
+                session = begin_chunked_upload(
+                    filename=request.POST.get('filename', ''),
+                    total=int(request.POST.get('total', '0')),
+                    digest=request.POST.get('digest', ''),
+                    user=request.user)
+                request.session['apify_buying_session_id'] = session.pk
+                details = session.details
+                return JsonResponse({'session_id': session.pk,
+                                     'uploaded_batches': details.get('next_upload_batch', details['total_batches']),
+                                     'total_batches': details['total_batches']})
+            session_id = int(request.POST.get('session_id', '0'))
+            if session_id != request.session.get('apify_buying_session_id'):
+                return JsonResponse({'error': 'Нет доступа к этой загрузке.'}, status=403)
+            raw_chunk = request.POST.get('rows', '')
+            if len(raw_chunk) > 8 * 1024 * 1024:
+                raise ValidationError('Слишком большая партия JSON.')
+            rows = json.loads(raw_chunk)
+            result = append_chunked_upload(
+                session_id=session_id, batch=int(request.POST.get('batch', '-1')),
+                rows=rows, user=request.user)
+            return JsonResponse(result)
+        except (ValidationError, ValueError, TypeError, json.JSONDecodeError) as error:
+            message = '; '.join(error.messages) if isinstance(error, ValidationError) else 'Некорректные данные партии.'
+            return JsonResponse({'error': message}, status=400)
     if request.method == 'POST' and request.POST.get('action') == 'import_apify':
         from .apify_batch_intake import stage_apify_file
         uploaded = request.FILES.get('apify_json')
+        if uploaded is not None and uploaded.size > 2 * 1024 * 1024:
+            messages.error(request, 'Для большого JSON используйте современный браузер: файл отправляется партиями по 500, без одной долгой загрузки.')
+            return redirect('procurement:selection_rules')
         if uploaded is None:
             messages.error(request, 'Выберите JSON-файл результатов Apify.')
         else:
