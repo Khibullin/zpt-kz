@@ -26,6 +26,7 @@ from django.http import HttpResponse, FileResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST, require_GET
+from django.views.decorators.cache import never_cache
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 from django.core.paginator import Paginator
 from django.urls import reverse
@@ -427,6 +428,7 @@ def filtered_rows(request, preferences, filters, paginate=False):
 
 
 @access()
+@never_cache
 def dashboard(request):
     if request.GET.get('mode') != 'best' and 'supplier' not in request.GET and request.session.get('procurement_supplier'):
         params = request.GET.copy()
