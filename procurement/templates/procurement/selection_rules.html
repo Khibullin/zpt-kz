@@ -263,7 +263,7 @@
       data.append('csrfmiddlewaretoken', token);
       data.append('action', action);
       for (const [key, value] of Object.entries(fields)) data.append(key, String(value));
-      const response = await fetch(form.action || location.href, {
+      const response = await fetch(form.getAttribute('action') || location.pathname, {
         method: 'POST', credentials: 'same-origin', body: data,
         headers: {'X-Requested-With': 'XMLHttpRequest'}
       });
@@ -321,7 +321,7 @@
     button.textContent = 'Обрабатываются партии…';
     try {
       while (true) {
-        const response = await fetch(form.action || location.href, {
+        const response = await fetch(form.getAttribute('action') || location.pathname, {
           method: 'POST',
           body: new FormData(form),
           credentials: 'same-origin',
