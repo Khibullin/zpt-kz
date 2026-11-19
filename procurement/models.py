@@ -151,6 +151,32 @@ class KaspiBuyingCandidate(models.Model):
         ordering = ['-imported_at', 'pk']
 
 
+class PermanentBuyingItem(models.Model):
+    """Append-only buying register. No automatic updates or deletes.
+
+    Each supplier SKU is saved once; financial data is frozen at admission.
+    Existing source Offer and purchasing Selection records are never changed.
+    """
+    offer = models.OneToOneField('Offer', on_delete=models.PROTECT,
+                                 related_name='permanent_buying_item')
+    source = models.CharField(max_length=16, default='historical')
+    product_id = models.CharField(max_length=80, blank=True)
+    title = models.CharField(max_length=500)
+    kaspi_url = models.URLField(max_length=2048, blank=True)
+    cost_snapshot = models.DecimalField(max_digits=14, decimal_places=2)
+    kaspi_price_snapshot = models.DecimalField(max_digits=14, decimal_places=2)
+    commission_snapshot = models.DecimalField(max_digits=6, decimal_places=2)
+    expenses_snapshot = models.DecimalField(max_digits=14, decimal_places=2)
+    profit_snapshot = models.DecimalField(max_digits=18, decimal_places=2)
+    roi_snapshot = models.DecimalField(max_digits=18, decimal_places=4)
+    identity_status = models.CharField(max_length=24, default='historical')
+    photo_url = models.URLField(max_length=2048, blank=True)
+    included_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-profit_snapshot', '-roi_snapshot', 'pk']
+
+
 class Selection(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     offer = models.ForeignKey(Offer, on_delete=models.PROTECT)
