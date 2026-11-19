@@ -43,13 +43,13 @@ def capture_profitable_offer(offer, *, batch=None, terms=None):
         # Preserve it on Offer for review; do not create a confirmed buying record
         # until a nationwide source is verified and explicitly supported.
         return False
-    if profit < cost * MIN_PROFITABLE_ROI / Decimal('100'):
+    if (Decimal(offer.kaspi_price) - cost) < cost * MIN_PROFITABLE_ROI / Decimal('100'):
         return False
     _, created = ProfitableOfferRecord.objects.get_or_create(
         offer_id=offer.pk,
         defaults={
             'source_cost': cost, 'source_kaspi_price': offer.kaspi_price,
-            'source_profit': profit, 'source_roi': profit / cost * Decimal('100'),
+            'source_profit': profit, 'source_roi': (Decimal(offer.kaspi_price) - cost) / cost * Decimal('100'),
             'commission': commission, 'expenses': expenses,
             'supplier_date': offer.supplier_checked_on,
             'kaspi_date': offer.kaspi_price_checked_on,
