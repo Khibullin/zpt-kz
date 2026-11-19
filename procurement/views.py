@@ -74,7 +74,7 @@ def context(request, **extra):
             'upload_url': reverse('procurement:upload') + scope_query,
             'settings_url': reverse('procurement:settings') + scope_query,
             'basket_url': reverse('procurement:basket') + scope_query,
-            'basket_count': Selection.objects.filter(user=request.user).count(), **extra}
+            'basket_count': Selection.objects.filter(user=request.user, offer__supplier__name='Omega').count(), **extra}
 
 
 def kaspi_status(offer, preferences, today):
@@ -631,7 +631,7 @@ def upload(request, kaspi_only=False):
 @access()
 @require_POST
 def select(request, pk):
-    offer = get_object_or_404(Offer, pk=pk)
+    offer = get_object_or_404(Offer, pk=pk, supplier__name='Omega')
     as_json = 'application/json' in request.headers.get('Accept', '')
     def invalid_quantity(message):
         return JsonResponse({'error': message}, status=400) if as_json else HttpResponse(message, status=400)
@@ -643,7 +643,7 @@ def select(request, pk):
         return invalid_quantity('Количество вне допустимого диапазона.')
     Selection.objects.update_or_create(user=request.user, offer=offer, defaults={'quantity': quantity})
     if as_json:
-        return JsonResponse({'basket_count': Selection.objects.filter(user=request.user).count(),
+        return JsonResponse({'basket_count': Selection.objects.filter(user=request.user, offer__supplier__name='Omega').count(),
                              'message': 'Добавлено в список закупки.'})
     target = request.POST.get('next', '')
     if url_has_allowed_host_and_scheme(target, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
@@ -663,7 +663,7 @@ def select_many(request):
         return JsonResponse({'error': message}, status=400) if as_json else HttpResponse(message, status=400)
     ids = set(map(int, ids))
     with transaction.atomic():
-        offers = list(Offer.objects.filter(pk__in=ids).order_by('pk'))
+        offers = list(Offer.objects.filter(pk__in=ids, supplier__name='Omega').order_by('pk'))
         if len(offers) != len(ids) or any(not 1 <= offer.min_order <= 100000 for offer in offers):
             message = 'Состав списка изменился. Обновите страницу и повторите выбор.'
             return JsonResponse({'error': message}, status=400) if as_json else HttpResponse(message, status=400)
@@ -671,7 +671,7 @@ def select_many(request):
             Selection.objects.get_or_create(user=request.user, offer=offer,
                                             defaults={'quantity': offer.min_order})
     if as_json:
-        return JsonResponse({'basket_count': Selection.objects.filter(user=request.user).count(),
+        return JsonResponse({'basket_count': Selection.objects.filter(user=request.user, offer__supplier__name='Omega').count(),
                              'selected_ids': sorted(ids), 'message': 'Добавлено в список закупки.'})
     target = request.POST.get('next', '')
     messages.success(request, 'Добавлено в список закупки.')
@@ -716,7 +716,7 @@ def purchase_snapshot(rows):
 @access()
 def basket(request):
     from .purchase_list_excel import offer_unit, PurchaseListExportForm, purchaser_name, organization_details
-    rows = list(Selection.objects.filter(user=request.user).select_related('offer__supplier').order_by('offer__supplier__name', 'pk'))
+    rows = list(Selection.objects.filter(user=request.user, offer__supplier__name='Omega').select_related('offer__supplier').order_by('offer__supplier__name', 'pk'))
     grouped = {}
     for row in rows:
         row.subtotal = row.quantity * row.offer.cost
@@ -745,7 +745,7 @@ def basket_excel(request):
     form = PurchaseListExportForm(request.GET)
     if not form.is_valid():
         return HttpResponse('Укажите имя закупщика длиной до 200 символов.', status=400)
-    rows = Selection.objects.filter(user=request.user).select_related('offer__supplier').order_by('offer__supplier__name', 'pk')
+    rows = Selection.objects.filter(user=request.user, offer__supplier__name='Omega').select_related('offer__supplier').order_by('offer__supplier__name', 'pk')
     buyer = form.cleaned_data['buyer'] or purchaser_name(request.user)
     output = export_purchase_list(rows, buyer)
     return FileResponse(output, as_attachment=True,
@@ -755,7 +755,7 @@ def basket_excel(request):
 
 @access()
 def purchase_confirm(request, supplier_id):
-    supplier = get_object_or_404(Supplier, pk=supplier_id)
+    supplier = get_object_or_404(Supplier, pk=supplier_id, name='Omega')
     def selection_rows(lock=False):
         query = Selection.objects.filter(user=request.user, offer__supplier=supplier).select_related('offer').order_by('pk')
         return list(query.select_for_update(of=('self',)) if lock else query)
