@@ -79,7 +79,7 @@ class SupplierPriceUploadForm(forms.Form):
 
 
 def price_history_context(request):
-    batches = Paginator(PriceUpdate.objects.select_related('supplier').defer('rows'), 20).get_page(request.GET.get('price_page'))
+    batches = Paginator(PriceUpdate.objects.filter(supplier__name='Omega').select_related('supplier').defer('rows'), 20).get_page(request.GET.get('price_page'))
     for batch in batches:
         batch.source_conflicts = batch.summary.get('conflict_items', [])
     return {'price_batches': batches}
@@ -92,6 +92,10 @@ def updates(request):
         return redirect('procurement:selection_rules')
     form = PriceUpdateForm(request.POST, request.FILES)
     if form.is_valid():
+        # Keep legacy POST links from silently staging non-Omega supplier files.
+        if any(form.cleaned_data.get(key + '_file') for key in ('phaeton', 'zakazauto')):
+            messages.error(request, 'В служебном кабинете разрешены только прайс-листы Omega.')
+            return redirect('procurement:selection_rules')
         try:
             # Validate every supplied file before committing any staged run.
             with transaction.atomic():
