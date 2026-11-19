@@ -8,7 +8,22 @@ from django.db.models.functions import Coalesce, NullIf
 from .models import KaspiSellerSnapshot, KaspiCardSearch
 from .omega_policy import POSITIVE_STOCK_PATTERN
 
-# Approved purchasing rules: net gain >= 1000 KZT and ROI >= 25%.
+# Only these three eligibility rules apply to the profitable-buying list.
+MIN_PROFITABLE_COST = Decimal('5000')  # Strictly greater than 5,000 KZT.
+MIN_PROFITABLE_ROI = Decimal('50')      # Net return on supplier cost.
+
+
+def profitable_product_exclusions(prefix=''):
+    """Filter every kind of spring, by item name or category."""
+    return (
+        Q(**{prefix + 'name__icontains': 'пружин'})
+        | Q(**{prefix + 'category__icontains': 'пружин'})
+        | Q(**{prefix + 'name__icontains': 'spring'})
+        | Q(**{prefix + 'category__icontains': 'spring'})
+    )
+
+
+# Legacy thresholds below are retained only for unrelated screens.
 MIN_BEST_ROI = Decimal('25')
 
 
@@ -31,15 +46,10 @@ def best_candidates_query(query, preferences, today):
 
 
 def cumulative_profitable_query(query, preferences, today=None):
-    """Supplier-scoped buying rules plus immutable earlier profitable records.
+    """All suppliers: purchase cost > 5000, no springs, net ROI >= 50%.
 
-    Omega: in-stock cost >= 2,000 KZT and net ROI >= 50% using the saved
-    Kaspi quote. A historical quote is a REVIEW candidate, not authorization
-    to purchase. No automatic nationwide claim is inferred from Almaty data.
-    Other suppliers retain their existing minimum profit/ROI logic.
+    Historical snapshots remain stored, but cannot bypass current buying rules.
     """
-    from django.utils import timezone
-    today = today or timezone.localdate()
     if preferences.commission is None or preferences.expenses is None:
         return query.none()
     profit = ExpressionWrapper(
@@ -47,28 +57,14 @@ def cumulative_profitable_query(query, preferences, today=None):
         - F('cost') - Value(max(Decimal('250'), preferences.expenses)),
         output_field=DecimalField(max_digits=38, decimal_places=12),
     )
-    fresh = Q(
-        match_verified=True, kaspi_price__isnull=False, cost__gt=0,
-        supplier_checked_on__gte=today-timedelta(days=7),
-        supplier_checked_on__lte=today,
-        kaspi_price_checked_on__gte=today-timedelta(days=7),
-        kaspi_price_checked_on__lte=today,
+    eligible = query.filter(
+        cost__gt=MIN_PROFITABLE_COST, kaspi_price__isnull=False,
+    ).exclude(profitable_product_exclusions())
+    return eligible.annotate(_cumulative_profit=profit).filter(
+        _cumulative_profit__gte=F('cost') * Value(MIN_PROFITABLE_ROI / Decimal('100'))
     )
-    legacy_threshold = Q(
-        _cumulative_profit__gte=max(Decimal('1000'), preferences.best_min_profit)
-    ) & Q(_cumulative_profit__gte=F('cost') * Value(MIN_BEST_ROI / Decimal('100')))
-    other_supplier = (
-        ~Q(supplier__name='Omega')
-        & (fresh & legacy_threshold | Q(profitable_record__isnull=False))
-        & ~Q(name__iregex='подшипник|bearing', profitable_record__isnull=True)
-        & ~Q(category__iregex='подшипник|bearing', profitable_record__isnull=True)
-    )
-    # Exactly the same positive-stock notation accepted by stock_status().
-    omega_stock = Q(stock__regex=POSITIVE_STOCK_PATTERN)
-    omega_qualified = (
-        (Q(match_verified=True) |
-         Q(characteristics__firsthand_omega_20261117__identity_status__in=['candidate', 'conflict']))
-        & Q(cost__gte=Decimal('2000'), kaspi_price__gt=0) & ~Q(kaspi_url='')
+
+2000'), kaspi_price__gt=0) & ~Q(kaspi_url='')
         & omega_stock
         & Q(_cumulative_profit__gte=F('cost') * Value(Decimal('0.50')))
     )
