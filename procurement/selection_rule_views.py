@@ -16,6 +16,7 @@ from django.db.models import Q, Count, Max
 from django.shortcuts import redirect, render
 
 from .models import Offer, Supplier, WholesaleSelectionRule
+from .omega_policy import POSITIVE_STOCK_PATTERN
 from .views import access, context
 
 GROUPS = (
@@ -70,11 +71,9 @@ def _group_filter(groups, mode):
 
 
 def _stock_filter():
-    # Unknown or zero stock must not be claimed available. Supplier stock is
-    # stored as a string; accept positive quantities and explicit presence words.
-    return Q(stock__iregex=r'^\s*[1-9][0-9]*(?:[.,][0-9]+)?(?:\s|$)') | Q(
-        stock__iregex=r'(^|\s)(в наличии|есть|available)(\s|$)'
-    )
+    # Exactly the positive-stock notation used by the buying rules and
+    # stock_status(). Omega's "20>" means more than twenty on hand.
+    return Q(stock__regex=POSITIVE_STOCK_PATTERN)
 
 
 @access('sales', 'admin')
