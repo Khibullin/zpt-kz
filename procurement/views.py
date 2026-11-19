@@ -127,7 +127,7 @@ def preserved_best_scope(supplier):
 def filtered_rows(request, preferences, filters, paginate=False):
     # Ranking uses scalar offer facts; detailed descriptions/JSON and seller lists
     # are not needed for every item in the supplier catalogue.
-    query = Offer.objects.select_related('supplier', 'kaspi_sellers', 'kaspi_card_search').defer('description', 'characteristics', 'supplier_url')
+    query = Offer.objects.filter(supplier__name='Omega').select_related('supplier', 'kaspi_sellers', 'kaspi_card_search').defer('description', 'characteristics', 'supplier_url')
     mode = request.GET.get('mode', 'roi')
     if mode == 'best':
         # Firsthand offers are stored in JSON: load once with the row, not one
