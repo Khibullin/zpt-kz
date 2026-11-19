@@ -135,7 +135,9 @@ def vehicle_facet_counts(sources):
     """Deduplicate product/vehicle pairs in SQL, without retaining every product ID."""
     queries = [qs.order_by().annotate(facet_product=F('pk'), facet_value=F(path+'__pk'),
         facet_label=F(path+'__name')).values('facet_product','facet_value','facet_label') for qs,path in sources]
-    combined = queries[0].union(*queries[1:])
+    # COUNT(DISTINCT facet_product) below already removes duplicates per facet.
+    # Avoid an extra full UNION sort on the memory-limited production database.
+    combined = queries[0].union(*queries[1:], all=True)
     try:
         sql, params = combined.query.sql_with_params()
     except EmptyResultSet:
@@ -155,7 +157,7 @@ def root_vehicle_facet_counts(base):
         country_label=F(path+'__country__name')).values(
             'facet_product','facet_brand','brand_label','facet_country','country_label') for qs,path in sources]
     try:
-        sql,params=queries[0].union(*queries[1:]).query.sql_with_params()
+        sql,params=queries[0].union(*queries[1:], all=True).query.sql_with_params()
     except EmptyResultSet:
         return []
     with connection.cursor() as cursor:
