@@ -42,8 +42,8 @@ KEYWORDS = {
 
 
 class SelectionRuleForm(forms.Form):
-    supplier = forms.ModelChoiceField(queryset=Supplier.objects.all().order_by('name'),
-                                     required=False, empty_label='Все поставщики')
+    supplier = forms.ModelChoiceField(queryset=Supplier.objects.filter(name='Omega'),
+                                     required=True, empty_label=None)
     min_cost = forms.DecimalField(min_value=0, max_digits=14, decimal_places=2,
                                   widget=forms.NumberInput(attrs={'min': '0', 'step': '100'}))
     max_vehicle_age = forms.IntegerField(min_value=0, max_value=100,
@@ -79,11 +79,12 @@ def _stock_filter():
 
 @access('sales', 'admin')
 def selection_rules(request):
+    omega = Supplier.objects.get(name='Omega')
     rule, _ = WholesaleSelectionRule.objects.get_or_create(singleton_key=1)
     from .price_update_views import SupplierPriceUploadForm, price_history_context
     uploading_price = request.method == 'POST' and request.POST.get('action') == 'upload_price'
     price_form = SupplierPriceUploadForm(request.POST if uploading_price else None,
-        request.FILES if uploading_price else None, initial={'supplier': rule.supplier_id}, auto_id='price_%s')
+        request.FILES if uploading_price else None, initial={'supplier': omega.pk}, auto_id='price_%s')
     if uploading_price and price_form.is_valid():
         from .price_updates import stage_update
         try:
@@ -95,7 +96,7 @@ def selection_rules(request):
             messages.success(request, 'Прайс принят. Ход обработки сохранён в истории загрузок.')
             return redirect('procurement:selection_rules')
     initial = {
-        'supplier': rule.supplier_id,
+        'supplier': omega.pk,
         'min_cost': rule.min_cost,
         'max_vehicle_age': rule.max_vehicle_age,
         'category_groups': rule.category_groups,
@@ -123,7 +124,7 @@ def selection_rules(request):
     if request.method == 'POST' and not uploading_price:
         form = SelectionRuleForm(request.POST)
         if request.POST.get('action') == 'reset':
-            rule.supplier = None
+            rule.supplier = omega
             rule.min_cost = Decimal('2000')
             rule.max_vehicle_age = 20
             rule.category_groups = []
@@ -151,7 +152,7 @@ def selection_rules(request):
     # Preview against the already imported offers. No destructive updates or
     # automatic purchases / Kaspi calls are initiated by this screen.
     effective = form.cleaned_data if form.is_bound and form.is_valid() else initial
-    rows = Offer.objects.all()
+    rows = Offer.objects.filter(supplier=omega)
     if effective.get('supplier'):
         supplier = effective['supplier']
         rows = rows.filter(supplier_id=supplier.pk if hasattr(supplier, 'pk') else supplier)
@@ -201,7 +202,7 @@ def selection_rules(request):
     batches = (exported_total + JSON_BATCH_SIZE - 1) // JSON_BATCH_SIZE
     from .models import KaspiBuyingCandidate
     # Compact saved-result summary; the full card list lives only in the buying catalogue.
-    buying_qs = KaspiBuyingCandidate.objects.all()
+    buying_qs = KaspiBuyingCandidate.objects.filter(offer__supplier=omega)
     buying_total = buying_qs.filter(
         match_status__in=['candidate', 'verified'], offer__isnull=False,
     ).count()
