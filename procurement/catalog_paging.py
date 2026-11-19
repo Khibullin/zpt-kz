@@ -8,19 +8,50 @@ from django.db.models.functions import Coalesce, NullIf
 from .models import KaspiSellerSnapshot, KaspiCardSearch
 from .omega_policy import POSITIVE_STOCK_PATTERN
 
-# Only these three eligibility rules apply to the profitable-buying list.
-MIN_PROFITABLE_COST = Decimal('5000')  # Strictly greater than 5,000 KZT.
-MIN_PROFITABLE_ROI = Decimal('50')      # (Kaspi price - purchase price) / purchase price.
+# Unified buying policy (19 November 2026).
+MIN_CONSUMABLE_COST = Decimal('2000')  # Inclusive, consumables only.
+MIN_PROFITABLE_COST = Decimal('5000')  # Other parts: strictly greater.
+MIN_PROFITABLE_ROI = Decimal('50')     # Net ROI after commission and expenses.
+CONSUMABLE_TERMS = (
+    'расходник', 'фильтр', 'масло', 'свеча зажиган', 'свеча накал',
+    'щетка стеклоочист', 'щётка стеклоочист', 'дворник',
+    'ремень', 'filter', 'engine oil', 'spark plug', 'wiper', 'belt',
+)
+
+
+def consumable_query(prefix=''):
+    """Classify consumables from product category/name, not import filename."""
+    result = Q(**{prefix + 'category__icontains': 'расходн'})
+    for term in CONSUMABLE_TERMS:
+        result |= Q(**{prefix + 'name__icontains': term})
+        result |= Q(**{prefix + 'category__icontains': term})
+    return result
+
+
+def is_consumable(name='', category=''):
+    value = ' '.join((name or '', category or '')).casefold()
+    return 'расходн' in (category or '').casefold() or any(term in value for term in CONSUMABLE_TERMS)
+
+
+def buying_cost_query(prefix=''):
+    cost = prefix + 'cost'
+    return ((consumable_query(prefix) & Q(**{cost + '__gte': MIN_CONSUMABLE_COST}))
+            | (~consumable_query(prefix) & Q(**{cost + '__gt': MIN_PROFITABLE_COST})))
 
 
 def profitable_product_exclusions(prefix=''):
-    """Filter every kind of spring, by item name or category."""
-    return (
-        Q(**{prefix + 'name__icontains': 'пружин'})
-        | Q(**{prefix + 'category__icontains': 'пружин'})
-        | Q(**{prefix + 'name__icontains': 'spring'})
-        | Q(**{prefix + 'category__icontains': 'spring'})
-    )
+    return (Q(**{prefix + 'name__icontains': 'пружин'})
+            | Q(**{prefix + 'category__icontains': 'пружин'})
+            | Q(**{prefix + 'name__icontains': 'spring'})
+            | Q(**{prefix + 'category__icontains': 'spring'}))
+
+
+def net_buying_profit(price, cost, commission, expenses):
+    """Packaging is counted once in max(250, expenses)."""
+    if any(v is None for v in (price, cost, commission, expenses)) or cost <= 0:
+        return None
+    return (Decimal(price) * (Decimal('1') - Decimal(commission) / Decimal('100'))
+            - Decimal(cost) - max(Decimal('250'), Decimal(expenses)))
 
 
 # Legacy thresholds below are retained only for unrelated screens.
@@ -46,16 +77,19 @@ def best_candidates_query(query, preferences, today):
 
 
 def cumulative_profitable_query(query, preferences, today=None):
-    """All suppliers: purchase cost > 5000, no springs, gross ROI >= 50%.
-
-    Historical snapshots remain stored, but cannot bypass current buying rules.
-    """
-    eligible = query.filter(
-        cost__gt=MIN_PROFITABLE_COST, kaspi_price__isnull=False,
-    ).exclude(profitable_product_exclusions())
-    return eligible.filter(
-        kaspi_price__gte=F('cost') * Value(Decimal('1') + MIN_PROFITABLE_ROI / Decimal('100'))
+    """All suppliers: category cost threshold, no springs, net ROI >= 50%."""
+    if preferences.commission is None or preferences.expenses is None:
+        return query.none()
+    profit = ExpressionWrapper(
+        F('kaspi_price') * Value((Decimal('100') - preferences.commission) / Decimal('100'))
+        - F('cost') - Value(max(Decimal('250'), preferences.expenses)),
+        output_field=DecimalField(max_digits=38, decimal_places=12),
     )
+    return (query.filter(buying_cost_query(), kaspi_price__isnull=False)
+            .exclude(profitable_product_exclusions())
+            .annotate(_buying_net_profit=profit)
+            .filter(_buying_net_profit__gte=F('cost') * Value(MIN_PROFITABLE_ROI / Decimal('100'))))
+
 
 
 def stale_price_candidates_query(query, preferences, today):
