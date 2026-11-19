@@ -5,7 +5,7 @@ from datetime import timedelta
 from django.utils import timezone
 
 from .analysis import stock_status
-from .catalog_paging import MIN_BEST_ROI
+from .catalog_paging import MIN_PROFITABLE_COST, MIN_PROFITABLE_ROI, profitable_product_exclusions
 from .models import Preferences, ProfitableOfferRecord
 
 
@@ -20,12 +20,12 @@ def capture_profitable_offer(offer, *, batch=None, terms=None):
     """Idempotent first snapshot. No Kaspi calls, external work or stale-date renewal."""
     if getattr(offer, 'pk', None) is None:
         return False
-    if not offer.match_verified or offer.kaspi_price is None or offer.cost <= 0:
+    if not offer.match_verified or offer.kaspi_price is None or offer.cost <= MIN_PROFITABLE_COST:
         return False
     if stock_status(offer.stock) != 'in_stock':
         return False
-    if any(x in (offer.name + ' ' + offer.category).casefold()
-           for x in ('подшипник', 'bearing')):
+    if any(x in ((offer.name or '') + ' ' + (offer.category or '')).casefold()
+           for x in ('пружин', 'spring')):
         return False
     terms = terms or owner_terms()
     if terms is None:
@@ -43,8 +43,7 @@ def capture_profitable_offer(offer, *, batch=None, terms=None):
         # Preserve it on Offer for review; do not create a confirmed buying record
         # until a nationwide source is verified and explicitly supported.
         return False
-    if (profit < max(Decimal('1000'), Decimal(terms.best_min_profit))
-            or profit < cost * MIN_BEST_ROI / Decimal('100')):
+    if profit < cost * MIN_PROFITABLE_ROI / Decimal('100'):
         return False
     _, created = ProfitableOfferRecord.objects.get_or_create(
         offer_id=offer.pk,
