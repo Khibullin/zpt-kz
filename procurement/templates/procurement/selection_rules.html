@@ -168,7 +168,7 @@
 
 <section class="rule-card step-card" aria-labelledby="buying-step-title">
   <div class="step-heading step-heading-with-action">
-    <div class="step-heading-main"><span class="step-number">5</span><div><h2 id="buying-step-title">Выгодные к закупке</h2><p class="muted">Загрузите JSON результатов Apify. Все исходные карточки сохраняются; в выгодные попадают только товары с доходностью от 50% и установленным порогом закупки.</p></div></div>
+    <div class="step-heading-main"><span class="step-number">5</span><div><h2 id="buying-step-title">Выгодные к закупке</h2><p class="muted">Загрузите JSON результатов Apify. Все исходные карточки сохраняются по партиям в базе; в выгодные попадают только товары с доходностью от 50% и установленным порогом закупки.</p></div></div>
     <details class="json-rules">
       <summary>Правила обработки JSON</summary>
       <div class="json-rules-content">
@@ -176,7 +176,7 @@
         <ol>
           <li><strong>Загрузка.</strong> Принимать готовый JSON результатов Apify в этом блоке, исходные карточки сохранять без потерь.</li>
           <li><strong>Партии.</strong> Обрабатывать последовательно по 500 исходных карточек; фиксировать прогресс и продолжать после сбоя с последней законченной партии.</li>
-          <li><strong>Сопоставление.</strong> Искать только точные бренд и полный артикул у Omega, Фаэтон и ZakazAuto. Посторонние результаты не привязывать.</li>
+          <li><strong>Сопоставление.</strong> В текущей загрузке искать только точные бренд и полный артикул у Omega. Посторонние результаты не привязывать.</li>
           <li><strong>Статусы.</strong> Подтверждённые совпадения, требуют проверки, не сопоставлены. Спорные позиции автоматически в выгодные не публиковать.</li>
           <li><strong>Поставщики.</strong> Сохранять все подходящие предложения; для закупки предпочитать минимальную цену при подтверждённом наличии.</li>
           <li><strong>Экономика.</strong> Прибыль = минимальная цена Kaspi − комиссия Kaspi − закупочная цена − расходы; доходность = прибыль / закупочная цена × 100%. Упаковку 250 ₸ учитывать один раз (не прибавлять повторно к уже включённым расходам). Если данных для расчёта нет, не объявлять товар выгодным.</li>
@@ -196,6 +196,28 @@
     </label>
     <button type="submit" class="primary">↑ Загрузить результаты</button>
   </form>
+  {% if apify_session %}
+  <div class="apify-settings" aria-label="Прогресс импорта Apify">
+    <strong>Обработка загруженного JSON: {{ apify_session.details.filename }}</strong>
+    <p>Исходных карточек: {{ apify_session.details.total }}.
+    Завершено партий: <strong id="apify-done">{{ apify_session.details.next_batch }}</strong>
+    из <strong id="apify-total">{{ apify_session.details.total_batches }}</strong> (по 500).</p>
+    <p id="apify-progress" role="status">Сопоставлено: {{ apify_session.details.stats.linked }}.
+    Подтверждено: {{ apify_session.details.stats.verified }}.
+    Не сопоставлено: {{ apify_session.details.stats.unmatched }}.
+    Ошибочных строк: {{ apify_session.details.stats.invalid }}.</p>
+    {% if apify_session.details.next_batch < apify_session.details.total_batches %}
+    <form id="apify-batch-form" method="post">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="process_apify_batch">
+      <button type="submit" class="primary" id="apify-run">Продолжить обработку оставшихся партий</button>
+    </form>
+    <p class="muted">Обработка идёт последовательно, с сохранением каждой партии. Не закрывайте вкладку во время выполнения; после сбоя можно продолжить с сохранённой партии.</p>
+    {% else %}
+    <p><strong>Все партии обработаны.</strong> Проверьте результаты в «Выгодные к закупке».</p>
+    {% endif %}
+  </div>
+  {% endif %}
   <div class="buying-summary" role="status" aria-label="Результаты обработки Apify">
     <span>Всего сопоставленных карточек: <strong>{{ buying_total }}</strong></span>
   </div>
@@ -210,12 +232,52 @@
       <span><strong>Из них ранее проверенных:</strong> {{ last_import.verified }}</span>
       <span><strong>Не сопоставлено:</strong> {{ last_import.unmatched }}</span>
     </div>
-    <p class="muted" style="margin:10px 0 0">Это состояние сохранённых записей PostgreSQL, а не журнал всех обработанных исходных строк. Новые и обновлённые карточки, спорные случаи, ошибки и проверка публикации на сайте отдельно не фиксируются текущим загрузчиком.</p>
+    <p class="muted" style="margin:10px 0 0">Это состояние карточек для каталога; выше ведётся отдельный журнал исходных партий. Новые и обновлённые карточки, спорные случаи, ошибки и проверка публикации на сайте отдельно не фиксируются текущим загрузчиком.</p>
   </div>
   {% else %}
   <p class="muted">Пока нет сохранённых результатов загрузки Apify.</p>
   {% endif %}
 </section>
 
+<script>
+(function () {
+  const form = document.getElementById('apify-batch-form');
+  if (!form) return;
+  const button = document.getElementById('apify-run');
+  const label = document.getElementById('apify-progress');
+  const count = document.getElementById('apify-done');
+  form.addEventListener('submit', async function (event) {
+    event.preventDefault();
+    button.disabled = true;
+    button.textContent = 'Обрабатываются партии…';
+    try {
+      while (true) {
+        const response = await fetch(form.action || location.href, {
+          method: 'POST',
+          body: new FormData(form),
+          credentials: 'same-origin',
+          headers: {'X-Requested-With': 'XMLHttpRequest'}
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Ошибка обработки партии');
+        count.textContent = String(result.next_batch);
+        label.textContent = 'Подтверждено: ' + result.stats.verified
+          + '; требуют проверки: ' + result.stats.linked
+          + '; не сопоставлено: ' + result.stats.unmatched
+          + '; ошибочных строк: ' + result.stats.invalid + '.';
+        if (result.done) {
+          button.textContent = 'Обработка завершена';
+          location.reload();
+          return;
+        }
+      }
+    } catch (error) {
+      label.textContent = error.message + ' Прогресс сохранён. Обновите страницу и повторите.';
+      button.disabled = false;
+      button.textContent = 'Продолжить с последней завершённой партии';
+    }
+  });
+}());
+</script>
 {% load static %}<script src="{% static 'procurement/price_updates.js' %}" defer></script>
 {% endblock %}
