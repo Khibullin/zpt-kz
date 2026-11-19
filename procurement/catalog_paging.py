@@ -10,7 +10,7 @@ from .omega_policy import POSITIVE_STOCK_PATTERN
 
 # Only these three eligibility rules apply to the profitable-buying list.
 MIN_PROFITABLE_COST = Decimal('5000')  # Strictly greater than 5,000 KZT.
-MIN_PROFITABLE_ROI = Decimal('50')      # Net return on supplier cost.
+MIN_PROFITABLE_ROI = Decimal('50')      # (Kaspi price - purchase price) / purchase price.
 
 
 def profitable_product_exclusions(prefix=''):
@@ -46,22 +46,15 @@ def best_candidates_query(query, preferences, today):
 
 
 def cumulative_profitable_query(query, preferences, today=None):
-    """All suppliers: purchase cost > 5000, no springs, net ROI >= 50%.
+    """All suppliers: purchase cost > 5000, no springs, gross ROI >= 50%.
 
     Historical snapshots remain stored, but cannot bypass current buying rules.
     """
-    if preferences.commission is None or preferences.expenses is None:
-        return query.none()
-    profit = ExpressionWrapper(
-        F('kaspi_price') * Value((Decimal('100') - preferences.commission) / Decimal('100'))
-        - F('cost') - Value(max(Decimal('250'), preferences.expenses)),
-        output_field=DecimalField(max_digits=38, decimal_places=12),
-    )
     eligible = query.filter(
         cost__gt=MIN_PROFITABLE_COST, kaspi_price__isnull=False,
     ).exclude(profitable_product_exclusions())
-    return eligible.annotate(_cumulative_profit=profit).filter(
-        _cumulative_profit__gte=F('cost') * Value(MIN_PROFITABLE_ROI / Decimal('100'))
+    return eligible.filter(
+        kaspi_price__gte=F('cost') * Value(Decimal('1') + MIN_PROFITABLE_ROI / Decimal('100'))
     )
 
 2000'), kaspi_price__gt=0) & ~Q(kaspi_url='')
