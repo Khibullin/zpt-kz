@@ -13,7 +13,8 @@ MIN_CONSUMABLE_COST = Decimal('2000')  # Inclusive, consumables only.
 MIN_PROFITABLE_COST = Decimal('5000')  # Other parts: strictly greater.
 MIN_PROFITABLE_ROI = Decimal('50')     # Net ROI after commission and expenses.
 CONSUMABLE_TERMS = (
-    'расходник', 'фильтр', 'масло', 'свеча зажиган', 'свеча накал',
+    'расходник', 'фильтр', 'масло моторное', 'масло трансмиссионное',
+    'моторное масло', 'трансмиссионное масло', 'свеча зажиган', 'свеча накал',
     'щетка стеклоочист', 'щётка стеклоочист', 'дворник',
     'ремень', 'filter', 'engine oil', 'spark plug', 'wiper', 'belt',
 )
