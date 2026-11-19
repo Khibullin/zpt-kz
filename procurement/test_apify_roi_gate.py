@@ -35,7 +35,7 @@ class ApifyRoiGateTests(TestCase):
             {'id': '123456790', 'brand': 'TESTBRAND', 'title': 'Амортизатор AB-102',
              'offers': [{'sellerName': 'Проверенный продавец', 'price': '10277.77'}]},
             {'id': '123456791', 'brand': 'TESTBRAND', 'title': 'Амортизатор AB-103',
-             'offers': [{'sellerName': 'Проверенный продавец', 'offers': [{'sellerName': 'Проверенный продавец', 'price': '20000'}]}]},
+             'offers': [{'sellerName': 'Проверенный продавец', 'price': '20000'}]},
             {'id': '123456792', 'brand': 'TESTBRAND', 'title': 'Амортизатор AB-104',
              'minPrice': '20000'},
         ]
