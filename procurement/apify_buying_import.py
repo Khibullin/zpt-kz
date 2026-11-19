@@ -65,13 +65,19 @@ def _offer_index(brands):
     index = defaultdict(list)
     if not brands:
         return index
-    # Brand matching is case-insensitive; only active Omega procurement is allowed.
+    # Exact brand/article matching across all approved wholesale sources.
     from django.db.models import Q
     brand_filter = Q()
     for brand in brands:
         brand_filter |= Q(brand__iexact=brand)
+    approved_suppliers = (Q(supplier__name__icontains='omega')
+                          | Q(supplier__name__icontains='фаэтон')
+                          | Q(supplier__name__icontains='фаетон')
+                          | Q(supplier__name__icontains='phaeton')
+                          | Q(supplier__name__icontains='zakazauto')
+                          | Q(supplier__name__icontains='заказавто'))
     for offer in Offer.objects.filter(
-        brand_filter, supplier__name='Omega'
+        brand_filter & approved_suppliers
     ).only('id', 'brand', 'article', 'name', 'kaspi_url', 'match_verified',
            'cost', 'stock').iterator(chunk_size=1500):
         if offer.article:
