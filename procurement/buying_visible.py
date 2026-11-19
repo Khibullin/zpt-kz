@@ -120,10 +120,12 @@ def visible_buying_rows(request, preferences, filters):
     extra_cost = max(PACKAGING_COST, expenses) if expenses is not None else None
 
     def calculation(price, cost):
-        if price is None or cost is None or cost <= 0 or commission is None or extra_cost is None:
+        if price is None or cost is None or cost <= 0:
             return None, None
-        profit = price * (Decimal('1') - commission / Decimal('100')) - cost - extra_cost
-        return profit, profit * Decimal('100') / cost
+        roi = (price - cost) * Decimal('100') / cost
+        profit = (price * (Decimal('1') - commission / Decimal('100')) - cost - extra_cost
+                  if commission is not None and extra_cost is not None else None)
+        return profit, roi
 
     indexed = []
     for candidate in candidates:
@@ -201,7 +203,8 @@ def visible_buying_rows(request, preferences, filters):
         cost = (record.source_cost if record else offer.cost)
         profit, roi = calculation(price, cost)
         if record:
-            profit, roi = record.source_profit, record.source_roi
+            profit = record.source_profit
+            roi = (price - cost) * Decimal('100') / cost if cost > 0 and price is not None else None
         if cost <= MIN_PROFITABLE_COST or roi is None or roi < MIN_PROFITABLE_ROI:
             continue
         if filters.get('min_profit') is not None and (profit is None or profit < filters['min_profit']):
