@@ -10,7 +10,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator
 from django.contrib import messages
-from django.db.models import Q
+from django.db.models import Q, Count, Max
 from django.shortcuts import redirect, render
 
 from .models import Offer, Supplier, WholesaleSelectionRule
@@ -176,11 +176,20 @@ def selection_rules(request):
     saved_rows = filtered_offers(rule)
     exported_total = saved_rows.count()
     batches = (exported_total + JSON_BATCH_SIZE - 1) // JSON_BATCH_SIZE
-    from .apify_buying_import import ranked_buying_candidates
-    candidates, can_calculate = ranked_buying_candidates(request.user)
-    candidates = candidates.exclude(match_status='unmatched')
-    buying_total = candidates.count()
-    buying_page = Paginator(candidates, 40).get_page(request.GET.get('page'))
+    from .models import KaspiBuyingCandidate
+    # Compact saved-result summary; the full card list lives only in the buying catalogue.
+    buying_qs = KaspiBuyingCandidate.objects.all()
+    buying_total = buying_qs.filter(
+        match_status__in=['candidate', 'verified'], offer__isnull=False,
+    ).count()
+    last_import = (buying_qs.exclude(source_filename='')
+        .values('source_filename')
+        .annotate(saved=Count('id'),
+                  linked=Count('id', filter=Q(match_status__in=['candidate', 'verified'], offer__isnull=False)),
+                  verified=Count('id', filter=Q(match_status='verified', offer__isnull=False)),
+                  unmatched=Count('id', filter=Q(match_status='unmatched')),
+                  last_saved=Max('imported_at'))
+        .order_by('-last_saved', 'source_filename').first())
     return render(request, 'procurement/selection_rules.html',
                   context(request, form=form, rule=rule, matched=exported_total,
                           price_form=price_form, **price_history_context(request),
@@ -188,5 +197,4 @@ def selection_rules(request):
                           group_choices=GROUPS,
                           json_batches=range(1, batches + 1),
                           json_batch_size=JSON_BATCH_SIZE,
-                          buying_total=buying_total, buying_page=buying_page,
-                          buying_can_calculate=can_calculate))
+                          buying_total=buying_total, last_import=last_import))
