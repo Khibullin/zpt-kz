@@ -1,7 +1,7 @@
-"""Manual Firsthand/Apify result import and unrestricted buying comparison.
+"""Conservative Omega Apify import with mandatory net ROI gate before saving.
 
-Unlike the legacy 'best' screen, no ROI, profit, or freshness cutoff is used.
-An identity match is only certified if it was previously verified in ZPT.
+The review archive is separate from the buying-candidate table. Unprofitable
+and uncalculable cards cannot create or overwrite buying candidates.
 """
 import hashlib
 import json
@@ -17,6 +17,10 @@ from django.db.models import DecimalField, ExpressionWrapper, F, Value
 from django.db.models.functions import NullIf
 
 from .models import KaspiBuyingCandidate, Offer, Preferences
+from .catalog_paging import (MIN_PROFITABLE_ROI, MIN_CONSUMABLE_COST,
+                             MIN_PROFITABLE_COST, is_consumable, net_buying_profit)
+from .omega_policy import POSITIVE_STOCK_PATTERN
+import re as _re
 
 PRODUCT_ID_RE = re.compile(r'-(\d{6,15})/?$')
 
@@ -75,13 +79,13 @@ def _offer_index(brands):
     for offer in Offer.objects.filter(
         brand_filter, supplier__name='Omega'
     ).only('id', 'brand', 'article', 'name', 'kaspi_url', 'match_verified',
-           'cost', 'stock').iterator(chunk_size=1500):
+           'cost', 'stock', 'category').iterator(chunk_size=1500):
         if offer.article:
             index[_token(offer.brand)].append(offer)
     return index
 
 
-def import_apify_results(upload, filename):
+def import_apify_results(upload, filename, user=None):
     if upload.size > 50 * 1024 * 1024:
         raise ValidationError('JSON должен быть не более 50 МБ.')
     if not str(filename).lower().endswith('.json'):
@@ -146,8 +150,12 @@ def import_apify_results(upload, filename):
     brands = {p['brand'] for p in grouped.values() if p['brand']}
     index = _offer_index(brands)
     candidates = []
+    prefs = Preferences.objects.filter(user=user).first() if user is not None else None
+    commission = prefs.commission if prefs else None
+    expenses = prefs.expenses if prefs else None
     counts = {'rows': len(raw), 'products': len(grouped), 'invalid': invalid,
-              'linked': 0, 'verified': 0, 'unmatched': 0}
+              'linked': 0, 'verified': 0, 'unmatched': 0,
+              'rejected_below_50': 0, 'rejected_unverifiable': 0}
     for p in grouped.values():
         brand = _token(p['brand'])
         # Exactly the same article token, not a substring (e.g. 1234 != 12345).
@@ -166,9 +174,38 @@ def import_apify_results(upload, filename):
                         _item_id({'url': match.kaspi_url}) == p['id'])
         status = 'verified' if verified else 'candidate' if match else 'unmatched'
         counts['verified' if verified else 'linked' if match else 'unmatched'] += 1
+        # Do not import sub-50% products into the candidate database at all.
+        # Missing supplier identity, stock, price, or configured costs cannot
+        # be treated as an eligible profitable purchase.
+        if match is None or commission is None or expenses is None or not p['prices']:
+            counts['rejected_unverifiable'] += 1
+            continue
+        stock = str(match.stock or '')
+        if not _re.match(POSITIVE_STOCK_PATTERN, stock):
+            counts['rejected_unverifiable'] += 1
+            continue
+        product_type = ' '.join((match.name or '', match.category or '', p['title']))
+        if any(x in product_type.casefold() for x in ('пружин', 'spring')):
+            counts['rejected_unverifiable'] += 1
+            continue
+        if is_consumable(match.name, match.category):
+            if match.cost < MIN_CONSUMABLE_COST:
+                counts['rejected_unverifiable'] += 1
+                continue
+        elif match.cost <= MIN_PROFITABLE_COST:
+            counts['rejected_unverifiable'] += 1
+            continue
+        minimum_price = min(p['prices'])
+        profit = net_buying_profit(minimum_price, match.cost, commission, expenses)
+        if profit is None:
+            counts['rejected_unverifiable'] += 1
+            continue
+        if profit < match.cost * MIN_PROFITABLE_ROI / Decimal('100'):
+            counts['rejected_below_50'] += 1
+            continue
         candidates.append(KaspiBuyingCandidate(
             product_id=p['id'], title=p['title'], brand=p['brand'], url=p['url'],
-            minimum_price=min(p['prices']) if p['prices'] else None,
+            minimum_price=minimum_price,
             city_offers=list(p['cities'].values()), offer=match,
             match_status=status, source_filename=PurePath(filename).name[:255],
         ))
@@ -182,7 +219,8 @@ def import_apify_results(upload, filename):
                   if candidate.product_id not in protected_ids]
     counts['protected_verified'] = len(protected_ids)
     with transaction.atomic():
-        KaspiBuyingCandidate.objects.bulk_create(
+        if candidates:
+            KaspiBuyingCandidate.objects.bulk_create(
             candidates, batch_size=300, update_conflicts=True,
             unique_fields=['product_id'],
             update_fields=['title', 'brand', 'url', 'minimum_price', 'city_offers',
