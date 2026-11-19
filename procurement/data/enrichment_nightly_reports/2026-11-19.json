@@ -3,7 +3,7 @@
   "night_end_date": "2026-11-19",
   "period_start": "2026-11-18T23:00:00+05:00",
   "period_end": "2026-11-19T06:00:00+05:00",
-  "verified_at": "2026-11-19T00:58:23.074062Z",
+  "verified_at": "2026-11-19T01:00:27.864651Z",
   "status": "no_confirmed_overnight_results_processing_automation_disabled",
   "supplier_stats": {
     "1": {
@@ -16,8 +16,9 @@
       "years_added_confirmed": 0,
       "engines_added_confirmed": 0,
       "remaining_snapshot": {
+        "night_task_updates": 0,
         "positive_stock": 8061,
-        "snapshot_at": "2026-11-19T00:58:23.074062Z",
+        "snapshot_at": "2026-11-19T01:00:27.864651Z",
         "supplier_id": 1,
         "without_photo": 754,
         "without_structured": 7679
@@ -33,8 +34,9 @@
       "years_added_confirmed": 0,
       "engines_added_confirmed": 0,
       "remaining_snapshot": {
+        "night_task_updates": 0,
         "positive_stock": 27939,
-        "snapshot_at": "2026-11-19T00:58:23.074062Z",
+        "snapshot_at": "2026-11-19T01:00:27.864651Z",
         "supplier_id": 3,
         "without_photo": 22481,
         "without_structured": 26451
@@ -50,8 +52,9 @@
       "years_added_confirmed": 0,
       "engines_added_confirmed": 0,
       "remaining_snapshot": {
+        "night_task_updates": 0,
         "positive_stock": 6977,
-        "snapshot_at": "2026-11-19T00:58:23.074062Z",
+        "snapshot_at": "2026-11-19T01:00:27.864651Z",
         "supplier_id": 5,
         "without_photo": 6781,
         "without_structured": 6691
@@ -252,13 +255,12 @@
   },
   "limitations": [
     "Confirmed additions only; VehicleFitment has no write timestamp, so unlogged changes cannot be ruled out.",
-    "Snapshot currently precedes 06:00; will refresh after period end before sending.",
     "Positive stock uses procurement.retail.stock_quantity regex. Missing photo: neither offer.photo_url nor linked RetailListing.product.main_image. Missing structured: no VehicleFitment with nonempty make/model.",
     "Text applicability is separate from structured make/model, years and engines; a configuration does not prove full coverage.",
     "Availability is from supplier data stored in DB; not independently reconfirmed."
   ],
   "delivery": {
-    "status": "pending",
+    "status": "ready_to_send",
     "recipient": "rkhaibullin@gmail.com",
     "subject": "ZPT.KZ — ночной отчёт по фото и применимости — 19.11.2026",
     "duplicate_check": "No matching Gmail SENT message; nightly report absent before creation."
