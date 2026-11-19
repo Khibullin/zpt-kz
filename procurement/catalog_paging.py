@@ -57,18 +57,6 @@ def cumulative_profitable_query(query, preferences, today=None):
         kaspi_price__gte=F('cost') * Value(Decimal('1') + MIN_PROFITABLE_ROI / Decimal('100'))
     )
 
-2000'), kaspi_price__gt=0) & ~Q(kaspi_url='')
-        & omega_stock
-        & Q(_cumulative_profit__gte=F('cost') * Value(Decimal('0.50')))
-    )
-    # Imported candidates are financial leads only; they do not set match_verified.\n    # Previously captured profitability remains in the historical record,
-    # even if a later supplier update removed stock or lowered the margin.
-    omega = Q(supplier__name='Omega') & (
-        omega_qualified | Q(profitable_record__isnull=False)
-    )
-    return query.annotate(_cumulative_profit=profit).filter(other_supplier | omega)
-
-
 
 def stale_price_candidates_query(query, preferences, today):
     """Historical profit candidates only, never a confirmed buying recommendation.
