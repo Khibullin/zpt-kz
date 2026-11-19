@@ -70,6 +70,7 @@ def visible_buying_rows(request, preferences, filters):
     offer_scope = filtered_offer_ids(filters)
     qs = KaspiBuyingCandidate.objects.filter(
         match_status__in=['candidate', 'verified'], offer__isnull=False,
+        offer__supplier__name='Omega',
     )
     if offer_scope is not None:
         qs = qs.filter(offer_id__in=offer_scope)
@@ -147,7 +148,9 @@ def visible_buying_rows(request, preferences, filters):
 
     # Previously saved profitable offers must not disappear on Apify import.
     # Include currently qualified legacy offers without duplicating an Apify supplier row.
-    old = Offer.objects.select_related('supplier', 'profitable_record').defer(
+    old = Offer.objects.filter(supplier__name='Omega').select_related(
+        'supplier', 'profitable_record',
+    ).defer(
         'description', 'applicability', 'characteristics', 'photo_url', 'supplier_url'
     ).exclude(pk__in=candidate_offer_ids)
     if bounds is not None:
