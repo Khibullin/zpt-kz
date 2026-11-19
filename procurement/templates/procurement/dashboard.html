@@ -2,7 +2,7 @@
 <div class="compact-dashboard">
 <header class="compact-header">
 <h1>{% if mode == 'best' %}Выгодные к закупке{% else %}Оптовые закупки{% endif %}</h1>
-{% if mode == 'best' %}<small class="muted" title="Действуют для всех пользователей и поставщиков">Правила 19.11.2026: расходники от 2 000 ₸ · остальные &gt; 5 000 ₸ · без пружин · чистая доходность ≥ 50%</small>{% endif %}
+{% if mode == 'best' %}<small class="muted" title="Действуют для всех пользователей и поставщиков">Постоянный реестр: старые товары не удаляются · новые от 50% по сохранённому расчёту · цены без предложений продавцов требуют проверки</small>{% endif %}
 <form method="get" class="supplier-picker"><input type="hidden" name="mode" value="{{ mode }}"><label>Поставщик {{ filter_form.supplier }}</label><button>Выбрать</button></form>
 <div class="actions">{% if mode == 'best' %}<a class="button" href="{% url 'procurement:dashboard' %}?supplier=&amp;mode=best" aria-label="Обновить список по действующим правилам">Обновить список</a>{% endif %}{% if can_manage and mode != 'best' %}<a class="button" href="{% url 'procurement:selection_rules' %}#upload-step-title">Загрузить прайс-лист</a>{% endif %}</div>
 </header>
@@ -71,7 +71,7 @@
     <small class="preliminary-status">Фото Firsthand · требуется проверка исполнения</small>
   </div>
 {% endif %}
-{% if mode == 'best' %}<small><strong>{{ row.best_status }}</strong></small>
+{% if mode == 'best' %}<small><strong>{{ row.best_status }}</strong></small><small><strong>{{ row.price_evidence_status }}</strong></small><small>Указанная прибыль — расчёт по сохранённой цене, не гарантия фактической доходности.</small>
 <small>Прайс: {{ row.display_supplier_date|date:'d.m.Y'|default:'нет данных' }} · Обработано: {{ row.processed_at|date:'d.m.Y'|default:'не зафиксировано' }} · Kaspi: {{ row.display_kaspi_date|date:'d.m.Y'|default:'нет данных' }}</small>
 {% if row.historical %}<small class="preliminary-status">{{ row.historical_reason }}</small>{% endif %}{% endif %}
 <details class="product-evidence"><summary>Подробнее</summary>
@@ -98,7 +98,7 @@
 {% endif %}<td class="row-actions">
 <button type="button" class="quick-view" data-url="{% url 'procurement:detail' row.offer.pk %}?compact=1" aria-haspopup="dialog">Просмотр</button>
 {% if mode == 'best' %}
-{% if row.in_basket %}<small data-in-basket>В списке закупки</small>{% else %}<label class="purchase-check"><input type="checkbox" name="offer_ids" value="{{ row.offer.pk|unlocalize }}" form="bulk-selection" aria-label="Выбрать к закупке: {{ row.offer.brand }} {{ row.offer.article }}"> Выбрать</label>{% endif %}
+{% if row.in_basket %}<small data-in-basket>В списке закупки (сохранённый выбор)</small>{% elif row.purchase_ready %}<label class="purchase-check"><input type="checkbox" name="offer_ids" value="{{ row.offer.pk|unlocalize }}" form="bulk-selection" aria-label="Выбрать к закупке: {{ row.offer.brand }} {{ row.offer.article }}"> Выбрать</label>{% else %}<small class="preliminary-status">Закупку не добавлять: требуется проверка цены и исполнения</small>{% endif %}
 {% elif mode == 'kaspi_prices' %}<small class="preliminary-status">Только для ознакомления — нужна повторная проверка</small>{% elif mode == 'stale_prices' %}<small class="preliminary-status">Сначала обновите цену Kaspi</small>{% elif row.omega_review %}<small class="preliminary-status">Предварительно: требуется проверка Kaspi по Казахстану</small>{% else %}<form method="post" action="{% url 'procurement:select' row.offer.pk %}" data-selection-form>{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button class="primary">+ В закупку</button><small data-selection-status role="status" aria-live="polite"></small></form>{% endif %}
 </td>
 </tr>{% empty %}<tr>
