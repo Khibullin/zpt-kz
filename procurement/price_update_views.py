@@ -55,7 +55,7 @@ class PriceUpdateForm(forms.Form):
 
 
 class SupplierPriceUploadForm(forms.Form):
-    supplier = forms.ModelChoiceField(label='Поставщик', queryset=Supplier.objects.order_by('name'))
+    supplier = forms.ModelChoiceField(label='Поставщик', queryset=Supplier.objects.filter(name='Omega'), initial=1)
     checked_on = forms.DateField(label='Дата прайса', initial=timezone.localdate,
         widget=forms.DateInput(attrs={'type': 'date'}, format='%Y-%m-%d'))
     file = forms.FileField(label='Прайс-лист XLSX / CSV',
