@@ -44,7 +44,7 @@ def visible_permanent_buying_rows(request, preferences, filters):
             user=request.user).values('offer_id'))
     if filters.get('availability'):
         from .analysis import stock_status
-        allowed = [item.pk for item in rows.only('pk', 'offer__stock').iterator(chunk_size=500)
+        allowed = [item.pk for item in rows.iterator(chunk_size=500)
                    if stock_status(item.offer.stock) == filters['availability']]
         rows = rows.filter(pk__in=allowed)
 
