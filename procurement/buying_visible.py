@@ -25,7 +25,7 @@ def filtered_offer_ids(filters):
             'vehicle_generation', 'vehicle_year', 'selected_years', 'fitment', 'demand')
     if not any(filters.get(key) for key in keys):
         return None
-    offers = Offer.objects.all()
+    offers = Offer.objects.filter(supplier__name='Omega')
     fitment_filters = {'fitments__verified': True}
     if filters.get('vehicle_country'):
         fitment_filters['fitments__make__in'] = country_makes(filters['vehicle_country'].pk)
