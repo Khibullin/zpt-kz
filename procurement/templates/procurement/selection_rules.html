@@ -208,6 +208,7 @@
     Подтверждено: {{ apify_session.details.stats.verified }}.
     Не сопоставлено: {{ apify_session.details.stats.unmatched }}.
     Отклонено (доходность ниже 50%): {{ apify_session.details.stats.rejected_below_50 }}.
+    Нет подтверждённой цены продавца: {{ apify_session.details.stats.rejected_unconfirmed_price|default:0 }}.
     Недостаточно данных или не выполнены остальные условия: {{ apify_session.details.stats.rejected_unverifiable }}.
     Ошибочных строк: {{ apify_session.details.stats.invalid }}.</p>
     {% if apify_session.details.next_batch < apify_session.details.total_batches %}
@@ -334,6 +335,7 @@
         label.textContent = 'Подтверждено: ' + result.stats.verified
           + '; требуют проверки: ' + result.stats.linked
           + '; не сопоставлено: ' + result.stats.unmatched
+          + '; нет предложений продавцов: ' + (result.stats.rejected_unconfirmed_price || 0)
           + '; доходность ниже 50%: ' + result.stats.rejected_below_50
           + '; не прошли другие проверки: ' + result.stats.rejected_unverifiable
           + '; ошибочных строк: ' + result.stats.invalid + '.';
