@@ -40,22 +40,16 @@ class SelectionFilterForm(forms.Form):
 
     def __init__(self, *args, include_historical_suppliers=False, **kwargs):
         super().__init__(*args, **kwargs)
-        # The saved "Выгодные к закупке" report must retain all matched
-        # cards, including historical suppliers. Other procurement screens
-        # keep the explicitly requested Omega-only buying workflow.
-        if include_historical_suppliers:
-            self.fields['supplier'].queryset = Supplier.objects.order_by('name')
-            omega = None
-        else:
-            self.fields['supplier'].queryset = Supplier.objects.filter(name='Omega')
-            omega = Supplier.objects.filter(name='Omega').values_list('pk', flat=True).first()
-            if omega:
-                if self.is_bound:
-                    # Old bookmarks and saved sessions may still point to removed suppliers.
-                    self.data = self.data.copy()
-                    self.data['supplier'] = str(omega)
-                else:
-                    self.fields['supplier'].initial = omega
+        # One active supplier across every procurement screen, including
+        # historical best-buying views. Preserve old database records for audit.
+        self.fields['supplier'].queryset = Supplier.objects.filter(name='Omega')
+        omega = Supplier.objects.filter(name='Omega').values_list('pk', flat=True).first()
+        if omega:
+            if self.is_bound:
+                self.data = self.data.copy()
+                self.data['supplier'] = str(omega)
+            else:
+                self.fields['supplier'].initial = omega
         selected_supplier = self.data.get('supplier', '') if self.is_bound else str(omega or '')
         supplier_id = int(selected_supplier) if str(selected_supplier).isdigit() else None
         category_values, models_by_make = supplier_options(supplier_id)
