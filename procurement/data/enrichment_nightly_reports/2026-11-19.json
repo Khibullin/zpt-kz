@@ -260,9 +260,36 @@
     "Availability is from supplier data stored in DB; not independently reconfirmed."
   ],
   "delivery": {
-    "status": "ready_to_send",
+    "status": "sent_and_verified",
     "recipient": "rkhaibullin@gmail.com",
     "subject": "ZPT.KZ — ночной отчёт по фото и применимости — 19.11.2026",
-    "duplicate_check": "No matching Gmail SENT message; nightly report absent before creation."
+    "duplicate_check": "No matching Gmail SENT message; nightly report absent before creation.",
+    "gmail_message_id": "1a1f1528b0d77d92",
+    "gmail_thread_id": "1a1f1528b0d77d92",
+    "sent_at": "2026-11-19T01:01:21.000Z",
+    "verified_at": "2026-11-19T01:01:29Z",
+    "labels": [
+      "UNREAD",
+      "SENT",
+      "INBOX"
+    ],
+    "verified_headers": [
+      {
+        "name": "Subject",
+        "value": "ZPT.KZ — ночной отчёт по фото и применимости — 19.11.2026"
+      },
+      {
+        "name": "To",
+        "value": "rkhaibullin@gmail.com"
+      },
+      {
+        "name": "Date",
+        "value": "Wed, 18 Nov 2026 17:01:21 -0800"
+      },
+      {
+        "name": "From",
+        "value": "Rinat Khaibullin <rkhaibullin@gmail.com>"
+      }
+    ]
   }
 }
