@@ -4,11 +4,13 @@ This view previews the saved criteria against imported offers. It does not modif
 supplier imports, stock, public catalogue, Kaspi prices, or existing ROI rules.
 """
 from datetime import date
+from hashlib import sha256
+import json
 from decimal import Decimal
 
 from django import forms
 from django.core.exceptions import ValidationError
-from django.core.paginator import Paginator
+from django.core.cache import cache
 from django.contrib import messages
 from django.db.models import Q, Count, Max
 from django.shortcuts import redirect, render
@@ -158,18 +160,39 @@ def selection_rules(request):
         rows = rows.filter(_stock_filter())
     rows = rows.filter(_group_filter(effective.get('category_groups') or [],
                                    effective.get('classification_mode', 'auto')))
-    before_years = rows.count()
+    # A page refresh must not repeatedly scan tens of thousands of fitments.
+    # Short TTL bounds staleness after external imports and avoids caching prices.
     age = int(effective.get('max_vehicle_age', 20))
-    # No source years: keep separately, rather than inventing fitment.
-    # A year mentioned in applicability is a candidate, not a verified match.
-    years = range(max(1980, date.today().year-age), date.today().year+2)
-    year_pattern = '(' + '|'.join(str(year) for year in years) + ')'
-    checked_rows = rows.filter(
-        Q(applicability__regex=year_pattern) |
-        Q(fitments__verified=True, fitments__details__regex=year_pattern)
-    ).distinct()
-    matched = checked_rows.count()
-    unknown_years = max(0, before_years-matched)
+    supplier_key = effective.get('supplier')
+    supplier_key = getattr(supplier_key, 'pk', supplier_key)
+    criteria = {
+        'supplier': supplier_key,
+        'min_cost': str(effective.get('min_cost') or 0),
+        'stock': bool(effective.get('in_stock_only')),
+        'groups': sorted(effective.get('category_groups') or []),
+        'mode': effective.get('classification_mode', 'auto'),
+        'age': age,
+        'year': date.today().year,
+    }
+    stats_key = 'zpt:selection-preview:v1:' + sha256(
+        json.dumps(criteria, sort_keys=True).encode('utf-8')
+    ).hexdigest()
+    stats = cache.get(stats_key) if request.method == 'GET' else None
+    if stats is None:
+        before_years = rows.count()
+        # No source years: do not infer vehicle fitment.
+        years = range(max(1980, date.today().year-age), date.today().year+2)
+        year_pattern = '(' + '|'.join(str(year) for year in years) + ')'
+        checked_rows = rows.filter(
+            Q(applicability__regex=year_pattern) |
+            Q(fitments__verified=True, fitments__details__regex=year_pattern)
+        ).distinct()
+        matched = checked_rows.count()
+        stats = (before_years, matched)
+        if request.method == 'GET':
+            cache.set(stats_key, stats, timeout=60)
+    before_years, matched = stats
+    unknown_years = max(0, before_years - matched)
     # All download actions use the last saved rule, not unsaved form values.
     # Preview is intentionally short and read-only; full records go to Excel.
     from .selection_exports import filtered_offers, JSON_BATCH_SIZE
