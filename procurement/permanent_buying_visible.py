@@ -86,11 +86,48 @@ def visible_permanent_buying_rows(request, preferences, filters):
                          'url': item.kaspi_url,
                          'match_status': item.identity_status,
                          'seller_count': max(counts) if counts else None}
+        # A card-level minPrice without actual seller offers is NOT a verified
+        # market minimum. This status never mutates the permanent record.
+        seller_prices = []
+        if candidate_obj and isinstance(candidate_obj.city_offers, list):
+            for city in candidate_obj.city_offers:
+                if not isinstance(city, dict):
+                    continue
+                for seller in (city.get('sellers') or []):
+                    if isinstance(seller, dict):
+                        try:
+                            price = Decimal(str(seller.get('price')))
+                        except (ArithmeticError, ValueError, TypeError):
+                            continue
+                        if price.is_finite() and price > 0:
+                            seller_prices.append(price)
+        has_seller_evidence = bool(seller_prices)
+        seller_min = min(seller_prices) if seller_prices else None
+        identity_confirmed = item.identity_status == 'verified'
+        if item.roi_snapshot < Decimal('50'):
+            price_status = 'Доходность ниже 50% — сохраняется в реестре'
+        elif not has_seller_evidence:
+            price_status = 'Цена Kaspi не подтверждена предложениями продавцов'
+        elif seller_min != item.kaspi_price_snapshot:
+            price_status = 'Цена расходится с ценами продавцов — нужна проверка'
+        elif not identity_confirmed:
+            price_status = 'Цена найдена в выгрузке — исполнение требует проверки'
+        else:
+            price_status = 'Цена и совпадение подтверждены по сохранённым данным'
+        # Saved historical data is preserved, but cannot silently be treated
+        # as a current confirmed purchase price.
+        purchase_ready = bool(item.source == 'apify' and identity_confirmed and
+                              has_seller_evidence and seller_min == item.kaspi_price_snapshot
+                              and item.roi_snapshot >= Decimal('50'))
         photo = item.photo_url or offer.photo_url or prepared_photos.get(offer.pk, '')
         after_commission = (item.kaspi_price_snapshot *
                             (Decimal('1') - item.commission_snapshot / Decimal('100')))
         row.update({
             'offer': offer, 'candidate': candidate,
+            'purchase_ready': purchase_ready,
+            'price_evidence_status': price_status,
+            'has_seller_evidence': has_seller_evidence,
+            'seller_minimum': seller_min,
             'favorite': offer.pk in favorite_ids,
             'display_photo_url': photo, 'preliminary_photo': False,
             'display_cost': item.cost_snapshot,
