@@ -62,6 +62,8 @@ def process_next_apify_batch(session_id, user):
             pk=session_id, user=user, action='apify_upload_session')
         details = dict(session.details)
         next_batch = details['next_batch']
+        if details.get('next_upload_batch', details['total_batches']) < details['total_batches']:
+            raise ValidationError('Сначала завершите загрузку всех исходных партий.')
         if next_batch >= details['total_batches']:
             return {'done': True, **details}
         source = Activity.objects.get(
@@ -83,3 +85,57 @@ def process_next_apify_batch(session_id, user):
         # rejected or below-threshold cards in permanent storage.
         source.delete()
         return {'done': details['next_batch'] >= details['total_batches'], **details}
+
+
+def begin_chunked_upload(*, filename, total, digest, user):
+    """Create/resume a source file using tiny, independent browser requests."""
+    if not str(filename).lower().endswith('.json'):
+        raise ValidationError('Требуется файл JSON.')
+    if not isinstance(total, int) or not 1 <= total <= MAX_ROWS:
+        raise ValidationError('Допустимо от 1 до 50 000 исходных строк.')
+    if not isinstance(digest, str) or len(digest) != 64 or any(
+            c not in '0123456789abcdef' for c in digest):
+        raise ValidationError('Некорректный отпечаток исходного файла.')
+    with transaction.atomic():
+        previous = Activity.objects.select_for_update().filter(
+            user=user, action='apify_upload_session', details__digest=digest
+        ).order_by('-id').first()
+        if previous:
+            if previous.details.get('total') != total:
+                raise ValidationError('Число строк отличается от ранее сохранённого файла.')
+            return previous
+        return Activity.objects.create(
+            user=user, action='apify_upload_session',
+            details={'digest': digest, 'filename': filename[:255],
+                     'total': total, 'total_batches': (total + BATCH_SIZE - 1) // BATCH_SIZE,
+                     'next_batch': 0, 'next_upload_batch': 0,
+                     'stats': {'products': 0, 'linked': 0, 'verified': 0,
+                               'unmatched': 0, 'invalid': 0,
+                               'protected_verified': 0, 'rejected_below_50': 0,
+                               'rejected_unverifiable': 0}})
+
+
+def append_chunked_upload(*, session_id, batch, rows, user):
+    """Persist one original batch atomically, supporting safe retry."""
+    if not isinstance(rows, list) or not 1 <= len(rows) <= BATCH_SIZE:
+        raise ValidationError('Одна партия должна содержать от 1 до 500 строк.')
+    with transaction.atomic():
+        session = Activity.objects.select_for_update().get(
+            pk=session_id, user=user, action='apify_upload_session')
+        details = dict(session.details)
+        expected = details.get('next_upload_batch', details['total_batches'])
+        if batch < expected:
+            return {'uploaded_batches': expected, 'total_batches': details['total_batches']}
+        if batch != expected or batch >= details['total_batches']:
+            raise ValidationError('Неверный порядок загрузки партий.')
+        required_size = min(BATCH_SIZE, details['total'] - batch * BATCH_SIZE)
+        if len(rows) != required_size:
+            raise ValidationError('Неверное количество строк в партии.')
+        Activity.objects.create(
+            user=user, action='apify_upload_source_batch',
+            details={'session_id': session.pk, 'batch': batch, 'rows': rows})
+        details['next_upload_batch'] = expected + 1
+        session.details = details
+        session.save(update_fields=['details'])
+        return {'uploaded_batches': details['next_upload_batch'],
+                'total_batches': details['total_batches']}
