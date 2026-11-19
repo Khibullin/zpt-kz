@@ -44,8 +44,9 @@ class SelectionFilterForm(forms.Form):
         # in the database until the verified backup and destructive cleanup.
         self.fields['supplier'].queryset = Supplier.objects.filter(name='Omega')
         omega = Supplier.objects.filter(name='Omega').values_list('pk', flat=True).first()
-        if omega and (not self.is_bound or not self.data.get('supplier')):
+        if omega:
             if self.is_bound:
+                # Old bookmarks and saved sessions may still point to removed suppliers.
                 self.data = self.data.copy()
                 self.data['supplier'] = str(omega)
             else:
