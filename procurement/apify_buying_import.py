@@ -34,7 +34,8 @@ def _money(value):
 
 
 def _token(value):
-    return re.sub(r'[^a-z0-9а-яё]', '', str(value or '').casefold())
+    """Case-insensitive exact comparison; preserve article separators and zeros."""
+    return str(value or '').strip().casefold()
 
 
 def _item_id(row):
@@ -65,19 +66,14 @@ def _offer_index(brands):
     index = defaultdict(list)
     if not brands:
         return index
-    # Exact brand/article matching across all approved wholesale sources.
+    # This upload workflow is explicitly limited to Omega. Other suppliers'
+    # existing records remain untouched and available elsewhere.
     from django.db.models import Q
     brand_filter = Q()
     for brand in brands:
         brand_filter |= Q(brand__iexact=brand)
-    approved_suppliers = (Q(supplier__name__icontains='omega')
-                          | Q(supplier__name__icontains='фаэтон')
-                          | Q(supplier__name__icontains='фаетон')
-                          | Q(supplier__name__icontains='phaeton')
-                          | Q(supplier__name__icontains='zakazauto')
-                          | Q(supplier__name__icontains='заказавто'))
     for offer in Offer.objects.filter(
-        brand_filter & approved_suppliers
+        brand_filter, supplier__name='Omega'
     ).only('id', 'brand', 'article', 'name', 'kaspi_url', 'match_verified',
            'cost', 'stock').iterator(chunk_size=1500):
         if offer.article:
@@ -155,10 +151,9 @@ def import_apify_results(upload, filename):
     for p in grouped.values():
         brand = _token(p['brand'])
         # Exactly the same article token, not a substring (e.g. 1234 != 12345).
-        article_tokens = {_token(token) for token in re.findall(
-            r'[A-Za-zА-Яа-яЁё0-9]+(?:[-./][A-Za-zА-Яа-яЁё0-9]+)*',
-            p['title']
-        )}
+        # Do not collapse punctuation: AB-123 and AB123 are different SKUs.
+        # Standalone complete title tokens are hints, not proof of identity.
+        article_tokens = {_token(token.strip('()[]{}:,;')) for token in p['title'].split()}
         linked = [
             offer for offer in index.get(brand, [])
             if _token(offer.article) in article_tokens
@@ -177,6 +172,15 @@ def import_apify_results(upload, filename):
             city_offers=list(p['cities'].values()), offer=match,
             match_status=status, source_filename=PurePath(filename).name[:255],
         ))
+    # An already verified card must not be downgraded or rebound by a new
+    # import. Preserve its identity and commercial values for manual review.
+    protected_ids = set(KaspiBuyingCandidate.objects.filter(
+        product_id__in=[candidate.product_id for candidate in candidates],
+        match_status='verified',
+    ).values_list('product_id', flat=True))
+    candidates = [candidate for candidate in candidates
+                  if candidate.product_id not in protected_ids]
+    counts['protected_verified'] = len(protected_ids)
     with transaction.atomic():
         KaspiBuyingCandidate.objects.bulk_create(
             candidates, batch_size=300, update_conflicts=True,
