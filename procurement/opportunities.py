@@ -5,7 +5,7 @@ from datetime import timedelta
 from django.utils import timezone
 
 from .analysis import stock_status
-from .catalog_paging import MIN_PROFITABLE_COST, MIN_PROFITABLE_ROI, profitable_product_exclusions
+from .catalog_paging import MIN_CONSUMABLE_COST, MIN_PROFITABLE_COST, MIN_PROFITABLE_ROI, is_consumable
 from .models import Preferences, ProfitableOfferRecord
 
 
@@ -20,7 +20,9 @@ def capture_profitable_offer(offer, *, batch=None, terms=None):
     """Idempotent first snapshot. No Kaspi calls, external work or stale-date renewal."""
     if getattr(offer, 'pk', None) is None:
         return False
-    if not offer.match_verified or offer.kaspi_price is None or offer.cost <= MIN_PROFITABLE_COST:
+    required_cost = MIN_CONSUMABLE_COST if is_consumable(offer.name, offer.category) else MIN_PROFITABLE_COST
+    below_threshold = offer.cost < required_cost if required_cost == MIN_CONSUMABLE_COST else offer.cost <= required_cost
+    if not offer.match_verified or offer.kaspi_price is None or below_threshold:
         return False
     if stock_status(offer.stock) != 'in_stock':
         return False
@@ -43,13 +45,13 @@ def capture_profitable_offer(offer, *, batch=None, terms=None):
         # Preserve it on Offer for review; do not create a confirmed buying record
         # until a nationwide source is verified and explicitly supported.
         return False
-    if (Decimal(offer.kaspi_price) - cost) < cost * MIN_PROFITABLE_ROI / Decimal('100'):
+    if profit < cost * MIN_PROFITABLE_ROI / Decimal('100'):
         return False
     _, created = ProfitableOfferRecord.objects.get_or_create(
         offer_id=offer.pk,
         defaults={
             'source_cost': cost, 'source_kaspi_price': offer.kaspi_price,
-            'source_profit': profit, 'source_roi': (Decimal(offer.kaspi_price) - cost) / cost * Decimal('100'),
+            'source_profit': profit, 'source_roi': profit / cost * Decimal('100'),
             'commission': commission, 'expenses': expenses,
             'supplier_date': offer.supplier_checked_on,
             'kaspi_date': offer.kaspi_price_checked_on,
