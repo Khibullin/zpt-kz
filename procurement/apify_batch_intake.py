@@ -45,7 +45,8 @@ def stage_apify_file(upload, user):
                      'total': len(rows), 'total_batches': total_batches,
                      'next_batch': 0, 'stats': {'products': 0, 'linked': 0,
                      'verified': 0, 'unmatched': 0, 'invalid': 0,
-                     'protected_verified': 0}})
+                     'protected_verified': 0, 'rejected_below_50': 0,
+                     'rejected_unverifiable': 0}})
         Activity.objects.bulk_create([
             Activity(user=user, action='apify_upload_source_batch',
                      details={'session_id': session.pk, 'batch': i,
@@ -70,7 +71,7 @@ def process_next_apify_batch(session_id, user):
         data = json.dumps(raw, ensure_ascii=False).encode('utf-8')
         uploaded = SimpleUploadedFile(details['filename'], data,
                                      content_type='application/json')
-        result = import_apify_results(uploaded, details['filename'])
+        result = import_apify_results(uploaded, details['filename'], user=user)
         stats = dict(details['stats'])
         for key in stats:
             stats[key] += result.get(key, 0)
