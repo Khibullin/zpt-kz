@@ -16,7 +16,7 @@ from django.db import transaction
 from django.db.models import DecimalField, ExpressionWrapper, F, Value
 from django.db.models.functions import NullIf
 
-from .models import KaspiBuyingCandidate, Offer, Preferences
+from .models import KaspiBuyingCandidate, Offer, Preferences, PermanentBuyingItem
 from .catalog_paging import (MIN_PROFITABLE_ROI, MIN_CONSUMABLE_COST,
                              MIN_PROFITABLE_COST, is_consumable, net_buying_profit)
 from .omega_policy import POSITIVE_STOCK_PATTERN
@@ -203,6 +203,27 @@ def import_apify_results(upload, filename, user=None):
         if profit < match.cost * MIN_PROFITABLE_ROI / Decimal('100'):
             counts['rejected_below_50'] += 1
             continue
+        # Permanent acquisition ledger is strictly append-only: an imported
+        # price can never rewrite an earlier approved opportunity.
+        if user is not None:
+            with transaction.atomic():
+                PermanentBuyingItem.objects.get_or_create(
+                    offer_id=match.pk,
+                    defaults={
+                        'source': 'apify',
+                        'product_id': p['id'],
+                        'title': p['title'] or match.name,
+                        'kaspi_url': p['url'],
+                        'cost_snapshot': match.cost,
+                        'kaspi_price_snapshot': minimum_price,
+                        'commission_snapshot': commission,
+                        'expenses_snapshot': max(Decimal('250'), expenses),
+                        'profit_snapshot': profit.quantize(Decimal('.01')),
+                        'roi_snapshot': (profit * Decimal('100') / match.cost).quantize(Decimal('.0001')),
+                        'identity_status': status,
+                        'photo_url': '',  # See source photo only after a verified identity.
+                    },
+                )
         candidates.append(KaspiBuyingCandidate(
             product_id=p['id'], title=p['title'], brand=p['brand'], url=p['url'],
             minimum_price=minimum_price,
