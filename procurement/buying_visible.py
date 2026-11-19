@@ -13,7 +13,8 @@ from .analysis import evaluate, PACKAGING_COST, stock_status
 from .catalog_paging import cumulative_profitable_query
 from .fitment_filters import matches_configuration
 from .vehicle_countries import country_makes
-from .catalog_paging import profitable_product_exclusions, MIN_PROFITABLE_COST, MIN_PROFITABLE_ROI
+from .catalog_paging import (profitable_product_exclusions, buying_cost_query,
+                             net_buying_profit, MIN_PROFITABLE_ROI)
 
 
 def filtered_offer_ids(filters):
@@ -71,9 +72,9 @@ def visible_buying_rows(request, preferences, filters):
     offer_scope = filtered_offer_ids(filters)
     qs = KaspiBuyingCandidate.objects.filter(
         match_status__in=['candidate', 'verified'], offer__isnull=False,
-        offer__cost__gt=MIN_PROFITABLE_COST,
+
     )
-    qs = qs.exclude(profitable_product_exclusions('offer__')).exclude(
+    qs = qs.filter(buying_cost_query('offer__')).exclude(profitable_product_exclusions('offer__')).exclude(
         Q(title__icontains='пружин') | Q(title__icontains='spring')
     )
     if offer_scope is not None:
@@ -114,17 +115,14 @@ def visible_buying_rows(request, preferences, filters):
     if bounds is not None:
         candidate_fields.append('city_offers')
     candidates = list(qs.values(*candidate_fields))
-    candidate_offer_ids = {item['offer_id'] for item in candidates}
+    candidate_offer_ids = set()
     commission = preferences.commission
     expenses = preferences.expenses
     extra_cost = max(PACKAGING_COST, expenses) if expenses is not None else None
 
     def calculation(price, cost):
-        if price is None or cost is None or cost <= 0:
-            return None, None
-        roi = (price - cost) * Decimal('100') / cost
-        profit = (price * (Decimal('1') - commission / Decimal('100')) - cost - extra_cost
-                  if commission is not None and extra_cost is not None else None)
+        profit = net_buying_profit(price, cost, commission, expenses)
+        roi = (profit * Decimal('100') / cost if profit is not None else None)
         return profit, roi
 
     indexed = []
@@ -152,11 +150,12 @@ def visible_buying_rows(request, preferences, filters):
             continue
         if filters.get('min_markup') is not None and (roi is None or roi < filters['min_markup']):
             continue
+        candidate_offer_ids.add(candidate['offer_id'])
         indexed.append(('apify', candidate, profit, roi))
 
     # Previously saved profitable offers must not disappear on Apify import.
     # Include currently qualified legacy offers without duplicating an Apify supplier row.
-    old = Offer.objects.filter(cost__gt=MIN_PROFITABLE_COST).exclude(
+    old = Offer.objects.filter(buying_cost_query()).exclude(
         profitable_product_exclusions()
     ).select_related(
         'supplier', 'profitable_record',
@@ -203,9 +202,9 @@ def visible_buying_rows(request, preferences, filters):
         cost = (record.source_cost if record else offer.cost)
         profit, roi = calculation(price, cost)
         if record:
-            profit = record.source_profit
-            roi = (price - cost) * Decimal('100') / cost if cost > 0 and price is not None else None
-        if cost <= MIN_PROFITABLE_COST or roi is None or roi < MIN_PROFITABLE_ROI:
+            # Keep archived prices/dates, but apply current buying profitability.
+            profit, roi = calculation(price, cost)
+        if roi is None or roi < MIN_PROFITABLE_ROI:
             continue
         if filters.get('min_profit') is not None and (profit is None or profit < filters['min_profit']):
             continue
