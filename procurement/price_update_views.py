@@ -93,7 +93,9 @@ def updates(request):
     form = PriceUpdateForm(request.POST, request.FILES)
     if form.is_valid():
         # Keep legacy POST links from silently staging non-Omega supplier files.
-        if any(form.cleaned_data.get(key + '_file') for key in ('phaeton', 'zakazauto')):
+        if (any(form.cleaned_data.get(key + '_file') for key in ('phaeton', 'zakazauto'))
+                or (form.cleaned_data.get('omega_file') and
+                    getattr(form.cleaned_data.get('omega_supplier'), 'name', '') != 'Omega')):
             messages.error(request, 'В служебном кабинете разрешены только прайс-листы Omega.')
             return redirect('procurement:selection_rules')
         try:
@@ -116,7 +118,7 @@ def updates(request):
 @access('sales', 'admin')
 @require_POST
 def advance(request, pk):
-    get_object_or_404(PriceUpdate, pk=pk)
+    get_object_or_404(PriceUpdate, pk=pk, supplier__name='Omega')
     try:
         batch = advance_update(pk)
     except ValueError as error:
@@ -129,7 +131,7 @@ def advance(request, pk):
 def queue_export(request):
     import json
     from urllib.parse import urlencode
-    tasks = KaspiReviewTask.objects.filter(status__in=['pending', 'checking', 'blocked']).select_related('offer__supplier').order_by('priority', 'pk')
+    tasks = KaspiReviewTask.objects.filter(status__in=['pending', 'checking', 'blocked'], offer__supplier__name='Omega').select_related('offer__supplier').order_by('priority', 'pk')
     payload = [{'offer_id': t.offer_id, 'supplier': t.offer.supplier.name, 'brand': t.offer.brand,
         'article': t.offer.article, 'name': t.offer.name, 'kaspi_url': t.offer.kaspi_url,
         'reason': t.reason, 'search_url': 'https://kaspi.kz/shop/search/?' + urlencode({
@@ -142,7 +144,7 @@ def queue_export(request):
 @access('sales', 'admin')
 @require_POST
 def retry_kaspi(request, pk):
-    batch = get_object_or_404(PriceUpdate, pk=pk)
+    batch = get_object_or_404(PriceUpdate, pk=pk, supplier__name='Omega')
     count = KaspiReviewTask.objects.filter(batch=batch, status='blocked').update(status='pending', reason='Повторная проверка по команде сотрудника')
     messages.success(request, f'Возобновлено проверок Kaspi: {count}.')
     return redirect('procurement:price_updates')
