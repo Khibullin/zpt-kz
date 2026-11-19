@@ -2,8 +2,9 @@
 <div class="compact-dashboard">
 <header class="compact-header">
 <h1>{% if mode == 'best' %}Выгодные к закупке{% else %}Оптовые закупки{% endif %}</h1>
+{% if mode == 'best' %}<small class="muted" title="Действуют для всех пользователей и поставщиков">Правила 19.11.2026: закупка &gt; 5 000 ₸ · без пружин · доходность ≥ 50%</small>{% endif %}
 <form method="get" class="supplier-picker"><input type="hidden" name="mode" value="{{ mode }}"><label>Поставщик {{ filter_form.supplier }}</label><button>Выбрать</button></form>
-<div class="actions">{% if can_manage and mode != 'best' %}<a class="button" href="{% url 'procurement:selection_rules' %}#upload-step-title">Загрузить прайс-лист</a>{% endif %}</div>
+<div class="actions">{% if mode == 'best' %}<a class="button" href="{% url 'procurement:dashboard' %}?supplier=&amp;mode=best" aria-label="Обновить список по действующим правилам">Обновить список</a>{% endif %}{% if can_manage and mode != 'best' %}<a class="button" href="{% url 'procurement:selection_rules' %}#upload-step-title">Загрузить прайс-лист</a>{% endif %}</div>
 </header>
 {% if mode == 'kaspi_prices' %}<div class="notice" role="status"><strong>Сохранённые цены Kaspi — не актуальное предложение.</strong> Показаны ранее найденные цены с исходной датой проверки и статусом соответствия карточки. Старые и неподтверждённые цены не дают права добавлять товар в выгодную закупку или автоматически публиковать на Kaspi.</div>{% endif %}
 {% if mode == 'stale_prices' %}<div class="notice" role="status"><strong>Цены Kaspi устарели или дата проверки неизвестна.</strong> Это кандидаты на повторную проверку, а не подтверждённые выгодные закупки. Показанная прибыль рассчитана по сохранённой старой цене. Даты не обновляются автоматически. Добавление в закупку из этого списка отключено.</div>{% endif %}
