@@ -97,6 +97,13 @@ def import_apify_results(upload, filename, user=None):
     raw = _normalize_rows(payload)
     if not raw or len(raw) > 50000:
         raise ValidationError('Файл пустой либо содержит более 50 000 записей.')
+    # Apify's multi-card search contains unrelated results. Recheck exports
+    # have searchQuery per card and must use the separate, non-destructive
+    # cross-card minimum-price aggregation path (never old first-card import).
+    if user is not None and any(
+            isinstance(item, dict) and item.get('searchQuery') for item in raw):
+        from .apify_price_recheck import import_apify_recheck_results
+        return import_apify_recheck_results(raw, filename, user)
     grouped = {}
     invalid = 0
     for row in raw:
