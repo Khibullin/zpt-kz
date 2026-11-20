@@ -59,7 +59,7 @@ class PermanentBuyingPageTests(TestCase):
         self.assertEqual(response.context['apify_in_best'], 1)
         self.assertContains(response, 'BR TEST-1 радиатор')
         self.assertContains(response, 'Цена Kaspi не подтверждена')
-        self.assertContains(response, 'Закупку не добавлять')
+        self.assertContains(response, 'Нужна проверка')
 
     def test_old_below_50_remains_visible_without_purchase_permission(self):
         old_offer = Offer.objects.create(
