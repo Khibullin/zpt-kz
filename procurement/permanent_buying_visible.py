@@ -17,9 +17,10 @@ from .models import (PermanentBuyingItem, Favorite, KaspiBuyingCandidate,
 
 def visible_permanent_buying_rows(request, preferences, filters):
     rows = PermanentBuyingItem.objects.select_related('offer', 'offer__supplier')
-    # Quick entry to the most recent imported-price comparisons. This is a
-    # display filter only: old permanent records and their snapshots remain.
-    if request.GET.get('rechecked') == '1':
+    # Profitable buying opens directly on products with an Apify price recheck.
+    # Historical register records remain intact and accessible to maintenance
+    # via the explicit legacy query parameter, not the ordinary buying screen.
+    if request.GET.get('rechecked') != '0':
         rows = rows.filter(offer_id__in=KaspiPriceAudit.objects.values('offer_id'))
     supplier = filters.get('supplier')
     if supplier:
