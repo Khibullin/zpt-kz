@@ -161,8 +161,8 @@
       <td>{{ saved.details.total }}</td>
       <td>{{ saved.details.query_count }}<small style="display:block">{{ saved.details.status }}</small></td>
       <td>{% if saved.legacy %}Ранее подготовлены 9 файлов{% else %}{% for batch in saved.export_batches %}
-        <a href="{% url 'procurement:selection_apify_json' %}?request_id={{ saved.pk }}&amp;batch={{ batch }}">JSON {{ batch }}</a>
-        <a href="{% url 'procurement:selection_apify_json' %}?request_id={{ saved.pk }}&amp;batch={{ batch }}&amp;format=mapping">Соответствие</a>
+        <a href="{% url 'procurement:selection_apify_json' %}?request_id={{ saved.id }}&amp;batch={{ batch }}">JSON {{ batch }}</a>
+        <a href="{% url 'procurement:selection_apify_json' %}?request_id={{ saved.id }}&amp;batch={{ batch }}&amp;format=mapping">Соответствие</a>
       {% endfor %}{% endif %}</td>
     </tr>
     {% endfor %}</tbody></table>
