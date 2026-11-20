@@ -19,6 +19,14 @@ DEFAULT_CATEGORIES = (
     'Опора амортизатора', 'Рулевая тяга', 'Стойка стабилизатора',
 )
 REQUEST_ACTION = 'omega_category_selection_request'
+LEGACY_FIRST_REQUEST = {
+    'number': 1, 'title': 'Запрос №1', 'filename': 'Solid Prof Group, 20.11.2026',
+    'checked_on': '2026-11-20', 'categories': list(DEFAULT_CATEGORIES),
+    'category_keys': [category_key_name.casefold() for category_key_name in DEFAULT_CATEGORIES],
+    'min_cost': '2000', 'total': 4214, 'query_count': 4259,
+    'status': 'JSON подготовлены, отправлены в Apify вручную; завершение не подтверждено',
+}
+
 
 
 def category_key(value):
@@ -70,6 +78,34 @@ def price_categories(batch, minimum=Decimal('2000')):
               for name, value in sorted(counts.items(), key=lambda pair: pair[0].casefold())]
     cache.set(key, result, timeout=300)
     return result
+
+
+def category_usage(saved_requests):
+    """Show previous request numbers without removing repeatable categories."""
+    usage = defaultdict(list)
+    has_first = any(int(item.details.get('number', 0)) == 1 for item in saved_requests)
+    if not has_first:
+        for name in DEFAULT_CATEGORIES:
+            usage[category_key(name)].append(1)
+    for item in saved_requests:
+        for name in item.details.get('category_keys', []):
+            number = int(item.details.get('number', 0))
+            key = category_key(name)
+            if number and number not in usage[key]:
+                usage[key].append(number)
+    return {key: sorted(numbers) for key, numbers in usage.items()}
+
+
+def get_display_history(saved_requests):
+    """Historical request is shown as a disclosure, not falsified as an Apify run."""
+    history = [{'id': item.pk, 'details': item.details,
+                'created_at': item.created_at, 'legacy': False,
+                'export_batches': range(1, (int(item.details.get('query_count') or 0) + 499) // 500 + 1)}
+               for item in saved_requests]
+    if not any(int(item['details'].get('number', 0)) == 1 for item in history):
+        history.insert(0, {'id': None, 'details': LEGACY_FIRST_REQUEST,
+                           'created_at': None, 'legacy': True, 'export_batches': []})
+    return history
 
 
 def request_history():
@@ -128,7 +164,7 @@ def save_request(*, batch_id, categories, minimum, user):
         raise ValidationError('По выбранным условиям товары не найдены.')
     previous = list(Activity.objects.select_for_update()
                     .filter(action=REQUEST_ACTION).only('id', 'details'))
-    number = max((int(item.details.get('number', 0)) for item in previous), default=0) + 1
+    number = max((int(item.details.get('number', 0)) for item in previous), default=1) + 1
     from .selection_exports import article_variants
     queries = set()
     for row in filtered:
