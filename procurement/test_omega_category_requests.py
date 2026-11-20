@@ -52,7 +52,7 @@ class OmegaCategoryRequestTests(TestCase):
         self.assertEqual(summary['Рычаг']['eligible'], 1)
         response = self.client.get(reverse('procurement:selection_rules'))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Выбор категорий Омеги')
+        self.assertContains(response, 'Выбор категорий и запросов')
         self.assertContains(response, 'История запросов')
         self.assertContains(response, 'solid-2026.xlsx')
         self.assertContains(response, 'value="Амортизатор"')
