@@ -1,0 +1,193 @@
+"""Conservative repeated Apify-price comparison by exact SKU.
+
+Search results frequently include unrelated products. The searchQuery is ONLY a
+scope check, never proof that a returned card is the requested part. For each
+Omega SKU compare seller offers on all returned cards, including numeric article
+variants differing only in leading zeros. Execution must be checked manually.
+
+This module NEVER changes source Offer, historic PermanentBuyingItem, Selection
+or previous KaspiBuyingCandidate. A per-file audit row is updated to the lowest
+observed seller price across consecutive 500-card batches.
+"""
+import re
+from collections import defaultdict
+from decimal import Decimal
+from pathlib import PurePath
+
+from django.db import transaction
+from django.db.models import Q
+
+from .analysis import PACKAGING_COST
+from .catalog_paging import net_buying_profit
+from .models import KaspiPriceAudit, Offer, Preferences
+from .omega_policy import POSITIVE_STOCK_PATTERN
+
+
+def normalize_article(value):
+    """Leading zeros are equivalent ONLY for wholly numeric article codes."""
+    value = str(value or '').strip().casefold()
+    if value.isascii() and value.isdecimal():
+        return value.lstrip('0') or '0'
+    return value
+
+
+def article_tokens(title):
+    """Complete word-sized tokens, preserving article separators and suffixes."""
+    return {normalize_article(x) for x in re.findall(
+        r'[^\W_]+(?:[-/.][^\W_]+)*', str(title or '').casefold(), re.UNICODE)}
+
+
+def _brand(value):
+    return str(value or '').strip().casefold()
+
+
+def _money(value):
+    try:
+        price = Decimal(str(value))
+        if price.is_finite() and 0 < price < Decimal('1000000000000'):
+            return price.quantize(Decimal('.01'))
+    except (TypeError, ValueError, ArithmeticError):
+        pass
+    return None
+
+
+def _query_matches(offer, query):
+    """Do not buy unrelated search results from broad Kaspi search pages."""
+    expected = _brand(offer.brand)
+    q = str(query or '').strip().casefold()
+    if not q.startswith(expected + ' '):
+        return False
+    return normalize_article(q[len(expected):].strip()) == normalize_article(offer.article)
+
+
+def _offer_index(brands):
+    index = defaultdict(list)
+    if not brands:
+        return index
+    condition = Q(pk__in=[])
+    for brand in brands:
+        condition |= Q(brand__iexact=brand)
+    for offer in Offer.objects.filter(
+            condition, supplier__name='Omega').only(
+            'id', 'brand', 'article', 'name', 'category',
+            'cost', 'stock').iterator(chunk_size=1500):
+        index[_brand(offer.brand)].append(offer)
+    return index
+
+
+def import_apify_recheck_results(raw, filename, user):
+    preferences = Preferences.objects.filter(user=user).first()
+    commission = preferences.commission if preferences else None
+    expenses = preferences.expenses if preferences else None
+    stats = {
+        'rows': len(raw), 'products': 0, 'invalid': 0,
+        'linked': 0, 'verified': 0, 'unmatched': 0,
+        'rejected_below_50': 0, 'rejected_unverifiable': 0,
+        'rejected_unconfirmed_price': 0,
+        'recheck_matched_cards': 0, 'recheck_price_cards': 0,
+        'recheck_unrelated': 0, 'recheck_missing_sellers': 0,
+        'recheck_offer_updates': 0,
+    }
+    if commission is None or expenses is None:
+        raise ValueError('Для расчёта необходимо задать комиссию Kaspi и расходы.')
+    brands = {_brand(row.get('brand')) for row in raw
+              if isinstance(row, dict) and row.get('brand')}
+    index = _offer_index(brands)
+    grouped = {}
+    for row in raw:
+        if not isinstance(row, dict) or not row.get('id'):
+            stats['invalid'] += 1
+            continue
+        stats['products'] += 1
+        brand = _brand(row.get('brand'))
+        title = str(row.get('title') or '')
+        tokens = article_tokens(title)
+        matching = [offer for offer in index.get(brand, [])
+                    if normalize_article(offer.article) in tokens
+                    and _query_matches(offer, row.get('searchQuery'))]
+        if len(matching) != 1:
+            stats['unmatched'] += 1
+            stats['recheck_unrelated'] += 1
+            continue
+        offer = matching[0]
+        stats['linked'] += 1
+        stats['recheck_matched_cards'] += 1
+        if not re.match(POSITIVE_STOCK_PATTERN, str(offer.stock or '')):
+            stats['rejected_unverifiable'] += 1
+            continue
+        if re.search(r'пружин|spring', ' '.join((
+                offer.name or '', offer.category or '', title)), re.I):
+            stats['rejected_unverifiable'] += 1
+            continue
+        sellers = row.get('offers') or row.get('sellers') or []
+        if not isinstance(sellers, list):
+            sellers = []
+        priced = [(price, str(seller.get('sellerName') or
+                             seller.get('name') or '')[:180])
+                  for seller in sellers if isinstance(seller, dict)
+                  for price in [_money(seller.get('price'))] if price]
+        if not priced or row.get('inStock') is False:
+            stats['rejected_unconfirmed_price'] += 1
+            stats['recheck_missing_sellers'] += 1
+            continue
+        stats['recheck_price_cards'] += 1
+        price, seller_name = min(priced, key=lambda value: value[0])
+        product_id = str(row['id'])[:80]
+        key = offer.pk
+        if key not in grouped:
+            grouped[key] = {'offer': offer, 'minimum': price, 'seller': seller_name,
+                            'product_id': product_id, 'title': title[:500],
+                            'url': str(row.get('url') or '')[:2048],
+                            'card_ids': set()}
+        if price < grouped[key]['minimum']:
+            grouped[key].update(minimum=price, seller=seller_name,
+                                product_id=product_id, title=title[:500],
+                                url=str(row.get('url') or '')[:2048])
+        grouped[key]['card_ids'].add(product_id)
+
+    source = PurePath(filename).name[:255]
+    cost_expenses = max(PACKAGING_COST, Decimal(expenses))
+    with transaction.atomic():
+        for entry in grouped.values():
+            offer = entry['offer']
+            price = entry['minimum']
+            profit = net_buying_profit(price, offer.cost, commission, expenses)
+            if profit is None:
+                continue
+            defaults = dict(
+                min_price=price, product_id=entry['product_id'],
+                card_url=entry['url'], card_title=entry['title'],
+                seller_name=entry['seller'], cost_snapshot=offer.cost,
+                commission_snapshot=commission,
+                expenses_snapshot=cost_expenses,
+                profit=profit.quantize(Decimal('.01')),
+                roi=(profit * Decimal(100) / offer.cost).quantize(Decimal('.0001')),
+                card_ids=sorted(entry['card_ids']),
+                identity_status='needs_review',
+            )
+            record, created = KaspiPriceAudit.objects.select_for_update().get_or_create(
+                offer=offer, source_filename=source, defaults=defaults)
+            if not created:
+                previous = set(record.card_ids or [])
+                combined = sorted(previous | entry['card_ids'])
+                record.card_ids = combined
+                # Freeze the commercial configuration of the first matching
+                # batch; subsequent batches may only improve the minimum.
+                if price < record.min_price:
+                    record.min_price = price
+                    record.product_id = entry['product_id']
+                    record.card_url = entry['url']
+                    record.card_title = entry['title']
+                    record.seller_name = entry['seller']
+                    new_profit = net_buying_profit(
+                        price, record.cost_snapshot,
+                        record.commission_snapshot, record.expenses_snapshot)
+                    record.profit = new_profit.quantize(Decimal('.01'))
+                    record.roi = (new_profit * Decimal(100) /
+                                  record.cost_snapshot).quantize(Decimal('.0001'))
+                record.save()
+            stats['recheck_offer_updates'] += 1
+            if record.roi < Decimal('50'):
+                stats['rejected_below_50'] += 1
+    # Only the audit table is altered. No old product or purchase is changed.
+    return stats
