@@ -183,7 +183,7 @@ def visible_permanent_buying_rows(request, preferences, filters):
             row['difference'] = (row['kaspi_after_commission'] -
                                  audit.cost_snapshot)
             row['price_evidence_status'] = (
-                'Минимальная цена из предложений продавцов · '
+                'Минимальная среди найденных карточек и продавцов · '
                 'исполнение требует проверки')
             if audit.roi < Decimal('50'):
                 row['price_evidence_status'] = (
