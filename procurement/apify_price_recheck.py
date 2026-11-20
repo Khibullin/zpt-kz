@@ -1,7 +1,9 @@
 """Conservative repeated Apify-price comparison by exact SKU.
 
-Search results frequently include unrelated products. The searchQuery is ONLY a
-scope check, never proof that a returned card is the requested part. For each
+Search results frequently include unrelated products. The searchQuery describes
+what Apify searched for, NOT what the result actually is: a matching product
+can be returned in a neighboring article's result list. Match only the
+product's own brand and complete article. For each
 Omega SKU compare seller offers on all returned cards, including numeric article
 variants differing only in leading zeros. Execution must be checked manually.
 
@@ -51,15 +53,6 @@ def _money(value):
     return None
 
 
-def _query_matches(offer, query):
-    """Do not buy unrelated search results from broad Kaspi search pages."""
-    expected = _brand(offer.brand)
-    q = str(query or '').strip().casefold()
-    if not q.startswith(expected + ' '):
-        return False
-    return normalize_article(q[len(expected):].strip()) == normalize_article(offer.article)
-
-
 def _offer_index(brands):
     index = defaultdict(list)
     if not brands:
@@ -103,8 +96,7 @@ def import_apify_recheck_results(raw, filename, user):
         title = str(row.get('title') or '')
         tokens = article_tokens(title)
         matching = [offer for offer in index.get(brand, [])
-                    if normalize_article(offer.article) in tokens
-                    and _query_matches(offer, row.get('searchQuery'))]
+                    if normalize_article(offer.article) in tokens]
         if len(matching) != 1:
             stats['unmatched'] += 1
             stats['recheck_unrelated'] += 1
