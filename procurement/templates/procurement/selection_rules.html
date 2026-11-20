@@ -119,10 +119,6 @@
   {% if omega_price_batch %}
   <div class="omega-current-price"><strong>Текущий прайс:</strong> {{ omega_price_batch.filename }} · {{ omega_price_batch.checked_on|date:"d.m.Y" }} · {{ omega_price_batch.row_count }} товаров · {{ omega_categories|length }} категорий</div>
   {% endif %}
-  <div class="omega-history-shortcuts">
-    {% include 'procurement/price_update_history.html' %}
-    <a href="#omega-requests-history">История запросов</a>
-  </div>
   <div class="omega-first-divider"></div>
   <h3>Настройка запроса №{{ next_omega_number }}</h3>
   {% if omega_price_batch and omega_categories %}
@@ -144,35 +140,46 @@
     </div>
     <div class="omega-category-table" id="omega-categories-table">
       <table>
-        <thead><tr><th style="width:48px"></th><th>Категория Омеги</th><th>Всего</th><th>В наличии</th><th>От 2 000 ₸</th><th>Ранее выбрана</th></tr></thead>
+        <thead><tr><th style="width:30px"></th><th>Категория Омеги</th><th>Ранее</th><th>Всего</th><th>Ост.</th><th>От 2 000 ₸</th></tr></thead>
         <tbody>
         {% for category in omega_categories %}
           <tr class="omega-category-row" data-search="{{ category.name|lower }}{% for number in category.previous_requests %} запрос №{{ number }}{% endfor %}" {% if category.previous_requests %}data-previous="1"{% endif %}>
             <td><input type="checkbox" name="omega_category" value="{{ category.name }}" aria-label="Выбрать {{ category.name }}"></td>
             <td>{{ category.name }}</td>
-            <td>{{ category.total }}</td><td>{{ category.in_stock }}</td><td>{{ category.eligible }}</td>
             <td>{% for number in category.previous_requests %}<span class="omega-used-badge">№{{ number }}</span>{% empty %}—{% endfor %}</td>
+            <td class="omega-number">{{ category.total }}</td><td class="omega-number">{{ category.in_stock }}</td><td class="omega-number">{{ category.eligible }}</td>
           </tr>
         {% endfor %}
         </tbody>
       </table>
     </div>
-    <div class="omega-pick-result" id="omega-live-result" aria-live="polite">
+    <div class="omega-pick-result" id="omega-live-result" aria-live="polite" hidden>
       <span>Выбрано категорий: <strong id="omega-selected-count">0</strong></span>
       <span>Подходящих товаров: <strong id="omega-result-products">0</strong></span>
       <span>Поисковых запросов: <strong id="omega-result-queries">0</strong></span>
       <span>JSON-партий: <strong id="omega-result-batches">0</strong></span>
+      <small id="omega-result-note" style="width:100%">Возраст не подтверждён: требуется проверка применимости.</small>
     </div>
-    <p class="muted omega-age-note" id="omega-result-note">Товары без подтверждённого года учитываются отдельно как требующие проверки. Указанный возраст не подтверждает применимость.</p>
-    <p class="muted" id="omega-duplicate-warning">Категории с номерами прошлых запросов уже выбирались. Повторный выбор разрешён; сравните запросы, чтобы избежать лишних поисков.</p>
+    <p class="muted" id="omega-duplicate-warning">Ранее выбранные категории отмечены номерами запросов. Повторный выбор разрешён.</p>
+    <p id="omega-picker-status" role="status" aria-live="polite" class="muted">Отметьте категории, задайте условия и нажмите «Выбрать товары».</p>
     <div class="omega-actions">
-      <button class="primary" type="submit">Сохранить запрос №{{ next_omega_number }}</button>
+      <button class="primary" type="button" id="omega-pick-choose">Выбрать товары</button>
+      <button class="primary" type="submit" id="omega-save-request" hidden disabled>Сохранить запрос</button>
       <button type="button" id="omega-reset">Сбросить выбор</button>
     </div>
   </form>
   {% else %}
   <p class="muted">Загрузите прайс Омеги выше. После загрузки появится полный перечень категорий с количеством товаров.</p>
   {% endif %}
+  {% if just_saved_request %}
+    <div class="omega-saved-next" id="omega-pick-saved">
+      <strong>{{ just_saved_request.details.title }} сохранён.</strong>
+      <span>{{ just_saved_request.details.total }} товаров · {{ just_saved_request.details.query_count }} поисковых запросов.</span>
+      <a class="button primary" href="#apify-step-title">Перейти к формированию JSON для Apify</a>
+    </div>
+  {% endif %}
+  <div class="omega-history-pair">
+    {% include 'procurement/price_update_history.html' %}
   <details class="omega-request-history" id="omega-requests-history">
     <summary><strong>История запросов · {{ omega_requests|length }}</strong></summary>
     <div class="omega-category-table omega-history-table">
@@ -193,6 +200,7 @@
       </tr>{% endfor %}</tbody></table>
     </div>
   </details>
+  </div>
 </section>
 <style>
 .omega-first-step{padding:16px 20px}.omega-pick-head{margin-bottom:10px}.omega-rules-link{margin-left:auto;white-space:nowrap;padding:7px 12px;font-size:13px}
@@ -211,13 +219,24 @@
 .omega-category-tools>label{margin-right:auto;font-size:13px}.omega-category-tools input{width:270px;min-height:35px;padding:7px 10px}
 .omega-category-tools button{padding:7px 10px;font-size:12px}
 .omega-category-table{max-height:355px;overflow:auto;border:1px solid #dce5ee;border-radius:8px;margin:7px 0}
-.omega-category-table table{width:100%;border-collapse:collapse;min-width:650px}
-.omega-category-table th,.omega-category-table td{padding:6px 10px;text-align:left;border-bottom:1px solid #e8edf3;font-size:12px}
+.omega-category-table table{width:100%;border-collapse:collapse;min-width:560px}
+.omega-category-table th,.omega-category-table td{padding:3px 7px;text-align:left;border-bottom:1px solid #e8edf3;font-size:12px;line-height:1.2}
+.omega-category-table td.omega-number{white-space:nowrap;width:90px;text-align:right;font-variant-numeric:tabular-nums}
+.omega-category-table th:nth-child(n+4){text-align:right;width:90px}
 .omega-category-table th{position:sticky;top:0;background:#f4f8fc;z-index:1}
 .omega-category-table input[type=checkbox]{width:17px;height:17px;accent-color:#09978c}
 .omega-category-table tr:has(input:checked){background:#f0f9f4}.omega-category-row[data-previous="1"]{background:#fffdf2}
 .omega-used-badge{display:inline-block;background:#f9edcc;color:#7b5600;border-radius:5px;padding:2px 6px;margin:2px;font-size:11px;font-weight:700}
 .omega-pick-result{display:flex;flex-wrap:wrap;gap:8px 20px;background:#f3f8fd;padding:10px;border-radius:8px;font-size:13px;margin:9px 0}
+.omega-pick-result[hidden]{display:none!important}
+.omega-history-pair{display:grid;gap:7px;margin-top:12px}
+.omega-history-pair #pricelist-history,.omega-history-pair #omega-requests-history{margin:0;padding:8px 12px;border:1px solid #dce5ee;border-radius:8px;background:white;box-shadow:none}
+.omega-history-pair summary{cursor:pointer;font-size:12px}
+.omega-history-pair .tablewrap{max-height:260px;overflow:auto;margin-top:8px}
+.omega-history-pair th,.omega-history-pair td{padding:6px 8px;font-size:12px}
+.omega-saved-next{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px;padding:10px;border:1px solid #bfdccc;border-radius:8px}
+.omega-saved-next a{margin-left:auto}
+#omega-picker-status{margin:6px 0 10px}
 .omega-pick-result strong{color:#08786e;font-size:16px}.omega-age-note{font-size:11px;margin:6px 0}.omega-actions{display:flex;gap:8px}
 .omega-request-history{border-top:1px solid #e5ebf1;padding-top:10px;margin-top:14px}
 .omega-request-history summary{cursor:pointer}.omega-history-table{max-height:300px}.omega-history-table small{display:block;color:#718096;margin-top:3px}
@@ -232,45 +251,80 @@ document.addEventListener('DOMContentLoaded',function(){
   const form=document.getElementById('omega-category-request-form');
   if(!form)return;
   const rows=[...form.querySelectorAll('.omega-category-row')];
-  const counter=document.getElementById('omega-selected-count');
   const search=document.getElementById('omega-category-search');
+  const result=document.getElementById('omega-live-result');
   const products=document.getElementById('omega-result-products');
   const queries=document.getElementById('omega-result-queries');
   const batches=document.getElementById('omega-result-batches');
   const note=document.getElementById('omega-result-note');
-  let seq=0,controller=null,delay=null;
-  const update=()=>{
-    counter.textContent=rows.filter(r=>r.querySelector('input').checked).length;
-    if(delay)clearTimeout(delay);
-    delay=setTimeout(async()=>{
-      const id=++seq;
-      if(controller)controller.abort();
-      controller=new AbortController();
-      try{
-        const values=new FormData(form);values.set('action','preview_omega_request');
-        const res=await fetch(form.action,{method:'POST',body:values,signal:controller.signal,credentials:'same-origin'});
-        const data=await res.json();
-        if(id!==seq)return;
-        if(!res.ok)throw Error(data.error||'Ошибка расчёта');
-        products.textContent=data.products.toLocaleString('ru-RU');
-        queries.textContent=data.queries.toLocaleString('ru-RU');
-        batches.textContent=data.batches;
-        note.textContent='Возраст не подтверждён у '+data.unknown_age.toLocaleString('ru-RU')+' товаров — требуется проверка применимости.';
-      }catch(e){if(e.name!=='AbortError'){products.textContent='—';queries.textContent='—';batches.textContent='—';note.textContent=e.message;}}
-    },250);
+  const status=document.getElementById('omega-picker-status');
+  const choose=document.getElementById('omega-pick-choose');
+  const save=document.getElementById('omega-save-request');
+  let confirmed=false,controller=null;
+  const invalidate=()=>{
+    if(controller)controller.abort();
+    confirmed=false;
+    result.hidden=true;
+    save.hidden=true;
+    save.disabled=true;
+    choose.hidden=false;
+    choose.disabled=false;
+    status.textContent='Критерии готовы. Нажмите «Выбрать товары», чтобы рассчитать результат.';
   };
+  const clear=()=>{rows.forEach(r=>r.querySelector('input').checked=false);invalidate()};
   search.addEventListener('input',()=>{
     const key=search.value.trim().toLocaleLowerCase();
     rows.forEach(row=>{row.hidden=!row.dataset.search.includes(key)});
   });
-  document.getElementById('omega-select-all').addEventListener('click',()=>{rows.filter(r=>!r.hidden).forEach(r=>r.querySelector('input').checked=true);update()});
-  const clear=()=>{rows.forEach(r=>r.querySelector('input').checked=false);update()};
+  document.getElementById('omega-select-all').addEventListener('click',()=>{
+    rows.filter(r=>!r.hidden).forEach(r=>r.querySelector('input').checked=true);invalidate();
+  });
   document.getElementById('omega-clear-all').addEventListener('click',clear);
   document.getElementById('omega-reset').addEventListener('click',clear);
-  form.addEventListener('change',update);
-  form.querySelector('#omega-min-cost').addEventListener('input',update);
-  form.querySelector('#omega-max-age').addEventListener('input',update);
-  update();
+  form.addEventListener('change',invalidate);
+  form.querySelector('#omega-min-cost').addEventListener('input',invalidate);
+  form.querySelector('#omega-max-age').addEventListener('input',invalidate);
+  form.addEventListener('submit',e=>{
+    if(!confirmed){e.preventDefault();status.textContent='Сначала нажмите «Выбрать товары».';}
+    else{save.disabled=true;status.textContent='Сохраняем запрос…';}
+  });
+  choose.addEventListener('click',async()=>{
+    if(!rows.some(row=>row.querySelector('input').checked)){
+      status.textContent='Отметьте хотя бы одну категорию.';return;
+    }
+    if(!form.reportValidity())return;
+    choose.disabled=true;
+    status.textContent='Выполняется отбор товаров…';
+    controller=new AbortController();
+    try{
+      const values=new FormData(form);
+      values.set('action','preview_omega_request');
+      const response=await fetch(form.action,{
+        method:'POST',body:values,signal:controller.signal,
+        credentials:'same-origin',
+        headers:{'Accept':'application/json','X-Requested-With':'XMLHttpRequest'}
+      });
+      const contentType=response.headers.get('content-type')||'';
+      if(response.redirected||!contentType.includes('application/json')){
+        throw new Error('Сервер вернул не результат отбора. Обновите страницу и проверьте вход в кабинет.');
+      }
+      const data=await response.json();
+      if(!response.ok)throw new Error(data.error||'Ошибка расчёта. Повторите попытку.');
+      products.textContent=Number(data.products).toLocaleString('ru-RU');
+      queries.textContent=Number(data.queries).toLocaleString('ru-RU');
+      batches.textContent=data.batches;
+      document.getElementById('omega-selected-count').textContent=data.categories;
+      note.textContent='Возраст не подтверждён у '+Number(data.unknown_age).toLocaleString('ru-RU')+' товаров; требуется проверка применимости.';
+      result.hidden=false;
+      confirmed=true;
+      choose.hidden=true;
+      save.hidden=false;
+      save.disabled=false;
+      status.textContent='Проверьте результат и нажмите «Сохранить запрос». При изменении критериев нужно повторить отбор.';
+    }catch(err){
+      if(err.name!=='AbortError')status.textContent=err.message||'Не удалось выполнить отбор.';
+    }finally{choose.disabled=false;}
+  });
 });
 </script>
 <details class="rule-legacy-collapsed"><summary>Дополнительные настройки старого отбора (при необходимости)</summary>
@@ -303,13 +357,15 @@ document.addEventListener('DOMContentLoaded',function(){
 <section class="rule-card step-card" aria-labelledby="apify-step-title">
   <div class="step-heading"><span class="step-number">2</span><div><h2 id="apify-step-title">Подготовка для Apify</h2><p class="muted">Поиск по бренду и артикулу. Запуск вручную в Apify, без изменения товаров на сайте.</p></div></div>
   <div class="step-line">
-    {% if json_batches %}
-      <span>По текущему общему фильтру: <strong>{{ matched }}</strong> товаров. Для точного числа запросов с вариантами артикулов сохраните отдельный запрос выше.</span>
-      {% for batch in json_batches %}
-      <a class="button primary" href="{% url 'procurement:selection_apify_json' %}?batch={{ batch }}">↓ JSON №{{ batch }}</a>
-      <a class="button" href="{% url 'procurement:selection_apify_json' %}?batch={{ batch }}&amp;format=mapping">Соответствие №{{ batch }}</a>
+    {% if just_saved_request %}
+      <span><strong>{{ just_saved_request.details.title }}</strong>: {{ just_saved_request.details.total }} товаров, {{ just_saved_request.details.query_count }} поисковых запросов. Скачайте партии:</span>
+      {% for batch in just_saved_batches %}
+      <a class="button primary" href="{% url 'procurement:selection_apify_json' %}?request_id={{ just_saved_request.pk }}&amp;batch={{ batch }}">↓ JSON №{{ batch }}</a>
+      <a class="button" href="{% url 'procurement:selection_apify_json' %}?request_id={{ just_saved_request.pk }}&amp;batch={{ batch }}&amp;format=mapping">Соответствие №{{ batch }}</a>
       {% endfor %}
-    {% else %}<span>Сначала сохраните фильтр с ненулевым количеством товаров.</span>{% endif %}
+    {% else %}
+      <span>Сначала выберите товары в блоке №1 и сохраните запрос. Файлы прошлых запросов доступны в «Истории запросов».</span>
+    {% endif %}
   </div>
   <div class="apify-settings">
     <strong>Параметры ручного запуска Apify</strong>

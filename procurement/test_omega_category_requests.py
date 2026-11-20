@@ -59,12 +59,21 @@ class OmegaCategoryRequestTests(TestCase):
         self.offer.refresh_from_db()
         self.assertEqual((self.offer.cost, self.offer.stock), (Decimal('1500'), '6'))
 
+    def choose(self, categories, minimum='2000', age='20'):
+        payload = {
+            'price_batch_id': self.price.pk, 'omega_category': categories,
+            'omega_min_cost': minimum, 'omega_max_vehicle_age': age,
+            'omega_stock_submitted': '1', 'omega_in_stock_only': 'on',
+        }
+        response = self.client.post(reverse('procurement:selection_rules'),
+                                    {**payload, 'action': 'preview_omega_request'})
+        self.assertEqual(response.status_code, 200)
+        return payload
+
     def test_independent_history_saved_and_exported_without_changes_to_purchase(self):
         url = reverse('procurement:selection_rules')
-        response = self.client.post(url, {'action': 'save_omega_request',
-            'price_batch_id': self.price.pk,
-            'omega_category': ['Амортизатор', 'Рычаг'],
-            'omega_min_cost': '2000'})
+        payload = self.choose(['Амортизатор', 'Рычаг'])
+        response = self.client.post(url, {**payload, 'action': 'save_omega_request'})
         self.assertEqual(response.status_code, 302)
         first = Activity.objects.get(action=REQUEST_ACTION)
         self.assertEqual(first.details['title'], 'Запрос №2')
@@ -94,19 +103,20 @@ class OmegaCategoryRequestTests(TestCase):
     def test_categories_mark_previously_selected_requests_and_legacy_history(self):
         page = self.client.get(reverse('procurement:selection_rules'))
         self.assertContains(page, 'Запрос №1')
-        self.assertContains(page, 'Сохранить запрос №2')
+        self.assertContains(page, 'Выбрать товары')
+        self.assertContains(page, 'id="omega-save-request" hidden disabled')
         self.assertContains(page, '9 файлов подготовлены ранее')
         self.assertContains(page, 'Выбрано в запросе', count=0)
         # The default first ten categories are visible as already used, but
         # not automatically checked for the next request.
         self.assertContains(page, 'omega-used-badge')
         self.assertContains(page, 'value="Амортизатор" aria-label="Выбрать Амортизатор"')
-        self.client.post(reverse('procurement:selection_rules'), {
-            'action': 'save_omega_request', 'price_batch_id': self.price.pk,
-            'omega_category': ['Рычаг'], 'omega_min_cost': '2000'})
+        payload = self.choose(['Рычаг'])
+        self.client.post(reverse('procurement:selection_rules'),
+                         {**payload, 'action': 'save_omega_request'})
         page = self.client.get(reverse('procurement:selection_rules'))
         self.assertContains(page, 'Запрос №2')
-        self.assertContains(page, 'Сохранить запрос №3')
+        self.assertContains(page, 'id="omega-save-request" hidden disabled')
         self.assertContains(page, 'Повторный выбор разрешён')
         self.assertEqual(list(Selection.objects.values_list('offer_id', 'quantity')),
                          [(self.offer.pk, 2)])
@@ -172,6 +182,51 @@ class OmegaCategoryRequestTests(TestCase):
         self.assertEqual(len(rows), 1)
         self.assertEqual(rows[0][1]['category'], 'Шрус (граната)')
         self.assertEqual(rows[0][1]['cost'], 2200)
+
+    def test_preview_must_precede_save_and_saved_request_links_to_apify(self):
+        url = reverse('procurement:selection_rules')
+        data = {'action': 'save_omega_request', 'price_batch_id': self.price.pk,
+                'omega_category': ['Рычаг'], 'omega_min_cost': '2000',
+                'omega_max_vehicle_age': '20', 'omega_stock_submitted': '1',
+                'omega_in_stock_only': 'on'}
+        self.assertEqual(self.client.post(url, data).status_code, 302)
+        self.assertFalse(Activity.objects.filter(action=REQUEST_ACTION).exists())
+        payload = self.choose(['Рычаг'])
+        response = self.client.post(url, {**payload, 'action': 'save_omega_request'})
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('saved_request=', response.url)
+        page = self.client.get(response.url)
+        self.assertContains(page, 'Перейти к формированию JSON для Apify')
+        self.assertContains(page, '?request_id=1&amp;batch=1')
+        self.assertNotContains(page, 'По текущему общему фильтру')
+        self.assertContains(page, 'omega-pick-saved')
+        self.assertEqual(Activity.objects.filter(action=REQUEST_ACTION).count(), 1)
+
+    def test_changed_criteria_after_preview_cannot_be_saved(self):
+        payload = self.choose(['Рычаг'], minimum='2000')
+        payload['omega_min_cost'] = '3000'
+        self.client.post(reverse('procurement:selection_rules'),
+                         {**payload, 'action': 'save_omega_request'})
+        self.assertFalse(Activity.objects.filter(action=REQUEST_ACTION).exists())
+
+    def test_exact_duplicate_pricelist_keeps_one_history_record(self):
+        import hashlib
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        from .price_updates import stage_update
+        csv = b'brand;article;name;cost;stock\\nSRR;ONE;Item;2000;3\\n'
+        self.price.sha256 = hashlib.sha256(csv).hexdigest()
+        self.price.save(update_fields=['sha256'])
+        uploaded = SimpleUploadedFile('omega.csv', csv)
+        previous = stage_update(uploaded, self.omega, self.user, date.today(), False)
+        self.assertEqual(previous.pk, self.price.pk)
+        self.assertEqual(PriceUpdate.objects.filter(supplier=self.omega).count(), 1)
+        response = self.client.post(reverse('procurement:selection_rules'), {
+            'action':'upload_price','supplier':self.omega.pk,
+            'checked_on':date.today().isoformat(),
+            'file':SimpleUploadedFile('omega.csv', csv),
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(PriceUpdate.objects.filter(supplier=self.omega).count(), 1)
 
     def test_invalid_selection_does_not_save_anything(self):
         response = self.client.post(reverse('procurement:selection_rules'), {
