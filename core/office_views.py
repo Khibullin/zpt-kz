@@ -7,7 +7,6 @@ from django.shortcuts import render
 from django.views.decorators.cache import never_cache
 from procurement.permissions import workspace_role
 from inventory.permissions import can_access_accounting
-from marketing.permissions import user_can_access_marketing_cabinet
 
 
 def office_access(user):
@@ -37,7 +36,5 @@ def office_home(request):
     return render(request,'office/home.html',{
         'office_accounting':can_access_accounting(request.user),
         'office_procurement':role is not None,
-        'office_staff':request.user.is_staff,
-        'office_marketing':user_can_access_marketing_cabinet(request.user),
         'office_role':'Администратор' if request.user.is_staff or role=='admin' else 'Сотрудник',
     })
