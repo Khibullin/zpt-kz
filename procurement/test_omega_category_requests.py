@@ -197,6 +197,8 @@ class OmegaCategoryRequestTests(TestCase):
         self.assertIn('saved_request=', response.url)
         page = self.client.get(response.url)
         self.assertContains(page, 'Перейти к формированию JSON для Apify')
+        self.assertContains(page, '?request_id=1&amp;batch=1', count=2)
+        self.assertNotContains(page, 'По текущему общему фильтру')
         self.assertContains(page, 'omega-pick-saved')
         self.assertEqual(Activity.objects.filter(action=REQUEST_ACTION).count(), 1)
 
