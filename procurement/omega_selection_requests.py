@@ -62,7 +62,7 @@ def eligible_row(row, minimum):
 def fitment_age(row, max_age):
     """Only constrain dated applicability; missing year stays review-required."""
     source = str(row.get('applicability') or '')
-    years = [int(v) for v in re.findall(r'(?<!\\d)(?:19[89]\\d|20[0-4]\\d)(?!\\d)', source)]
+    years = [int(v) for v in re.findall(r'(?<![0-9])(?:19[89][0-9]|20[0-4][0-9])(?![0-9])', source)]
     if not years:
         return 'unknown'
     earliest = max(1980, date.today().year - max_age)
