@@ -71,16 +71,24 @@ def stage_update(file, supplier, user, date, full_catalog=False):
     if date > timezone.localdate():
         raise ValueError('Дата прайса не может быть в будущем.')
     Supplier.objects.select_for_update().get(pk=supplier.pk)
+    # Check identical source first (including pending staged imports) so a retry
+    # never creates another history entry nor blocks with the unfinished batch.
+    digest = hashlib.sha256(file.read()).hexdigest()
+    file.seek(0)
+    previous = PriceUpdate.objects.filter(
+        supplier=supplier, sha256=digest, checked_on=date,
+        full_catalog=full_catalog).order_by('-pk').first()
+    if previous:
+        return previous, False
     if PriceUpdate.objects.filter(supplier=supplier, status__in=['ready', 'running']).exists():
         raise ValueError('У поставщика есть незавершённая загрузка. Продолжите её.')
     newest = Offer.objects.filter(supplier=supplier).aggregate(value=Max('supplier_checked_on'))['value']
     if (newest and newest > date) or PriceUpdate.objects.filter(supplier=supplier, checked_on__gt=date).exists():
         raise ValueError('Уже загружен более новый прайс этого поставщика.')
-    digest = hashlib.sha256(file.read()).hexdigest()
-    file.seek(0)
-    previous = PriceUpdate.objects.filter(supplier=supplier, sha256=digest, checked_on=date, full_catalog=full_catalog, status='done').first()
-    if previous:
-        return previous
+    if PriceUpdate.objects.filter(supplier=supplier, checked_on=date).exists():
+        raise ValueError(
+            'Для этой даты уже есть прайс с другим содержимым. Проверьте новую версию файла перед заменой.'
+        )
     try:
         rows = prepare_rows(file)
     except (KeyError, OSError) as error:
@@ -96,7 +104,7 @@ def stage_update(file, supplier, user, date, full_catalog=False):
     Activity.objects.create(user=user, action='price_update_staged', details={
         'batch': batch.pk, 'supplier': supplier.pk, 'rows': len(rows), 'sha256': digest,
         'full_catalog': full_catalog})
-    return batch
+    return batch, True
 
 
 def reuse_identity(offer):
