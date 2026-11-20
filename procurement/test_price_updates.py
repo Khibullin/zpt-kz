@@ -73,9 +73,18 @@ class PriceUpdateTests(TestCase):
         self.assertFalse(PriceUpdate.objects.exists())
         self.offer.refresh_from_db(); self.assertEqual(self.offer.cost, 1000)
 
-    def test_duplicate_or_older_active_upload_rejected(self):
+    def test_duplicate_active_upload_reuses_same_batch_without_new_history(self):
+        first = self.stage()
+        again = self.stage()
+        self.assertEqual(first.pk, again.pk)
+        self.assertEqual(PriceUpdate.objects.count(), 1)
+
+    def test_different_file_while_active_is_still_rejected(self):
         self.stage()
-        with self.assertRaises(ValueError): self.stage()
+        changed = self.file('BRAND;001A;Фильтр;901;5\\n',
+                            'brand;article;name;cost;stock\\n')
+        with self.assertRaises(ValueError):
+            stage_update(changed, self.supplier, self.user, self.today)
         self.assertEqual(PriceUpdate.objects.count(), 1)
 
     def test_missing_stock_column_rejected(self):
