@@ -191,7 +191,7 @@ def selection_rules(request):
                 categories=request.POST.getlist('omega_category'),
                 minimum=request.POST.get('omega_min_cost', '2000'),
                 max_vehicle_age=request.POST.get('omega_max_vehicle_age', '20'),
-                in_stock_only=request.POST.get('omega_in_stock_only') == 'on',
+                in_stock_only=(request.POST.get('omega_in_stock_only') == 'on' if request.POST.get('omega_stock_submitted') else True),
             )
             return JsonResponse(result)
         except (ValidationError, ValueError, TypeError, PriceUpdate.DoesNotExist) as error:
@@ -205,7 +205,7 @@ def selection_rules(request):
                 categories=request.POST.getlist('omega_category'),
                 minimum=request.POST.get('omega_min_cost', '2000'),
                 max_vehicle_age=request.POST.get('omega_max_vehicle_age', '20'),
-                in_stock_only=request.POST.get('omega_in_stock_only') == 'on',
+                in_stock_only=(request.POST.get('omega_in_stock_only') == 'on' if request.POST.get('omega_stock_submitted') else True),
                 user=request.user,
             )
         except (ValidationError, ValueError, TypeError, PriceUpdate.DoesNotExist) as error:
