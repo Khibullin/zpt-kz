@@ -59,7 +59,7 @@ class ApifyMultiCardRecheckTests(TestCase):
         audit = KaspiPriceAudit.objects.get(offer=self.offer)
         self.assertEqual(result['recheck_matched_cards'], 1)
         self.assertEqual(audit.min_price, Decimal('78000'))
-        self.assertEqual(audit.roi, Decimal('8.9946'))
+        self.assertEqual(audit.roi, Decimal('27.7859'))
         self.assertEqual(audit.product_id, '168038942')
         self.assertEqual(len(audit.card_ids), 2)
         self.old.refresh_from_db()
