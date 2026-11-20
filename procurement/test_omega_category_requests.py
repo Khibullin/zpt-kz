@@ -94,7 +94,7 @@ class OmegaCategoryRequestTests(TestCase):
     def test_categories_mark_previously_selected_requests_and_legacy_history(self):
         page = self.client.get(reverse('procurement:selection_rules'))
         self.assertContains(page, 'Запрос №1')
-        self.assertContains(page, 'Запрос №2')
+        self.assertContains(page, 'Сохранить запрос №2')
         self.assertContains(page, 'Ранее подготовлены 9 файлов')
         self.assertContains(page, 'Выбрано в запросе', count=0)
         # The default first ten categories are visible as already used, but
