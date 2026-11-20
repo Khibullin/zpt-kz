@@ -1,5 +1,7 @@
 """Omega staged category requests must preserve the current buying workflow."""
 import json
+from io import BytesIO
+from openpyxl import Workbook
 from datetime import date
 from decimal import Decimal
 
@@ -88,6 +90,26 @@ class OmegaCategoryRequestTests(TestCase):
                          [(self.offer.pk, 2)])
         self.offer.refresh_from_db()
         self.assertEqual((self.offer.cost, self.offer.stock), (Decimal('1500'), '6'))
+
+    def test_real_omega_excel_subgroup_is_imported_as_category(self):
+        from .importing import load_rows
+        workbook = Workbook()
+        sheet = workbook.active
+        sheet.append(['Прайс Solid Prof Group'])
+        sheet.append(['Дата'])
+        sheet.append(['Пр-ль', 'Артикул', 'Подгруппа', 'Наименование',
+                      'Торговая марка', 'Цена, за 1шт',
+                      'Цена, за 1шт со скидкой', 'Остаток'])
+        sheet.append(['VW', '085066', 'Шрус (граната)', 'Шрус', 'SRR',
+                      2800, 2200, '20>'])
+        file = BytesIO()
+        workbook.save(file)
+        file.name = 'omega.xlsx'
+        file.seek(0)
+        rows = load_rows(file)
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0][1]['category'], 'Шрус (граната)')
+        self.assertEqual(rows[0][1]['cost'], 2200)
 
     def test_invalid_selection_does_not_save_anything(self):
         response = self.client.post(reverse('procurement:selection_rules'), {
