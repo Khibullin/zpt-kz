@@ -328,6 +328,31 @@ document.addEventListener('DOMContentLoaded',function(){
   const form=document.getElementById('omega-category-request-form');
   if(!form)return;
   const rows=[...form.querySelectorAll('.omega-category-row')];
+  const groups=[...form.querySelectorAll('.omega-group')];
+  const updateGroupCounts=()=>{
+    groups.forEach(group=>{
+      const boxes=[...group.querySelectorAll('.omega-category-row input[type=checkbox]')];
+      const count=boxes.filter(box=>box.checked).length;
+      group.querySelector('[data-group-chosen]').textContent=count;
+      const master=group.querySelector('.omega-group-checkbox');
+      master.checked=boxes.length>0&&count===boxes.length;
+      master.indeterminate=count>0&&count<boxes.length;
+      group.querySelectorAll('.omega-subgroup').forEach(sub=>{
+        const subBoxes=[...sub.querySelectorAll('.omega-category-row input[type=checkbox]')];
+        sub.querySelector('[data-subgroup-chosen]').textContent=subBoxes.filter(box=>box.checked).length;
+      });
+    });
+  };
+  groups.forEach(group=>{
+    const master=group.querySelector('.omega-group-checkbox');
+    master.addEventListener('click',event=>event.stopPropagation());
+    master.addEventListener('change',()=>{
+      group.querySelectorAll('.omega-category-row input[type=checkbox]').forEach(box=>{box.checked=master.checked});
+      updateGroupCounts();
+      invalidate();
+    });
+  });
+
   const search=document.getElementById('omega-category-search');
   const result=document.getElementById('omega-live-result');
   const products=document.getElementById('omega-result-products');
@@ -348,19 +373,39 @@ document.addEventListener('DOMContentLoaded',function(){
     choose.disabled=false;
     status.textContent='Критерии готовы. Нажмите «Выбрать товары», чтобы рассчитать результат.';
   };
-  const clear=()=>{rows.forEach(r=>r.querySelector('input').checked=false);invalidate()};
+  const clear=()=>{
+    rows.forEach(r=>r.querySelector('input').checked=false);
+    updateGroupCounts();invalidate();
+  };
   search.addEventListener('input',()=>{
     const key=search.value.trim().toLocaleLowerCase();
-    rows.forEach(row=>{row.hidden=!row.dataset.search.includes(key)});
+    groups.forEach(group=>{
+      const groupMatch=!!key&&group.dataset.name.includes(key);
+      group.querySelectorAll('.omega-subgroup').forEach(sub=>{
+        const subMatch=!!key&&sub.dataset.name.includes(key);
+        sub.querySelectorAll('.omega-category-row').forEach(row=>{
+          row.hidden=!!key&&!groupMatch&&!subMatch&&!row.dataset.search.includes(key);
+        });
+        sub.hidden=!!key&&!groupMatch&&!subMatch&&![...sub.querySelectorAll('.omega-category-row')].some(row=>!row.hidden);
+        if(key&&!sub.hidden)sub.open=true;
+      });
+      group.querySelectorAll('.omega-group-body > .omega-group-items > .omega-category-row').forEach(row=>{
+        row.hidden=!!key&&!groupMatch&&!row.dataset.search.includes(key);
+      });
+      group.hidden=!!key&&!groupMatch&&![...group.querySelectorAll('.omega-category-row')].some(row=>!row.hidden);
+      if(key&&!group.hidden)group.open=true;
+    });
   });
   document.getElementById('omega-select-all').addEventListener('click',()=>{
-    rows.filter(r=>!r.hidden).forEach(r=>r.querySelector('input').checked=true);invalidate();
+    rows.filter(r=>!r.hidden&&!r.closest('.omega-group[hidden]')&&!r.closest('.omega-subgroup[hidden]')).forEach(r=>r.querySelector('input').checked=true);
+    updateGroupCounts();invalidate();
   });
   document.getElementById('omega-clear-all').addEventListener('click',clear);
   document.getElementById('omega-reset').addEventListener('click',clear);
-  form.addEventListener('change',invalidate);
+  form.addEventListener('change',()=>{updateGroupCounts();invalidate()});
   form.querySelector('#omega-min-cost').addEventListener('input',invalidate);
   form.querySelector('#omega-max-age').addEventListener('input',invalidate);
+  updateGroupCounts();
   form.addEventListener('submit',e=>{
     if(!confirmed){e.preventDefault();status.textContent='Сначала нажмите «Выбрать товары».';}
     else{save.disabled=true;status.textContent='Сохраняем запрос…';}
