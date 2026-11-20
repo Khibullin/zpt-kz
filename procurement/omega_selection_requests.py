@@ -1,0 +1,141 @@
+"""Non-destructive Omega category selections based on staged supplier price files.
+
+Every saved request is a snapshot of criteria and source pricelist identity.
+Nothing here updates Offers, stock, current Kaspi observations or selections.
+"""
+from collections import defaultdict
+from decimal import Decimal, InvalidOperation
+from hashlib import sha256
+import json
+
+from django.core.cache import cache
+from django.core.exceptions import ValidationError
+from django.db import transaction
+
+from .analysis import stock_status
+from .models import Activity, PriceUpdate
+
+DEFAULT_CATEGORIES = (
+    'Амортизатор', 'Колодки', 'Шрус (граната)', 'Рычаг',
+    'Рулевой наконечник', 'Диск тормозной', 'Шаровая опора',
+    'Опора амортизатора', 'Рулевая тяга', 'Стойка стабилизатора',
+)
+REQUEST_ACTION = 'omega_category_selection_request'
+
+
+def category_key(value):
+    return ' '.join(str(value or '').strip().split()).casefold()
+
+
+def latest_price_batch():
+    return (PriceUpdate.objects.filter(supplier__name='Omega')
+            .only('id', 'filename', 'checked_on', 'sha256', 'row_count', 'created_at')
+            .order_by('-checked_on', '-pk').first())
+
+
+def _cost(row):
+    try:
+        amount = Decimal(str(row.get('cost') or 0).replace(',', '.'))
+        return amount if amount.is_finite() else Decimal('-1')
+    except (InvalidOperation, TypeError, ValueError):
+        return Decimal('-1')
+
+
+def eligible_row(row, minimum):
+    return (
+        not row.get('_conflict')
+        and bool(str(row.get('brand') or '').strip())
+        and bool(str(row.get('article') or '').strip())
+        and stock_status(str(row.get('stock') or '')) == 'in_stock'
+        and _cost(row) >= minimum
+    )
+
+
+def price_categories(batch, minimum=Decimal('2000')):
+    """Category counts from original staged lines, never inferred from name."""
+    key = 'omega:staged-categories:v2:%s:%s:%s' % (batch.pk, batch.sha256, minimum)
+    cached = cache.get(key)
+    if cached is not None:
+        return cached
+    source = PriceUpdate.objects.only('rows').get(pk=batch.pk)
+    counts = defaultdict(lambda: {'total': 0, 'in_stock': 0, 'eligible': 0})
+    for row in source.rows:
+        name = ' '.join(str(row.get('category') or '').strip().split()) or 'Без категории'
+        info = counts[name]
+        info['total'] += 1
+        available = stock_status(str(row.get('stock') or '')) == 'in_stock'
+        if available:
+            info['in_stock'] += 1
+        if eligible_row(row, minimum):
+            info['eligible'] += 1
+    result = [{'name': name, 'key': category_key(name), **value}
+              for name, value in sorted(counts.items(), key=lambda pair: pair[0].casefold())]
+    cache.set(key, result, timeout=300)
+    return result
+
+
+def request_history():
+    return (Activity.objects.filter(action=REQUEST_ACTION)
+            .select_related('user').order_by('pk'))
+
+
+def request_rows(saved):
+    """Read the immutable source batch, not today's offers or price."""
+    details = saved.details
+    batch = PriceUpdate.objects.only('rows', 'sha256').get(pk=details['price_batch_id'])
+    if batch.sha256 != details['price_sha256']:
+        raise ValidationError('Исходный прайс изменился. Запрос нельзя воспроизвести.')
+    minimum = Decimal(details['min_cost'])
+    keys = set(details['category_keys'])
+    return [row for row in batch.rows
+            if category_key(row.get('category') or 'Без категории') in keys
+            and eligible_row(row, minimum)]
+
+
+def request_queries(saved):
+    from .selection_exports import article_variants
+    seen = {}
+    for row in request_rows(saved):
+        brand = str(row.get('brand') or '').strip()
+        original = str(row.get('article') or '').strip()
+        for article in article_variants(original):
+            query = ' '.join((brand, article))
+            key = query.casefold()
+            if key not in seen:
+                seen[key] = {'query': query, 'brand': brand,
+                             'article': article, 'original_article': original}
+    return list(seen.values())
+
+
+@transaction.atomic
+def save_request(*, batch_id, categories, minimum, user):
+    batch = PriceUpdate.objects.select_for_update().get(
+        pk=batch_id, supplier__name='Omega')
+    try:
+        minimum = Decimal(str(minimum).replace(',', '.'))
+    except (InvalidOperation, ValueError, TypeError):
+        raise ValidationError('Некорректная минимальная закупочная цена.')
+    if not minimum.is_finite() or minimum < 0 or minimum > 999999999999:
+        raise ValidationError('Некорректная минимальная закупочная цена.')
+    available = {row['key']: row['name'] for row in price_categories(batch, minimum)}
+    unique = list(dict.fromkeys(category_key(name) for name in categories if name))
+    if not unique or len(unique) > 300 or any(key not in available for key in unique):
+        raise ValidationError('Выберите действительные категории из загруженного прайса.')
+    requested = set(unique)
+    source = PriceUpdate.objects.only('rows').get(pk=batch.pk)
+    filtered = [row for row in source.rows
+                if category_key(row.get('category') or 'Без категории') in requested
+                and eligible_row(row, minimum)]
+    if not filtered:
+        raise ValidationError('По выбранным условиям товары не найдены.')
+    previous = list(Activity.objects.select_for_update()
+                    .filter(action=REQUEST_ACTION).only('id', 'details'))
+    number = max((int(item.details.get('number', 0)) for item in previous), default=0) + 1
+    return Activity.objects.create(user=user, action=REQUEST_ACTION, details={
+        'number': number, 'title': f'Запрос №{number}',
+        'price_batch_id': batch.pk, 'price_sha256': batch.sha256,
+        'filename': batch.filename, 'checked_on': batch.checked_on.isoformat(),
+        'categories': [available[key] for key in unique],
+        'category_keys': unique, 'min_cost': str(minimum),
+        'total': len(filtered), 'status': 'Подготовлен',
+    })
