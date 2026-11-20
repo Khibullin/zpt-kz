@@ -67,7 +67,34 @@
 </tr>
 </thead>
 <tbody>{% for row in page %}<tr>
-<td class="product"><a href="{% url 'procurement:detail' row.offer.pk %}"><strong>{{ row.offer.name }}</strong></a>
+<td class="product">
+{% if mode == 'best' %}
+<div class="buying-compact-product">
+  {% if row.display_photo_url %}<img class="buying-thumb" src="{{ row.display_photo_url }}" width="56" height="56" loading="lazy" alt="Фото товара">{% else %}<span class="buying-thumb buying-no-photo">Нет фото</span>{% endif %}
+  <div class="buying-compact-desc">
+    <a class="buying-title" href="{% url 'procurement:detail' row.offer.pk %}">{{ row.offer.name }}</a>
+    <span class="buying-code">{{ row.offer.brand }} · {{ row.offer.article }}</span>
+    {% if row.candidate and row.candidate.title %}<span class="buying-card-title" title="{{ row.candidate.title }}">Kaspi: {{ row.candidate.title }}</span>{% endif %}
+    <div class="buying-inline-links">
+      {% if row.candidate and row.candidate.url %}<a href="{{ row.candidate.url }}" target="_blank" rel="noopener noreferrer">Kaspi</a>{% elif row.offer.kaspi_url %}<a href="{{ row.offer.kaspi_url }}" target="_blank" rel="noopener noreferrer">Kaspi</a>{% endif %}
+      {% if row.audit_file %}<span class="buying-recheck-tag">Перепроверено</span>{% endif %}
+    </div>
+  </div>
+</div>
+<details class="product-evidence buying-row-details"><summary>Подробнее</summary>
+<div class="buying-evidence-text">
+<p><strong>{{ row.price_evidence_status }}</strong></p>
+<p>{{ row.best_status }}{% if row.audit_file %} · {{ row.audit_observed_at|date:'d.m.Y H:i' }}{% endif %}</p>
+{% if row.audit_file %}<p>Выгрузка: {{ row.audit_file }} · Прежняя цена Kaspi: {{ row.previous_kaspi_price|floatformat:0 }} ₸ · Прежняя прибыль: {{ row.previous_profit|floatformat:2 }} ₸</p>{% endif %}
+<p>Остаток Omega: {{ row.offer.stock|default:'неизвестен' }} · Дата прайса: {{ row.display_supplier_date|date:'d.m.Y'|default:'нет данных' }} · Дата Kaspi: {{ row.display_kaspi_date|date:'d.m.Y'|default:'нет данных' }}</p>
+<p>Продавцов в исходной карточке: {% if row.candidate %}{{ row.candidate.seller_count|default_if_none:'нет данных' }}{% else %}нет данных{% endif %} · Применимость и комплектность требуют проверки.</p>
+<p>Цена и прибыль — расчёт по сохранённой выгрузке, не гарантия текущего предложения.</p>
+<p>Комиссия: {{ row.commission_amount|floatformat:2 }} ₸ · Расходы: {{ row.expenses|floatformat:2 }} ₸ · После комиссии: {{ row.kaspi_after_commission|floatformat:2 }} ₸</p>
+{% include 'procurement/fitments.html' with offer=row.offer compact=True fitments=row.offer.compact_fitments %}
+</div>
+</details>
+{% else %}
+<a href="{% url 'procurement:detail' row.offer.pk %}"><strong>{{ row.offer.name }}</strong></a>
 <small>{{ row.offer.brand }} · {{ row.offer.article }}</small>
 {% if row.candidate and row.candidate.title %}<small>Карточка Kaspi: {{ row.candidate.title }}</small>{% endif %}
 {% if row.display_photo_url %}<div><img src="{{ row.display_photo_url }}" width="72" height="72" loading="lazy" alt="Фото товара" style="object-fit:contain;border-radius:6px">{% if row.preliminary_photo %}<small class="preliminary-status">Фото Firsthand — исполнение требует проверки</small>{% endif %}</div>{% else %}<small>Фото не найдено</small>{% endif %}
@@ -90,22 +117,24 @@
 <p>{{ row.signal }} · Продажи / 30 дней: {{ row.offer.sales_30|default_if_none:'неизвестны' }} · Отзывы / 90 дней: {{ row.offer.recent_reviews|default_if_none:'нет данных' }} · Спрос проверен: {{ row.offer.evidence_date|date:'d.m.Y'|default:'не проверен' }}</p>
 <p>Комиссия: {{ row.commission_amount|floatformat:2|default:'Нет данных' }} ₸ · После комиссии: {{ row.kaspi_after_commission|floatformat:2|default:'Нет данных' }} ₸ · Заработок после комиссии: {{ row.difference|floatformat:2|default:'Нет данных' }} ₸</p>
 <form method="post" action="{% url 'procurement:favorite' row.offer.pk %}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><input type="hidden" name="action" value="{% if row.favorite %}remove{% else %}add{% endif %}"><button>{% if row.favorite %}Убрать из избранного{% else %}В избранное{% endif %}</button></form>
-</details></td>
+</details>
+{% endif %}
+</td>
 <td>{{ row.offer.supplier.name }}</td>
 <td class="money">{% if mode == 'best' %}{{ row.display_cost|floatformat:0 }}{% else %}{{ row.offer.cost|floatformat:0 }}{% endif %}{% if row.historical and not row.omega_review %}<small>Цена прежнего расчёта</small>{% endif %}</td>
 {% if mode == 'no_sellers' %}<td>{% if row.kaspi_presence == 'no_card' %}Карточка не найдена после проверки{% else %}Карточка есть — продавцов нет{% endif %}<small>Алматы · {{ row.kaspi_checked_on|date:'d.m.Y' }}</small></td><td>Цена продажи не задана</td><td>Прибыль не рассчитана</td>{% else %}
-<td class="money">{% if row.audit_file %}<strong>{{ row.kaspi_price|floatformat:0 }} ₸</strong><small>Новая минимальная цена из предложений продавцов</small><small>Ранее: {{ row.previous_kaspi_price|floatformat:0 }} ₸</small>{% else %}{{ row.kaspi_price|floatformat:0|default:'Нет данных' }}{% endif %}{% if mode == 'kaspi_prices' %}<small class="preliminary-status">Сохранённая цена</small>{% elif mode == 'stale_prices' %}<small class="preliminary-status">Старая цена · {{ row.offer.kaspi_price_checked_on|date:'d.m.Y'|default:'без даты' }}</small>{% elif mode == 'best' %}<small>{{ row.display_kaspi_date|date:'d.m.Y'|default:'без даты' }}</small>{% endif %}</td>
+<td class="money">{% if row.audit_file %}<strong>{{ row.kaspi_price|floatformat:0 }} ₸</strong>{% if mode == "best" %}<small>Было: {{ row.previous_kaspi_price|floatformat:0 }} ₸</small>{% else %}<small>Новая минимальная цена из предложений продавцов</small><small>Ранее: {{ row.previous_kaspi_price|floatformat:0 }} ₸</small>{% endif %}{% else %}{{ row.kaspi_price|floatformat:0|default:'Нет данных' }}{% endif %}{% if mode == 'kaspi_prices' %}<small class="preliminary-status">Сохранённая цена</small>{% elif mode == 'stale_prices' %}<small class="preliminary-status">Старая цена · {{ row.offer.kaspi_price_checked_on|date:'d.m.Y'|default:'без даты' }}</small>{% endif %}</td>
 {% if mode == 'kaspi_prices' %}<td>{% if row.offer.match_verified %}Совпадение подтверждено{% else %}Не подтверждено{% endif %}</td><td>{{ row.offer.kaspi_price_checked_on|date:'d.m.Y'|default:'Нет даты' }}</td>{% else %}<td class="money">
 {% if mode != 'difference' %}<span class="delta" {% if row.markup != None and row.markup < 0 %}style="color:#a32b20"{% endif %}>{{ row.markup|floatformat:2|default:'—' }}%</span>{% else %}
 <span class="delta">{{ row.difference|floatformat:2|default:'Нет данных' }}</span>
 <small>{{ row.markup|floatformat:1|default:'—' }}%</small>{% endif %}
 </td>
-<td class="money">{% if row.profit != None and row.profit < 0 %}<strong style="color:#a32b20">Убыток: {{ row.profit|floatformat:2 }} ₸</strong>{% elif row.profit != None %}<strong>{{ row.profit|floatformat:2 }} ₸</strong>{% if mode == 'best' and row.audit_file %}<small>Ранее: {{ row.previous_profit|floatformat:2 }} ₸</small>{% endif %}{% else %}Прибыль не рассчитана{% endif %}
+<td class="money">{% if row.profit != None and row.profit < 0 %}<strong style="color:#a32b20">Убыток: {{ row.profit|floatformat:2 }} ₸</strong>{% elif row.profit != None %}<strong>{{ row.profit|floatformat:2 }} ₸</strong>{% if mode == 'best' and row.audit_file %}<small>Было: {{ row.previous_profit|floatformat:2 }} ₸</small>{% endif %}{% else %}Прибыль не рассчитана{% endif %}
 </td>{% endif %}
 {% endif %}<td class="row-actions">
 <button type="button" class="quick-view" data-url="{% url 'procurement:detail' row.offer.pk %}?compact=1" aria-haspopup="dialog">Просмотр</button>
 {% if mode == 'best' %}
-{% if row.in_basket %}<small data-in-basket>В списке закупки (сохранённый выбор)</small>{% elif row.purchase_ready %}<label class="purchase-check"><input type="checkbox" name="offer_ids" value="{{ row.offer.pk|unlocalize }}" form="bulk-selection" aria-label="Выбрать к закупке: {{ row.offer.brand }} {{ row.offer.article }}"> Выбрать</label>{% else %}<small class="preliminary-status">Закупку не добавлять: требуется проверка цены и исполнения</small>{% endif %}
+{% if row.in_basket %}<small data-in-basket>В списке закупки (сохранённый выбор)</small>{% elif row.purchase_ready %}<label class="purchase-check"><input type="checkbox" name="offer_ids" value="{{ row.offer.pk|unlocalize }}" form="bulk-selection" aria-label="Выбрать к закупке: {{ row.offer.brand }} {{ row.offer.article }}"> Выбрать</label>{% else %}<small class="preliminary-status">Нужна проверка</small>{% endif %}
 {% elif mode == 'kaspi_prices' %}<small class="preliminary-status">Только для ознакомления — нужна повторная проверка</small>{% elif mode == 'stale_prices' %}<small class="preliminary-status">Сначала обновите цену Kaspi</small>{% elif row.omega_review %}<small class="preliminary-status">Предварительно: требуется проверка Kaspi по Казахстану</small>{% else %}<form method="post" action="{% url 'procurement:select' row.offer.pk %}" data-selection-form>{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button class="primary">+ В закупку</button><small data-selection-status role="status" aria-live="polite"></small></form>{% endif %}
 </td>
 </tr>{% empty %}<tr>
@@ -136,6 +165,28 @@
 .catalog-filters .filter-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
 @media(max-width:950px){.catalog-filters .filter-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.catalog-filters .filter-grid{grid-template-columns:1fr}}
+</style>
+<style>
+/* Buying list: dense rows. Full evidence remains behind the per-item disclosure. */
+.compact-dashboard:has(.buying-compact-product) tbody td {padding:8px 9px;vertical-align:middle}
+.compact-dashboard:has(.buying-compact-product) tbody td.product{width:33%;min-width:300px}
+.buying-compact-product{display:flex;align-items:center;gap:10px;min-height:58px}
+.buying-thumb{width:56px;height:56px;flex:0 0 56px;object-fit:contain;border:1px solid #e2e8f0;border-radius:6px;background:#fff}
+.buying-no-photo{display:flex;align-items:center;justify-content:center;font-size:10px;color:#65768a;text-align:center}
+.buying-compact-desc{min-width:0;display:flex;flex-direction:column;gap:2px}
+.buying-title{font-size:13px;font-weight:700;line-height:1.25}
+.buying-code{font-size:12px;color:#64748b}
+.buying-card-title{font-size:11px;color:#64748b;max-width:440px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.buying-inline-links{display:flex;align-items:center;gap:12px;font-size:11px;margin-top:2px}
+.buying-recheck-tag{color:#0b7667;font-weight:600}
+.buying-row-details{margin:3px 0 0 66px;max-width:620px}
+.buying-row-details>summary{font-size:11px;padding:1px 0;color:#52687f}
+.buying-evidence-text{padding:8px 12px;margin-top:4px;background:#f6f9fc;border:1px solid #dfe7ef;border-radius:6px;font-size:12px}
+.buying-evidence-text p{margin:5px 0;line-height:1.4}
+.compact-dashboard:has(.buying-compact-product) .row-actions .quick-view{padding:6px 10px}
+.compact-dashboard:has(.buying-compact-product) .row-actions .preliminary-status{white-space:normal;max-width:130px;font-size:11px}
+.compact-dashboard:has(.buying-compact-product) td.money small{margin-top:3px}
+@media(max-width:650px){.buying-thumb{width:44px;height:44px;flex-basis:44px}.buying-row-details{margin-left:54px}.buying-compact-product{min-height:48px}}
 </style>
 <datalist id="kaspi-seller-counts"><option value="0"><option value="1"><option value="2"><option value="3"><option value="5"></datalist>
 {{ filter_form.vehicle_models|json_script:"vehicle-model-options" }}
