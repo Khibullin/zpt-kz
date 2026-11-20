@@ -74,14 +74,41 @@ class ApifyMultiCardRecheckTests(TestCase):
         rows = [
             self.card('111111111', '51335', 100),
             self.card('222222222', '51331', 100, brand='Different'),
-            self.card('333333333', '51331', 100, query='WXQP 70000'),
+            self.card('333333333', '51331', 79000, query='WXQP 70000'),
             self.card('444444444', '51331', 145000),
         ]
         result = self.send(rows)
-        self.assertEqual(result['recheck_unrelated'], 3)
-        self.assertEqual(result['recheck_price_cards'], 1)
+        self.assertEqual(result['recheck_unrelated'], 2)
+        self.assertEqual(result['recheck_price_cards'], 2)
         self.assertEqual(KaspiPriceAudit.objects.get(
-            offer=self.offer).min_price, Decimal('145000'))
+            offer=self.offer).min_price, Decimal('79000'))
+
+    def test_cheaper_exact_part_found_under_another_search_query(self):
+        # Apify returns card 145316166 for FREY 750102701 during its search
+        # for FREY 750101901. The full card identity, not the query, wins.
+        other = Offer.objects.create(
+            supplier=self.omega, brand='FREY', article='750102701',
+            name='Рычаг передний', category='Подвеска',
+            cost=Decimal('18908'), stock='7')
+        self.send([
+            {'id': '145316166', 'brand': 'FREY',
+             'title': 'FREY рычаг подвески 750102701',
+             'searchQuery': 'FREY 750101901',
+             'url': 'https://kaspi.kz/shop/p/frey-rychag-podveski-750102701-145316166/',
+             'minPrice': 29999, 'offers': [
+                 {'sellerName': 'Seller', 'price': 29999}]},
+            {'id': '179823736', 'brand': 'FREY',
+             'title': 'FREY рычаг подвески 750102701',
+             'searchQuery': 'FREY 750102701',
+             'url': 'https://kaspi.kz/shop/p/frey-rychag-podveski-750102701-179823736/',
+             'minPrice': 35750, 'offers': [
+                 {'sellerName': 'Seller', 'price': 35750}]},
+        ])
+        audit = KaspiPriceAudit.objects.get(offer=other)
+        self.assertEqual(audit.min_price, Decimal('29999'))
+        self.assertEqual(audit.product_id, '145316166')
+        self.assertEqual(len(audit.card_ids), 2)
+        self.assertLess(audit.roi, Decimal('50'))
 
     def test_seller_minimum_not_card_minprice(self):
         row = self.card('555555555', '51331', 145000, offers=[
