@@ -12,10 +12,10 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.core.cache import cache
 from django.contrib import messages
-from django.db.models import Q, Count, Max
+from django.db.models import Q, Count, Max, Exists, OuterRef
 from django.shortcuts import redirect, render
 
-from .models import Offer, Supplier, WholesaleSelectionRule
+from .models import Offer, Supplier, WholesaleSelectionRule, VehicleFitment
 from .omega_policy import POSITIVE_STOCK_PATTERN
 from .views import access, context
 
@@ -74,6 +74,21 @@ def _stock_filter():
     # Exactly the positive-stock notation used by the buying rules and
     # stock_status(). Omega's "20>" means more than twenty on hand.
     return Q(stock__regex=POSITIVE_STOCK_PATTERN)
+
+
+def matching_years(rows, age):
+    """Keep one row per offer even when it has many matching fitments.
+
+    The former OR across a reverse relation joined every fitment before running
+    DISTINCT over the entire wide Offer row. EXISTS tests the same condition
+    without multiplying catalogue rows or sorting their JSON/text fields.
+    """
+    years = range(max(1980, date.today().year - age), date.today().year + 2)
+    year_pattern = '(' + '|'.join(str(year) for year in years) + ')'
+    fitments = VehicleFitment.objects.filter(
+        offer_id=OuterRef('pk'), verified=True, details__regex=year_pattern,
+    )
+    return rows.filter(Q(applicability__regex=year_pattern) | Exists(fitments))
 
 
 @access('sales', 'admin')
@@ -216,20 +231,14 @@ def selection_rules(request):
         'age': age,
         'year': date.today().year,
     }
-    stats_key = 'zpt:selection-preview:v1:' + sha256(
+    stats_key = 'zpt:selection-preview:v2:' + sha256(
         json.dumps(criteria, sort_keys=True).encode('utf-8')
     ).hexdigest()
     stats = cache.get(stats_key) if request.method == 'GET' else None
     if stats is None:
         before_years = rows.count()
         # No source years: do not infer vehicle fitment.
-        years = range(max(1980, date.today().year-age), date.today().year+2)
-        year_pattern = '(' + '|'.join(str(year) for year in years) + ')'
-        checked_rows = rows.filter(
-            Q(applicability__regex=year_pattern) |
-            Q(fitments__verified=True, fitments__details__regex=year_pattern)
-        ).distinct()
-        matched = checked_rows.count()
+        matched = matching_years(rows, age).count()
         stats = (before_years, matched)
         if request.method == 'GET':
             cache.set(stats_key, stats, timeout=60)
@@ -237,9 +246,11 @@ def selection_rules(request):
     unknown_years = max(0, before_years - matched)
     # All download actions use the last saved rule, not unsaved form values.
     # Preview is intentionally short and read-only; full records go to Excel.
-    from .selection_exports import filtered_offers, JSON_BATCH_SIZE
-    saved_rows = filtered_offers(rule)
-    exported_total = saved_rows.count()
+    from .selection_exports import JSON_BATCH_SIZE
+    # Successful settings changes redirect above; rendered requests use the
+    # saved criteria. Reuse their count (including on a cache hit) instead of
+    # running the full fitment selection a second time just for download links.
+    exported_total = matched
     batches = (exported_total + JSON_BATCH_SIZE - 1) // JSON_BATCH_SIZE
     from .models import KaspiBuyingCandidate
     # Compact saved-result summary; the full card list lives only in the buying catalogue.

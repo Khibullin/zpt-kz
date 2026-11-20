@@ -3,16 +3,14 @@
 No Kaspi request or Apify run is made by these endpoints.
 """
 import json
-from datetime import date
 from io import BytesIO
 
 from django.http import HttpResponse, JsonResponse
-from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_GET
 
 from .models import Offer, WholesaleSelectionRule
-from .selection_rule_views import _stock_filter, _group_filter
+from .selection_rule_views import _stock_filter, _group_filter, matching_years
 from .views import access
 
 JSON_BATCH_SIZE = 3000
@@ -26,12 +24,7 @@ def filtered_offers(rule):
     if rule.in_stock_only:
         rows = rows.filter(_stock_filter())
     rows = rows.filter(_group_filter(rule.category_groups, rule.classification_mode))
-    years = range(max(1980, date.today().year - rule.max_vehicle_age), date.today().year + 2)
-    year_pattern = '(' + '|'.join(str(year) for year in years) + ')'
-    return rows.filter(
-        Q(applicability__regex=year_pattern) |
-        Q(fitments__verified=True, fitments__details__regex=year_pattern)
-    ).distinct().order_by('supplier_id', 'brand', 'article', 'pk')
+    return matching_years(rows, rule.max_vehicle_age).order_by('supplier_id', 'brand', 'article', 'pk')
 
 
 def _safe_excel(value):
