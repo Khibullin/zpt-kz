@@ -52,7 +52,7 @@ class OmegaCategoryRequestTests(TestCase):
         self.assertEqual(summary['Рычаг']['eligible'], 1)
         response = self.client.get(reverse('procurement:selection_rules'))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Выбор категорий и запросов')
+        self.assertContains(response, 'Выбор товара из прайса')
         self.assertContains(response, 'История запросов')
         self.assertContains(response, 'solid-2026.xlsx')
         self.assertContains(response, 'value="Амортизатор"')
@@ -110,6 +110,48 @@ class OmegaCategoryRequestTests(TestCase):
         self.assertContains(page, 'Вы можете включить их повторно')
         self.assertEqual(list(Selection.objects.values_list('offer_id', 'quantity')),
                          [(self.offer.pk, 2)])
+
+    def test_picker_rules_link_compact_upload_and_live_preview(self):
+        page = self.client.get(reverse('procurement:selection_rules'))
+        self.assertContains(page, 'Выбор товара из прайса')
+        self.assertContains(page, 'Правила отбора')
+        self.assertContains(page, 'omega-result-products')
+        self.assertContains(page, 'omega_max_vehicle_age')
+        self.assertNotContains(page, 'name="full_catalog"')
+        help_page = self.client.get(reverse('procurement:omega_selection_rules_help'))
+        self.assertContains(help_page, 'Правила отбора товаров из прайса')
+        response = self.client.post(reverse('procurement:selection_rules'), {
+            'action': 'preview_omega_request', 'price_batch_id': self.price.pk,
+            'omega_category': ['Амортизатор', 'Рычаг'],
+            'omega_min_cost': '2000', 'omega_max_vehicle_age': '20',
+            'omega_stock_submitted': '1', 'omega_in_stock_only': 'on'})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['products'], 3)
+        self.assertEqual(response.json()['queries'], 3)
+        self.assertEqual(response.json()['unknown_age'], 3)
+        self.assertEqual(list(Selection.objects.values_list('offer_id', 'quantity')),
+                         [(self.offer.pk, 2)])
+
+    def test_independent_age_limit_filters_only_explicit_dated_fitment(self):
+        from .omega_selection_requests import preview_request
+        current = date.today().year
+        rows = list(self.price.rows)
+        rows.append({'brand':'AGE', 'article':'YEAR-OLD', 'name':'Деталь',
+                     'category':'Рычаг', 'cost':'3000', 'stock':'5',
+                     'applicability':str(current-26)})
+        rows.append({'brand':'AGE', 'article':'YEAR-NEW', 'name':'Деталь',
+                     'category':'Рычаг', 'cost':'3000', 'stock':'5',
+                     'applicability':str(current-10)})
+        self.price.rows = rows
+        self.price.save(update_fields=['rows'])
+        result = preview_request(batch_id=self.price.pk, categories=['Рычаг'],
+                                 minimum=2000, max_vehicle_age=20)
+        self.assertEqual(result['products'], 2)
+        self.assertEqual(result['unknown_age'], 1)
+        result2 = preview_request(batch_id=self.price.pk, categories=['Рычаг'],
+                                  minimum=2000, max_vehicle_age=5)
+        self.assertEqual(result2['products'], 1)
+        self.assertEqual(result2['unknown_age'], 1)
 
     def test_real_omega_excel_subgroup_is_imported_as_category(self):
         from .importing import load_rows
