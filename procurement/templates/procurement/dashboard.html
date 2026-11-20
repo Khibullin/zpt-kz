@@ -4,7 +4,7 @@
 <h1>{% if mode == 'best' %}Выгодные к закупке{% else %}Оптовые закупки{% endif %}</h1>
 {% if mode == 'best' %}<small class="muted" title="Действуют для всех пользователей и поставщиков">Цены перепроверены по Apify · старые товары и расчёты сохранены · исполнение требует подтверждения перед заказом</small>{% endif %}
 <form method="get" class="supplier-picker"><input type="hidden" name="mode" value="{{ mode }}"><label>Поставщик {{ filter_form.supplier }}</label><button>Выбрать</button></form>
-<div class="actions">{% if mode == 'best' %}<a class="button" href="{% url 'procurement:dashboard' %}?supplier=&amp;mode=best" aria-label="Обновить список по действующим правилам">Обновить список</a>{% endif %}{% if can_manage and mode != 'best' %}<a class="button" href="{% url 'procurement:selection_rules' %}#upload-step-title">Загрузить прайс-лист</a>{% endif %}</div>
+{% if can_manage and mode != 'best' %}<div class="actions"><a class="button" href="{% url 'procurement:selection_rules' %}#upload-step-title">Загрузить прайс-лист</a></div>{% endif %}
 </header>
 {% if mode == 'kaspi_prices' %}<div class="notice" role="status"><strong>Сохранённые цены Kaspi — не актуальное предложение.</strong> Показаны ранее найденные цены с исходной датой проверки и статусом соответствия карточки. Старые и неподтверждённые цены не дают права добавлять товар в выгодную закупку или автоматически публиковать на Kaspi.</div>{% endif %}
 {% if mode == 'stale_prices' %}<div class="notice" role="status"><strong>Цены Kaspi устарели или дата проверки неизвестна.</strong> Это кандидаты на повторную проверку, а не подтверждённые выгодные закупки. Показанная прибыль рассчитана по сохранённой старой цене. Даты не обновляются автоматически. Добавление в закупку из этого списка отключено.</div>{% endif %}
@@ -43,7 +43,7 @@
 </form>
 {% endif %}
 <div class="results-toolbar">
-<strong>{% if preliminary %}{{ preliminary_total }} товаров · <span class="preliminary-status">Спрос не подтверждён</span>{% else %}Найдено {{ total }}{% endif %}{% if mode == 'best' and apify_in_best %} · Сопоставленных карточек Kaspi: {{ apify_in_best }}{% endif %}</strong>
+<strong>{% if preliminary %}{{ preliminary_total }} товаров · <span class="preliminary-status">Спрос не подтверждён</span>{% else %}Найдено {{ total }}{% endif %}</strong>
 {% if mode == 'best' %}<form id="bulk-selection" method="post" action="{% url 'procurement:select_many' %}" data-selection-form data-bulk-selection>{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button class="primary" type="submit">Добавить выбранные в список</button><small data-selection-status role="status" aria-live="polite"></small></form>{% else %}<div class="actions"><a href="{{ settings_url }}">Алгоритм и настройки</a><a class="button" href="{% querystring download='csv' page=None %}">Скачать CSV</a></div>{% endif %}
 </div>
 <div class="tablewrap">
