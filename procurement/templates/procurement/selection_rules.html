@@ -130,6 +130,7 @@
     {% csrf_token %}
     <input type="hidden" name="action" value="save_omega_request">
     <input type="hidden" name="price_batch_id" value="{{ omega_price_batch.pk }}">
+    <input type="hidden" name="omega_stock_submitted" value="1">
     <div class="omega-condition-row">
       <div class="rule-field"><label for="omega-min-cost">Закупочная цена от, ₸</label><input id="omega-min-cost" type="number" name="omega_min_cost" value="2000" min="0" max="999999999999" step="0.01" required></div>
       <div class="rule-field"><label for="omega-max-age">Возраст автомобиля, до лет</label><input id="omega-max-age" type="number" name="omega_max_vehicle_age" value="20" min="0" max="100" step="1" required></div>
