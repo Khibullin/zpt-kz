@@ -58,6 +58,53 @@ class OmegaCategoryRequestTests(TestCase):
         self.assertContains(page, 'name="omega_min_cost"')
         self.assertContains(page, 'name="omega_max_vehicle_age"')
 
+    def test_category_taxonomy_is_lossless_and_keeps_uncertain_items_visible(self):
+        from .omega_category_groups import group_categories
+        sample = [
+            {'name':'Амортизатор', 'previous_requests':[1], 'key':'амортизатор'},
+            {'name':'Рычаг', 'previous_requests':[1], 'key':'рычаг'},
+            {'name':'Шрус (граната)', 'previous_requests':[1], 'key':'шрус (граната)'},
+            {'name':'Рулевая трапеция', 'previous_requests':[], 'key':'рулевая трапеция'},
+            {'name':'Пружина', 'previous_requests':[], 'key':'пружина'},
+            {'name':'Случайный артикул новой группы', 'previous_requests':[], 'key':'новая'},
+        ]
+        groups = group_categories(sample)
+        self.assertEqual(sum(group['total'] for group in groups), len(sample))
+        self.assertEqual(groups[0]['key'], 'suspension')
+        suspension = next(group for group in groups if group['key']=='suspension')
+        self.assertIn('Амортизаторы, опоры и пружины',
+                      [section['name'] for section in suspension['sections']])
+        self.assertIn('Рычаги, шаровые и сайлентблоки',
+                      [section['name'] for section in suspension['sections']])
+        review = next(group for group in groups if group['key']=='review')
+        self.assertEqual(review['categories'][0]['name'], 'Случайный артикул новой группы')
+        for group in groups:
+            for item in group['categories']:
+                self.assertIn(item, sample)
+            for section in group['sections']:
+                for item in section['categories']:
+                    self.assertIn(item, sample)
+
+    def test_real_category_view_has_nested_group_controls_without_changing_post(self):
+        page = self.client.get(reverse('procurement:selection_rules'))
+        self.assertContains(page, 'omega-group-grid')
+        self.assertContains(page, 'omega-group-checkbox')
+        self.assertContains(page, 'Ходовая и подвеска')
+        self.assertContains(page, 'Амортизаторы, опоры и пружины')
+        self.assertContains(page, 'Рычаги, шаровые и сайлентблоки')
+        self.assertContains(page, 'Выбрать все категории группы')
+        self.assertContains(page, 'name="omega_category"', count=2)
+        self.assertEqual(sum(group['total'] for group in page.context['omega_category_groups']),
+                         len(page.context['omega_categories']))
+        response = self.client.post(reverse('procurement:selection_rules'), {
+            'action': 'preview_omega_request',
+            'price_batch_id': self.price.pk, 'omega_category': ['Амортизатор', 'Рычаг'],
+            'omega_min_cost':'2000','omega_max_vehicle_age':'20',
+            'omega_stock_submitted':'1','omega_in_stock_only':'on'})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['products'], 3)
+        self.assertFalse(Activity.objects.filter(action=REQUEST_ACTION).exists())
+
     def test_categories_list_counts_while_preserving_offers(self):
         summary = {x['name']: x for x in price_categories(self.price)}
         self.assertEqual(summary['Амортизатор']['total'], 3)
