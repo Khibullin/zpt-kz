@@ -648,10 +648,6 @@ def select(request, pk):
         return invalid_quantity('Количество должно быть целым.')
     if quantity < offer.min_order or quantity > 100000:
         return invalid_quantity('Количество вне допустимого диапазона.')
-    from .purchase_readiness import blocked_permanent_offer_ids
-    if (not Selection.objects.filter(user=request.user, offer=offer).exists()
-            and offer.pk in blocked_permanent_offer_ids({offer.pk})):
-        return invalid_quantity('Для этого товара требуется подтверждение цены Kaspi и исполнения перед добавлением в закупку.')
     Selection.objects.update_or_create(user=request.user, offer=offer, defaults={'quantity': quantity})
     if as_json:
         return JsonResponse({'basket_count': Selection.objects.filter(user=request.user, offer__supplier__name='Omega').count(),
@@ -677,14 +673,6 @@ def select_many(request):
         offers = list(Offer.objects.filter(pk__in=ids, supplier__name='Omega').order_by('pk'))
         if len(offers) != len(ids) or any(not 1 <= offer.min_order <= 100000 for offer in offers):
             message = 'Состав списка изменился. Обновите страницу и повторите выбор.'
-            return JsonResponse({'error': message}, status=400) if as_json else HttpResponse(message, status=400)
-        from .purchase_readiness import blocked_permanent_offer_ids
-        previously_selected = set(Selection.objects.filter(
-            user=request.user, offer_id__in=ids).values_list('offer_id', flat=True))
-        blocked = blocked_permanent_offer_ids(ids - previously_selected)
-        if blocked:
-            message = ('Некоторые товары требуют проверки цены Kaspi и исполнения. '
-                       'Они сохранены в реестре, но пока не доступны для нового заказа.')
             return JsonResponse({'error': message}, status=400) if as_json else HttpResponse(message, status=400)
         for offer in offers:
             Selection.objects.get_or_create(user=request.user, offer=offer,
@@ -736,6 +724,10 @@ def purchase_snapshot(rows):
 def basket(request):
     from .purchase_list_excel import offer_unit, PurchaseListExportForm, purchaser_name, organization_details
     rows = list(Selection.objects.filter(user=request.user, offer__supplier__name='Omega').select_related('offer__supplier').order_by('offer__supplier__name', 'pk'))
+    from .purchase_readiness import blocked_permanent_offer_ids
+    unverified_ids = blocked_permanent_offer_ids({row.offer_id for row in rows})
+    for row in rows:
+        row.needs_review = row.offer_id in unverified_ids
     grouped = {}
     for row in rows:
         row.subtotal = row.quantity * row.offer.cost
@@ -751,7 +743,7 @@ def basket(request):
     orders = PurchaseOrder.objects.filter(user=request.user,archived=False).select_related('supplier')
     from inventory.purchasing import order_summary
     for order in orders:order.workflow=order_summary(order)
-    return render(request, 'procurement/basket.html', context(request, selections=rows, supplier_groups=list(grouped.values()),
+    return render(request, 'procurement/basket.html', context(request, selections=rows, unverified_count=len(unverified_ids), supplier_groups=list(grouped.values()),
         purchases=orders, budget=sum((r.subtotal for r in rows), Decimal(0)),
         export_form=PurchaseListExportForm(initial={'buyer': purchaser_name(request.user)}),
         buyer_details=organization_details()))
@@ -779,9 +771,13 @@ def purchase_confirm(request, supplier_id):
         query = Selection.objects.filter(user=request.user, offer__supplier=supplier).select_related('offer').order_by('pk')
         return list(query.select_for_update(of=('self',)) if lock else query)
     rows = selection_rows()
+    from .purchase_readiness import blocked_permanent_offer_ids
+    unverified_ids = blocked_permanent_offer_ids({row.offer_id for row in rows})
     form = PurchaseConfirmationForm(request.POST or None, initial={'request_key': uuid.uuid4(),
         'selection_token': signing.dumps(purchase_snapshot(rows), salt='procurement-purchase')})
-    if request.method == 'POST' and form.is_valid():
+    if request.method == 'POST' and unverified_ids:
+        form.add_error(None, 'В списке есть товары с неподтверждёнными ценой или исполнением. Перед созданием заказа их необходимо проверить либо убрать из списка.')
+    if request.method == 'POST' and not unverified_ids and form.is_valid():
         existing = PurchaseOrder.objects.filter(user=request.user, request_key=form.cleaned_data['request_key']).first()
         if existing:
             return redirect('procurement:purchase_detail', pk=existing.pk)
@@ -791,8 +787,12 @@ def purchase_confirm(request, supplier_id):
             reviewed = None
         with transaction.atomic():
             rows = selection_rows(lock=True)
+            # Revalidate at creation time as well as on the GET form.
+            blocked_now = blocked_permanent_offer_ids({row.offer_id for row in rows})
             snapshot = purchase_snapshot(rows)
-            if not rows or reviewed != snapshot:
+            if blocked_now:
+                form.add_error(None, 'Некоторые позиции не прошли проверку цены и исполнения. Заказ не создан.')
+            elif not rows or reviewed != snapshot:
                 form.add_error(None, 'Список или цены изменились либо подтверждение устарело. Откройте подтверждение заново.')
             else:
                 order = PurchaseOrder.objects.create(user=request.user, supplier=supplier,
@@ -806,7 +806,7 @@ def purchase_confirm(request, supplier_id):
     history=supplier_history(request.user,supplier.pk)
     for row in rows:row.purchase_history=history[(row.offer.article,row.offer.brand)]
     return render(request, 'procurement/purchase_confirm.html', context(request, supplier=supplier, form=form,
-        selections=rows, terms=supplier_terms(supplier, sum((row.quantity * row.offer.cost for row in rows), Decimal(0))), budget=sum((row.quantity * row.offer.cost for row in rows), Decimal(0))), status=400 if request.method == 'POST' else 200)
+        unverified_ids=unverified_ids, selections=rows, terms=supplier_terms(supplier, sum((row.quantity * row.offer.cost for row in rows), Decimal(0))), budget=sum((row.quantity * row.offer.cost for row in rows), Decimal(0))), status=400 if request.method == 'POST' else 200)
 
 
 @access()
