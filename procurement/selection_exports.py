@@ -106,14 +106,24 @@ def selection_apify_json(request):
         return JsonResponse({'error': 'Неверный номер партии'}, status=400)
     if not 1 <= batch <= 100000:
         return JsonResponse({'error': 'Неверный номер партии'}, status=400)
-    mapping = apify_queries(rule)
+    saved_id = request.GET.get('request_id')
+    if saved_id:
+        from .models import Activity
+        from .omega_selection_requests import REQUEST_ACTION, request_queries
+        try:
+            saved = get_object_or_404(Activity, pk=int(saved_id), action=REQUEST_ACTION)
+            mapping = request_queries(saved)
+        except (ValueError, TypeError, KeyError):
+            return JsonResponse({'error': 'Некорректный запрос.'}, status=400)
+    else:
+        mapping = apify_queries(rule)
     start = (batch - 1) * JSON_BATCH_SIZE
     rows = mapping[start:start + JSON_BATCH_SIZE]
     if not rows:
         return JsonResponse({'error': 'Нет запросов в этой партии.'}, status=404)
     if request.GET.get('format') == 'mapping':
-        payload = {'batch': batch, 'source': 'Omega', 'mapping': rows}
-        filename = f'apify_mapping_{batch:02d}.json'
+        payload = {'batch': batch, 'source': 'Omega', 'request_id': saved_id, 'mapping': rows}
+        filename = f'apify_mapping_{saved_id}_{batch:02d}.json' if saved_id else f'apify_mapping_{batch:02d}.json'
     else:
         payload = {
             'searchQueries': [row['query'] for row in rows],
@@ -130,7 +140,7 @@ def selection_apify_json(request):
                 'apifyProxyCountry': 'KZ',
             },
         }
-        filename = f'apify_input_{batch:02d}.json'
+        filename = f'apify_input_{saved_id}_{batch:02d}.json' if saved_id else f'apify_input_{batch:02d}.json'
     response = HttpResponse(json.dumps(payload, ensure_ascii=False, indent=2),
                             content_type='application/json; charset=utf-8')
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
