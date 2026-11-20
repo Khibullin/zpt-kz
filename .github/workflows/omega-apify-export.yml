@@ -23,4 +23,4 @@ jobs:
           python-version: '3.12'
       - run: pip install -r requirements.txt
       - run: python manage.py check --settings=backend.settings_ui_ci
-      - run: python manage.py test procurement.test_apify_selection_export procurement.test_omega_category_requests --settings=backend.settings_ui_ci --noinput
+      - run: python manage.py test procurement.test_apify_selection_export procurement.test_omega_category_requests procurement.test_preparation_performance --settings=backend.settings_ui_ci --noinput
