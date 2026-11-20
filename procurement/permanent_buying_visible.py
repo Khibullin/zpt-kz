@@ -5,13 +5,14 @@ stock, or new Kaspi price can remove an already admitted record.
 """
 from decimal import Decimal
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import Q, OuterRef, Subquery
+from django.db.models.functions import Coalesce
 from django.utils import timezone
 
 from .analysis import evaluate
 from .buying_visible import filtered_offer_ids
 from .models import (PermanentBuyingItem, Favorite, KaspiBuyingCandidate,
-                     KaspiPreparedCard, RetailListing)
+                     KaspiPreparedCard, KaspiPriceAudit, RetailListing)
 
 
 def visible_permanent_buying_rows(request, preferences, filters):
@@ -50,7 +51,15 @@ def visible_permanent_buying_rows(request, preferences, filters):
 
     # Immutable money snapshots make the approved rank independent of price
     # updates. Equal profit is ordered by ROI, then stable record ID.
-    rows = rows.order_by('-profit_snapshot', '-roi_snapshot', 'pk')
+    # Prefer the newest separate seller-price audit for visible ranking.
+    # Archived profits remain unchanged in PermanentBuyingItem.
+    latest = KaspiPriceAudit.objects.filter(
+        offer_id=OuterRef('offer_id')).order_by('-observed_at', '-pk')
+    rows = rows.annotate(
+        _latest_profit=Subquery(latest.values('profit')[:1]),
+        _latest_roi=Subquery(latest.values('roi')[:1]),
+    ).order_by(Coalesce('_latest_profit', 'profit_snapshot').desc(),
+               Coalesce('_latest_roi', 'roi_snapshot').desc(), 'pk')
     paginator = Paginator(rows, 40)
     page = paginator.get_page(request.GET.get('page'))
     items = list(page.object_list)
@@ -60,6 +69,10 @@ def visible_permanent_buying_rows(request, preferences, filters):
             product_id__in=[i.product_id for i in items if i.product_id]
         )
     }
+    audits = {}
+    for audit in KaspiPriceAudit.objects.filter(
+            offer_id__in=offer_ids).order_by('offer_id', '-observed_at', '-pk'):
+        audits.setdefault(audit.offer_id, audit)
     prepared_photos = dict(KaspiPreparedCard.objects.filter(
         offer_id__in=offer_ids).exclude(photo_url='').values_list('offer_id', 'photo_url'))
     favorite_ids = set(Favorite.objects.filter(
@@ -150,6 +163,45 @@ def visible_permanent_buying_rows(request, preferences, filters):
             'kaspi_status': 'Сохранено бессрочно, проверяйте текущую цену и остаток',
             'kaspi_checked_on': None,
         })
+        audit = audits.get(offer.pk)
+        if audit:
+            # Current comparison is a distinct calculation, not a rewrite of
+            # the permanently saved historical price or its economic proof.
+            row['previous_kaspi_price'] = item.kaspi_price_snapshot
+            row['previous_profit'] = item.profit_snapshot
+            row['previous_roi'] = item.roi_snapshot
+            row['kaspi_price'] = audit.min_price
+            row['display_cost'] = audit.cost_snapshot
+            row['profit'] = audit.profit
+            row['markup'] = audit.roi
+            row['expenses'] = audit.expenses_snapshot
+            row['commission_rate'] = audit.commission_snapshot
+            row['commission_amount'] = (audit.min_price *
+                                        audit.commission_snapshot / Decimal('100'))
+            row['kaspi_after_commission'] = (audit.min_price -
+                                             row['commission_amount'])
+            row['difference'] = (row['kaspi_after_commission'] -
+                                 audit.cost_snapshot)
+            row['price_evidence_status'] = (
+                'Минимальная цена из предложений продавцов · '
+                'исполнение требует проверки')
+            if audit.roi < Decimal('50'):
+                row['price_evidence_status'] = (
+                    'По новой минимальной цене доходность ниже 50%')
+            row['best_status'] = (
+                'Повторная проверка Apify · ' +
+                str(len(audit.card_ids or [])) + ' подходящих карточек')
+            row['purchase_ready'] = False
+            row['historical'] = False
+            row['candidate'] = {
+                'title': audit.card_title,
+                'url': audit.card_url,
+                'match_status': 'candidate',
+                'seller_count': None,
+            }
+            row['display_kaspi_date'] = None
+            row['audit_file'] = audit.source_filename
+            row['audit_observed_at'] = audit.observed_at
         result.append(row)
     page.object_list = result
     request.catalog_page = page
