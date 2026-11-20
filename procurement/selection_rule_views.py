@@ -14,6 +14,7 @@ from django.core.cache import cache
 from django.contrib import messages
 from django.db.models import Q, Count, Max, Exists, OuterRef
 from django.shortcuts import redirect, render
+from django.urls import reverse
 
 from .models import Offer, Supplier, WholesaleSelectionRule, PriceUpdate, VehicleFitment
 from .omega_policy import POSITIVE_STOCK_PATTERN
@@ -241,7 +242,7 @@ def selection_rules(request):
         else:
             request.session.pop('omega_confirmed_preview', None)
             messages.success(request, f"{saved.details['title']} сохранён. Можно перейти к формированию JSON.")
-            return redirect('procurement:selection_rules' + '?saved_request=' + str(saved.pk) + '#omega-pick-saved')
+            return redirect(reverse('procurement:selection_rules') + '?saved_request=' + str(saved.pk) + '#omega-pick-saved')
         return redirect('procurement:selection_rules')
     if request.method == 'POST' and not uploading_price:
         form = SelectionRuleForm(request.POST)
