@@ -444,6 +444,7 @@ def dashboard(request):
     form = SelectionFilterForm(
         filter_data,
         include_historical_suppliers=request.GET.get('mode') == 'best',
+        minimal_buying=request.GET.get('mode') == 'best',
     )
     valid = form.is_valid()
     form_finished = perf_counter()
@@ -452,8 +453,10 @@ def dashboard(request):
         request.session['procurement_supplier'] = supplier.pk if supplier else None
     else:
         supplier = form.cleaned_data.get('supplier')
+    # The buying screen does not display global supplier inventory totals.
+    # Avoid a needless COUNT(*) over the 56k-item catalogue on each visit.
     supplier_stats = None
-    if supplier:
+    if supplier and request.GET.get('mode') != 'best':
         supplier_stats = {'loaded': Offer.objects.filter(supplier=supplier).count()}
     if valid and request.GET.get('mode') == 'best' and request.GET.get('download') != 'csv':
         from .permanent_buying_visible import visible_permanent_buying_rows
@@ -497,18 +500,16 @@ def dashboard(request):
     for row in page.object_list:
         row['in_basket'] = row['offer'].pk in selected_ids
     apify_in_best = 0
-    if request.GET.get('mode') == 'best':
-        # Count actual displayed profitable supplier rows backed by this Kaspi batch.
-        # A search result is not an additional purchasing line until verified.
-        apify_in_best = getattr(request, 'apify_visible_total', 0)
+    # The displayed row count already comes from the paginated buying list.
+    # A second count by Apify source was misleading and unnecessary.
     response = render(request, 'procurement/dashboard.html', context(request, apify_in_best=apify_in_best, page=page, total=getattr(request, 'catalog_total', len(rows)), preferences=preferences,
                   commission_rate=preferences.commission.normalize() if preferences.commission is not None else None,
                   effective_expenses=max(PACKAGING_COST, preferences.expenses) if preferences.expenses is not None else None,
-                  filter_form=form, preliminary=preliminary, preliminary_total=len(displayed_rows) if preliminary else 0, best_empty_reason=best_empty_reason, supplier_stats=supplier_stats, catalogue_total=supplier_stats['loaded'] if supplier_stats else Offer.objects.count(),
+                  filter_form=form, preliminary=preliminary, preliminary_total=len(displayed_rows) if preliminary else 0, best_empty_reason=best_empty_reason, supplier_stats=supplier_stats, catalogue_total=(supplier_stats['loaded'] if supplier_stats else Offer.objects.count()) if request.GET.get('mode') != 'best' else None,
                   reset_url=reverse('procurement:dashboard') + (f'?supplier={supplier.pk}' if supplier else '?supplier=') + ('&mode=' + request.GET['mode'] if request.GET.get('mode') in ('best', 'stale_prices', 'kaspi_prices', 'difference', 'no_sellers', 'reviewed') else ''),
                   page_numbers=page.paginator.get_elided_page_range(page.number, on_each_side=2, on_ends=1), basic_filters=[form[name] for name in (('brand', 'category', 'kaspi_seller_count') if request.GET.get('mode') == 'best' else ('brand', 'category', 'vehicle_country', 'vehicle_make', 'vehicle_model', 'vehicle_generation', 'vehicle_year', 'kaspi_seller_count'))],
                   advanced_filters=[form[name] for name in (('fitment', 'availability', 'demand', 'max_cost', 'favorites') if request.GET.get('mode') == 'kaspi_prices' else ('sort', 'fitment', 'availability', 'demand', 'max_cost', 'min_profit', 'min_markup', 'verified', 'favorites') if request.GET.get('mode') != 'best' else ('availability', 'max_cost', 'min_profit', 'min_markup', 'favorites'))],
-                  kaspi_saved_total=Offer.objects.filter(kaspi_price__gt=0, **({'supplier': supplier} if supplier else {})).count(),
+                  kaspi_saved_total=Offer.objects.filter(kaspi_price__gt=0, **({'supplier': supplier} if supplier else {})).count() if request.GET.get('mode') != 'best' else None,
                   mode=request.GET.get('mode', 'roi'), best_scope=request.GET.get('best_scope') or preserved_best_scope(supplier), favorites=bool(form.cleaned_data.get('favorites')) if valid else False), status=200 if valid else 400)
     finished = perf_counter()
     durations = [(form_finished-started)*1000, (rows_finished-form_finished)*1000, (finished-rows_finished)*1000]
