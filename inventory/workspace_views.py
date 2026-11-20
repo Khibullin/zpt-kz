@@ -341,8 +341,13 @@ def overview(request):
     from .purchasing import order_summary
     items = stock_rows()
     receipts = list(GoodsDocument.objects.filter(kind='receipt').prefetch_related('lines__item').order_by('-pk')[:10])
-    orders = [o for o in PurchaseOrder.objects.filter(user=request.user, archived=False).select_related('supplier')]
-    for o in orders: o.workflow = order_summary(o)
+    # The dashboard shows at most eight recent purchases. Never load all
+    # historical orders and run order_summary() once for every old order.
+    orders = list(PurchaseOrder.objects.filter(
+        user=request.user, archived=False
+    ).select_related('supplier').order_by('-created_at', '-pk')[:8])
+    for o in orders:
+        o.workflow = order_summary(o)
     warehouses = []
     for code, label in WAREHOUSES[1:]:
         field = code.lower(); groups = defaultdict(int)
