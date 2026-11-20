@@ -151,6 +151,37 @@ class KaspiBuyingCandidate(models.Model):
         ordering = ['-imported_at', 'pk']
 
 
+class KaspiPriceAudit(models.Model):
+    """Latest observed *seller* minimum per Omega SKU and Apify export.
+
+    Deliberately separate from immutable PermanentBuyingItem and source Offer.
+    A matching brand/article is not verification of vehicle/part execution.
+    """
+    offer = models.ForeignKey('Offer', on_delete=models.PROTECT,
+                              related_name='kaspi_price_audits')
+    source_filename = models.CharField(max_length=255)
+    min_price = models.DecimalField(max_digits=14, decimal_places=2)
+    product_id = models.CharField(max_length=80, blank=True)
+    card_url = models.URLField(max_length=2048, blank=True)
+    card_title = models.CharField(max_length=500, blank=True)
+    seller_name = models.CharField(max_length=180, blank=True)
+    cost_snapshot = models.DecimalField(max_digits=14, decimal_places=2)
+    commission_snapshot = models.DecimalField(max_digits=6, decimal_places=2)
+    expenses_snapshot = models.DecimalField(max_digits=14, decimal_places=2)
+    profit = models.DecimalField(max_digits=18, decimal_places=2)
+    roi = models.DecimalField(max_digits=18, decimal_places=4)
+    card_ids = models.JSONField(default=list, blank=True)
+    # Price evidence from seller does NOT prove the execution or fitment.
+    identity_status = models.CharField(max_length=24, default='needs_review')
+    observed_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(
+            fields=['offer', 'source_filename'], name='proc_kaspi_audit_offer_file')]
+        indexes = [models.Index(fields=['offer', '-observed_at'],
+                                name='proc_audit_offer_latest')]
+
+
 class PermanentBuyingItem(models.Model):
     """Append-only buying register. No automatic updates or deletes.
 
