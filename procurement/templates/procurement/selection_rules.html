@@ -152,17 +152,31 @@
   </div>
 </section>
 <section class="rule-card step-card" aria-labelledby="apify-step-title">
-  <div class="step-heading"><span class="step-number">4</span><div><h2 id="apify-step-title">Подготовка для Apify</h2><p class="muted">Скачайте JSON и самостоятельно загрузите его в Kaspi API: Products, Prices, Sellers &amp; Reviews</p></div></div>
+  <div class="step-heading"><span class="step-number">4</span><div><h2 id="apify-step-title">Подготовка для Apify</h2><p class="muted">Поиск по бренду и артикулу. Запуск вручную в Apify, без изменения товаров на сайте.</p></div></div>
   <div class="step-line">
     {% if json_batches %}
-      <span>Одна партия — до {{ json_batch_size }} товаров. Выберите нужную партию:</span>
-      {% for batch in json_batches %}<a class="button primary" href="{% url 'procurement:selection_apify_json' %}?batch={{ batch }}">↓ JSON №{{ batch }}</a>{% endfor %}
+      <span><strong>{{ apify_query_count }}</strong> поисковых запросов, до {{ json_batch_size }} в партии:</span>
+      {% for batch in json_batches %}
+      <a class="button primary" href="{% url 'procurement:selection_apify_json' %}?batch={{ batch }}">↓ JSON №{{ batch }}</a>
+      <a class="button" href="{% url 'procurement:selection_apify_json' %}?batch={{ batch }}&amp;format=mapping">Соответствие №{{ batch }}</a>
+      {% endfor %}
     {% else %}<span>Сначала сохраните фильтр с ненулевым количеством товаров.</span>{% endif %}
   </div>
   <div class="apify-settings">
-    <strong>Параметры Apify для ручного запуска</strong>
-    <div class="apify-settings-grid"><span>Города: Алматы, Астана, Шымкент</span><span>Max products per query: 3</span><span>Add every seller's offer: включено</span><span>Max offers per product: 0 (все)</span><span>Add reviews: выключено</span><span>Proxy: Residential, Kazakhstan</span><span>Memory: 256 MB</span><span>Timeout: 43 200 секунд</span></div>
-    <p class="muted" style="margin:9px 0 0">Максимальную стоимость запуска установите вручную в Apify. JSON не запускает сбор автоматически; результаты и расходы зависят от настроек и ограничений самого сервиса.</p>
+    <strong>Параметры ручного запуска Apify</strong>
+    <div class="apify-settings-grid">
+      <span>Города: Алматы, Астана, Шымкент, Караганда, Актобе, Костанай</span>
+      <span>Костанай: код 391010000</span>
+      <span>Сортировка: по возрастанию цены</span>
+      <span>Предложения продавцов: все</span>
+      <span>Отзывы: выключены</span>
+      <span>Proxy: Residential, Kazakhstan</span>
+      <span>Build: latest</span>
+      <span>Memory: 256 MB</span>
+      <span>Timeout: без ограничения (контролируйте запуск)</span>
+      <span>Лимит стоимости: $20, установите вручную</span>
+    </div>
+    <p class="muted" style="margin:9px 0 0">Проверяйте стоимость и время выполнения в Apify. Значения 0 для лимитов результатов и идентификатор Костаная требуют проверки по актуальной версии Actor firsthand/kaspi-api. При отсутствии подтверждённых предложений не считайте минимальную цену установленной.</p>
   </div>
 </section>
 

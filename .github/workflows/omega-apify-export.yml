@@ -1,0 +1,24 @@
+name: Omega Apify export
+
+on:
+  pull_request:
+    paths:
+      - 'procurement/selection_exports.py'
+      - 'procurement/selection_rule_views.py'
+      - 'procurement/templates/procurement/selection_rules.html'
+      - 'procurement/test_apify_selection_export.py'
+      - '.github/workflows/omega-apify-export.yml'
+
+jobs:
+  export-tests:
+    runs-on: ubuntu-latest
+    env:
+      SECRET_KEY: test-only-omega-apify-ci-key
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - run: python manage.py check --settings=backend.settings_ui_ci
+      - run: python manage.py test procurement.test_apify_selection_export --settings=backend.settings_ui_ci --noinput

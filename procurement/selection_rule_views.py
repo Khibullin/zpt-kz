@@ -237,10 +237,11 @@ def selection_rules(request):
     unknown_years = max(0, before_years - matched)
     # All download actions use the last saved rule, not unsaved form values.
     # Preview is intentionally short and read-only; full records go to Excel.
-    from .selection_exports import filtered_offers, JSON_BATCH_SIZE
+    from .selection_exports import filtered_offers, apify_queries, JSON_BATCH_SIZE
     saved_rows = filtered_offers(rule)
     exported_total = saved_rows.count()
-    batches = (exported_total + JSON_BATCH_SIZE - 1) // JSON_BATCH_SIZE
+    query_count = len(apify_queries(rule))
+    batches = (query_count + JSON_BATCH_SIZE - 1) // JSON_BATCH_SIZE
     from .models import KaspiBuyingCandidate
     # Compact saved-result summary; the full card list lives only in the buying catalogue.
     buying_qs = KaspiBuyingCandidate.objects.filter(offer__supplier=omega)
@@ -268,5 +269,5 @@ def selection_rules(request):
                           year_unknown=unknown_years, before_years=before_years,
                           group_choices=GROUPS,
                           json_batches=range(1, batches + 1),
-                          json_batch_size=JSON_BATCH_SIZE,
+                          json_batch_size=JSON_BATCH_SIZE, apify_query_count=query_count,
                           buying_total=buying_total, last_import=last_import))
