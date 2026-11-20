@@ -136,6 +136,89 @@
     <div class="rule-hint"><strong>Требует уточнения по годам: {{ year_unknown }}</strong> позиций после остальных фильтров. Отсутствующий год выпуска или неподтверждённая применимость не подменяются предположениями. Эти товары не удаляются из прайс-листа.<p style="margin:8px 0 0">Классификация по наименованию предварительная: неизвестные категории и применимость требуют дальнейшей проверки. Сохранение фильтра не запускает Kaspi, не изменяет исходные цены и не удаляет товары.</p></div>
   </form>
 </section>
+<section class="rule-card step-card" aria-labelledby="omega-categories-title">
+  <div class="step-heading"><span class="step-number">2</span><div><h2 id="omega-categories-title">Выбор категорий Омеги</h2><p class="muted">Настройки отдельного запроса из загруженного прайса. Товары, цены и остатки на сайте не меняются.</p></div></div>
+  {% if omega_price_batch and omega_categories %}
+  <p class="muted">Прайс: <strong>{{ omega_price_batch.filename }}</strong> от {{ omega_price_batch.checked_on|date:"d.m.Y" }}. Категорий: {{ omega_categories|length }}.</p>
+  <form method="post" id="omega-category-request-form">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="save_omega_request">
+    <input type="hidden" name="price_batch_id" value="{{ omega_price_batch.pk }}">
+    <div class="rule-form-grid">
+      <div class="rule-field"><label for="omega-min-cost">Закупочная цена от, ₸</label><input id="omega-min-cost" type="number" name="omega_min_cost" value="2000" min="0" step="1" required></div>
+      <div class="rule-field"><label for="omega-category-search">Найти категорию</label><input id="omega-category-search" type="search" placeholder="Название категории" autocomplete="off"></div>
+    </div>
+    <div class="step-line" style="margin:12px 0">
+      <button type="button" id="omega-select-all">Выбрать все</button>
+      <button type="button" id="omega-clear-all">Снять выбор</button>
+      <strong>Выбрано: <span id="omega-selected-count">0</span></strong>
+    </div>
+    <div class="omega-category-table">
+      <table>
+        <thead><tr><th>Выбрать</th><th>Категория Омеги</th><th>Всего</th><th>В наличии</th><th>От 2 000 ₸</th></tr></thead>
+        <tbody>
+          {% for category in omega_categories %}
+          <tr class="omega-category-row" data-search="{{ category.name|lower }}">
+            <td><input type="checkbox" name="omega_category" value="{{ category.name }}" aria-label="Выбрать {{ category.name }}" {% if not omega_requests and category.key in default_category_keys %}checked{% endif %}></td>
+            <td>{{ category.name }}</td>
+            <td>{{ category.total }}</td>
+            <td>{{ category.in_stock }}</td>
+            <td>{{ category.eligible }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <p class="muted" style="margin:9px 0">Количество в последнем столбце рассчитано при пороге 2 000 ₸; при сохранении другого порога итог будет пересчитан. Неизвестную применимость нельзя считать подтверждённой.</p>
+    <button class="primary" type="submit">Сохранить следующий запрос</button>
+  </form>
+  {% else %}
+  <p>Загрузите прайс-лист Омеги в шаге 1. После черновой загрузки здесь появится полный список реальных категорий и их количество.</p>
+  {% endif %}
+  <h3 style="margin-top:20px">История запросов</h3>
+  {% if omega_requests %}
+  <div class="omega-category-table">
+    <table><thead><tr><th>Запрос</th><th>Прайс</th><th>Категории</th><th>Цена от</th><th>Товаров</th><th>Поисков</th><th>JSON для Apify</th></tr></thead>
+    <tbody>{% for saved in omega_requests %}
+    <tr>
+      <td><strong>{{ saved.details.title }}</strong><small style="display:block">{{ saved.created_at|date:"d.m.Y H:i" }}</small></td>
+      <td>{{ saved.details.filename }}</td>
+      <td>{{ saved.details.categories|join:", " }}</td>
+      <td>{{ saved.details.min_cost }} ₸</td>
+      <td>{{ saved.details.total }}</td>
+      <td>{{ saved.details.query_count }}</td>
+      <td>{% for batch in saved.export_batches %}
+        <a href="{% url 'procurement:selection_apify_json' %}?request_id={{ saved.pk }}&amp;batch={{ batch }}">JSON {{ batch }}</a>
+        <a href="{% url 'procurement:selection_apify_json' %}?request_id={{ saved.pk }}&amp;batch={{ batch }}&amp;format=mapping">Соответствие</a>
+      {% endfor %}</td>
+    </tr>
+    {% endfor %}</tbody></table>
+  </div>
+  {% else %}<p class="muted">Пока запросов нет. Первым сохранится «Запрос №1» с жёлтым набором категорий.</p>{% endif %}
+</section>
+<style>
+.omega-category-table{max-height:390px;overflow:auto;border:1px solid #dce5ee;border-radius:9px;margin:10px 0}
+.omega-category-table table{width:100%;border-collapse:collapse;min-width:720px}
+.omega-category-table th,.omega-category-table td{padding:7px 10px;text-align:left;border-bottom:1px solid #e5edf5;font-size:12px}
+.omega-category-table th{position:sticky;top:0;background:#f4f8fc;z-index:1}
+.omega-category-table input[type=checkbox]{width:17px;height:17px;accent-color:#0a978b}
+.omega-category-table tr:has(input:checked){background:#fff9db}
+.omega-category-table a{margin-right:7px;display:inline-block}
+</style>
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+  const form=document.getElementById('omega-category-request-form');
+  if(!form)return;
+  const rows=[...form.querySelectorAll('.omega-category-row')];
+  const count=document.getElementById('omega-selected-count');
+  const update=()=>{count.textContent=rows.filter(r=>r.querySelector('input').checked).length;};
+  const search=document.getElementById('omega-category-search');
+  search.addEventListener('input',()=>{const q=search.value.trim().toLocaleLowerCase();rows.forEach(r=>{r.hidden=!r.dataset.search.includes(q);});});
+  document.getElementById('omega-select-all').addEventListener('click',()=>{rows.filter(r=>!r.hidden).forEach(r=>{r.querySelector('input').checked=true;});update();});
+  document.getElementById('omega-clear-all').addEventListener('click',()=>{rows.forEach(r=>{r.querySelector('input').checked=false;});update();});
+  form.addEventListener('change',update);update();
+});
+</script>
 <section class="rule-card step-card" aria-labelledby="results-step-title">
   <div class="step-heading"><span class="step-number">3</span><div><h2 id="results-step-title">Результат отбора</h2><p class="muted">Итог по последним сохранённым настройкам фильтра</p></div></div>
   <div class="result-criteria">
