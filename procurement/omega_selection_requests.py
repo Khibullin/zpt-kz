@@ -5,8 +5,6 @@ Nothing here updates Offers, stock, current Kaspi observations or selections.
 """
 from collections import defaultdict
 from decimal import Decimal, InvalidOperation
-from hashlib import sha256
-import json
 
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
@@ -131,11 +129,16 @@ def save_request(*, batch_id, categories, minimum, user):
     previous = list(Activity.objects.select_for_update()
                     .filter(action=REQUEST_ACTION).only('id', 'details'))
     number = max((int(item.details.get('number', 0)) for item in previous), default=0) + 1
+    from .selection_exports import article_variants
+    queries = set()
+    for row in filtered:
+        for article in article_variants(row.get('article')):
+            queries.add((' '.join((str(row['brand']).strip(), article))).casefold())
     return Activity.objects.create(user=user, action=REQUEST_ACTION, details={
         'number': number, 'title': f'Запрос №{number}',
         'price_batch_id': batch.pk, 'price_sha256': batch.sha256,
         'filename': batch.filename, 'checked_on': batch.checked_on.isoformat(),
         'categories': [available[key] for key in unique],
         'category_keys': unique, 'min_cost': str(minimum),
-        'total': len(filtered), 'status': 'Подготовлен',
+        'total': len(filtered), 'query_count': len(queries), 'status': 'Подготовлен',
     })
