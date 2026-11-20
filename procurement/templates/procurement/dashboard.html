@@ -71,7 +71,7 @@
     <small class="preliminary-status">Фото Firsthand · требуется проверка исполнения</small>
   </div>
 {% endif %}
-{% if mode == 'best' %}<small><strong>{{ row.best_status }}</strong></small><small><strong>{{ row.price_evidence_status }}</strong></small><small>Указанная прибыль — расчёт по сохранённой цене, не гарантия фактической доходности.</small>
+{% if mode == 'best' %}<small><strong>{{ row.best_status }}</strong></small>{% if row.audit_file %}<small>Новая выгрузка: {{ row.audit_observed_at|date:'d.m.Y H:i' }} · {{ row.audit_file }}</small>{% endif %}<small><strong>{{ row.price_evidence_status }}</strong></small><small>Указанная прибыль — расчёт по сохранённой цене, не гарантия фактической доходности.</small>
 <small>Прайс: {{ row.display_supplier_date|date:'d.m.Y'|default:'нет данных' }} · Обработано: {{ row.processed_at|date:'d.m.Y'|default:'не зафиксировано' }} · Kaspi: {{ row.display_kaspi_date|date:'d.m.Y'|default:'нет данных' }}</small>
 {% if row.historical %}<small class="preliminary-status">{{ row.historical_reason }}</small>{% endif %}{% endif %}
 <details class="product-evidence"><summary>Подробнее</summary>
@@ -87,13 +87,13 @@
 <td>{{ row.offer.supplier.name }}</td>
 <td class="money">{% if mode == 'best' %}{{ row.display_cost|floatformat:0 }}{% else %}{{ row.offer.cost|floatformat:0 }}{% endif %}{% if row.historical and not row.omega_review %}<small>Цена прежнего расчёта</small>{% endif %}</td>
 {% if mode == 'no_sellers' %}<td>{% if row.kaspi_presence == 'no_card' %}Карточка не найдена после проверки{% else %}Карточка есть — продавцов нет{% endif %}<small>Алматы · {{ row.kaspi_checked_on|date:'d.m.Y' }}</small></td><td>Цена продажи не задана</td><td>Прибыль не рассчитана</td>{% else %}
-<td class="money">{{ row.kaspi_price|floatformat:0|default:'Нет данных' }}{% if mode == 'kaspi_prices' %}<small class="preliminary-status">Сохранённая цена</small>{% elif mode == 'stale_prices' %}<small class="preliminary-status">Старая цена · {{ row.offer.kaspi_price_checked_on|date:'d.m.Y'|default:'без даты' }}</small>{% elif mode == 'best' %}<small>{{ row.display_kaspi_date|date:'d.m.Y'|default:'без даты' }}</small>{% endif %}</td>
+<td class="money">{% if row.audit_file %}<strong>{{ row.kaspi_price|floatformat:0 }} ₸</strong><small>Новая минимальная цена из предложений продавцов</small><small>Ранее: {{ row.previous_kaspi_price|floatformat:0 }} ₸</small>{% else %}{{ row.kaspi_price|floatformat:0|default:'Нет данных' }}{% endif %}{% if mode == 'kaspi_prices' %}<small class="preliminary-status">Сохранённая цена</small>{% elif mode == 'stale_prices' %}<small class="preliminary-status">Старая цена · {{ row.offer.kaspi_price_checked_on|date:'d.m.Y'|default:'без даты' }}</small>{% elif mode == 'best' %}<small>{{ row.display_kaspi_date|date:'d.m.Y'|default:'без даты' }}</small>{% endif %}</td>
 {% if mode == 'kaspi_prices' %}<td>{% if row.offer.match_verified %}Совпадение подтверждено{% else %}Не подтверждено{% endif %}</td><td>{{ row.offer.kaspi_price_checked_on|date:'d.m.Y'|default:'Нет даты' }}</td>{% else %}<td class="money">
 {% if mode != 'difference' %}<span class="delta" {% if row.markup != None and row.markup < 0 %}style="color:#a32b20"{% endif %}>{{ row.markup|floatformat:2|default:'—' }}%</span>{% else %}
 <span class="delta">{{ row.difference|floatformat:2|default:'Нет данных' }}</span>
 <small>{{ row.markup|floatformat:1|default:'—' }}%</small>{% endif %}
 </td>
-<td class="money">{% if row.profit != None and row.profit < 0 %}<strong style="color:#a32b20">Убыток: {{ row.profit|floatformat:2 }} ₸</strong>{% elif row.profit != None %}<strong>{{ row.profit|floatformat:2 }} ₸</strong>{% else %}Прибыль не рассчитана{% endif %}
+<td class="money">{% if row.profit != None and row.profit < 0 %}<strong style="color:#a32b20">Убыток: {{ row.profit|floatformat:2 }} ₸</strong>{% elif row.profit != None %}<strong>{{ row.profit|floatformat:2 }} ₸</strong>{% if mode == 'best' and row.audit_file %}<small>Ранее: {{ row.previous_profit|floatformat:2 }} ₸</small>{% endif %}{% else %}Прибыль не рассчитана{% endif %}
 </td>{% endif %}
 {% endif %}<td class="row-actions">
 <button type="button" class="quick-view" data-url="{% url 'procurement:detail' row.offer.pk %}?compact=1" aria-haspopup="dialog">Просмотр</button>
