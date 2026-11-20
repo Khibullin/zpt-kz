@@ -103,7 +103,7 @@ class PermanentBuyingPageTests(TestCase):
         response = self.dashboard(rechecked='1')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['total'], 1)
-        self.assertContains(response, 'Ранее: 40')
+        self.assertContains(response, 'Было: 40')
         self.assertContains(response, 'Показаны только перепроверенные товары')
         self.assertNotContains(response, 'Ещё товар')
 
