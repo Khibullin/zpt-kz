@@ -7,6 +7,8 @@ on:
       - 'procurement/selection_rule_views.py'
       - 'procurement/templates/procurement/selection_rules.html'
       - 'procurement/test_apify_selection_export.py'
+      - 'procurement/test_omega_category_requests.py'
+      - 'procurement/omega_selection_requests.py'
       - '.github/workflows/omega-apify-export.yml'
 
 jobs:
@@ -21,4 +23,4 @@ jobs:
           python-version: '3.12'
       - run: pip install -r requirements.txt
       - run: python manage.py check --settings=backend.settings_ui_ci
-      - run: python manage.py test procurement.test_apify_selection_export --settings=backend.settings_ui_ci --noinput
+      - run: python manage.py test procurement.test_apify_selection_export procurement.test_omega_category_requests --settings=backend.settings_ui_ci --noinput
