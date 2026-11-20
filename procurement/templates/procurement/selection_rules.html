@@ -262,7 +262,7 @@
 .omega-condition-row input[type=number]{height:34px!important;min-height:34px!important;width:100%!important;padding:5px 8px}
 .omega-stock-option{min-height:34px;white-space:nowrap}
 .omega-category-tools{margin:5px 0 7px}
-.omega-category-grid{column-count:2;column-gap:10px;max-height:385px;overflow-y:auto;overflow-x:hidden;border:1px solid #dce5ee;border-radius:8px;padding:5px 7px;background:#fff;column-fill:balance}
+.omega-category-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-content:start;gap:3px 10px;max-height:385px;overflow-y:auto;overflow-x:hidden;border:1px solid #dce5ee;border-radius:8px;padding:5px 7px;background:#fff}
 .omega-category-row{display:flex;align-items:center;gap:6px;break-inside:avoid;min-height:29px;padding:3px 6px;margin:0 0 2px;border:1px solid #e7edf4;border-radius:5px;font-size:12px;cursor:pointer}
 .omega-category-row[hidden]{display:none!important}
 .omega-category-row.omega-used{background:#fff9e9}
@@ -274,7 +274,7 @@
 .omega-used-badge{font-size:10px;padding:1px 4px;margin:0;white-space:nowrap}
 .omega-category-counts{flex:0 0 auto;text-align:right;white-space:nowrap;color:#596c7b;font-variant-numeric:tabular-nums;font-size:11px}
 .omega-category-legend{font-size:11px;margin:4px 0 7px}
-@media(max-width:760px){.omega-category-grid{column-count:1;max-height:350px}.omega-upload-row .omega-upload-file{flex-basis:100%}}
+@media(max-width:760px){.omega-category-grid{grid-template-columns:1fr;max-height:350px}.omega-upload-row .omega-upload-file{flex-basis:100%}}
 @media(max-width:840px){.omega-upload-row{grid-template-columns:1fr 1fr}.omega-condition-row{grid-template-columns:1fr 1fr}.omega-stock-option{grid-column:1/-1}}
 @media(max-width:520px){.omega-upload-row,.omega-condition-row{grid-template-columns:1fr}.omega-rules-link{margin-left:0}}
 </style>
