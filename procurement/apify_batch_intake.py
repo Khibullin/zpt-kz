@@ -46,7 +46,10 @@ def stage_apify_file(upload, user):
                      'next_batch': 0, 'stats': {'products': 0, 'linked': 0,
                      'verified': 0, 'unmatched': 0, 'invalid': 0,
                      'protected_verified': 0, 'rejected_below_50': 0,
-                     'rejected_unverifiable': 0, 'rejected_unconfirmed_price': 0}})
+                     'rejected_unverifiable': 0, 'rejected_unconfirmed_price': 0,
+                     'recheck_matched_cards': 0, 'recheck_price_cards': 0,
+                     'recheck_unrelated': 0, 'recheck_missing_sellers': 0,
+                     'recheck_offer_updates': 0}})
         Activity.objects.bulk_create([
             Activity(user=user, action='apify_upload_source_batch',
                      details={'session_id': session.pk, 'batch': i,
@@ -112,7 +115,10 @@ def begin_chunked_upload(*, filename, total, digest, user):
                      'stats': {'products': 0, 'linked': 0, 'verified': 0,
                                'unmatched': 0, 'invalid': 0,
                                'protected_verified': 0, 'rejected_below_50': 0,
-                               'rejected_unverifiable': 0, 'rejected_unconfirmed_price': 0}})
+                               'rejected_unverifiable': 0, 'rejected_unconfirmed_price': 0,
+                     'recheck_matched_cards': 0, 'recheck_price_cards': 0,
+                     'recheck_unrelated': 0, 'recheck_missing_sellers': 0,
+                     'recheck_offer_updates': 0}})
 
 
 def append_chunked_upload(*, session_id, batch, rows, user):
