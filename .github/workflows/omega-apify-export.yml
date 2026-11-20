@@ -12,6 +12,8 @@ on:
 jobs:
   export-tests:
     runs-on: ubuntu-latest
+    env:
+      SECRET_KEY: test-only-omega-apify-ci-key
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
