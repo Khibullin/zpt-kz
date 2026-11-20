@@ -79,7 +79,7 @@ def stage_update(file, supplier, user, date, full_catalog=False):
         supplier=supplier, sha256=digest, checked_on=date,
         full_catalog=full_catalog).order_by('-pk').first()
     if previous:
-        return previous, False
+        return previous
     if PriceUpdate.objects.filter(supplier=supplier, status__in=['ready', 'running']).exists():
         raise ValueError('У поставщика есть незавершённая загрузка. Продолжите её.')
     newest = Offer.objects.filter(supplier=supplier).aggregate(value=Max('supplier_checked_on'))['value']
@@ -104,7 +104,7 @@ def stage_update(file, supplier, user, date, full_catalog=False):
     Activity.objects.create(user=user, action='price_update_staged', details={
         'batch': batch.pk, 'supplier': supplier.pk, 'rows': len(rows), 'sha256': digest,
         'full_catalog': full_catalog})
-    return batch, True
+    return batch
 
 
 def reuse_identity(offer):
