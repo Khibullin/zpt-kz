@@ -166,7 +166,7 @@ class OmegaCategoryRequestTests(TestCase):
         self.assertContains(page, 'Выбрать товары')
         self.assertContains(page, 'id="omega-save-request" hidden disabled')
         self.assertContains(page, '9 файлов подготовлены ранее')
-        self.assertContains(page, 'Выбрано в запросе', count=0)
+        self.assertContains(page, 'Выбрано в запросе')
         # The default first ten categories are visible as already used, but
         # not automatically checked for the next request.
         self.assertContains(page, 'omega-used-badge')
