@@ -261,18 +261,12 @@ def selection_rules(request):
     unknown_years = max(0, before_years - matched)
     # All download actions use the last saved rule, not unsaved form values.
     # Preview is intentionally short and read-only; full records go to Excel.
-    from .selection_exports import JSON_BATCH_SIZE, apify_queries
-    # Reuse the cached fitment count; cache the distinct search count separately
-    # because a leading-zero SKU can produce two queries for a single offer.
+    from .selection_exports import JSON_BATCH_SIZE
+    # Keep the cheap cached count on the page; exact variant query counts are
+    # recorded for each numbered Omega request instead of rescanning fitments.
     exported_total = matched
-    query_key = 'zpt:selection-apify-query-count:v1:' + sha256(
-        (stats_key + ':' + str(rule.updated_at)).encode('utf-8')
-    ).hexdigest()
-    query_count = cache.get(query_key)
-    if query_count is None:
-        query_count = len(apify_queries(rule))
-        cache.set(query_key, query_count, timeout=60)
-    batches = (query_count + JSON_BATCH_SIZE - 1) // JSON_BATCH_SIZE
+    query_count = exported_total
+    batches = (exported_total + JSON_BATCH_SIZE - 1) // JSON_BATCH_SIZE
     from .models import KaspiBuyingCandidate
     # Compact saved-result summary; the full card list lives only in the buying catalogue.
     buying_qs = KaspiBuyingCandidate.objects.filter(offer__supplier=omega)
