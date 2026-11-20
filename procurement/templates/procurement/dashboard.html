@@ -51,7 +51,7 @@
 {% else %}
 <a class="button" href="{% url 'procurement:dashboard' %}?mode=best&amp;rechecked=1{% if selected_supplier %}&amp;supplier={{ selected_supplier.pk|unlocalize }}{% endif %}">Перепроверенные — сравнить цены</a>
 {% endif %}
-</div><form id="bulk-selection" method="post" action="{% url 'procurement:select_many' %}" data-selection-form data-bulk-selection>{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button class="primary" type="submit">Добавить выбранные</button><small data-selection-status role="status" aria-live="polite"></small></form>{% else %}<div class="actions"><a href="{{ settings_url }}">Алгоритм и настройки</a><a class="button" href="{% querystring download='csv' page=None %}">Скачать CSV</a></div>{% endif %}
+</div><form id="bulk-selection" method="post" action="{% url 'procurement:select_many' %}" data-selection-form data-bulk-selection>{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button class="primary" type="submit">Добавить выбранные в список</button><small data-selection-status role="status" aria-live="polite"></small></form>{% else %}<div class="actions"><a href="{{ settings_url }}">Алгоритм и настройки</a><a class="button" href="{% querystring download='csv' page=None %}">Скачать CSV</a></div>{% endif %}
 </div>
 <div class="tablewrap">
 <table>
@@ -134,7 +134,7 @@
 {% endif %}<td class="row-actions">
 <button type="button" class="quick-view" data-url="{% url 'procurement:detail' row.offer.pk %}?compact=1" aria-haspopup="dialog">Просмотр</button>
 {% if mode == 'best' %}
-{% if row.in_basket %}<small data-in-basket>В списке закупки (сохранённый выбор)</small>{% elif row.purchase_ready %}<label class="purchase-check"><input type="checkbox" name="offer_ids" value="{{ row.offer.pk|unlocalize }}" form="bulk-selection" aria-label="Выбрать к закупке: {{ row.offer.brand }} {{ row.offer.article }}"> Выбрать</label>{% else %}<small class="preliminary-status">Нужна проверка</small>{% endif %}
+{% if row.in_basket %}<small data-in-basket>Уже в списке</small>{% else %}<label class="purchase-check"><input type="checkbox" name="offer_ids" value="{{ row.offer.pk|unlocalize }}" form="bulk-selection" aria-label="Отметить в список закупки: {{ row.offer.brand }} {{ row.offer.article }}"> В список</label>{% if not row.purchase_ready %}<small class="preliminary-status">Требует проверки до заказа</small>{% endif %}{% endif %}
 {% elif mode == 'kaspi_prices' %}<small class="preliminary-status">Только для ознакомления — нужна повторная проверка</small>{% elif mode == 'stale_prices' %}<small class="preliminary-status">Сначала обновите цену Kaspi</small>{% elif row.omega_review %}<small class="preliminary-status">Предварительно: требуется проверка Kaspi по Казахстану</small>{% else %}<form method="post" action="{% url 'procurement:select' row.offer.pk %}" data-selection-form>{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button class="primary">+ В закупку</button><small data-selection-status role="status" aria-live="polite"></small></form>{% endif %}
 </td>
 </tr>{% empty %}<tr>
