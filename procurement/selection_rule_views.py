@@ -177,6 +177,21 @@ def selection_rules(request):
             # A failed transaction leaves the batch cursor unchanged for retry.
             return JsonResponse({'error': 'Партия не завершена. Повторите обработку.'}, status=500)
         return JsonResponse(progress)
+    if request.method == 'POST' and request.POST.get('action') == 'preview_omega_request':
+        from django.http import JsonResponse
+        from .omega_selection_requests import preview_request
+        try:
+            result = preview_request(
+                batch_id=int(request.POST.get('price_batch_id', '0')),
+                categories=request.POST.getlist('omega_category'),
+                minimum=request.POST.get('omega_min_cost', '2000'),
+                max_vehicle_age=request.POST.get('omega_max_vehicle_age', '20'),
+                in_stock_only=request.POST.get('omega_in_stock_only') == 'on',
+            )
+            return JsonResponse(result)
+        except (ValidationError, ValueError, TypeError, PriceUpdate.DoesNotExist) as error:
+            detail = '; '.join(error.messages) if isinstance(error, ValidationError) else 'Не удалось выполнить отбор.'
+            return JsonResponse({'error': detail}, status=400)
     if request.method == 'POST' and request.POST.get('action') == 'save_omega_request':
         from .omega_selection_requests import save_request
         try:
@@ -184,6 +199,8 @@ def selection_rules(request):
                 batch_id=int(request.POST.get('price_batch_id', '0')),
                 categories=request.POST.getlist('omega_category'),
                 minimum=request.POST.get('omega_min_cost', '2000'),
+                max_vehicle_age=request.POST.get('omega_max_vehicle_age', '20'),
+                in_stock_only=request.POST.get('omega_in_stock_only') == 'on',
                 user=request.user,
             )
         except (ValidationError, ValueError, TypeError, PriceUpdate.DoesNotExist) as error:
