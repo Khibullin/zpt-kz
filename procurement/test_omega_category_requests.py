@@ -106,7 +106,7 @@ class OmegaCategoryRequestTests(TestCase):
             'omega_category': ['Рычаг'], 'omega_min_cost': '2000'})
         page = self.client.get(reverse('procurement:selection_rules'))
         self.assertContains(page, 'Запрос №2')
-        self.assertContains(page, 'Запрос №3')
+        self.assertContains(page, 'Сохранить запрос №3')
         self.assertContains(page, 'Вы можете включить их повторно')
         self.assertEqual(list(Selection.objects.values_list('offer_id', 'quantity')),
                          [(self.offer.pk, 2)])
