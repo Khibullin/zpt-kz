@@ -107,12 +107,28 @@ class PermanentBuyingPageTests(TestCase):
         self.assertContains(response, 'Показаны только перепроверенные товары')
         self.assertNotContains(response, 'Ещё товар')
 
-    def test_unverified_bulk_add_is_blocked(self):
+    def test_unverified_can_be_chosen_into_draft_but_not_ordered(self):
+        response = self.dashboard()
+        self.assertContains(response, 'Отметить в список закупки:')
         response = self.client.post(
             reverse('procurement:select_many'), {'offer_ids': [str(self.offer.pk)]},
             HTTP_ACCEPT='application/json')
-        self.assertEqual(response.status_code, 400)
-        self.assertFalse(Selection.objects.filter(user=self.user).exists())
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Selection.objects.get(
+            user=self.user, offer=self.offer).quantity, 2)
+        basket = self.client.get(reverse('procurement:basket'))
+        self.assertContains(basket, 'Предварительный отбор')
+        self.assertContains(basket, 'Требует проверки перед заказом')
+        confirm = self.client.get(reverse('procurement:purchase_confirm',
+                                           args=[self.supplier.pk]))
+        self.assertEqual(confirm.status_code, 200)
+        self.assertContains(confirm, 'Заказ пока недоступен')
+        self.assertNotContains(confirm, 'Создать заказ в ZPT.KZ')
+        post = self.client.post(reverse('procurement:purchase_confirm',
+                                        args=[self.supplier.pk]), {})
+        self.assertEqual(post.status_code, 400)
+        from .models import PurchaseOrder
+        self.assertFalse(PurchaseOrder.objects.filter(user=self.user).exists())
 
     def test_manual_verified_candidate_with_seller_is_selectable(self):
         self.candidate.city_offers = [
