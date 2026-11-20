@@ -211,6 +211,13 @@
     Нет подтверждённой цены продавца: {{ apify_session.details.stats.rejected_unconfirmed_price|default:0 }}.
     Недостаточно данных или не выполнены остальные условия: {{ apify_session.details.stats.rejected_unverifiable }}.
     Ошибочных строк: {{ apify_session.details.stats.invalid }}.</p>
+    {% if apify_session.details.stats.recheck_matched_cards %}
+    <p><strong>Повторная проверка цены:</strong>
+    карточек точного бренда и артикула — {{ apify_session.details.stats.recheck_matched_cards }},
+    с предложениями продавцов — {{ apify_session.details.stats.recheck_price_cards }},
+    посторонних результатов поиска — {{ apify_session.details.stats.recheck_unrelated }}.
+    Новые минимальные цены сохраняются отдельно, без изменения старого реестра.</p>
+    {% endif %}
     {% if apify_session.details.next_batch < apify_session.details.total_batches %}
     <form id="apify-batch-form" method="post">
       {% csrf_token %}
@@ -219,7 +226,7 @@
     </form>
     <p class="muted">Обработка идёт последовательно, с сохранением каждой партии. Не закрывайте вкладку во время выполнения; после сбоя можно продолжить с сохранённой партии.</p>
     {% else %}
-    <p><strong>Все партии обработаны.</strong> Проверьте результаты в «Выгодные к закупке».</p>
+    <p><strong>Все партии обработаны.</strong> Проверьте результаты в «Выгодные к закупке». Повторно проверенные цены показаны рядом с прежними; окончательное подтверждение исполнения — вручную.</p>
     {% endif %}
   </div>
   {% endif %}
