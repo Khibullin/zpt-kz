@@ -1,0 +1,8 @@
+<label class="omega-category-row{% if category.previous_requests %} omega-used{% endif %}"
+       data-search="{{ category.name|lower }}{% for number in category.previous_requests %} запрос №{{ number }}{% endfor %}"
+       {% if category.previous_requests %}data-previous="1"{% endif %}>
+  <input type="checkbox" name="omega_category" value="{{ category.name }}" aria-label="Выбрать {{ category.name }}">
+  <span class="omega-category-name">{{ category.name }}</span>
+  <span class="omega-category-history">{% for number in category.previous_requests %}<span class="omega-used-badge" title="Выбрано в запросе №{{ number }}">№{{ number }}</span>{% endfor %}</span>
+  <span class="omega-category-counts" title="Всего / в наличии / от 2 000 ₸">{{ category.total }} / {{ category.in_stock }} / {{ category.eligible }}</span>
+</label>
