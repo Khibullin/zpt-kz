@@ -73,7 +73,7 @@ def article_variants(article):
     original = str(article or '').strip()
     if not original:
         return []
-    variant = re.sub(r'(^|[\\s/_-])0+(?=\\d)', r'\\1', original)
+    variant = re.sub(r'(^|[\s/_-])0+(?=\d)', r'\1', original)
     return [original, variant] if variant != original else [original]
 
 
