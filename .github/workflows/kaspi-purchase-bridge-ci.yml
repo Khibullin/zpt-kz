@@ -37,6 +37,8 @@ on:
       - 'templates/office/home.html'
       - 'procurement/forms.py'
       - 'procurement/test_selection_performance.py'
+      - 'inventory/workspace_views.py'
+      - 'inventory/test_overview_fastpath.py'
       - '.github/workflows/kaspi-purchase-bridge-ci.yml'
   workflow_dispatch:
 
@@ -69,4 +71,4 @@ jobs:
       - name: No schema changes
         run: python manage.py makemigrations procurement inventory --check --dry-run --settings=backend.settings_ui_ci
       - name: Isolated safety tests (no production data or Kaspi POST)
-        run: python manage.py test procurement.test_kaspi_purchase_bridge procurement.test_kaspi_snapshot_bridge procurement.test_kaspi_source_recovery procurement.test_preserved_supplier_prices procurement.test_buying_visible procurement.test_apify_roi_gate procurement.test_apify_price_recheck core.tests.test_crawler_budget core.tests.test_office_home --settings=backend.settings_ui_ci --noinput --verbosity 2
+        run: python manage.py test procurement.test_kaspi_purchase_bridge procurement.test_kaspi_snapshot_bridge procurement.test_kaspi_source_recovery procurement.test_preserved_supplier_prices procurement.test_buying_visible procurement.test_apify_roi_gate procurement.test_apify_price_recheck core.tests.test_crawler_budget core.tests.test_office_home inventory.test_overview_fastpath --settings=backend.settings_ui_ci --noinput --verbosity 2
