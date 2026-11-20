@@ -211,5 +211,4 @@ def visible_permanent_buying_rows(request, preferences, filters):
     page.object_list = result
     request.catalog_page = page
     request.catalog_total = paginator.count
-    request.apify_visible_total = rows.filter(source='apify').count()
     return result
