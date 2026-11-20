@@ -15,7 +15,7 @@ from django.contrib import messages
 from django.db.models import Q, Count, Max, Exists, OuterRef
 from django.shortcuts import redirect, render
 
-from .models import Offer, Supplier, WholesaleSelectionRule, VehicleFitment
+from .models import Offer, Supplier, WholesaleSelectionRule, PriceUpdate, VehicleFitment
 from .omega_policy import POSITIVE_STOCK_PATTERN
 from .views import access, context
 
@@ -177,6 +177,21 @@ def selection_rules(request):
             # A failed transaction leaves the batch cursor unchanged for retry.
             return JsonResponse({'error': 'Партия не завершена. Повторите обработку.'}, status=500)
         return JsonResponse(progress)
+    if request.method == 'POST' and request.POST.get('action') == 'save_omega_request':
+        from .omega_selection_requests import save_request
+        try:
+            saved = save_request(
+                batch_id=int(request.POST.get('price_batch_id', '0')),
+                categories=request.POST.getlist('omega_category'),
+                minimum=request.POST.get('omega_min_cost', '2000'),
+                user=request.user,
+            )
+        except (ValidationError, ValueError, TypeError, PriceUpdate.DoesNotExist) as error:
+            detail = '; '.join(error.messages) if isinstance(error, ValidationError) else 'Проверьте выбранный прайс и категории.'
+            messages.error(request, detail)
+        else:
+            messages.success(request, f"{saved.details['title']} сохранён. Рабочие товары не изменены.")
+        return redirect('procurement:selection_rules')
     if request.method == 'POST' and not uploading_price:
         form = SelectionRuleForm(request.POST)
         if request.POST.get('action') == 'reset':
@@ -246,12 +261,18 @@ def selection_rules(request):
     unknown_years = max(0, before_years - matched)
     # All download actions use the last saved rule, not unsaved form values.
     # Preview is intentionally short and read-only; full records go to Excel.
-    from .selection_exports import JSON_BATCH_SIZE
-    # Successful settings changes redirect above; rendered requests use the
-    # saved criteria. Reuse their count (including on a cache hit) instead of
-    # running the full fitment selection a second time just for download links.
+    from .selection_exports import JSON_BATCH_SIZE, apify_queries
+    # Reuse the cached fitment count; cache the distinct search count separately
+    # because a leading-zero SKU can produce two queries for a single offer.
     exported_total = matched
-    batches = (exported_total + JSON_BATCH_SIZE - 1) // JSON_BATCH_SIZE
+    query_key = 'zpt:selection-apify-query-count:v1:' + sha256(
+        (stats_key + ':' + str(rule.updated_at)).encode('utf-8')
+    ).hexdigest()
+    query_count = cache.get(query_key)
+    if query_count is None:
+        query_count = len(apify_queries(rule))
+        cache.set(query_key, query_count, timeout=60)
+    batches = (query_count + JSON_BATCH_SIZE - 1) // JSON_BATCH_SIZE
     from .models import KaspiBuyingCandidate
     # Compact saved-result summary; the full card list lives only in the buying catalogue.
     buying_qs = KaspiBuyingCandidate.objects.filter(offer__supplier=omega)
@@ -273,11 +294,26 @@ def selection_rules(request):
         apify_session = Activity.objects.filter(
             pk=session_id, user=request.user, action='apify_upload_session'
         ).first()
+    from .omega_selection_requests import (
+        DEFAULT_CATEGORIES, latest_price_batch, price_categories, request_history, category_key,
+    )
+    omega_price_batch = latest_price_batch()
+    omega_categories = price_categories(omega_price_batch) if omega_price_batch else []
+    default_category_keys = [category_key(name) for name in DEFAULT_CATEGORIES]
+    omega_requests = list(request_history())
+    for omega_request in omega_requests:
+        count = int(omega_request.details.get('query_count') or 0)
+        omega_request.export_batches = range(1, (count + 499) // 500 + 1)
     return render(request, 'procurement/selection_rules.html',
                   context(request, apify_session=apify_session, form=form, rule=rule, matched=exported_total,
                           price_form=price_form, **price_history_context(request),
                           year_unknown=unknown_years, before_years=before_years,
                           group_choices=GROUPS,
+                          omega_price_batch=omega_price_batch,
+                          omega_categories=omega_categories,
+                          omega_requests=omega_requests,
+                          default_category_keys=default_category_keys,
+                          apify_query_count=query_count,
                           json_batches=range(1, batches + 1),
                           json_batch_size=JSON_BATCH_SIZE,
                           buying_total=buying_total, last_import=last_import))
