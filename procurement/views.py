@@ -776,6 +776,7 @@ def purchase_confirm(request, supplier_id):
     form = PurchaseConfirmationForm(request.POST or None, initial={'request_key': uuid.uuid4(),
         'selection_token': signing.dumps(purchase_snapshot(rows), salt='procurement-purchase')})
     if request.method == 'POST' and unverified_ids:
+        form.is_valid()  # initialize cleaned_data/errors before adding the block
         form.add_error(None, 'В списке есть товары с неподтверждёнными ценой или исполнением. Перед созданием заказа их необходимо проверить либо убрать из списка.')
     if request.method == 'POST' and not unverified_ids and form.is_valid():
         existing = PurchaseOrder.objects.filter(user=request.user, request_key=form.cleaned_data['request_key']).first()
