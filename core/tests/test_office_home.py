@@ -19,8 +19,11 @@ class OfficeHomeTests(TestCase):
     def test_admin_links_and_existing_destinations(self):
         self.client.force_login(self.user)
         response=self.client.get(reverse('office_home'))
-        for label in ['Учёт товаров и денег','Подбор товаров и закупки','Заявки покупателей','Продавцы и СТО','Управление ценами Kaspi','Маркетинг','Администрирование']:
-            self.assertContains(response,label)
+        for label in ['Учёт товаров и денег', 'Подбор товаров и закупки']:
+            self.assertContains(response, label)
+        for label in ['Заявки покупателей', 'Продавцы и СТО',
+                      'Управление ценами Kaspi', 'Маркетинг', 'Администрирование']:
+            self.assertNotContains(response, label)
         for route in ['inventory:overview','procurement:dashboard','control_panel:parts_request_list','control_panel:seller_list','control_panel:sto_list','repricer:dashboard','marketing:dashboard','admin:index']:
             response=self.client.get(reverse(route))
             self.assertEqual(response.status_code,200,route)
@@ -44,7 +47,7 @@ class OfficeHomeTests(TestCase):
         user=get_user_model().objects.create_user(username='staff',password='test-password',is_staff=True)
         self.client.force_login(user)
         response=self.client.get(reverse('office_home'))
-        self.assertContains(response,'Заявки покупателей')
+        self.assertNotContains(response, 'Заявки покупателей')
         self.assertNotContains(response,'Открыть учёт')
         self.assertNotContains(response,'Открыть подбор')
         self.assertNotContains(response,'<h2>Маркетинг</h2>')
