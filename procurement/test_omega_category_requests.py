@@ -52,7 +52,7 @@ class OmegaCategoryRequestTests(TestCase):
         self.assertEqual(summary['Рычаг']['eligible'], 1)
         response = self.client.get(reverse('procurement:selection_rules'))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Выбор категорий Омеги')
+        self.assertContains(response, 'Выбор категорий и запросов')
         self.assertContains(response, 'История запросов')
         self.assertContains(response, 'solid-2026.xlsx')
         self.assertContains(response, 'value="Амортизатор"')
@@ -67,12 +67,12 @@ class OmegaCategoryRequestTests(TestCase):
             'omega_min_cost': '2000'})
         self.assertEqual(response.status_code, 302)
         first = Activity.objects.get(action=REQUEST_ACTION)
-        self.assertEqual(first.details['title'], 'Запрос №1')
+        self.assertEqual(first.details['title'], 'Запрос №2')
         self.assertEqual(first.details['total'], 3)
         self.assertEqual(first.details['query_count'], 3)
         second = save_request(batch_id=self.price.pk, categories=['Рычаг'],
                               minimum=3000, user=self.user)
-        self.assertEqual(second.details['title'], 'Запрос №2')
+        self.assertEqual(second.details['title'], 'Запрос №3')
         self.assertEqual(second.details['total'], 1)
         self.assertEqual(first.details['min_cost'], '2000')
         self.assertEqual(second.details['min_cost'], '3000')
@@ -90,6 +90,26 @@ class OmegaCategoryRequestTests(TestCase):
                          [(self.offer.pk, 2)])
         self.offer.refresh_from_db()
         self.assertEqual((self.offer.cost, self.offer.stock), (Decimal('1500'), '6'))
+
+    def test_categories_mark_previously_selected_requests_and_legacy_history(self):
+        page = self.client.get(reverse('procurement:selection_rules'))
+        self.assertContains(page, 'Запрос №1')
+        self.assertContains(page, 'Сохранить запрос №2')
+        self.assertContains(page, 'Ранее подготовлены 9 файлов')
+        self.assertContains(page, 'Выбрано в запросе', count=0)
+        # The default first ten categories are visible as already used, but
+        # not automatically checked for the next request.
+        self.assertContains(page, 'omega-used-badge')
+        self.assertContains(page, 'value="Амортизатор" aria-label="Выбрать Амортизатор"')
+        self.client.post(reverse('procurement:selection_rules'), {
+            'action': 'save_omega_request', 'price_batch_id': self.price.pk,
+            'omega_category': ['Рычаг'], 'omega_min_cost': '2000'})
+        page = self.client.get(reverse('procurement:selection_rules'))
+        self.assertContains(page, 'Запрос №2')
+        self.assertContains(page, 'Сохранить запрос №3')
+        self.assertContains(page, 'Вы можете включить их повторно')
+        self.assertEqual(list(Selection.objects.values_list('offer_id', 'quantity')),
+                         [(self.offer.pk, 2)])
 
     def test_real_omega_excel_subgroup_is_imported_as_category(self):
         from .importing import load_rows

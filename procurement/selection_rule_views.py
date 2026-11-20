@@ -289,15 +289,20 @@ def selection_rules(request):
             pk=session_id, user=request.user, action='apify_upload_session'
         ).first()
     from .omega_selection_requests import (
-        DEFAULT_CATEGORIES, latest_price_batch, price_categories, request_history, category_key,
+        DEFAULT_CATEGORIES, latest_price_batch, price_categories, request_history,
+        category_key, category_usage, get_display_history,
     )
     omega_price_batch = latest_price_batch()
     omega_categories = price_categories(omega_price_batch) if omega_price_batch else []
     default_category_keys = [category_key(name) for name in DEFAULT_CATEGORIES]
-    omega_requests = list(request_history())
-    for omega_request in omega_requests:
-        count = int(omega_request.details.get('query_count') or 0)
-        omega_request.export_batches = range(1, (count + 499) // 500 + 1)
+    saved_omega_requests = list(request_history())
+    previous_category_usage = category_usage(saved_omega_requests)
+    for category in omega_categories:
+        category['previous_requests'] = previous_category_usage.get(category['key'], [])
+    omega_requests = get_display_history(saved_omega_requests)
+    next_omega_number = max(
+        [int(saved.details.get('number', 0)) for saved in saved_omega_requests] + [1]
+    ) + 1
     return render(request, 'procurement/selection_rules.html',
                   context(request, apify_session=apify_session, form=form, rule=rule, matched=exported_total,
                           price_form=price_form, **price_history_context(request),
@@ -307,6 +312,7 @@ def selection_rules(request):
                           omega_categories=omega_categories,
                           omega_requests=omega_requests,
                           default_category_keys=default_category_keys,
+                          next_omega_number=next_omega_number,
                           apify_query_count=query_count,
                           json_batches=range(1, batches + 1),
                           json_batch_size=JSON_BATCH_SIZE,
