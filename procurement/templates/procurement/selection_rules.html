@@ -357,13 +357,15 @@ document.addEventListener('DOMContentLoaded',function(){
 <section class="rule-card step-card" aria-labelledby="apify-step-title">
   <div class="step-heading"><span class="step-number">2</span><div><h2 id="apify-step-title">Подготовка для Apify</h2><p class="muted">Поиск по бренду и артикулу. Запуск вручную в Apify, без изменения товаров на сайте.</p></div></div>
   <div class="step-line">
-    {% if json_batches %}
-      <span>По текущему общему фильтру: <strong>{{ matched }}</strong> товаров. Для точного числа запросов с вариантами артикулов сохраните отдельный запрос выше.</span>
-      {% for batch in json_batches %}
-      <a class="button primary" href="{% url 'procurement:selection_apify_json' %}?batch={{ batch }}">↓ JSON №{{ batch }}</a>
-      <a class="button" href="{% url 'procurement:selection_apify_json' %}?batch={{ batch }}&amp;format=mapping">Соответствие №{{ batch }}</a>
+    {% if just_saved_request %}
+      <span><strong>{{ just_saved_request.details.title }}</strong>: {{ just_saved_request.details.total }} товаров, {{ just_saved_request.details.query_count }} поисковых запросов. Скачайте партии:</span>
+      {% for batch in just_saved_batches %}
+      <a class="button primary" href="{% url 'procurement:selection_apify_json' %}?request_id={{ just_saved_request.pk }}&amp;batch={{ batch }}">↓ JSON №{{ batch }}</a>
+      <a class="button" href="{% url 'procurement:selection_apify_json' %}?request_id={{ just_saved_request.pk }}&amp;batch={{ batch }}&amp;format=mapping">Соответствие №{{ batch }}</a>
       {% endfor %}
-    {% else %}<span>Сначала сохраните фильтр с ненулевым количеством товаров.</span>{% endif %}
+    {% else %}
+      <span>Сначала выберите товары в блоке №1 и сохраните запрос. Файлы прошлых запросов доступны в «Истории запросов».</span>
+    {% endif %}
   </div>
   <div class="apify-settings">
     <strong>Параметры ручного запуска Apify</strong>
