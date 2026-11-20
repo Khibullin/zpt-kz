@@ -91,6 +91,18 @@ def matching_years(rows, age):
     return rows.filter(Q(applicability__regex=year_pattern) | Exists(fitments))
 
 
+def _omega_selection_fingerprint(post):
+    """Canonicalize the submitted criteria for explicit preview -> save flow."""
+    criteria = {
+        'batch': str(post.get('price_batch_id', '')).strip(),
+        'categories': sorted({str(v).strip().casefold() for v in post.getlist('omega_category')}),
+        'price': str(post.get('omega_min_cost', '')).strip(),
+        'age': str(post.get('omega_max_vehicle_age', '')).strip(),
+        'stock': str(post.get('omega_in_stock_only', '')).strip(),
+    }
+    return sha256(json.dumps(criteria, sort_keys=True, ensure_ascii=False).encode('utf-8')).hexdigest()
+
+
 @access('sales', 'admin')
 def omega_selection_rules_help(request):
     return render(request, 'procurement/omega_selection_rules_help.html', context(request))
@@ -106,13 +118,24 @@ def selection_rules(request):
         request.FILES if uploading_price else None, initial={'supplier': omega.pk}, auto_id='price_%s')
     if uploading_price and price_form.is_valid():
         from .price_updates import stage_update
+        import hashlib
+        uploaded = price_form.cleaned_data['file']
+        digest = hashlib.sha256(uploaded.read()).hexdigest()
+        uploaded.seek(0)
+        prior = PriceUpdate.objects.filter(
+            supplier=price_form.cleaned_data['supplier'],
+            checked_on=price_form.cleaned_data['checked_on'],
+            sha256=digest, full_catalog=False).exists()
         try:
-            stage_update(price_form.cleaned_data['file'], price_form.cleaned_data['supplier'],
-                         request.user, price_form.cleaned_data['checked_on'], price_form.cleaned_data['full_catalog'])
+            stage_update(uploaded, price_form.cleaned_data['supplier'],
+                         request.user, price_form.cleaned_data['checked_on'], False)
         except ValueError as error:
             price_form.add_error(None, str(error))
         else:
-            messages.success(request, 'Прайс принят. Ход обработки сохранён в истории загрузок.')
+            if prior:
+                messages.info(request, 'Этот прайс уже загружен. Используйте существующий; повторной записи нет.')
+            else:
+                messages.success(request, 'Прайс сохранён для отбора товаров. Рабочие остатки не изменены.')
             return redirect('procurement:selection_rules')
     initial = {
         'supplier': omega.pk,
@@ -193,12 +216,16 @@ def selection_rules(request):
                 max_vehicle_age=request.POST.get('omega_max_vehicle_age', '20'),
                 in_stock_only=(request.POST.get('omega_in_stock_only') == 'on' if request.POST.get('omega_stock_submitted') else True),
             )
+            request.session['omega_confirmed_preview'] = _omega_selection_fingerprint(request.POST)
             return JsonResponse(result)
         except (ValidationError, ValueError, TypeError, PriceUpdate.DoesNotExist) as error:
             detail = '; '.join(error.messages) if isinstance(error, ValidationError) else 'Не удалось выполнить отбор.'
             return JsonResponse({'error': detail}, status=400)
     if request.method == 'POST' and request.POST.get('action') == 'save_omega_request':
         from .omega_selection_requests import save_request
+        if request.session.get('omega_confirmed_preview') != _omega_selection_fingerprint(request.POST):
+            messages.error(request, 'Сначала нажмите «Выбрать товары», проверьте результат и затем сохраните запрос.')
+            return redirect('procurement:selection_rules')
         try:
             saved = save_request(
                 batch_id=int(request.POST.get('price_batch_id', '0')),
@@ -212,7 +239,9 @@ def selection_rules(request):
             detail = '; '.join(error.messages) if isinstance(error, ValidationError) else 'Проверьте выбранный прайс и категории.'
             messages.error(request, detail)
         else:
-            messages.success(request, f"{saved.details['title']} сохранён. Рабочие товары не изменены.")
+            request.session.pop('omega_confirmed_preview', None)
+            messages.success(request, f"{saved.details['title']} сохранён. Можно перейти к формированию JSON.")
+            return redirect('procurement:selection_rules' + '?saved_request=' + str(saved.pk) + '#omega-pick-saved')
         return redirect('procurement:selection_rules')
     if request.method == 'POST' and not uploading_price:
         form = SelectionRuleForm(request.POST)
@@ -325,6 +354,12 @@ def selection_rules(request):
     next_omega_number = max(
         [int(saved.details.get('number', 0)) for saved in saved_omega_requests] + [1]
     ) + 1
+    from .models import Activity
+    selected_saved_id = request.GET.get('saved_request', '')
+    just_saved_request = None
+    if selected_saved_id.isdigit():
+        just_saved_request = Activity.objects.filter(
+            pk=int(selected_saved_id), action='omega_category_selection_request').first()
     return render(request, 'procurement/selection_rules.html',
                   context(request, apify_session=apify_session, form=form, rule=rule, matched=exported_total,
                           price_form=price_form, **price_history_context(request),
@@ -335,6 +370,7 @@ def selection_rules(request):
                           omega_requests=omega_requests,
                           default_category_keys=default_category_keys,
                           next_omega_number=next_omega_number,
+                          just_saved_request=just_saved_request,
                           apify_query_count=query_count,
                           json_batches=range(1, batches + 1),
                           json_batch_size=JSON_BATCH_SIZE,
