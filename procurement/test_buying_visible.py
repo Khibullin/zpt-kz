@@ -45,8 +45,10 @@ class PermanentBuyingPageTests(TestCase):
         self.client.force_login(self.user)
 
     def dashboard(self, **query):
+        # These legacy fixture tests explicitly exercise the preserved archive;
+        # the user-facing default is the Apify-rechecked shortlist.
         return self.client.get(reverse('procurement:dashboard'),
-                               {'mode': 'best', **query})
+                               {'mode': 'best', 'rechecked': '0', **query})
 
     def test_one_buying_row_per_supplier_sku(self):
         KaspiBuyingCandidate.objects.create(
@@ -104,8 +106,33 @@ class PermanentBuyingPageTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['total'], 1)
         self.assertContains(response, 'Было: 40')
-        self.assertContains(response, 'Показаны только перепроверенные товары')
+        self.assertNotContains(response, 'Показаны только перепроверенные товары')
         self.assertNotContains(response, 'Ещё товар')
+
+    def test_default_buying_shows_rechecked_without_toggle(self):
+        other = Offer.objects.create(
+            supplier=self.supplier, brand='OTHER', article='B2',
+            name='Архивный товар', cost=Decimal('9000'), stock='5')
+        PermanentBuyingItem.objects.create(
+            offer=other, source='historical', title=other.name,
+            cost_snapshot=Decimal('9000'), kaspi_price_snapshot=Decimal('16000'),
+            commission_snapshot=Decimal('12.5'), expenses_snapshot=Decimal('250'),
+            profit_snapshot=Decimal('4750'), roi_snapshot=Decimal('52.7778'))
+        KaspiPriceAudit.objects.create(
+            offer=self.offer, source_filename='apify.json',
+            min_price=Decimal('20000'), product_id='123456789',
+            card_url='https://kaspi.kz/shop/p/test-123456789/',
+            card_title='BR TEST-1 радиатор', seller_name='Seller',
+            cost_snapshot=Decimal('10000'), commission_snapshot=Decimal('12.5'),
+            expenses_snapshot=Decimal('250'), profit=Decimal('7250'),
+            roi=Decimal('72.5000'), card_ids=['123456789'])
+        response = self.client.get(reverse('procurement:dashboard'), {'mode': 'best'})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['total'], 1)
+        self.assertContains(response, 'BR TEST-1 радиатор')
+        self.assertNotContains(response, 'Архивный товар')
+        self.assertNotContains(response, 'Перепроверенные — сравнить цены')
+        self.assertNotContains(response, '>Все товары</a>')
 
     def test_unverified_can_be_chosen_into_draft_but_not_ordered(self):
         response = self.dashboard()
