@@ -138,21 +138,19 @@
       <button type="button" id="omega-select-all">Выбрать все</button>
       <button type="button" id="omega-clear-all">Снять выбор</button>
     </div>
-    <div class="omega-category-table" id="omega-categories-table">
-      <table>
-        <thead><tr><th style="width:30px"></th><th>Категория Омеги</th><th>Ранее</th><th>Всего</th><th>Ост.</th><th>От 2 000 ₸</th></tr></thead>
-        <tbody>
-        {% for category in omega_categories %}
-          <tr class="omega-category-row" data-search="{{ category.name|lower }}{% for number in category.previous_requests %} запрос №{{ number }}{% endfor %}" {% if category.previous_requests %}data-previous="1"{% endif %}>
-            <td><input type="checkbox" name="omega_category" value="{{ category.name }}" aria-label="Выбрать {{ category.name }}"></td>
-            <td>{{ category.name }}</td>
-            <td>{% for number in category.previous_requests %}<span class="omega-used-badge">№{{ number }}</span>{% empty %}—{% endfor %}</td>
-            <td class="omega-number">{{ category.total }}</td><td class="omega-number">{{ category.in_stock }}</td><td class="omega-number">{{ category.eligible }}</td>
-          </tr>
-        {% endfor %}
-        </tbody>
-      </table>
+    <div class="omega-category-grid" id="omega-categories-table" role="group" aria-label="Категории Омеги">
+      {% for category in omega_categories %}
+      <label class="omega-category-row{% if category.previous_requests %} omega-used{% endif %}"
+             data-search="{{ category.name|lower }}{% for number in category.previous_requests %} запрос №{{ number }}{% endfor %}"
+             {% if category.previous_requests %}data-previous="1"{% endif %}>
+        <input type="checkbox" name="omega_category" value="{{ category.name }}" aria-label="Выбрать {{ category.name }}">
+        <span class="omega-category-name">{{ category.name }}</span>
+        <span class="omega-category-history">{% for number in category.previous_requests %}<span class="omega-used-badge" title="Ранее в запросе №{{ number }}">№{{ number }}</span>{% endfor %}</span>
+        <span class="omega-category-counts" title="Всего / в наличии / от 2 000 ₸">{{ category.total }} / {{ category.in_stock }} / {{ category.eligible }}</span>
+      </label>
+      {% endfor %}
     </div>
+    <p class="muted omega-category-legend">Числа в строке: всего / в наличии / от 2 000 ₸. Ранее выбранные категории — в начале списка.</p>
     <div class="omega-pick-result" id="omega-live-result" aria-live="polite" hidden>
       <span>Выбрано категорий: <strong id="omega-selected-count">0</strong></span>
       <span>Подходящих товаров: <strong id="omega-result-products">0</strong></span>
@@ -243,6 +241,40 @@
 .omega-history-table a{display:inline-block;margin:3px 7px 3px 0}
 .rule-legacy-collapsed{margin:0 0 10px;padding:9px 16px;border:1px solid #dbe4ee;border-radius:9px;background:white}
 .rule-legacy-collapsed>summary{cursor:pointer}
+/* Compact actual desktop layout: short fields, 2-column categorical selection. */
+.omega-first-step{padding:12px 16px}
+.omega-pick-head{margin-bottom:8px}
+.omega-first-divider{margin:10px 0}
+.omega-current-price{padding:5px 9px;margin:7px 0}
+.omega-upload-row{display:flex;flex-wrap:wrap;align-items:end;gap:8px}
+.omega-upload-row .rule-field{flex:0 1 auto;min-width:0}
+.omega-upload-row .rule-field:first-child{width:clamp(150px,19%,270px)}
+.omega-upload-row .rule-field:nth-child(2){width:155px}
+.omega-upload-row .omega-upload-file{flex:1 1 280px}
+.omega-upload-row .rule-field label{font-size:12px}
+.omega-upload-row .rule-field input,.omega-upload-row .rule-field select{height:34px!important;min-height:34px!important;padding:5px 8px;font-size:13px}
+.omega-upload-row .rule-field input[type=file]{height:34px!important;padding:4px 7px}
+.omega-upload-row button{height:34px;padding:5px 12px}
+.omega-condition-row{display:flex;align-items:end;flex-wrap:wrap;gap:10px;margin:5px 0 9px}
+.omega-condition-row .rule-field{flex:0 0 auto}
+.omega-condition-row .rule-field:first-child{width:155px}
+.omega-condition-row .rule-field:nth-child(2){width:120px}
+.omega-condition-row input[type=number]{height:34px!important;min-height:34px!important;width:100%!important;padding:5px 8px}
+.omega-stock-option{min-height:34px;white-space:nowrap}
+.omega-category-tools{margin:5px 0 7px}
+.omega-category-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-content:start;gap:3px 10px;max-height:385px;overflow-y:auto;overflow-x:hidden;border:1px solid #dce5ee;border-radius:8px;padding:5px 7px;background:#fff}
+.omega-category-row{display:flex;align-items:center;gap:6px;break-inside:avoid;min-height:29px;padding:3px 6px;margin:0 0 2px;border:1px solid #e7edf4;border-radius:5px;font-size:12px;cursor:pointer}
+.omega-category-row[hidden]{display:none!important}
+.omega-category-row.omega-used{background:#fff9e9}
+.omega-category-row:has(input:checked){background:#e8f7f0;border-color:#80cdb8}
+.omega-category-row input[type=checkbox]{flex:0 0 15px;width:15px;height:15px;margin:0;accent-color:#09978c}
+.omega-category-name{min-width:0;flex:1;overflow-wrap:anywhere}
+.omega-category-history{display:flex;gap:2px;flex-shrink:0}
+.omega-category-history:empty{display:none}
+.omega-used-badge{font-size:10px;padding:1px 4px;margin:0;white-space:nowrap}
+.omega-category-counts{flex:0 0 auto;text-align:right;white-space:nowrap;color:#596c7b;font-variant-numeric:tabular-nums;font-size:11px}
+.omega-category-legend{font-size:11px;margin:4px 0 7px}
+@media(max-width:760px){.omega-category-grid{grid-template-columns:1fr;max-height:350px}.omega-upload-row .omega-upload-file{flex-basis:100%}}
 @media(max-width:840px){.omega-upload-row{grid-template-columns:1fr 1fr}.omega-condition-row{grid-template-columns:1fr 1fr}.omega-stock-option{grid-column:1/-1}}
 @media(max-width:520px){.omega-upload-row,.omega-condition-row{grid-template-columns:1fr}.omega-rules-link{margin-left:0}}
 </style>

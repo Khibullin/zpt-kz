@@ -45,6 +45,19 @@ class OmegaCategoryRequestTests(TestCase):
     def setUp(self):
         self.client.force_login(self.user)
 
+    def test_compact_two_column_picker_shows_previously_selected_first(self):
+        page = self.client.get(reverse('procurement:selection_rules'))
+        self.assertEqual(page.status_code, 200)
+        self.assertContains(page, 'omega-category-grid')
+        self.assertContains(page, 'grid-template-columns:repeat(2,minmax(0,1fr))')
+        self.assertContains(page, 'omega-category-counts')
+        self.assertContains(page, 'omega-category-history')
+        categories = page.context['omega_categories']
+        previously = [bool(category['previous_requests']) for category in categories]
+        self.assertEqual(previously, sorted(previously, reverse=True))
+        self.assertContains(page, 'name="omega_min_cost"')
+        self.assertContains(page, 'name="omega_max_vehicle_age"')
+
     def test_categories_list_counts_while_preserving_offers(self):
         summary = {x['name']: x for x in price_categories(self.price)}
         self.assertEqual(summary['Амортизатор']['total'], 3)

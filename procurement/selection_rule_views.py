@@ -351,6 +351,10 @@ def selection_rules(request):
     previous_category_usage = category_usage(saved_omega_requests)
     for category in omega_categories:
         category['previous_requests'] = previous_category_usage.get(category['key'], [])
+    # Historically selected categories lead the compact two-column list.
+    omega_categories.sort(key=lambda item: (
+        not bool(item['previous_requests']), item['name'].casefold(),
+    ))
     omega_requests = get_display_history(saved_omega_requests)
     next_omega_number = max(
         [int(saved.details.get('number', 0)) for saved in saved_omega_requests] + [1]
