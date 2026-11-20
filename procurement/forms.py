@@ -38,7 +38,8 @@ class SelectionFilterForm(forms.Form):
     verified = forms.BooleanField(label='Только проверенные совпадения', required=False)
     favorites = forms.BooleanField(label='Только избранное', required=False)
 
-    def __init__(self, *args, include_historical_suppliers=False, **kwargs):
+    def __init__(self, *args, include_historical_suppliers=False,
+                 minimal_buying=False, **kwargs):
         super().__init__(*args, **kwargs)
         # One active supplier across every procurement screen, including
         # historical best-buying views. Preserve old database records for audit.
@@ -59,6 +60,12 @@ class SelectionFilterForm(forms.Form):
             if value not in categories:
                 categories.append(value)
         self.fields['category'].choices = [('', 'Все категории')] + [(x, x) for x in categories]
+        if minimal_buying:
+            # Best-buying renders only brand/category/price/seller filters.
+            # Do not build model, generation and year dictionaries, which are
+            # hidden on this screen and expensive for large supplier catalogues.
+            self.vehicle_models = {}
+            return
         self.fields['vehicle_country'].queryset = Country.objects.order_by('name')
         selected_country = self.data.get('vehicle_country', '') if self.is_bound else ''
         allowed_makes = None
