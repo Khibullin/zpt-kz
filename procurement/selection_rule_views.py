@@ -285,6 +285,9 @@ def selection_rules(request):
     omega_categories = price_categories(omega_price_batch) if omega_price_batch else []
     default_category_keys = [category_key(name) for name in DEFAULT_CATEGORIES]
     omega_requests = list(request_history())
+    for omega_request in omega_requests:
+        count = int(omega_request.details.get('query_count') or 0)
+        omega_request.export_batches = range(1, (count + 499) // 500 + 1)
     return render(request, 'procurement/selection_rules.html',
                   context(request, apify_session=apify_session, form=form, rule=rule, matched=exported_total,
                           price_form=price_form, **price_history_context(request),
