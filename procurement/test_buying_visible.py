@@ -104,7 +104,7 @@ class PermanentBuyingPageTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['total'], 1)
         self.assertContains(response, 'Ранее: 40')
-        self.assertContains(response, 'Перепроверенные')
+        self.assertContains(response, 'Показаны только перепроверенные товары')
         self.assertNotContains(response, 'Ещё товар')
 
     def test_unverified_bulk_add_is_blocked(self):
