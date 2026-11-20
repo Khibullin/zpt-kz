@@ -95,7 +95,7 @@ class OmegaCategoryRequestTests(TestCase):
         page = self.client.get(reverse('procurement:selection_rules'))
         self.assertContains(page, 'Запрос №1')
         self.assertContains(page, 'Сохранить запрос №2')
-        self.assertContains(page, 'Ранее подготовлены 9 файлов')
+        self.assertContains(page, '9 файлов подготовлены ранее')
         self.assertContains(page, 'Выбрано в запросе', count=0)
         # The default first ten categories are visible as already used, but
         # not automatically checked for the next request.
