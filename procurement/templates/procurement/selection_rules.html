@@ -238,7 +238,7 @@ document.addEventListener('DOMContentLoaded',function(){
   <div class="step-heading"><span class="step-number">4</span><div><h2 id="apify-step-title">Подготовка для Apify</h2><p class="muted">Поиск по бренду и артикулу. Запуск вручную в Apify, без изменения товаров на сайте.</p></div></div>
   <div class="step-line">
     {% if json_batches %}
-      <span><strong>{{ apify_query_count }}</strong> поисковых запросов, до {{ json_batch_size }} в партии:</span>
+      <span>По текущему общему фильтру: <strong>{{ matched }}</strong> товаров. Для точного числа запросов с вариантами артикулов сохраните отдельный запрос выше.</span>
       {% for batch in json_batches %}
       <a class="button primary" href="{% url 'procurement:selection_apify_json' %}?batch={{ batch }}">↓ JSON №{{ batch }}</a>
       <a class="button" href="{% url 'procurement:selection_apify_json' %}?batch={{ batch }}&amp;format=mapping">Соответствие №{{ batch }}</a>
