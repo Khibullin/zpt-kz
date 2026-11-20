@@ -37,8 +37,10 @@ def stage_apify_file(upload, user):
         previous = Activity.objects.select_for_update().filter(
             action='apify_upload_session', details__digest=digest, user=user
         ).order_by('-id').first()
-        if previous:
+        if previous and previous.details.get('next_batch', 0) < previous.details.get('total_batches', 0):
             return previous
+        # A completed upload may be deliberately reprocessed after a matching
+        # policy fix. Keep the prior session and its audit trail intact.
         total_batches = (len(rows) + BATCH_SIZE - 1) // BATCH_SIZE
         session = Activity.objects.create(user=user, action='apify_upload_session',
             details={'digest': digest, 'filename': upload.name[:255],
@@ -106,7 +108,10 @@ def begin_chunked_upload(*, filename, total, digest, user):
         if previous:
             if previous.details.get('total') != total:
                 raise ValidationError('Число строк отличается от ранее сохранённого файла.')
-            return previous
+            if previous.details.get('next_batch', 0) < previous.details.get('total_batches', 0):
+                return previous
+            # Identical completed JSON can be explicitly uploaded again after
+            # an importer bug fix. This is a new, auditable processing session.
         return Activity.objects.create(
             user=user, action='apify_upload_session',
             details={'digest': digest, 'filename': filename[:255],
