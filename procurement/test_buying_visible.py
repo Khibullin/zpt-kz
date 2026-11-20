@@ -137,7 +137,7 @@ class PermanentBuyingPageTests(TestCase):
         self.saved.identity_status = 'verified'
         self.saved.save()
         response = self.dashboard()
-        self.assertContains(response, 'Выбрать к закупке:')
+        self.assertContains(response, 'Отметить в список закупки:')
         response = self.client.post(
             reverse('procurement:select_many'), {'offer_ids': [str(self.offer.pk)]},
             HTTP_ACCEPT='application/json')
