@@ -9,7 +9,7 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 
-from .models import (KaspiBuyingCandidate, Membership, Offer, Preferences,
+from .models import (KaspiBuyingCandidate, KaspiPriceAudit, Membership, Offer, Preferences,
                      PermanentBuyingItem, Selection, Supplier)
 
 
@@ -82,6 +82,30 @@ class PermanentBuyingPageTests(TestCase):
         self.assertEqual(self.dashboard(q='Camry').context['total'], 1)
         self.assertEqual(self.dashboard(q='no-such-part').context['total'], 0)
         self.assertEqual(self.dashboard(min_profit='30000').context['total'], 0)
+
+    def test_rechecked_shortcut_shows_only_audited_items(self):
+        other = Offer.objects.create(
+            supplier=self.supplier, brand='OTHER', article='B2',
+            name='Ещё товар', cost=Decimal('9000'), stock='7')
+        PermanentBuyingItem.objects.create(
+            offer=other, source='historical', title=other.name,
+            cost_snapshot=Decimal('9000'), kaspi_price_snapshot=Decimal('15000'),
+            commission_snapshot=Decimal('12.5'), expenses_snapshot=Decimal('250'),
+            profit_snapshot=Decimal('3875'), roi_snapshot=Decimal('43.0556'))
+        KaspiPriceAudit.objects.create(
+            offer=self.offer, source_filename='apify-recheck.json',
+            min_price=Decimal('20000'), product_id='123456789',
+            card_url='https://kaspi.kz/shop/p/test-123456789/',
+            card_title='BR TEST-1 радиатор', seller_name='Seller',
+            cost_snapshot=Decimal('10000'), commission_snapshot=Decimal('12.5'),
+            expenses_snapshot=Decimal('250'), profit=Decimal('7250'),
+            roi=Decimal('72.5000'), card_ids=['123456789'])
+        response = self.dashboard(rechecked='1')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['total'], 1)
+        self.assertContains(response, 'Ранее: 40')
+        self.assertContains(response, 'Перепроверенные')
+        self.assertNotContains(response, 'Ещё товар')
 
     def test_unverified_bulk_add_is_blocked(self):
         response = self.client.post(
