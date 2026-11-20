@@ -361,6 +361,9 @@ def selection_rules(request):
     if selected_saved_id.isdigit():
         just_saved_request = Activity.objects.filter(
             pk=int(selected_saved_id), action='omega_category_selection_request').first()
+    just_saved_batches = range(
+        1, (int(just_saved_request.details.get('query_count', 0)) + 499) // 500 + 1
+    ) if just_saved_request else ()
     return render(request, 'procurement/selection_rules.html',
                   context(request, apify_session=apify_session, form=form, rule=rule, matched=exported_total,
                           price_form=price_form, **price_history_context(request),
@@ -372,6 +375,7 @@ def selection_rules(request):
                           default_category_keys=default_category_keys,
                           next_omega_number=next_omega_number,
                           just_saved_request=just_saved_request,
+                          just_saved_batches=just_saved_batches,
                           apify_query_count=query_count,
                           json_batches=range(1, batches + 1),
                           json_batch_size=JSON_BATCH_SIZE,
