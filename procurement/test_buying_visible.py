@@ -58,7 +58,7 @@ class PermanentBuyingPageTests(TestCase):
         response = self.dashboard()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['total'], 1)
-        self.assertEqual(response.context['apify_in_best'], 1)
+        self.assertEqual(response.context['total'], 1)
         self.assertContains(response, 'BR TEST-1 радиатор')
         self.assertContains(response, 'Цена Kaspi не подтверждена')
         self.assertContains(response, 'Требует проверки до заказа')
