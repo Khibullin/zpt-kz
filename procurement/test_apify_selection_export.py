@@ -1,0 +1,81 @@
+"""Safety regression coverage for the Omega Apify export generator."""
+import json
+from datetime import date
+from decimal import Decimal
+
+from django.contrib.auth import get_user_model
+from django.test import TestCase
+from django.urls import reverse
+
+from .models import Membership, Offer, Supplier, WholesaleSelectionRule
+from .selection_exports import APIFY_CITIES, JSON_BATCH_SIZE, apify_queries, article_variants
+
+
+class OmegaApifyExportTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = get_user_model().objects.create_user('omega-apify-export-admin')
+        Membership.objects.create(user=cls.user, role='admin')
+        cls.omega = Supplier.objects.create(name='Omega')
+        cls.rule = WholesaleSelectionRule.objects.create(
+            singleton_key=1, supplier=cls.omega, min_cost=Decimal('2000'),
+            max_vehicle_age=20, classification_mode='supplier',
+            category_groups=[], in_stock_only=True)
+        years = str(date.today().year)
+        cls.first = Offer.objects.create(
+            supplier=cls.omega, brand='SRR', article='085066',
+            name='Рулевой наконечник', category='Рулевой наконечник',
+            cost=Decimal('2000'), stock='5', applicability=years)
+        cls.second = Offer.objects.create(
+            supplier=cls.omega, brand='TEST', article='100200',
+            name='Колодки', category='Колодки',
+            cost=Decimal('3300'), stock='2', applicability=years)
+        Offer.objects.create(
+            supplier=cls.omega, brand='TEST', article='BAD-STOCK',
+            name='Нет остатка', cost=Decimal('5000'), stock='0',
+            applicability=years)
+
+    def setUp(self):
+        self.client.force_login(self.user)
+
+    def test_variants_do_not_remove_internal_or_trailing_zeros(self):
+        self.assertEqual(article_variants('SRR 085066'), ['SRR 085066', 'SRR 85066'])
+        self.assertEqual(article_variants('085066'), ['085066', '85066'])
+        self.assertEqual(article_variants('AB00100'), ['AB00100'])
+        self.assertEqual(article_variants('100200'), ['100200'])
+
+    def test_search_batch_size_and_complete_cities(self):
+        self.assertEqual(JSON_BATCH_SIZE, 500)
+        self.assertEqual(APIFY_CITIES, ['Almaty', 'Astana', 'Shymkent',
+                                       'Karaganda', 'Aktobe', '391010000'])
+        self.assertNotIn('Kostanay', APIFY_CITIES)
+        response = self.client.get(reverse('procurement:selection_apify_json'))
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)
+        self.assertEqual(data['cities'], APIFY_CITIES)
+        self.assertEqual(data['searchQueries'], ['SRR 085066', 'SRR 85066', 'TEST 100200'])
+        self.assertEqual(data['maxItemsPerQuery'], 0)
+        self.assertEqual(data['maxItems'], 0)
+        self.assertEqual(data['sortOrder'], 'price-asc')
+        self.assertTrue(data['includeOffers'])
+        self.assertNotIn('startUrls', data)
+        self.assertEqual(self.first.cost, Decimal('2000'))
+
+    def test_traceability_and_no_data_modifications(self):
+        url = reverse('procurement:selection_apify_json')
+        before = list(Offer.objects.order_by('pk').values_list('pk', 'cost', 'stock'))
+        response = self.client.get(url, {'format': 'mapping'})
+        self.assertEqual(response.status_code, 200)
+        rows = json.loads(response.content)['mapping']
+        self.assertEqual(len(rows), 3)
+        self.assertEqual(rows[0]['offer_id'], self.first.pk)
+        self.assertEqual(rows[1]['original_article'], '085066')
+        self.assertEqual(before, list(Offer.objects.order_by('pk').values_list('pk', 'cost', 'stock')))
+        self.assertEqual(self.client.get(url, {'batch': 2}).status_code, 404)
+
+    def test_de_dupe_queries_case_insensitive(self):
+        Offer.objects.create(
+            supplier=self.omega, brand='srr', article='85066', name='Дубль поиска',
+            category='Рулевой наконечник', cost=Decimal('2001'), stock='3',
+            applicability=str(date.today().year))
+        self.assertEqual(len(apify_queries(self.rule)), 3)
