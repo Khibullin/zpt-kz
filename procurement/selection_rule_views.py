@@ -92,6 +92,11 @@ def matching_years(rows, age):
 
 
 @access('sales', 'admin')
+def omega_selection_rules_help(request):
+    return render(request, 'procurement/omega_selection_rules_help.html', context(request))
+
+
+@access('sales', 'admin')
 def selection_rules(request):
     omega = Supplier.objects.get(name='Omega')
     rule, _ = WholesaleSelectionRule.objects.get_or_create(singleton_key=1)
