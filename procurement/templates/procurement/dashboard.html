@@ -44,7 +44,14 @@
 {% endif %}
 <div class="results-toolbar">
 <strong>{% if preliminary %}{{ preliminary_total }} товаров · <span class="preliminary-status">Спрос не подтверждён</span>{% else %}Найдено {{ total }}{% endif %}{% if mode == 'best' and apify_in_best %} · Сопоставленных карточек Kaspi: {{ apify_in_best }}{% endif %}</strong>
-{% if mode == 'best' %}<form id="bulk-selection" method="post" action="{% url 'procurement:select_many' %}" data-selection-form data-bulk-selection>{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button class="primary" type="submit">Добавить выбранные</button><small data-selection-status role="status" aria-live="polite"></small></form>{% else %}<div class="actions"><a href="{{ settings_url }}">Алгоритм и настройки</a><a class="button" href="{% querystring download='csv' page=None %}">Скачать CSV</a></div>{% endif %}
+{% if mode == 'best' %}<div class="actions" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:6px 0">
+{% if request.GET.rechecked == '1' %}
+<strong>Показаны только перепроверенные товары</strong>
+<a class="button" href="{% url 'procurement:dashboard' %}?mode=best">Все товары</a>
+{% else %}
+<a class="button" href="{% url 'procurement:dashboard' %}?mode=best&amp;rechecked=1{% if selected_supplier %}&amp;supplier={{ selected_supplier.pk|unlocalize }}{% endif %}">Перепроверенные — сравнить цены</a>
+{% endif %}
+</div><form id="bulk-selection" method="post" action="{% url 'procurement:select_many' %}" data-selection-form data-bulk-selection>{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button class="primary" type="submit">Добавить выбранные</button><small data-selection-status role="status" aria-live="polite"></small></form>{% else %}<div class="actions"><a href="{{ settings_url }}">Алгоритм и настройки</a><a class="button" href="{% querystring download='csv' page=None %}">Скачать CSV</a></div>{% endif %}
 </div>
 <div class="tablewrap">
 <table>
