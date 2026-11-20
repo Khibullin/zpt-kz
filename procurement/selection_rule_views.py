@@ -355,6 +355,8 @@ def selection_rules(request):
     omega_categories.sort(key=lambda item: (
         not bool(item['previous_requests']), item['name'].casefold(),
     ))
+    from .omega_category_groups import group_categories
+    omega_category_groups = group_categories(omega_categories)
     omega_requests = get_display_history(saved_omega_requests)
     next_omega_number = max(
         [int(saved.details.get('number', 0)) for saved in saved_omega_requests] + [1]
@@ -375,6 +377,7 @@ def selection_rules(request):
                           group_choices=GROUPS,
                           omega_price_batch=omega_price_batch,
                           omega_categories=omega_categories,
+                          omega_category_groups=omega_category_groups,
                           omega_requests=omega_requests,
                           default_category_keys=default_category_keys,
                           next_omega_number=next_omega_number,
