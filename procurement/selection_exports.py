@@ -3,9 +3,12 @@
 No Kaspi request or Apify run is made by these endpoints.
 """
 import json
+import re
+from datetime import date
 from io import BytesIO
 
 from django.http import HttpResponse, JsonResponse
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_GET
 
@@ -13,7 +16,8 @@ from .models import Offer, WholesaleSelectionRule
 from .selection_rule_views import _stock_filter, _group_filter, matching_years
 from .views import access
 
-JSON_BATCH_SIZE = 3000
+JSON_BATCH_SIZE = 500
+APIFY_CITIES = ['Almaty', 'Astana', 'Shymkent', 'Karaganda', 'Aktobe', '391010000']
 
 
 def filtered_offers(rule):
@@ -59,6 +63,34 @@ def selection_excel(request):
     return response
 
 
+def article_variants(article):
+    """Preserve original SKU and add only a variant without initial numeric zeros."""
+    original = str(article or '').strip()
+    if not original:
+        return []
+    variant = re.sub(r'(^|[\s/_-])0+(?=\d)', r'\1', original)
+    return [original, variant] if variant != original else [original]
+
+
+def apify_queries(rule):
+    """Build query-to-offer mapping before pagination: one batch is 500 queries."""
+    seen = set()
+    result = []
+    rows = filtered_offers(rule).values('id', 'brand', 'article').iterator(chunk_size=1000)
+    for offer in rows:
+        brand = str(offer['brand'] or '').strip()
+        for article in article_variants(offer['article']):
+            query = ' '.join((brand, article)).strip()
+            key = query.casefold()
+            if not brand or not article or key in seen:
+                continue
+            seen.add(key)
+            result.append({'query': query[:240], 'offer_id': offer['id'],
+                           'brand': brand, 'article': article,
+                           'original_article': offer['article']})
+    return result
+
+
 @access('sales', 'admin')
 @require_GET
 def selection_apify_json(request):
@@ -67,47 +99,44 @@ def selection_apify_json(request):
         batch = int(request.GET.get('batch', '1'))
     except (ValueError, TypeError):
         return JsonResponse({'error': 'Неверный номер партии'}, status=400)
-    if batch < 1 or batch > 100000:
+    if not 1 <= batch <= 100000:
         return JsonResponse({'error': 'Неверный номер партии'}, status=400)
+    saved_id = request.GET.get('request_id')
+    if saved_id:
+        from .models import Activity
+        from .omega_selection_requests import REQUEST_ACTION, request_queries
+        try:
+            saved = get_object_or_404(Activity, pk=int(saved_id), action=REQUEST_ACTION)
+            mapping = request_queries(saved)
+        except (ValueError, TypeError, KeyError):
+            return JsonResponse({'error': 'Некорректный запрос.'}, status=400)
+    else:
+        mapping = apify_queries(rule)
     start = (batch - 1) * JSON_BATCH_SIZE
-    rows = filtered_offers(rule).values(
-        'brand', 'article', 'name', 'kaspi_url', 'match_verified',
-    )[start:start + JSON_BATCH_SIZE]
-    queries, links = [], []
-    seen_queries, seen_links = set(), set()
-    for item in rows:
-        url = (item['kaspi_url'] or '').strip()
-        # Only previously verified Kaspi matches qualify as direct product URLs.
-        if item['match_verified'] and url.startswith('https://kaspi.kz/shop/'):
-            if url not in seen_links:
-                links.append(url)
-                seen_links.add(url)
-            continue
-        brand, article, title = (str(item[k] or '').strip() for k in ('brand', 'article', 'name'))
-        query = ' '.join(x for x in (brand, article, title) if x)[:240]
-        if query and query.casefold() not in seen_queries:
-            queries.append(query)
-            seen_queries.add(query.casefold())
-    if not queries and not links:
-        return JsonResponse({'error': 'Нет товаров для выгрузки в этой партии.'}, status=404)
-    payload = {
-        'searchQueries': queries,
-        'startUrls': links,
-        'cities': ['Almaty', 'Astana', 'Shymkent'],
-        'maxItems': JSON_BATCH_SIZE,
-        'maxItemsPerQuery': 3,
-        'includeOffers': True,
-        'maxOffersPerProduct': 0,
-        'includeReviews': False,
-        'proxyConfiguration': {
-            'useApifyProxy': True,
-            'apifyProxyGroups': ['RESIDENTIAL'],
-            'apifyProxyCountry': 'KZ',
-        },
-    }
+    rows = mapping[start:start + JSON_BATCH_SIZE]
+    if not rows:
+        return JsonResponse({'error': 'Нет запросов в этой партии.'}, status=404)
+    if request.GET.get('format') == 'mapping':
+        payload = {'batch': batch, 'source': 'Omega', 'request_id': saved_id, 'mapping': rows}
+        filename = f'apify_mapping_{saved_id}_{batch:02d}.json' if saved_id else f'apify_mapping_{batch:02d}.json'
+    else:
+        payload = {
+            'searchQueries': [row['query'] for row in rows],
+            'cities': APIFY_CITIES,
+            'sortOrder': 'price-asc',
+            'maxItems': 0,
+            'maxItemsPerQuery': 0,
+            'includeOffers': True,
+            'maxOffersPerProduct': 0,
+            'includeReviews': False,
+            'proxyConfiguration': {
+                'useApifyProxy': True,
+                'apifyProxyGroups': ['RESIDENTIAL'],
+                'apifyProxyCountry': 'KZ',
+            },
+        }
+        filename = f'apify_input_{saved_id}_{batch:02d}.json' if saved_id else f'apify_input_{batch:02d}.json'
     response = HttpResponse(json.dumps(payload, ensure_ascii=False, indent=2),
                             content_type='application/json; charset=utf-8')
-    response['Content-Disposition'] = (
-        f'attachment; filename="zpt_apify_input_batch_{batch}.json"'
-    )
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
     return response

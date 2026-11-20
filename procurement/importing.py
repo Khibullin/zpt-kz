@@ -11,7 +11,7 @@ from .filter_options import refresh_options_after_import
 ALIASES = {'Артикул': 'article', 'Бренд': 'brand', 'Наименование': 'name', 'Категория': 'category',
            'Оптовая цена, ₸': 'cost', 'Остаток на сайте': 'stock', 'Мин. заказ, шт.': 'min_order',
            'Карточка товара': 'supplier_url', 'Цена продажи на Kaspi, ₸': 'kaspi_price', 'Ссылка на Kaspi': 'kaspi_url'}
-ALIASES.update({'Торговая марка': 'brand', 'Цена, за 1шт': 'cost', 'Цена, за 1шт со скидкой': 'cost',
+ALIASES.update({'Торговая марка': 'brand', 'Подгруппа': 'category', 'Цена, за 1шт': 'cost', 'Цена, за 1шт со скидкой': 'cost',
                 'Остаток': 'stock', 'Миним заказ, шт': 'min_order', 'В продаже': 'active'})
 ALIASES.update({'Номенклатура': 'name', 'Цена': 'cost', 'Алматы СКЛАД': 'stock',
                 '№ по кат.': 'article', 'Производитель': 'brand', 'Количество(в ед.хранения)': 'stock'})
