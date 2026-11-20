@@ -5,6 +5,8 @@ Nothing here updates Offers, stock, current Kaspi observations or selections.
 """
 from collections import defaultdict
 from decimal import Decimal, InvalidOperation
+from datetime import date
+import re
 
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
@@ -55,6 +57,36 @@ def eligible_row(row, minimum):
         and stock_status(str(row.get('stock') or '')) == 'in_stock'
         and _cost(row) >= minimum
     )
+
+
+def fitment_age(row, max_age):
+    """Only constrain dated applicability; missing year stays review-required."""
+    source = str(row.get('applicability') or '')
+    years = [int(v) for v in re.findall(r'(?<!\\d)(?:19[89]\\d|20[0-4]\\d)(?!\\d)', source)]
+    if not years:
+        return 'unknown'
+    earliest = max(1980, date.today().year - max_age)
+    return 'within' if any(earliest <= year <= date.today().year + 1 for year in years) else 'older'
+
+
+def pick_rows(batch, categories, minimum, max_age, in_stock_only=True):
+    keys = {category_key(v) for v in categories}
+    source = PriceUpdate.objects.only('rows').get(pk=batch.pk)
+    selected, unknown = [], 0
+    for row in source.rows:
+        if category_key(row.get('category') or 'Без категории') not in keys:
+            continue
+        if row.get('_conflict') or not row.get('brand') or not row.get('article') or _cost(row) < minimum:
+            continue
+        if in_stock_only and stock_status(str(row.get('stock') or '')) != 'in_stock':
+            continue
+        status = fitment_age(row, max_age)
+        if status == 'older':
+            continue
+        if status == 'unknown':
+            unknown += 1
+        selected.append(row)
+    return selected, unknown
 
 
 def price_categories(batch, minimum=Decimal('2000')):
@@ -121,9 +153,8 @@ def request_rows(saved):
         raise ValidationError('Исходный прайс изменился. Запрос нельзя воспроизвести.')
     minimum = Decimal(details['min_cost'])
     keys = set(details['category_keys'])
-    return [row for row in batch.rows
-            if category_key(row.get('category') or 'Без категории') in keys
-            and eligible_row(row, minimum)]
+    return pick_rows(batch, keys, minimum, int(details.get('max_vehicle_age', 20)),
+                     bool(details.get('in_stock_only', True)))[0]
 
 
 def request_queries(saved):
@@ -142,7 +173,8 @@ def request_queries(saved):
 
 
 @transaction.atomic
-def save_request(*, batch_id, categories, minimum, user):
+def save_request(*, batch_id, categories, minimum, user,
+                 max_vehicle_age=20, in_stock_only=True):
     batch = PriceUpdate.objects.select_for_update().get(
         pk=batch_id, supplier__name='Omega')
     try:
@@ -155,11 +187,14 @@ def save_request(*, batch_id, categories, minimum, user):
     unique = list(dict.fromkeys(category_key(name) for name in categories if name))
     if not unique or len(unique) > 300 or any(key not in available for key in unique):
         raise ValidationError('Выберите действительные категории из загруженного прайса.')
+    try:
+        max_vehicle_age = int(max_vehicle_age)
+    except (ValueError, TypeError):
+        raise ValidationError('Возраст автомобиля должен быть целым числом.')
+    if not 0 <= max_vehicle_age <= 100:
+        raise ValidationError('Допустимый возраст: от 0 до 100 лет.')
     requested = set(unique)
-    source = PriceUpdate.objects.only('rows').get(pk=batch.pk)
-    filtered = [row for row in source.rows
-                if category_key(row.get('category') or 'Без категории') in requested
-                and eligible_row(row, minimum)]
+    filtered, unknown_age = pick_rows(batch, requested, minimum, max_vehicle_age, in_stock_only)
     if not filtered:
         raise ValidationError('По выбранным условиям товары не найдены.')
     previous = list(Activity.objects.select_for_update()
@@ -176,5 +211,29 @@ def save_request(*, batch_id, categories, minimum, user):
         'filename': batch.filename, 'checked_on': batch.checked_on.isoformat(),
         'categories': [available[key] for key in unique],
         'category_keys': unique, 'min_cost': str(minimum),
-        'total': len(filtered), 'query_count': len(queries), 'status': 'Подготовлен',
+        'total': len(filtered), 'query_count': len(queries),
+        'max_vehicle_age': max_vehicle_age, 'unknown_age': unknown_age,
+        'in_stock_only': bool(in_stock_only), 'status': 'Подготовлен',
     })
+
+def preview_request(*, batch_id, categories, minimum, max_vehicle_age, in_stock_only=True):
+    try:
+        minimum = Decimal(str(minimum).replace(',', '.'))
+        max_vehicle_age = int(max_vehicle_age)
+    except (InvalidOperation, ValueError, TypeError):
+        raise ValidationError('Проверьте цену закупки и возраст автомобиля.')
+    if not minimum.is_finite() or minimum < 0 or not 0 <= max_vehicle_age <= 100:
+        raise ValidationError('Некорректные параметры отбора.')
+    batch = PriceUpdate.objects.get(pk=batch_id, supplier__name='Omega')
+    available = {row['key'] for row in price_categories(batch)}
+    keys = {category_key(x) for x in categories}
+    if not keys.issubset(available):
+        raise ValidationError('Категории не найдены в выбранном прайсе.')
+    selected, unknown_age = pick_rows(batch, keys, minimum, max_vehicle_age, in_stock_only)
+    from .selection_exports import article_variants, JSON_BATCH_SIZE
+    queries = {(' '.join((str(row['brand']).strip(), variant))).casefold()
+               for row in selected for variant in article_variants(row['article'])}
+    return {'categories': len(keys), 'products': len(selected),
+            'queries': len(queries),
+            'batches': (len(queries) + JSON_BATCH_SIZE - 1) // JSON_BATCH_SIZE,
+            'unknown_age': unknown_age}
