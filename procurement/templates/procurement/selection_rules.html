@@ -101,19 +101,19 @@
 /* Uniform inline policy disclosure for the three procurement steps. */
 .step-heading.policy-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px}
 .step-heading.policy-heading .step-heading-main{display:flex;align-items:center;gap:12px;min-width:0;flex:1}
-.step-policy{margin:0 0 12px}
+.step-policy{margin:0 0 0 auto;min-width:105px;max-width:100%}.step-policy[open]{flex:0 0 100%;order:3;margin:0}.step-policy[open]>summary{margin-left:auto}.step-heading.policy-heading:has(.step-policy[open]){margin-bottom:12px}
 .step-policy>summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:7px;min-width:105px;justify-content:center;padding:8px 14px;border:1px solid #bfd0df;border-radius:8px;background:#fff;color:#183a61;font-weight:700;font-size:13px}
 .step-policy>summary::-webkit-details-marker{display:none}
 .step-policy>summary:before{content:"▸";font-size:12px}
 .step-policy[open]>summary:before{content:"▾"}
 .step-policy>summary:focus-visible{outline:3px solid #71cec2;outline-offset:3px}
-.step-policy-content{padding:13px 16px;margin-top:9px;background:#f8fbfd;border:1px solid #dbe6ef;border-radius:9px;line-height:1.55;font-size:13px}
+.step-policy-content{width:100%;padding:13px 16px;margin-top:9px;background:#f8fbfd;border:1px solid #dbe6ef;border-radius:9px;line-height:1.55;font-size:13px}
 .step-policy-content h3{font-size:14px;margin:0 0 7px}
 .step-policy-content ol{margin:5px 0 0;padding-left:20px}
 .step-policy-content li{margin:5px 0}
 .step-policy-content p{margin:5px 0 9px}
-.step-policy-trigger{margin-left:auto;flex:none}
-@media(max-width:600px){.step-heading.policy-heading .step-heading-main{flex-basis:100%}.step-policy-trigger{margin-left:47px}.step-policy-content{padding:12px}}
+
+@media(max-width:600px){.step-heading.policy-heading .step-heading-main{flex-basis:auto}.step-policy-content{padding:12px}}
 </style>
 <div class="rule-header"><h1>Подготовка товаров к закупке</h1><p>Прайс Омеги → выбор товара → запросы → Apify → проверка выгодности</p></div>
 <section class="rule-card step-card omega-first-step" aria-labelledby="omega-pick-title">
@@ -121,7 +121,7 @@
     <div class="step-heading-main"><span class="step-number">1</span>
       <div><h2 id="omega-pick-title">Выбор товара из прайса</h2><p class="muted">Подбор товаров по категориям, цене и возрасту автомобиля для последующей проверки на Kaspi</p></div>
     </div>
-  </div>
+  
   <details class="step-policy" id="rules-pick">
     <summary>Правила</summary>
     <div class="step-policy-content">
@@ -137,6 +137,7 @@
       <p><a href="{% url 'procurement:omega_selection_rules_help' %}">Полное руководство по отбору</a></p>
     </div>
   </details>
+  </div>
   <form method="post" enctype="multipart/form-data" class="price-upload-form omega-upload-compact">
     {% csrf_token %}<input type="hidden" name="action" value="upload_price">
     {{ price_form.non_field_errors }}
@@ -509,7 +510,7 @@ document.addEventListener('DOMContentLoaded',function(){
   </form>
 </details>
 <section class="rule-card step-card" aria-labelledby="apify-step-title">
-  <div class="step-heading policy-heading"><div class="step-heading-main"><span class="step-number">2</span><div><h2 id="apify-step-title">Подготовка для Apify</h2><p class="muted">Поиск по бренду и артикулу. Запуск вручную в Apify, без изменения товаров на сайте.</p></div></div></div>
+  <div class="step-heading policy-heading"><div class="step-heading-main"><span class="step-number">2</span><div><h2 id="apify-step-title">Подготовка для Apify</h2><p class="muted">Поиск по бренду и артикулу. Запуск вручную в Apify, без изменения товаров на сайте.</p></div></div>
   <details class="step-policy" id="rules-apify">
     <summary>Правила</summary>
     <div class="step-policy-content">
@@ -525,6 +526,7 @@ document.addEventListener('DOMContentLoaded',function(){
       </ol>
     </div>
   </details>
+  </div>
   <div class="step-line">
     {% if just_saved_request %}
       <span><strong>{{ just_saved_request.details.title }}</strong>: {{ just_saved_request.details.total }} товаров, {{ just_saved_request.details.query_count }} поисковых запросов. Скачайте партии:</span>
@@ -557,7 +559,7 @@ document.addEventListener('DOMContentLoaded',function(){
 <section class="rule-card step-card" aria-labelledby="buying-step-title">
   <div class="step-heading policy-heading">
     <div class="step-heading-main"><span class="step-number">3</span><div><h2 id="buying-step-title">Выгодные к закупке</h2><p class="muted">Загрузите JSON Apify. Программа сравнит цены всех подходящих карточек и продавцов по полному бренду и артикулу. Новые расчёты сохраняются отдельно от прежних; покупка требует проверки исполнения. Старые товары не удаляются.</p></div></div>
-  </div>
+  
   <details class="step-policy" id="rules-buying">
       <summary>Правила</summary>
       <div class="json-rules-content">
@@ -625,6 +627,7 @@ document.addEventListener('DOMContentLoaded',function(){
         </ol>
       </div>
   </details>
+  </div>
   <form method="post" enctype="multipart/form-data" class="buying-upload" id="apify-source-upload">
     {% csrf_token %}
     <input type="hidden" name="action" value="import_apify">
