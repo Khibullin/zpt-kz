@@ -10,7 +10,7 @@ from .omega_policy import POSITIVE_STOCK_PATTERN
 
 # Unified buying policy (19 November 2026).
 MIN_CONSUMABLE_COST = Decimal('2000')  # Inclusive, consumables only.
-MIN_PROFITABLE_COST = Decimal('5000')  # Other parts: strictly greater.
+MIN_PROFITABLE_COST = Decimal('2000')  # Inclusive for every category.
 MIN_PROFITABLE_ROI = Decimal('50')     # Net ROI after commission and expenses.
 CONSUMABLE_TERMS = (
     'расходник', 'фильтр', 'масло моторное', 'масло трансмиссионное',
@@ -36,15 +36,12 @@ def is_consumable(name='', category=''):
 
 def buying_cost_query(prefix=''):
     cost = prefix + 'cost'
-    return ((consumable_query(prefix) & Q(**{cost + '__gte': MIN_CONSUMABLE_COST}))
-            | (~consumable_query(prefix) & Q(**{cost + '__gt': MIN_PROFITABLE_COST})))
+    return Q(**{cost + '__gte': MIN_PROFITABLE_COST})
 
 
 def profitable_product_exclusions(prefix=''):
-    return (Q(**{prefix + 'name__icontains': 'пружин'})
-            | Q(**{prefix + 'category__icontains': 'пружин'})
-            | Q(**{prefix + 'name__icontains': 'spring'})
-            | Q(**{prefix + 'category__icontains': 'spring'}))
+    # No category is excluded, including springs.
+    return Q(pk__in=[])
 
 
 def net_buying_profit(price, cost, commission, expenses):
@@ -78,7 +75,7 @@ def best_candidates_query(query, preferences, today):
 
 
 def cumulative_profitable_query(query, preferences, today=None):
-    """All suppliers: category cost threshold, no springs, net ROI >= 50%."""
+    """All categories including springs: cost >= 2000, net ROI >= 50%."""
     if preferences.commission is None or preferences.expenses is None:
         return query.none()
     profit = ExpressionWrapper(
