@@ -1,5 +1,8 @@
 from django.contrib.admin.views.decorators import staff_member_required
 from django.db.models import OuterRef, Subquery
+from django.conf import settings
+from django.utils import timezone
+from datetime import timedelta
 from django.shortcuts import render
 
 from .models import (
@@ -44,9 +47,15 @@ def repricer_dashboard(request):
 
     own_ids, own_names = configured_own_merchants()
     public_snapshots = KaspiCompetitorOfferSnapshot.objects.filter(
-        source="kaspi_public"
+        source__in=("kaspi_public", "office_collector")
     )
     latest_public_snapshot = public_snapshots.order_by("-captured_at").first()
+    fresh_minutes = int(getattr(settings, "KASPI_COMPETITOR_FRESH_MINUTES", 180) or 180)
+    if fresh_minutes <= 0:
+        fresh_minutes = 180
+    fresh_cutoff = timezone.now() - timedelta(minutes=fresh_minutes)
+    fresh_snapshot_count = public_snapshots.filter(captured_at__gte=fresh_cutoff).count()
+    city_id = str(getattr(settings, "KASPI_REPRICER_CITY_ID", "") or "750000000")
 
     response = render(
         request,
@@ -57,6 +66,9 @@ def repricer_dashboard(request):
             "own_merchant_configured": bool(own_ids or own_names),
             "public_snapshot_count": public_snapshots.count(),
             "latest_public_snapshot": latest_public_snapshot,
+            "fresh_snapshot_count": fresh_snapshot_count,
+            "fresh_minutes": fresh_minutes,
+            "collector_city_id": city_id,
         },
     )
     response["X-Robots-Tag"] = "noindex, nofollow"
