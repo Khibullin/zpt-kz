@@ -91,13 +91,13 @@ class ApifyMultiCardRecheckTests(TestCase):
         self.send([
             {'id': '145316166', 'brand': 'FREY',
              'title': 'FREY рычаг подвески 750102701',
-             'searchQuery': 'FREY 750101901',
+             'searchQuery': 'FREY 750101901', 'inStock': True,
              'url': 'https://kaspi.kz/shop/p/frey-rychag-podveski-750102701-145316166/',
              'minPrice': 29999, 'offers': [
                  {'sellerName': 'Seller', 'price': 29999}]},
             {'id': '179823736', 'brand': 'FREY',
              'title': 'FREY рычаг подвески 750102701',
-             'searchQuery': 'FREY 750102701',
+             'searchQuery': 'FREY 750102701', 'inStock': True,
              'url': 'https://kaspi.kz/shop/p/frey-rychag-podveski-750102701-179823736/',
              'minPrice': 35750, 'offers': [
                  {'sellerName': 'Seller', 'price': 35750}]},
