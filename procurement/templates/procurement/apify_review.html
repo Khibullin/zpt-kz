@@ -16,15 +16,15 @@
 </style>
 <div class="apr-wrap">
 <h1>Apify — вторая выгрузка на проверке</h1>
-<p class="apr-sub">Источник: {{ source_file }}. Показаны только товары с совпадением текстовых бренда и артикула, количеством 1 шт., положительным остатком Omega и расчётной доходностью не менее 50% по минимальной цене среди найденных карточек. Это <strong>не подтверждение исполнения товара</strong> и не публикация в «Выгодные к закупке».</p>
-<div class="apr-shield"><strong>Состояние: {{ rows|length }} потенциально выгодных артикулов, все требуют проверки.</strong> Прибыль: минимальная цена продавца Kaspi × 0,875 − закупочная цена Omega − 250 ₸. Снимок данных от 21.11.2026; изменения цен после этой даты не учитываются. Скриншоты и применимость в карточках сравнения требуют независимой проверки.</div>
+<p class="apr-sub">Источник: {{ source_file }}. Показаны товары с совпадением текстовых бренда и артикула, количеством 1 шт., положительным остатком Omega и расчётной доходностью не менее 50% по минимальной цене среди найденных карточек. Это <strong>не подтверждение исполнения товара</strong>. Новых записей в «Выгодные» эта обработка не создавала; некоторые товары уже были в историческом закупочном реестре.</p>
+<div class="apr-shield"><strong>Состояние: {{ rows|length }} потенциально выгодных артикулов, из них {{ prior_count }} уже присутствовали в историческом закупочном реестре. Все требуют проверки.</strong> Прибыль: минимальная цена продавца Kaspi × 0,875 − закупочная цена Omega − 250 ₸. Снимок данных от 21.11.2026; изменения цен после этой даты не учитываются. Скриншоты и применимость в карточках сравнения требуют независимой проверки.</div>
 <div class="apr-scroll"><table class="apr-table">
 <thead><tr><th>Товар Omega</th><th>Состояние проверки</th><th class="num">Закупка, ₸</th><th class="num">Kaspi мин., ₸</th><th class="num">Прибыль, ₸</th><th class="num">ROI</th><th>Источники</th></tr></thead>
 <tbody>
 {% for row in rows %}
 <tr>
 <td><strong>{{ row.offer.brand }} {{ row.offer.article }}</strong><span class="apr-labeled">{{ row.offer.name }} · остаток {{ row.offer.stock }}</span></td>
-<td><span class="apr-state">{% if row.task %}{% if row.task.status == 'blocked' %}Kaspi ограничил автоматический доступ{% elif row.task.status == 'pending' %}Ожидает проверки{% else %}{{ row.task.get_status_display }}{% endif %}{% else %}Ожидает проверки{% endif %}</span><span class="apr-labeled">Соответствие исполнения не подтверждено</span></td>
+<td><span class="apr-state">{% if row.task %}{% if row.task.status == 'blocked' %}Kaspi ограничил автоматический доступ{% elif row.task.status == 'pending' %}Ожидает проверки{% else %}{{ row.task.get_status_display }}{% endif %}{% else %}Ожидает проверки{% endif %}</span><span class="apr-labeled">Соответствие исполнения не подтверждено{% if row.previously_listed %} · старая запись в реестре{% endif %}</span></td>
 <td class="num">{{ row.audit.cost_snapshot|floatformat:0 }}</td>
 <td class="num">{{ row.audit.min_price|floatformat:0 }}</td>
 <td class="num">{{ row.audit.profit|floatformat:0 }}</td>
