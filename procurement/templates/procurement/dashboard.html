@@ -121,6 +121,43 @@
 <small>Для выгодных товаров: точный бренд и артикул; сохраняются годы, двигатели, ограничения и источники. Спорные и уже заполненные записи пропускаются.</small>
 </form>
 {% endif %}
+{% if mode == 'best' and can_manage %}
+<div class="panel" style="padding:12px 16px;margin:12px 0">
+  <strong>Сравнительные карточки: получение сведений</strong>
+  <p class="muted" style="margin:5px 0">По 50 самых выгодных товаров за запуск. Проверяются точные карточки поставщика и Kaspi; ошибки сохраняются отдельно. Существующие цены не изменяются.</p>
+  <form id="compare-batch-form" method="post" action="{% url 'procurement:comparison_run_one' %}">
+    {% csrf_token %}
+    <input type="hidden" name="apify_source" value="{{ apify_selected_source }}">
+    <button type="submit" class="button">Обработать следующие 50 товаров</button>
+    <span id="compare-batch-progress" role="status" aria-live="polite"></span>
+  </form>
+</div>
+<script>
+(function(){
+ const form=document.getElementById('compare-batch-form');if(!form)return;
+ const button=form.querySelector('button');
+ const progress=document.getElementById('compare-batch-progress');
+ form.addEventListener('submit',async function(event){
+  event.preventDefault();button.disabled=true;
+  let complete=0,partial=0,errors=0,examined=0;
+  const data=new FormData(form);
+  try{
+   for(let i=0;i<50;i++){
+    progress.textContent='Обработка '+(i+1)+' из 50…';
+    const response=await fetch(form.action,{method:'POST',body:data,credentials:'same-origin'});
+    if(!response.ok)throw new Error('HTTP '+response.status);
+    const row=await response.json();
+    if(!row.examined){progress.textContent='Доступные необработанные позиции закончились. Проверено: '+examined;return;}
+    examined+=row.examined;complete+=row.complete||0;partial+=row.partial||0;errors+=row.no_kaspi_identity||0;
+   }
+   progress.textContent='Партия завершена: '+examined+' товаров; оба источника: '+complete+'; частично: '+partial+'; без точной карточки: '+errors+'.';
+  }catch(error){
+   progress.textContent='Остановлено после '+examined+' товаров: '+error.message+'. Повторный запуск продолжит со следующей позиции.';
+  }finally{button.disabled=false;}
+ });
+}());
+</script>
+{% endif %}
 {% if mode == 'best' %}<p class="buying-sort-note" role="note">Сортировка: <strong>доходность, % ↓</strong> (от большей к меньшей); при равной доходности — прибыль, ₸ ↓. Порядок действует для всего списка и всех страниц.</p>{% endif %}
 <div class="results-toolbar">
 <strong>{% if preliminary %}{{ preliminary_total }} товаров · <span class="preliminary-status">Спрос не подтверждён</span>{% else %}Найдено {{ total }}{% endif %}</strong>
