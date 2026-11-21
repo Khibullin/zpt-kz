@@ -3,6 +3,7 @@
 This is NOT the publishable 'Выгодные' list. No automatic approval.
 """
 import re
+from decimal import Decimal
 from django.shortcuts import render
 from .models import KaspiPriceAudit, KaspiReviewTask, PermanentBuyingItem
 from .views import access, context
@@ -32,12 +33,21 @@ def apify_review(request):
     for task in srr_tasks:
         found=re.search(r'Kaspi ID (\d{7,12})', task.reason or '')
         snapshot = srr_review_snapshot(task.offer, SRR_SOURCE)
-        srr_rows.append({'offer':task.offer, 'task':task,
+        cost = task.offer.cost
+        roi = None
+        if snapshot and cost and cost > 0:
+            price = Decimal(snapshot["comparison_min_price"])
+            roi = (price * Decimal("0.875") - cost - Decimal("250")) / cost * 100
+        srr_rows.append({'offer':task.offer, 'task':task, 'roi':roi,
                          'kaspi_id':found.group(1) if found else '',
                          'kaspi_title':snapshot['title'] if snapshot else '',
                          'kaspi_url':snapshot['url'] if snapshot else '',
-                         'kaspi_price':snapshot['min_price'] if snapshot else None,
+                         'kaspi_price':snapshot['comparison_min_price'] if snapshot else None,
+                         'cheapest_url':snapshot['cheapest_url'] if snapshot else '',
+                         'cheapest_card_differs':snapshot['different_cheapest_card'] if snapshot else False,
                          'has_source_snapshot':bool(snapshot)})
     return render(request,'procurement/apify_review.html',
         context(request,rows=rows,prior_count=len(prior),srr_rows=srr_rows,
-                source_file=SOURCE,srr_source=SRR_SOURCE,title='Apify — проверка выгрузок 21.11'))
+                source_file=SOURCE,srr_source=SRR_SOURCE,
+                srr_profitable_count=sum(1 for row in srr_rows if row['roi'] is not None and row['roi'] >= 50),
+                title='Apify — проверка выгрузок 21.11'))
