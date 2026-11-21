@@ -6,6 +6,8 @@ from django.utils import timezone
 from datetime import timedelta
 from django.shortcuts import render
 
+from catalog.models import ProductKaspiListing
+
 from .models import (
     KaspiCompetitorOfferSnapshot,
     KaspiRepricerRecommendation,
@@ -54,6 +56,8 @@ def repricer_dashboard(request):
     fresh_minutes = competitor_fresh_minutes()
     fresh_cutoff = timezone.now() - timedelta(minutes=fresh_minutes)
     fresh_snapshot_count = public_snapshots.filter(captured_at__gte=fresh_cutoff).count()
+    active_listing_count = ProductKaspiListing.objects.filter(is_active=True).count()
+    collected_listing_count = public_snapshots.values("listing_id").distinct().count()
     city_id = str(getattr(settings, "KASPI_REPRICER_CITY_ID", "") or "750000000")
 
     response = render(
@@ -66,6 +70,8 @@ def repricer_dashboard(request):
             "public_snapshot_count": public_snapshots.count(),
             "latest_public_snapshot": latest_public_snapshot,
             "fresh_snapshot_count": fresh_snapshot_count,
+            "active_listing_count": active_listing_count,
+            "collected_listing_count": collected_listing_count,
             "fresh_minutes": fresh_minutes,
             "collector_city_id": city_id,
         },
