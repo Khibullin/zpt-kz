@@ -11,6 +11,16 @@ from .srr_review_snapshots import SOURCE as SRR_SOURCE, srr_review_snapshot
 
 SOURCE='dataset_kaspi-api_2026-11-21_14-00-09-125.json'
 
+# Verified 22.11.2026: these exact SKUs occur in a regional SRR catalogue.
+# Independent listing of the SKU is useful corroboration but NOT evidence that
+# Omega's SRR OE/SRR JAPAN line equals Kaspi's unqualified SRR item, that
+# package quantity and fitment match, or that a seller's price is current.
+SRR_REGIONAL_CATALOG_LINKS = {
+    'SA-160013': 'https://srr.lk/product/shock-absorber-sa-160013/',
+    'SA-160017': 'https://srr.lk/product/shock-absorber-sa-160017/',
+    'SA-160095': 'https://srr.lk/product/shock-absorber-sa-160095/',
+}
+
 @access('sales','admin')
 def apify_review(request):
     audits=(KaspiPriceAudit.objects.filter(source_filename=SOURCE,
@@ -45,7 +55,8 @@ def apify_review(request):
                          'kaspi_price':snapshot['comparison_min_price'] if snapshot else None,
                          'cheapest_url':snapshot['cheapest_url'] if snapshot else '',
                          'cheapest_card_differs':snapshot['different_cheapest_card'] if snapshot else False,
-                         'has_source_snapshot':bool(snapshot)})
+                         'has_source_snapshot':bool(snapshot),
+                         'regional_catalog_url':SRR_REGIONAL_CATALOG_LINKS.get(task.offer.article.strip().upper(), '')})
     return render(request,'procurement/apify_review.html',
         context(request,rows=rows,prior_count=len(prior),srr_rows=srr_rows,
                 source_file=SOURCE,srr_source=SRR_SOURCE,
