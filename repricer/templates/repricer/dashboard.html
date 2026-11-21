@@ -68,11 +68,24 @@
   {% endif %}
 
   <div class="repricer-status repricer-status--warning">
-    <strong>Охват цен:</strong> текущий сборщик проверяет один город за запуск (город по умолчанию — Алматы, код {{ collector_city_id }}).
-    Город предложения в сохранённых снимках не указан. Поэтому минимальную цену по всему Казахстану пока определить нельзя.
-    {% if not fresh_snapshot_count %}<strong>Нет подтверждённых свежих снимков за выбранный период.</strong>{% endif %}
-    Изменение наших цен в Kaspi отключено.
+    <strong>Сбор цен по Казахстану:</strong> механизм поддерживает последовательную проверку {{ city_total }} населённых пунктов из справочника Kaspi.
+    Фактически собраны данные с известным городом: <strong>{{ covered_city_count }} из {{ city_total }}</strong>.
+    Исторических пакетов без указания города: <strong>{{ cityless_legacy_count }}</strong>.
+    {% if not fresh_snapshot_count %}<strong>Нет свежих снимков за последние {{ fresh_minutes }} минут.</strong>{% endif %}
+    Автоматическое расписание пока не утверждено и не включено.
   </div>
+  <details class="repricer-status" style="margin-bottom:18px">
+    <summary style="cursor:pointer;font-weight:700">Состояние сбора по городам ({{ covered_city_count }}/{{ city_total }})</summary>
+    <div class="repricer-table-wrap" style="margin-top:12px;max-height:350px;overflow:auto">
+      <table class="repricer-table" style="min-width:520px">
+        <thead><tr><th>Город</th><th>Артикулов с данными</th><th>Последний сбор</th></tr></thead>
+        <tbody>{% for city in city_coverage %}
+          <tr><td>{{ city.name }}</td><td>{{ city.articles }}</td>
+            <td>{% if city.last_collected %}{{ city.last_collected|date:"d.m.Y H:i" }}{% else %}Ещё не проверялся{% endif %}</td></tr>
+        {% endfor %}</tbody>
+      </table>
+    </div>
+  </details>
 
   <div class="repricer-status">
     Активных Kaspi-привязок: <strong>{{ active_listing_count }}</strong>.
