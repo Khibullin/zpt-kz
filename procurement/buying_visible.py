@@ -217,9 +217,9 @@ def visible_buying_rows(request, preferences, filters):
             continue
         indexed.append(('legacy', (offer.pk, cost, price, record), profit, roi))
 
-    # Approved ordering: highest tenge profit first.
-    indexed.sort(key=lambda r: (r[2] is None, -(r[2] or Decimal('0')),
-                                r[3] is None, -(r[3] or Decimal('0')),
+    # Approved ordering: highest net ROI percentage first, then tenge profit.
+    indexed.sort(key=lambda r: (r[3] is None, -(r[3] or Decimal('0')),
+                                r[2] is None, -(r[2] or Decimal('0')),
                                 r[1]['id'] if r[0] == 'apify' else r[1][0]))
     paginator = Paginator(indexed, 40)
     page = paginator.get_page(request.GET.get('page'))
