@@ -6,17 +6,18 @@
 </style>
 <div class="eep-shell">
 <header class="eep-top">
- <div><h1>EEP 59A200068</h1><p class="eep-muted">Подробное сравнение исходных сведений двух площадок</p></div>
+ <div><h1>{{ offer.brand }} {{ offer.article }}</h1><p class="eep-muted">Подробное сравнение исходных сведений двух площадок</p></div>
  <a class="button" href="{{ list_url }}" id="eep-back">← Назад к списку</a>
 </header>
 <div class="eep-sources">
- <section class="eep-source"><h2>Solid Prof Group / Omega</h2>
- {% if supplier_photo %}<img class="eep-img" src="{{ supplier_photo }}" alt="Фото от поставщика EEP 59A200068" referrerpolicy="no-referrer">{% else %}<div class="eep-missing">Нет фотографии</div>{% endif %}
- <a href="{{ omega_url }}" target="_blank" rel="noopener noreferrer">Оригинальная карточка Omega</a></section>
+ <section class="eep-source"><h2>{{ offer.supplier.name }}</h2>
+ {% if supplier_photo %}<img class="eep-img" src="{{ supplier_photo }}" alt="Фото поставщика {{ offer.brand }} {{ offer.article }}" referrerpolicy="no-referrer">{% else %}<div class="eep-missing">Нет фотографии</div>{% endif %}
+ {% if supplier_gallery %}<div class="eep-thumbs">{% for photo in supplier_gallery %}<a href="{{ photo }}" target="_blank" rel="noopener noreferrer" aria-label="Дополнительное фото поставщика"><img src="{{ photo }}" alt="Фото поставщика {{ forloop.counter|add:1 }}" loading="lazy"></a>{% endfor %}</div>{% endif %}
+ {% if omega_url %}<a href="{{ omega_url }}" target="_blank" rel="noopener noreferrer">Карточка поставщика</a>{% else %}<p class="eep-muted">Ссылка поставщика отсутствует</p>{% endif %}</section>
  <section class="eep-source"><h2>Kaspi</h2>
- {% if kaspi_photo %}<img class="eep-img" src="{{ kaspi_photo }}" alt="Фото Kaspi EEP 59A200068" referrerpolicy="no-referrer">{% else %}<div class="eep-missing">Нет сохранённого фото Kaspi</div>{% endif %}
+ {% if kaspi_photo %}<img class="eep-img" src="{{ kaspi_photo }}" alt="Фото Kaspi {{ offer.brand }} {{ offer.article }}" referrerpolicy="no-referrer">{% else %}<div class="eep-missing">Нет сохранённого фото Kaspi</div>{% endif %}
  {% if kaspi_gallery %}<div class="eep-thumbs">{% for photo in kaspi_gallery %}<a href="{{ photo }}" target="_blank" rel="noopener noreferrer" aria-label="Дополнительное фото Kaspi"><img src="{{ photo }}" alt="Фото Kaspi {{ forloop.counter|add:1 }}" loading="lazy"></a>{% endfor %}</div>{% endif %}
- <a href="{{ kaspi_url }}" target="_blank" rel="noopener noreferrer">Оригинальная карточка Kaspi</a></section>
+ {% if kaspi_url %}<a href="{{ kaspi_url }}" target="_blank" rel="noopener noreferrer">Карточка Kaspi с минимальной сохранённой ценой</a>{% else %}<p class="eep-muted">Ссылка на выбранную карточку Kaspi отсутствует</p>{% endif %}</section>
 </div>
 <section class="eep-fields" aria-label="Сравнение полей">
 {% for row in rows %}
@@ -27,6 +28,7 @@
  </div>
 {% endfor %}
 </section>
+{% if comparison_source %}<p class="eep-muted">Исходная выгрузка Apify: {{ comparison_source }}{% if selected_product_id %} · ID карточки Kaspi: {{ selected_product_id }}{% endif %}</p>{% endif %}
 <p class="eep-muted" style="margin-top:20px">Отсутствие сведений означает, что они не найдены в сохранённых структурированных данных. Сравнение не изменяет карточки, цены и расчёты.</p>
 </div>
 <script>
