@@ -5,7 +5,7 @@ stock, or new Kaspi price can remove an already admitted record.
 """
 from decimal import Decimal
 from django.core.paginator import Paginator
-from django.db.models import Q, OuterRef, Subquery
+from django.db.models import Q, OuterRef, Subquery, Max
 from django.db.models.functions import Coalesce
 from django.utils import timezone
 
@@ -15,6 +15,36 @@ from .models import (PermanentBuyingItem, Favorite, KaspiBuyingCandidate,
                      KaspiPreparedCard, KaspiPriceAudit, RetailListing)
 
 
+
+def apify_source_options():
+    """Only actual, recorded audit exports; never infer dates from filenames."""
+    return list(KaspiPriceAudit.objects.values('source_filename')
+                .annotate(last_seen=Max('observed_at'))
+                .order_by('-last_seen', 'source_filename')[:30])
+
+
+def apify_source_summary(source, supplier=None):
+    """Count visible opportunities in an export, distinguishing first audit from updates.
+
+    'First observation' does not claim the SKU was newly created in the catalog.
+    """
+    if not source:
+        return None
+    audits = KaspiPriceAudit.objects.filter(source_filename=source,
+        offer_id__in=PermanentBuyingItem.objects.values('offer_id'))
+    if supplier:
+        audits = audits.filter(offer__supplier=supplier)
+    previous = KaspiPriceAudit.objects.filter(
+        offer_id=OuterRef('offer_id'), pk__lt=OuterRef('pk')
+    ).order_by('-pk')
+    audits = audits.annotate(_prev_price=Subquery(previous.values('min_price')[:1]))
+    counts = {'first': 0, 'changed': 0, 'unchanged': 0, 'total': 0}
+    for price, prior in audits.values_list('min_price', '_prev_price').iterator(chunk_size=1000):
+        counts['total'] += 1
+        counts['first' if prior is None else 'changed' if price != prior else 'unchanged'] += 1
+    return counts
+
+
 def visible_permanent_buying_rows(request, preferences, filters):
     rows = PermanentBuyingItem.objects.select_related('offer', 'offer__supplier')
     # Profitable buying opens directly on products with an Apify price recheck.
@@ -22,6 +52,10 @@ def visible_permanent_buying_rows(request, preferences, filters):
     # via the explicit legacy query parameter, not the ordinary buying screen.
     if request.GET.get('rechecked') != '0':
         rows = rows.filter(offer_id__in=KaspiPriceAudit.objects.values('offer_id'))
+    source = request.GET.get('apify_source', '').strip()[:255]
+    if source:
+        rows = rows.filter(offer_id__in=KaspiPriceAudit.objects.filter(
+            source_filename=source).values('offer_id'))
     supplier = filters.get('supplier')
     if supplier:
         rows = rows.filter(offer__supplier=supplier)
@@ -58,8 +92,10 @@ def visible_permanent_buying_rows(request, preferences, filters):
     # updates. Equal profit is ordered by ROI, then stable record ID.
     # Prefer the newest separate seller-price audit for visible ranking.
     # Archived profits remain unchanged in PermanentBuyingItem.
-    latest = KaspiPriceAudit.objects.filter(
-        offer_id=OuterRef('offer_id')).order_by('-observed_at', '-pk')
+    latest = KaspiPriceAudit.objects.filter(offer_id=OuterRef('offer_id'))
+    if source:
+        latest = latest.filter(source_filename=source)
+    latest = latest.order_by('-observed_at', '-pk')
     rows = rows.annotate(
         _latest_profit=Subquery(latest.values('profit')[:1]),
         _latest_roi=Subquery(latest.values('roi')[:1]),
@@ -75,9 +111,16 @@ def visible_permanent_buying_rows(request, preferences, filters):
         )
     }
     audits = {}
-    for audit in KaspiPriceAudit.objects.filter(
-            offer_id__in=offer_ids).order_by('offer_id', '-observed_at', '-pk'):
+    display_audits = KaspiPriceAudit.objects.filter(offer_id__in=offer_ids)
+    if source:
+        display_audits = display_audits.filter(source_filename=source)
+    for audit in display_audits.order_by('offer_id', '-observed_at', '-pk'):
         audits.setdefault(audit.offer_id, audit)
+    previous_audit = {}
+    for offer_id, audit in audits.items():
+        previous_audit[offer_id] = KaspiPriceAudit.objects.filter(
+            offer_id=offer_id, pk__lt=audit.pk).order_by('-pk').values_list(
+                'min_price', flat=True).first()
     prepared_photos = dict(KaspiPreparedCard.objects.filter(
         offer_id__in=offer_ids).exclude(photo_url='').values_list('offer_id', 'photo_url'))
     favorite_ids = set(Favorite.objects.filter(
@@ -205,6 +248,10 @@ def visible_permanent_buying_rows(request, preferences, filters):
                 'seller_count': None,
             }
             row['display_kaspi_date'] = None
+            prior_price = previous_audit.get(offer.pk)
+            row['apify_change_status'] = ('first' if prior_price is None else
+                                         'changed' if audit.min_price != prior_price else 'unchanged')
+            row['apify_previous_audit_price'] = prior_price
             row['audit_file'] = audit.source_filename
             row['audit_observed_at'] = audit.observed_at
         result.append(row)
