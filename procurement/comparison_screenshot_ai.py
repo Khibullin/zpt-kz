@@ -35,8 +35,15 @@ def recognize_screenshots(images, *, article, brand, session=None):
         ', артикул ' + article[:120] +
         '. Указанные бренд/артикул используй только для проверки, а не как источник заполнения. '
         'Верни только JSON объект с полями: name, brand, article, category, description, '
-        'specs, fitment, package, oem, analogs, screenshot_price. '
-        'Каждое значение — строка. Для невидимых сведений оставь пустую строку. '
+        'specs, fitment, package, oem, analogs, screenshot_price и product_photo_box. '
+        'Текстовые значения — строки. Для невидимых сведений оставь пустую строку. '
+        'product_photo_box — либо null, либо массив из пяти чисел '
+        '[номер_скриншота_с_нуля, левая_граница, верхняя_граница, правая_граница, нижняя_граница]. '
+        'Координаты нормализованы от 0 до 1000 по ширине и высоте ПОЛНОГО скриншота. '
+        'Выбери прямоугольник главного ФОТО ТОВАРА Kaspi (не скриншот страницы целиком). '
+        'Он должен охватывать только сам товар и его фон, исключать цены, кнопки, '
+        'название магазина, характеристики и рекламные блоки. '
+        'Если фотографию детали нельзя уверенно выделить, верни null. '
         'В fitment перечисли марки, модели и годы только если показаны; '
         'в package укажи число в комплекте только если видно. '
         'В specs не придумывай детали. Дословность важнее полноты. '
@@ -70,10 +77,14 @@ def recognize_screenshots(images, *, article, brand, session=None):
         data = json.loads(output[start:end + 1])
         if not isinstance(data, dict):
             raise ValueError('Некорректный ответ распознавания.')
-        return {
+        result = {
             field: str(data.get(field) or '').strip()[:TEXT_LIMITS[field]]
             for field in FIELDS
         }
+        from .comparison_photo_crop import normalize_box
+        result['product_photo_box'] = normalize_box(
+            data.get('product_photo_box'), len(images[:3]))
+        return result
     except (requests.RequestException, ValueError, KeyError, TypeError,
             json.JSONDecodeError) as exc:
         logger.warning('Kaspi screenshot OCR failed: %s', str(exc)[:200])
