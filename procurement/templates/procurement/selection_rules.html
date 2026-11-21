@@ -97,14 +97,46 @@
 .step-heading-with-action{justify-content:space-between;flex-wrap:wrap}
 .step-heading-main{display:flex;align-items:center;gap:12px}
 @media(max-width:600px){.step-heading-with-action{align-items:flex-start}.json-rules summary{font-size:13px}}
+
+/* Uniform inline policy disclosure for the three procurement steps. */
+.step-heading.policy-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.step-heading.policy-heading .step-heading-main{display:flex;align-items:center;gap:12px;min-width:0;flex:1}
+.step-policy{margin:0 0 12px}
+.step-policy>summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:7px;min-width:105px;justify-content:center;padding:8px 14px;border:1px solid #bfd0df;border-radius:8px;background:#fff;color:#183a61;font-weight:700;font-size:13px}
+.step-policy>summary::-webkit-details-marker{display:none}
+.step-policy>summary:before{content:"▸";font-size:12px}
+.step-policy[open]>summary:before{content:"▾"}
+.step-policy>summary:focus-visible{outline:3px solid #71cec2;outline-offset:3px}
+.step-policy-content{padding:13px 16px;margin-top:9px;background:#f8fbfd;border:1px solid #dbe6ef;border-radius:9px;line-height:1.55;font-size:13px}
+.step-policy-content h3{font-size:14px;margin:0 0 7px}
+.step-policy-content ol{margin:5px 0 0;padding-left:20px}
+.step-policy-content li{margin:5px 0}
+.step-policy-content p{margin:5px 0 9px}
+.step-policy-trigger{margin-left:auto;flex:none}
+@media(max-width:600px){.step-heading.policy-heading .step-heading-main{flex-basis:100%}.step-policy-trigger{margin-left:47px}.step-policy-content{padding:12px}}
 </style>
 <div class="rule-header"><h1>Подготовка товаров к закупке</h1><p>Прайс Омеги → выбор товара → запросы → Apify → проверка выгодности</p></div>
 <section class="rule-card step-card omega-first-step" aria-labelledby="omega-pick-title">
-  <div class="step-heading omega-pick-head">
-    <span class="step-number">1</span>
-    <div><h2 id="omega-pick-title">Выбор товара из прайса</h2><p class="muted">Подбор товаров по категориям, цене и возрасту автомобиля для последующей проверки на Kaspi</p></div>
-    <a class="button omega-rules-link" href="{% url 'procurement:omega_selection_rules_help' %}">Правила отбора</a>
+  <div class="step-heading omega-pick-head policy-heading">
+    <div class="step-heading-main"><span class="step-number">1</span>
+      <div><h2 id="omega-pick-title">Выбор товара из прайса</h2><p class="muted">Подбор товаров по категориям, цене и возрасту автомобиля для последующей проверки на Kaspi</p></div>
+    </div>
   </div>
+  <details class="step-policy" id="rules-pick">
+    <summary>Правила</summary>
+    <div class="step-policy-content">
+      <h3>Правила выбора товаров из прайса</h3>
+      <ol>
+        <li><strong>Источник.</strong> Выберите поставщика и загрузите XLSX/CSV с фактической датой прайса. Новая загрузка сначала сохраняется для проверки и не перезаписывает действующие остатки и закупочные цены.</li>
+        <li><strong>Условия запроса.</strong> Выберите категории, минимальную закупочную цену, возраст автомобиля и при необходимости условие «Только товары в наличии». Значения в форме — параметры текущего запроса; окончательные пороги выгодности проверяются на этапе №3.</li>
+        <li><strong>Категории.</strong> Можно выбирать группу целиком или отдельные категории. Ранее использованные категории отмечены номером запроса; повторный выбор разрешён.</li>
+        <li><strong>Возраст и применимость.</strong> Годы и применимость подтверждаются фактическими данными. Отсутствующие сведения нельзя заменять догадками; исходный товар остаётся в прайсе.</li>
+        <li><strong>Порядок действий.</strong> Нажмите «Выбрать товары», проверьте предварительный результат, затем «Сохранить запрос». Сохранённые запросы и партии доступны в истории.</li>
+        <li><strong>Безопасность.</strong> Отбор не запускает Apify/Kaspi и не изменяет оригинальные цены, остатки и записи каталога.</li>
+      </ol>
+      <p><a href="{% url 'procurement:omega_selection_rules_help' %}">Полное руководство по отбору</a></p>
+    </div>
+  </details>
   <form method="post" enctype="multipart/form-data" class="price-upload-form omega-upload-compact">
     {% csrf_token %}<input type="hidden" name="action" value="upload_price">
     {{ price_form.non_field_errors }}
@@ -477,7 +509,22 @@ document.addEventListener('DOMContentLoaded',function(){
   </form>
 </details>
 <section class="rule-card step-card" aria-labelledby="apify-step-title">
-  <div class="step-heading"><span class="step-number">2</span><div><h2 id="apify-step-title">Подготовка для Apify</h2><p class="muted">Поиск по бренду и артикулу. Запуск вручную в Apify, без изменения товаров на сайте.</p></div></div>
+  <div class="step-heading policy-heading"><div class="step-heading-main"><span class="step-number">2</span><div><h2 id="apify-step-title">Подготовка для Apify</h2><p class="muted">Поиск по бренду и артикулу. Запуск вручную в Apify, без изменения товаров на сайте.</p></div></div></div>
+  <details class="step-policy" id="rules-apify">
+    <summary>Правила</summary>
+    <div class="step-policy-content">
+      <h3>Правила подготовки и ручного запуска Apify</h3>
+      <ol>
+        <li><strong>Исходные товары.</strong> Сначала сохраните запрос в блоке №1. Используйте его JSON-партии и файлы соответствия из истории запросов, не смешивая разные запросы.</li>
+        <li><strong>Поиск.</strong> По бренду и полному артикулу, без автоматического подтверждения товара по одному поисковому запросу. Чужие артикулы и бренды на этапе №3 отбрасываются.</li>
+        <li><strong>Города и объём.</strong> Текущий шаблон содержит Алматы, Астану, Шымкент, Караганду, Актобе и Костанай. Это параметры формируемого файла, не обязательное число городов для всех будущих запусков; ради экономии отдельный запуск можно ограничить Алматы и меньшим объёмом, предварительно проверив параметры Actor.</li>
+        <li><strong>Продавцы и цены.</strong> При проверке минимальной цены нужны реальные предложения продавцов; отзывы выключены. Ограничение результатов и режим сбора предложений необходимо сверять с фактическими настройками Actor.</li>
+        <li><strong>Расходы.</strong> Запуск выполняется вручную в Apify; перед ним установите и проверьте бюджет. Указанные ниже $20 — предлагаемое ограничение конкретного запуска, не автоматически оплаченный лимит.</li>
+        <li><strong>Экономия.</strong> По возможности не повторяйте уже собранные артикулы и не заказывайте избыточные города или дублирующиеся карточки. Проверку цен по другим городам выполняйте отдельно для отобранных товаров.</li>
+        <li><strong>Результат.</strong> По завершении экспортируйте JSON Apify и загрузите его в блок №3. Подготовка не меняет товары и цены в ZPT.KZ.</li>
+      </ol>
+    </div>
+  </details>
   <div class="step-line">
     {% if just_saved_request %}
       <span><strong>{{ just_saved_request.details.title }}</strong>: {{ just_saved_request.details.total }} товаров, {{ just_saved_request.details.query_count }} поисковых запросов. Скачайте партии:</span>
@@ -508,10 +555,11 @@ document.addEventListener('DOMContentLoaded',function(){
 </section>
 
 <section class="rule-card step-card" aria-labelledby="buying-step-title">
-  <div class="step-heading step-heading-with-action">
+  <div class="step-heading policy-heading">
     <div class="step-heading-main"><span class="step-number">3</span><div><h2 id="buying-step-title">Выгодные к закупке</h2><p class="muted">Загрузите JSON Apify. Программа сравнит цены всех подходящих карточек и продавцов по полному бренду и артикулу. Новые расчёты сохраняются отдельно от прежних; покупка требует проверки исполнения. Старые товары не удаляются.</p></div></div>
-    <details class="json-rules">
-      <summary>Правила обработки JSON</summary>
+  </div>
+  <details class="step-policy" id="rules-buying">
+      <summary>Правила</summary>
       <div class="json-rules-content">
         <p><strong>Правила обработки JSON Apify — актуальная редакция 21.11.2026.</strong>
         Поставщик Omega; расходники — закупочная цена от 2 000 ₸ включительно,
@@ -576,8 +624,7 @@ document.addEventListener('DOMContentLoaded',function(){
           Выбор к закупке допускается только после подтверждения цены и исполнения.</li>
         </ol>
       </div>
-    </details>
-  </div>
+  </details>
   <form method="post" enctype="multipart/form-data" class="buying-upload" id="apify-source-upload">
     {% csrf_token %}
     <input type="hidden" name="action" value="import_apify">
