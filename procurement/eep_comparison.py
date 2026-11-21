@@ -33,13 +33,15 @@ def _first(source, *names):
     return ""
 
 
-def _image_urls(values):
+def _image_urls(values, *, include_saved_crops=False):
     if isinstance(values, str):
         values = [values]
     if not isinstance(values, (list, tuple)):
         return []
-    return [url for url in values if isinstance(url, str) and
-            url.startswith(("https://", "http://"))][:8]
+    return [url for url in values if isinstance(url, str) and (
+            url.startswith(("https://", "http://")) or
+            (include_saved_crops and len(url) < 550_000
+             and url.startswith("data:image/jpeg;base64,")))][:8]
 
 
 FIELDS = (
@@ -139,7 +141,7 @@ def comparison(request, pk):
         for photo in _image_urls(material.supplier_data.get('images', [])):
             if photo not in supplier_photos:
                 supplier_photos.append(photo)
-    kaspi_photos = _image_urls(material.kaspi_data.get('images', [])) if material and isinstance(material.kaspi_data, dict) else []
+    kaspi_photos = _image_urls(material.kaspi_data.get('images', []), include_saved_crops=True) if material and isinstance(material.kaspi_data, dict) else []
     if not kaspi_photos:
         kaspi_photos = _image_urls(kaspi_source.get("images", []))
     if not kaspi_photos:
