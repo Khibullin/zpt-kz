@@ -1,0 +1,34 @@
+{% extends 'procurement/base.html' %}
+{% block content %}
+<style>
+.first10{max-width:1300px;margin:auto}.first10-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.first10 h1{margin:0 0 7px}.first10-note{font-size:13px;color:#546477;margin:8px 0 16px}
+.first10-list{display:grid;gap:7px}.first10-item{display:grid;grid-template-columns:38px minmax(160px,1.3fr) 110px 110px minmax(210px,1fr) auto;gap:10px;align-items:center;padding:11px 12px;border:1px solid #d8e4ed;border-radius:9px;background:#fff;font-size:13px}
+.first10-item small{display:block;color:#657689;font-size:11px}.first10-item strong{font-size:14px}.first10-number{font-weight:700;color:#69798a}
+.first10-item .first10-value{font-variant-numeric:tabular-nums}
+.first10-item .first10-status{font-size:12px;color:#755910}
+.first10-item .first10-open{white-space:nowrap}
+@media(max-width:850px){.first10-item{grid-template-columns:30px 1fr auto;gap:6px}.first10-item .first10-price,.first10-item .first10-roi,.first10-item .first10-status{grid-column:2;grid-row:auto}.first10-item .first10-open{grid-column:3;grid-row:1 / span 2}}
+</style>
+<div class="first10">
+  <div class="first10-head"><h1>Первые 10 выгодных — проверка карточек</h1>
+    <a class="button" href="{% url 'procurement:dashboard' %}?mode=best">← Выгодные к закупке</a>
+  </div>
+  <p class="first10-note">Рейтинг по последней сохранённой чистой доходности. Стоимость Kaspi — историческое наблюдение, не текущая цена. Проверка бренда, артикула, комплектации и применимости обязательна перед закупкой. Скриншоты сохраняются автоматически в каждой карточке.</p>
+  <div class="first10-list">
+  {% for item in items %}
+    <div class="first10-item">
+      <span class="first10-number">{{ forloop.counter }}.</span>
+      <div><strong>{{ item.offer.brand }} {{ item.offer.article }}</strong>
+      <small>{{ item.offer.name }} · Omega: {{ item.offer.stock }} шт.</small></div>
+      <div class="first10-price first10-value"><small>Kaspi от</small>{{ item.price|floatformat:0 }} ₸</div>
+      <div class="first10-roi first10-value"><small>Доходность</small>{{ item.roi|floatformat:1 }}%</div>
+      <div class="first10-status">{{ item.status }}{% if item.screenshots %}<small>Скриншотов: {{ item.screenshots }}</small>{% endif %}</div>
+      <a class="button first10-open" href="{{ item.url }}?apify_source={{ item.source|urlencode }}">Сравнить</a>
+    </div>
+  {% empty %}
+    <p>В базе пока нет товаров для этого списка.</p>
+  {% endfor %}
+  </div>
+</div>
+{% endblock %}
