@@ -78,5 +78,33 @@ class StagingQuoteTests(unittest.TestCase):
         self.assertEqual(out[('superzing','365757')]['source_query'],'Superzing 365753')
 
 
+
+    def test_brake_pads_and_ball_joints_categories_are_not_dropped(self):
+        rows = [card('PAD001', 9000, '123000001', 'Superzing PAD001',
+                     category='Brake pads'),
+                card('BJ001', 12000, '123000002', 'Superzing BJ001',
+                     category='Ball joints')]
+        out = select_minimum_seller_quotes(
+            rows, [('Superzing', 'PAD001'), ('Superzing', 'BJ001')])
+        self.assertEqual(len(out), 2)
+
+    def test_truncated_seller_list_cannot_certify_a_minimum(self):
+        row = card('365757', 5320, '122329934', 'Superzing 365753')
+        row['sellersCount'] = 2
+        self.assertFalse(select_minimum_seller_quotes(
+            [row], [('Superzing', '365757')]))
+
+    def test_matching_seller_count_is_accepted(self):
+        row = card('365757', 5320, '122329934', 'Superzing 365753')
+        row['sellersCount'] = 1
+        out = select_minimum_seller_quotes([row], [('Superzing', '365757')])
+        self.assertEqual(out[('superzing', '365757')]['min_price'], Decimal('5320'))
+
+    def test_inconsistent_card_minimum_is_not_accepted(self):
+        row = card('365757', 5320, '122329934', 'Superzing 365753')
+        row['minPrice'] = 4000
+        self.assertFalse(select_minimum_seller_quotes(
+            [row], [('Superzing', '365757')]))
+
 if __name__ == '__main__':
     unittest.main()
