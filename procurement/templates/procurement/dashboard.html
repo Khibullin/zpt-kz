@@ -3,7 +3,7 @@
 <header class="compact-header">
 <h1>{% if mode == 'best' %}Выгодные к закупке{% else %}Оптовые закупки{% endif %}</h1>
 {% if mode == 'best' %}<small class="muted" title="Действуют для всех пользователей и поставщиков">Цены перепроверены по Apify · старые товары и расчёты сохранены · исполнение требует подтверждения перед заказом</small>{% endif %}
-<form method="get" class="supplier-picker"><input type="hidden" name="mode" value="{{ mode }}"><label>Поставщик {{ filter_form.supplier }}</label><button>Выбрать</button></form>
+<form method="get" class="supplier-picker"><input type="hidden" name="mode" value="{{ mode }}">{% if mode == "best" and request.GET.apify_source %}<input type="hidden" name="apify_source" value="{{ request.GET.apify_source }}">{% endif %}<label>Поставщик {{ filter_form.supplier }}</label><button>Выбрать</button></form>
 {% if can_manage and mode != 'best' %}<div class="actions"><a class="button" href="{% url 'procurement:selection_rules' %}#upload-step-title">Загрузить прайс-лист</a></div>{% endif %}
 </header>
 {% if mode == 'kaspi_prices' %}<div class="notice" role="status"><strong>Сохранённые цены Kaspi — не актуальное предложение.</strong> Показаны ранее найденные цены с исходной датой проверки и статусом соответствия карточки. Старые и неподтверждённые цены не дают права добавлять товар в выгодную закупку или автоматически публиковать на Kaspi.</div>{% endif %}
@@ -11,7 +11,7 @@
 <section class="catalog-filters{% if mode == 'best' or mode == 'stale_prices' or mode == 'kaspi_prices' %} best-filters{% endif %}" aria-label="Фильтры товаров">
 <form method="get" class="selection-filters">
 {% if mode != 'best' and mode != 'stale_prices' and mode != 'kaspi_prices' and request.GET.kaspi_presence %}<input type="hidden" name="kaspi_presence" value="{{ request.GET.kaspi_presence }}">{% endif %}
-<input type="hidden" name="mode" value="{{ mode }}"><input type="hidden" name="supplier" value="{{ selected_supplier.pk|default:''|unlocalize }}">
+<input type="hidden" name="mode" value="{{ mode }}">{% if mode == "best" and request.GET.apify_source %}<input type="hidden" name="apify_source" value="{{ request.GET.apify_source }}">{% endif %}<input type="hidden" name="supplier" value="{{ selected_supplier.pk|default:''|unlocalize }}">
 {{ filter_form.non_field_errors }}
 
 <div class="short-search"><label class="filter-field">{{ filter_form.q.label }}{{ filter_form.q }}{{ filter_form.q.errors }}</label><button>Найти</button></div>
@@ -36,6 +36,36 @@
 </details>
 </form>
 </section>
+{% if mode == 'best' %}
+<section class="apify-source-panel" aria-label="История загрузок Apify">
+  <form method="get" class="apify-source-filter">
+    {% for key,values in request.GET.lists %}
+      {% if key != 'apify_source' and key != 'page' and key != 'download' %}
+        {% for value in values %}<input type="hidden" name="{{ key }}" value="{{ value }}">{% endfor %}
+      {% endif %}
+    {% endfor %}
+    {% if not request.GET.mode %}<input type="hidden" name="mode" value="best">{% endif %}
+    <label for="apify-source-choice"><strong>Выгрузка Apify</strong></label>
+    <select id="apify-source-choice" name="apify_source">
+      <option value="">Все выгрузки</option>
+      {% for source in apify_sources %}
+      <option value="{{ source.source_filename }}" {% if apify_selected_source == source.source_filename %}selected{% endif %}>{{ source.last_seen|date:"d.m.Y H:i" }} · {{ source.source_filename }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit">Показать</button>
+  </form>
+  {% if apify_summary %}
+  <div class="apify-source-totals">
+    <strong>{% if apify_selected_source %}Выбранная выгрузка{% else %}Последняя выгрузка{% endif %}: {{ apify_summary_source }}</strong>
+    <span>Товаров в текущем реестре: <b>{{ apify_summary.total }}</b></span>
+    <span>Первая сохранённая проверка: <b>{{ apify_summary.first }}</b></span>
+    <span>Цена обновлена: <b>{{ apify_summary.changed }}</b></span>
+    <span>Без изменений: <b>{{ apify_summary.unchanged }}</b></span>
+  </div>
+  <small class="muted">«Первая проверка» означает отсутствие более ранней записи Apify для товара, а не гарантированно новый товар в каталоге. Сводка относится к выбранному поставщику и только к товарам существующего реестра закупки. Сведения получены из сохранённых выгрузок; дата в списке — время проверки на ZPT.KZ.</small>
+  {% endif %}
+</section>
+{% endif %}
 {% if can_manage and selected_supplier and mode != 'best' %}
 <form method="post" action="{% url 'procurement:refresh_shared_fitments' %}?supplier={{ selected_supplier.pk }}" style="margin:12px 0">{% csrf_token %}
 <button>Дополнить применимость из общей базы</button>
@@ -70,7 +100,12 @@
     {% if row.candidate and row.candidate.title %}<span class="buying-card-title" title="{{ row.candidate.title }}">Kaspi: {{ row.candidate.title }}</span>{% endif %}
     <div class="buying-inline-links">
       {% if row.candidate and row.candidate.url %}<a href="{{ row.candidate.url }}" target="_blank" rel="noopener noreferrer">Kaspi</a>{% elif row.offer.kaspi_url %}<a href="{{ row.offer.kaspi_url }}" target="_blank" rel="noopener noreferrer">Kaspi</a>{% endif %}
-      {% if row.audit_file %}<span class="buying-recheck-tag">Перепроверено</span>{% endif %}
+      {% if row.audit_file %}
+      {% if row.apify_change_status == 'first' %}<span class="buying-recheck-tag">Первая проверка</span>
+      {% elif row.apify_change_status == 'changed' %}<span class="buying-recheck-tag buying-price-changed">Цена обновлена</span>
+      {% elif row.apify_change_status == 'unchanged' %}<span class="buying-recheck-tag">Без изменений</span>{% endif %}
+      <span class="buying-source-date" title="{{ row.audit_file }}">Apify {{ row.audit_observed_at|date:"d.m.Y" }}</span>
+      {% endif %}
     </div>
   </div>
 </div>
@@ -78,7 +113,7 @@
 <div class="buying-evidence-text">
 <p><strong>{{ row.price_evidence_status }}</strong></p>
 <p>{{ row.best_status }}{% if row.audit_file %} · {{ row.audit_observed_at|date:'d.m.Y H:i' }}{% endif %}</p>
-{% if row.audit_file %}<p>Выгрузка: {{ row.audit_file }} · Прежняя цена Kaspi: {{ row.previous_kaspi_price|floatformat:0 }} ₸ · Прежняя прибыль: {{ row.previous_profit|floatformat:2 }} ₸</p>{% endif %}
+{% if row.audit_file %}<p>Выгрузка: {{ row.audit_file }}{% if row.apify_previous_audit_price != None %} · Цена предыдущей проверки Apify: {{ row.apify_previous_audit_price|floatformat:0 }} ₸{% endif %} · Прежняя цена Kaspi: {{ row.previous_kaspi_price|floatformat:0 }} ₸ · Прежняя прибыль: {{ row.previous_profit|floatformat:2 }} ₸</p>{% endif %}
 <p>Остаток Omega: {{ row.offer.stock|default:'неизвестен' }} · Дата прайса: {{ row.display_supplier_date|date:'d.m.Y'|default:'нет данных' }} · Дата Kaspi: {{ row.display_kaspi_date|date:'d.m.Y'|default:'нет данных' }}</p>
 <p>Продавцов в исходной карточке: {% if row.candidate %}{{ row.candidate.seller_count|default_if_none:'нет данных' }}{% else %}нет данных{% endif %} · Применимость и комплектность требуют проверки.</p>
 <p>Цена и прибыль — расчёт по сохранённой выгрузке, не гарантия текущего предложения.</p>
@@ -148,6 +183,14 @@
 <iframe title="Карточка товара" id="product-frame"></iframe>
 </dialog>
 <style>
+.apify-source-panel{margin:10px 0 12px;padding:12px 15px;border:1px solid #bfdbd3;border-radius:9px;background:#f2faf7}
+.apify-source-filter{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:13px}
+.apify-source-filter select{max-width:100%;min-width:260px;flex:1;padding:8px;border:1px solid #cbd5e1;border-radius:7px;background:#fff}
+.apify-source-totals{display:flex;align-items:center;gap:12px 20px;flex-wrap:wrap;margin:10px 0 6px;font-size:13px}
+.apify-source-totals>strong{flex-basis:100%;overflow-wrap:anywhere}
+.buying-price-changed{background:#fff1be!important;color:#825400!important}
+.buying-source-date{color:#67788a;font-size:11px;white-space:nowrap}
+@media(max-width:650px){.apify-source-filter select{min-width:100%;flex-basis:100%}.apify-source-panel{padding:10px}}
 .short-search{display:flex;align-items:end;gap:10px;max-width:560px}.short-search>.filter-field{flex:1}.short-search button{margin:0}.collapsed-filters>summary{display:inline-block;list-style:none}.collapsed-filters[open]>summary{margin-bottom:12px}.scope-filter{max-width:340px;margin-bottom:12px}.catalog-filters .selection-filters{display:flex!important;align-items:start;gap:12px;flex-wrap:wrap}.selection-filters>.short-search{flex:1;min-width:240px}.collapsed-filters[open]{flex-basis:100%}#bulk-selection{display:flex;align-items:center;gap:12px}#bulk-selection [data-selection-status]{min-height:0;width:auto}.purchase-check{display:flex;align-items:center;gap:8px;margin-top:8px}.purchase-check input{width:18px;height:18px;margin:0}.row-actions [data-in-basket]{color:#078446}
 .compact-dashboard .compact-header{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin:0 0 14px}.compact-header h1{font-size:24px;margin:0;white-space:nowrap}.compact-header>.actions{margin-left:auto}.compact-dashboard button,.compact-dashboard a.button{padding:8px 12px;font-size:14px;min-height:36px}.supplier-picker{display:flex;align-items:center;gap:8px;margin:0}.supplier-picker label{display:flex;align-items:center;gap:8px;font-size:13px}.supplier-picker select{width:190px;padding:8px;min-height:36px}.compact-tabs{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}.compact-tabs a.button{padding:10px 18px;font-size:16px;font-weight:700}.catalog-tab{background:#FDEBE8!important;border-color:#E7A39A!important;color:#142E4D!important}.compact-tabs [aria-current]{outline:2px solid #142E4D;outline-offset:1px}.results-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:10px 0 12px}.results-toolbar strong{font-size:14px}.preliminary-status{color:#986000}.catalog-filters{border:1px solid #E7A39A;background:#fff5f3;border-radius:6px;padding:12px}.catalog-filters .selection-filters{display:grid;grid-template-columns:1fr;gap:10px}.catalog-filters .selection-filters>label{margin:0!important}.catalog-filters fieldset,.catalog-filters details,.catalog-filters .selection-filters>.actions{grid-column:1/-1}.catalog-filters fieldset{margin:0;border:0;padding:4px 0}.catalog-filters legend{font-size:13px;margin-bottom:6px}#id_kaspi_status{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;font-size:13px}#id_kaspi_status label{display:flex;gap:6px;align-items:center}#id_kaspi_status input{margin:0}.compact-dashboard table{font-size:14px}.compact-dashboard th,.compact-dashboard td{padding:10px 12px;vertical-align:top}.compact-dashboard th{white-space:nowrap;font-size:13px}.compact-dashboard td.product{min-width:230px}.compact-dashboard td.product strong{font-size:14px}.compact-dashboard .money{white-space:nowrap}.product-evidence summary{font-size:12px;color:#62748a;padding:4px 0}.product-evidence[open]{min-width:300px}.product-evidence p{margin:6px 0}.row-actions{white-space:nowrap}.row-actions form{display:inline-block}.row-actions .quick-view{margin:0}.compact-dashboard .filter-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.compact-dashboard .pagination{margin-top:14px;font-size:13px}.compact-dashboard .filter-field input,.compact-dashboard .filter-field select{padding:8px}.errorlist{color:#a32b20}
 @media(max-width:1000px){.compact-header>.actions{margin-left:0}#id_kaspi_status{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){.catalog-filters .selection-filters{grid-template-columns:1fr}.compact-header h1{font-size:22px}.supplier-picker label{flex-wrap:wrap}.results-toolbar .actions{flex-wrap:wrap}.row-actions form{display:block;margin-top:6px}}
