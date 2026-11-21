@@ -42,6 +42,7 @@
 <h2>Первая выгрузка: {{ srr_rows|length }} артикулов SRR с расхождением бренда</h2>
 <p class="apr-sub">После сравнения <strong>минимальных цен продавцов по всем найденным однопредметным карточкам каждого артикула</strong> только {{ srr_profitable_count }} из 9 сохраняют расчётную доходность не менее 50%; остальные не проходят даже финансовый порог. Но и эти {{ srr_profitable_count }} не допущены к публикации из-за различия брендовой линейки.</p>
 <p class="apr-sub">В исходной карточке Kaspi указано «SRR», а в реестре Omega — «SRR OE» либо «SRR/JAPAN». Это <strong>не точное совпадение брендов</strong>. До проверки конкретного изделия, комплектации и цены Kaspi эти позиции не допускаются к публикации в «Выгодные». Данные ниже — снимок базы поставщика; источник: <a href="https://omega-auto-parts.kz/zavody/srr" target="_blank" rel="noopener noreferrer">каталог SRR Omega</a>.</p>
+<p class="apr-sub">Дополнительное исследование 22.11.2026: в региональном каталоге SRR найдены точные артикулы <strong>SA-160013, SA-160017 и SA-160095</strong> (ссылки в соответствующих строках). Это подтверждает существование обозначений в семействе SRR, <strong>но не доказывает</strong> тождество товара Omega и Kaspi, комплектность, наличие или актуальные цены. Статусы проверки не изменены.</p>
 <div class="apr-scroll"><table class="apr-table">
 <thead><tr><th>Артикул Omega</th><th>Kaspi ID из выгрузки</th><th class="num">Закупка, ₸</th><th class="num">Kaspi мин., ₸*</th><th class="num">ROI*</th><th>Состояние и причина</th><th>Источники</th></tr></thead>
 <tbody>{% for item in srr_rows %}
@@ -57,6 +58,7 @@
 <a href="{{ item.kaspi_url }}" target="_blank" rel="noopener noreferrer">Kaspi (выбранная)</a>
 {% if item.cheapest_card_differs %} · <a href="{{ item.cheapest_url }}" target="_blank" rel="noopener noreferrer">Kaspi (дешевле)</a>{% endif %}
 {% endif %}
+{% if item.regional_catalog_url %} · <a href="{{ item.regional_catalog_url }}" target="_blank" rel="noopener noreferrer">SRR (каталог артикула)</a>{% endif %}
 {% if item.offer.supplier_url %} · <a href="{{ item.offer.supplier_url }}" target="_blank" rel="noopener noreferrer">Omega</a>{% endif %}</td>
 </tr>
 {% empty %}<tr><td colspan="7">Открытых заданий с указанным источником нет.</td></tr>{% endfor %}
