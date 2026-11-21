@@ -42,17 +42,23 @@
 <h2>Первая выгрузка: {{ srr_rows|length }} артикулов SRR с расхождением бренда</h2>
 <p class="apr-sub">В исходной карточке Kaspi указано «SRR», а в реестре Omega — «SRR OE» либо «SRR/JAPAN». Это <strong>не точное совпадение брендов</strong>. До проверки конкретного изделия, комплектации и цены Kaspi эти позиции не допускаются к публикации в «Выгодные». Данные ниже — снимок базы поставщика; источник: <a href="https://omega-auto-parts.kz/zavody/srr" target="_blank" rel="noopener noreferrer">каталог SRR Omega</a>.</p>
 <div class="apr-scroll"><table class="apr-table">
-<thead><tr><th>Артикул Omega</th><th>Kaspi ID из выгрузки</th><th class="num">Закупка, ₸</th><th>Состояние и причина</th><th>Источник</th></tr></thead>
+<thead><tr><th>Артикул Omega</th><th>Kaspi ID из выгрузки</th><th class="num">Закупка, ₸</th><th class="num">Kaspi мин., ₸*</th><th>Состояние и причина</th><th>Источники</th></tr></thead>
 <tbody>{% for item in srr_rows %}
 <tr>
 <td><strong>{{ item.offer.brand }} {{ item.offer.article }}</strong><span class="apr-labeled">{{ item.offer.name }} · остаток {{ item.offer.stock }}</span></td>
 <td>{{ item.kaspi_id|default:"Нет данных" }}</td>
 <td class="num">{{ item.offer.cost|floatformat:0 }}</td>
+<td class="num">{% if item.kaspi_price %}{{ item.kaspi_price|floatformat:0 }}{% else %}—{% endif %}</td>
 <td><span class="apr-state">{% if item.task.status == 'pending' %}Ожидает проверки{% elif item.task.status == 'blocked' %}Проверка заблокирована{% else %}{{ item.task.get_status_display }}{% endif %}</span><span class="apr-labeled">{{ item.task.reason }}</span></td>
-<td>{% if item.offer.supplier_url %}<a href="{{ item.offer.supplier_url }}" target="_blank" rel="noopener noreferrer">Omega</a>{% else %}Ссылка отсутствует{% endif %}</td>
+<td class="links">{% if item.has_source_snapshot %}
+<a href="{% url 'procurement:comparison' item.offer.pk %}?apify_source={{ srr_source|urlencode }}&amp;next={{ request.path|urlencode }}">Подробнее</a> ·
+<a href="{{ item.kaspi_url }}" target="_blank" rel="noopener noreferrer">Kaspi</a>
+{% endif %}
+{% if item.offer.supplier_url %} · <a href="{{ item.offer.supplier_url }}" target="_blank" rel="noopener noreferrer">Omega</a>{% endif %}</td>
 </tr>
-{% empty %}<tr><td colspan="5">Открытых заданий с указанным источником нет.</td></tr>{% endfor %}
+{% empty %}<tr><td colspan="6">Открытых заданий с указанным источником нет.</td></tr>{% endfor %}
 </tbody></table></div>
+<p class="apr-sub">*Минимальная цена Kaspi — зафиксированное значение исходной выгрузки 21.11.2026, а не текущая цена. Бренд/линейка поставщика отличается от записи Kaspi; никакие из девяти позиций не утверждены для закупки. На странице «Подробнее» можно сопоставить фотографии и прикрепить скриншоты без изменения закупочных цен.</p>
 </section>
 </div>
 {% endblock %}
