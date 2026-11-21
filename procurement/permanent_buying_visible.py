@@ -18,6 +18,7 @@ from .comparison_next_fifty import NEXT_FIFTY_OFFER_IDS
 from .comparison_next_hundred import NEXT_HUNDRED_OFFER_IDS
 from .comparison_fourth_hundred import FOURTH_HUNDRED_OFFER_IDS
 from .comparison_fifth_hundred import FIFTH_HUNDRED_OFFER_IDS
+from .comparison_sixth_hundred import SIXTH_HUNDRED_OFFER_IDS
 from .models import (PermanentBuyingItem, Favorite, KaspiBuyingCandidate,
                      KaspiPreparedCard, KaspiPriceAudit, RetailListing)
 
@@ -66,6 +67,7 @@ def visible_permanent_buying_rows(request, preferences, filters):
     next_hundred = request.GET.get('batch') == 'next100'
     fourth_hundred = request.GET.get('batch') == 'next100b'
     fifth_hundred = request.GET.get('batch') == 'next100c'
+    sixth_hundred = request.GET.get('batch') == 'next100d'
     if next_fifty:
         rows = rows.filter(offer_id__in=NEXT_FIFTY_OFFER_IDS)
     elif next_hundred:
@@ -74,6 +76,8 @@ def visible_permanent_buying_rows(request, preferences, filters):
         rows = rows.filter(offer_id__in=FOURTH_HUNDRED_OFFER_IDS)
     elif fifth_hundred:
         rows = rows.filter(offer_id__in=FIFTH_HUNDRED_OFFER_IDS)
+    elif sixth_hundred:
+        rows = rows.filter(offer_id__in=SIXTH_HUNDRED_OFFER_IDS)
     # Profitable buying opens directly on products with an Apify price recheck.
     # Historical register records remain intact and accessible to maintenance
     # via the explicit legacy query parameter, not the ordinary buying screen.
@@ -154,7 +158,7 @@ def visible_permanent_buying_rows(request, preferences, filters):
     # tenge is the tie-breaker; stable ID makes pagination deterministic.
     rows = rows.order_by(Coalesce('_latest_roi', 'roi_snapshot').desc(),
                          Coalesce('_latest_profit', 'profit_snapshot').desc(), 'pk')
-    paginator = Paginator(rows, 100 if (next_hundred or fourth_hundred or fifth_hundred) else 50 if next_fifty else 40)
+    paginator = Paginator(rows, 100 if (next_hundred or fourth_hundred or fifth_hundred or sixth_hundred) else 50 if next_fifty else 40)
     page = paginator.get_page(request.GET.get('page'))
     items = list(page.object_list)
     offer_ids = [x.offer_id for x in items]
