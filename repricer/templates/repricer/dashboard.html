@@ -74,6 +74,13 @@
     Изменение наших цен в Kaspi отключено.
   </div>
 
+  <div class="repricer-status">
+    Активных Kaspi-привязок: <strong>{{ active_listing_count }}</strong>.
+    Есть сохранённые предложения: <strong>{{ collected_listing_count }}</strong> привязок.
+    Создано правил контроля цены: <strong>{{ summary.total }}</strong>.
+    {% if not summary.total %}Для расчёта рекомендаций необходимо настроить правила и минимальные допустимые цены; наличие снимков само по себе не создаёт правила.{% endif %}
+  </div>
+
   <section class="repricer-summary" aria-label="Сводка репрайсера">
     <div class="repricer-card"><strong>{{ summary.total }}</strong><span>товаров под контролем</span></div>
     <div class="repricer-card"><strong>{{ summary.lower }}</strong><span>можно снизить</span></div>
