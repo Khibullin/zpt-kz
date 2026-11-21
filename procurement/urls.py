@@ -5,6 +5,7 @@ from . import eep_comparison
 from . import comparison_views
 from . import comparison_clipboard
 from . import comparison_first_ten
+from . import comparison_next_fifty
 from . import price_update_views
 from . import selection_rule_views
 from . import selection_exports
@@ -57,6 +58,7 @@ urlpatterns = [
     path('export/', views.export, name='export'),
     path('selection/<int:pk>/remove/', views.remove, name='remove'),
     path('comparison/top-10/', comparison_first_ten.comparison_first_ten, name='comparison_first_ten'),
+    path('comparison/next-50/', comparison_next_fifty.comparison_next_fifty, name='comparison_next_fifty'),
     path('comparison/run-one/', comparison_views.run_one_comparison, name='comparison_run_one'),
     path('comparison/<int:pk>/', eep_comparison.comparison, name='comparison'),
     path('comparison/<int:pk>/paste-screenshot/', comparison_clipboard.paste_kaspi_screenshot, name='comparison_paste_screenshot'),
