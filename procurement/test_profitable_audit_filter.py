@@ -64,6 +64,13 @@ class ProfitableAuditFilterTests(TestCase):
         self.assertIn(consumable.pk, shown)
         self.assertNotIn(spring.pk, shown)
 
+    def test_profitability_percentage_is_primary_order_not_absolute_profit(self):
+        high_roi, _, _ = self.sku('HIGH_ROI', audit_roi='240.75', audit_profit='1000')
+        high_cash, _, _ = self.sku('HIGH_CASH', audit_roi='62.06', audit_profit='23000')
+        tie_cash, _, _ = self.sku('TIE_CASH', audit_roi='62.06', audit_profit='24000')
+        shown = [row['offer'].pk for row in self.result(self.source)]
+        self.assertEqual(shown, [high_roi.pk, tie_cash.pk, high_cash.pk])
+
     def test_selected_export_cannot_fall_back_to_other_export_price(self):
         offer, _, _ = self.sku('RECHECK', audit_roi='30', audit_profit='3000')
         KaspiPriceAudit.objects.create(
