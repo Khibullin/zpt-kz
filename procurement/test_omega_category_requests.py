@@ -45,11 +45,11 @@ class OmegaCategoryRequestTests(TestCase):
     def setUp(self):
         self.client.force_login(self.user)
 
-    def test_compact_two_column_picker_shows_previously_selected_first(self):
+    def test_compact_three_column_picker_shows_previously_selected_first(self):
         page = self.client.get(reverse('procurement:selection_rules'))
         self.assertEqual(page.status_code, 200)
         self.assertContains(page, 'omega-category-grid')
-        self.assertContains(page, 'grid-template-columns:repeat(2,minmax(0,1fr))')
+        self.assertContains(page, 'grid-template-columns:repeat(3,minmax(0,1fr))')
         self.assertContains(page, 'omega-category-counts')
         self.assertContains(page, 'omega-category-history')
         categories = page.context['omega_categories']
@@ -150,7 +150,7 @@ class OmegaCategoryRequestTests(TestCase):
         self.assertEqual(export.status_code, 200)
         data = json.loads(export.content)
         self.assertEqual(len(data['searchQueries']), 3)
-        self.assertEqual(data['cities'][-1], '391010000')
+        self.assertEqual(data['cities'], ['Almaty'])
         mapping = self.client.get(reverse('procurement:selection_apify_json'),
                                   {'request_id': first.pk, 'batch': 1, 'format': 'mapping'})
         self.assertEqual(mapping.status_code, 200)
