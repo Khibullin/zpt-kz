@@ -53,6 +53,27 @@ from .comparison_screenshot_ai import (recognize_screenshots, article_agrees,
 MAX_IMAGE_BYTES = 500_000
 MAX_SHOTS = 3
 
+def append_screenshot_evidence(existing, encoded):
+    """Add new evidence; revoke stale verification only when the set changes.
+
+    Returning the untouched snapshot for an identical repeated paste avoids
+    misleading audit timestamps and duplicate writes.
+    """
+    shots = [s for s in existing.get('manual_screenshots', [])
+             if isinstance(s, str) and s.startswith('data:image/jpeg;base64,')]
+    if encoded in shots:
+        return existing, False
+    if len(shots) >= MAX_SHOTS:
+        raise ValueError('Для пробной карточки доступно до 3 скриншотов.')
+    updated = {**existing, 'manual_screenshots': shots + [encoded]}
+    updated.pop('manual_confirmed_at', None)
+    updated.pop('manual_confirmed_by', None)
+    if updated.get('photo_origin') == 'cropped_from_manual_screenshot':
+        updated.pop('images', None)
+        updated.pop('photo_origin', None)
+    return updated, True
+
+
 
 def _is_selected_card(offer, source_file, product_id):
     """Only attach screenshot evidence to the selected authoritative card.
@@ -136,22 +157,20 @@ def paste_kaspi_screenshot(request, pk):
             defaults={'supplier_url': offer.supplier_url or '',
                       'kaspi_url': url or (record.kaspi_url if record else '')})
         existing = material.kaspi_data if isinstance(material.kaspi_data, dict) else {}
-        shots = [s for s in existing.get('manual_screenshots', []) if isinstance(s, str)]
-        # Recompression can change bytes; digest exact saved JPEG to avoid repeated paste.
-        if encoded not in shots:
-            if len(shots) >= MAX_SHOTS:
-                return JsonResponse({'error': 'Для пробной карточки доступно до 3 скриншотов.'}, status=400)
-            shots.append(encoded)
-        updated = {**existing, 'manual_screenshots': shots}
-        if updated.get('photo_origin') == 'cropped_from_manual_screenshot' and len(shots) != len(existing.get('manual_screenshots', [])):
-            updated.pop('images', None)
-            updated.pop('photo_origin', None)
-        material.kaspi_data = updated
-        material.kaspi_status = 'manual_pending'
-        material.kaspi_error = ''
-        material.save(update_fields=['kaspi_data', 'kaspi_status', 'kaspi_error', 'checked_at'])
-    return JsonResponse({'ok': True, 'count': len(shots), 'image': encoded,
-                         'message': 'Скриншот сохранён. Характеристики требуют подтверждения.'})
+        try:
+            updated, changed = append_screenshot_evidence(existing, encoded)
+        except ValueError as exc:
+            return JsonResponse({'error': str(exc)}, status=400)
+        # Repeated paste is idempotent: it must not revoke a previous review,
+        # change checked_at, or overwrite the prior manual confirmation.
+        if changed:
+            material.kaspi_data = updated
+            material.kaspi_status = 'manual_pending'
+            material.kaspi_error = ''
+            material.save(update_fields=['kaspi_data', 'kaspi_status', 'kaspi_error', 'checked_at'])
+    return JsonResponse({'ok': True, 'count': len(updated['manual_screenshots']), 'image': encoded,
+                         'message': ('Скриншот сохранён. Характеристики требуют подтверждения.'
+                                     if changed else 'Этот скриншот уже сохранён.')})
 
 
 def _target(request, pk):
