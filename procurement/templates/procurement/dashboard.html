@@ -145,11 +145,11 @@
 <div class="buying-compact-product">
   {% if row.display_photo_url %}<img class="buying-thumb" src="{{ row.display_photo_url }}" width="56" height="56" loading="lazy" alt="Фото товара">{% else %}<span class="buying-thumb buying-no-photo">Нет фото</span>{% endif %}
   <div class="buying-compact-desc">
-    {% if row.offer.brand|upper == 'EEP' and row.offer.article|upper == '59A200068' %}<span class="buying-title">{{ row.offer.name }}</span>{% else %}<a class="buying-title" href="{% url 'procurement:detail' row.offer.pk %}">{{ row.offer.name }}</a>{% endif %}
+    <a class="buying-title" href="{% url 'procurement:comparison' row.offer.pk %}?next={{ request.get_full_path|urlencode }}{% if request.GET.apify_source %}&amp;apify_source={{ request.GET.apify_source|urlencode }}{% endif %}">{{ row.offer.name }}</a>
     <span class="buying-code">{{ row.offer.brand }} · {{ row.offer.article }}</span>
     {% if row.candidate and row.candidate.title %}<span class="buying-card-title" title="{{ row.candidate.title }}">Kaspi: {{ row.candidate.title }}</span>{% endif %}
     <div class="buying-inline-links">
-      {% if not row.offer.brand|upper == 'EEP' or not row.offer.article|upper == '59A200068' %}{% if row.candidate and row.candidate.url %}<a href="{{ row.candidate.url }}" target="_blank" rel="noopener noreferrer">Kaspi</a>{% elif row.offer.kaspi_url %}<a href="{{ row.offer.kaspi_url }}" target="_blank" rel="noopener noreferrer">Kaspi</a>{% endif %}{% endif %}
+      
       {% if row.audit_file %}
       {% if row.apify_change_status == 'first' %}<span class="buying-recheck-tag">Первая проверка</span>
       {% elif row.apify_change_status == 'changed' %}<span class="buying-recheck-tag buying-price-changed">Цена обновлена</span>
@@ -159,18 +159,7 @@
     </div>
   </div>
 </div>
-{% if row.offer.brand|upper == 'EEP' and row.offer.article|upper == '59A200068' %}<a class="eep-comparison-link" href="{% url 'procurement:eep_comparison' %}?next={{ request.get_full_path|urlencode }}{% if request.GET.apify_source %}&amp;apify_source={{ request.GET.apify_source|urlencode }}{% endif %}">Подробнее</a>{% else %}<details class="product-evidence buying-row-details"><summary>Подробнее</summary>
-<div class="buying-evidence-text">
-<p><strong>{{ row.price_evidence_status }}</strong></p>
-<p>{{ row.best_status }}{% if row.audit_file %} · {{ row.audit_observed_at|date:'d.m.Y H:i' }}{% endif %}</p>
-{% if row.audit_file %}<p>Выгрузка: {{ row.audit_file }}{% if row.apify_previous_audit_price != None %} · Цена предыдущей проверки Apify: {{ row.apify_previous_audit_price|floatformat:0 }} ₸{% endif %} · Прежняя цена Kaspi: {{ row.previous_kaspi_price|floatformat:0 }} ₸ · Прежняя прибыль: {{ row.previous_profit|floatformat:2 }} ₸</p>{% endif %}
-<p>Остаток Omega: {{ row.offer.stock|default:'неизвестен' }} · Дата прайса: {{ row.display_supplier_date|date:'d.m.Y'|default:'нет данных' }} · Дата Kaspi: {{ row.display_kaspi_date|date:'d.m.Y'|default:'нет данных' }}</p>
-<p>Продавцов в исходной карточке: {% if row.candidate %}{{ row.candidate.seller_count|default_if_none:'нет данных' }}{% else %}нет данных{% endif %} · Применимость и комплектность требуют проверки.</p>
-<p>Цена и прибыль — расчёт по сохранённой выгрузке, не гарантия текущего предложения.</p>
-<p>Комиссия: {{ row.commission_amount|floatformat:2 }} ₸ · Расходы: {{ row.expenses|floatformat:2 }} ₸ · После комиссии: {{ row.kaspi_after_commission|floatformat:2 }} ₸</p>
-{% include 'procurement/fitments.html' with offer=row.offer compact=True fitments=row.offer.compact_fitments %}
-</div>
-</details>{% endif %}
+<a class="eep-comparison-link" href="{% url 'procurement:comparison' row.offer.pk %}?next={{ request.get_full_path|urlencode }}{% if request.GET.apify_source %}&amp;apify_source={{ request.GET.apify_source|urlencode }}{% endif %}">Подробнее</a>
 {% else %}
 <a href="{% url 'procurement:detail' row.offer.pk %}"><strong>{{ row.offer.name }}</strong></a>
 <small>{{ row.offer.brand }} · {{ row.offer.article }}</small>
