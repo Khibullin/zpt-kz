@@ -129,6 +129,7 @@
     {% csrf_token %}
     <input type="hidden" name="apify_source" value="{{ apify_selected_source }}">
     <button type="submit" class="button">Обработать следующие 50 товаров</button>
+    <button type="button" class="button" id="compare-retry-first-50">Заново обработать первые 50</button>
     <span id="compare-batch-progress" role="status" aria-live="polite"></span>
   </form>
 </div>
@@ -137,6 +138,28 @@
  const form=document.getElementById('compare-batch-form');if(!form)return;
  const button=form.querySelector('button');
  const progress=document.getElementById('compare-batch-progress');
+ const retry=document.getElementById('compare-retry-first-50');
+ if(retry)retry.addEventListener('click',async function(){
+  button.disabled=true;retry.disabled=true;
+  const data=new FormData(form);let ok=0,partial=0,missing=0,failed=0;
+  try {
+   for(let position=0;position<50;position++){
+    progress.textContent='Повторная обработка позиции '+(position+1)+' из 50…';
+    data.set('retry_position',String(position));
+    try {
+     const response=await fetch(form.action,{method:'POST',body:data,credentials:'same-origin'});
+     if(!response.ok)throw new Error('HTTP '+response.status);
+     const result=await response.json();
+     ok+=result.complete||0;partial+=result.partial||0;missing+=result.no_kaspi_identity||0;
+    } catch(error) {
+     failed++;progress.textContent='Позиция '+(position+1)+': '+error.message;
+    }
+   }
+   progress.textContent='Проверено 50 позиций: обе карточки доступны — '+ok+
+   ', неполные — '+partial+', нет точной Kaspi — '+missing+
+   ', ошибок запуска — '+failed+'.';
+  } finally {button.disabled=false;retry.disabled=false;}
+ });
  form.addEventListener('submit',async function(event){
   event.preventDefault();button.disabled=true;
   let complete=0,partial=0,errors=0,examined=0;
