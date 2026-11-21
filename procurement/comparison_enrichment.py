@@ -87,6 +87,15 @@ def enrich_one(record, *, force=False, source_filename=''):
     else:
         source, product_id, kaspi_url = '', record.product_id, record.kaspi_url
     if not product_id or not kaspi_url or _identifier(kaspi_url) != product_id:
+        material, _ = BuyingComparisonMaterial.objects.get_or_create(
+            offer=offer, source_filename=source, kaspi_product_id=product_id,
+            defaults={'supplier_url': offer.supplier_url or '', 'kaspi_url': kaspi_url},
+        )
+        material.kaspi_status = 'missing_source'
+        material.kaspi_error = 'Для минимальной цены нет точной карточки Kaspi'
+        material.supplier_status = 'missing_source'
+        material.supplier_error = 'Не выполнялось: карточка Kaspi не определена'
+        material.save(update_fields=['kaspi_status', 'kaspi_error', 'supplier_status', 'supplier_error', 'checked_at'])
         return 'no_kaspi_identity'
     material, _ = BuyingComparisonMaterial.objects.get_or_create(
         offer=offer, source_filename=source, kaspi_product_id=product_id,
@@ -162,7 +171,7 @@ def batch(limit=50, *, force=False, source_filename=''):
             break
         source = record.chosen_source or ''
         pid = record.chosen_product or ''
-        if not source or not pid:
+        if not source:
             continue
         if not force and BuyingComparisonMaterial.objects.filter(
                 offer_id=record.offer_id, source_filename=source, kaspi_product_id=pid,
