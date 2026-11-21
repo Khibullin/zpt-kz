@@ -128,6 +128,9 @@ def enrich_one(record, *, force=False, source_filename=''):
             result = _extract(url, offer.brand, offer.article,
                               product_id=product_id if kind == 'kaspi' else '')
         except Exception as exc:
+            if kind == 'kaspi' and getattr(material, status_key) == 'manual_verified':
+                # A remote 429 must not erase or downgrade verified screenshot evidence.
+                continue
             setattr(material, status_key, 'unavailable')
             setattr(material, error_key, str(exc)[:250])
             changes.extend([status_key, error_key])
