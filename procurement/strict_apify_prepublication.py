@@ -122,7 +122,7 @@ def select_minimum_seller_quotes(rows, target_skus, *, allowed_categories=SUPPOR
         # Without a structured primary SKU, fail closed for analogue/
         # replacement listings and send them to manual identity review.
         slug = urlsplit(str(row.get('url') or '')).path.rstrip('/').rsplit('/', 1)[-1]
-        if (re.search(r'(?i)(?:\\bаналог(?:и|ов)?\\b|\\bзамена\\b|\\banalog(?:ue|s)?\\b|\\breplacement\\b)', title)
+        if (re.search(r'(?i)(?:\bаналог(?:и|ов)?\b|\bзамена\b|\banalog(?:ue|s)?\b|\breplacement\b)', title)
                 or re.search(r'(?i)(?:^|-)(?:analog(?:ue|s)?|replacement|analogi?|zamena)(?:-|$)', slug)):
             continue
         articles = allowed.intersection(_title_tokens(title))
