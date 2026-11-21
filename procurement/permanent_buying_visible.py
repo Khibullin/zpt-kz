@@ -41,10 +41,20 @@ def apify_source_summary(source, supplier=None):
         offer_id=OuterRef('offer_id'), pk__lt=OuterRef('pk')
     ).order_by('-pk')
     audits = audits.annotate(_prev_price=Subquery(previous.values('min_price')[:1]))
-    counts = {'first': 0, 'changed': 0, 'unchanged': 0, 'total': 0}
-    for price, prior in audits.values_list('min_price', '_prev_price').iterator(chunk_size=1000):
+    counts = {'first': 0, 'changed': 0, 'unchanged': 0, 'total': 0,
+              'eligible': 0, 'excluded': 0}
+    for price, prior, roi, cost, name, category in audits.values_list(
+            'min_price', '_prev_price', 'roi', 'cost_snapshot',
+            'offer__name', 'offer__category').iterator(chunk_size=1000):
         counts['total'] += 1
         counts['first' if prior is None else 'changed' if price != prior else 'unchanged'] += 1
+        part = ' '.join((name or '', category or '')).casefold()
+        consumable = is_consumable(name, category)
+        eligible = ('пружин' not in part and 'spring' not in part and
+                    roi >= MIN_PROFITABLE_ROI and
+                    cost >= (MIN_CONSUMABLE_COST if consumable else MIN_PROFITABLE_COST) and
+                    (consumable or cost > MIN_PROFITABLE_COST))
+        counts['eligible' if eligible else 'excluded'] += 1
     return counts
 
 
