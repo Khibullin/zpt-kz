@@ -639,22 +639,48 @@ document.addEventListener('DOMContentLoaded',function(){
     <div class="rule-hint"><strong>Требует уточнения по годам: {{ year_unknown }}</strong> позиций после остальных фильтров. Отсутствующий год выпуска или неподтверждённая применимость не подменяются предположениями. Эти товары не удаляются из прайс-листа.<p style="margin:8px 0 0">Классификация по наименованию предварительная: неизвестные категории и применимость требуют дальнейшей проверки. Сохранение фильтра не запускает Kaspi, не изменяет исходные цены и не удаляет товары.</p></div>
   </form>
 </details>
+<style>
+.apify-export-controls{display:flex;align-items:flex-end;gap:20px;flex-wrap:wrap;margin:12px 0;padding:12px 14px;border:1px solid #dbe7f2;border-radius:10px;background:#f8fafc}
+.apify-export-controls fieldset{border:0;margin:0;padding:0;flex:1 1 430px}
+.apify-city-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:9px}
+.apify-city-grid label{display:flex;align-items:center;gap:6px;font-size:13px}
+.apify-export-controls select{display:block;min-width:105px;margin-top:7px}
+@media(max-width:600px){.apify-city-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style>
 <section class="rule-card step-card" aria-labelledby="apify-step-title">
   <div class="step-heading policy-heading"><div class="step-heading-main"><span class="step-number">2</span><div><h2 id="apify-step-title">Подготовка для Apify</h2><p class="muted">Поиск по бренду и артикулу. Запуск вручную в Apify, без изменения товаров на сайте.</p></div></div>
-  <details class="step-policy" id="rules-apify" open>
-    <summary>Правила Apify</summary>
-    <div class="step-policy-content">
-      <ol>
-        <li><strong>Источник:</strong> Omega, в наличии, закупочная цена от 2 000 ₸ включительно.</li>
-        <li><strong>Поиск:</strong> бренд + полный артикул; Алматы; релевантность; до 10 карточек на запрос.</li>
-        <li><strong>Продавцы:</strong> все предложения; отзывы отключены.</li>
-        <li><strong>Совпадение:</strong> только точный бренд и артикул; посторонние карточки исключаются.</li>
-        <li><strong>Цена Kaspi:</strong> минимум из подтверждённых предложений продавцов подходящих карточек. Порог 2 000 ₸ относится к закупке Omega, не к Kaspi.</li>
-        <li><strong>Партии:</strong> до 500 запросов, без повторного сбора; лимит до $10 на запуск — вручную в Apify.</li>
-        <li><strong>Результат:</strong> JSON → «Выгодные к закупке»; характеристики Kaspi — отдельный этап.</li>
-      </ol>
-    </div>
+  <details class="step-policy" id="rules-apify">
+    <summary>Правила</summary>
+    <div class="step-policy-content"><ol>
+      <li><strong>Поиск — бренд и полный артикул.</strong></li>
+      <li><strong>Города — 6 городов, выбор галочками.</strong></li>
+      <li><strong>Карточки Kaspi — от 1 до 5 на запрос, по умолчанию 2.</strong></li>
+      <li><strong>Продавцы — все доступные предложения.</strong></li>
+      <li><strong>Отзывы — не загружать.</strong></li>
+      <li><strong>Партия JSON — до 500 запросов.</strong></li>
+      <li><strong>Дубли запросов — исключать.</strong></li>
+      <li><strong>Лимит Apify — до $10 на запуск, вручную.</strong></li>
+      <li><strong>Результат — JSON для поиска и проверки цен Kaspi.</strong></li>
+    </ol></div>
   </details>
+  </div>
+  <div class="apify-export-controls" id="apify-export-controls">
+    <fieldset><legend><strong>Города поиска</strong></legend>
+      <div class="apify-city-grid">
+        <label><input type="checkbox" name="city" value="Almaty" checked> Алматы</label>
+        <label><input type="checkbox" name="city" value="Astana" checked> Астана</label>
+        <label><input type="checkbox" name="city" value="Shymkent" checked> Шымкент</label>
+        <label><input type="checkbox" name="city" value="Karaganda" checked> Караганда</label>
+        <label><input type="checkbox" name="city" value="Aktobe" checked> Актобе</label>
+        <label><input type="checkbox" name="city" value="Atyrau" checked> Атырау</label>
+      </div>
+    </fieldset>
+    <label for="apify-export-cards"><strong>Карточек Kaspi на запрос</strong>
+      <select id="apify-export-cards" name="cards">
+        <option value="1">1</option><option value="2" selected>2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+      </select>
+    </label>
+    <p id="apify-export-error" class="rule-errors" role="alert" hidden>Выберите хотя бы один город.</p>
   </div>
   <div class="step-line">
     {% if just_saved_request %}
@@ -667,7 +693,32 @@ document.addEventListener('DOMContentLoaded',function(){
       <span>Сначала выберите товары в блоке №1 и сохраните запрос. Файлы прошлых запросов доступны в «Истории запросов».</span>
     {% endif %}
   </div>
-  <p class="muted" style="margin:5px 0 0;font-size:12px">JSON: <code>cities=["Almaty"]</code> · <code>maxItemsPerQuery=10</code> · <code>includeOffers=true</code> · <code>maxOffersPerProduct=0</code> · <code>includeReviews=false</code>. Внешний Actor не гарантирует ценовой фильтр Kaspi; неподтверждённые цены исключаются.</p>
+  <script>
+  (function(){
+    var controls=document.getElementById('apify-export-controls');
+    if(!controls)return;
+    var error=document.getElementById('apify-export-error');
+    var cards=controls.querySelector('#apify-export-cards');
+    var links=document.querySelectorAll('a[href*="selection_apify_json"]');
+    function configuredHref(href){
+      var url=new URL(href,window.location.href);
+      url.searchParams.delete('city');
+      controls.querySelectorAll('input[name="city"]:checked').forEach(function(box){url.searchParams.append('city',box.value);});
+      url.searchParams.set('cards',cards.value);
+      return url.toString();
+    }
+    links.forEach(function(link){
+      var original=link.href;
+      link.addEventListener('click',function(event){
+        if(!controls.querySelector('input[name="city"]:checked')){
+          event.preventDefault();error.hidden=false;controls.scrollIntoView({behavior:'smooth',block:'center'});return;
+        }
+        error.hidden=true;
+        link.href=configuredHref(original);
+      });
+    });
+  })();
+  </script>
 </section>
 
 <section class="rule-card step-card" aria-labelledby="buying-step-title">
