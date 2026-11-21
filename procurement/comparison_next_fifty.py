@@ -60,6 +60,7 @@ def comparison_next_fifty(request):
             'price': offer.chosen_price, 'roi': offer.chosen_roi,
             'profit': offer.chosen_profit, 'checked_at': offer.chosen_checked,
             'supplier_ready': supplier_status == 'complete',
+            'supplier_snapshot': supplier_status == 'local_snapshot',
             'status': status, 'screenshots': len(screenshots),
             'url': reverse('procurement:comparison', args=[offer.pk]),
         })
@@ -68,6 +69,7 @@ def comparison_next_fifty(request):
         context(request, items=items,
                 total=len(items),
                 supplier_ready=sum(1 for item in items if item['supplier_ready']),
-                supplier_pending=sum(1 for item in items if not item['supplier_ready']),
+                supplier_snapshot=sum(1 for item in items if item['supplier_snapshot']),
+                supplier_pending=sum(1 for item in items if not item['supplier_ready'] and not item['supplier_snapshot']),
                 title='Следующие 50 выгодных — Подробности Omega / Kaspi'),
     )
