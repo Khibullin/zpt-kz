@@ -5,6 +5,7 @@ No Kaspi request or Apify run is made by these endpoints.
 import json
 import re
 from datetime import date
+from decimal import Decimal
 from io import BytesIO
 
 from django.http import HttpResponse, JsonResponse
@@ -17,14 +18,16 @@ from .selection_rule_views import _stock_filter, _group_filter, matching_years
 from .views import access
 
 JSON_BATCH_SIZE = 500
-APIFY_CITIES = ['Almaty', 'Astana', 'Shymkent', 'Karaganda', 'Aktobe', '391010000']
+APIFY_CITIES = ['Almaty']
+APIFY_MIN_SUPPLIER_COST = Decimal('2000')
+APIFY_MAX_ITEMS_PER_QUERY = 10
 
 
 def filtered_offers(rule):
     """Use exactly the same criteria as the saved preview, without mutating offers."""
     # Temporary Omega-only working scope; preserve other supplier records for audited cleanup.
     rows = Offer.objects.filter(supplier__name='Omega')
-    rows = rows.filter(cost__gte=rule.min_cost)
+    rows = rows.filter(cost__gte=max(rule.min_cost, APIFY_MIN_SUPPLIER_COST))
     if rule.in_stock_only:
         rows = rows.filter(_stock_filter())
     rows = rows.filter(_group_filter(rule.category_groups, rule.classification_mode))
@@ -107,6 +110,8 @@ def selection_apify_json(request):
         from .omega_selection_requests import REQUEST_ACTION, request_queries
         try:
             saved = get_object_or_404(Activity, pk=int(saved_id), action=REQUEST_ACTION)
+            if Decimal(str(saved.details.get('min_cost', 0))) < APIFY_MIN_SUPPLIER_COST:
+                return JsonResponse({'error': 'Порог закупки в сохранённом запросе ниже 2 000 ₸. Для Apify создайте запрос с минимумом 2 000 ₸.'}, status=400)
             mapping = request_queries(saved)
         except (ValueError, TypeError, KeyError):
             return JsonResponse({'error': 'Некорректный запрос.'}, status=400)
@@ -123,9 +128,9 @@ def selection_apify_json(request):
         payload = {
             'searchQueries': [row['query'] for row in rows],
             'cities': APIFY_CITIES,
-            'sortOrder': 'price-asc',
+            'sortOrder': 'relevance',
             'maxItems': 0,
-            'maxItemsPerQuery': 0,
+            'maxItemsPerQuery': APIFY_MAX_ITEMS_PER_QUERY,
             'includeOffers': True,
             'maxOffersPerProduct': 0,
             'includeReviews': False,
