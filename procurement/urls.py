@@ -2,6 +2,7 @@ from django.urls import path
 from django.contrib.auth.views import LogoutView
 from . import views
 from . import eep_comparison
+from . import apify_review
 from . import comparison_views
 from . import comparison_clipboard
 from . import comparison_first_ten
@@ -57,6 +58,7 @@ urlpatterns = [
     path('purchases/<int:pk>/documents/<int:document_id>/', views.purchase_document, name='purchase_document'),
     path('export/', views.export, name='export'),
     path('selection/<int:pk>/remove/', views.remove, name='remove'),
+    path('apify-review/', apify_review.apify_review, name='apify_review'),
     path('comparison/top-10/', comparison_first_ten.comparison_first_ten, name='comparison_first_ten'),
     path('comparison/next-50/', comparison_next_fifty.comparison_next_fifty, name='comparison_next_fifty'),
     path('comparison/run-one/', comparison_views.run_one_comparison, name='comparison_run_one'),
