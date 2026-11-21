@@ -6,6 +6,14 @@
 .eep-paste-zone:focus{outline:2px solid #0c9e93}.eep-paste-zone strong{display:block;font-size:13px}.eep-paste-zone small{color:#536477}.eep-paste-zone.busy{opacity:.65;pointer-events:none}
 .eep-pasted{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}.eep-pasted img{height:92px;max-width:140px;object-fit:contain;border:1px solid #dce3eb;border-radius:5px}
 .eep-paste-status{margin:5px 0;font-size:12px;color:#3e5d70}
+.eep-ai-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px}
+.eep-ai-actions button{padding:7px 11px;min-height:34px}
+.eep-ai-review{margin-top:12px;padding:10px;border:1px solid #d5e4ed;border-radius:8px;background:#f8fbff}
+.eep-ai-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:9px}
+.eep-ai-field{display:grid;gap:3px;font-size:11px;font-weight:600}
+.eep-ai-field textarea{width:100%;box-sizing:border-box;min-height:34px;border:1px solid #cdd8e3;border-radius:5px;padding:5px;font:inherit;resize:vertical;background:white}
+@media(max-width:650px){.eep-ai-grid{grid-template-columns:1fr}}
+
 
 @media(max-width:650px){.eep-sources,.eep-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:7px}.eep-source{padding:9px}.eep-source h2{font-size:1rem}.eep-img,.eep-missing{height:155px}.eep-cell{padding:9px;font-size:.88rem}.eep-label{margin-top:14px}.eep-top h1{font-size:1.3rem}}
 </style>
@@ -31,6 +39,29 @@
  <div class="eep-pasted" id="eep-pasted">{% for screenshot in manual_screenshots %}<img src="{{ screenshot }}" alt="Сохранённый скриншот Kaspi {{ forloop.counter }}">{% endfor %}</div>
  <p class="eep-paste-status" id="eep-paste-status" role="status">Снимки сохраняются к этому товару; сведения Omega и цена не изменяются.</p>
  <form id="eep-paste-form" action="{% url 'procurement:comparison_paste_screenshot' offer.pk %}" method="post" hidden>{% csrf_token %}</form>
+ <div class="eep-ai-actions" id="eep-ai-actions">
+  <button type="button" class="button primary" id="eep-ai-recognize" {% if not manual_screenshots %}disabled{% endif %}>Распознать и заполнить</button>
+  <span class="eep-muted" style="font-size:12px">Распознавание использует ИИ; перед сохранением проверьте значения.</span>
+ </div>
+ <div class="eep-ai-review" id="eep-ai-review" hidden>
+  <strong>Проверка данных Kaspi</strong>
+  <p class="eep-muted">Распознано со скриншотов. Исправьте ошибки; подтвердите только совпадающие бренд и артикул.</p>
+  <div class="eep-ai-grid">  <label class="eep-ai-field"><span>Наименование</span><textarea name="name" rows="1" maxlength="350"></textarea></label>
+  <label class="eep-ai-field"><span>Бренд</span><textarea name="brand" rows="1" maxlength="350"></textarea></label>
+  <label class="eep-ai-field"><span>Артикул</span><textarea name="article" rows="1" maxlength="350"></textarea></label>
+  <label class="eep-ai-field"><span>Категория</span><textarea name="category" rows="1" maxlength="350"></textarea></label>
+  <label class="eep-ai-field"><span>Описание</span><textarea name="description" rows="2" maxlength="1600"></textarea></label>
+  <label class="eep-ai-field"><span>Характеристики</span><textarea name="specs" rows="2" maxlength="1600"></textarea></label>
+  <label class="eep-ai-field"><span>Применимость</span><textarea name="fitment" rows="2" maxlength="1600"></textarea></label>
+  <label class="eep-ai-field"><span>Комплектность</span><textarea name="package" rows="1" maxlength="350"></textarea></label>
+  <label class="eep-ai-field"><span>OEM</span><textarea name="oem" rows="1" maxlength="350"></textarea></label>
+  <label class="eep-ai-field"><span>Аналоги</span><textarea name="analogs" rows="1" maxlength="350"></textarea></label>
+  <label class="eep-ai-field"><span>Цена на скриншоте (не цена Apify)</span><textarea name="screenshot_price" rows="1" maxlength="350"></textarea></label></div>
+  <div class="eep-ai-actions"><button type="button" class="button primary" id="eep-ai-confirm">Подтвердить и сохранить</button></div>
+ </div>
+ <form id="eep-ai-recognize-form" action="{% url 'procurement:comparison_recognize_screenshots' offer.pk %}" method="post" hidden>{% csrf_token %}</form>
+ <form id="eep-ai-confirm-form" action="{% url 'procurement:comparison_confirm_screenshots' offer.pk %}" method="post" hidden>{% csrf_token %}</form>
+
 {% endif %}
  {% if material and material.kaspi_status == "unavailable" %}<p class="eep-muted" role="status">Данные Kaspi не загружены автоматически: {{ material.kaspi_error }}</p>{% elif material and material.kaspi_status == "manual_verified" %}<p class="eep-muted" role="status">Характеристики сверены по предоставленному снимку страницы Kaspi. Автоматический доступ ограничен (HTTP 429).</p>{% endif %}</section>
 </div>
@@ -109,6 +140,54 @@
     const item=[...(event.clipboardData?.items||[])].find(i=>i.type.startsWith('image/'));
     if(item){event.preventDefault();const file=item.getAsFile();if(file)send(file);}
     else show('В буфере нет изображения.');
+  });
+  const recognizeButton=document.getElementById('eep-ai-recognize');
+  const confirmButton=document.getElementById('eep-ai-confirm');
+  const review=document.getElementById('eep-ai-review');
+  const recognizeForm=document.getElementById('eep-ai-recognize-form');
+  const confirmForm=document.getElementById('eep-ai-confirm-form');
+  const source='{{ comparison_source|escapejs }}';
+  const productId='{{ selected_product_id|escapejs }}';
+  const token=form.querySelector('input[name=csrfmiddlewaretoken]').value;
+  function postBody(extra){
+    const data=new FormData();
+    data.append('csrfmiddlewaretoken',token);
+    data.append('source_file',source);
+    data.append('product_id',productId);
+    for(const [key,value] of Object.entries(extra||{}))data.append(key,value);
+    return data;
+  }
+  recognizeButton?.addEventListener('click',async()=>{
+    recognizeButton.disabled=true;
+    show('Распознаём сохранённые скриншоты…');
+    try{
+      const response=await fetch(recognizeForm.action,{method:'POST',body:postBody({}),credentials:'same-origin'});
+      const result=await response.json();
+      if(!response.ok)throw Error(result.error||'Не удалось распознать скриншоты.');
+      for(const field of review.querySelectorAll('[name]')){
+        field.value=result.fields[field.name]||'';
+      }
+      review.hidden=false;
+      if(!result.article_matches||!result.brand_matches){
+        show('Проверьте бренд и артикул: они отличаются или не видны на снимке. Автоматически не подтверждены.');
+      }else{show('Поля распознаны. Проверьте и нажмите «Подтвердить и сохранить».');}
+    }catch(err){show(err.message||'Ошибка распознавания.');}
+    finally{recognizeButton.disabled=false;}
+  });
+  confirmButton?.addEventListener('click',async()=>{
+    const fields={};
+    for(const field of review.querySelectorAll('[name]'))fields[field.name]=field.value;
+    if(!fields.brand||!fields.article){
+      show('Заполните и проверьте бренд и артикул перед подтверждением.');return;
+    }
+    confirmButton.disabled=true;
+    try{
+      const response=await fetch(confirmForm.action,{method:'POST',body:postBody(fields),credentials:'same-origin'});
+      const result=await response.json();
+      if(!response.ok)throw Error(result.error||'Ошибка сохранения.');
+      show(result.message||'Сохранено.');window.location.reload();
+    }catch(err){show(err.message||'Не удалось сохранить.');}
+    finally{confirmButton.disabled=false;}
   });
   // Ctrl+V anywhere on the card, except editable form controls, also works.
   document.addEventListener('paste',event=>{
