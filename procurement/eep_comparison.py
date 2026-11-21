@@ -131,12 +131,15 @@ def _comparison_impl(request, pk):
     # exact Apify export has an audit; it is NOT admitted to PermanentBuyingItem.
     review_only = not bool(record)
     srr_snapshot = srr_review_snapshot(offer, source_file)
-    if srr_snapshot and request.procurement_role not in ('sales', 'admin'):
-        return render(request, 'procurement/access_denied.html', status=403)
     apify_second_review = (source_file == review_source and
                            KaspiPriceAudit.objects.filter(
                                offer=offer, source_filename=source_file,
                                identity_status='needs_review', roi__gte=50).exists())
+    # Both unverified export review flows are staff-only, even when an offer
+    # also has an older buying-register entry. Do not disclose review evidence
+    # through the generic workspace user's comparison detail URL.
+    if (srr_snapshot or apify_second_review) and request.procurement_role not in ('sales', 'admin'):
+        return render(request, 'procurement/access_denied.html', status=403)
     if review_only and not (apify_second_review or srr_snapshot):
         from django.http import Http404
         raise Http404('Товар не прошёл проверку или отсутствует в закупочном реестре.')
@@ -278,7 +281,7 @@ def _comparison_impl(request, pk):
                           kaspi_checked_at=kaspi_checked_at,
                           kaspi_price_stale=kaspi_price_stale,
                           material=material, manual_screenshots=manual_screenshots,
-                          review_only=(review_only or bool(srr_snapshot)),
+                          review_only=(review_only or bool(srr_snapshot) or apify_second_review),
                           apify_second_review=apify_second_review,
                           apify_srr_review=bool(srr_snapshot),
                           clipboard_pilot=(bool(srr_snapshot) or bool(audit and audit.source_filename in (
