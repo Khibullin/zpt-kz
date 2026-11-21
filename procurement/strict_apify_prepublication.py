@@ -11,7 +11,7 @@ import re
 SUPPORTED_CATEGORIES = frozenset({
     'Shock absorbers', 'Suspension spring', 'Drive elements', 'Brake discs',
     'Suspension arms and rods', 'Shock absorber support',
-    'Steering elements', 'Anti Roll Bars',
+    'Steering elements', 'Anti Roll Bars', 'Brake pads', 'Ball joints',
 })
 
 
@@ -86,6 +86,14 @@ def select_minimum_seller_quotes(rows, target_skus, *, allowed_categories=SUPPOR
             continue
         sellers = row.get('offers')
         if not isinstance(sellers, list) or not sellers:
+            continue
+        # A partial sellers array cannot prove the lowest quoted price.
+        # Do not silently treat a truncated list as a complete comparison.
+        claimed_count = row.get('sellersCount')
+        if (claimed_count is not None
+                and (isinstance(claimed_count, bool)
+                     or not str(claimed_count).isdigit()
+                     or int(claimed_count) > len(sellers))):
             continue
         # A broken or unidentified seller offer makes the claimed minimum
         # incomplete. Do not silently discard it and accept a higher quote.
