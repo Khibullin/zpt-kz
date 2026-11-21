@@ -1,7 +1,7 @@
 from django.contrib.admin.views.decorators import staff_member_required
 from django.db.models import OuterRef, Subquery
 from django.conf import settings
-from .competitor_display import competitor_fresh_minutes
+from .competitor_display import competitor_fresh_minutes, competitor_states_for_listings, overlay_unresolved_mapping
 from django.utils import timezone
 from datetime import timedelta
 from django.shortcuts import render
@@ -60,11 +60,26 @@ def repricer_dashboard(request):
     collected_listing_count = public_snapshots.values("listing_id").distinct().count()
     city_id = str(getattr(settings, "KASPI_REPRICER_CITY_ID", "") or "750000000")
 
+    listings = list(
+        ProductKaspiListing.objects.filter(is_active=True)
+        .select_related("product").order_by("product__article", "id")
+    )
+    states = competitor_states_for_listings([listing.pk for listing in listings])
+    monitored = []
+    for listing in listings:
+        state = overlay_unresolved_mapping(
+            states[listing.pk], listing.master_sku or "",
+            merchant_sku=listing.merchant_sku or "",
+            public_url=listing.public_url or "",
+        )
+        monitored.append({"listing": listing, "state": state})
+
     response = render(
         request,
         "repricer/dashboard.html",
         {
             "rules": rules,
+            "monitored": monitored,
             "summary": summary,
             "own_merchant_configured": bool(own_ids or own_names),
             "public_snapshot_count": public_snapshots.count(),
