@@ -221,3 +221,38 @@ class KaspiRepricerRecommendation(models.Model):
     def __str__(self):
         article = self.listing.product.article or f"product-{self.listing.product_id}"
         return f"{article}: {self.current_price} → {self.recommended_price} ₸"
+
+
+class KaspiManualCollectionRun(models.Model):
+    """Browser-driven, resumable manual collection; never changes product prices."""
+
+    class Status(models.TextChoices):
+        RUNNING = "running", "В процессе"
+        DONE = "done", "Завершено"
+        STOPPED = "stopped", "Остановлено"
+
+    created_by = models.ForeignKey(
+        "auth.User", on_delete=models.SET_NULL, null=True, blank=True,
+        related_name="kaspi_manual_collections",
+    )
+    city_ids = models.JSONField("Города", default=list)
+    listing_ids = models.JSONField("Kaspi-привязки", default=list)
+    status = models.CharField("Состояние", max_length=12, choices=Status.choices, default=Status.RUNNING)
+    next_index = models.PositiveIntegerField("Следующее задание", default=0)
+    saved_offers = models.PositiveIntegerField("Предложений сохранено", default=0)
+    empty_count = models.PositiveIntegerField("Без предложений", default=0)
+    skipped_count = models.PositiveIntegerField("Без привязки", default=0)
+    error_count = models.PositiveIntegerField("Ошибок", default=0)
+    last_error = models.CharField("Последняя ошибка", max_length=500, blank=True)
+    started_at = models.DateTimeField("Начато", auto_now_add=True)
+    updated_at = models.DateTimeField("Обновлено", auto_now=True)
+    finished_at = models.DateTimeField("Завершено", null=True, blank=True)
+
+    class Meta:
+        ordering = ("-started_at",)
+        verbose_name = "Ручной сбор предложений Kaspi"
+        verbose_name_plural = "Ручные сборы предложений Kaspi"
+
+    @property
+    def total(self):
+        return len(self.city_ids) * len(self.listing_ids)
