@@ -14,6 +14,7 @@ from .comparison_next_hundred import NEXT_HUNDRED_OFFER_IDS
 from .comparison_fourth_hundred import FOURTH_HUNDRED_OFFER_IDS
 from .comparison_fifth_hundred import FIFTH_HUNDRED_OFFER_IDS
 from .comparison_sixth_hundred import SIXTH_HUNDRED_OFFER_IDS
+from .comparison_seventh_hundred import SEVENTH_HUNDRED_OFFER_IDS
 
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
@@ -223,7 +224,9 @@ def _comparison_impl(request, pk):
                           material=material, manual_screenshots=manual_screenshots,
                           clipboard_pilot=(offer.pk in FIRST_TEN_OFFER_IDS or offer.pk in NEXT_FIFTY_OFFER_IDS or
                                            offer.pk in NEXT_HUNDRED_OFFER_IDS or offer.pk in FOURTH_HUNDRED_OFFER_IDS or
-                                           offer.pk in FIFTH_HUNDRED_OFFER_IDS or offer.pk in SIXTH_HUNDRED_OFFER_IDS),
+                                           offer.pk in FIFTH_HUNDRED_OFFER_IDS or offer.pk in SIXTH_HUNDRED_OFFER_IDS or
+                                           offer.pk in SEVENTH_HUNDRED_OFFER_IDS),
+                          comparison_in_seventh_hundred=(offer.pk in SEVENTH_HUNDRED_OFFER_IDS),
                           comparison_in_sixth_hundred=(offer.pk in SIXTH_HUNDRED_OFFER_IDS),
                           comparison_in_fifth_hundred=(offer.pk in FIFTH_HUNDRED_OFFER_IDS),
                           comparison_in_fourth_hundred=(offer.pk in FOURTH_HUNDRED_OFFER_IDS),
