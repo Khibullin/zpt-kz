@@ -519,7 +519,7 @@ document.addEventListener('DOMContentLoaded',function(){
         все пружины исключены. Чистая доходность для рекомендации к закупке — не ниже 50%.
         Порог применяется к товару, а не к названию загруженного файла.</p>
         <ol>
-          <li><strong>Загрузка и партии.</strong> Принимать JSON результатов Apify до 50 МБ и 50 000 карточек,
+          <li><strong>Загрузка и партии.</strong> Принимать JSON результатов Apify до 200 МБ и 50 000 карточек,
           обрабатывать последовательно по 500 исходных строк. Запоминать прогресс и продолжать
           с последней законченной партии после сбоя. Повторная загрузка завершённого файла
           допускается после исправления алгоритма, без перезаписи старой истории.</li>
@@ -641,7 +641,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </section>
 
 {% load static %}
-<script src="{% static 'procurement/js/apify_upload.js' %}?v=20261121-fix2" defer></script>
+<script src="{% static 'procurement/js/apify_upload.js' %}?v=20261121-200mb" defer></script>
 <script>
 (function () {
   const form = document.getElementById('apify-batch-form');
