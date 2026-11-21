@@ -534,18 +534,17 @@ document.addEventListener('DOMContentLoaded',function(){
 </details>
 <section class="rule-card step-card" aria-labelledby="apify-step-title">
   <div class="step-heading policy-heading"><div class="step-heading-main"><span class="step-number">2</span><div><h2 id="apify-step-title">Подготовка для Apify</h2><p class="muted">Поиск по бренду и артикулу. Запуск вручную в Apify, без изменения товаров на сайте.</p></div></div>
-  <details class="step-policy" id="rules-apify">
-    <summary>Правила</summary>
+  <details class="step-policy" id="rules-apify" open>
+    <summary>Правила Apify</summary>
     <div class="step-policy-content">
-      <h3>Правила подготовки и ручного запуска Apify</h3>
       <ol>
-        <li><strong>Исходные товары.</strong> Сначала сохраните запрос в блоке №1. Используйте его JSON-партии и файлы соответствия из истории запросов, не смешивая разные запросы.</li>
-        <li><strong>Поиск.</strong> По бренду и полному артикулу, без автоматического подтверждения товара по одному поисковому запросу. Чужие артикулы и бренды на этапе №3 отбрасываются.</li>
-        <li><strong>Города и объём.</strong> Формируемый JSON содержит только Алматы и не более 10 результатов на один поисковый запрос. Поиск сортируется по релевантности, а не по цене случайных товаров.</li>
-        <li><strong>Продавцы и цены.</strong> В файл попадают только товары из сохранённого отбора с закупочной ценой поставщика от 2 000 ₸ включительно. В самом Actor Firsthand нет подтверждённого входного поля минимальной цены Kaspi: он может вернуть посторонние дешёвые карточки, которые нельзя учитывать. Минимум цен рассчитывается только после точной проверки бренда и артикула и по фактическим предложениям продавцов; отзывы выключены.</li>
-        <li><strong>Расходы.</strong> Запуск выполняется вручную в Apify; перед ним установите и проверьте бюджет. Для партии из 500 перед запуском установите Maximum cost per run не выше $10. Этот лимит задаётся в Apify вручную, а не внутри JSON.</li>
-        <li><strong>Экономия.</strong> По возможности не повторяйте уже собранные артикулы и не заказывайте избыточные города или дублирующиеся карточки. Проверку цен по другим городам выполняйте отдельно для отобранных товаров.</li>
-        <li><strong>Результат.</strong> По завершении экспортируйте JSON Apify и загрузите его в блок №3. Подготовка не меняет товары и цены в ZPT.KZ.</li>
+        <li><strong>Источник:</strong> Omega, в наличии, закупочная цена от 2 000 ₸ включительно.</li>
+        <li><strong>Поиск:</strong> бренд + полный артикул; Алматы; релевантность; до 10 карточек на запрос.</li>
+        <li><strong>Продавцы:</strong> все предложения; отзывы отключены.</li>
+        <li><strong>Совпадение:</strong> только точный бренд и артикул; посторонние карточки исключаются.</li>
+        <li><strong>Цена Kaspi:</strong> минимум из подтверждённых предложений продавцов подходящих карточек. Порог 2 000 ₸ относится к закупке Omega, не к Kaspi.</li>
+        <li><strong>Партии:</strong> до 500 запросов, без повторного сбора; лимит до $10 на запуск — вручную в Apify.</li>
+        <li><strong>Результат:</strong> JSON → «Выгодные к закупке»; характеристики Kaspi — отдельный этап.</li>
       </ol>
     </div>
   </details>
@@ -561,23 +560,7 @@ document.addEventListener('DOMContentLoaded',function(){
       <span>Сначала выберите товары в блоке №1 и сохраните запрос. Файлы прошлых запросов доступны в «Истории запросов».</span>
     {% endif %}
   </div>
-  <div class="apify-settings">
-    <strong>Параметры ручного запуска Apify</strong>
-    <div class="apify-settings-grid">
-      <span><strong>Закупочная цена Omega: от 2 000 ₸ включительно</strong></span>
-      <span>Город: Алматы</span>
-      <span>Сортировка: по релевантности (relevance)</span>
-      <span>До 10 карточек на один запрос</span>
-      <span>Предложения продавцов: все</span>
-      <span>Отзывы: выключены</span>
-      <span>Proxy: Residential, Kazakhstan</span>
-      <span>Build: latest</span>
-      <span>Memory: 256 MB</span>
-      <span>Timeout: без ограничения (контролируйте запуск)</span>
-      <span>Лимит стоимости партии: $10, установите вручную</span>
-    </div>
-    <p class="muted" style="margin:9px 0 0">Важно: 2 000 ₸ — обязательный фильтр <strong>закупочной цены поставщика до экспорта</strong>, а не неподдерживаемый фильтр цены выдачи Kaspi. Firsthand может вернуть дешёвые чужие карточки; они не являются совпадениями и не должны попадать в расчёты. При отсутствии точного артикула и реальных предложений продавцов цена товара не подтверждена. Не запускайте повторно уже обработанные запросы без сверки.</p>
-  </div>
+  <p class="muted" style="margin:5px 0 0;font-size:12px">JSON: <code>cities=["Almaty"]</code> · <code>maxItemsPerQuery=10</code> · <code>includeOffers=true</code> · <code>maxOffersPerProduct=0</code> · <code>includeReviews=false</code>. Внешний Actor не гарантирует ценовой фильтр Kaspi; неподтверждённые цены исключаются.</p>
 </section>
 
 <section class="rule-card step-card" aria-labelledby="buying-step-title">
