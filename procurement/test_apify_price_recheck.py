@@ -53,18 +53,16 @@ class ApifyMultiCardRecheckTests(TestCase):
                        if offers is None else offers),
         }
 
-    def test_leading_zero_article_across_batches_selects_lower_seller_price(self):
+    def test_leading_zero_is_a_different_full_article(self):
         self.send([self.card('175080373', '51331', 145000)])
         result = self.send([self.card('168038942', '051331', 78000)])
         audit = KaspiPriceAudit.objects.get(offer=self.offer)
-        self.assertEqual(result['recheck_matched_cards'], 1)
-        self.assertEqual(audit.min_price, Decimal('78000'))
-        self.assertEqual(audit.roi, Decimal('27.7859'))
-        self.assertEqual(audit.product_id, '168038942')
-        self.assertEqual(len(audit.card_ids), 2)
+        self.assertEqual(result['recheck_matched_cards'], 0)
+        self.assertEqual(audit.min_price, Decimal('145000'))
+        self.assertEqual(audit.product_id, '175080373')
+        self.assertEqual(len(audit.card_ids), 1)
         self.old.refresh_from_db()
         self.assertEqual(self.old.kaspi_price_snapshot, Decimal('145000'))
-        self.assertEqual(self.old.profit_snapshot, Decimal('73411'))
         self.offer.refresh_from_db()
         self.assertEqual(self.offer.cost, Decimal('53214'))
         self.assertEqual(Selection.objects.get(
@@ -127,7 +125,7 @@ class ApifyMultiCardRecheckTests(TestCase):
 
     def test_separate_files_preserve_independent_price_snapshots(self):
         self.send([self.card('777777777', '51331', 145000)], 'early.json')
-        self.send([self.card('888888888', '051331', 78000)], 'later.json')
+        self.send([self.card('888888888', '51331', 78000)], 'later.json')
         self.assertEqual(KaspiPriceAudit.objects.count(), 2)
         self.assertEqual(KaspiPriceAudit.objects.get(
             source_filename='early.json').min_price, Decimal('145000'))
@@ -142,6 +140,37 @@ class ApifyMultiCardRecheckTests(TestCase):
         self.assertEqual(len(KaspiPriceAudit.objects.get(
             offer=self.offer).card_ids), 1)
         self.assertFalse(KaspiBuyingCandidate.objects.exists())
+
+
+    def test_springs_are_permitted_with_inclusive_2000_cost(self):
+        spring = Offer.objects.create(
+            supplier=self.omega, brand='TESTSPR', article='SPR-001',
+            name='Пружина подвески', category='Пружины',
+            cost=Decimal('2000'), stock='2')
+        data = self.card('188888888', 'SPR-001', 4000,
+                         brand='TESTSPR', query='TESTSPR SPR-001')
+        data['title'] = 'TESTSPR пружина SPR-001 1 шт'
+        self.send([data])
+        audit = KaspiPriceAudit.objects.get(offer=spring)
+        self.assertEqual(audit.min_price, Decimal('4000'))
+        self.assertEqual(audit.roi, Decimal('62.5000'))
+
+    def test_below_2000_cost_cannot_enter_new_recheck(self):
+        cheap = Offer.objects.create(
+            supplier=self.omega, brand='TESTSPR', article='SPR-002',
+            name='Пружина подвески', category='Пружины',
+            cost=Decimal('1999'), stock='5')
+        data = self.card('188888889', 'SPR-002', 5000,
+                         brand='TESTSPR', query='TESTSPR SPR-002')
+        data['title'] = 'TESTSPR пружина SPR-002 1 шт'
+        self.send([data])
+        self.assertFalse(KaspiPriceAudit.objects.filter(offer=cheap).exists())
+
+    def test_unknown_kaspi_stock_is_not_positive_confirmation(self):
+        data = self.card('188888890', '51331', 90000)
+        data.pop('inStock')
+        self.send([data])
+        self.assertFalse(KaspiPriceAudit.objects.exists())
 
     def test_suffix_not_merged_with_numeric_article(self):
         row = self.card('199999999', '51331-A', 100)
