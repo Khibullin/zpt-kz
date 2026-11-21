@@ -58,6 +58,7 @@ urlpatterns = [
     path('comparison/run-one/', comparison_views.run_one_comparison, name='comparison_run_one'),
     path('comparison/<int:pk>/', eep_comparison.comparison, name='comparison'),
     path('comparison/<int:pk>/paste-screenshot/', comparison_clipboard.paste_kaspi_screenshot, name='comparison_paste_screenshot'),
+    path('comparison/<int:pk>/manage-screenshot/', comparison_clipboard.manage_kaspi_screenshot, name='comparison_manage_screenshot'),
     path('comparison/<int:pk>/recognize-screenshots/', comparison_clipboard.recognize_kaspi_screenshots, name='comparison_recognize_screenshots'),
     path('comparison/<int:pk>/confirm-screenshots/', comparison_clipboard.confirm_kaspi_screenshots, name='comparison_confirm_screenshots'),
     path('comparison/eep-59a200068/', eep_comparison.eep_comparison, name='eep_comparison'),
