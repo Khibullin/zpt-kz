@@ -12,6 +12,7 @@ from .cities import KASPI_KZ_CITIES
 from .models import (
     KaspiCompetitorIngestBatch,
     KaspiCompetitorOfferSnapshot,
+    KaspiManualCollectionRun,
     KaspiRepricerRecommendation,
     KaspiRepricerRule,
 )
@@ -115,6 +116,8 @@ def repricer_dashboard(request):
             "fresh_minutes": fresh_minutes,
             "collector_city_id": city_id,
             "city_coverage": city_coverage,
+            "collection_cities": KASPI_KZ_CITIES,
+            "manual_run": KaspiManualCollectionRun.objects.filter(created_by=request.user).first(),
             "city_total": len(KASPI_KZ_CITIES),
             "covered_city_count": covered_city_count,
             "cityless_legacy_count": cityless_legacy_count,
