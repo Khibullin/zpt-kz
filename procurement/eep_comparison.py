@@ -4,6 +4,8 @@ Use the same Apify price-audit card selected by the visible buying list.
 Never infer missing product attributes from a price-only export.
 """
 from urllib.parse import urlsplit
+import re
+from .comparison_first_ten import FIRST_TEN_OFFER_IDS
 
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
@@ -92,10 +94,15 @@ def comparison(request, pk):
     title = ((audit.card_title if audit else "") or
              (candidate.title if candidate else "") or
              _first(kaspi_source, "title") or _first(firsthand, "kaspi_title"))
+    # Only expose identity visibly present as whole tokens in the exact selected
+    # Kaspi card title; this is a preliminary transcription, not verification.
+    title_tokens = set(re.findall(r'[^\\W_]+(?:[-/.][^\\W_]+)*', title.casefold(), re.UNICODE))
+    title_brand = offer.brand if offer.brand.casefold() in title_tokens else ''
+    title_article = offer.article if offer.article.casefold() in title_tokens else ''
     kaspi_data = {
         "name": title,
-        "brand": _first(kaspi_source, "brand") or (candidate.brand if candidate else ""),
-        "article": _first(kaspi_source, "article"),
+        "brand": _first(kaspi_source, "brand") or (candidate.brand if candidate else "") or title_brand,
+        "article": _first(kaspi_source, "article") or title_article,
         "category": _first(kaspi_source, "category"),
         "description": _first(kaspi_source, "description"),
         "specs": _first(kaspi_source, "technical_characteristics", "specifications", "specs", "characteristics"),
@@ -163,7 +170,8 @@ def comparison(request, pk):
                           kaspi_url=kaspi_url, list_url=target, selected_product_id=product_id,
                           comparison_source=source_file or (audit.source_filename if audit else ""),
                           material=material, manual_screenshots=manual_screenshots,
-                          clipboard_pilot=(offer.brand.casefold() == 'eep' and offer.article.casefold() == '15d130002'),
+                          clipboard_pilot=(offer.pk in FIRST_TEN_OFFER_IDS),
+                          comparison_first_ten_url=reverse('procurement:comparison_first_ten'),
                           title=f"{offer.brand} {offer.article} — сравнение"))
 
 
