@@ -46,14 +46,14 @@ class OmegaApifyExportTests(TestCase):
 
     def test_search_batch_size_and_complete_cities(self):
         self.assertEqual(JSON_BATCH_SIZE, 500)
-        self.assertEqual(APIFY_CITIES, ['Almaty'])
+        self.assertEqual(len(APIFY_CITIES), 6)
         self.assertNotIn('Kostanay', APIFY_CITIES)
         response = self.client.get(reverse('procurement:selection_apify_json'))
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.content)
         self.assertEqual(data['cities'], APIFY_CITIES)
         self.assertEqual(data['searchQueries'], ['SRR 085066', 'SRR 85066', 'TEST 100200'])
-        self.assertEqual(data['maxItemsPerQuery'], 10)
+        self.assertEqual(data['maxItemsPerQuery'], 2)
         self.assertEqual(data['maxItems'], 0)
         self.assertEqual(data['sortOrder'], 'relevance')
         self.assertTrue(data['includeOffers'])
@@ -75,6 +75,18 @@ class OmegaApifyExportTests(TestCase):
         self.assertIn('SRR 085066', data['searchQueries'])
         self.assertEqual(data['sortOrder'], 'relevance')
         self.assertEqual(data['maxItemsPerQuery'], 10)
+
+    def test_configurable_cities_and_cards(self):
+        response = self.client.get(reverse('procurement:selection_apify_json'),
+                                   {'city': ['Almaty', 'Astana'], 'cards': '5'})
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)
+        self.assertEqual(data['cities'], ['Almaty', 'Astana'])
+        self.assertEqual(data['maxItemsPerQuery'], 5)
+
+    def test_invalid_cards_rejected(self):
+        response = self.client.get(reverse('procurement:selection_apify_json'), {'cards': '10'})
+        self.assertEqual(response.status_code, 400)
 
     def test_traceability_and_no_data_modifications(self):
         url = reverse('procurement:selection_apify_json')
