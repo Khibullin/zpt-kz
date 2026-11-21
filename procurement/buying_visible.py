@@ -76,9 +76,7 @@ def visible_buying_rows(request, preferences, filters):
         offer__supplier__name='Omega',
 
     )
-    qs = qs.filter(buying_cost_query('offer__'), offer__stock__regex=POSITIVE_STOCK_PATTERN).exclude(profitable_product_exclusions('offer__')).exclude(
-        Q(title__icontains='пружин') | Q(title__icontains='spring')
-    )
+    qs = qs.filter(buying_cost_query('offer__'), offer__stock__regex=POSITIVE_STOCK_PATTERN).exclude(profitable_product_exclusions('offer__'))
     if offer_scope is not None:
         qs = qs.filter(offer_id__in=offer_scope)
     if supplier:
