@@ -44,15 +44,23 @@ def _article_in_slug(row, article):
 
 
 def _brand_in_card_title_and_url(row, brand):
-    """Metadata brand alone is not evidence of the product being sold.
+    """Reject a card whose title or product slug contradicts its metadata brand.
 
-    A brand present only in row['brand'] (or in the Apify search request)
-    cannot establish a supplier-to-Kaspi identity match. For unusual naming
-    or transliterated brands, fail closed and require manual confirmation.
+    Brand in Apify metadata alone is not an identity verification. Fail closed
+    on brand aliases/transliterations needing independent checking.
     """
     title = str(row.get('title') or '').casefold()
     slug = urlsplit(str(row.get('url') or '')).path.rstrip('/').rsplit('/', 1)[-1].casefold()
-    slug = re.sub(r'-\d{6,15}    try:
+    slug = re.sub(r'-\d{6,15}$', '', slug)
+    title_pattern = re.escape(brand).replace(r'\ ', r'\s+')
+    slug_pattern = re.escape(re.sub(r'\s+', '-', brand))
+    return bool(re.search(r'(?<!\w)' + title_pattern + r'(?!\w)', title)
+                and re.search(r'(?<![a-z0-9])' + slug_pattern
+                              + r'(?![a-z0-9])', slug))
+
+
+def _price(value):
+    try:
         result = Decimal(str(value))
         if result.is_finite() and result > 0:
             return result
