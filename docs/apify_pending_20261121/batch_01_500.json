@@ -7,7 +7,7 @@
   "maxItems": 0,
   "maxItemsPerQuery": 10,
   "maxOffersPerProduct": 0,
-  "sortOrder": "price-asc",
+  "sortOrder": "relevance",
   "proxyConfiguration": {
     "useApifyProxy": true,
     "apifyProxyGroups": [
