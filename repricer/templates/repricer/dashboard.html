@@ -1,7 +1,7 @@
 {% extends "office/base.html" %}
 {% load humanize %}
 
-{% block title %}Репрайсер Kaspi — ZPT.KZ{% endblock %}
+{% block title %}Контроль цен Kaspi — ZPT.KZ{% endblock %}
 
 {% block extra_head %}
 <meta name="robots" content="noindex,nofollow">
@@ -48,7 +48,7 @@
 <main class="repricer-page">
   <div class="repricer-top">
     <div>
-      <h1 class="repricer-title">Репрайсер Kaspi</h1>
+      <h1 class="repricer-title">Контроль цен Kaspi</h1>
       <p class="repricer-subtitle">Режим v1: анализ и рекомендации. Автоматическая отправка цен в Kaspi отключена.</p>
     </div>
     <a class="repricer-link" href="{% url 'admin:repricer_kaspirepricerrule_changelist' %}">Настроить правила</a>
@@ -56,16 +56,23 @@
 
   {% if own_merchant_configured %}
     <div class="repricer-status repricer-status--ok">
-      Наш продавец Kaspi идентифицирован. Публичных снимков цен: {{ public_snapshot_count }}.
+      Наш продавец Kaspi идентифицирован. Сохранённых предложений Kaspi: {{ public_snapshot_count }}. Актуальных записей за последние {{ fresh_minutes }} мин.: {{ fresh_snapshot_count }}.
       {% if latest_public_snapshot %}Последний сбор: {{ latest_public_snapshot.captured_at|date:"d.m.Y H:i" }}.{% endif %}
     </div>
   {% else %}
     <div class="repricer-status repricer-status--warning">
-      Публичных снимков цен: {{ public_snapshot_count }}.
+      Сохранённых предложений Kaspi: {{ public_snapshot_count }}. Актуальных записей за последние {{ fresh_minutes }} мин.: {{ fresh_snapshot_count }}.
       {% if latest_public_snapshot %}Последний сбор: {{ latest_public_snapshot.captured_at|date:"d.m.Y H:i" }}. {% endif %}
       Рекомендации по публичным данным заблокированы, пока не указан наш продавец через KASPI_OWN_MERCHANT_IDS или KASPI_OWN_MERCHANT_NAMES.
     </div>
   {% endif %}
+
+  <div class="repricer-status repricer-status--warning">
+    <strong>Охват цен:</strong> текущий сборщик проверяет один город за запуск (город по умолчанию — Алматы, код {{ collector_city_id }}).
+    Город предложения в сохранённых снимках не указан. Поэтому минимальную цену по всему Казахстану пока определить нельзя.
+    {% if not fresh_snapshot_count %}<strong>Нет подтверждённых свежих снимков за выбранный период.</strong>{% endif %}
+    Изменение наших цен в Kaspi отключено.
+  </div>
 
   <section class="repricer-summary" aria-label="Сводка репрайсера">
     <div class="repricer-card"><strong>{{ summary.total }}</strong><span>товаров под контролем</span></div>
