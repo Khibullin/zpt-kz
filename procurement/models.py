@@ -208,6 +208,35 @@ class PermanentBuyingItem(models.Model):
         ordering = ['-profit_snapshot', '-roi_snapshot', 'pk']
 
 
+
+class BuyingComparisonMaterial(models.Model):
+    """Source-separated, independently fetched card information, never money facts.
+
+    One record per supplier offer, Apify export and selected cheapest Kaspi card.
+    A different price export cannot silently reuse a different card's description.
+    """
+    offer = models.ForeignKey(Offer, on_delete=models.PROTECT, related_name='comparison_materials')
+    source_filename = models.CharField(max_length=255, blank=True)
+    kaspi_product_id = models.CharField(max_length=80, blank=True)
+    supplier_url = models.URLField(max_length=2048, blank=True)
+    kaspi_url = models.URLField(max_length=2048, blank=True)
+    supplier_data = models.JSONField(default=dict, blank=True)
+    kaspi_data = models.JSONField(default=dict, blank=True)
+    supplier_status = models.CharField(max_length=24, default='pending')
+    kaspi_status = models.CharField(max_length=24, default='pending')
+    supplier_error = models.CharField(max_length=250, blank=True)
+    kaspi_error = models.CharField(max_length=250, blank=True)
+    checked_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(
+            fields=['offer', 'source_filename', 'kaspi_product_id'],
+            name='proc_comparison_offer_export_card')]
+        indexes = [models.Index(fields=['offer', 'source_filename'],
+                                name='proc_cmp_offer_source')]
+
+
+
 class Selection(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     offer = models.ForeignKey(Offer, on_delete=models.PROTECT)
