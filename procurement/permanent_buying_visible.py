@@ -48,12 +48,8 @@ def apify_source_summary(source, supplier=None):
             'offer__name', 'offer__category').iterator(chunk_size=1000):
         counts['total'] += 1
         counts['first' if prior is None else 'changed' if price != prior else 'unchanged'] += 1
-        part = ' '.join((name or '', category or '')).casefold()
-        consumable = is_consumable(name, category)
-        eligible = ('пружин' not in part and 'spring' not in part and
-                    roi >= MIN_PROFITABLE_ROI and
-                    cost >= (MIN_CONSUMABLE_COST if consumable else MIN_PROFITABLE_COST) and
-                    (consumable or cost > MIN_PROFITABLE_COST))
+        eligible = (roi is not None and roi >= MIN_PROFITABLE_ROI and
+                    cost is not None and cost >= MIN_PROFITABLE_COST)
         counts['eligible' if eligible else 'excluded'] += 1
     return counts
 
@@ -107,7 +103,7 @@ def visible_permanent_buying_rows(request, preferences, filters):
     # A selected export must never borrow a more profitable audit from another
     # export or silently fall back to an unrelated historical price.
     # Historic records without a new audit remain accessible elsewhere.
-    # Exclude springs regardless of their historical admission.
+    # Springs are permitted along with all other categories.
     rows = rows.exclude(profitable_product_exclusions('offer__'))
     # Immutable money snapshots make the approved rank independent of price
     # updates. Equal profit is ordered by ROI, then stable record ID.
@@ -130,12 +126,10 @@ def visible_permanent_buying_rows(request, preferences, filters):
     legacy = Q(_latest_roi__isnull=True) if request.GET.get('rechecked') == '0' and not source else Q(pk__in=[])
     rows = rows.filter(
         (audited & Q(_latest_roi__gte=MIN_PROFITABLE_ROI) &
-         ((consumable_query('offer__') & Q(_latest_cost__gte=MIN_CONSUMABLE_COST)) |
-          (~consumable_query('offer__') & Q(_latest_cost__gt=MIN_PROFITABLE_COST))))
+         Q(_latest_cost__gte=MIN_PROFITABLE_COST))
         |
         (legacy & Q(roi_snapshot__gte=MIN_PROFITABLE_ROI) &
-         ((consumable_query('offer__') & Q(cost_snapshot__gte=MIN_CONSUMABLE_COST)) |
-          (~consumable_query('offer__') & Q(cost_snapshot__gt=MIN_PROFITABLE_COST))))
+         Q(cost_snapshot__gte=MIN_PROFITABLE_COST))
     )
     # Approved 21.11.2026: highest net percentage return first across the
     # FULL filtered queryset (not merely the current page). Net profit in
