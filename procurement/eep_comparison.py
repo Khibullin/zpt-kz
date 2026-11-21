@@ -82,7 +82,7 @@ def title_mentions_identifier(title, identifier):
     value = identifier.strip()
     if not value:
         return False
-    return re.search(r'(?<!\\w)' + re.escape(value) + r'(?!\\w)',
+    return re.search(r'(?<!\w)' + re.escape(value) + r'(?!\w)',
                      title, re.IGNORECASE | re.UNICODE) is not None
 
 
