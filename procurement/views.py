@@ -500,9 +500,22 @@ def dashboard(request):
     for row in page.object_list:
         row['in_basket'] = row['offer'].pk in selected_ids
     apify_in_best = 0
+    apify_sources = []
+    apify_selected_source = request.GET.get('apify_source', '').strip()[:255]
+    apify_summary_source = ''
+    apify_summary = None
+    if request.GET.get('mode') == 'best':
+        from .permanent_buying_visible import apify_source_options, apify_source_summary
+        apify_sources = apify_source_options()
+        available = {entry['source_filename'] for entry in apify_sources}
+        if apify_selected_source and apify_selected_source not in available:
+            apify_selected_source = ''
+        apify_summary_source = apify_selected_source or (
+            apify_sources[0]['source_filename'] if apify_sources else '')
+        apify_summary = apify_source_summary(apify_summary_source, supplier)
     # The displayed row count already comes from the paginated buying list.
     # A second count by Apify source was misleading and unnecessary.
-    response = render(request, 'procurement/dashboard.html', context(request, apify_in_best=apify_in_best, page=page, total=getattr(request, 'catalog_total', len(rows)), preferences=preferences,
+    response = render(request, 'procurement/dashboard.html', context(request, apify_in_best=apify_in_best, apify_sources=apify_sources, apify_selected_source=apify_selected_source, apify_summary_source=apify_summary_source, apify_summary=apify_summary, page=page, total=getattr(request, 'catalog_total', len(rows)), preferences=preferences,
                   commission_rate=preferences.commission.normalize() if preferences.commission is not None else None,
                   effective_expenses=max(PACKAGING_COST, preferences.expenses) if preferences.expenses is not None else None,
                   filter_form=form, preliminary=preliminary, preliminary_total=len(displayed_rows) if preliminary else 0, best_empty_reason=best_empty_reason, supplier_stats=supplier_stats, catalogue_total=(supplier_stats['loaded'] if supplier_stats else Offer.objects.count()) if request.GET.get('mode') != 'best' else None,
