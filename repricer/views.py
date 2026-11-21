@@ -8,7 +8,7 @@ from django.shortcuts import render
 
 from catalog.models import ProductKaspiListing
 
-from .cities import KASPI_KZ_CITIES
+from .cities import KASPI_KZ_CITIES, CITY_BY_ID
 from .models import (
     KaspiCompetitorIngestBatch,
     KaspiCompetitorOfferSnapshot,
@@ -86,9 +86,15 @@ def repricer_dashboard(request):
         source="office_collector", city_id=""
     ).count()
 
+    latest_city_snapshot = KaspiCompetitorOfferSnapshot.objects.filter(
+        listing_id=OuterRef("pk"),
+        source__in=("office_collector", "kaspi_public"),
+    ).order_by("-captured_at", "-pk").values("city_id")[:1]
     listings = list(
         ProductKaspiListing.objects.filter(is_active=True)
-        .select_related("product").order_by("product__article", "id")
+        .select_related("product")
+        .annotate(latest_city_id=Subquery(latest_city_snapshot))
+        .order_by("product__article", "id")
     )
     states = competitor_states_for_listings([listing.pk for listing in listings])
     monitored = []
@@ -98,7 +104,7 @@ def repricer_dashboard(request):
             merchant_sku=listing.merchant_sku or "",
             public_url=listing.public_url or "",
         )
-        monitored.append({"listing": listing, "state": state})
+        monitored.append({"listing": listing, "state": state, "city": CITY_BY_ID.get(listing.latest_city_id, "Не указан")})
 
     response = render(
         request,
