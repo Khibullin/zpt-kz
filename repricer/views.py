@@ -1,5 +1,5 @@
 from django.contrib.admin.views.decorators import staff_member_required
-from django.db.models import OuterRef, Subquery
+from django.db.models import OuterRef, Subquery, Count, Max
 from django.conf import settings
 from .competitor_display import competitor_fresh_minutes, competitor_states_for_listings, overlay_unresolved_mapping
 from django.utils import timezone
@@ -8,7 +8,9 @@ from django.shortcuts import render
 
 from catalog.models import ProductKaspiListing
 
+from .cities import KASPI_KZ_CITIES
 from .models import (
+    KaspiCompetitorIngestBatch,
     KaspiCompetitorOfferSnapshot,
     KaspiRepricerRecommendation,
     KaspiRepricerRule,
@@ -60,6 +62,29 @@ def repricer_dashboard(request):
     collected_listing_count = public_snapshots.values("listing_id").distinct().count()
     city_id = str(getattr(settings, "KASPI_REPRICER_CITY_ID", "") or "750000000")
 
+    city_summary_rows = (
+        KaspiCompetitorIngestBatch.objects
+        .filter(source="office_collector")
+        .exclude(city_id="")
+        .values("city_id")
+        .annotate(last_collected=Max("captured_at"), articles=Count("listing_id", distinct=True))
+        .order_by("city_id")
+    )
+    city_stats = {row["city_id"]: row for row in city_summary_rows}
+    city_coverage = [
+        {
+            "name": city_name,
+            "city_id": city_code,
+            "articles": city_stats.get(city_code, {}).get("articles", 0),
+            "last_collected": city_stats.get(city_code, {}).get("last_collected"),
+        }
+        for city_code, city_name in KASPI_KZ_CITIES
+    ]
+    covered_city_count = sum(1 for city in city_coverage if city["last_collected"])
+    cityless_legacy_count = KaspiCompetitorIngestBatch.objects.filter(
+        source="office_collector", city_id=""
+    ).count()
+
     listings = list(
         ProductKaspiListing.objects.filter(is_active=True)
         .select_related("product").order_by("product__article", "id")
@@ -89,6 +114,10 @@ def repricer_dashboard(request):
             "collected_listing_count": collected_listing_count,
             "fresh_minutes": fresh_minutes,
             "collector_city_id": city_id,
+            "city_coverage": city_coverage,
+            "city_total": len(KASPI_KZ_CITIES),
+            "covered_city_count": covered_city_count,
+            "cityless_legacy_count": cityless_legacy_count,
         },
     )
     response["X-Robots-Tag"] = "noindex, nofollow"
