@@ -131,6 +131,8 @@ def _comparison_impl(request, pk):
     # exact Apify export has an audit; it is NOT admitted to PermanentBuyingItem.
     review_only = not bool(record)
     srr_snapshot = srr_review_snapshot(offer, source_file)
+    if srr_snapshot and request.procurement_role not in ('sales', 'admin'):
+        return render(request, 'procurement/access_denied.html', status=403)
     apify_second_review = (source_file == review_source and
                            KaspiPriceAudit.objects.filter(
                                offer=offer, source_filename=source_file,
@@ -243,7 +245,7 @@ def _comparison_impl(request, pk):
     if apify_second_review or srr_snapshot:
         list_path = reverse("procurement:apify_review")
     if parsed.scheme or parsed.netloc or parsed.path != list_path:
-        target = list_path if apify_second_review else list_path + "?mode=best"
+        target = list_path if apify_second_review or srr_snapshot else list_path + "?mode=best"
     kaspi_url = ((audit.card_url if audit else "") or
                  (srr_snapshot["url"] if srr_snapshot else "") or
                  (candidate.url if candidate else "") or
