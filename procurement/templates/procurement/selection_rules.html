@@ -167,7 +167,13 @@
     </div>
     <div class="omega-category-tools">
       <label for="omega-category-search"><strong>Категории поставщика</strong> <span class="muted">({{ omega_categories|length }})</span></label>
-      <input id="omega-category-search" type="search" placeholder="Поиск категории или номера запроса" autocomplete="off">
+      <input id="omega-category-search" type="search" placeholder="Поиск категории или № запроса" autocomplete="off">
+      <label class="omega-history-filter-label" for="omega-history-filter">Показать:</label>
+      <select id="omega-history-filter" class="omega-history-filter" aria-label="Фильтр ранее выбранных категорий">
+        <option value="all">Все категории</option>
+        <option value="new">Только новые</option>
+        <option value="old">Ранее выбранные</option>
+      </select>
       <button type="button" id="omega-select-all">Выбрать все</button>
       <button type="button" id="omega-clear-all">Снять выбор</button>
     </div>
@@ -179,14 +185,14 @@
             <input type="checkbox" class="omega-group-checkbox"
                    aria-label="Выбрать все категории группы {{ group.name }}">
             <strong class="omega-group-name">{{ group.name }}</strong>
-            <span class="omega-group-count"><b data-group-chosen>0</b> / {{ group.total }}</span>
-            {% if group.previous %}<span class="omega-group-previous" title="Категорий было выбрано в предыдущих запросах">Ранее: {{ group.previous }}</span>{% endif %}
+            <span class="omega-group-count" title="Категорий выбрано сейчас из общего количества">Выбрано: <b data-group-chosen>0</b> из {{ group.total }}</span>
+            {% if group.previous %}<span class="omega-group-previous" title="Категорий было выбрано в предыдущих запросах">Ранее: {{ group.previous }} кат.</span>{% endif %}
             <span class="omega-group-arrow" aria-hidden="true">▸</span>
           </summary>
           <div class="omega-group-body">
             {% for section in group.sections %}
               <details class="omega-subgroup" data-name="{{ section.name|lower }}">
-                <summary class="omega-subgroup-heading"><strong>{{ section.name }}</strong><span class="omega-subgroup-count"><b data-subgroup-chosen>0</b> / {{ section.categories|length }}</span></summary>
+                <summary class="omega-subgroup-heading"><strong>{{ section.name }}</strong><span class="omega-subgroup-count" title="Категорий выбрано сейчас">Выбрано: <b data-subgroup-chosen>0</b> из {{ section.categories|length }}</span></summary>
                 <div class="omega-group-items">
                   {% for category in section.categories %}
                     {% include 'procurement/omega_category_choice.html' %}
@@ -205,7 +211,7 @@
         </details>
       {% endfor %}
     </div>
-    <p class="muted omega-category-legend">Сначала откройте группу. Числа у детали: всего / в наличии / от 2 000 ₸. Галочка группы выбирает все её категории; номера №1, №2 показывают предыдущие запросы.</p>
+    <p class="muted omega-category-legend">Жёлтые строки — категории, уже выбранные в прежних запросах (№1, №2 и т. д.). Числа справа: всего / в наличии / от 2 000 ₸. Галочка группы выбирает все категории группы.</p>
     <div class="omega-pick-result" id="omega-live-result" aria-live="polite" hidden>
       <span>Выбрано категорий: <strong id="omega-selected-count">0</strong></span>
       <span>Подходящих товаров: <strong id="omega-result-products">0</strong></span>
@@ -333,28 +339,37 @@
 @media(max-width:840px){.omega-upload-row{grid-template-columns:1fr 1fr}.omega-condition-row{grid-template-columns:1fr 1fr}.omega-stock-option{grid-column:1/-1}}
 @media(max-width:520px){.omega-upload-row,.omega-condition-row{grid-template-columns:1fr}.omega-rules-link{margin-left:0}}
 /* Classification is view-only: original Omega subgroups remain the checkbox values. */
-.omega-group-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;max-height:430px;align-content:start}
+.omega-group-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;max-height:460px;align-content:start}
 .omega-group{border:1px solid #d6e3ee;border-radius:8px;background:#fff;min-width:0;overflow:hidden}
 .omega-group[hidden],.omega-subgroup[hidden],.omega-category-row[hidden]{display:none!important}
-.omega-group-heading{display:flex;align-items:center;gap:7px;padding:9px 10px;cursor:pointer;list-style:none;min-height:39px}
+.omega-group-heading{display:flex;align-items:center;flex-wrap:wrap;gap:4px 6px;padding:6px 7px;cursor:pointer;list-style:none;min-height:34px}
 .omega-group-heading::-webkit-details-marker,.omega-subgroup-heading::-webkit-details-marker{display:none}
 .omega-group-heading:focus-visible,.omega-subgroup-heading:focus-visible{outline:2px solid #0c9e93;outline-offset:-2px}
 .omega-group-checkbox{height:16px;width:16px;flex:0 0 16px;margin:0;accent-color:#09978c;cursor:pointer}
 .omega-group-name{font-size:13px;flex:1;min-width:0}
-.omega-group-count{font-variant-numeric:tabular-nums;white-space:nowrap;font-size:12px;font-weight:700}
+.omega-group-count{font-variant-numeric:tabular-nums;white-space:nowrap;font-size:10px;font-weight:600;color:#536477}
 .omega-group-previous{font-size:10px;padding:2px 5px;border-radius:5px;background:#fff2cd;color:#775b0b;white-space:nowrap}
 .omega-group-arrow{font-size:13px;transition:transform .12s}
 .omega-group[open]>.omega-group-heading .omega-group-arrow{transform:rotate(90deg)}
 .omega-group[open]>.omega-group-heading{border-bottom:1px solid #dce7ef;background:#f4f8fc}
-.omega-group-body{padding:6px;display:grid;gap:4px}
+.omega-group-body{padding:4px;display:grid;gap:3px}
 .omega-group-items{display:grid;gap:3px}
-.omega-group .omega-category-row{margin:0;min-height:27px}
+.omega-group .omega-category-row{margin:0;min-height:25px;padding:2px 4px;font-size:11px;gap:4px}
 .omega-subgroup{border:1px solid #e4eaf1;border-radius:6px}
-.omega-subgroup-heading{display:flex;justify-content:space-between;gap:8px;padding:7px 9px;font-size:12px;cursor:pointer;list-style:none;background:#f9fbfd}
+.omega-subgroup-heading{display:flex;justify-content:space-between;align-items:center;gap:4px;padding:5px 6px;font-size:11px;cursor:pointer;list-style:none;background:#f9fbfd}
 .omega-subgroup[open]>.omega-subgroup-heading{background:#edf5fa}
-.omega-subgroup .omega-group-items{padding:4px 5px}
+.omega-subgroup .omega-group-items{padding:3px 4px}
 .omega-subgroup-count{font-variant-numeric:tabular-nums;white-space:nowrap}
-@media(max-width:800px){.omega-group-grid{grid-template-columns:1fr;max-height:415px}}
+.omega-category-tools .omega-history-filter-label{font-size:12px;margin:0;color:#475569}
+.omega-category-tools .omega-history-filter{width:auto;min-width:150px;max-width:175px;min-height:32px;padding:4px 6px;font-size:12px;border:1px solid #cbd5e1;border-radius:5px;background:#fff}
+.omega-group-grid .omega-category-row.omega-used{background:#fff1c2;border-color:#e8d38d}
+.omega-group-grid .omega-category-row.omega-used:has(input:checked){background:#e8f7f0;border-color:#80cdb8}
+.omega-group-grid .omega-used-badge{background:#f5dc8b;color:#5b4300;font-size:10px;font-weight:700}
+.omega-group-grid .omega-category-history{flex-wrap:wrap}
+.omega-group-grid .omega-category-counts{font-size:10px}
+.omega-group-grid .omega-subgroup-count{font-size:10px;white-space:nowrap;color:#64748b;font-weight:500}
+@media(max-width:1080px){.omega-group-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){.omega-group-grid{grid-template-columns:1fr;max-height:415px}.omega-category-tools .omega-history-filter{min-width:130px}}
 </style>
 <script>
 document.addEventListener('DOMContentLoaded',function(){
@@ -410,25 +425,33 @@ document.addEventListener('DOMContentLoaded',function(){
     rows.forEach(r=>r.querySelector('input').checked=false);
     updateGroupCounts();invalidate();
   };
-  search.addEventListener('input',()=>{
+  const historyFilter=document.getElementById('omega-history-filter');
+  const applyCategoryFilter=()=>{
     const key=search.value.trim().toLocaleLowerCase();
+    const mode=historyFilter.value;
     groups.forEach(group=>{
       const groupMatch=!!key&&group.dataset.name.includes(key);
       group.querySelectorAll('.omega-subgroup').forEach(sub=>{
         const subMatch=!!key&&sub.dataset.name.includes(key);
         sub.querySelectorAll('.omega-category-row').forEach(row=>{
-          row.hidden=!!key&&!groupMatch&&!subMatch&&!row.dataset.search.includes(key);
+          const historyMatch=mode==='all'||(mode==='old'?row.dataset.previous==='1':row.dataset.previous!=='1');
+          const textMatch=!key||groupMatch||subMatch||row.dataset.search.includes(key);
+          row.hidden=!(historyMatch&&textMatch);
         });
-        sub.hidden=!!key&&!groupMatch&&!subMatch&&![...sub.querySelectorAll('.omega-category-row')].some(row=>!row.hidden);
-        if(key&&!sub.hidden)sub.open=true;
+        sub.hidden=![...sub.querySelectorAll('.omega-category-row')].some(row=>!row.hidden);
+        if((key||mode!=='all')&&!sub.hidden)sub.open=true;
       });
       group.querySelectorAll('.omega-group-body > .omega-group-items > .omega-category-row').forEach(row=>{
-        row.hidden=!!key&&!groupMatch&&!row.dataset.search.includes(key);
+        const historyMatch=mode==='all'||(mode==='old'?row.dataset.previous==='1':row.dataset.previous!=='1');
+        const textMatch=!key||groupMatch||row.dataset.search.includes(key);
+        row.hidden=!(historyMatch&&textMatch);
       });
-      group.hidden=!!key&&!groupMatch&&![...group.querySelectorAll('.omega-category-row')].some(row=>!row.hidden);
-      if(key&&!group.hidden)group.open=true;
+      group.hidden=![...group.querySelectorAll('.omega-category-row')].some(row=>!row.hidden);
+      if((key||mode!=='all')&&!group.hidden)group.open=true;
     });
-  });
+  };
+  search.addEventListener('input',applyCategoryFilter);
+  historyFilter.addEventListener('change',applyCategoryFilter);
   document.getElementById('omega-select-all').addEventListener('click',()=>{
     rows.filter(r=>!r.hidden&&!r.closest('.omega-group[hidden]')&&!r.closest('.omega-subgroup[hidden]')).forEach(r=>r.querySelector('input').checked=true);
     updateGroupCounts();invalidate();
