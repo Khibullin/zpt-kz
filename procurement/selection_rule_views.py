@@ -100,6 +100,7 @@ def _omega_selection_fingerprint(post):
         'price': str(post.get('omega_min_cost', '')).strip(),
         'age': str(post.get('omega_max_vehicle_age', '')).strip(),
         'stock': str(post.get('omega_in_stock_only', '')).strip(),
+        'exclude_springs': str(post.get('omega_exclude_springs', '')).strip(),
     }
     return sha256(json.dumps(criteria, sort_keys=True, ensure_ascii=False).encode('utf-8')).hexdigest()
 
@@ -227,6 +228,7 @@ def selection_rules(request):
                 minimum=request.POST.get('omega_min_cost', '2000'),
                 max_vehicle_age=request.POST.get('omega_max_vehicle_age', '20'),
                 in_stock_only=(request.POST.get('omega_in_stock_only') == 'on' if request.POST.get('omega_stock_submitted') else True),
+                exclude_springs=(request.POST.get('omega_exclude_springs') == 'on'),
             )
             request.session['omega_confirmed_preview'] = _omega_selection_fingerprint(request.POST)
             return JsonResponse(result)
@@ -245,6 +247,7 @@ def selection_rules(request):
                 minimum=request.POST.get('omega_min_cost', '2000'),
                 max_vehicle_age=request.POST.get('omega_max_vehicle_age', '20'),
                 in_stock_only=(request.POST.get('omega_in_stock_only') == 'on' if request.POST.get('omega_stock_submitted') else True),
+                exclude_springs=(request.POST.get('omega_exclude_springs') == 'on'),
                 user=request.user,
             )
         except (ValidationError, ValueError, TypeError, PriceUpdate.DoesNotExist) as error:
