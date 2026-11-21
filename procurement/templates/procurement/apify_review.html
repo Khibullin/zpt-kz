@@ -1,0 +1,41 @@
+{% extends 'procurement/base.html' %}
+{% block content %}
+<style>
+.apr-wrap{max-width:1320px;margin:auto}
+.apr-sub{color:#52667a;font-size:13px;line-height:1.5}
+.apr-scroll{overflow-x:auto;margin-top:14px}
+.apr-table{width:100%;border-collapse:collapse;font-size:13px}
+.apr-table th,.apr-table td{padding:9px 8px;border-bottom:1px solid #dde5ed;text-align:left;vertical-align:top}
+.apr-table th{background:#f3f6f8;position:sticky;top:0}
+.apr-table .num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.apr-table .links{white-space:nowrap}
+.apr-table a{color:#075f92}
+.apr-state{font-size:12px;display:block;color:#845312}
+.apr-labeled{display:block;font-size:11px;color:#667b8b;margin-top:3px}
+.apr-shield{margin:14px 0;padding:12px;border:1px solid #d7e1e8;background:#f8fafc;border-radius:8px}
+</style>
+<div class="apr-wrap">
+<h1>Apify — вторая выгрузка на проверке</h1>
+<p class="apr-sub">Источник: {{ source_file }}. Показаны только товары с совпадением текстовых бренда и артикула, количеством 1 шт., положительным остатком Omega и расчётной доходностью не менее 50% по минимальной цене среди найденных карточек. Это <strong>не подтверждение исполнения товара</strong> и не публикация в «Выгодные к закупке».</p>
+<div class="apr-shield"><strong>Состояние: {{ rows|length }} потенциально выгодных артикулов, все требуют проверки.</strong> Прибыль: минимальная цена продавца Kaspi × 0,875 − закупочная цена Omega − 250 ₸. Снимок данных от 21.11.2026; изменения цен после этой даты не учитываются. Скриншоты и применимость в карточках сравнения требуют независимой проверки.</div>
+<div class="apr-scroll"><table class="apr-table">
+<thead><tr><th>Товар Omega</th><th>Состояние проверки</th><th class="num">Закупка, ₸</th><th class="num">Kaspi мин., ₸</th><th class="num">Прибыль, ₸</th><th class="num">ROI</th><th>Источники</th></tr></thead>
+<tbody>
+{% for row in rows %}
+<tr>
+<td><strong>{{ row.offer.brand }} {{ row.offer.article }}</strong><span class="apr-labeled">{{ row.offer.name }} · остаток {{ row.offer.stock }}</span></td>
+<td><span class="apr-state">{% if row.task %}{% if row.task.status == 'blocked' %}Kaspi ограничил автоматический доступ{% elif row.task.status == 'pending' %}Ожидает проверки{% else %}{{ row.task.get_status_display }}{% endif %}{% else %}Ожидает проверки{% endif %}</span><span class="apr-labeled">Соответствие исполнения не подтверждено</span></td>
+<td class="num">{{ row.audit.cost_snapshot|floatformat:0 }}</td>
+<td class="num">{{ row.audit.min_price|floatformat:0 }}</td>
+<td class="num">{{ row.audit.profit|floatformat:0 }}</td>
+<td class="num"><strong>{{ row.audit.roi|floatformat:2 }}%</strong></td>
+<td class="links">
+<a href="{% url 'procurement:comparison' row.offer.pk %}?apify_source={{ source_file|urlencode }}&amp;next={{ request.path|urlencode }}">Подробнее</a>
+{% if row.audit.card_url %} · <a href="{{ row.audit.card_url }}" target="_blank" rel="noopener noreferrer">Kaspi</a>{% endif %}
+{% if row.offer.supplier_url %} · <a href="{{ row.offer.supplier_url }}" target="_blank" rel="noopener noreferrer">Omega</a>{% endif %}
+</td></tr>
+{% empty %}<tr><td colspan="7">Нет кандидатов, ожидающих проверки.</td></tr>{% endfor %}
+</tbody></table></div>
+<p class="apr-sub">Запись Kaspi и её цена — исторический снимок выгрузки, не гарантия фактической цены, наличия или применимости. Добавление в закупочный список не выполняется автоматически.</p>
+</div>
+{% endblock %}
