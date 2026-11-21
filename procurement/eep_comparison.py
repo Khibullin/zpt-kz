@@ -4,7 +4,7 @@ Use the same Apify price-audit card selected by the visible buying list.
 Never infer missing product attributes from a price-only export.
 """
 from urllib.parse import urlsplit
-from datetime import timedelta
+from datetime import date, datetime, timedelta
 import re
 import logging
 from django.utils import timezone
@@ -46,6 +46,21 @@ def _image_urls(values, *, include_saved_crops=False):
             url.startswith(("https://", "http://")) or
             (include_saved_crops and len(url) < 550_000
              and url.startswith("data:image/jpeg;base64,")))][:8]
+
+
+def is_price_stale(checked_at, *, today=None):
+    """Accept Omega dates and Kaspi timestamps without mixing their types."""
+    if checked_at is None:
+        return True
+    reference = today or timezone.localdate()
+    if isinstance(checked_at, datetime):
+        checked_day = (timezone.localtime(checked_at).date()
+                       if timezone.is_aware(checked_at) else checked_at.date())
+    elif isinstance(checked_at, date):
+        checked_day = checked_at
+    else:
+        return True
+    return checked_day < reference - timedelta(days=7)
 
 
 FIELDS = (
@@ -183,12 +198,10 @@ def _comparison_impl(request, pk):
     # never be substituted for the seller minimum of the selected Apify export.
     # Omega stores a DateField while the Apify audit uses DateTimeField.
     # Comparing date to datetime raises TypeError and broke every detail page.
-    stale_cutoff = timezone.localdate() - timedelta(days=7)
     omega_checked_at = offer.supplier_checked_on
     kaspi_checked_at = audit.observed_at if audit else None
-    omega_price_stale = not omega_checked_at or omega_checked_at < stale_cutoff
-    kaspi_price_stale = (not kaspi_checked_at or
-                         timezone.localdate(kaspi_checked_at) < stale_cutoff)
+    omega_price_stale = is_price_stale(omega_checked_at)
+    kaspi_price_stale = is_price_stale(kaspi_checked_at)
     return render(request, "procurement/eep_comparison.html",
                   context(request, offer=offer, rows=rows,
                           supplier_photo=supplier_photos[0] if supplier_photos else "",
