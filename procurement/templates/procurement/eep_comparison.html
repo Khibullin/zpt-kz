@@ -2,6 +2,11 @@
 {% block content %}
 <style>
 .eep-shell{max-width:1340px;margin:0 auto}.eep-top{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center;margin-bottom:18px}.eep-top h1{margin:0}.eep-sources,.eep-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}.eep-source{border:1px solid #d9e1e7;border-radius:12px;padding:16px;background:#fff;min-width:0}.eep-source h2{font-size:1.18rem;margin:0 0 10px}.eep-img{width:100%;height:240px;object-fit:contain;border-radius:8px;background:#f6f8fb}.eep-missing{height:240px;display:flex;align-items:center;justify-content:center;background:#f6f8fb;border-radius:8px;color:#65717e}.eep-thumbs{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.eep-thumbs img{height:56px;width:56px;object-fit:contain;border:1px solid #dce3eb;border-radius:7px}.eep-fields{margin-top:20px}.eep-label{font-weight:700;margin:19px 0 7px;color:#34475a}.eep-cell{border:1px solid #dce3eb;border-radius:9px;background:#fff;padding:14px;min-width:0;overflow-wrap:anywhere;white-space:pre-line}.eep-cell.eep-different{background:#fff7cf;text-decoration:underline;text-decoration-color:#c59d18;text-underline-offset:3px}.eep-muted{color:#607080}.eep-source a{display:inline-block;margin-top:12px}
+.eep-paste-zone{margin-top:12px;border:2px dashed #88a9bd;border-radius:9px;padding:12px;text-align:center;background:#f5faff;cursor:context-menu;outline-offset:2px}
+.eep-paste-zone:focus{outline:2px solid #0c9e93}.eep-paste-zone strong{display:block;font-size:13px}.eep-paste-zone small{color:#536477}.eep-paste-zone.busy{opacity:.65;pointer-events:none}
+.eep-pasted{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}.eep-pasted img{height:92px;max-width:140px;object-fit:contain;border:1px solid #dce3eb;border-radius:5px}
+.eep-paste-status{margin:5px 0;font-size:12px;color:#3e5d70}
+
 @media(max-width:650px){.eep-sources,.eep-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:7px}.eep-source{padding:9px}.eep-source h2{font-size:1rem}.eep-img,.eep-missing{height:155px}.eep-cell{padding:9px;font-size:.88rem}.eep-label{margin-top:14px}.eep-top h1{font-size:1.3rem}}
 </style>
 <div class="eep-shell">
@@ -18,6 +23,15 @@
  {% if kaspi_photo %}<img class="eep-img" src="{{ kaspi_photo }}" alt="Фото Kaspi {{ offer.brand }} {{ offer.article }}" referrerpolicy="no-referrer">{% else %}<div class="eep-missing">Нет сохранённого фото Kaspi</div>{% endif %}
  {% if kaspi_gallery %}<div class="eep-thumbs">{% for photo in kaspi_gallery %}<a href="{{ photo }}" target="_blank" rel="noopener noreferrer" aria-label="Дополнительное фото Kaspi"><img src="{{ photo }}" alt="Фото Kaspi {{ forloop.counter|add:1 }}" loading="lazy"></a>{% endfor %}</div>{% endif %}
  {% if kaspi_url %}<a href="{{ kaspi_url }}" target="_blank" rel="noopener noreferrer">Карточка Kaspi с минимальной сохранённой ценой</a>{% else %}<p class="eep-muted">Ссылка на выбранную карточку Kaspi отсутствует</p>{% endif %}
+ {% if clipboard_pilot %}
+ <div id="eep-paste-zone" class="eep-paste-zone" tabindex="0" role="button" aria-label="Вставить скриншот Kaspi из буфера обмена правым щелчком мыши">
+  <strong>Правый щелчок — вставить скриншот Kaspi</strong>
+  <small>На Kaspi: Win+Shift+S → выделить область; здесь: правая кнопка. Запасной способ — Ctrl+V. До 3 снимков.</small>
+ </div>
+ <div class="eep-pasted" id="eep-pasted">{% for screenshot in manual_screenshots %}<img src="{{ screenshot }}" alt="Сохранённый скриншот Kaspi {{ forloop.counter }}">{% endfor %}</div>
+ <p class="eep-paste-status" id="eep-paste-status" role="status">Снимки сохраняются к этому товару; сведения Omega и цена не изменяются.</p>
+ <form id="eep-paste-form" action="{% url 'procurement:comparison_paste_screenshot' offer.pk %}" method="post" hidden>{% csrf_token %}</form>
+{% endif %}
  {% if material and material.kaspi_status == "unavailable" %}<p class="eep-muted" role="status">Данные Kaspi не загружены автоматически: {{ material.kaspi_error }}</p>{% elif material and material.kaspi_status == "manual_verified" %}<p class="eep-muted" role="status">Характеристики сверены по предоставленному снимку страницы Kaspi. Автоматический доступ ограничен (HTTP 429).</p>{% endif %}</section>
 </div>
 <section class="eep-fields" aria-label="Сравнение полей">
@@ -41,4 +55,69 @@
   });
 }());
 </script>
+{% if clipboard_pilot %}
+<script>
+(function(){
+  const zone=document.getElementById('eep-paste-zone'), status=document.getElementById('eep-paste-status');
+  const gallery=document.getElementById('eep-pasted'), form=document.getElementById('eep-paste-form');
+  if(!zone||!form)return;
+  let sending=false;
+  const show=message=>{status.textContent=message;};
+  async function pasteFromClipboard(){
+    if(sending)return;
+    if(!navigator.clipboard||!navigator.clipboard.read){
+      show('Браузер не разрешил чтение буфера. Нажмите Ctrl+V в этой области.');
+      return;
+    }
+    try{
+      const clipboard=await navigator.clipboard.read();
+      for(const item of clipboard){
+        const type=item.types.find(t=>t.startsWith('image/'));
+        if(type){await send(await item.getType(type));return;}
+      }
+      show('В буфере нет изображения. Сначала выделите область Win+Shift+S.');
+    }catch(error){
+      show('Доступ к буферу заблокирован браузером. Разрешите доступ или нажмите Ctrl+V. '+(error.name||''));
+    }
+  }
+  async function send(blob){
+    if(sending)return;
+    if(gallery.querySelectorAll('img').length>=3){show('Для пробы достаточно 3 скриншотов.');return;}
+    sending=true;zone.classList.add('busy');show('Сохраняем скриншот…');
+    try{
+      const data=new FormData(form);
+      data.append('screenshot',blob,'kaspi-screenshot.png');
+      data.append('source_file','{{ comparison_source|escapejs }}');
+      data.append('product_id','{{ selected_product_id|escapejs }}');
+      data.append('kaspi_url','{{ kaspi_url|escapejs }}');
+      const res=await fetch(form.action,{method:'POST',body:data,credentials:'same-origin',
+        headers:{'X-Requested-With':'XMLHttpRequest'}});
+      const answer=await res.json();
+      if(!res.ok)throw Error(answer.error||'Ошибка сохранения');
+      gallery.replaceChildren();
+      // Reload to present the server-backed screenshots, not an unsaved preview.
+      show('Скриншот сохранён. Обновляем изображение…');
+      window.location.reload();
+    }catch(err){show('Не удалось сохранить: '+err.message);}
+    finally{sending=false;zone.classList.remove('busy');}
+  }
+  zone.addEventListener('contextmenu',event=>{event.preventDefault();pasteFromClipboard();});
+  zone.addEventListener('keydown',event=>{
+    if(event.key==='Enter'||event.key===' '){event.preventDefault();pasteFromClipboard();}
+  });
+  zone.addEventListener('paste',event=>{
+    const item=[...(event.clipboardData?.items||[])].find(i=>i.type.startsWith('image/'));
+    if(item){event.preventDefault();const file=item.getAsFile();if(file)send(file);}
+    else show('В буфере нет изображения.');
+  });
+  // Ctrl+V anywhere on the card, except editable form controls, also works.
+  document.addEventListener('paste',event=>{
+    if(event.target===zone)return;
+    if(event.target.closest('input,textarea,[contenteditable="true"]'))return;
+    const item=[...(event.clipboardData?.items||[])].find(i=>i.type.startsWith('image/'));
+    if(item){event.preventDefault();const file=item.getAsFile();if(file)send(file);}
+  });
+})();
+</script>
+{% endif %}
 {% endblock %}
