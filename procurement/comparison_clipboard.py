@@ -16,8 +16,9 @@ from django.db import transaction
 from .models import Offer, PermanentBuyingItem, BuyingComparisonMaterial
 from .comparison_first_ten import FIRST_TEN_OFFER_IDS
 from .comparison_next_fifty import NEXT_FIFTY_OFFER_IDS
+from .comparison_next_hundred import NEXT_HUNDRED_OFFER_IDS
 
-COMPARISON_BATCH_OFFER_IDS = FIRST_TEN_OFFER_IDS + NEXT_FIFTY_OFFER_IDS
+COMPARISON_BATCH_OFFER_IDS = FIRST_TEN_OFFER_IDS + NEXT_FIFTY_OFFER_IDS + NEXT_HUNDRED_OFFER_IDS
 from .comparison_photo_crop import crop_photo, photo_box_from_request
 from .views import access
 from .comparison_screenshot_ai import (recognize_screenshots, article_agrees,
