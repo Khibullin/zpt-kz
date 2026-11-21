@@ -26,11 +26,8 @@ from .omega_policy import POSITIVE_STOCK_PATTERN
 
 
 def normalize_article(value):
-    """Leading zeros are equivalent ONLY for wholly numeric article codes."""
-    value = str(value or '').strip().casefold()
-    if value.isascii() and value.isdecimal():
-        return value.lstrip('0') or '0'
-    return value
+    """Case-insensitive exact full SKU: leading zeroes are significant."""
+    return str(value or '').strip().casefold()
 
 
 def article_tokens(title):
@@ -107,8 +104,9 @@ def import_apify_recheck_results(raw, filename, user):
         if not re.match(POSITIVE_STOCK_PATTERN, str(offer.stock or '')):
             stats['rejected_unverifiable'] += 1
             continue
-        if re.search(r'пружин|spring', ' '.join((
-                offer.name or '', offer.category or '', title)), re.I):
+        # No excluded category, including springs. The 2 000 KZT floor
+        # applies inclusively to every selected product type.
+        if offer.cost is None or offer.cost < Decimal('2000'):
             stats['rejected_unverifiable'] += 1
             continue
         sellers = row.get('offers') or row.get('sellers') or []
@@ -118,7 +116,7 @@ def import_apify_recheck_results(raw, filename, user):
                              seller.get('name') or '')[:180])
                   for seller in sellers if isinstance(seller, dict)
                   for price in [_money(seller.get('price'))] if price]
-        if not priced or row.get('inStock') is False:
+        if not priced or row.get('inStock') is not True:
             stats['rejected_unconfirmed_price'] += 1
             stats['recheck_missing_sellers'] += 1
             continue
