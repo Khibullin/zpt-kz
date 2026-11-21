@@ -48,7 +48,7 @@
       try {
         status('Читаю файл ' + file.name + ' (' + (file.size / 1048576).toFixed(1) + ' МБ)…');
         await frame();
-        if (file.size > 50 * 1048576) throw new Error('Размер JSON превышает допустимые 50 МБ.');
+        if (file.size > 200 * 1048576) throw new Error('Размер JSON превышает допустимые 200 МБ.');
         const bytes = await file.arrayBuffer();
         status('Файл прочитан. Проверяю содержимое…');
         await frame();
