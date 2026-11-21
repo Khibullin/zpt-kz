@@ -128,5 +128,32 @@ class StagingQuoteTests(unittest.TestCase):
         self.assertFalse(select_minimum_seller_quotes(
             [row], [('Superzing', '365757')]))
 
+    def test_broken_cheaper_card_blocks_higher_quote_for_same_sku(self):
+        # A valid 10,763 quote does not prove market minimum when a second
+        # matching 5,320 card has a truncated list of sellers.
+        high = card('365757', 10763, '179042686', 'Superzing 365757')
+        low = card('365757', 5320, '122329934', 'Superzing 365753')
+        low['sellersCount'] = 2
+        self.assertFalse(select_minimum_seller_quotes(
+            [high, low], [('Superzing', '365757')]))
+
+    def test_broken_higher_card_also_blocks_full_sku_minimum(self):
+        # A seller snapshot contradiction is never silently ignored even
+        # when an apparently lower quote has been collected.
+        low = card('365757', 5320, '122329934', 'Superzing 365757')
+        high = card('365757', 10763, '179042686', 'Superzing 365753')
+        high['offers'][0]['price'] = None
+        self.assertFalse(select_minimum_seller_quotes(
+            [low, high], [('Superzing', '365757')]))
+
+    def test_anomaly_in_one_sku_does_not_block_independent_sku(self):
+        valid = card('57486', 15716, '187300001', 'Superzing 57486')
+        broken = card('365757', 5320, '122329934', 'Superzing 365757')
+        broken.pop('sellersCount')
+        out = select_minimum_seller_quotes(
+            [broken, valid], [('Superzing', '365757'), ('Superzing', '57486')])
+        self.assertNotIn(('superzing', '365757'), out)
+        self.assertIn(('superzing', '57486'), out)
+
 if __name__ == '__main__':
     unittest.main()
