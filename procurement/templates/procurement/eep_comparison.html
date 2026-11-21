@@ -2,6 +2,7 @@
 {% block content %}
 <style>
 .eep-shell{max-width:1340px;margin:0 auto}.eep-top{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center;margin-bottom:18px}.eep-top h1{margin:0}.eep-sources,.eep-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}.eep-source{border:1px solid #d9e1e7;border-radius:12px;padding:16px;background:#fff;min-width:0}.eep-source h2{font-size:1.18rem;margin:0 0 10px}.eep-img{width:100%;height:240px;object-fit:contain;border-radius:8px;background:#f6f8fb}.eep-missing{height:240px;display:flex;align-items:center;justify-content:center;background:#f6f8fb;border-radius:8px;color:#65717e}.eep-thumbs{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.eep-thumbs img{height:56px;width:56px;object-fit:contain;border:1px solid #dce3eb;border-radius:7px}.eep-fields{margin-top:20px}.eep-label{font-weight:700;margin:19px 0 7px;color:#34475a}.eep-cell{border:1px solid #dce3eb;border-radius:9px;background:#fff;padding:14px;min-width:0;overflow-wrap:anywhere;white-space:pre-line}.eep-cell.eep-different{background:#fff7cf;text-decoration:underline;text-decoration-color:#c59d18;text-underline-offset:3px}.eep-muted{color:#607080}.eep-source a{display:inline-block;margin-top:12px}
+.eep-prices .eep-cell{padding:12px 14px}.eep-price-name{font-size:12px;color:#637487;margin-bottom:5px}.eep-price-amount{font-size:1.35rem;font-weight:750;color:#163a5d;line-height:1.3;font-variant-numeric:tabular-nums}.eep-price-date{display:block;font-size:11px;color:#627485;margin-top:6px}.eep-price-stale{font-size:11px;color:#9b5c15;margin-top:4px}
 .eep-paste-zone{margin-top:12px;border:2px dashed #88a9bd;border-radius:9px;padding:12px;text-align:center;background:#f5faff;cursor:context-menu;outline-offset:2px}
 .eep-paste-zone:focus{outline:2px solid #0c9e93}.eep-paste-zone strong{display:block;font-size:13px}.eep-paste-zone small{color:#536477}.eep-paste-zone.busy{opacity:.65;pointer-events:none}
 .eep-pasted{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}.eep-pasted img{height:92px;max-width:140px;object-fit:contain;border:1px solid #dce3eb;border-radius:5px}
@@ -102,6 +103,23 @@
   <div class="eep-cell{% if row.different %} eep-different{% endif %}">{{ row.supplier }}</div>
   <div class="eep-cell{% if row.different %} eep-different{% endif %}">{{ row.kaspi }}</div>
  </div>
+ {% if row.label == "Артикул" %}
+ <div class="eep-label">Цена товара</div>
+ <div class="eep-row eep-prices">
+  <div class="eep-cell">
+   <div class="eep-price-name">Omega — закупочная цена</div>
+   <div class="eep-price-amount">{% if omega_price is not None %}{{ omega_price|floatformat:0 }} ₸{% else %}Нет данных{% endif %}</div>
+   <span class="eep-price-date">Прайс Omega: {% if omega_checked_at %}{{ omega_checked_at|date:"d.m.Y" }}{% else %}дата неизвестна{% endif %}</span>
+   {% if omega_price_stale %}<div class="eep-price-stale">Требует обновления</div>{% endif %}
+  </div>
+  <div class="eep-cell">
+   <div class="eep-price-name">Kaspi — минимальная цена продавца (Apify)</div>
+   <div class="eep-price-amount">{% if kaspi_price is not None %}{{ kaspi_price|floatformat:0 }} ₸{% else %}Нет подтверждённой цены{% endif %}</div>
+   <span class="eep-price-date">Выгрузка Apify: {% if kaspi_checked_at %}{{ kaspi_checked_at|date:"d.m.Y H:i" }}{% else %}дата неизвестна{% endif %}</span>
+   {% if kaspi_price_stale %}<div class="eep-price-stale">Требует обновления</div>{% endif %}
+  </div>
+ </div>
+ {% endif %}
 {% endfor %}
 </section>
 {% if comparison_source %}<p class="eep-muted">Исходная выгрузка Apify: {{ comparison_source }}{% if selected_product_id %} · ID карточки Kaspi: {{ selected_product_id }}{% endif %}</p>{% endif %}
