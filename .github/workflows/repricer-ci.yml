@@ -17,7 +17,12 @@ on:
       - '.github/workflows/repricer-ci.yml'
   push:
     branches:
+      - main
       - feature/kaspi-repricer-v1
+    paths:
+      - 'repricer/**'
+      - 'integrations/kaspi_competitors.py'
+      - '.github/workflows/repricer-ci.yml'
 
 jobs:
   test:
