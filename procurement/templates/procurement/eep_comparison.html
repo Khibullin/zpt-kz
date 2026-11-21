@@ -34,7 +34,7 @@
 <div class="eep-shell">
 <header class="eep-top">
  <div><h1>{{ offer.brand }} {{ offer.article }}</h1><p class="eep-muted">Подробное сравнение исходных сведений двух площадок</p></div>
- <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">{% if clipboard_pilot %}<a class="button" href="{{ comparison_first_ten_url }}">← К первым 10</a>{% endif %}
+ <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">{% if comparison_in_next_fifty %}<a class="button" href="{{ comparison_next_fifty_url }}">← К партии 50</a>{% elif clipboard_pilot %}<a class="button" href="{{ comparison_first_ten_url }}">← К первым 10</a>{% endif %}
  <a class="button" href="{{ list_url }}" id="eep-back">← Назад к списку</a></div>
 </header>
 <div class="eep-sources">
