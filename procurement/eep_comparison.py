@@ -82,6 +82,13 @@ def title_mentions_identifier(title, identifier):
     value = identifier.strip()
     if not value:
         return False
+    # Never infer the base label "SRR" from an explicit OE/Japan edition.
+    # Nine first-export offers remain unresolved for precisely this reason.
+    if value.casefold() == 'srr' and re.search(
+        r'(?<!\w)SRR(?:\s+OE|\s+JAPAN|/JAPAN)(?!\w)',
+        title, re.IGNORECASE | re.UNICODE
+    ):
+        return False
     return re.search(r'(?<!\w)' + re.escape(value) + r'(?!\w)',
                      title, re.IGNORECASE | re.UNICODE) is not None
 
