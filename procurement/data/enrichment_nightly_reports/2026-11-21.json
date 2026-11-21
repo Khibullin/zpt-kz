@@ -206,10 +206,37 @@
     "Supplier/task logs cannot rule out unlogged image or fitment changes from other processes; no additions are confirmed by these sources."
   ],
   "delivery": {
-    "status": "ready_to_send",
+    "status": "sent_and_verified",
     "recipient": "rkhaibullin@gmail.com",
     "subject": "ZPT.KZ — ночной отчёт по фото и применимости — 21.11.2026",
-    "duplicate_check": "Nightly report absent (404), Gmail exact recipient/subject SENT search empty."
+    "duplicate_check": "Nightly report absent (404), Gmail exact recipient/subject SENT search empty.",
+    "gmail_message_id": "1a1fb9efa42f7f5e",
+    "gmail_thread_id": "1a1fb9efa42f7f5e",
+    "sent_at": "2026-11-21T01:01:02.000Z",
+    "verified_at": "2026-11-21T01:01:08Z",
+    "labels": [
+      "UNREAD",
+      "SENT",
+      "INBOX"
+    ],
+    "verified_headers": [
+      {
+        "name": "Subject",
+        "value": "ZPT.KZ — ночной отчёт по фото и применимости — 21.11.2026"
+      },
+      {
+        "name": "To",
+        "value": "rkhaibullin@gmail.com"
+      },
+      {
+        "name": "Date",
+        "value": "Fri, 20 Nov 2026 17:01:02 -0800"
+      },
+      {
+        "name": "From",
+        "value": "Rinat Khaibullin <rkhaibullin@gmail.com>"
+      }
+    ]
   },
   "verified_at": "2026-11-21T01:00:13.688049Z",
   "supplier_stats": {
