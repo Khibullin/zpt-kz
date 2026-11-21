@@ -51,5 +51,32 @@ class StagingQuoteTests(unittest.TestCase):
         self.assertFalse(select_minimum_seller_quotes([row],[('Superzing','365757')]))
 
 
+    def test_title_with_two_catalogue_skus_does_not_cross_link(self):
+        rows=[card('57409',14005,'179042763','Superzing 57409')]
+        rows[0]['title']='Superzing 57409 аналог 57486 1 шт'
+        out=select_minimum_seller_quotes(rows,[('Superzing','57409'),('Superzing','57486')])
+        self.assertFalse(out, 'Ambiguous title must never link one Kaspi listing to both SKUs')
+
+    def test_invalid_seller_price_cannot_be_silently_ignored(self):
+        row=card('57409',14005,'179042763','Superzing 57409')
+        row['offers'].append({'price':None,'sellerName':'Unknown-price seller','sellerId':'999'})
+        self.assertFalse(select_minimum_seller_quotes([row],[('Superzing','57409')]))
+
+    def test_unidentified_lowest_seller_is_not_verified(self):
+        row=card('57409',14005,'179042763','Superzing 57409')
+        row['offers'][0].pop('sellerId')
+        row['offers'][0].pop('sellerName')
+        self.assertFalse(select_minimum_seller_quotes([row],[('Superzing','57409')]))
+
+    def test_batches_are_combined_before_choosing_lowest(self):
+        first=card('365757',10763,'179042686','Superzing 365757')
+        later=card('365757',5320,'122329934','Superzing 365753')
+        out=select_minimum_seller_quotes(
+            (row for batch in ([first],[later]) for row in batch),
+            [('Superzing','365757')])
+        self.assertEqual(out[('superzing','365757')]['min_price'],Decimal('5320'))
+        self.assertEqual(out[('superzing','365757')]['source_query'],'Superzing 365753')
+
+
 if __name__ == '__main__':
     unittest.main()
