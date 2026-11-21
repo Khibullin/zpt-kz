@@ -6,6 +6,7 @@ Never infer missing product attributes from a price-only export.
 from urllib.parse import urlsplit
 from datetime import timedelta
 import re
+import logging
 from django.utils import timezone
 from .comparison_first_ten import FIRST_TEN_OFFER_IDS
 from .comparison_next_fifty import NEXT_FIFTY_OFFER_IDS
@@ -61,8 +62,21 @@ FIELDS = (
 )
 
 
+logger = logging.getLogger('procurement.comparison')
+
+
 @access()
 def comparison(request, pk):
+    try:
+        return _comparison_impl(request, pk)
+    except Exception:
+        # Django's default production error handler can omit the traceback
+        # from Render application logs. Log it here for safe diagnostics.
+        logger.exception('Comparison view failed: offer_id=%s', pk)
+        raise
+
+
+def _comparison_impl(request, pk):
     offer = get_object_or_404(Offer.objects.select_related("supplier"),
                               pk=pk, permanent_buying_item__isnull=False)
     record = get_object_or_404(PermanentBuyingItem, offer=offer)
