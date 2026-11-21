@@ -80,15 +80,20 @@ def select_minimum_seller_quotes(rows, target_skus, *, allowed_categories=SUPPOR
         if not _one_unit(title):
             continue
         articles = allowed.intersection(_title_tokens(title))
-        if not articles:
+        # A title containing two target SKUs (e.g. an analogue list) proves
+        # neither product's identity. Reject rather than double-linking.
+        if len(articles) != 1:
             continue
         sellers = row.get('offers')
         if not isinstance(sellers, list) or not sellers:
             continue
-        priced = [(_price(s.get('price')), s) for s in sellers if isinstance(s, dict)]
-        priced = [(amount, seller) for amount, seller in priced if amount is not None]
-        if not priced:
+        # A broken or unidentified seller offer makes the claimed minimum
+        # incomplete. Do not silently discard it and accept a higher quote.
+        if any(not isinstance(s, dict) or _price(s.get('price')) is None
+               or not (s.get('sellerId') or s.get('sellerName'))
+               for s in sellers):
             continue
+        priced = [(_price(s['price']), s) for s in sellers]
         price, seller = min(priced, key=lambda entry: entry[0])
         # A disagreeing card-level minPrice is an anomaly, not seller evidence.
         if _price(row.get('minPrice')) != price:
