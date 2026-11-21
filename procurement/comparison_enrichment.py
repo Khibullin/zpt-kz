@@ -33,9 +33,18 @@ def _accepted_image(url, page_url):
     return ''
 
 
-def _extract(url, brand, article):
+def _extract(url, brand, article, product_id=''):
     # Existing fetch_page has redirect, public-IP, time and size protections.
     page = fetch_page(url)
+    # Kaspi's customer-visible Characteristics tab is the primary material source,
+    # not Apify JSON. JSON-LD is only a supplementary fallback when HTML has
+    # no visible attributes; neither source can infer missing specifications.
+    if product_id:
+        from .kaspi_visible_card import read_visible_kaspi
+        try:
+            return read_visible_kaspi(page, url, brand, article, product_id)
+        except ValueError:
+            pass
     for obj in exact_products(page, brand, article):
         specs = {}
         properties = obj.get('additionalProperty') or []
@@ -116,7 +125,8 @@ def enrich_one(record, *, force=False, source_filename=''):
             changes.extend([status_key, error_key])
             continue
         try:
-            result = _extract(url, offer.brand, offer.article)
+            result = _extract(url, offer.brand, offer.article,
+                              product_id=product_id if kind == 'kaspi' else '')
         except Exception as exc:
             setattr(material, status_key, 'unavailable')
             setattr(material, error_key, str(exc)[:250])
