@@ -205,6 +205,32 @@ class StagingQuoteTests(unittest.TestCase):
         self.assertFalse(select_minimum_seller_quotes(
             [row], [('Superzing', '57486')]))
 
+    def test_analogue_article_in_both_title_and_slug_is_not_primary(self):
+        # The old rule checked only SKU presence in slug, so this card
+        # could be mis-linked to 163827 when 57409 was the sold item.
+        row = card('57409', 14005, '179042763', 'Superzing 163827')
+        row['title'] = 'Superzing 57409 аналог 163827 1 шт'
+        row['url'] = ('https://kaspi.kz/shop/p/'
+                      'superzing-57409-analog-163827-1-sht-179042763/')
+        self.assertFalse(select_minimum_seller_quotes(
+            [row], [('Superzing', '163827')]))
+
+    def test_analogue_spelled_in_latin_is_not_primary(self):
+        row = card('57409', 14005, '179042763', 'Superzing 163827')
+        row['title'] = 'Superzing 57409 analog 163827 1 шт'
+        row['url'] = ('https://kaspi.kz/shop/p/'
+                      'superzing-57409-analog-163827-1-sht-179042763/')
+        self.assertFalse(select_minimum_seller_quotes(
+            [row], [('Superzing', '163827')]))
+
+    def test_replacement_marker_in_slug_does_not_certify_article(self):
+        row = card('57409', 14005, '179042763', 'Superzing 163827')
+        row['title'] = 'Superzing 57409 163827 1 шт'
+        row['url'] = ('https://kaspi.kz/shop/p/'
+                      'superzing-57409-replacement-163827-1-sht-179042763/')
+        self.assertFalse(select_minimum_seller_quotes(
+            [row], [('Superzing', '163827')]))
+
     def test_unambiguous_single_piece_with_matching_slug_remains_candidate(self):
         row = card('57486', 15716, '152114068', 'Superzing 57486')
         out = select_minimum_seller_quotes([row], [('Superzing', '57486')])
