@@ -4,6 +4,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
 from integrations.kaspi_competitors import KaspiPublicOfferSource
+from repricer.cities import KASPI_KZ_CITIES, validate_city_id
 from repricer.collector_remote import (
     MAX_LISTINGS,
     MIN_SLEEP_SECONDS,
@@ -68,8 +69,17 @@ class Command(BaseCommand):
             help="Kaspi city id. Default KASPI_REPRICER_CITY_ID or Almaty.",
         )
 
+        parser.add_argument(
+            "--all-cities", action="store_true",
+            help="Проверять 20 основных городов Kaspi, требуется --all-active.",
+        )
+
     def handle(self, *args, **options):
         listing_ids = list(dict.fromkeys(options["listing_id"]))
+        if options["all_cities"] and options["city_id"]:
+            raise CommandError("--all-cities нельзя совмещать с --city-id.")
+        if options["all_cities"] and not options["all_active"]:
+            raise CommandError("--all-cities требует --all-active.")
         all_active = bool(options["all_active"])
         if all_active and listing_ids:
             raise CommandError("Нельзя одновременно указывать --all-active и --listing-id.")
@@ -104,37 +114,52 @@ class Command(BaseCommand):
             getattr(settings, "KASPI_REPRICER_CITY_ID", "") or "750000000"
         )
 
-        source = KaspiPublicOfferSource(
-            city_id=city_id,
-            timeout_seconds=timeout_seconds,
-            max_offers=max_offers,
+        cities = (
+            list(KASPI_KZ_CITIES) if options["all_cities"]
+            else [(city_id, dict(KASPI_KZ_CITIES).get(city_id, city_id))]
         )
-        client = ZptCollectorHttpClient(
-            base_url=base_url,
-            token=token,
-            timeout_seconds=timeout_seconds,
-        )
+        for code, _name in cities:
+            try:
+                validate_city_id(code)
+            except ValueError as exc:
+                raise CommandError(f"Неизвестный код города Kaspi: {code}") from exc
+
         mode = "all-active" if all_active else f"ids={len(listing_ids)}"
-        self.stdout.write(
-            self.style.WARNING(
-                f"COLLECTOR {mode} dry_run={options['dry_run']} "
-                f"batch_size={batch_size} city={city_id}."
+        scans: list[CollectScanResult] = []
+        for code, city_name in cities:
+            source = KaspiPublicOfferSource(
+                city_id=code, timeout_seconds=timeout_seconds,
+                max_offers=max_offers,
             )
-        )
-        try:
-            scan: CollectScanResult = collect_remote_listings(
-                listing_ids=listing_ids,
-                source=source,
-                client=client,
-                dry_run=options["dry_run"],
-                sleep_seconds=sleep_seconds,
-                stdout=self.stdout,
-                all_active=all_active,
-                batch_size=batch_size,
+            client = ZptCollectorHttpClient(
+                base_url=base_url, token=token,
+                timeout_seconds=timeout_seconds, city_id=code,
             )
-        except CollectorRemoteError as exc:
-            raise CommandError(str(exc)) from exc
-        results = scan.listings
+            self.stdout.write(
+                self.style.WARNING(
+                    f"COLLECTOR {mode} dry_run={options['dry_run']} "
+                    f"batch_size={batch_size} city={city_name} ({code})."
+                )
+            )
+            try:
+                city_scan = collect_remote_listings(
+                    listing_ids=listing_ids, source=source, client=client,
+                    dry_run=options["dry_run"], sleep_seconds=sleep_seconds,
+                    stdout=self.stdout, all_active=all_active,
+                    batch_size=batch_size,
+                )
+            except CollectorRemoteError as exc:
+                raise CommandError(str(exc)) from exc
+            scans.append(city_scan)
+            if city_scan.aborted:
+                self.stderr.write(
+                    self.style.WARNING(
+                        f"Сбор остановлен в городе {city_name}: {city_scan.abort_reason}"
+                    )
+                )
+                break
+        scan = scans[-1]
+        results = [row for item in scans for row in item.listings]
         active = len(results)
         unresolved = sum(1 for item in results if item.skipped_reason == "unresolved_mapping")
         collectable = active - unresolved - sum(
@@ -157,14 +182,14 @@ class Command(BaseCommand):
         self.stdout.write(f"active listings = {active}")
         self.stdout.write(f"collectable = {collectable}")
         self.stdout.write(f"unresolved mapping = {unresolved}")
-        self.stdout.write(f"Kaspi attempted = {scan.kaspi_attempted}")
+        self.stdout.write(f"Kaspi attempted = {sum(item.kaspi_attempted for item in scans)}")
         self.stdout.write(f"Kaspi success = {kaspi_success}")
         self.stdout.write(f"no offers = {no_offers}")
         self.stdout.write(f"source errors = {source_errors}")
         self.stdout.write(f"with competitors = {with_competitors}")
         self.stdout.write(f"own-only = {own_only}")
-        self.stdout.write(f"scan aborted = {'YES' if scan.aborted else 'NO'}")
-        self.stdout.write(f"abort reason = {scan.abort_reason or '—'}")
+        self.stdout.write(f"scan aborted = {'YES' if any(item.aborted for item in scans) else 'NO'}")
+        self.stdout.write(f"abort reason = {next((item.abort_reason for item in scans if item.aborted), '—')}")
         self.stdout.write(f"POSTs = {posted}")
         self.stdout.write(f"recommendations possible = {recommendations}")
         self.stdout.write(
