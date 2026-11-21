@@ -204,6 +204,17 @@ def selection_rules(request):
             progress = process_next_apify_batch(session_id, request.user)
         except Exception:
             # A failed transaction leaves the batch cursor unchanged for retry.
+            # Persist an explicit failure to distinguish it from a paused browser.
+            from django.utils import timezone
+            from .models import Activity
+            session = Activity.objects.filter(
+                pk=session_id, user=request.user, action='apify_upload_session').first()
+            if session:
+                state = dict(session.details or {})
+                state['last_error'] = 'Партия не завершена. Продолжите обработку.'
+                state['last_progress_at'] = timezone.now().isoformat()
+                session.details = state
+                session.save(update_fields=['details'])
             return JsonResponse({'error': 'Партия не завершена. Повторите обработку.'}, status=500)
         return JsonResponse(progress)
     if request.method == 'POST' and request.POST.get('action') == 'preview_omega_request':
