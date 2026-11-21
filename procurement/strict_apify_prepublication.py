@@ -67,6 +67,7 @@ def select_minimum_seller_quotes(rows, target_skus, *, allowed_categories=SUPPOR
 
     chosen = {}
     observed_ids = defaultdict(set)
+    equal_minimum_ids = defaultdict(set)
     for row in rows:
         if not isinstance(row, dict):
             continue
@@ -90,10 +91,11 @@ def select_minimum_seller_quotes(rows, target_skus, *, allowed_categories=SUPPOR
         # A partial sellers array cannot prove the lowest quoted price.
         # Do not silently treat a truncated list as a complete comparison.
         claimed_count = row.get('sellersCount')
-        if (claimed_count is not None
-                and (isinstance(claimed_count, bool)
-                     or not str(claimed_count).isdigit()
-                     or int(claimed_count) > len(sellers))):
+        # Without a trustworthy count we cannot establish that *all* seller
+        # offers were returned. A mismatch in EITHER direction is an anomaly.
+        if (isinstance(claimed_count, bool) or claimed_count is None
+                or not str(claimed_count).isdigit()
+                or int(claimed_count) != len(sellers)):
             continue
         # A broken or unidentified seller offer makes the claimed minimum
         # incomplete. Do not silently discard it and accept a higher quote.
@@ -110,6 +112,10 @@ def select_minimum_seller_quotes(rows, target_skus, *, allowed_categories=SUPPOR
             key = (brand, article)
             observed_ids[key].add(str(row['id']))
             prev = chosen.get(key)
+            if prev is None or price < prev['min_price']:
+                equal_minimum_ids[key] = {str(row['id'])}
+            elif price == prev['min_price']:
+                equal_minimum_ids[key].add(str(row['id']))
             if prev is None or (price, str(row['id'])) < (prev['min_price'], prev['product_id']):
                 chosen[key] = dict(
                     brand=brand, article=article, min_price=price,
@@ -122,4 +128,7 @@ def select_minimum_seller_quotes(rows, target_skus, *, allowed_categories=SUPPOR
                 )
     for key, quote in chosen.items():
         quote['observed_card_ids'] = sorted(observed_ids[key])
+        quote['equal_minimum_card_ids'] = sorted(equal_minimum_ids[key])
+        # Equal quote does not establish equal execution or photo identity.
+        quote['needs_identity_choice'] = len(equal_minimum_ids[key]) > 1
     return chosen
