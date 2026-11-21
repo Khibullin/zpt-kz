@@ -1,104 +1,149 @@
-"""Read-only comparison for the approved EEP 59A200068 sample only."""
+"""Read-only supplier/Kaspi comparison for profitable buying offers.
+
+Use the same Apify price-audit card selected by the visible buying list.
+Never infer missing product attributes from a price-only export.
+"""
 from urllib.parse import urlsplit
 
 from django.shortcuts import get_object_or_404, render
-from django.db.models import Q
 from django.urls import reverse
-
-from .models import Offer, KaspiBuyingCandidate, KaspiPriceAudit
+from .models import Offer, PermanentBuyingItem, KaspiBuyingCandidate, KaspiPriceAudit
 from .views import access, context
 
-ARTICLE = "59A200068"
-OMEGA_URL = "https://omega-auto-parts.kz/transmissiya/privod-kolesa-r-v-sbore-3024-eep-59a200068"
-KASPI_URL = "https://kaspi.kz/shop/p/eep-privod-kolesa-v-sbore-59a200068-179043622/?c=750000000"
 
-
-def _text(value):
+def _string(value):
     if value is None or value == "" or value == [] or value == {}:
         return ""
     if isinstance(value, (list, tuple)):
-        return "; ".join(str(item) for item in value if item)
+        return "; ".join(filter(None, (_string(x) for x in value)))
     if isinstance(value, dict):
-        return "; ".join(f"{key}: {_text(item)}" for key, item in value.items() if _text(item))
+        return "; ".join(f"{key}: {_string(v)}" for key, v in value.items() if _string(v))
     return str(value).strip()
 
 
-def _field(source, *keys):
+def _first(source, *names):
     if not isinstance(source, dict):
         return ""
-    for key in keys:
-        value = _text(source.get(key))
+    for name in names:
+        value = _string(source.get(name))
         if value:
             return value
     return ""
 
 
+def _image_urls(values):
+    if isinstance(values, str):
+        values = [values]
+    if not isinstance(values, (list, tuple)):
+        return []
+    return [url for url in values if isinstance(url, str) and
+            url.startswith(("https://", "http://"))][:8]
+
+
+FIELDS = (
+    ("name", "Наименование товара"),
+    ("brand", "Производитель / бренд"),
+    ("article", "Артикул"),
+    ("category", "Категория"),
+    ("description", "Описание"),
+    ("specs", "Технические характеристики"),
+    ("fitment", "Применимость к автомобилям"),
+    ("package", "Комплектность"),
+    ("oem", "Оригинальные номера (OEM)"),
+    ("analogs", "Аналоги и заменители"),
+)
+
+
 @access()
-def eep_comparison(request):
-    """No writes: original prices, availability, audit, selection and import remain untouched."""
-    offer = get_object_or_404(Offer.objects.select_related("supplier").filter(
-        Q(supplier__name__icontains="Omega") | Q(supplier__name__icontains="Solid Prof Group")),
-        brand__iexact="EEP", article__iexact=ARTICLE)
-    source = offer.characteristics if isinstance(offer.characteristics, dict) else {}
-    candidate = (KaspiBuyingCandidate.objects.filter(product_id="179043622", offer=offer).first()
-                 or KaspiBuyingCandidate.objects.filter(product_id="179043622").first())
-    source_file = request.GET.get("apify_source", "")[:255]
-    audits = KaspiPriceAudit.objects.filter(offer=offer, product_id="179043622")
+def comparison(request, pk):
+    offer = get_object_or_404(Offer.objects.select_related("supplier"),
+                              pk=pk, permanent_buying_item__isnull=False)
+    record = get_object_or_404(PermanentBuyingItem, offer=offer)
+    source_file = request.GET.get("apify_source", "").strip()[:255]
+    audits = KaspiPriceAudit.objects.filter(offer=offer)
     if source_file:
         audits = audits.filter(source_filename=source_file)
     audit = audits.order_by("-observed_at", "-pk").first()
-    fits = offer.fitments.all().order_by("make", "model")[:200]
-    fitment = "; ".join(
-        " ".join(filter(None, (str(item.make or ""), str(item.model or ""))))
-        for item in fits if getattr(item, "verified", False)
-    )
+    # If a specific export was requested, do NOT borrow a card from another export.
+    product_id = (audit.product_id if audit else "" if source_file else record.product_id)
+    candidate = (KaspiBuyingCandidate.objects.filter(product_id=product_id).first()
+                 if product_id else None)
+    source = offer.characteristics if isinstance(offer.characteristics, dict) else {}
+    # These are source-labelled observation objects, not cross-shop merged fields.
     firsthand = source.get("firsthand_omega_20261117") or {}
-    kaspi_gallery = []
-    if (isinstance(firsthand, dict) and
-            str(firsthand.get("kaspi_product_id", "")) == "179043622"):
-        kaspi_gallery = [url for url in firsthand.get("images", [])
-                         if isinstance(url, str) and url.startswith("https://resources.cdn-kaspi.kz/")]
+    if not isinstance(firsthand, dict) or str(firsthand.get("kaspi_product_id", "")) != product_id:
+        firsthand = {}
+    kaspi_source = source.get("kaspi_card_details") or source.get("kaspi_details") or {}
+    if not isinstance(kaspi_source, dict) or str(kaspi_source.get("product_id", "")) != product_id:
+        kaspi_source = {}
+    fits = offer.fitments.filter(verified=True).order_by("make", "model")[:200]
+    fitment = "; ".join(
+        " ".join(filter(None, [f.make, f.model, f.details])) for f in fits
+    )
     supplier_data = {
         "name": offer.name, "brand": offer.brand, "article": offer.article,
         "category": offer.category, "description": offer.description,
-        "specs": _field(source, "technical_characteristics", "specifications", "technical_specs", "specs"),
+        "specs": _first(source, "technical_characteristics", "specifications", "technical_specs", "specs"),
         "fitment": fitment or offer.applicability,
-        "package": _field(source, "package", "packaging", "completeness", "kit_contents"),
-        "oem": _field(source, "oem", "oem_numbers", "oe_numbers", "original_numbers"),
-        "analogs": _field(source, "analogues", "analogs", "cross_references", "replacements"),
+        "package": _first(source, "package", "packaging", "completeness", "kit_contents"),
+        "oem": _first(source, "oem", "oem_numbers", "oe_numbers", "original_numbers"),
+        "analogs": _first(source, "analogues", "analogs", "cross_references", "replacements"),
     }
+    title = ((audit.card_title if audit else "") or
+             (candidate.title if candidate else "") or
+             _first(kaspi_source, "title") or _first(firsthand, "kaspi_title"))
     kaspi_data = {
-        "name": (candidate.title if candidate else "") or (audit.card_title if audit else ""),
-        "brand": candidate.brand if candidate else "",
-        "article": ARTICLE if candidate and ARTICLE in (candidate.title or "").upper() else "",
-        "category": "", "description": "", "specs": "", "fitment": "",
-        "package": "", "oem": "", "analogs": "",
+        "name": title,
+        "brand": _first(kaspi_source, "brand") or (candidate.brand if candidate else ""),
+        "article": _first(kaspi_source, "article"),
+        "category": _first(kaspi_source, "category"),
+        "description": _first(kaspi_source, "description"),
+        "specs": _first(kaspi_source, "technical_characteristics", "specifications", "specs", "characteristics"),
+        "fitment": _first(kaspi_source, "fitment", "applicability"),
+        "package": _first(kaspi_source, "package", "completeness"),
+        "oem": _first(kaspi_source, "oem", "oem_numbers", "original_numbers"),
+        "analogs": _first(kaspi_source, "analogs", "replacements"),
     }
-    labels = (
-        ("name", "Наименование товара"),
-        ("brand", "Производитель / бренд"),
-        ("article", "Артикул"),
-        ("category", "Категория"),
-        ("description", "Описание"),
-        ("specs", "Технические характеристики"),
-        ("fitment", "Применимость к автомобилям"),
-        ("package", "Комплектность"),
-        ("oem", "Оригинальные номера (OEM)"),
-        ("analogs", "Аналоги и заменители"),
-    )
     rows = []
-    for key, label in labels:
-        left, right = _text(supplier_data[key]), _text(kaspi_data[key])
-        different = bool(left and right and left.casefold() != right.casefold())
-        rows.append({"label": label, "supplier": left or "Нет данных",
-                     "kaspi": right or "Нет данных", "different": different})
+    for key, label in FIELDS:
+        supplier_value, kaspi_value = _string(supplier_data[key]), _string(kaspi_data[key])
+        rows.append({"label": label, "supplier": supplier_value or "Нет данных",
+                     "kaspi": kaspi_value or "Нет данных",
+                     "different": bool(supplier_value and kaspi_value and
+                                       supplier_value.casefold() != kaspi_value.casefold())})
+    supplier_photos = _image_urls([offer.photo_url] if offer.photo_url else [])
+    supplier_photos.extend(url for url in _image_urls(source.get("supplier_images", []))
+                           if url not in supplier_photos)
+    kaspi_photos = _image_urls(kaspi_source.get("images", []))
+    if not kaspi_photos:
+        kaspi_photos = _image_urls(firsthand.get("images", []))
     target = request.GET.get("next", "")
     parsed = urlsplit(target)
     list_path = reverse("procurement:dashboard")
     if parsed.scheme or parsed.netloc or parsed.path != list_path:
         target = list_path + "?mode=best"
+    kaspi_url = ((audit.card_url if audit else "") or
+                 (candidate.url if candidate else "") or
+                 (_first(kaspi_source, "url") if kaspi_source else "") or
+                 (record.kaspi_url if not source_file else ""))
     return render(request, "procurement/eep_comparison.html",
-                  context(request, offer=offer, rows=rows, supplier_photo=offer.photo_url,
-                          kaspi_photo=kaspi_gallery[0] if kaspi_gallery else "",
-                          kaspi_gallery=kaspi_gallery[1:6], omega_url=OMEGA_URL, kaspi_url=KASPI_URL,
-                          list_url=target, title="EEP 59A200068 — сравнение"))
+                  context(request, offer=offer, rows=rows,
+                          supplier_photo=supplier_photos[0] if supplier_photos else "",
+                          supplier_gallery=supplier_photos[1:],
+                          kaspi_photo=kaspi_photos[0] if kaspi_photos else "",
+                          kaspi_gallery=kaspi_photos[1:],
+                          omega_url=offer.supplier_url or offer.supplier.website,
+                          kaspi_url=kaspi_url, list_url=target, selected_product_id=product_id,
+                          comparison_source=source_file or (audit.source_filename if audit else ""),
+                          title=f"{offer.brand} {offer.article} — сравнение"))
+
+
+# Preserve the previously published EEP link as a redirect to the unified view.
+@access()
+def eep_comparison(request):
+    offer = get_object_or_404(Offer, brand__iexact="EEP", article__iexact="59A200068")
+    from django.shortcuts import redirect
+    url = reverse("procurement:comparison", args=[offer.pk])
+    if request.META.get("QUERY_STRING"):
+        url += "?" + request.META["QUERY_STRING"]
+    return redirect(url)
