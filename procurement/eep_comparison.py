@@ -8,6 +8,7 @@ from datetime import timedelta
 import re
 from django.utils import timezone
 from .comparison_first_ten import FIRST_TEN_OFFER_IDS
+from .comparison_next_fifty import NEXT_FIFTY_OFFER_IDS
 
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
@@ -186,7 +187,9 @@ def comparison(request, pk):
                           kaspi_checked_at=kaspi_checked_at,
                           kaspi_price_stale=kaspi_price_stale,
                           material=material, manual_screenshots=manual_screenshots,
-                          clipboard_pilot=(offer.pk in FIRST_TEN_OFFER_IDS),
+                          clipboard_pilot=(offer.pk in FIRST_TEN_OFFER_IDS or offer.pk in NEXT_FIFTY_OFFER_IDS),
+                          comparison_next_fifty_url=reverse('procurement:comparison_next_fifty'),
+                          comparison_in_next_fifty=(offer.pk in NEXT_FIFTY_OFFER_IDS),
                           comparison_first_ten_url=reverse('procurement:comparison_first_ten'),
                           title=f"{offer.brand} {offer.article} — сравнение"))
 
