@@ -14,6 +14,7 @@ from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_POST
 from django.db import transaction
 from .models import Offer, PermanentBuyingItem, BuyingComparisonMaterial
+from .comparison_first_ten import FIRST_TEN_OFFER_IDS
 from .views import access
 from .comparison_screenshot_ai import (recognize_screenshots, article_agrees,
                                        price_from_image, FIELDS, TEXT_LIMITS)
@@ -25,8 +26,8 @@ MAX_SHOTS = 3
 @access('sales', 'admin')
 @require_POST
 def paste_kaspi_screenshot(request, pk):
-    offer = get_object_or_404(Offer, pk=pk, brand__iexact='EEP',
-                              article__iexact='15D130002',
+    offer = get_object_or_404(Offer, pk=pk,
+                              pk__in=FIRST_TEN_OFFER_IDS,
                               permanent_buying_item__isnull=False)
     record = get_object_or_404(PermanentBuyingItem, offer=offer)
     photo = request.FILES.get('screenshot')
@@ -76,8 +77,8 @@ def paste_kaspi_screenshot(request, pk):
 
 
 def _target(request, pk):
-    offer = get_object_or_404(Offer, pk=pk, brand__iexact='EEP',
-                              article__iexact='15D130002',
+    offer = get_object_or_404(Offer, pk=pk,
+                              pk__in=FIRST_TEN_OFFER_IDS,
                               permanent_buying_item__isnull=False)
     source_file = str(request.POST.get('source_file') or '').strip()[:255]
     product_id = str(request.POST.get('product_id') or '').strip()[:80]
