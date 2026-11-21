@@ -155,5 +155,36 @@ class StagingQuoteTests(unittest.TestCase):
         self.assertNotIn(('superzing', '365757'), out)
         self.assertIn(('superzing', '57486'), out)
 
+
+    def test_analogue_article_in_title_is_not_a_supplier_sku_match(self):
+        # Only 163827 is in targets, but the card being sold is 57409.
+        row = card('57409', 14005, '179042763', 'Superzing 163827')
+        row['title'] = 'Superzing передний 57409 аналог 163827 1 шт'
+        self.assertFalse(select_minimum_seller_quotes(
+            [row], [('Superzing', '163827')]))
+
+    def test_article_must_match_entire_slug_token(self):
+        row = card('1638279', 12710, '179820627', 'Superzing 163827')
+        row['title'] = 'Superzing передний 163827 1 шт'
+        self.assertFalse(select_minimum_seller_quotes(
+            [row], [('Superzing', '163827')]))
+
+    def test_one_piece_plus_two_piece_kit_cannot_be_accepted(self):
+        row = card('57486', 15716, '152114068', 'Superzing 57486')
+        row['title'] = 'Superzing передний 57486 1 шт, комплект 2 шт'
+        self.assertFalse(select_minimum_seller_quotes(
+            [row], [('Superzing', '57486')]))
+
+    def test_multiple_one_piece_mentions_are_ambiguous(self):
+        row = card('57486', 15716, '152114068', 'Superzing 57486')
+        row['title'] = 'Superzing передний 57486 1 шт + 1 шт'
+        self.assertFalse(select_minimum_seller_quotes(
+            [row], [('Superzing', '57486')]))
+
+    def test_unambiguous_single_piece_with_matching_slug_remains_candidate(self):
+        row = card('57486', 15716, '152114068', 'Superzing 57486')
+        out = select_minimum_seller_quotes([row], [('Superzing', '57486')])
+        self.assertEqual(out[('superzing', '57486')]['min_price'], Decimal('15716'))
+
 if __name__ == '__main__':
     unittest.main()
