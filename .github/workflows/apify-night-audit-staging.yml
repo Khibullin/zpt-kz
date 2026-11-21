@@ -1,0 +1,27 @@
+name: Apify 2026-11-21 staging quote checks
+on:
+  push:
+    branches:
+      - review/kaspi-20261121-overnight
+    paths:
+      - 'procurement/strict_apify_prepublication.py'
+      - 'procurement/test_strict_apify_prepublication.py'
+      - '.github/workflows/apify-night-audit-staging.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pure-quote-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Syntax and isolated pure-Python regression tests
+        run: |
+          python -m py_compile procurement/strict_apify_prepublication.py procurement/test_strict_apify_prepublication.py
+          python -m unittest procurement.test_strict_apify_prepublication -v
