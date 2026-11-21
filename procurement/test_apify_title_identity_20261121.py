@@ -22,6 +22,9 @@ class KaspiTitleIdentityTests(SimpleTestCase):
     def test_brand_edition_mismatch_stays_distinct(self):
         self.assertFalse(title_mentions_identifier("SRR SA-160004 1 шт", "SRR OE"))
         self.assertFalse(title_mentions_identifier("SRR SA-160004 1 шт", "SRR/JAPAN"))
+        self.assertFalse(title_mentions_identifier("SRR OE SA-160004", "SRR"))
+        self.assertFalse(title_mentions_identifier("SRR/JAPAN SRR61246", "SRR"))
+        self.assertTrue(title_mentions_identifier("SRR OE SA-160004", "SRR OE"))
         self.assertFalse(title_mentions_identifier("SRR612460", "SRR61246"))
 
     def test_no_inferred_identity_from_absent_data(self):
