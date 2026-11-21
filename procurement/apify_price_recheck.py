@@ -4,8 +4,8 @@ Search results frequently include unrelated products. The searchQuery describes
 what Apify searched for, NOT what the result actually is: a matching product
 can be returned in a neighboring article's result list. Match only the
 product's own brand and complete article. For each
-Omega SKU compare seller offers on all returned cards, including numeric article
-variants differing only in leading zeros. Execution must be checked manually.
+Omega SKU compare seller offers on all returned cards, preserving every
+character of the full article (including leading zeros). Execution must be checked manually.
 
 This module NEVER changes source Offer, historic PermanentBuyingItem, Selection
 or previous KaspiBuyingCandidate. A per-file audit row is updated to the lowest
