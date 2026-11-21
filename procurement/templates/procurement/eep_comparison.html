@@ -1,0 +1,40 @@
+{% extends 'procurement/base.html' %}
+{% block content %}
+<style>
+.eep-shell{max-width:1340px;margin:0 auto}.eep-top{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center;margin-bottom:18px}.eep-top h1{margin:0}.eep-sources,.eep-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}.eep-source{border:1px solid #d9e1e7;border-radius:12px;padding:16px;background:#fff;min-width:0}.eep-source h2{font-size:1.18rem;margin:0 0 10px}.eep-img{width:100%;height:240px;object-fit:contain;border-radius:8px;background:#f6f8fb}.eep-missing{height:240px;display:flex;align-items:center;justify-content:center;background:#f6f8fb;border-radius:8px;color:#65717e}.eep-fields{margin-top:20px}.eep-label{font-weight:700;margin:19px 0 7px;color:#34475a}.eep-cell{border:1px solid #dce3eb;border-radius:9px;background:#fff;padding:14px;min-width:0;overflow-wrap:anywhere;white-space:pre-line}.eep-cell.eep-different{background:#fff7cf;text-decoration:underline;text-decoration-color:#c59d18;text-underline-offset:3px}.eep-muted{color:#607080}.eep-source a{display:inline-block;margin-top:12px}
+@media(max-width:650px){.eep-sources,.eep-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:7px}.eep-source{padding:9px}.eep-source h2{font-size:1rem}.eep-img,.eep-missing{height:155px}.eep-cell{padding:9px;font-size:.88rem}.eep-label{margin-top:14px}.eep-top h1{font-size:1.3rem}}
+</style>
+<div class="eep-shell">
+<header class="eep-top">
+ <div><h1>EEP 59A200068</h1><p class="eep-muted">Подробное сравнение исходных сведений двух площадок</p></div>
+ <a class="button" href="{{ list_url }}" id="eep-back">← Назад к списку</a>
+</header>
+<div class="eep-sources">
+ <section class="eep-source"><h2>Solid Prof Group / Omega</h2>
+ {% if supplier_photo %}<img class="eep-img" src="{{ supplier_photo }}" alt="Фото от поставщика EEP 59A200068" referrerpolicy="no-referrer">{% else %}<div class="eep-missing">Нет фотографии</div>{% endif %}
+ <a href="{{ omega_url }}" target="_blank" rel="noopener noreferrer">Оригинальная карточка Omega</a></section>
+ <section class="eep-source"><h2>Kaspi</h2>
+ {% if kaspi_photo %}<img class="eep-img" src="{{ kaspi_photo }}" alt="Фото Kaspi EEP 59A200068" referrerpolicy="no-referrer">{% else %}<div class="eep-missing">Нет сохранённого фото Kaspi</div>{% endif %}
+ <a href="{{ kaspi_url }}" target="_blank" rel="noopener noreferrer">Оригинальная карточка Kaspi</a></section>
+</div>
+<section class="eep-fields" aria-label="Сравнение полей">
+{% for row in rows %}
+ <div class="eep-label">{{ row.label }}</div>
+ <div class="eep-row">
+  <div class="eep-cell{% if row.different %} eep-different{% endif %}">{{ row.supplier }}</div>
+  <div class="eep-cell{% if row.different %} eep-different{% endif %}">{{ row.kaspi }}</div>
+ </div>
+{% endfor %}
+</section>
+<p class="eep-muted" style="margin-top:20px">Отсутствие сведений означает, что они не найдены в сохранённых структурированных данных. Сравнение не изменяет карточки, цены и расчёты.</p>
+</div>
+<script>
+(function () {
+  const back=document.getElementById('eep-back');
+  if (!back) return;
+  back.addEventListener('click',function () {
+    try {sessionStorage.setItem('zpt-eep-restore','1');}catch(_){}
+  });
+}());
+</script>
+{% endblock %}
