@@ -141,20 +141,21 @@
   <div class="repricer-status"><strong>Товары Kaspi</strong> — список всех активных привязок, даже без правил. Исторические цены не являются основанием для изменения нашей цены. Для действия нужны свежие данные и установленная минимально допустимая цена.</div>
   <div class="repricer-table-wrap">
     <table class="repricer-table">
-      <thead><tr><th>Товар / Kaspi</th><th>Наша цена</th><th>Лучшая цена конкурента</th><th>Продавец</th><th>Предложений</th><th>Последний сбор</th><th>Состояние</th></tr></thead>
+      <thead><tr><th>Товар / Kaspi</th><th>Наша цена</th><th>Цена из последнего снимка</th><th>Город снимка</th><th>Продавец</th><th>Предложений</th><th>Последний сбор</th><th>Состояние</th></tr></thead>
       <tbody>
       {% for row in monitored %}
         <tr>
           <td class="repricer-product"><strong>{{ row.listing.product.title }}</strong><span class="repricer-muted">{{ row.listing.product.article|default:"без артикула" }} · Kaspi {{ row.listing.master_sku }}</span></td>
           <td class="repricer-money">{% if row.listing.last_known_our_price != None %}{{ row.listing.last_known_our_price|intcomma }} ₸{% else %}—{% endif %}</td>
           <td class="repricer-money">{% if row.state.best_price != None %}{{ row.state.best_price|floatformat:0|intcomma }} ₸{% if row.state.is_stale %} <small class="repricer-muted">(устарело)</small>{% endif %}{% else %}—{% endif %}</td>
+          <td>{{ row.city }}</td>
           <td>{{ row.state.best_seller_name|default:"—" }}</td>
           <td>{{ row.state.competitor_count }}</td>
           <td class="repricer-muted">{% if row.state.captured_at %}{{ row.state.captured_at|date:"d.m.Y H:i" }}{% else %}—{% endif %}</td>
           <td><span class="repricer-badge {% if row.state.is_stale %}repricer-badge--lower{% elif row.state.is_fresh %}repricer-badge--raise{% else %}repricer-badge--none{% endif %}">{{ row.state.state_label }}</span></td>
         </tr>
       {% empty %}
-        <tr><td colspan="7" class="repricer-empty">Активных Kaspi-привязок пока нет.</td></tr>
+        <tr><td colspan="8" class="repricer-empty">Активных Kaspi-привязок пока нет.</td></tr>
       {% endfor %}
       </tbody>
     </table>
