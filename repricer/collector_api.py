@@ -8,6 +8,7 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_GET, require_POST
 
 from catalog.models import ProductKaspiListing
+from repricer.cities import validate_city_id
 from repricer.collector_auth import collector_auth_required
 from repricer.collector_ingest import CollectorIngestError, ingest_competitor_batch
 from repricer.models import KaspiCompetitorIngestBatch
@@ -52,9 +53,17 @@ def _manifest_undercut_amount() -> int:
 @collector_auth_required
 @require_GET
 def listings_manifest(request):
-    last_collected = KaspiCompetitorIngestBatch.objects.filter(
+    raw_city = request.GET.get("city_id", "").strip()
+    try:
+        city_id = validate_city_id(raw_city) if raw_city else ""
+    except ValueError:
+        return _json_response({"error": "invalid city_id"}, status=400)
+    last_batches = KaspiCompetitorIngestBatch.objects.filter(
         listing_id=OuterRef("pk"), source="office_collector",
-    ).order_by("-captured_at").values("captured_at")[:1]
+    )
+    if city_id:
+        last_batches = last_batches.filter(city_id=city_id)
+    last_collected = last_batches.order_by("-captured_at").values("captured_at")[:1]
     queryset = ProductKaspiListing.objects.select_related("product").filter(
         is_active=True,
     ).annotate(last_collected_at=Subquery(last_collected))
