@@ -3,6 +3,7 @@ from django.contrib.auth.views import LogoutView
 from . import views
 from . import eep_comparison
 from . import comparison_views
+from . import comparison_clipboard
 from . import price_update_views
 from . import selection_rule_views
 from . import selection_exports
@@ -56,6 +57,7 @@ urlpatterns = [
     path('selection/<int:pk>/remove/', views.remove, name='remove'),
     path('comparison/run-one/', comparison_views.run_one_comparison, name='comparison_run_one'),
     path('comparison/<int:pk>/', eep_comparison.comparison, name='comparison'),
+    path('comparison/<int:pk>/paste-screenshot/', comparison_clipboard.paste_kaspi_screenshot, name='comparison_paste_screenshot'),
     path('comparison/eep-59a200068/', eep_comparison.eep_comparison, name='eep_comparison'),
     path('product/<int:pk>/', views.detail, name='detail'),
     path('product/<int:pk>/select/', views.select, name='select'),
