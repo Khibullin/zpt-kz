@@ -14,7 +14,8 @@ from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_POST
 from django.db import transaction
 from django.db.models import Q
-from .models import Offer, PermanentBuyingItem, BuyingComparisonMaterial, KaspiPriceAudit
+from .models import Offer, PermanentBuyingItem, BuyingComparisonMaterial, KaspiPriceAudit, KaspiReviewTask
+from .srr_review_snapshots import srr_review_snapshot
 from .comparison_first_ten import FIRST_TEN_OFFER_IDS
 from .comparison_next_fifty import NEXT_FIFTY_OFFER_IDS
 from .comparison_next_hundred import NEXT_HUNDRED_OFFER_IDS
@@ -38,7 +39,10 @@ def eligible_comparison_offer_ids():
                 'dataset_kaspi-api_2026-11-21_14-00-09-125.json',
             ), roi__gte=50, identity_status='needs_review',
         ).values_list('offer_id', flat=True)
-    )
+    ) + list(KaspiReviewTask.objects.filter(
+        reason__startswith="Apify 21.11.2026:",
+        status__in=("pending", "blocked"),
+    ).values_list("offer_id", flat=True))
 
 
 from .comparison_photo_crop import crop_photo, photo_box_from_request
@@ -57,6 +61,9 @@ def _is_selected_card(offer, source_file, product_id):
     """
     if not product_id:
         return False
+    srr = srr_review_snapshot(offer, source_file)
+    if srr:
+        return srr['product_id'] == product_id
     if source_file:
         return (
             KaspiPriceAudit.objects.filter(
@@ -100,8 +107,12 @@ def paste_kaspi_screenshot(request, pk):
 
     source_file = str(request.POST.get('source_file') or '').strip()[:255]
     product_id = str(request.POST.get('product_id') or '').strip()[:80]
-    # Unpublished cards may store evidence ONLY in the exact audited review batch.
-    if not record and source_file != 'dataset_kaspi-api_2026-11-21_14-00-09-125.json':
+    # Unpublished items may attach evidence only to the exact second-export
+    # audit or a still-unverified SRR card explicitly named in the first export.
+    srr = srr_review_snapshot(offer, source_file)
+    if not record and source_file != 'dataset_kaspi-api_2026-11-21_14-00-09-125.json' and not (
+        srr and srr['product_id'] == product_id
+    ):
         return JsonResponse({'error': 'Этот товар пока не допущен к сравнению.'}, status=403)
     if not _is_selected_card(offer, source_file, product_id):
         return JsonResponse({
@@ -147,10 +158,13 @@ def _target(request, pk):
     offer = get_object_or_404(Offer, pk=pk,
                               pk__in=eligible_comparison_offer_ids())
     source_file = str(request.POST.get('source_file') or '').strip()[:255]
-    if not PermanentBuyingItem.objects.filter(offer=offer).exists() and source_file != 'dataset_kaspi-api_2026-11-21_14-00-09-125.json':
+    product_id = str(request.POST.get('product_id') or '').strip()[:80]
+    srr = srr_review_snapshot(offer, source_file)
+    if not PermanentBuyingItem.objects.filter(offer=offer).exists() and source_file != 'dataset_kaspi-api_2026-11-21_14-00-09-125.json' and not (
+        srr and srr['product_id'] == product_id
+    ):
         from django.http import Http404
         raise Http404('Эта карточка не допущена к обработке.')
-    product_id = str(request.POST.get('product_id') or '').strip()[:80]
     material = get_object_or_404(BuyingComparisonMaterial,
                                  offer=offer, source_filename=source_file,
                                  kaspi_product_id=product_id)
