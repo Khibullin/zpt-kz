@@ -22,7 +22,7 @@ from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from .models import Offer, PermanentBuyingItem, KaspiBuyingCandidate, KaspiPriceAudit, BuyingComparisonMaterial
 from .views import access, context
-from .srr_review_snapshots import srr_review_snapshot
+from .srr_review_snapshots import SOURCE as SRR_SOURCE, srr_review_snapshot
 
 
 def _string(value):
@@ -146,6 +146,15 @@ def _comparison_impl(request, pk):
     audits = KaspiPriceAudit.objects.filter(offer=offer)
     if source_file:
         audits = audits.filter(source_filename=source_file)
+    else:
+        # A generic/historical comparison must not silently adopt a newer,
+        # unverified Apify review snapshot. Otherwise an older buying-register
+        # item appears to have the provisional November 21 Kaspi photo/price
+        # even when the viewer did not open the staff-only Apify review.
+        audits = audits.exclude(
+            source_filename__in=(SRR_SOURCE, review_source),
+            identity_status="needs_review",
+        )
     audit = audits.order_by("-observed_at", "-pk").first()
     # If a specific export was requested, do NOT borrow a card from another export.
     product_id = (audit.product_id if audit else
