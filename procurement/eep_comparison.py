@@ -22,6 +22,7 @@ from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from .models import Offer, PermanentBuyingItem, KaspiBuyingCandidate, KaspiPriceAudit, BuyingComparisonMaterial
 from .views import access, context
+from .srr_review_snapshots import srr_review_snapshot
 
 
 def _string(value):
@@ -129,11 +130,12 @@ def _comparison_impl(request, pk):
     # A not-yet-published candidate is viewable for review ONLY when this
     # exact Apify export has an audit; it is NOT admitted to PermanentBuyingItem.
     review_only = not bool(record)
+    srr_snapshot = srr_review_snapshot(offer, source_file)
     apify_second_review = (source_file == review_source and
                            KaspiPriceAudit.objects.filter(
                                offer=offer, source_filename=source_file,
                                identity_status='needs_review', roi__gte=50).exists())
-    if review_only and not apify_second_review:
+    if review_only and not (apify_second_review or srr_snapshot):
         from django.http import Http404
         raise Http404('Товар не прошёл проверку или отсутствует в закупочном реестре.')
     audits = KaspiPriceAudit.objects.filter(offer=offer)
@@ -141,7 +143,9 @@ def _comparison_impl(request, pk):
         audits = audits.filter(source_filename=source_file)
     audit = audits.order_by("-observed_at", "-pk").first()
     # If a specific export was requested, do NOT borrow a card from another export.
-    product_id = (audit.product_id if audit else "" if source_file else record.product_id)
+    product_id = (audit.product_id if audit else
+                  srr_snapshot["product_id"] if srr_snapshot else
+                  "" if source_file else record.product_id)
     candidate = (KaspiBuyingCandidate.objects.filter(product_id=product_id).first()
                  if product_id else None)
     source = offer.characteristics if isinstance(offer.characteristics, dict) else {}
@@ -167,6 +171,7 @@ def _comparison_impl(request, pk):
     }
     title = ((audit.card_title if audit else "") or
              (candidate.title if candidate else "") or
+             (srr_snapshot["title"] if srr_snapshot else "") or
              _first(kaspi_source, "title") or _first(firsthand, "kaspi_title"))
     # Only expose identity visibly present as whole tokens in the exact selected
     # Kaspi card title; this is a preliminary transcription, not verification.
@@ -184,6 +189,12 @@ def _comparison_impl(request, pk):
         "oem": _first(kaspi_source, "oem", "oem_numbers", "original_numbers"),
         "analogs": _first(kaspi_source, "analogs", "replacements"),
     }
+    if srr_snapshot:
+        # Raw Kaspi brand is SRR, not the Omega edition SRR OE / SRR JAPAN.
+        # These are comparison labels, not a verified identity match.
+        kaspi_data["name"] = srr_snapshot["title"]
+        kaspi_data["brand"] = srr_snapshot["brand"]
+        kaspi_data["article"] = offer.article
     # Enrichment is stored separately and scoped to the chosen Apify export/card.
     material = (BuyingComparisonMaterial.objects.filter(
         offer=offer, source_filename=source_file or (audit.source_filename if audit else ''),
@@ -217,6 +228,8 @@ def _comparison_impl(request, pk):
         kaspi_photos = _image_urls(kaspi_source.get("images", []))
     if not kaspi_photos:
         kaspi_photos = _image_urls(firsthand.get("images", []))
+    if not kaspi_photos and srr_snapshot:
+        kaspi_photos = _image_urls([srr_snapshot["image"]])
     # Manually pasted screenshot evidence is kept separate from product photos.
     manual_screenshots = []
     if material and isinstance(material.kaspi_data, dict):
@@ -227,11 +240,12 @@ def _comparison_impl(request, pk):
     target = request.GET.get("next", "")
     parsed = urlsplit(target)
     list_path = reverse("procurement:dashboard")
-    if apify_second_review:
+    if apify_second_review or srr_snapshot:
         list_path = reverse("procurement:apify_review")
     if parsed.scheme or parsed.netloc or parsed.path != list_path:
         target = list_path if apify_second_review else list_path + "?mode=best"
     kaspi_url = ((audit.card_url if audit else "") or
+                 (srr_snapshot["url"] if srr_snapshot else "") or
                  (candidate.url if candidate else "") or
                  (_first(kaspi_source, "url") if kaspi_source else "") or
                  (record.kaspi_url if record and not source_file else ""))
@@ -240,7 +254,8 @@ def _comparison_impl(request, pk):
     # Omega stores a DateField while the Apify audit uses DateTimeField.
     # Comparing date to datetime raises TypeError and broke every detail page.
     omega_checked_at = offer.supplier_checked_on
-    kaspi_checked_at = audit.observed_at if audit else None
+    kaspi_checked_at = (audit.observed_at if audit else
+                        date(2026, 11, 21) if srr_snapshot else None)
     omega_price_stale = is_price_stale(omega_checked_at)
     kaspi_price_stale = is_price_stale(kaspi_checked_at)
     return render(request, "procurement/eep_comparison.html",
@@ -254,13 +269,15 @@ def _comparison_impl(request, pk):
                           comparison_source=source_file or (audit.source_filename if audit else ""),
                           omega_price=offer.cost, omega_checked_at=omega_checked_at,
                           omega_price_stale=omega_price_stale,
-                          kaspi_price=audit.min_price if audit else None,
+                          kaspi_price=(audit.min_price if audit else
+                                       srr_snapshot["min_price"] if srr_snapshot else None),
                           kaspi_checked_at=kaspi_checked_at,
                           kaspi_price_stale=kaspi_price_stale,
                           material=material, manual_screenshots=manual_screenshots,
-                          review_only=review_only,
+                          review_only=(review_only or bool(srr_snapshot)),
                           apify_second_review=apify_second_review,
-                          clipboard_pilot=(bool(audit and audit.source_filename in (
+                          apify_srr_review=bool(srr_snapshot),
+                          clipboard_pilot=(bool(srr_snapshot) or bool(audit and audit.source_filename in (
                               'dataset_kaspi-api_2026-11-21_13-39-32-482(2).json',
                               review_source) and audit.roi >= 50) or offer.pk in FIRST_TEN_OFFER_IDS or offer.pk in NEXT_FIFTY_OFFER_IDS or
                                            offer.pk in NEXT_HUNDRED_OFFER_IDS or offer.pk in FOURTH_HUNDRED_OFFER_IDS or
