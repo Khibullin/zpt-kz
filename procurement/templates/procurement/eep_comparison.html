@@ -17,7 +17,8 @@
  <section class="eep-source"><h2>Kaspi</h2>
  {% if kaspi_photo %}<img class="eep-img" src="{{ kaspi_photo }}" alt="Фото Kaspi {{ offer.brand }} {{ offer.article }}" referrerpolicy="no-referrer">{% else %}<div class="eep-missing">Нет сохранённого фото Kaspi</div>{% endif %}
  {% if kaspi_gallery %}<div class="eep-thumbs">{% for photo in kaspi_gallery %}<a href="{{ photo }}" target="_blank" rel="noopener noreferrer" aria-label="Дополнительное фото Kaspi"><img src="{{ photo }}" alt="Фото Kaspi {{ forloop.counter|add:1 }}" loading="lazy"></a>{% endfor %}</div>{% endif %}
- {% if kaspi_url %}<a href="{{ kaspi_url }}" target="_blank" rel="noopener noreferrer">Карточка Kaspi с минимальной сохранённой ценой</a>{% else %}<p class="eep-muted">Ссылка на выбранную карточку Kaspi отсутствует</p>{% endif %}</section>
+ {% if kaspi_url %}<a href="{{ kaspi_url }}" target="_blank" rel="noopener noreferrer">Карточка Kaspi с минимальной сохранённой ценой</a>{% else %}<p class="eep-muted">Ссылка на выбранную карточку Kaspi отсутствует</p>{% endif %}
+ {% if material and material.kaspi_status == "unavailable" %}<p class="eep-muted" role="status">Данные Kaspi не загружены автоматически: {{ material.kaspi_error }}</p>{% elif material and material.kaspi_status == "manual_verified" %}<p class="eep-muted" role="status">Характеристики сверены по предоставленному снимку страницы Kaspi. Автоматический доступ ограничен (HTTP 429).</p>{% endif %}</section>
 </div>
 <section class="eep-fields" aria-label="Сравнение полей">
 {% for row in rows %}
@@ -29,7 +30,7 @@
 {% endfor %}
 </section>
 {% if comparison_source %}<p class="eep-muted">Исходная выгрузка Apify: {{ comparison_source }}{% if selected_product_id %} · ID карточки Kaspi: {{ selected_product_id }}{% endif %}</p>{% endif %}
-<p class="eep-muted" style="margin-top:20px">Отсутствие сведений означает, что они не найдены в сохранённых структурированных данных. Сравнение не изменяет карточки, цены и расчёты.</p>
+<p class="eep-muted" style="margin-top:20px">Отсутствие сведений означает, что их не удалось подтвердить из доступного источника; для Kaspi возможен отказ HTTP 429. Сравнение не изменяет карточки, цены и расчёты.</p>
 </div>
 <script>
 (function () {
