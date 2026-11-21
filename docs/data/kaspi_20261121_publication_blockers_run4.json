@@ -319,8 +319,16 @@
         "actual_kaspi_commission_and_all_expenses_not_verified",
         "supplier_stock_not_live_reconfirmed",
         "supplier_original_url_missing",
-        "supplier_photo_missing"
-      ]
+        "supplier_photo_missing",
+        "multiple_kaspi_card_ids_equal_minimum_identity_unverified"
+      ],
+      "equal_minimum_card_ids": [
+        "174104577",
+        "179823924"
+      ],
+      "equal_minimum_price_kzt": 12047,
+      "needs_identity_choice": true,
+      "tie_source": "docs/data/kaspi_20261121_full_source_reaudit_v2.json"
     },
     {
       "rank": 9,
@@ -438,8 +446,16 @@
         "supplier_stock_not_live_reconfirmed",
         "supplier_original_url_missing",
         "supplier_photo_missing",
-        "audited_kaspi_product_differs_from_minimum_card"
-      ]
+        "audited_kaspi_product_differs_from_minimum_card",
+        "multiple_kaspi_card_ids_equal_minimum_identity_unverified"
+      ],
+      "equal_minimum_card_ids": [
+        "132689987",
+        "179820627"
+      ],
+      "equal_minimum_price_kzt": 12710,
+      "needs_identity_choice": true,
+      "tie_source": "docs/data/kaspi_20261121_full_source_reaudit_v2.json"
     },
     {
       "rank": 12,
@@ -716,8 +732,18 @@
         "supplier_stock_not_live_reconfirmed",
         "supplier_original_url_missing",
         "supplier_photo_missing",
-        "small_remaining_cost_margin"
-      ]
+        "small_remaining_cost_margin",
+        "multiple_kaspi_card_ids_equal_minimum_identity_unverified"
+      ],
+      "equal_minimum_card_ids": [
+        "152114068",
+        "179042795"
+      ],
+      "equal_minimum_price_kzt": 15716,
+      "needs_identity_choice": true,
+      "tie_source": "docs/data/kaspi_20261121_full_source_reaudit_v2.json"
     }
-  ]
+  ],
+  "reconciliation_addendum": "2026-11-22: Rechecked source-derived multi-card same-price ties. All remain blocked; no automatic card substitution.",
+  "count_equal_minimum_multi_card_skus": 3
 }
