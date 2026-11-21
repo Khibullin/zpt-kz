@@ -142,7 +142,7 @@ def enrich_one(record, *, force=False, source_filename=''):
     return 'complete' if material.supplier_status == material.kaspi_status == 'complete' else 'partial'
 
 
-def batch(limit=50, *, force=False, source_filename=''):
+def batch(limit=50, *, force=False, source_filename='', position=None):
     """Process the first 50 unattempted eligible offers in descending net ROI.
 
     Identical eligibility and ranking criteria to the profitable buying list.
@@ -174,6 +174,10 @@ def batch(limit=50, *, force=False, source_filename=''):
             (~consumable_query('offer__') & Q(selected_cost__gt=MIN_PROFITABLE_COST))
         )
         .order_by('-selected_roi', '-selected_profit', 'pk'))
+    if position is not None:
+        if not force or not isinstance(position, int) or not 0 <= position < 50:
+            raise ValueError('Reprocessing requires a valid first-50 rank position.')
+        ranked = ranked[position:position + 1]
     totals = {'complete': 0, 'partial': 0, 'no_kaspi_identity': 0,
               'examined': 0, 'first_article': '', 'last_article': ''}
     for record in ranked.iterator(chunk_size=100):
