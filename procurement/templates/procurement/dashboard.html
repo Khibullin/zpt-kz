@@ -121,6 +121,7 @@
 <small>Для выгодных товаров: точный бренд и артикул; сохраняются годы, двигатели, ограничения и источники. Спорные и уже заполненные записи пропускаются.</small>
 </form>
 {% endif %}
+{% if mode == 'best' %}<p class="buying-sort-note" role="note">Сортировка: <strong>доходность, % ↓</strong> (от большей к меньшей); при равной доходности — прибыль, ₸ ↓. Порядок действует для всего списка и всех страниц.</p>{% endif %}
 <div class="results-toolbar">
 <strong>{% if preliminary %}{{ preliminary_total }} товаров · <span class="preliminary-status">Спрос не подтверждён</span>{% else %}Найдено {{ total }}{% endif %}</strong>
 {% if mode == 'best' %}<form id="bulk-selection" method="post" action="{% url 'procurement:select_many' %}" data-selection-form data-bulk-selection>{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button class="primary" type="submit">Добавить выбранные в список</button><small data-selection-status role="status" aria-live="polite"></small></form>{% else %}<div class="actions"><a href="{{ settings_url }}">Алгоритм и настройки</a><a class="button" href="{% querystring download='csv' page=None %}">Скачать CSV</a></div>{% endif %}
@@ -133,7 +134,7 @@
 <th>Поставщик</th>
 <th>Закупка, ₸</th>
 <th>{% if mode == 'no_sellers' %}Проверка Kaspi{% else %}Kaspi, ₸{% endif %}</th>
-<th>{% if mode == 'kaspi_prices' %}Совпадение товара{% elif mode == 'no_sellers' %}Цена продажи{% elif mode == 'difference' %}Разница, ₸{% else %}Доходность, %{% endif %}</th>
+<th>{% if mode == 'kaspi_prices' %}Совпадение товара{% elif mode == 'no_sellers' %}Цена продажи{% elif mode == 'difference' %}Разница, ₸{% elif mode == 'best' %}Доходность, % ↓{% else %}Доходность, %{% endif %}</th>
 <th>{% if mode == 'kaspi_prices' %}Дата проверки{% else %}Прибыль, ₸{% endif %}</th>
 <th>{% if mode == 'best' %}Выбрать к закупке{% else %}Действия{% endif %}</th>
 </tr>
@@ -232,6 +233,8 @@
 <iframe title="Карточка товара" id="product-frame"></iframe>
 </dialog>
 <style>
+.buying-sort-note{font-size:13px;color:#244863;margin:10px 0 5px}
+.buying-sort-note strong{color:#087a68}
 .apify-live-status{margin:10px 0 8px;padding:9px 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;border-radius:8px;border:1px solid #d7e1e7;background:#f7f9fb;font-size:13px}
 .apify-live-status[data-state=complete]{border-color:#92d8bc;background:#ecfbf3;color:#086342}
 .apify-live-status[data-state=running]{border-color:#a4d2f5;background:#edf7ff;color:#135888}
