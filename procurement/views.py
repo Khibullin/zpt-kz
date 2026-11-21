@@ -430,6 +430,10 @@ def filtered_rows(request, preferences, filters, paginate=False):
 @access()
 @never_cache
 def dashboard(request):
+    # Small read-only endpoint for live Apify status; skips expensive product queries.
+    if request.GET.get('apify_status') == '1':
+        from .apify_batch_intake import upload_status
+        return JsonResponse(upload_status(request.GET.get('apify_source', '').strip()[:255]))
     if request.GET.get('mode') != 'best' and 'supplier' not in request.GET and request.session.get('procurement_supplier'):
         params = request.GET.copy()
         params['supplier'] = request.session['procurement_supplier']
