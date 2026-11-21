@@ -70,6 +70,22 @@ def is_price_stale(checked_at, *, today=None):
     return checked_day < reference - timedelta(days=7)
 
 
+def title_mentions_identifier(title, identifier):
+    """Find exact case-insensitive brand or article mentions in a Kaspi title.
+
+    Word boundaries prevent SA-160004 matching SA-1600040, while handling
+    hyphens and multi-word brand names such as SRR OE. Text alone never
+    certifies that the underlying goods or their configurations are identical.
+    """
+    if not isinstance(title, str) or not isinstance(identifier, str):
+        return False
+    value = identifier.strip()
+    if not value:
+        return False
+    return re.search(r'(?<!\\w)' + re.escape(value) + r'(?!\\w)',
+                     title, re.IGNORECASE | re.UNICODE) is not None
+
+
 FIELDS = (
     ("name", "Наименование товара"),
     ("brand", "Производитель / бренд"),
@@ -147,9 +163,8 @@ def _comparison_impl(request, pk):
              _first(kaspi_source, "title") or _first(firsthand, "kaspi_title"))
     # Only expose identity visibly present as whole tokens in the exact selected
     # Kaspi card title; this is a preliminary transcription, not verification.
-    title_tokens = set(re.findall(r'[^\\W_]+(?:[-/.][^\\W_]+)*', title.casefold(), re.UNICODE))
-    title_brand = offer.brand if offer.brand.casefold() in title_tokens else ''
-    title_article = offer.article if offer.article.casefold() in title_tokens else ''
+    title_brand = offer.brand if title_mentions_identifier(title, offer.brand) else ''
+    title_article = offer.article if title_mentions_identifier(title, offer.article) else ''
     kaspi_data = {
         "name": title,
         "brand": _first(kaspi_source, "brand") or (candidate.brand if candidate else "") or title_brand,
