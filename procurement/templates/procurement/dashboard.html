@@ -54,6 +54,13 @@
     </select>
     <button type="submit">Показать</button>
   </form>
+  <div class="apify-live-status" id="apify-live-status" data-url="{% url 'procurement:dashboard' %}"
+       data-source="{{ apify_selected_source }}" role="status" aria-live="polite">
+    <span id="apify-live-icon" aria-hidden="true">○</span>
+    <strong id="apify-live-label">Проверка состояния Apify…</strong>
+    <span id="apify-live-count"></span>
+    <small id="apify-live-help"></small>
+  </div>
   {% if apify_summary %}
   <div class="apify-source-totals">
     <strong>{% if apify_selected_source %}Выбранная выгрузка{% else %}Последняя выгрузка{% endif %}: {{ apify_summary_source }}</strong>
@@ -65,6 +72,46 @@
   <small class="muted">«Первая проверка» означает отсутствие более ранней записи Apify для товара, а не гарантированно новый товар в каталоге. Сводка относится к выбранному поставщику и только к товарам существующего реестра закупки. Сведения получены из сохранённых выгрузок; дата в списке — время проверки на ZPT.KZ.</small>
   {% endif %}
 </section>
+<script>
+(function () {
+  const panel = document.getElementById('apify-live-status');
+  if (!panel) return;
+  const label = document.getElementById('apify-live-label');
+  const count = document.getElementById('apify-live-count');
+  const help = document.getElementById('apify-live-help');
+  const icon = document.getElementById('apify-live-icon');
+  async function refresh() {
+    if (document.hidden) return;
+    const url = new URL(panel.dataset.url, window.location.origin);
+    url.searchParams.set('apify_status', '1');
+    if (panel.dataset.source) url.searchParams.set('apify_source', panel.dataset.source);
+    try {
+      const response = await fetch(url.toString(), {credentials:'same-origin', cache:'no-store'});
+      if (!response.ok) throw new Error('Статус временно недоступен');
+      const info = await response.json();
+      panel.dataset.state = info.state;
+      label.textContent = info.label;
+      icon.textContent = ({complete:'✓', running:'◌', error:'!', paused:'!', unknown:'○'})[info.state] || '○';
+      count.textContent = info.total_batches ?
+        info.completed_batches + ' из ' + info.total_batches + ' партий · ' +
+        info.processed_cards.toLocaleString('ru-RU') + ' из ' +
+        info.total_cards.toLocaleString('ru-RU') + ' карточек' : '';
+      help.textContent = info.message || (info.state === 'complete' ?
+        'Обработка сохранена · Ошибочных строк: ' + info.errors :
+        info.state === 'running' ? 'Обновляется автоматически.' : '');
+      if (info.filename && !panel.dataset.source) panel.title = 'Последняя сессия: ' + info.filename;
+    } catch (_) {
+      panel.dataset.state = 'unknown';
+      label.textContent = 'Статус временно недоступен';
+      help.textContent = 'Проверьте соединение и обновите страницу.';
+    }
+  }
+  refresh();
+  const interval = setInterval(refresh, 15000);
+  window.addEventListener('pagehide', function () { clearInterval(interval); }, {once:true});
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) refresh(); });
+}());
+</script>
 {% endif %}
 {% if can_manage and selected_supplier and mode != 'best' %}
 <form method="post" action="{% url 'procurement:refresh_shared_fitments' %}?supplier={{ selected_supplier.pk }}" style="margin:12px 0">{% csrf_token %}
@@ -183,6 +230,13 @@
 <iframe title="Карточка товара" id="product-frame"></iframe>
 </dialog>
 <style>
+.apify-live-status{margin:10px 0 8px;padding:9px 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;border-radius:8px;border:1px solid #d7e1e7;background:#f7f9fb;font-size:13px}
+.apify-live-status[data-state=complete]{border-color:#92d8bc;background:#ecfbf3;color:#086342}
+.apify-live-status[data-state=running]{border-color:#a4d2f5;background:#edf7ff;color:#135888}
+.apify-live-status[data-state=paused]{border-color:#e8d299;background:#fff9ea;color:#775609}
+.apify-live-status[data-state=error]{border-color:#f0b0a7;background:#fff2f0;color:#a22c21}
+#apify-live-icon{font-size:19px;line-height:1}
+#apify-live-help{flex-basis:100%;font-size:12px}
 .apify-source-panel{margin:10px 0 12px;padding:12px 15px;border:1px solid #bfdbd3;border-radius:9px;background:#f2faf7}
 .apify-source-filter{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:13px}
 .apify-source-filter select{max-width:100%;min-width:260px;flex:1;padding:8px;border:1px solid #cbd5e1;border-radius:7px;background:#fff}
