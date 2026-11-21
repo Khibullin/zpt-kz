@@ -33,8 +33,10 @@ def eligible_comparison_offer_ids():
     """Prior pilot batches plus strictly audited November 21 purchase candidates."""
     return list(COMPARISON_BATCH_OFFER_IDS) + list(
         KaspiPriceAudit.objects.filter(
-            source_filename='dataset_kaspi-api_2026-11-21_13-39-32-482(2).json',
-            roi__gte=50, identity_status='needs_review',
+            source_filename__in=(
+                'dataset_kaspi-api_2026-11-21_13-39-32-482(2).json',
+                'dataset_kaspi-api_2026-11-21_14-00-09-125.json',
+            ), roi__gte=50, identity_status='needs_review',
         ).values_list('offer_id', flat=True)
     )
 
@@ -72,9 +74,8 @@ def _is_selected_card(offer, source_file, product_id):
 @require_POST
 def paste_kaspi_screenshot(request, pk):
     offer = get_object_or_404(Offer, pk=pk,
-                              pk__in=eligible_comparison_offer_ids(),
-                              permanent_buying_item__isnull=False)
-    record = get_object_or_404(PermanentBuyingItem, offer=offer)
+                              pk__in=eligible_comparison_offer_ids())
+    record = PermanentBuyingItem.objects.filter(offer=offer).first()
     photo = request.FILES.get('screenshot')
     if photo is None or photo.size > 3_000_000:
         return JsonResponse({'error': 'Вставьте скриншот размером до 3 МБ.'}, status=400)
@@ -99,6 +100,9 @@ def paste_kaspi_screenshot(request, pk):
 
     source_file = str(request.POST.get('source_file') or '').strip()[:255]
     product_id = str(request.POST.get('product_id') or '').strip()[:80]
+    # Unpublished cards may store evidence ONLY in the exact audited review batch.
+    if not record and source_file != 'dataset_kaspi-api_2026-11-21_14-00-09-125.json':
+        return JsonResponse({'error': 'Этот товар пока не допущен к сравнению.'}, status=403)
     if not _is_selected_card(offer, source_file, product_id):
         return JsonResponse({
             'error': 'Карточка Kaspi не соответствует выбранному товару и выгрузке. Обновите страницу.',
@@ -113,13 +117,13 @@ def paste_kaspi_screenshot(request, pk):
         kaspi_product_id=product_id).first()
     url = ((audit.card_url if audit else '') or
            (existing_material.kaspi_url if existing_material else '') or
-           (record.kaspi_url if not source_file else ''))[:2048]
+           (record.kaspi_url if record and not source_file else ''))[:2048]
     encoded = 'data:image/jpeg;base64,' + base64.b64encode(data).decode('ascii')
     with transaction.atomic():
         material, _ = BuyingComparisonMaterial.objects.select_for_update().get_or_create(
             offer=offer, source_filename=source_file, kaspi_product_id=product_id,
             defaults={'supplier_url': offer.supplier_url or '',
-                      'kaspi_url': url or record.kaspi_url or ''})
+                      'kaspi_url': url or (record.kaspi_url if record else '')})
         existing = material.kaspi_data if isinstance(material.kaspi_data, dict) else {}
         shots = [s for s in existing.get('manual_screenshots', []) if isinstance(s, str)]
         # Recompression can change bytes; digest exact saved JPEG to avoid repeated paste.
@@ -141,9 +145,11 @@ def paste_kaspi_screenshot(request, pk):
 
 def _target(request, pk):
     offer = get_object_or_404(Offer, pk=pk,
-                              pk__in=eligible_comparison_offer_ids(),
-                              permanent_buying_item__isnull=False)
+                              pk__in=eligible_comparison_offer_ids())
     source_file = str(request.POST.get('source_file') or '').strip()[:255]
+    if not PermanentBuyingItem.objects.filter(offer=offer).exists() and source_file != 'dataset_kaspi-api_2026-11-21_14-00-09-125.json':
+        from django.http import Http404
+        raise Http404('Эта карточка не допущена к обработке.')
     product_id = str(request.POST.get('product_id') or '').strip()[:80]
     material = get_object_or_404(BuyingComparisonMaterial,
                                  offer=offer, source_filename=source_file,
