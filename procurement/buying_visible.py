@@ -71,10 +71,14 @@ def filtered_offer_ids(filters):
 def visible_buying_rows(request, preferences, filters):
     supplier = filters.get('supplier')
     offer_scope = filtered_offer_ids(filters)
+    # 21.11.2026 exact brand+article Apify observations passed the
+    # conservative ROI gate, but fulfillment is still awaiting verification.
+    # Do not widen visibility for any other unverified candidate.
     qs = KaspiBuyingCandidate.objects.filter(
-        match_status='verified', offer__isnull=False,
-        offer__supplier__name='Omega',
-
+        Q(match_status='verified') |
+        Q(match_status='candidate',
+          source_filename='dataset_kaspi-api_2026-11-21_13-39-32-482(2).json'),
+        offer__isnull=False, offer__supplier__name='Omega',
     )
     qs = qs.filter(buying_cost_query('offer__'), offer__stock__regex=POSITIVE_STOCK_PATTERN).exclude(profitable_product_exclusions('offer__'))
     if offer_scope is not None:
