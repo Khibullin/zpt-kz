@@ -223,6 +223,17 @@ def _comparison_impl(request, pk):
                 value = material.kaspi_data.get(key)
                 if value:
                     kaspi_data[key] = value
+            # The 14:00 Apify photo migration saved the exact selected card
+            # title under "title", not "name". Nine of eighteen selected
+            # product IDs have no KaspiBuyingCandidate title, so otherwise
+            # the right-hand name cell incorrectly says "Нет данных".
+            # Only use that title for the *same* export/product ID; never
+            # borrow a historical or another-card title.
+            if (apify_second_review and
+                str(material.kaspi_data.get('apify_image_product_id', '')) == product_id):
+                kaspi_data['name'] = (
+                    _first(material.kaspi_data, 'name', 'title') or kaspi_data['name']
+                )
     rows = []
     for key, label in FIELDS:
         supplier_value, kaspi_value = _string(supplier_data[key]), _string(kaspi_data[key])
