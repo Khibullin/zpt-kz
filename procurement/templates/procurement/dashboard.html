@@ -1,9 +1,10 @@
 {% extends 'procurement/base.html' %}{% load l10n %}{% block content %}
 <div class="compact-dashboard">
 <header class="compact-header">
+{% if mode == 'best' and request.GET.batch == 'next50' %}<small>Партия №2 — 50 товаров по сохранённой доходности; характеристики Kaspi требуют проверки до закупки.</small>{% endif %}
 <h1>{% if mode == 'best' %}Выгодные к закупке{% else %}Оптовые закупки{% endif %}</h1>
-{% if mode == 'best' %}<div class="actions"><a class="button" href="{% url 'procurement:comparison_first_ten' %}">Первые 10</a> <a class="button" href="{% url 'procurement:comparison_next_fifty' %}">Следующие 50 — Подробности</a></div>{% endif %}
-<form method="get" class="supplier-picker"><input type="hidden" name="mode" value="{{ mode }}">{% if mode == "best" and request.GET.apify_source %}<input type="hidden" name="apify_source" value="{{ request.GET.apify_source }}">{% endif %}<label>Поставщик {{ filter_form.supplier }}</label><button{% if mode == 'best' %} class="visually-hidden"{% endif %}>Выбрать</button></form>
+{% if mode == 'best' %}<div class="actions"><a class="button" href="{% url 'procurement:dashboard' %}?mode=best&amp;batch=next50">Следующие 50 товаров</a> {% if request.GET.batch == 'next50' %}<a href="{% url 'procurement:dashboard' %}?mode=best">Все выгодные</a>{% endif %}</div>{% endif %}
+<form method="get" class="supplier-picker"><input type="hidden" name="mode" value="{{ mode }}">{% if mode == 'best' and request.GET.batch == 'next50' %}<input type="hidden" name="batch" value="next50">{% endif %}{% if mode == "best" and request.GET.apify_source %}<input type="hidden" name="apify_source" value="{{ request.GET.apify_source }}">{% endif %}<label>Поставщик {{ filter_form.supplier }}</label><button{% if mode == 'best' %} class="visually-hidden"{% endif %}>Выбрать</button></form>
 {% if can_manage and mode != 'best' %}<div class="actions"><a class="button" href="{% url 'procurement:selection_rules' %}#upload-step-title">Загрузить прайс-лист</a></div>{% endif %}
 </header>
 {% if mode == 'best' %}<script>document.addEventListener('DOMContentLoaded',function(){const select=document.querySelector('.supplier-picker select');if(select)select.addEventListener('change',function(){this.form.submit()})})</script>{% endif %}
@@ -12,7 +13,7 @@
 <section class="catalog-filters{% if mode == 'best' or mode == 'stale_prices' or mode == 'kaspi_prices' %} best-filters{% endif %}" aria-label="Фильтры товаров">
 <form method="get" class="selection-filters">
 {% if mode != 'best' and mode != 'stale_prices' and mode != 'kaspi_prices' and request.GET.kaspi_presence %}<input type="hidden" name="kaspi_presence" value="{{ request.GET.kaspi_presence }}">{% endif %}
-<input type="hidden" name="mode" value="{{ mode }}">{% if mode == "best" and request.GET.apify_source %}<input type="hidden" name="apify_source" value="{{ request.GET.apify_source }}">{% endif %}<input type="hidden" name="supplier" value="{{ selected_supplier.pk|default:''|unlocalize }}">
+<input type="hidden" name="mode" value="{{ mode }}">{% if mode == 'best' and request.GET.batch == 'next50' %}<input type="hidden" name="batch" value="next50">{% endif %}{% if mode == "best" and request.GET.apify_source %}<input type="hidden" name="apify_source" value="{{ request.GET.apify_source }}">{% endif %}<input type="hidden" name="supplier" value="{{ selected_supplier.pk|default:''|unlocalize }}">
 {{ filter_form.non_field_errors }}
 
 <div class="short-search"><label class="filter-field">{{ filter_form.q.label }}{{ filter_form.q }}{{ filter_form.q.errors }}</label><button>Найти</button></div>
