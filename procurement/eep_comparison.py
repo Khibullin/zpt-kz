@@ -224,7 +224,7 @@ def _comparison_impl(request, pk):
                           kaspi_checked_at=kaspi_checked_at,
                           kaspi_price_stale=kaspi_price_stale,
                           material=material, manual_screenshots=manual_screenshots,
-                          clipboard_pilot=(offer.pk in FIRST_TEN_OFFER_IDS or offer.pk in NEXT_FIFTY_OFFER_IDS or
+                          clipboard_pilot=(bool(audit and audit.source_filename == 'dataset_kaspi-api_2026-11-21_13-39-32-482(2).json' and audit.roi >= 50) or offer.pk in FIRST_TEN_OFFER_IDS or offer.pk in NEXT_FIFTY_OFFER_IDS or
                                            offer.pk in NEXT_HUNDRED_OFFER_IDS or offer.pk in FOURTH_HUNDRED_OFFER_IDS or
                                            offer.pk in FIFTH_HUNDRED_OFFER_IDS or offer.pk in SIXTH_HUNDRED_OFFER_IDS or
                                            offer.pk in SEVENTH_HUNDRED_OFFER_IDS or
