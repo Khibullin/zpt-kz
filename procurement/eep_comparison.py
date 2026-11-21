@@ -137,6 +137,13 @@ def comparison(request, pk):
         kaspi_photos = _image_urls(kaspi_source.get("images", []))
     if not kaspi_photos:
         kaspi_photos = _image_urls(firsthand.get("images", []))
+    # Manually pasted screenshot evidence is kept separate from product photos.
+    manual_screenshots = []
+    if material and isinstance(material.kaspi_data, dict):
+        manual_screenshots = [
+            x for x in material.kaspi_data.get('manual_screenshots', [])
+            if isinstance(x, str) and x.startswith('data:image/jpeg;base64,')
+        ][:3]
     target = request.GET.get("next", "")
     parsed = urlsplit(target)
     list_path = reverse("procurement:dashboard")
@@ -155,7 +162,8 @@ def comparison(request, pk):
                           omega_url=offer.supplier_url or offer.supplier.website,
                           kaspi_url=kaspi_url, list_url=target, selected_product_id=product_id,
                           comparison_source=source_file or (audit.source_filename if audit else ""),
-                          material=material,
+                          material=material, manual_screenshots=manual_screenshots,
+                          clipboard_pilot=(offer.brand.casefold() == 'eep' and offer.article.casefold() == '15d130002'),
                           title=f"{offer.brand} {offer.article} — сравнение"))
 
 
