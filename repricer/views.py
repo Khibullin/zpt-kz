@@ -1,6 +1,7 @@
 from django.contrib.admin.views.decorators import staff_member_required
 from django.db.models import OuterRef, Subquery
 from django.conf import settings
+from .competitor_display import competitor_fresh_minutes
 from django.utils import timezone
 from datetime import timedelta
 from django.shortcuts import render
@@ -50,9 +51,7 @@ def repricer_dashboard(request):
         source__in=("kaspi_public", "office_collector")
     )
     latest_public_snapshot = public_snapshots.order_by("-captured_at").first()
-    fresh_minutes = int(getattr(settings, "KASPI_COMPETITOR_FRESH_MINUTES", 180) or 180)
-    if fresh_minutes <= 0:
-        fresh_minutes = 180
+    fresh_minutes = competitor_fresh_minutes()
     fresh_cutoff = timezone.now() - timedelta(minutes=fresh_minutes)
     fresh_snapshot_count = public_snapshots.filter(captured_at__gte=fresh_cutoff).count()
     city_id = str(getattr(settings, "KASPI_REPRICER_CITY_ID", "") or "750000000")
