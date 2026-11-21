@@ -18,9 +18,9 @@ from .selection_rule_views import _stock_filter, _group_filter, matching_years
 from .views import access
 
 JSON_BATCH_SIZE = 500
-APIFY_CITIES = ['Almaty']
+APIFY_CITIES = ['Almaty', 'Astana', 'Shymkent', 'Karaganda', 'Aktobe', 'Atyrau']
 APIFY_MIN_SUPPLIER_COST = Decimal('2000')
-APIFY_MAX_ITEMS_PER_QUERY = 10
+APIFY_MAX_ITEMS_PER_QUERY = 2  # Default; configurable from 1 to 5.
 
 
 def filtered_offers(rule):
@@ -121,16 +121,29 @@ def selection_apify_json(request):
     rows = mapping[start:start + JSON_BATCH_SIZE]
     if not rows:
         return JsonResponse({'error': 'Нет запросов в этой партии.'}, status=404)
+    # Export-only settings: never modify the saved supplier selection.
+    cities = request.GET.getlist('city')
+    if not cities:
+        cities = list(APIFY_CITIES)
+    if any(city not in APIFY_CITIES for city in cities):
+        return JsonResponse({'error': 'Неизвестный город поиска.'}, status=400)
+    cities = [city for city in APIFY_CITIES if city in cities]
+    try:
+        cards = int(request.GET.get('cards', str(APIFY_MAX_ITEMS_PER_QUERY)))
+    except (ValueError, TypeError):
+        return JsonResponse({'error': 'Число карточек должно быть от 1 до 5.'}, status=400)
+    if not 1 <= cards <= 5:
+        return JsonResponse({'error': 'Число карточек должно быть от 1 до 5.'}, status=400)
     if request.GET.get('format') == 'mapping':
         payload = {'batch': batch, 'source': 'Omega', 'request_id': saved_id, 'mapping': rows}
         filename = f'apify_mapping_{saved_id}_{batch:02d}.json' if saved_id else f'apify_mapping_{batch:02d}.json'
     else:
         payload = {
             'searchQueries': [row['query'] for row in rows],
-            'cities': APIFY_CITIES,
+            'cities': cities,
             'sortOrder': 'relevance',
             'maxItems': 0,
-            'maxItemsPerQuery': APIFY_MAX_ITEMS_PER_QUERY,
+            'maxItemsPerQuery': cards,
             'includeOffers': True,
             'maxOffersPerProduct': 0,
             'includeReviews': False,
