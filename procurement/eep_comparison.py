@@ -106,10 +106,11 @@ def _comparison_impl(request, pk):
     # A not-yet-published candidate is viewable for review ONLY when this
     # exact Apify export has an audit; it is NOT admitted to PermanentBuyingItem.
     review_only = not bool(record)
-    if review_only and not (source_file == review_source and
-                            KaspiPriceAudit.objects.filter(
-                                offer=offer, source_filename=source_file,
-                                identity_status='needs_review', roi__gte=50).exists()):
+    apify_second_review = (source_file == review_source and
+                           KaspiPriceAudit.objects.filter(
+                               offer=offer, source_filename=source_file,
+                               identity_status='needs_review', roi__gte=50).exists())
+    if review_only and not apify_second_review:
         from django.http import Http404
         raise Http404('Товар не прошёл проверку или отсутствует в закупочном реестре.')
     audits = KaspiPriceAudit.objects.filter(offer=offer)
@@ -204,10 +205,10 @@ def _comparison_impl(request, pk):
     target = request.GET.get("next", "")
     parsed = urlsplit(target)
     list_path = reverse("procurement:dashboard")
-    if review_only:
+    if apify_second_review:
         list_path = reverse("procurement:apify_review")
     if parsed.scheme or parsed.netloc or parsed.path != list_path:
-        target = list_path if review_only else list_path + "?mode=best"
+        target = list_path if apify_second_review else list_path + "?mode=best"
     kaspi_url = ((audit.card_url if audit else "") or
                  (candidate.url if candidate else "") or
                  (_first(kaspi_source, "url") if kaspi_source else "") or
@@ -236,6 +237,7 @@ def _comparison_impl(request, pk):
                           kaspi_price_stale=kaspi_price_stale,
                           material=material, manual_screenshots=manual_screenshots,
                           review_only=review_only,
+                          apify_second_review=apify_second_review,
                           clipboard_pilot=(bool(audit and audit.source_filename in (
                               'dataset_kaspi-api_2026-11-21_13-39-32-482(2).json',
                               review_source) and audit.roi >= 50) or offer.pk in FIRST_TEN_OFFER_IDS or offer.pk in NEXT_FIFTY_OFFER_IDS or
