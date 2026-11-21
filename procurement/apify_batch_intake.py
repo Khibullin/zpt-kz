@@ -16,13 +16,13 @@ from .apify_buying_import import _normalize_rows, import_apify_results
 from .models import Activity
 
 BATCH_SIZE = 500
-MAX_BYTES = 50 * 1024 * 1024
+MAX_BYTES = 200 * 1024 * 1024
 MAX_ROWS = 50000
 
 
 def stage_apify_file(upload, user):
     if not upload.name.lower().endswith('.json') or upload.size > MAX_BYTES:
-        raise ValidationError('Нужен JSON Apify размером не более 50 МБ.')
+        raise ValidationError('Нужен JSON Apify размером не более 200 МБ.')
     data = upload.read()
     digest = hashlib.sha256(data).hexdigest()
     try:
