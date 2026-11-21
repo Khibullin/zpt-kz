@@ -10,6 +10,7 @@ from django.utils.dateparse import parse_datetime
 from django.utils import timezone
 
 from catalog.models import ProductKaspiListing
+from repricer.cities import validate_city_id
 from repricer.models import KaspiCompetitorIngestBatch, KaspiCompetitorOfferSnapshot
 
 COLLECTOR_SOURCE = "office_collector"
@@ -143,6 +144,11 @@ def ingest_competitor_batch(payload: dict) -> IngestResult:
     batch_id = _parse_batch_id(payload.get("batch_id"))
     captured_at = _parse_captured_at(payload.get("captured_at"))
     offers = _parse_offers(payload.get("offers"))
+    raw_city = payload.get("city_id")
+    try:
+        city_id = validate_city_id(raw_city) if raw_city not in (None, "") else ""
+    except ValueError as exc:
+        raise CollectorIngestError("invalid city_id") from exc
 
     with transaction.atomic():
         existing = (
@@ -164,6 +170,7 @@ def ingest_competitor_batch(payload: dict) -> IngestResult:
             external_batch_id=batch_id,
             listing=listing,
             source=COLLECTOR_SOURCE,
+            city_id=city_id,
             captured_at=captured_at,
             offer_count=len(offers),
         )
@@ -176,6 +183,7 @@ def ingest_competitor_batch(payload: dict) -> IngestResult:
                 position=offer["position"],
                 is_available=offer["is_available"],
                 source=COLLECTOR_SOURCE,
+                city_id=city_id,
                 captured_at=captured_at,
             )
             for offer in offers
