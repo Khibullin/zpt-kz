@@ -115,6 +115,16 @@ def select_minimum_seller_quotes(rows, target_skus, *, allowed_categories=SUPPOR
         title = str(row.get('title') or '')
         if not _one_unit(title):
             continue
+        # A product can mention the requested article exclusively as an
+        # analogue, including in BOTH title and URL slug. The old slug
+        # consistency check alone could treat that analogue as the main
+        # item when the actual sold article was not among target_skus.
+        # Without a structured primary SKU, fail closed for analogue/
+        # replacement listings and send them to manual identity review.
+        slug = urlsplit(str(row.get('url') or '')).path.rstrip('/').rsplit('/', 1)[-1]
+        if (re.search(r'(?i)(?:\\bаналог(?:и|ов)?\\b|\\bзамена\\b|\\banalog(?:ue|s)?\\b|\\breplacement\\b)', title)
+                or re.search(r'(?i)(?:^|-)(?:analog(?:ue|s)?|replacement|analogi?|zamena)(?:-|$)', slug)):
+            continue
         articles = allowed.intersection(_title_tokens(title))
         # A title containing two target SKUs (e.g. an analogue list) proves
         # neither product's identity. Reject rather than double-linking.
