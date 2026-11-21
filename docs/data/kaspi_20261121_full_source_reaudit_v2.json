@@ -1,0 +1,3086 @@
+{
+  "source": "dataset_kaspi-api_2026-11-21_14-00-09-125.json",
+  "source_sha256_prior_audit": "4156ee68ba118c29278dbf3d3fe3c6a098e540a8bb73992638433abe3186d3f6",
+  "date": "2026-11-21",
+  "rules": "brand and complete article case-insensitive but punctuation preserved, one piece, inStock, actual positive seller offers, exact Kaspi id/URL, selected Shock absorbers, >=2000 supplier, positive stock, commission 12.5%, packing 250 KZT once",
+  "scope": "Almaty only, original 436 JSON records",
+  "summary": {
+    "source_records": 436,
+    "search_queries": 218,
+    "unique_brand_article_queries": 218,
+    "exact_seller_card_queries": 0,
+    "nonexact_rows": 436,
+    "exact_card_rows": 0,
+    "matched_supplier_with_stock": 0,
+    "passed_roi50": 0,
+    "failed_roi50": 0,
+    "missing_supplier_at_2000": 0,
+    "missing_stock": 0,
+    "extra_candidates_vs_prior": [],
+    "top": [],
+    "suppliers": [],
+    "nonexact_reasons": {
+      "wrong_article": 147,
+      "not_one_unit": 283,
+      "wrong_brand": 5,
+      "bad_url_id": 1
+    }
+  },
+  "candidates": [],
+  "failing": [],
+  "notFound": [],
+  "ignored_cards": [
+    {
+      "key": "SRR|SA-160543",
+      "id": "124181160",
+      "title": "SRR передний SA-160143 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160543",
+      "id": "179823489",
+      "title": "SRR задний SA-160543 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160545",
+      "id": "143104584",
+      "title": "SRR передний SA-160545 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160545",
+      "id": "179047349",
+      "title": "SRR передний SA-160145 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160546",
+      "id": "143104490",
+      "title": "SRR передний SA-160546 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160546",
+      "id": "154413090",
+      "title": "SRR передний SA-160046 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160563",
+      "id": "174104738",
+      "title": "SRR передний SA-160563 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160563",
+      "id": "179237795",
+      "title": "SRR передний SA-160563 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160566",
+      "id": "143104492",
+      "title": "SRR передний SA-160566 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160566",
+      "id": "174104583",
+      "title": "SRR задний SA-160568 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160567",
+      "id": "143104523",
+      "title": "SRR передний SA-160537 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160567",
+      "id": "179237448",
+      "title": "SRR передний SA-160267 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160568",
+      "id": "179237629",
+      "title": "SRR задний SA-160568 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160568",
+      "id": "175148301",
+      "title": "SRR задний SA-160568 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160570",
+      "id": "143170541",
+      "title": "SRR передний SA-160570 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160570",
+      "id": "179237809",
+      "title": "SRR передний SA-160270 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160571",
+      "id": "143104589",
+      "title": "SRR передний SA-160571 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160571",
+      "id": "143104519",
+      "title": "SRR задний SA-160572 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160572",
+      "id": "143104588",
+      "title": "SRR задний SA-160512 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160572",
+      "id": "143104504",
+      "title": "SRR задний SA-160472 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160573",
+      "id": "182791159",
+      "title": "SRR задний SA-160583 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160573",
+      "id": "143170564",
+      "title": "SRR задний SA-160573 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160574",
+      "id": "179237615",
+      "title": "SRR передний SA-160574 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160574",
+      "id": "174104745",
+      "title": "SRR передний SA-160574 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160575",
+      "id": "179237605",
+      "title": "SRR передний SA-160575 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160575",
+      "id": "178371050",
+      "title": "SRR передний SA-160575 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160578",
+      "id": "143104500",
+      "title": "SRR задний SA-160538 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160578",
+      "id": "179237127",
+      "title": "SRR задний SA-160587 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160579",
+      "id": "144011668",
+      "title": "SRR задний SA-160579 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160579",
+      "id": "179823524",
+      "title": "SRR задний SA-160479 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160580",
+      "id": "179238017",
+      "title": "SRR задний SA-160580 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160580",
+      "id": "179183473",
+      "title": "SRR задний SA-160580 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160581",
+      "id": "187657051",
+      "title": "SRR передний SA-160081/SA-160024 2 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160581",
+      "id": "187657639",
+      "title": "SRR передний SA-160024/SA-160081 2 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160582",
+      "id": "143104477",
+      "title": "SRR передний SA-160582 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160582",
+      "id": "174104604",
+      "title": "SRR передний SA-160282 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160583",
+      "id": "143104479",
+      "title": "SRR задний SA-160583 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160583",
+      "id": "178658026",
+      "title": "SRR задний SA-160183 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160584",
+      "id": "143104476",
+      "title": "SRR задний SA-160584 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160584",
+      "id": "170130457",
+      "title": "SRR задний SA-160554 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160585",
+      "id": "143104512",
+      "title": "SRR задний SA-160505 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160585",
+      "id": "143104338",
+      "title": "SRR передний SA-160185 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160586",
+      "id": "179237257",
+      "title": "SRR передний SA-160526 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160586",
+      "id": "143104483",
+      "title": "SRR передний SA-160086 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160587",
+      "id": "178371032",
+      "title": "SRR задний SA-160587 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160587",
+      "id": "179049418",
+      "title": "SRR передний SA-160087 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160588",
+      "id": "179237994",
+      "title": "SRR задний SA-160588 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160588",
+      "id": "179820493",
+      "title": "SRR задний SA-160488 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160589",
+      "id": "178662319",
+      "title": "SRR задний SA-160489 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160589",
+      "id": "144011720",
+      "title": "SRR передний SA-160589 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160590",
+      "id": "144011730",
+      "title": "SRR передний SA-160590 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160590",
+      "id": "124181156",
+      "title": "SRR передний SA-160090 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160591",
+      "id": "179237161",
+      "title": "SRR задний SA-160591 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160591",
+      "id": "144011750",
+      "title": "SRR задний SA-160521 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160630",
+      "id": "143857477",
+      "title": "SRR задний SA-160630 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160630",
+      "id": "143104469",
+      "title": "SRR передний SA-160130 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160634",
+      "id": "144011648",
+      "title": "SRR передний SA-160634 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160634",
+      "id": "182792091",
+      "title": "SRR передний SA-160639 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160635",
+      "id": "143104495",
+      "title": "SRR передний SA-160635 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160635",
+      "id": "143104577",
+      "title": "SRR передний SA-160653 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160636",
+      "id": "179237078",
+      "title": "SRR задний SA-160636 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160636",
+      "id": "179237329",
+      "title": "SRR передний SA-160036 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160638",
+      "id": "143104544",
+      "title": "SRR передний SA-160638 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160638",
+      "id": "143104444",
+      "title": "SRR передний SA-160639 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160639",
+      "id": "161221081",
+      "title": "SRR передний SA-160639 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160639",
+      "id": "179042654",
+      "title": "SRR задний SA-160637 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160640",
+      "id": "179820625",
+      "title": "SRR передний SA-160640 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160640",
+      "id": "174104702",
+      "title": "SRR передний SA-160640 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160641",
+      "id": "179820490",
+      "title": "SRR задний SA-160641 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160641",
+      "id": "174104615",
+      "title": "SRR передний SA-160441 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160642",
+      "id": "179820593",
+      "title": "SRR задний SA-160642 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160642",
+      "id": "144011697",
+      "title": "SRR задний SA-160642 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160643",
+      "id": "179820510",
+      "title": "SRR передний SA-160643 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160643",
+      "id": "178371098",
+      "title": "SRR передний SA-160643 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160644",
+      "id": "143104453",
+      "title": "SRR задний SA-160644 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160644",
+      "id": "144011672",
+      "title": "SRR задний SA-160044 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160645",
+      "id": "143104468",
+      "title": "SRR задний SA-160645 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160645",
+      "id": "174104600",
+      "title": "SRR передний SA-160655 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160646",
+      "id": "179237237",
+      "title": "SRR задний SA-160646 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160646",
+      "id": "179181993",
+      "title": "SRR задний SA-160646 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160647",
+      "id": "179237252",
+      "title": "SRR задний SA-160647 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160647",
+      "id": "174087181",
+      "title": "SRR передний, задний SA-160674 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160650",
+      "id": "144011677",
+      "title": "SRR задний SA-160650 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160650",
+      "id": "179237269",
+      "title": "SRR передний SA-160655 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160651",
+      "id": "144011724",
+      "title": "SRR задний SA-160651 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160651",
+      "id": "143104484",
+      "title": "SRR передний SA-160652 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160652",
+      "id": "179237937",
+      "title": "SRR задний SA-160654 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160652",
+      "id": "143857485",
+      "title": "SRR задний SA-160632 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160653",
+      "id": "174104536",
+      "title": "SRR задний SA-160663 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160653",
+      "id": "174104597",
+      "title": "SRR задний SA-160654 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160654",
+      "id": "179237929",
+      "title": "SRR передний SA-160674 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160654",
+      "id": "124181148",
+      "title": "SRR передний SA-160054 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160655",
+      "id": "143104531",
+      "title": "SRR передний SA-160055 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160655",
+      "id": "124212167",
+      "title": "SRR задний SA-160007 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160656",
+      "id": "138284576",
+      "title": "SRR задний SA-160656 2 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160656",
+      "id": "179823559",
+      "title": "SRR передний SA-160456 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160657",
+      "id": "179823748",
+      "title": "SRR передний SA-160457 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160657",
+      "id": "124181151",
+      "title": "SRR задний SA-160057 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160662",
+      "id": "179237258",
+      "title": "SRR передний SA-160662 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160662",
+      "id": "179182010",
+      "title": "SRR передний SA-160662 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160663",
+      "id": "179237271",
+      "title": "SRR задний SA-160663 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160663",
+      "id": "175147844",
+      "title": "SRR задний SA-160663 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160665",
+      "id": "142298248",
+      "title": "SRR задний SA-160665 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160665",
+      "id": "143104556",
+      "title": "SRR задний SA-160665 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160670",
+      "id": "179237334",
+      "title": "SRR передний SA-160670 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160670",
+      "id": "174104632",
+      "title": "SRR передний SA-160270 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160671",
+      "id": "174104596",
+      "title": "SRR передний, задний SA-160671 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160671",
+      "id": "179237285",
+      "title": "SRR задний SA-160671 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160674",
+      "id": "179237440",
+      "title": "SRR передний SA-160675 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160674",
+      "id": "143104474",
+      "title": "SRR передний SA-160673 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160675",
+      "id": "174104770",
+      "title": "SRR передний SA-160675 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SA-160675",
+      "id": "179045356",
+      "title": "SRR задний SA-160075 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160679",
+      "id": "179047579",
+      "title": "SRR задний SA-160649 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160679",
+      "id": "124181153",
+      "title": "SRR передний SA-160079 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160686",
+      "id": "179822564",
+      "title": "SRR задний SA-160186 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SA-160686",
+      "id": "143104573",
+      "title": "SRR задний SA-160186 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SGM-10001",
+      "id": "175147489",
+      "title": "SRR передний SGM-10001 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SGM-10001",
+      "id": "179824155",
+      "title": "SRR передний SGM-10001 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SGP10001",
+      "id": "144011721",
+      "title": "SRR передний SGP10001 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SGP10001",
+      "id": "177610187",
+      "title": "SRR SRR OE GS-14075 упор капота для Toyota Camry 2001-2003 черный",
+      "category": "Hood and trunk stops",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SGT10011",
+      "id": "135025922",
+      "title": "Задний SGT10010 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SGT10011",
+      "id": "144011642",
+      "title": "SRR передний SGT10011 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SGT10012",
+      "id": "144011683",
+      "title": "SRR передний SGT10012 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SGT10012",
+      "id": "187662850",
+      "title": "SRR передний SGT10016/SGT10015 2 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SGT10013",
+      "id": "143104558",
+      "title": "SRR задний SGT10013 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SGT10013",
+      "id": "177420015",
+      "title": "Катушка зажигания SRR SRR OE IC-13073",
+      "category": "Ignition coils",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SGT10014",
+      "id": "143104516",
+      "title": "SRR задний SGT10014 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SGT10014",
+      "id": "177610185",
+      "title": "SRR SRR OE GS-14073 упор капота для Toyota Camry 2004-2002 черный",
+      "category": "Hood and trunk stops",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SGT10015",
+      "id": "143104486",
+      "title": "SRR передний SGT10015 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SGT10015",
+      "id": "179824516",
+      "title": "SRR передний SGT10015 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SGT10016",
+      "id": "179824218",
+      "title": "SRR передний SGT10016 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SGT10016",
+      "id": "143104561",
+      "title": "SRR передний SGT10016 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SGT10017",
+      "id": "187664005",
+      "title": "SRR передний SGT10018/SGT10017 2 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SGT10017",
+      "id": "129581357",
+      "title": "SRR передний SGT10017 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SGT10018",
+      "id": "179822794",
+      "title": "SRR передний SGT10018 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SGT10018",
+      "id": "129581322",
+      "title": "SRR передний SGT10018 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SGT10019",
+      "id": "144011670",
+      "title": "SRR задний SGT10019 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SGT10019",
+      "id": "177418914",
+      "title": "Катушка зажигания SRR SRR OE IC-13013",
+      "category": "Ignition coils",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SGT10020",
+      "id": "144011709",
+      "title": "SRR задний SGT10020 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SGT10020",
+      "id": "135025928",
+      "title": "Передний SGT10021 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SGT10021",
+      "id": "133199181",
+      "title": "SRR радиатор основной OE 164000-74840",
+      "category": "Radiators",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SGT10021",
+      "id": "162091546",
+      "title": "WXQP привод колеса в сборе CVJ-18348 SRR OE, 61262 WXQP",
+      "category": "Drive elements",
+      "reason": "wrong_brand"
+    },
+    {
+      "key": "SRR|SGT10022",
+      "id": "143104491",
+      "title": "SRR передний SGT10022 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SGT10022",
+      "id": "144011749",
+      "title": "SRR задний SGT10027 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SGT10023",
+      "id": "137706665",
+      "title": "SRR задний SGT10023 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SGT10023",
+      "id": "179824502",
+      "title": "SRR задний SGT10027 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SGT10024",
+      "id": "134772602",
+      "title": "SRR задний SGT10004 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SGT10024",
+      "id": "177621376",
+      "title": "Диски SRR задние SRR OE BD-23046",
+      "category": "Brake discs",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SGT-10029",
+      "id": "143104528",
+      "title": "SRR передний SGT-10029 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SGT-10029",
+      "id": "131664789",
+      "title": "Кофемашина SGT SGT2308 серебристый",
+      "category": "Coffee machines",
+      "reason": "wrong_brand"
+    },
+    {
+      "key": "SRR|SGT-10030",
+      "id": "143104580",
+      "title": "SRR передний SGT-10030 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SGT-10030",
+      "id": "153007922",
+      "title": "Кофемашина SGT SGT2309 черный, серебристый",
+      "category": "Coffee machines",
+      "reason": "wrong_brand"
+    },
+    {
+      "key": "SRR|SGT10031",
+      "id": "144011722",
+      "title": "SRR передний SGT10031 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SGT10031",
+      "id": "135025931",
+      "title": "Передний SGT10035 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SGT10032",
+      "id": "143104485",
+      "title": "SRR передний SGT10032 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SGT10032",
+      "id": "135025936",
+      "title": "Передний SGT10036 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SGT10035",
+      "id": "174104742",
+      "title": "SRR передний SGT10035 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SGT10035",
+      "id": "174104762",
+      "title": "SRR передний SGT10036 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SGT10036",
+      "id": "174104758",
+      "title": "SRR передний SGT10033 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SGT10036",
+      "id": "135025923",
+      "title": "Передний SGT10034 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SGT-10037",
+      "id": "178371109",
+      "title": "SRR задний SGT-10037 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SGT-10037",
+      "id": "179237249",
+      "title": "SRR задний SGT-10037 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SGT-10038",
+      "id": "179237247",
+      "title": "SRR задний SGT-10038 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SGT-10038",
+      "id": "175074047",
+      "title": "SRR передний, задний SGT-10038 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SGT-10041",
+      "id": "143170440",
+      "title": "SRR передний SGT-10041 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SGT-10041",
+      "id": "179169429",
+      "title": "SRR передний SGT-10133 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SGT-10042",
+      "id": "143170445",
+      "title": "Передний SGT-10042 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SGT-10042",
+      "id": "174104768",
+      "title": "SRR передний SGT-10042 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SGT10044",
+      "id": "143104518",
+      "title": "SRR передний SGT10044 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SGT10044",
+      "id": "143104460",
+      "title": "SRR передний SGT10043 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SRR|SGT-20003",
+      "id": "143207120",
+      "title": "SRR передний SGT-20003 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SGT-20003",
+      "id": "110253662",
+      "title": "ACEMARK масляный фильтр 90915-20003",
+      "category": "Car filters",
+      "reason": "wrong_brand"
+    },
+    {
+      "key": "SRR|SGT30001",
+      "id": "187661745",
+      "title": "SRR задний SGT30001 2 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SGT30001",
+      "id": "179823186",
+      "title": "SRR задний SGT30001 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SGT30002",
+      "id": "187655753",
+      "title": "SRR задний SGT30002 2 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SGT30002",
+      "id": "129581329",
+      "title": "SRR задний SGT30002 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SLP-20001",
+      "id": "143104454",
+      "title": "SRR задний SLP-20001 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SLP-20001",
+      "id": "21698494b",
+      "title": "Слипы JiJi белый, черный",
+      "category": "Women panties",
+      "reason": "bad_url_id"
+    },
+    {
+      "key": "SRR|SLP40001",
+      "id": "144629308",
+      "title": "SRR передний SLP40001 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SRR|SLP40001",
+      "id": "177420928",
+      "title": "Топливный насос SRR SRR OE FP-31032",
+      "category": "Fuel pumps",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1124",
+      "id": "105573794",
+      "title": "STINSS передний S2S1424 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1124",
+      "id": "105573812",
+      "title": "STINSS передний S2S1228 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1125",
+      "id": "105187651",
+      "title": "STINSS задний S2S1185 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1125",
+      "id": "105599916",
+      "title": "STINSS задний S2S1173 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1131",
+      "id": "105573876",
+      "title": "STINSS передний S2S1191 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1131",
+      "id": "106936365",
+      "title": "STINSS задний S2S1181 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1165",
+      "id": "106133691",
+      "title": "STINSS задний S2S1163 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1165",
+      "id": "108214718",
+      "title": "STINSS задний S2S1162 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1168",
+      "id": "105579530",
+      "title": "STINSS задний S2S1160 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1168",
+      "id": "106123041",
+      "title": "STINSS задний S2S1166 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1175",
+      "id": "106936362",
+      "title": "STINSS задний S2S1177 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1175",
+      "id": "106936332",
+      "title": "STINSS задний S2S1176 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1184",
+      "id": "105579595",
+      "title": "STINSS задний S2S1182 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1184",
+      "id": "115303197",
+      "title": "STINSS передний S2S1189 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1205",
+      "id": "110617663",
+      "title": "STINSS задний S2S1305 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1205",
+      "id": "105573879",
+      "title": "STINSS передний S2S1204 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1215",
+      "id": "106936354",
+      "title": "STINSS передний S2S1245 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1215",
+      "id": "120543990",
+      "title": "STINSS передний S2S1225 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1238",
+      "id": "106936363",
+      "title": "STINSS передний S2S1230 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1238",
+      "id": "105573871",
+      "title": "STINSS передний S2S1218 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1307",
+      "id": "106936336",
+      "title": "STINSS задний S2S1370 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1307",
+      "id": "105579507",
+      "title": "STINSS задний S2S1407 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1326",
+      "id": "105579533",
+      "title": "STINSS задний S2S1321 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1326",
+      "id": "105599982",
+      "title": "STINSS задний S2S1306 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1332",
+      "id": "105573796",
+      "title": "STINSS передний S2S1339 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1332",
+      "id": "105573893",
+      "title": "STINSS передний S2S1312 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1333",
+      "id": "105187653",
+      "title": "STINSS задний S2S1313 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1333",
+      "id": "105187681",
+      "title": "STINSS задний S2S1373 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1357",
+      "id": "105599928",
+      "title": "STINSS задний S2S1457 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1357",
+      "id": "115446093",
+      "title": "STINSS передний S2S1359 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1372",
+      "id": "108294501",
+      "title": "STINSS задний S2S1371 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1372",
+      "id": "106936356",
+      "title": "STINSS задний S2S1378 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1374",
+      "id": "106936359",
+      "title": "STINSS задний S2S1304 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1374",
+      "id": "106936321",
+      "title": "STINSS задний S2S1379 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1375",
+      "id": "106936306",
+      "title": "STINSS задний S2S1345 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1375",
+      "id": "105573985",
+      "title": "STINSS передний S2S1318 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1418",
+      "id": "143949415",
+      "title": "STINSS передний S2S1418 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "STINSS|S2S1418",
+      "id": "179048162",
+      "title": "STINSS передний S2S1418 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "STINSS|S2S1459",
+      "id": "115446069",
+      "title": "STINSS передний S2S1559 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1459",
+      "id": "108294468",
+      "title": "STINSS задний S2S1455 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1493",
+      "id": "105573961",
+      "title": "STINSS передний S2S1423 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1493",
+      "id": "179047940",
+      "title": "STINSS передний S2S1493 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "STINSS|S2S1515",
+      "id": "142949875",
+      "title": "STINSS передний S2S1515 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "STINSS|S2S1515",
+      "id": "115446080",
+      "title": "STINSS передний S2S1561 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1516",
+      "id": "179820557",
+      "title": "STINSS передний S2S1516 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "STINSS|S2S1516",
+      "id": "142949868",
+      "title": "STINSS передний S2S1516 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "STINSS|S2S1521",
+      "id": "106936311",
+      "title": "STINSS передний S2S1221 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1521",
+      "id": "106936338",
+      "title": "STINSS передний S2S1222 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1531",
+      "id": "179820603",
+      "title": "STINSS задний S2S1531 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "STINSS|S2S1531",
+      "id": "105599874",
+      "title": "STINSS задний S2S1301 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1533",
+      "id": "142619944",
+      "title": "STINSS передний S2S1533 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "STINSS|S2S1533",
+      "id": "179820561",
+      "title": "STINSS передний S2S1533 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "STINSS|S2S1534",
+      "id": "142298277",
+      "title": "STINSS передний S2S1534 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "STINSS|S2S1534",
+      "id": "143040610",
+      "title": "STINSS передний S2S1534 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "STINSS|S2S1540",
+      "id": "143040608",
+      "title": "STINSS передний S2S1540 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "STINSS|S2S1540",
+      "id": "179824460",
+      "title": "STINSS передний S2S1540 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "STINSS|S2S1542",
+      "id": "106936283",
+      "title": "STINSS задний S2S1002 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1542",
+      "id": "143949432",
+      "title": "STINSS передний S2S1542 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "STINSS|S2S1543",
+      "id": "143040572",
+      "title": "STINSS задний S2S1543 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "STINSS|S2S1543",
+      "id": "179046154",
+      "title": "STINSS задний S2S1543 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "STINSS|S2S1544",
+      "id": "106936328",
+      "title": "STINSS передний S2S1244 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1544",
+      "id": "106936294",
+      "title": "STINSS задний S2S1344 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1545",
+      "id": "143040616",
+      "title": "STINSS задний S2S1545 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "STINSS|S2S1545",
+      "id": "123782622",
+      "title": "STINSS задний S2S1567 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1546",
+      "id": "105573979",
+      "title": "STINSS передний S2S1226 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1546",
+      "id": "108294382",
+      "title": "STINSS задний S2S1456 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1552",
+      "id": "179049603",
+      "title": "STINSS передний S2S1552 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "STINSS|S2S1552",
+      "id": "115303192",
+      "title": "STINSS передний S2S1392 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1553",
+      "id": "179046414",
+      "title": "STINSS задний S2S1553 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "STINSS|S2S1553",
+      "id": "106936278",
+      "title": "STINSS задний S2S1250 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1554",
+      "id": "123782313",
+      "title": "STINSS задний S2S1154 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STINSS|S2S1554",
+      "id": "129584944",
+      "title": "STINSS передний S2S1554 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "STINSS|S2S1560",
+      "id": "179048098",
+      "title": "STINSS передний S2S1560 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "STINSS|S2S1560",
+      "id": "115446111",
+      "title": "STINSS передний S2S1560 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "STINSS|S2S1564",
+      "id": "179047875",
+      "title": "STINSS передний S2S1564 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "STINSS|S2S1564",
+      "id": "143040654",
+      "title": "STINSS передний S2S1564 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "STINSS|S2S1575",
+      "id": "179048707",
+      "title": "STINSS задний S2S1575 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "STINSS|S2S1575",
+      "id": "105187710",
+      "title": "STINSS задний S2S1372 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "STVOV|SVP2002",
+      "id": "179042666",
+      "title": "STVOV задний SVP2002 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "STVOV|SVP2002",
+      "id": "175656332",
+      "title": "STVOV задний SVP2002 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "STVOV|SVP2007",
+      "id": "179049594",
+      "title": "STVOV задний SVP2007 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "STVOV|SVP2007",
+      "id": "152326488",
+      "title": "STVOV задний SVP2007 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "STVOV|SVP2028",
+      "id": "123782882",
+      "title": "STVOV задний SVP2028 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "STVOV|SVP2028",
+      "id": "121752351",
+      "title": "SVBONY SV202 ED 10 50 мм черный",
+      "category": "Binoculars and spotting scopes",
+      "reason": "wrong_brand"
+    },
+    {
+      "key": "SUPERZING|163827",
+      "id": "179820627",
+      "title": "Superzing передний 163827 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|163827",
+      "id": "132689987",
+      "title": "Superzing передний 163827 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|163829",
+      "id": "122288878",
+      "title": "Superzing задний 163829 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|163829",
+      "id": "151434509",
+      "title": "Superzing ремкомплект маятникового рычага 163839",
+      "category": "Suspension arms and rods",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SUPERZING|163831",
+      "id": "129584911",
+      "title": "Superzing передний 163831 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|163831",
+      "id": "168640282",
+      "title": "Superzing передний 163831 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|163857",
+      "id": "124058246",
+      "title": "Superzing подшипник ступицы 163851",
+      "category": "Wheel hub",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SUPERZING|163857",
+      "id": "129581340",
+      "title": "Superzing задний 163857 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|163861",
+      "id": "179820712",
+      "title": "Superzing передний 163861 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|163861",
+      "id": "129581341",
+      "title": "Superzing передний 163861 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|262023",
+      "id": "179042724",
+      "title": "Superzing передний 262023 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|262023",
+      "id": "132689998",
+      "title": "Superzing передний 262023 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|262025",
+      "id": "129581303",
+      "title": "Superzing задний 262025 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|262025",
+      "id": "179042624",
+      "title": "Superzing задний 262025 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|262029",
+      "id": "139566607",
+      "title": "Superzing передний 262029 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|262029",
+      "id": "179047351",
+      "title": "Superzing передний 262029 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|262031",
+      "id": "179047348",
+      "title": "Superzing передний 262031 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|262031",
+      "id": "139566606",
+      "title": "Superzing передний 262031 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|262545",
+      "id": "179045726",
+      "title": "Superzing передний 262545 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|262545",
+      "id": "140857759",
+      "title": "Superzing передний 262545 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|365717",
+      "id": "129739292",
+      "title": "Superzing насос ГУР 365727",
+      "category": "Steering elements",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SUPERZING|365717",
+      "id": "122388292",
+      "title": "Superzing передний 365719 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SUPERZING|365719",
+      "id": "124058235",
+      "title": "Superzing подшипник ступицы 365749",
+      "category": "Wheel hub",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SUPERZING|365719",
+      "id": "129314198",
+      "title": "Superzing опора амортизатора 365759",
+      "category": "Shock absorber support",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SUPERZING|365721",
+      "id": "123600374",
+      "title": "Superzing передний 365721 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|365721",
+      "id": "123755229",
+      "title": "Superzing насос ГУР 365729",
+      "category": "Power steering system",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SUPERZING|365723",
+      "id": "129584915",
+      "title": "Superzing задний 365723 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|365723",
+      "id": "166084046",
+      "title": "Superzing задний 365723 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|365753",
+      "id": "129581306",
+      "title": "Superzing задний 365753 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|365753",
+      "id": "122329934",
+      "title": "Superzing задний 365757 1 шт",
+      "category": "Shock absorbers",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SUPERZING|365757",
+      "id": "123755231",
+      "title": "Superzing кронштейн подушки двигателя 365737",
+      "category": "Engine mount",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SUPERZING|365757",
+      "id": "179042686",
+      "title": "Superzing задний 365757 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|365765",
+      "id": "139395816",
+      "title": "Superzing опора амортизатора 365761",
+      "category": "Shock absorber support",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SUPERZING|365765",
+      "id": "150206461",
+      "title": "Superzing передний 365765 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57398",
+      "id": "139269571",
+      "title": "Superzing передний 57398 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57398",
+      "id": "179042778",
+      "title": "Superzing передний 57398 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57399",
+      "id": "129581308",
+      "title": "Superzing передний 57399 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57399",
+      "id": "179042774",
+      "title": "Superzing передний 57399 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57400",
+      "id": "179820648",
+      "title": "Superzing задний 57400 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57400",
+      "id": "132420279",
+      "title": "Superzing задний 57400 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57401",
+      "id": "179820594",
+      "title": "Superzing задний 57401 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57401",
+      "id": "129581347",
+      "title": "Superzing задний 57401 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57404",
+      "id": "129584938",
+      "title": "Superzing передний 57404 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57404",
+      "id": "179046182",
+      "title": "Superzing передний 57404 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57405",
+      "id": "137776267",
+      "title": "Superzing передний 57405 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57405",
+      "id": "179046472",
+      "title": "Superzing передний 57405 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57406",
+      "id": "179042728",
+      "title": "Superzing задний 57406 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57406",
+      "id": "122289877",
+      "title": "Superzing задний 57406 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57407",
+      "id": "129581348",
+      "title": "Superzing задний 57407 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57407",
+      "id": "179042708",
+      "title": "Superzing задний 57407 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57408",
+      "id": "179042751",
+      "title": "Superzing передний 57408 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57408",
+      "id": "122300822",
+      "title": "Superzing передний 57408 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57409",
+      "id": "124218863",
+      "title": "Superzing рычаг подвески 57419",
+      "category": "Suspension arms and rods",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SUPERZING|57409",
+      "id": "179042763",
+      "title": "Superzing передний 57409 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57411",
+      "id": "138574818",
+      "title": "Superzing задний 57411 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57411",
+      "id": "122288575",
+      "title": "Superzing задний 57411 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57412",
+      "id": "179042650",
+      "title": "Superzing задний 57412 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57412",
+      "id": "122288414",
+      "title": "Superzing задний 57412 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57425",
+      "id": "140857755",
+      "title": "Superzing передний 57425 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57425",
+      "id": "179045727",
+      "title": "Superzing передний 57425 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57426",
+      "id": "179045195",
+      "title": "Superzing передний 57426 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57426",
+      "id": "137962464",
+      "title": "Superzing передний 57426 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57427",
+      "id": "137842622",
+      "title": "Superzing передний 57427 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57427",
+      "id": "179049665",
+      "title": "Superzing передний 57427 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57428",
+      "id": "122307695",
+      "title": "Superzing задний 57428 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57428",
+      "id": "129581333",
+      "title": "Superzing задний 57428 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57443",
+      "id": "139566613",
+      "title": "Superzing задний 57443 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57443",
+      "id": "122289336",
+      "title": "Superzing задний 57443 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57444",
+      "id": "122289180",
+      "title": "Superzing задний 57444 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57444",
+      "id": "179049492",
+      "title": "Superzing задний 57444 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57445",
+      "id": "143063735",
+      "title": "Superzing передний 57445 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57445",
+      "id": "179046781",
+      "title": "Superzing передний 57445 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57446",
+      "id": "179047081",
+      "title": "Superzing передний 57446 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57446",
+      "id": "143063740",
+      "title": "Superzing передний 57446 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57447",
+      "id": "179042671",
+      "title": "Superzing задний 57447 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57447",
+      "id": "143063732",
+      "title": "Superzing задний 57447 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57448",
+      "id": "179042681",
+      "title": "Superzing задний 57448 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57448",
+      "id": "143063753",
+      "title": "Superzing задний 57448 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57449",
+      "id": "179042752",
+      "title": "Superzing передний 57449 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57449",
+      "id": "122300785",
+      "title": "Superzing передний 57449 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57450",
+      "id": "122300074",
+      "title": "Superzing передний 57450 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57450",
+      "id": "179042723",
+      "title": "Superzing передний 57450 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57457",
+      "id": "163702894",
+      "title": "Superzing задний 57457 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57457",
+      "id": "122289517",
+      "title": "Superzing задний 57457 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57458",
+      "id": "163702906",
+      "title": "Superzing задний 57458 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57458",
+      "id": "179042660",
+      "title": "Superzing задний 57458 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57459",
+      "id": "179820499",
+      "title": "Superzing передний 57459 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57459",
+      "id": "129581334",
+      "title": "Superzing передний 57459 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57460",
+      "id": "179049664",
+      "title": "Superzing передний 57460 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57460",
+      "id": "142619903",
+      "title": "Superzing передний 57460 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57461",
+      "id": "179049758",
+      "title": "Superzing передний 57461 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57461",
+      "id": "142619867",
+      "title": "Superzing передний 57461 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57464",
+      "id": "139566598",
+      "title": "Superzing задний 57464 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57464",
+      "id": "179046403",
+      "title": "Superzing задний 57464 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57465",
+      "id": "179046164",
+      "title": "Superzing задний 57465 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57465",
+      "id": "143949402",
+      "title": "Superzing задний 57465 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57466",
+      "id": "179049636",
+      "title": "Superzing передний 57466 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57466",
+      "id": "142619905",
+      "title": "Superzing передний 57466 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57467",
+      "id": "179045732",
+      "title": "Superzing передний 57467 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57467",
+      "id": "142619908",
+      "title": "Superzing передний 57467 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57470",
+      "id": "179048131",
+      "title": "Superzing передний 57470 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57470",
+      "id": "143949426",
+      "title": "Superzing передний 57470 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57471",
+      "id": "179048104",
+      "title": "Superzing передний 57471 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57471",
+      "id": "174104764",
+      "title": "Superzing передний 57471 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57472",
+      "id": "142875300",
+      "title": "Superzing передний 57472 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57472",
+      "id": "179049150",
+      "title": "Superzing передний 57472 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57473",
+      "id": "179045092",
+      "title": "Superzing передний 57473 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57473",
+      "id": "140857763",
+      "title": "Superzing передний 57473 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57477",
+      "id": "152003911",
+      "title": "Superzing передний 57477 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57477",
+      "id": "179820520",
+      "title": "Superzing передний 57477 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57478",
+      "id": "152003929",
+      "title": "Superzing передний 57478 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57478",
+      "id": "140751254",
+      "title": "Superzing передний 57478 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57479",
+      "id": "151829999",
+      "title": "Superzing передний 57479 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57479",
+      "id": "140750858",
+      "title": "Superzing передний 57479 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57480",
+      "id": "122290423",
+      "title": "Superzing задний 57480 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57480",
+      "id": "179042657",
+      "title": "Superzing задний 57480 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57486",
+      "id": "152114068",
+      "title": "Superzing передний 57486 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57486",
+      "id": "179042795",
+      "title": "Superzing передний 57486 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57487",
+      "id": "143063725",
+      "title": "Superzing передний 57487 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57487",
+      "id": "179042797",
+      "title": "Superzing передний 57487 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57494",
+      "id": "179042726",
+      "title": "Superzing задний 57494 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57494",
+      "id": "143949450",
+      "title": "Superzing задний 57494 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57495",
+      "id": "179042718",
+      "title": "Superzing задний 57495 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57495",
+      "id": "143949412",
+      "title": "Superzing задний 57495 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57500",
+      "id": "142949885",
+      "title": "Superzing передний 57500 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57500",
+      "id": "142298236",
+      "title": "Superzing задний 57500 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57501",
+      "id": "142949889",
+      "title": "Superzing передний 57501 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57501",
+      "id": "179042757",
+      "title": "Superzing передний 57501 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57513",
+      "id": "179042772",
+      "title": "Superzing передний 57513 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57513",
+      "id": "163589306",
+      "title": "Superzing стойка стабилизатора 57523",
+      "category": "Anti Roll Bars",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "SUPERZING|57514",
+      "id": "179042776",
+      "title": "Superzing передний 57514 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57514",
+      "id": "134772611",
+      "title": "Superzing передний 57514 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57572",
+      "id": "179045054",
+      "title": "Superzing задний 57572 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57572",
+      "id": "139566597",
+      "title": "Superzing задний 57572 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57573",
+      "id": "179048915",
+      "title": "Superzing задний 57573 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57573",
+      "id": "139566610",
+      "title": "Superzing задний 57573 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57574",
+      "id": "179045716",
+      "title": "Superzing задний 57574 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57574",
+      "id": "143857534",
+      "title": "Superzing задний 57574 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57575",
+      "id": "179045923",
+      "title": "Superzing задний 57575 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57575",
+      "id": "143063741",
+      "title": "Superzing задний 57575 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57578",
+      "id": "179042700",
+      "title": "Superzing задний 57578 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57578",
+      "id": "143063744",
+      "title": "Superzing задний 57578 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57579",
+      "id": "179042719",
+      "title": "Superzing задний 57579 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57579",
+      "id": "143063752",
+      "title": "Superzing задний 57579 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57735",
+      "id": "143063751",
+      "title": "Superzing передний 57735 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57735",
+      "id": "179042727",
+      "title": "Superzing передний 57735 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57736",
+      "id": "143063760",
+      "title": "Superzing передний 57736 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|57736",
+      "id": "179042749",
+      "title": "Superzing передний 57736 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|62041",
+      "id": "139566604",
+      "title": "Superzing задний 62041 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|62041",
+      "id": "167267956",
+      "title": "Superzing задний 62042 62041 2 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|62042",
+      "id": "179042647",
+      "title": "Superzing задний 62042 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|62042",
+      "id": "139566594",
+      "title": "Superzing задний 62042 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|62046",
+      "id": "179046215",
+      "title": "Superzing задний 62046 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|62046",
+      "id": "137776419",
+      "title": "Superzing задний 62046 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|62047",
+      "id": "179046796",
+      "title": "Superzing задний 62047 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|62047",
+      "id": "137776343",
+      "title": "Superzing задний 62047 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|62048",
+      "id": "179047017",
+      "title": "Superzing задний 62048 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|62048",
+      "id": "143949491",
+      "title": "Superzing задний 62048 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|62049",
+      "id": "179046784",
+      "title": "Superzing задний 62049 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|62049",
+      "id": "143949379",
+      "title": "Superzing задний 62049 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|764615",
+      "id": "139566618",
+      "title": "Superzing передний 764615 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|764615",
+      "id": "179046246",
+      "title": "Superzing передний 764615 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|765063",
+      "id": "179042739",
+      "title": "Superzing передний 765063 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|765063",
+      "id": "143063739",
+      "title": "Superzing передний 765063 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|765065",
+      "id": "179042706",
+      "title": "Superzing передний 765065 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "SUPERZING|765065",
+      "id": "143063754",
+      "title": "Superzing передний 765065 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "TMG|706061",
+      "id": "179049522",
+      "title": "TMG задний 706061 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "TMG|706061",
+      "id": "175073931",
+      "title": "TMG задний 706061 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "TMG|706068",
+      "id": "174104577",
+      "title": "TMG задний 706068 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "TMG|706068",
+      "id": "179823924",
+      "title": "TMG задний 706068 1 шт",
+      "category": "Shock absorbers",
+      "reason": "not_one_unit"
+    },
+    {
+      "key": "TMG|TD0062",
+      "id": "108256133",
+      "title": "TMG пружина задней подвески TD0012",
+      "category": "Suspension spring",
+      "reason": "wrong_article"
+    },
+    {
+      "key": "TMG|TD0062",
+      "id": "105968491",
+      "title": "TMG пружина задней подвески TD0002",
+      "category": "Suspension spring",
+      "reason": "wrong_article"
+    }
+  ]
+}
