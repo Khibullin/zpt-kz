@@ -34,6 +34,30 @@ class StagingQuoteTests(unittest.TestCase):
               card('AB-12',950,'123329934','Superzing AB-12',brand='WRONG')]
         self.assertFalse(select_minimum_seller_quotes(rows,[('Superzing','AB-12')]))
 
+    def test_row_brand_must_be_visible_in_kaspi_product_title_and_slug(self):
+        row = card('S2S1552', 12784, '179049603', 'STINSS S2S1552',
+                   brand='OtherBrand')
+        row['brand'] = 'STINSS'  # misleading Apify field: actual card is OtherBrand
+        self.assertFalse(select_minimum_seller_quotes(
+            [row], [('STINSS', 'S2S1552')]))
+
+    def test_kaspi_title_and_url_brand_disagreement_is_rejected(self):
+        row = card('S2S1552', 12784, '179049603', 'STINSS S2S1552',
+                   brand='STINSS')
+        row['title'] = 'OtherBrand задний S2S1552 1 шт'
+        self.assertFalse(select_minimum_seller_quotes(
+            [row], [('STINSS', 'S2S1552')]))
+        row['title'] = 'STINSS задний S2S1552 1 шт'
+        row['url'] = row['url'].replace('stinss-', 'otherbrand-')
+        self.assertFalse(select_minimum_seller_quotes(
+            [row], [('STINSS', 'S2S1552')]))
+
+    def test_matching_supplier_brand_card_title_and_slug_passes_brand_gate(self):
+        row = card('S2S1552', 12784, '179049603', 'STINSS S2S1552',
+                   brand='STINSS')
+        out = select_minimum_seller_quotes([row], [('STINSS', 'S2S1552')])
+        self.assertEqual(out[('stinss', 's2s1552')]['min_price'], Decimal('12784'))
+
     def test_leading_zero_not_collapsed(self):
         rows=[card('00123',3000,'122329934','Superzing 123')]
         self.assertFalse(select_minimum_seller_quotes(rows,[('Superzing','123')]))
