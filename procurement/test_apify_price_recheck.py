@@ -45,8 +45,8 @@ class ApifyMultiCardRecheckTests(TestCase):
     def card(self, product_id, article, price, *,
              brand='WXQP', query='WXQP 51331', offers=None):
         return {
-            'id': product_id, 'title': f'{brand} гидравлическая {article} левый руль',
-            'brand': brand, 'searchQuery': query, 'inStock': True,
+            'id': product_id, 'title': f'{brand} гидравлическая {article} левый руль 1 шт',
+            'brand': brand, 'searchQuery': query, 'inStock': True, 'currency': 'KZT',
             'url': f'https://kaspi.kz/shop/p/recheck-{product_id}/',
             'minPrice': price,
             'offers': ([{'sellerName': 'Дешёвый продавец', 'price': price}]
@@ -90,14 +90,14 @@ class ApifyMultiCardRecheckTests(TestCase):
             cost=Decimal('18908'), stock='7')
         self.send([
             {'id': '145316166', 'brand': 'FREY',
-             'title': 'FREY рычаг подвески 750102701',
-             'searchQuery': 'FREY 750101901', 'inStock': True,
+             'title': 'FREY рычаг подвески 750102701 1 шт',
+             'searchQuery': 'FREY 750101901', 'inStock': True, 'currency': 'KZT',
              'url': 'https://kaspi.kz/shop/p/frey-rychag-podveski-750102701-145316166/',
              'minPrice': 29999, 'offers': [
                  {'sellerName': 'Seller', 'price': 29999}]},
             {'id': '179823736', 'brand': 'FREY',
-             'title': 'FREY рычаг подвески 750102701',
-             'searchQuery': 'FREY 750102701', 'inStock': True,
+             'title': 'FREY рычаг подвески 750102701 1 шт',
+             'searchQuery': 'FREY 750102701', 'inStock': True, 'currency': 'KZT',
              'url': 'https://kaspi.kz/shop/p/frey-rychag-podveski-750102701-179823736/',
              'minPrice': 35750, 'offers': [
                  {'sellerName': 'Seller', 'price': 35750}]},
@@ -170,6 +170,29 @@ class ApifyMultiCardRecheckTests(TestCase):
         data = self.card('188888890', '51331', 90000)
         data.pop('inStock')
         self.send([data])
+        self.assertFalse(KaspiPriceAudit.objects.exists())
+
+    def test_malformed_or_unidentified_seller_rejected(self):
+        invalid = self.card('133333331', '51331', 79000, offers=[
+            {'sellerName':'Valid Seller', 'price':79000},
+            {'sellerName':'Missing Price'}])
+        self.send([invalid])
+        self.assertFalse(KaspiPriceAudit.objects.exists())
+
+    def test_non_single_unit_or_bad_kaspi_url_rejected(self):
+        invalid = self.card('133333332', '51331', 79000)
+        invalid['title'] = 'WXQP 51331 комплект 2 шт'
+        self.send([invalid])
+        self.assertFalse(KaspiPriceAudit.objects.exists())
+        invalid = self.card('133333333', '51331', 79000)
+        invalid['url'] = 'https://example.com/shop/p/recheck-133333333/'
+        self.send([invalid])
+        self.assertFalse(KaspiPriceAudit.objects.exists())
+
+    def test_minprice_lower_than_observed_sellers_is_unconfirmed(self):
+        invalid = self.card('133333334', '51331', 79000,
+                            offers=[{'sellerName':'Only seller', 'price':90000}])
+        self.send([invalid])
         self.assertFalse(KaspiPriceAudit.objects.exists())
 
     def test_suffix_not_merged_with_numeric_article(self):
