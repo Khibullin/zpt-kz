@@ -10,6 +10,10 @@ from backend.media_paths import resolve_media_root
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Apify is sent as individual 500-row JSON batches, not a single 200 MB HTTP upload.
+# Allow a batch larger than Django's default 2.5 MB request-body ceiling.
+DATA_UPLOAD_MAX_MEMORY_SIZE = 16 * 1024 * 1024
+
 DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
 # Preserve internal procurement while retiring public storefront work.
