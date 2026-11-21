@@ -48,6 +48,26 @@ MAX_IMAGE_BYTES = 500_000
 MAX_SHOTS = 3
 
 
+def _is_selected_card(offer, source_file, product_id):
+    """Only attach screenshot evidence to the selected authoritative card.
+
+    Older comparison materials are supported without editing historical prices.
+    """
+    if not product_id:
+        return False
+    if source_file:
+        return (
+            KaspiPriceAudit.objects.filter(
+                offer=offer, source_filename=source_file,
+                product_id=product_id).exists()
+            or BuyingComparisonMaterial.objects.filter(
+                offer=offer, source_filename=source_file,
+                kaspi_product_id=product_id).exists()
+        )
+    return PermanentBuyingItem.objects.filter(
+        offer=offer, product_id=product_id).exists()
+
+
 @access('sales', 'admin')
 @require_POST
 def paste_kaspi_screenshot(request, pk):
@@ -79,7 +99,21 @@ def paste_kaspi_screenshot(request, pk):
 
     source_file = str(request.POST.get('source_file') or '').strip()[:255]
     product_id = str(request.POST.get('product_id') or '').strip()[:80]
-    url = str(request.POST.get('kaspi_url') or '').strip()[:2048]
+    if not _is_selected_card(offer, source_file, product_id):
+        return JsonResponse({
+            'error': 'Карточка Kaspi не соответствует выбранному товару и выгрузке. Обновите страницу.',
+        }, status=400)
+    audit = KaspiPriceAudit.objects.filter(
+        offer=offer, source_filename=source_file,
+        product_id=product_id).first() if source_file else None
+    # Screenshot evidence must be associated with an audited URL, not a
+    # user-submitted address that could belong to another card.
+    existing_material = BuyingComparisonMaterial.objects.filter(
+        offer=offer, source_filename=source_file,
+        kaspi_product_id=product_id).first()
+    url = ((audit.card_url if audit else '') or
+           (existing_material.kaspi_url if existing_material else '') or
+           (record.kaspi_url if not source_file else ''))[:2048]
     encoded = 'data:image/jpeg;base64,' + base64.b64encode(data).decode('ascii')
     with transaction.atomic():
         material, _ = BuyingComparisonMaterial.objects.select_for_update().get_or_create(
@@ -114,6 +148,9 @@ def _target(request, pk):
     material = get_object_or_404(BuyingComparisonMaterial,
                                  offer=offer, source_filename=source_file,
                                  kaspi_product_id=product_id)
+    if not _is_selected_card(offer, source_file, product_id):
+        from django.http import Http404
+        raise Http404('Карточка Kaspi не соответствует выбранной выгрузке.')
     return offer, material
 
 
