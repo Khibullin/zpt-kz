@@ -8,7 +8,8 @@ def card(article, price, product_id, query, *, count='1 шт', brand='Superzing'
         url=f'https://kaspi.kz/shop/p/{brand.lower()}-zadnii-{article.lower()}-1-sht-{product_id}/',
         price=price, minPrice=price, inStock=True, currency='KZT',
         categoryCode=category, city='Almaty', searchQuery=query,
-        offers=[dict(price=price, sellerId='123', sellerName='Seller')] if seller else [])
+        offers=[dict(price=price, sellerId='123', sellerName='Seller')] if seller else [],
+        sellersCount=1 if seller else 0)
 
 
 class StagingQuoteTests(unittest.TestCase):
@@ -99,6 +100,27 @@ class StagingQuoteTests(unittest.TestCase):
         row['sellersCount'] = 1
         out = select_minimum_seller_quotes([row], [('Superzing', '365757')])
         self.assertEqual(out[('superzing', '365757')]['min_price'], Decimal('5320'))
+
+    def test_missing_seller_count_cannot_prove_complete_market_list(self):
+        row = card('365757', 5320, '122329934', 'Superzing 365753')
+        del row['sellersCount']
+        self.assertFalse(select_minimum_seller_quotes(
+            [row], [('Superzing', '365757')]))
+
+    def test_seller_count_less_than_returned_offers_is_inconsistent(self):
+        row = card('365757', 5320, '122329934', 'Superzing 365753')
+        row['offers'].append(dict(price=8000, sellerId='222', sellerName='Other'))
+        self.assertFalse(select_minimum_seller_quotes(
+            [row], [('Superzing', '365757')]))
+
+    def test_equal_minimum_price_cards_are_flagged_for_identity_review(self):
+        rows = [card('163827', 12710, '179820627', 'Superzing 163827'),
+                card('163827', 12710, '132689987', 'Superzing 163827')]
+        quote = select_minimum_seller_quotes(
+            rows, [('Superzing', '163827')])[('superzing', '163827')]
+        self.assertEqual(quote['equal_minimum_card_ids'], ['132689987', '179820627'])
+        self.assertTrue(quote['needs_identity_choice'])
+        self.assertFalse(quote['publication_verified'])
 
     def test_inconsistent_card_minimum_is_not_accepted(self):
         row = card('365757', 5320, '122329934', 'Superzing 365753')
