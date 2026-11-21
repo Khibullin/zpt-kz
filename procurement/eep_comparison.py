@@ -4,7 +4,9 @@ Use the same Apify price-audit card selected by the visible buying list.
 Never infer missing product attributes from a price-only export.
 """
 from urllib.parse import urlsplit
+from datetime import timedelta
 import re
+from django.utils import timezone
 from .comparison_first_ten import FIRST_TEN_OFFER_IDS
 
 from django.shortcuts import get_object_or_404, render
@@ -162,6 +164,13 @@ def comparison(request, pk):
                  (candidate.url if candidate else "") or
                  (_first(kaspi_source, "url") if kaspi_source else "") or
                  (record.kaspi_url if not source_file else ""))
+    # Both prices are read-only source observations. A screenshot's price must
+    # never be substituted for the seller minimum of the selected Apify export.
+    stale_cutoff = timezone.now() - timedelta(days=7)
+    omega_checked_at = offer.supplier_checked_on
+    kaspi_checked_at = audit.observed_at if audit else None
+    omega_price_stale = not omega_checked_at or omega_checked_at < stale_cutoff
+    kaspi_price_stale = not kaspi_checked_at or kaspi_checked_at < stale_cutoff
     return render(request, "procurement/eep_comparison.html",
                   context(request, offer=offer, rows=rows,
                           supplier_photo=supplier_photos[0] if supplier_photos else "",
@@ -171,6 +180,11 @@ def comparison(request, pk):
                           omega_url=offer.supplier_url or offer.supplier.website,
                           kaspi_url=kaspi_url, list_url=target, selected_product_id=product_id,
                           comparison_source=source_file or (audit.source_filename if audit else ""),
+                          omega_price=offer.cost, omega_checked_at=omega_checked_at,
+                          omega_price_stale=omega_price_stale,
+                          kaspi_price=audit.min_price if audit else None,
+                          kaspi_checked_at=kaspi_checked_at,
+                          kaspi_price_stale=kaspi_price_stale,
                           material=material, manual_screenshots=manual_screenshots,
                           clipboard_pilot=(offer.pk in FIRST_TEN_OFFER_IDS),
                           comparison_first_ten_url=reverse('procurement:comparison_first_ten'),
