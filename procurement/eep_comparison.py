@@ -270,7 +270,9 @@ def _comparison_impl(request, pk):
                           omega_price=offer.cost, omega_checked_at=omega_checked_at,
                           omega_price_stale=omega_price_stale,
                           kaspi_price=(audit.min_price if audit else
-                                       srr_snapshot["min_price"] if srr_snapshot else None),
+                                       srr_snapshot["comparison_min_price"] if srr_snapshot else None),
+                          cheaper_kaspi_url=(srr_snapshot['cheapest_url'] if srr_snapshot and srr_snapshot['different_cheapest_card'] else ''),
+                          cheaper_kaspi_id=(srr_snapshot['cheapest_product_id'] if srr_snapshot and srr_snapshot['different_cheapest_card'] else ''),
                           kaspi_checked_at=kaspi_checked_at,
                           kaspi_price_stale=kaspi_price_stale,
                           material=material, manual_screenshots=manual_screenshots,
