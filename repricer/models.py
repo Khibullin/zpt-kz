@@ -85,6 +85,7 @@ class KaspiCompetitorOfferSnapshot(models.Model):
     position = models.PositiveIntegerField("Позиция", null=True, blank=True)
     is_available = models.BooleanField("В наличии", default=True)
     source = models.CharField("Источник", max_length=64, default="manual")
+    city_id = models.CharField("Город Kaspi (код)", max_length=12, blank=True, default="", db_index=True)
     captured_at = models.DateTimeField("Получено", db_index=True)
 
     class Meta:
@@ -111,6 +112,7 @@ class KaspiCompetitorIngestBatch(models.Model):
         verbose_name="Kaspi-привязка",
     )
     source = models.CharField("Источник", max_length=64, default="office_collector")
+    city_id = models.CharField("Город Kaspi (код)", max_length=12, blank=True, default="", db_index=True)
     captured_at = models.DateTimeField("Получено")
     offer_count = models.PositiveIntegerField("Число офферов")
     received_at = models.DateTimeField("Принято", auto_now_add=True)
