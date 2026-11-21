@@ -6,6 +6,7 @@ import re
 from django.shortcuts import render
 from .models import KaspiPriceAudit, KaspiReviewTask, PermanentBuyingItem
 from .views import access, context
+from .srr_review_snapshots import SOURCE as SRR_SOURCE, srr_review_snapshot
 
 SOURCE='dataset_kaspi-api_2026-11-21_14-00-09-125.json'
 
@@ -30,8 +31,13 @@ def apify_review(request):
     srr_rows=[]
     for task in srr_tasks:
         found=re.search(r'Kaspi ID (\d{7,12})', task.reason or '')
-        srr_rows.append({'offer':task.offer,'task':task,
-                         'kaspi_id':found.group(1) if found else ''})
+        snapshot = srr_review_snapshot(task.offer, SRR_SOURCE)
+        srr_rows.append({'offer':task.offer, 'task':task,
+                         'kaspi_id':found.group(1) if found else '',
+                         'kaspi_title':snapshot['title'] if snapshot else '',
+                         'kaspi_url':snapshot['url'] if snapshot else '',
+                         'kaspi_price':snapshot['min_price'] if snapshot else None,
+                         'has_source_snapshot':bool(snapshot)})
     return render(request,'procurement/apify_review.html',
         context(request,rows=rows,prior_count=len(prior),srr_rows=srr_rows,
-                source_file=SOURCE,title='Apify — проверка выгрузок 21.11'))
+                source_file=SOURCE,srr_source=SRR_SOURCE,title='Apify — проверка выгрузок 21.11'))
