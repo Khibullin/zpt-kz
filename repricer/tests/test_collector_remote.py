@@ -1030,3 +1030,38 @@ class CollectorBaseUrlTests(SimpleTestCase):
 
     def test_localhost_http_allowed_in_dev(self):
         assert_collector_base_url("http://127.0.0.1:8000", allow_localhost=True)
+
+
+class NationwideCollectorCommandTests(SimpleTestCase):
+    @override_settings(
+        KASPI_COMPETITOR_COLLECTOR_TOKEN=TOKEN,
+        ZPT_KASPI_COLLECTOR_BASE_URL="https://zpt.kz",
+        DEBUG=False,
+    )
+    def test_all_cities_runs_scoped_requests_without_price_writes(self):
+        from repricer.cities import KASPI_KZ_CITIES
+
+        scans = CollectScanResult(listings=[])
+        with patch(
+            "repricer.management.commands.collect_kaspi_competitors_remote.collect_remote_listings",
+            return_value=scans,
+        ) as collect, patch(
+            "repricer.management.commands.collect_kaspi_competitors_remote.KaspiPublicOfferSource"
+        ):
+            call_command(
+                "collect_kaspi_competitors_remote",
+                "--all-active", "--all-cities",
+                stdout=StringIO(),
+            )
+        self.assertEqual(collect.call_count, len(KASPI_KZ_CITIES))
+        observed_cities = [
+            call.kwargs["client"].city_id for call in collect.call_args_list
+        ]
+        self.assertEqual(observed_cities, [id for id, _ in KASPI_KZ_CITIES])
+
+    def test_all_cities_requires_all_active(self):
+        with self.assertRaises(CommandError):
+            call_command(
+                "collect_kaspi_competitors_remote",
+                "--all-cities", "--listing-id", "1",
+            )
