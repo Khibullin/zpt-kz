@@ -22,6 +22,20 @@ RAW_SNAPSHOTS = {
     "SA-160126": ("SRR OE", "143207140", "SRR задний SA-160126 1 шт", "https://kaspi.kz/shop/p/srr-zadnii-sa-160126-1-sht-143207140/", 10836, "https://resources.cdn-kaspi.kz/img/m/p/p65/pea/55492916.jpg?format=preview-large"),
 }
 
+# A cheaper ONE-PIECE SRR card with the same complete article occurs in
+# the same Apify export for each item below. These are separate Kaspi IDs;
+# do not overwrite/merge the originally selected source card or prices.
+LOWEST_SAME_ARTICLE = {
+    "SA-160013": ("124181139", 11933,
+        "https://kaspi.kz/shop/p/srr-zadnii-sa-160013-1-sht-124181139/"),
+    "SA-160018": ("129584906", 12330,
+        "https://kaspi.kz/shop/p/srr-zadnii-sa-160018-1-sht-129584906/"),
+    "SA-160032": ("175147139", 12288,
+        "https://kaspi.kz/shop/p/srr-zadnii-sa-160032-1-sht-175147139/"),
+    "SA-160095": ("182821049", 23065,
+        "https://kaspi.kz/shop/p/srr-perednii-sa-160095-1-sht-182821049/"),
+}
+
 def srr_review_snapshot(offer, source_filename):
     """Only return a snapshot for its exact, still-unverified SRR review task."""
     if source_filename != SOURCE or offer is None:
@@ -39,7 +53,13 @@ def srr_review_snapshot(offer, source_filename):
         reason__contains="Kaspi ID " + product_id + ".",
     ).exists():
         return None
+    cheapest_id, global_min_price, cheapest_url = LOWEST_SAME_ARTICLE.get(
+        str(offer.article).strip().upper(), (product_id, min_price, url)
+    )
     return {
         "product_id": product_id, "brand": "SRR", "title": title,
         "url": url, "min_price": min_price, "image": image,
+        "comparison_min_price": global_min_price,
+        "cheapest_product_id": cheapest_id, "cheapest_url": cheapest_url,
+        "different_cheapest_card": cheapest_id != product_id,
     }
