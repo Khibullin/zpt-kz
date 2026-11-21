@@ -82,69 +82,33 @@
   </div>
 
   <section class="repricer-summary" aria-label="Сводка репрайсера">
-    <div class="repricer-card"><strong>{{ summary.total }}</strong><span>товаров под контролем</span></div>
+    <div class="repricer-card"><strong>{{ summary.total }}</strong><span>правил контроля цены</span></div>
     <div class="repricer-card"><strong>{{ summary.lower }}</strong><span>можно снизить</span></div>
     <div class="repricer-card"><strong>{{ summary.raise }}</strong><span>можно повысить</span></div>
     <div class="repricer-card"><strong>{{ summary.hold }}</strong><span>оставить цену</span></div>
     <div class="repricer-card"><strong>{{ summary.without_recommendation }}</strong><span>ещё без расчёта</span></div>
   </section>
 
+  <div class="repricer-status"><strong>Товары Kaspi</strong> — список всех активных привязок, даже без правил. Исторические цены не являются основанием для изменения нашей цены. Для действия нужны свежие данные и установленная минимально допустимая цена.</div>
   <div class="repricer-table-wrap">
-    {% if rules %}
-      <table class="repricer-table">
-        <thead>
-          <tr>
-            <th>Товар</th>
-            <th>Наша цена</th>
-            <th>Лучшая цена</th>
-            <th>Позиция</th>
-            <th>MIN</th>
-            <th>Рекомендация</th>
-            <th>Действие</th>
-            <th>Режим</th>
-            <th>Обновлено</th>
-            <th>Почему</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for rule in rules %}
-            <tr>
-              <td class="repricer-product">
-                <strong>{{ rule.listing.product.title }}</strong>
-                <span class="repricer-muted">{{ rule.listing.product.article|default:"без артикула" }} · Kaspi {{ rule.listing.master_sku }}</span>
-              </td>
-              <td class="repricer-money">
-                {% if rule.listing.last_known_our_price != None %}{{ rule.listing.last_known_our_price|intcomma }} ₸{% else %}—{% endif %}
-              </td>
-              <td class="repricer-money">
-                {% if rule.latest_best_competitor_price != None %}{{ rule.latest_best_competitor_price|floatformat:0|intcomma }} ₸{% else %}—{% endif %}
-              </td>
-              <td>{% if rule.latest_market_position %}№ {{ rule.latest_market_position }}{% else %}—{% endif %}</td>
-              <td class="repricer-money">{{ rule.min_price|floatformat:0|intcomma }} ₸</td>
-              <td class="repricer-money">
-                {% if rule.latest_recommended_price != None %}{{ rule.latest_recommended_price|floatformat:0|intcomma }} ₸{% else %}—{% endif %}
-              </td>
-              <td>
-                {% if rule.latest_action == "LOWER" %}
-                  <span class="repricer-badge repricer-badge--lower">Снизить</span>
-                {% elif rule.latest_action == "RAISE" %}
-                  <span class="repricer-badge repricer-badge--raise">Повысить</span>
-                {% elif rule.latest_action == "HOLD" %}
-                  <span class="repricer-badge repricer-badge--hold">Оставить</span>
-                {% else %}
-                  <span class="repricer-badge repricer-badge--none">Нет расчёта</span>
-                {% endif %}
-              </td>
-              <td>{{ rule.get_mode_display }}{% if not rule.is_enabled %} · выключен{% endif %}</td>
-              <td class="repricer-muted">{% if rule.latest_created_at %}{{ rule.latest_created_at|date:"d.m.Y H:i" }}{% else %}—{% endif %}</td>
-              <td class="repricer-reason">{{ rule.latest_reason|default:"—" }}</td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    {% else %}
-      <div class="repricer-empty">Правила репрайсера ещё не созданы. Начните с привязки Kaspi-листинга и MIN цены.</div>
-    {% endif %}
+    <table class="repricer-table">
+      <thead><tr><th>Товар / Kaspi</th><th>Наша цена</th><th>Лучшая цена конкурента</th><th>Продавец</th><th>Предложений</th><th>Последний сбор</th><th>Состояние</th></tr></thead>
+      <tbody>
+      {% for row in monitored %}
+        <tr>
+          <td class="repricer-product"><strong>{{ row.listing.product.title }}</strong><span class="repricer-muted">{{ row.listing.product.article|default:"без артикула" }} · Kaspi {{ row.listing.master_sku }}</span></td>
+          <td class="repricer-money">{% if row.listing.last_known_our_price != None %}{{ row.listing.last_known_our_price|intcomma }} ₸{% else %}—{% endif %}</td>
+          <td class="repricer-money">{% if row.state.best_price != None %}{{ row.state.best_price|floatformat:0|intcomma }} ₸{% if row.state.is_stale %} <small class="repricer-muted">(устарело)</small>{% endif %}{% else %}—{% endif %}</td>
+          <td>{{ row.state.best_seller_name|default:"—" }}</td>
+          <td>{{ row.state.competitor_count }}</td>
+          <td class="repricer-muted">{% if row.state.captured_at %}{{ row.state.captured_at|date:"d.m.Y H:i" }}{% else %}—{% endif %}</td>
+          <td><span class="repricer-badge {% if row.state.is_stale %}repricer-badge--lower{% elif row.state.is_fresh %}repricer-badge--raise{% else %}repricer-badge--none{% endif %}">{{ row.state.state_label }}</span></td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="7" class="repricer-empty">Активных Kaspi-привязок пока нет.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
   </div>
 </main>
 {% endblock %}
