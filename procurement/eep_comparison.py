@@ -99,10 +99,19 @@ def comparison(request, pk):
 
 
 def _comparison_impl(request, pk):
-    offer = get_object_or_404(Offer.objects.select_related("supplier"),
-                              pk=pk, permanent_buying_item__isnull=False)
-    record = get_object_or_404(PermanentBuyingItem, offer=offer)
+    offer = get_object_or_404(Offer.objects.select_related("supplier"), pk=pk)
+    record = PermanentBuyingItem.objects.filter(offer=offer).first()
     source_file = request.GET.get("apify_source", "").strip()[:255]
+    review_source = 'dataset_kaspi-api_2026-11-21_14-00-09-125.json'
+    # A not-yet-published candidate is viewable for review ONLY when this
+    # exact Apify export has an audit; it is NOT admitted to PermanentBuyingItem.
+    review_only = not bool(record)
+    if review_only and not (source_file == review_source and
+                            KaspiPriceAudit.objects.filter(
+                                offer=offer, source_filename=source_file,
+                                identity_status='needs_review', roi__gte=50).exists()):
+        from django.http import Http404
+        raise Http404('Товар не прошёл проверку или отсутствует в закупочном реестре.')
     audits = KaspiPriceAudit.objects.filter(offer=offer)
     if source_file:
         audits = audits.filter(source_filename=source_file)
@@ -195,12 +204,14 @@ def _comparison_impl(request, pk):
     target = request.GET.get("next", "")
     parsed = urlsplit(target)
     list_path = reverse("procurement:dashboard")
+    if review_only:
+        list_path = reverse("procurement:apify_review")
     if parsed.scheme or parsed.netloc or parsed.path != list_path:
-        target = list_path + "?mode=best"
+        target = list_path if review_only else list_path + "?mode=best"
     kaspi_url = ((audit.card_url if audit else "") or
                  (candidate.url if candidate else "") or
                  (_first(kaspi_source, "url") if kaspi_source else "") or
-                 (record.kaspi_url if not source_file else ""))
+                 (record.kaspi_url if record and not source_file else ""))
     # Both prices are read-only source observations. A screenshot's price must
     # never be substituted for the seller minimum of the selected Apify export.
     # Omega stores a DateField while the Apify audit uses DateTimeField.
@@ -224,7 +235,10 @@ def _comparison_impl(request, pk):
                           kaspi_checked_at=kaspi_checked_at,
                           kaspi_price_stale=kaspi_price_stale,
                           material=material, manual_screenshots=manual_screenshots,
-                          clipboard_pilot=(bool(audit and audit.source_filename == 'dataset_kaspi-api_2026-11-21_13-39-32-482(2).json' and audit.roi >= 50) or offer.pk in FIRST_TEN_OFFER_IDS or offer.pk in NEXT_FIFTY_OFFER_IDS or
+                          review_only=review_only,
+                          clipboard_pilot=(bool(audit and audit.source_filename in (
+                              'dataset_kaspi-api_2026-11-21_13-39-32-482(2).json',
+                              review_source) and audit.roi >= 50) or offer.pk in FIRST_TEN_OFFER_IDS or offer.pk in NEXT_FIFTY_OFFER_IDS or
                                            offer.pk in NEXT_HUNDRED_OFFER_IDS or offer.pk in FOURTH_HUNDRED_OFFER_IDS or
                                            offer.pk in FIFTH_HUNDRED_OFFER_IDS or offer.pk in SIXTH_HUNDRED_OFFER_IDS or
                                            offer.pk in SEVENTH_HUNDRED_OFFER_IDS or
