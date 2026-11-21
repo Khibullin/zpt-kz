@@ -13,7 +13,8 @@ from django.utils import timezone
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_POST
 from django.db import transaction
-from .models import Offer, PermanentBuyingItem, BuyingComparisonMaterial
+from django.db.models import Q
+from .models import Offer, PermanentBuyingItem, BuyingComparisonMaterial, KaspiPriceAudit
 from .comparison_first_ten import FIRST_TEN_OFFER_IDS
 from .comparison_next_fifty import NEXT_FIFTY_OFFER_IDS
 from .comparison_next_hundred import NEXT_HUNDRED_OFFER_IDS
@@ -28,6 +29,16 @@ COMPARISON_BATCH_OFFER_IDS = (FIRST_TEN_OFFER_IDS + NEXT_FIFTY_OFFER_IDS +
                               NEXT_HUNDRED_OFFER_IDS + FOURTH_HUNDRED_OFFER_IDS +
                               FIFTH_HUNDRED_OFFER_IDS + SIXTH_HUNDRED_OFFER_IDS + SEVENTH_HUNDRED_OFFER_IDS +
                               EIGHTH_TWO_HUNDRED_OFFER_IDS + FINAL_REMAINING_OFFER_IDS)
+def eligible_comparison_offer_ids():
+    """Prior pilot batches plus strictly audited November 21 purchase candidates."""
+    return list(COMPARISON_BATCH_OFFER_IDS) + list(
+        KaspiPriceAudit.objects.filter(
+            source_filename='dataset_kaspi-api_2026-11-21_13-39-32-482(2).json',
+            roi__gte=50, identity_status='needs_review',
+        ).values_list('offer_id', flat=True)
+    )
+
+
 from .comparison_photo_crop import crop_photo, photo_box_from_request
 from .views import access
 from .comparison_screenshot_ai import (recognize_screenshots, article_agrees,
@@ -41,7 +52,7 @@ MAX_SHOTS = 3
 @require_POST
 def paste_kaspi_screenshot(request, pk):
     offer = get_object_or_404(Offer, pk=pk,
-                              pk__in=COMPARISON_BATCH_OFFER_IDS,
+                              pk__in=eligible_comparison_offer_ids(),
                               permanent_buying_item__isnull=False)
     record = get_object_or_404(PermanentBuyingItem, offer=offer)
     photo = request.FILES.get('screenshot')
@@ -96,7 +107,7 @@ def paste_kaspi_screenshot(request, pk):
 
 def _target(request, pk):
     offer = get_object_or_404(Offer, pk=pk,
-                              pk__in=COMPARISON_BATCH_OFFER_IDS,
+                              pk__in=eligible_comparison_offer_ids(),
                               permanent_buying_item__isnull=False)
     source_file = str(request.POST.get('source_file') or '').strip()[:255]
     product_id = str(request.POST.get('product_id') or '').strip()[:80]
