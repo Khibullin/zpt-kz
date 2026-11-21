@@ -7,7 +7,7 @@ from urllib.parse import urlsplit
 
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
-from .models import Offer, PermanentBuyingItem, KaspiBuyingCandidate, KaspiPriceAudit
+from .models import Offer, PermanentBuyingItem, KaspiBuyingCandidate, KaspiPriceAudit, BuyingComparisonMaterial
 from .views import access, context
 
 
@@ -104,6 +104,20 @@ def comparison(request, pk):
         "oem": _first(kaspi_source, "oem", "oem_numbers", "original_numbers"),
         "analogs": _first(kaspi_source, "analogs", "replacements"),
     }
+    # Enrichment is stored separately and scoped to the chosen Apify export/card.
+    material = (BuyingComparisonMaterial.objects.filter(
+        offer=offer, source_filename=source_file or (audit.source_filename if audit else ''),
+        kaspi_product_id=product_id).first())
+    if material:
+        for key in supplier_data:
+            value = material.supplier_data.get(key) if isinstance(material.supplier_data, dict) else None
+            if value:
+                supplier_data[key] = value
+        if isinstance(material.kaspi_data, dict):
+            for key in kaspi_data:
+                value = material.kaspi_data.get(key)
+                if value:
+                    kaspi_data[key] = value
     rows = []
     for key, label in FIELDS:
         supplier_value, kaspi_value = _string(supplier_data[key]), _string(kaspi_data[key])
@@ -114,7 +128,13 @@ def comparison(request, pk):
     supplier_photos = _image_urls([offer.photo_url] if offer.photo_url else [])
     supplier_photos.extend(url for url in _image_urls(source.get("supplier_images", []))
                            if url not in supplier_photos)
-    kaspi_photos = _image_urls(kaspi_source.get("images", []))
+    if material and isinstance(material.supplier_data, dict):
+        for photo in _image_urls(material.supplier_data.get('images', [])):
+            if photo not in supplier_photos:
+                supplier_photos.append(photo)
+    kaspi_photos = _image_urls(material.kaspi_data.get('images', [])) if material and isinstance(material.kaspi_data, dict) else []
+    if not kaspi_photos:
+        kaspi_photos = _image_urls(kaspi_source.get("images", []))
     if not kaspi_photos:
         kaspi_photos = _image_urls(firsthand.get("images", []))
     target = request.GET.get("next", "")
@@ -135,6 +155,7 @@ def comparison(request, pk):
                           omega_url=offer.supplier_url or offer.supplier.website,
                           kaspi_url=kaspi_url, list_url=target, selected_product_id=product_id,
                           comparison_source=source_file or (audit.source_filename if audit else ""),
+                          material=material,
                           title=f"{offer.brand} {offer.article} — сравнение"))
 
 
