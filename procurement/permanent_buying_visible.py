@@ -137,8 +137,11 @@ def visible_permanent_buying_rows(request, preferences, filters):
          ((consumable_query('offer__') & Q(cost_snapshot__gte=MIN_CONSUMABLE_COST)) |
           (~consumable_query('offer__') & Q(cost_snapshot__gt=MIN_PROFITABLE_COST))))
     )
-    rows = rows.order_by(Coalesce('_latest_profit', 'profit_snapshot').desc(),
-                         Coalesce('_latest_roi', 'roi_snapshot').desc(), 'pk')
+    # Approved 21.11.2026: highest net percentage return first across the
+    # FULL filtered queryset (not merely the current page). Net profit in
+    # tenge is the tie-breaker; stable ID makes pagination deterministic.
+    rows = rows.order_by(Coalesce('_latest_roi', 'roi_snapshot').desc(),
+                         Coalesce('_latest_profit', 'profit_snapshot').desc(), 'pk')
     paginator = Paginator(rows, 40)
     page = paginator.get_page(request.GET.get('page'))
     items = list(page.object_list)
