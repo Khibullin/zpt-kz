@@ -145,7 +145,7 @@
 <div class="buying-compact-product">
   {% if row.display_photo_url %}<img class="buying-thumb" src="{{ row.display_photo_url }}" width="56" height="56" loading="lazy" alt="Фото товара">{% else %}<span class="buying-thumb buying-no-photo">Нет фото</span>{% endif %}
   <div class="buying-compact-desc">
-    <a class="buying-title" href="{% url 'procurement:comparison' row.offer.pk %}?next={{ request.get_full_path|urlencode }}{% if request.GET.apify_source %}&amp;apify_source={{ request.GET.apify_source|urlencode }}{% endif %}">{{ row.offer.name }}</a>
+    <a class="buying-title eep-comparison-link" href="{% url 'procurement:comparison' row.offer.pk %}?next={{ request.get_full_path|urlencode }}{% if request.GET.apify_source %}&amp;apify_source={{ request.GET.apify_source|urlencode }}{% endif %}">{{ row.offer.name }}</a>
     <span class="buying-code">{{ row.offer.brand }} · {{ row.offer.article }}</span>
     {% if row.candidate and row.candidate.title %}<span class="buying-card-title" title="{{ row.candidate.title }}">Kaspi: {{ row.candidate.title }}</span>{% endif %}
     <div class="buying-inline-links">
@@ -309,10 +309,10 @@ drawer.addEventListener('close',()=>productFrame.removeAttribute('src'));
 <script>
 (function(){
  const key='zpt-eep-return-state';
- const link=document.querySelector('a.eep-comparison-link');
- if(link)link.addEventListener('click',function(){
+ const links=document.querySelectorAll('a.eep-comparison-link');
+ links.forEach(function(link){link.addEventListener('click',function(){
   try {sessionStorage.setItem(key,JSON.stringify({url:location.pathname+location.search,y:window.scrollY}));}catch(_){}
- });
+ });});
  function restore(){
   try{
    if(sessionStorage.getItem('zpt-eep-restore')!=='1')return;
