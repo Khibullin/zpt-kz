@@ -585,7 +585,7 @@ document.addEventListener('DOMContentLoaded',function(){
       <input type="file" name="apify_json" accept=".json,application/json" required>
     </label>
     <button type="submit" class="primary" id="apify-source-button">↑ Загрузить результаты</button>
-    <span id="apify-source-progress" role="status"></span>
+    <span id="apify-source-progress" role="status" aria-live="polite" style="display:block;width:100%;font-weight:600;color:#075a83"></span>
   </form>
   {% if apify_session %}
   <div class="apify-settings" aria-label="Прогресс импорта Apify">
@@ -640,72 +640,8 @@ document.addEventListener('DOMContentLoaded',function(){
   {% endif %}
 </section>
 
-<script>
-(function () {
-  const form = document.getElementById('apify-source-upload');
-  if (!form || !window.crypto || !window.crypto.subtle) return;
-  const button = document.getElementById('apify-source-button');
-  const progress = document.getElementById('apify-source-progress');
-  const BATCH = 500;
-  let running = false;
-  form.addEventListener('submit', async function (event) {
-    event.preventDefault();
-    if (running) return;
-    const file = form.querySelector('input[type=file]').files[0];
-    if (!file) { progress.textContent = 'Выберите JSON.'; return; }
-    running = true;
-    button.disabled = true;
-    const token = form.querySelector('[name=csrfmiddlewaretoken]').value;
-    const post = async (action, fields) => {
-      const data = new FormData();
-      data.append('csrfmiddlewaretoken', token);
-      data.append('action', action);
-      for (const [key, value] of Object.entries(fields)) data.append(key, String(value));
-      const response = await fetch(form.getAttribute('action') || location.pathname, {
-        method: 'POST', credentials: 'same-origin', body: data,
-        headers: {'X-Requested-With': 'XMLHttpRequest'}
-      });
-      let result;
-      try { result = await response.json(); }
-      catch (_) { throw new Error('Сервер прервал загрузку. Повторите попытку.'); }
-      if (!response.ok) throw new Error(result.error || 'Сервер отклонил партию.');
-      return result;
-    };
-    try {
-      progress.textContent = 'Чтение JSON на компьютере…';
-      if (file.size > 50 * 1024 * 1024) throw new Error('JSON не должен превышать 50 МБ.');
-      const bytes = await file.arrayBuffer();
-      const digestBytes = new Uint8Array(await crypto.subtle.digest('SHA-256', bytes));
-      const digest = Array.from(digestBytes, b => b.toString(16).padStart(2, '0')).join('');
-      const text = new TextDecoder('utf-8').decode(bytes).replace(/^\uFEFF/, '');
-      const payload = JSON.parse(text);
-      const rows = Array.isArray(payload) ? payload :
-        [payload.entries, payload.items, payload.results, payload.data]
-          .find(value => Array.isArray(value));
-      if (!rows || rows.length < 1 || rows.length > 50000)
-        throw new Error('Ожидается от 1 до 50 000 строк результатов Apify.');
-      const init = await post('begin_apify_chunk_upload', {
-        filename: file.name, total: rows.length, digest
-      });
-      for (let batch = init.uploaded_batches; batch < init.total_batches; batch++) {
-        progress.textContent = 'Сохранение исходного JSON: партия ' +
-          (batch + 1) + ' из ' + init.total_batches;
-        const part = rows.slice(batch * BATCH, (batch + 1) * BATCH);
-        await post('append_apify_chunk_upload', {
-          session_id: init.session_id, batch, rows: JSON.stringify(part)
-        });
-      }
-      progress.textContent = 'JSON принят полностью. Открываю обработку товаров…';
-      location.reload();
-    } catch (error) {
-      progress.textContent = error.message + ' Повторная попытка продолжит сохранённые партии.';
-      button.disabled = false;
-    } finally {
-      running = false;
-    }
-  });
-}());
-</script>
+{% load static %}
+<script src="{% static 'procurement/js/apify_upload.js' %}?v=20261121-fix2" defer></script>
 <script>
 (function () {
   const form = document.getElementById('apify-batch-form');
