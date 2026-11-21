@@ -11,6 +11,7 @@ import json
 from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import transaction
+from django.utils import timezone
 
 from .apify_buying_import import _normalize_rows, import_apify_results
 from .models import Activity
@@ -84,6 +85,8 @@ def process_next_apify_batch(session_id, user):
             stats[key] += result.get(key, 0)
         details['stats'] = stats
         details['next_batch'] += 1
+        details['last_progress_at'] = timezone.now().isoformat()
+        details.pop('last_error', None)
         session.details = details
         session.save(update_fields=['details'])
         # Source rows were needed only for reliable retry. Do not keep
@@ -117,6 +120,7 @@ def begin_chunked_upload(*, filename, total, digest, user):
             details={'digest': digest, 'filename': filename[:255],
                      'total': total, 'total_batches': (total + BATCH_SIZE - 1) // BATCH_SIZE,
                      'next_batch': 0, 'next_upload_batch': 0,
+                     'last_progress_at': timezone.now().isoformat(),
                      'stats': {'products': 0, 'linked': 0, 'verified': 0,
                                'unmatched': 0, 'invalid': 0,
                                'protected_verified': 0, 'rejected_below_50': 0,
@@ -146,7 +150,53 @@ def append_chunked_upload(*, session_id, batch, rows, user):
             user=user, action='apify_upload_source_batch',
             details={'session_id': session.pk, 'batch': batch, 'rows': rows})
         details['next_upload_batch'] = expected + 1
+        details['last_progress_at'] = timezone.now().isoformat()
+        details.pop('last_error', None)
         session.details = details
         session.save(update_fields=['details'])
         return {'uploaded_batches': details['next_upload_batch'],
                 'total_batches': details['total_batches']}
+
+
+def upload_status(source=''):
+    """Read-only progress for a specific source filename or latest session.
+
+    Processing is driven by the upload browser tab; an abandoned session does
+    not imply a server worker is still running. Do not call it an error unless
+    the importer actually recorded an error.
+    """
+    sessions = Activity.objects.filter(action='apify_upload_session')
+    if source:
+        sessions = sessions.filter(details__filename=source)
+    session = sessions.order_by('-id').first()
+    if session is None:
+        return {'state': 'unknown', 'label': 'Статус неизвестен',
+                'message': 'Для выбранной выгрузки нет сохранённой сессии обработки.'}
+    details = session.details or {}
+    total_batches = max(int(details.get('total_batches') or 0), 0)
+    completed = min(max(int(details.get('next_batch') or 0), 0), total_batches)
+    uploaded = min(max(int(details.get('next_upload_batch', total_batches) or 0), 0), total_batches)
+    total_cards = max(int(details.get('total') or 0), 0)
+    processed_cards = min(completed * BATCH_SIZE, total_cards)
+    last_progress = details.get('last_progress_at')
+    try:
+        recent = timezone.datetime.fromisoformat(last_progress) if last_progress else session.created_at
+        if timezone.is_naive(recent):
+            recent = timezone.make_aware(recent)
+    except (ValueError, TypeError):
+        recent = session.created_at
+    if total_batches > 0 and completed >= total_batches and uploaded >= total_batches:
+        state, label = 'complete', 'Завершено'
+    elif details.get('last_error'):
+        state, label = 'error', 'Ошибка обработки'
+    elif (timezone.now() - recent).total_seconds() > 15 * 60:
+        state, label = 'paused', 'Ожидает продолжения'
+    else:
+        state, label = 'running', 'Идёт обработка' if uploaded >= total_batches else 'Идёт загрузка'
+    message = (str(details.get('last_error') or '')[:180] if state == 'error' else
+               'Откройте страницу подготовки и продолжите обработку.' if state == 'paused' else '')
+    return {'state': state, 'label': label, 'message': message,
+            'filename': str(details.get('filename', '')),
+            'total_batches': total_batches, 'completed_batches': completed,
+            'uploaded_batches': uploaded, 'total_cards': total_cards,
+            'processed_cards': processed_cards, 'errors': int((details.get('stats') or {}).get('invalid') or 0)}
