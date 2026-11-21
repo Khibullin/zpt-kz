@@ -111,21 +111,49 @@
       show('Доступ к буферу заблокирован браузером. Разрешите доступ или нажмите Ctrl+V. '+(error.name||''));
     }
   }
+  async function requireJson(response){
+    const type=response.headers.get('content-type')||'';
+    if(!type.includes('application/json')){
+      if(response.redirected||response.status===401||response.status===403){
+        throw Error('Сессия или доступ истекли (HTTP '+response.status+'). Обновите страницу и войдите в кабинет повторно.');
+      }
+      if(response.status===413)throw Error('Скриншот слишком большой для сервера (HTTP 413). Выделите меньшую область.');
+      if(response.status>=500)throw Error('Ошибка сервера (HTTP '+response.status+'). Повторите действие после обновления.');
+      throw Error('Сервер вернул страницу вместо данных (HTTP '+response.status+'). Обновите страницу и проверьте вход.');
+    }
+    let data;
+    try{data=await response.json();}catch(_){throw Error('Сервер вернул повреждённый ответ. Повторите действие.');}
+    if(!response.ok)throw Error(data.error||'Ошибка HTTP '+response.status);
+    return data;
+  }
+  async function prepareScreenshot(blob){
+    if(blob.size<=1000000 && blob.type==='image/jpeg')return blob;
+    const bitmap=await createImageBitmap(blob);
+    try{
+      const scale=Math.min(1,1500/Math.max(bitmap.width,bitmap.height));
+      const canvas=document.createElement('canvas');
+      canvas.width=Math.max(1,Math.round(bitmap.width*scale));
+      canvas.height=Math.max(1,Math.round(bitmap.height*scale));
+      canvas.getContext('2d').drawImage(bitmap,0,0,canvas.width,canvas.height);
+      const out=await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',.76));
+      if(!out)throw Error('Не удалось подготовить изображение.');
+      return out;
+    }finally{bitmap.close();}
+  }
   async function send(blob){
     if(sending)return;
     if(gallery.querySelectorAll('img').length>=3){show('Для пробы достаточно 3 скриншотов.');return;}
     sending=true;zone.classList.add('busy');show('Сохраняем скриншот…');
     try{
       const data=new FormData(form);
-      data.append('screenshot',blob,'kaspi-screenshot.png');
+      const prepared=await prepareScreenshot(blob);
+      data.append('screenshot',prepared,'kaspi-screenshot.jpg');
       data.append('source_file','{{ comparison_source|escapejs }}');
       data.append('product_id','{{ selected_product_id|escapejs }}');
       data.append('kaspi_url','{{ kaspi_url|escapejs }}');
       const res=await fetch(form.action,{method:'POST',body:data,credentials:'same-origin',
         headers:{'X-Requested-With':'XMLHttpRequest'}});
-      const answer=await res.json();
-      if(!res.ok)throw Error(answer.error||'Ошибка сохранения');
-      gallery.replaceChildren();
+      const answer=await requireJson(res);
       // Reload to present the server-backed screenshots, not an unsaved preview.
       show('Скриншот сохранён. Обновляем изображение…');
       window.location.reload();
@@ -162,8 +190,7 @@
     show('Распознаём сохранённые скриншоты…');
     try{
       const response=await fetch(recognizeForm.action,{method:'POST',body:postBody({}),credentials:'same-origin'});
-      const result=await response.json();
-      if(!response.ok)throw Error(result.error||'Не удалось распознать скриншоты.');
+      const result=await requireJson(response);
       for(const field of review.querySelectorAll('[name]')){
         field.value=result.fields[field.name]||'';
       }
@@ -183,8 +210,7 @@
     confirmButton.disabled=true;
     try{
       const response=await fetch(confirmForm.action,{method:'POST',body:postBody(fields),credentials:'same-origin'});
-      const result=await response.json();
-      if(!response.ok)throw Error(result.error||'Ошибка сохранения.');
+      const result=await requireJson(response);
       show(result.message||'Сохранено.');window.location.reload();
     }catch(err){show(err.message||'Не удалось сохранить.');}
     finally{confirmButton.disabled=false;}
