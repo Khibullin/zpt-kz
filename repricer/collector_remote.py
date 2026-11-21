@@ -242,7 +242,8 @@ def _iso_utc(value: datetime) -> str:
 
 
 class ZptCollectorHttpClient:
-    def __init__(self, *, base_url: str, token: str, timeout_seconds: float):
+    def __init__(self, *, base_url: str, token: str, timeout_seconds: float, city_id: str = ""):
+        self.city_id = city_id
         self.base_url = base_url.rstrip("/")
         self.token = token
         self.timeout_seconds = timeout_seconds
@@ -283,10 +284,12 @@ class ZptCollectorHttpClient:
             raise CollectorRemoteError("ZPT collector returned non-JSON") from exc
 
     def fetch_manifest(self, listing_ids: list[int] | None = None) -> CollectorManifest:
-        query = None
+        query = {}
         if listing_ids:
-            query = {"ids": ",".join(str(item) for item in listing_ids)}
-        payload = self._request("GET", LISTINGS_PATH, query=query)
+            query["ids"] = ",".join(str(item) for item in listing_ids)
+        if self.city_id:
+            query["city_id"] = self.city_id
+        payload = self._request("GET", LISTINGS_PATH, query=query or None)
         return parse_manifest_payload(payload)
 
     def post_batch(self, payload: dict) -> dict:
@@ -674,6 +677,7 @@ def collect_remote_listings(
                         "captured_at": _iso_utc(captured_at),
                         "offers": [_offer_payload(offer) for offer in offers],
                         "source": COLLECTOR_SOURCE,
+                        "city_id": str(getattr(source, "city_id", "") or ""),
                     }
                     response = client.post_batch(payload)
                     result = _result_from_offers(
