@@ -5,8 +5,11 @@ stock, or new Kaspi price can remove an already admitted record.
 """
 from decimal import Decimal
 from django.core.paginator import Paginator
-from django.db.models import Q, OuterRef, Subquery, Max
+from django.db.models import Q, F, OuterRef, Subquery, Max, DecimalField
 from django.db.models.functions import Coalesce
+from .catalog_paging import (consumable_query, profitable_product_exclusions,
+                             MIN_CONSUMABLE_COST, MIN_PROFITABLE_COST,
+                             MIN_PROFITABLE_ROI, is_consumable)
 from django.utils import timezone
 
 from .analysis import evaluate
@@ -88,6 +91,14 @@ def visible_permanent_buying_rows(request, preferences, filters):
                    if stock_status(item.offer.stock) == filters['availability']]
         rows = rows.filter(pk__in=allowed)
 
+    # Profitability is a DISPLAY rule, not a destructive archival operation.
+    # The source/finance snapshots stay frozen; filter on the exact latest
+    # audited numbers the table will render, before pagination and COUNT.
+    # A selected export must never borrow a more profitable audit from another
+    # export or silently fall back to an unrelated historical price.
+    # Historic records without a new audit remain accessible elsewhere.
+    # Exclude springs regardless of their historical admission.
+    rows = rows.exclude(profitable_product_exclusions('offer__'))
     # Immutable money snapshots make the approved rank independent of price
     # updates. Equal profit is ordered by ROI, then stable record ID.
     # Prefer the newest separate seller-price audit for visible ranking.
@@ -99,8 +110,25 @@ def visible_permanent_buying_rows(request, preferences, filters):
     rows = rows.annotate(
         _latest_profit=Subquery(latest.values('profit')[:1]),
         _latest_roi=Subquery(latest.values('roi')[:1]),
-    ).order_by(Coalesce('_latest_profit', 'profit_snapshot').desc(),
-               Coalesce('_latest_roi', 'roi_snapshot').desc(), 'pk')
+        _latest_cost=Subquery(latest.values('cost_snapshot')[:1]),
+    )
+    # All visible values for audited rows are taken from this audit, including
+    # purchase cost, net profit and ROI. Filtering uses those SAME values.
+    # The default view requires audit evidence; legacy rechecked=0 is allowed
+    # to show snapshots that have never had a recheck.
+    audited = Q(_latest_roi__isnull=False)
+    legacy = Q(_latest_roi__isnull=True) if request.GET.get('rechecked') == '0' and not source else Q(pk__in=[])
+    rows = rows.filter(
+        (audited & Q(_latest_roi__gte=MIN_PROFITABLE_ROI) &
+         ((consumable_query('offer__') & Q(_latest_cost__gte=MIN_CONSUMABLE_COST)) |
+          (~consumable_query('offer__') & Q(_latest_cost__gt=MIN_PROFITABLE_COST))))
+        |
+        (legacy & Q(roi_snapshot__gte=MIN_PROFITABLE_ROI) &
+         ((consumable_query('offer__') & Q(cost_snapshot__gte=MIN_CONSUMABLE_COST)) |
+          (~consumable_query('offer__') & Q(cost_snapshot__gt=MIN_PROFITABLE_COST))))
+    )
+    rows = rows.order_by(Coalesce('_latest_profit', 'profit_snapshot').desc(),
+                         Coalesce('_latest_roi', 'roi_snapshot').desc(), 'pk')
     paginator = Paginator(rows, 40)
     page = paginator.get_page(request.GET.get('page'))
     items = list(page.object_list)
