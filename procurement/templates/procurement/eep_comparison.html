@@ -47,7 +47,8 @@
  <section class="eep-source"><h2>Kaspi</h2>
  {% if kaspi_photo %}<img class="eep-img" src="{{ kaspi_photo }}" alt="Фото Kaspi {{ offer.brand }} {{ offer.article }}" referrerpolicy="no-referrer">{% else %}<div class="eep-missing">Нет сохранённого фото Kaspi</div>{% endif %}
  {% if kaspi_gallery %}<div class="eep-thumbs">{% for photo in kaspi_gallery %}<a href="{{ photo }}" target="_blank" rel="noopener noreferrer" aria-label="Дополнительное фото Kaspi"><img src="{{ photo }}" alt="Фото Kaspi {{ forloop.counter|add:1 }}" loading="lazy"></a>{% endfor %}</div>{% endif %}
- {% if kaspi_url %}<a href="{{ kaspi_url }}" target="_blank" rel="noopener noreferrer">{% if apify_srr_review %}Карточка Kaspi из исходной выгрузки (не проверена){% else %}Карточка Kaspi с минимальной сохранённой ценой{% endif %}</a>{% else %}<p class="eep-muted">Ссылка на выбранную карточку Kaspi отсутствует</p>{% endif %}
+ {% if kaspi_url %}<a href="{{ kaspi_url }}" target="_blank" rel="noopener noreferrer">{% if apify_srr_review %}Выбранная карточка Kaspi из исходной выгрузки (не проверена){% else %}Карточка Kaspi с минимальной сохранённой ценой{% endif %}</a>{% else %}<p class="eep-muted">Ссылка на выбранную карточку Kaspi отсутствует</p>{% endif %}
+ {% if cheaper_kaspi_url %}<p class="eep-muted">Для этого артикула в той же выгрузке нашлась другая карточка с более низкой ценой продавца; ниже в расчётном поле показана именно она.</p><a href="{{ cheaper_kaspi_url }}" target="_blank" rel="noopener noreferrer">Дешевле: карточка Kaspi ID {{ cheaper_kaspi_id }}</a>{% endif %}
  {% if clipboard_pilot %}
  <div id="eep-paste-zone" class="eep-paste-zone" tabindex="0" role="button" aria-label="Вставить скриншот Kaspi из буфера обмена правым щелчком мыши">
   <strong>Правый щелчок — вставить скриншот Kaspi</strong>
@@ -115,9 +116,9 @@
    {% if omega_price_stale %}<div class="eep-price-stale">Требует обновления</div>{% endif %}
   </div>
   <div class="eep-cell">
-   <div class="eep-price-name">Kaspi — минимальная цена продавца (Apify)</div>
+   <div class="eep-price-name">{% if apify_srr_review %}Kaspi — минимум по карточкам того же артикула (Apify, не проверено){% else %}Kaspi — минимальная цена продавца (Apify){% endif %}</div>
    <div class="eep-price-amount">{% if kaspi_price is not None %}{{ kaspi_price|floatformat:0 }} ₸{% else %}Нет подтверждённой цены{% endif %}</div>
-   <span class="eep-price-date">Выгрузка Apify: {% if kaspi_checked_at %}{{ kaspi_checked_at|date:"d.m.Y H:i" }}{% else %}дата неизвестна{% endif %}</span>
+   <span class="eep-price-date">Выгрузка Apify: {% if apify_srr_review %}21.11.2026 (исторический снимок){% elif kaspi_checked_at %}{{ kaspi_checked_at|date:"d.m.Y H:i" }}{% else %}дата неизвестна{% endif %}</span>
    {% if kaspi_price_stale %}<div class="eep-price-stale">Требует обновления</div>{% endif %}
   </div>
  </div>
