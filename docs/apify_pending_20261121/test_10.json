@@ -1,0 +1,30 @@
+{
+  "cities": [
+    "Almaty"
+  ],
+  "includeOffers": true,
+  "includeReviews": false,
+  "maxItems": 0,
+  "maxItemsPerQuery": 10,
+  "maxOffersPerProduct": 0,
+  "sortOrder": "price-asc",
+  "proxyConfiguration": {
+    "useApifyProxy": true,
+    "apifyProxyGroups": [
+      "RESIDENTIAL"
+    ],
+    "apifyProxyCountry": "KZ"
+  },
+  "searchQueries": [
+    "ATHOS 850400517",
+    "Bear E02949",
+    "CHECKSTAR 70007",
+    "CHECKSTAR/WXQP 50032",
+    "CHECKSTAR/WXQP 50448",
+    "EEP 15A060011",
+    "EEP 15A060013",
+    "EEP 15A060017",
+    "EEP 15A060020",
+    "EEP 15A060032"
+  ]
+}
