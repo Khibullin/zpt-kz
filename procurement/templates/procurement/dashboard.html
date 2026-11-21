@@ -2,11 +2,10 @@
 <div class="compact-dashboard">
 <header class="compact-header">
 <h1>{% if mode == 'best' %}Выгодные к закупке{% else %}Оптовые закупки{% endif %}</h1>
-{% if mode == 'best' %}<a class="button" href="{% url 'procurement:comparison_first_ten' %}">Проверка первых 10 товаров</a>{% endif %}
-{% if mode == 'best' %}<small class="muted" title="Действуют для всех пользователей и поставщиков">Цены перепроверены по Apify · старые товары и расчёты сохранены · исполнение требует подтверждения перед заказом</small>{% endif %}
-<form method="get" class="supplier-picker"><input type="hidden" name="mode" value="{{ mode }}">{% if mode == "best" and request.GET.apify_source %}<input type="hidden" name="apify_source" value="{{ request.GET.apify_source }}">{% endif %}<label>Поставщик {{ filter_form.supplier }}</label><button>Выбрать</button></form>
+<form method="get" class="supplier-picker"><input type="hidden" name="mode" value="{{ mode }}">{% if mode == "best" and request.GET.apify_source %}<input type="hidden" name="apify_source" value="{{ request.GET.apify_source }}">{% endif %}<label>Поставщик {{ filter_form.supplier }}</label><button{% if mode == 'best' %} class="visually-hidden"{% endif %}>Выбрать</button></form>
 {% if can_manage and mode != 'best' %}<div class="actions"><a class="button" href="{% url 'procurement:selection_rules' %}#upload-step-title">Загрузить прайс-лист</a></div>{% endif %}
 </header>
+{% if mode == 'best' %}<script>document.addEventListener('DOMContentLoaded',function(){const select=document.querySelector('.supplier-picker select');if(select)select.addEventListener('change',function(){this.form.submit()})})</script>{% endif %}
 {% if mode == 'kaspi_prices' %}<div class="notice" role="status"><strong>Сохранённые цены Kaspi — не актуальное предложение.</strong> Показаны ранее найденные цены с исходной датой проверки и статусом соответствия карточки. Старые и неподтверждённые цены не дают права добавлять товар в выгодную закупку или автоматически публиковать на Kaspi.</div>{% endif %}
 {% if mode == 'stale_prices' %}<div class="notice" role="status"><strong>Цены Kaspi устарели или дата проверки неизвестна.</strong> Это кандидаты на повторную проверку, а не подтверждённые выгодные закупки. Показанная прибыль рассчитана по сохранённой старой цене. Даты не обновляются автоматически. Добавление в закупку из этого списка отключено.</div>{% endif %}
 <section class="catalog-filters{% if mode == 'best' or mode == 'stale_prices' or mode == 'kaspi_prices' %} best-filters{% endif %}" aria-label="Фильтры товаров">
@@ -37,152 +36,13 @@
 </details>
 </form>
 </section>
-{% if mode == 'best' %}
-<section class="apify-source-panel" aria-label="История загрузок Apify">
-  <form method="get" class="apify-source-filter">
-    {% for key,values in request.GET.lists %}
-      {% if key != 'apify_source' and key != 'page' and key != 'download' %}
-        {% for value in values %}<input type="hidden" name="{{ key }}" value="{{ value }}">{% endfor %}
-      {% endif %}
-    {% endfor %}
-    {% if not request.GET.mode %}<input type="hidden" name="mode" value="best">{% endif %}
-    <label for="apify-source-choice"><strong>Выгрузка Apify</strong></label>
-    <select id="apify-source-choice" name="apify_source">
-      <option value="">Все выгрузки</option>
-      {% for source in apify_sources %}
-      <option value="{{ source.source_filename }}" {% if apify_selected_source == source.source_filename %}selected{% endif %}>{{ source.last_seen|date:"d.m.Y H:i" }} · {{ source.source_filename }}</option>
-      {% endfor %}
-    </select>
-    <button type="submit">Показать</button>
-  </form>
-  <div class="apify-live-status" id="apify-live-status" data-url="{% url 'procurement:dashboard' %}"
-       data-source="{{ apify_selected_source }}" role="status" aria-live="polite">
-    <span id="apify-live-icon" aria-hidden="true">○</span>
-    <strong id="apify-live-label">Проверка состояния Apify…</strong>
-    <span id="apify-live-count"></span>
-    <small id="apify-live-help"></small>
-  </div>
-  {% if apify_summary %}
-  <div class="apify-source-totals">
-    <strong>{% if apify_selected_source %}Выбранная выгрузка{% else %}Последняя выгрузка{% endif %}: {{ apify_summary_source }}</strong>
-    <span>Проверено товаров в реестре: <b>{{ apify_summary.total }}</b></span>
-    <span>Прошли правила выгодности: <b>{{ apify_summary.eligible }}</b></span>
-    <span>Не прошли правила: <b>{{ apify_summary.excluded }}</b></span>
-    <span>Первая сохранённая проверка: <b>{{ apify_summary.first }}</b></span>
-    <span>Цена обновлена: <b>{{ apify_summary.changed }}</b></span>
-    <span>Без изменений: <b>{{ apify_summary.unchanged }}</b></span>
-  </div>
-  <small class="muted"><strong>Правила выгодности:</strong> доходность после комиссии и расходов от 50%; обычные запчасти — закупка строго выше 5 000 ₸, расходники — от 2 000 ₸; пружины исключены. Несоответствующие позиции сохраняются в истории, но не показываются как выгодные. «Первая проверка» означает отсутствие более ранней записи Apify для товара, а не гарантированно новый товар в каталоге. Сводка относится к выбранному поставщику и только к товарам существующего реестра закупки. Сведения получены из сохранённых выгрузок; дата в списке — время проверки на ZPT.KZ.</small>
-  {% endif %}
-</section>
-<script>
-(function () {
-  const panel = document.getElementById('apify-live-status');
-  if (!panel) return;
-  const label = document.getElementById('apify-live-label');
-  const count = document.getElementById('apify-live-count');
-  const help = document.getElementById('apify-live-help');
-  const icon = document.getElementById('apify-live-icon');
-  async function refresh() {
-    if (document.hidden) return;
-    const url = new URL(panel.dataset.url, window.location.origin);
-    url.searchParams.set('apify_status', '1');
-    if (panel.dataset.source) url.searchParams.set('apify_source', panel.dataset.source);
-    try {
-      const response = await fetch(url.toString(), {credentials:'same-origin', cache:'no-store'});
-      if (!response.ok) throw new Error('Статус временно недоступен');
-      const info = await response.json();
-      panel.dataset.state = info.state;
-      label.textContent = info.label;
-      icon.textContent = ({complete:'✓', running:'◌', error:'!', paused:'!', unknown:'○'})[info.state] || '○';
-      count.textContent = info.total_batches ?
-        info.completed_batches + ' из ' + info.total_batches + ' партий · ' +
-        info.processed_cards.toLocaleString('ru-RU') + ' из ' +
-        info.total_cards.toLocaleString('ru-RU') + ' карточек' : '';
-      help.textContent = info.message || (info.state === 'complete' ?
-        'Обработка сохранена · Ошибочных строк: ' + info.errors :
-        info.state === 'running' ? 'Обновляется автоматически.' : '');
-      if (info.filename && !panel.dataset.source) panel.title = 'Последняя сессия: ' + info.filename;
-    } catch (_) {
-      panel.dataset.state = 'unknown';
-      label.textContent = 'Статус временно недоступен';
-      help.textContent = 'Проверьте соединение и обновите страницу.';
-    }
-  }
-  refresh();
-  const interval = setInterval(refresh, 15000);
-  window.addEventListener('pagehide', function () { clearInterval(interval); }, {once:true});
-  document.addEventListener('visibilitychange', function () { if (!document.hidden) refresh(); });
-}());
-</script>
-{% endif %}
 {% if can_manage and selected_supplier and mode != 'best' %}
 <form method="post" action="{% url 'procurement:refresh_shared_fitments' %}?supplier={{ selected_supplier.pk }}" style="margin:12px 0">{% csrf_token %}
 <button>Дополнить применимость из общей базы</button>
 <small>Для выгодных товаров: точный бренд и артикул; сохраняются годы, двигатели, ограничения и источники. Спорные и уже заполненные записи пропускаются.</small>
 </form>
 {% endif %}
-{% if mode == 'best' and can_manage %}
-<div class="panel" style="padding:12px 16px;margin:12px 0">
-  <strong>Сравнительные карточки: получение сведений</strong>
-  <p class="muted" style="margin:5px 0">По 50 самых выгодных товаров за запуск. Проверяются точные карточки поставщика и Kaspi; ошибки сохраняются отдельно. Существующие цены не изменяются.</p>
-  <form id="compare-batch-form" method="post" action="{% url 'procurement:comparison_run_one' %}">
-    {% csrf_token %}
-    <input type="hidden" name="apify_source" value="{{ apify_selected_source }}">
-    <button type="submit" class="button">Обработать следующие 50 товаров</button>
-    <button type="button" class="button" id="compare-retry-first-50">Заново обработать первые 50</button>
-    <span id="compare-batch-progress" role="status" aria-live="polite"></span>
-  </form>
-</div>
-<script>
-(function(){
- const form=document.getElementById('compare-batch-form');if(!form)return;
- const button=form.querySelector('button');
- const progress=document.getElementById('compare-batch-progress');
- const retry=document.getElementById('compare-retry-first-50');
- if(retry)retry.addEventListener('click',async function(){
-  button.disabled=true;retry.disabled=true;
-  const data=new FormData(form);let ok=0,partial=0,missing=0,failed=0;
-  try {
-   for(let position=0;position<50;position++){
-    progress.textContent='Повторная обработка позиции '+(position+1)+' из 50…';
-    data.set('retry_position',String(position));
-    try {
-     const response=await fetch(form.action,{method:'POST',body:data,credentials:'same-origin'});
-     if(!response.ok)throw new Error('HTTP '+response.status);
-     const result=await response.json();
-     ok+=result.complete||0;partial+=result.partial||0;missing+=result.no_kaspi_identity||0;
-    } catch(error) {
-     failed++;progress.textContent='Позиция '+(position+1)+': '+error.message;
-    }
-   }
-   progress.textContent='Проверено 50 позиций: обе карточки доступны — '+ok+
-   ', неполные — '+partial+', нет точной Kaspi — '+missing+
-   ', ошибок запуска — '+failed+'.';
-  } finally {button.disabled=false;retry.disabled=false;}
- });
- form.addEventListener('submit',async function(event){
-  event.preventDefault();button.disabled=true;
-  let complete=0,partial=0,errors=0,examined=0;
-  const data=new FormData(form);
-  try{
-   for(let i=0;i<50;i++){
-    progress.textContent='Обработка '+(i+1)+' из 50…';
-    const response=await fetch(form.action,{method:'POST',body:data,credentials:'same-origin'});
-    if(!response.ok)throw new Error('HTTP '+response.status);
-    const row=await response.json();
-    if(!row.examined){progress.textContent='Доступные необработанные позиции закончились. Проверено: '+examined;return;}
-    examined+=row.examined;complete+=row.complete||0;partial+=row.partial||0;errors+=row.no_kaspi_identity||0;
-   }
-   progress.textContent='Партия завершена: '+examined+' товаров; оба источника: '+complete+'; частично: '+partial+'; без точной карточки: '+errors+'.';
-  }catch(error){
-   progress.textContent='Остановлено после '+examined+' товаров: '+error.message+'. Повторный запуск продолжит со следующей позиции.';
-  }finally{button.disabled=false;}
- });
-}());
-</script>
-{% endif %}
-{% if mode == 'best' %}<p class="buying-sort-note" role="note">Сортировка: <strong>доходность, % ↓</strong> (от большей к меньшей); при равной доходности — прибыль, ₸ ↓. Порядок действует для всего списка и всех страниц.</p>{% endif %}
+{% if mode == 'best' %}<p class="buying-sort-note" role="note">Закупка от 2 000 ₸ · Доходность от 50% · Пружины включены · Сортировка: <strong>доходность, % ↓</strong></p>{% endif %}
 <div class="results-toolbar">
 <strong>{% if preliminary %}{{ preliminary_total }} товаров · <span class="preliminary-status">Спрос не подтверждён</span>{% else %}Найдено {{ total }}{% endif %}</strong>
 {% if mode == 'best' %}<form id="bulk-selection" method="post" action="{% url 'procurement:select_many' %}" data-selection-form data-bulk-selection>{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button class="primary" type="submit">Добавить выбранные в список</button><small data-selection-status role="status" aria-live="polite"></small></form>{% else %}<div class="actions"><a href="{{ settings_url }}">Алгоритм и настройки</a><a class="button" href="{% querystring download='csv' page=None %}">Скачать CSV</a></div>{% endif %}
@@ -283,7 +143,7 @@
 <iframe title="Карточка товара" id="product-frame"></iframe>
 </dialog>
 <style>
-.buying-sort-note{font-size:13px;color:#244863;margin:10px 0 5px}
+.visually-hidden{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.buying-sort-note{font-size:13px;color:#244863;margin:10px 0 5px}
 .buying-sort-note strong{color:#087a68}
 .apify-live-status{margin:10px 0 8px;padding:9px 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;border-radius:8px;border:1px solid #d7e1e7;background:#f7f9fb;font-size:13px}
 .apify-live-status[data-state=complete]{border-color:#92d8bc;background:#ecfbf3;color:#086342}
