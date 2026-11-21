@@ -2,6 +2,7 @@
 from urllib.parse import urlsplit
 
 from django.shortcuts import get_object_or_404, render
+from django.db.models import Q
 from django.urls import reverse
 
 from .models import Offer, KaspiBuyingCandidate, KaspiPriceAudit
@@ -35,9 +36,9 @@ def _field(source, *keys):
 @access()
 def eep_comparison(request):
     """No writes: original prices, availability, audit, selection and import remain untouched."""
-    offer = get_object_or_404(Offer.objects.select_related("supplier"),
-                              brand__iexact="EEP", article__iexact=ARTICLE,
-                              supplier__name__icontains="Omega")
+    offer = get_object_or_404(Offer.objects.select_related("supplier").filter(
+        Q(supplier__name__icontains="Omega") | Q(supplier__name__icontains="Solid Prof Group")),
+        brand__iexact="EEP", article__iexact=ARTICLE)
     source = offer.characteristics if isinstance(offer.characteristics, dict) else {}
     candidate = (KaspiBuyingCandidate.objects.filter(product_id="179043622", offer=offer).first()
                  or KaspiBuyingCandidate.objects.filter(product_id="179043622").first())
@@ -51,6 +52,12 @@ def eep_comparison(request):
         " ".join(filter(None, (str(item.make or ""), str(item.model or ""))))
         for item in fits if getattr(item, "verified", False)
     )
+    firsthand = source.get("firsthand_omega_20261117") or {}
+    kaspi_gallery = []
+    if (isinstance(firsthand, dict) and
+            str(firsthand.get("kaspi_product_id", "")) == "179043622"):
+        kaspi_gallery = [url for url in firsthand.get("images", [])
+                         if isinstance(url, str) and url.startswith("https://resources.cdn-kaspi.kz/")]
     supplier_data = {
         "name": offer.name, "brand": offer.brand, "article": offer.article,
         "category": offer.category, "description": offer.description,
@@ -63,7 +70,7 @@ def eep_comparison(request):
     kaspi_data = {
         "name": (candidate.title if candidate else "") or (audit.card_title if audit else ""),
         "brand": candidate.brand if candidate else "",
-        "article": ARTICLE if candidate and candidate.product_id == "179043622" and candidate.brand.upper() == "EEP" else "",
+        "article": ARTICLE if candidate and ARTICLE in (candidate.title or "").upper() else "",
         "category": "", "description": "", "specs": "", "fitment": "",
         "package": "", "oem": "", "analogs": "",
     }
@@ -92,5 +99,6 @@ def eep_comparison(request):
         target = list_path + "?mode=best"
     return render(request, "procurement/eep_comparison.html",
                   context(request, offer=offer, rows=rows, supplier_photo=offer.photo_url,
-                          kaspi_photo="", omega_url=OMEGA_URL, kaspi_url=KASPI_URL,
+                          kaspi_photo=kaspi_gallery[0] if kaspi_gallery else "",
+                          kaspi_gallery=kaspi_gallery[1:6], omega_url=OMEGA_URL, kaspi_url=KASPI_URL,
                           list_url=target, title="EEP 59A200068 — сравнение"))
