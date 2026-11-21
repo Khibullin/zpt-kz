@@ -327,3 +327,43 @@ class CollectorApiTests(TestCase):
     def test_missing_server_token_is_unavailable(self):
         response = self.client.get(LISTINGS_URL, **self._auth())
         self.assertEqual(response.status_code, 503)
+
+    def test_city_tagged_batch_persists_city_without_price_write(self):
+        before = self.listing.last_known_our_price
+        payload = _batch_payload(self.listing, city_id="710000000")
+        response = self._post(payload)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            KaspiCompetitorIngestBatch.objects.get().city_id, "710000000"
+        )
+        self.assertEqual(
+            KaspiCompetitorOfferSnapshot.objects.first().city_id, "710000000"
+        )
+        self.listing.refresh_from_db()
+        self.assertEqual(self.listing.last_known_our_price, before)
+        self.assertEqual(KaspiRepricerRecommendation.objects.count(), 0)
+
+    def test_city_specific_manifest_tracks_only_that_city(self):
+        recent = timezone.now()
+        KaspiCompetitorIngestBatch.objects.create(
+            listing=self.listing, external_batch_id=uuid4(),
+            source="office_collector", city_id="750000000",
+            captured_at=recent, offer_count=1,
+        )
+        astana = self.client.get(
+            LISTINGS_URL, {"city_id": "710000000"}, **self._auth()
+        ).json()["listings"][0]
+        almaty = self.client.get(
+            LISTINGS_URL, {"city_id": "750000000"}, **self._auth()
+        ).json()["listings"][0]
+        self.assertIsNone(astana["last_collected_at"])
+        self.assertIsNotNone(almaty["last_collected_at"])
+
+    def test_unknown_city_is_rejected_without_writes(self):
+        response = self._post(_batch_payload(self.listing, city_id="000"))
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(KaspiCompetitorOfferSnapshot.objects.count(), 0)
+        response = self.client.get(
+            LISTINGS_URL, {"city_id": "000"}, **self._auth()
+        )
+        self.assertEqual(response.status_code, 400)
