@@ -1,0 +1,277 @@
+{
+  "schema_version": 1,
+  "as_of": "2026-11-22",
+  "source_file": "dataset_kaspi-api_2026-11-21_14-00-09-125.json",
+  "scope": "Staged 18 candidates only; NOT independently verified nationwide / current prices",
+  "rounding": "Snapshot-based scenario estimates, no claim of live prices, exact threshold compares unrounded amounts",
+  "commission_baseline_percent": 12.5,
+  "packaging_cost_once_kzt": 250,
+  "publication_authorized": false,
+  "scenarios": [
+    {
+      "name": "baseline",
+      "commission_percent": 12.5,
+      "packaging_kzt": 250,
+      "other_extra_kzt": 0,
+      "roi_50_or_higher": 18,
+      "below_roi_50": []
+    },
+    {
+      "name": "extra_250",
+      "commission_percent": 12.5,
+      "packaging_kzt": 250,
+      "other_extra_kzt": 250,
+      "roi_50_or_higher": 17,
+      "below_roi_50": [
+        "SUPERZING 57486"
+      ]
+    },
+    {
+      "name": "extra_500",
+      "commission_percent": 12.5,
+      "packaging_kzt": 250,
+      "other_extra_kzt": 500,
+      "roi_50_or_higher": 17,
+      "below_roi_50": [
+        "SUPERZING 57486"
+      ]
+    },
+    {
+      "name": "extra_750",
+      "commission_percent": 12.5,
+      "packaging_kzt": 250,
+      "other_extra_kzt": 750,
+      "roi_50_or_higher": 16,
+      "below_roi_50": [
+        "SUPERZING 57486",
+        "STINSS S2S1372"
+      ]
+    },
+    {
+      "name": "commission_13_5",
+      "commission_percent": 13.5,
+      "packaging_kzt": 250,
+      "other_extra_kzt": 0,
+      "roi_50_or_higher": 17,
+      "below_roi_50": [
+        "SUPERZING 57486"
+      ]
+    },
+    {
+      "name": "commission_13_5_plus_extra_500",
+      "commission_percent": 13.5,
+      "packaging_kzt": 250,
+      "other_extra_kzt": 500,
+      "roi_50_or_higher": 16,
+      "below_roi_50": [
+        "SUPERZING 57486",
+        "STINSS S2S1372"
+      ]
+    }
+  ],
+  "ranked_by_smallest_remaining_cost_headroom": [
+    {
+      "brand": "SUPERZING",
+      "article": "57486",
+      "offer_id": 59059,
+      "kaspi_card_id": "152114068",
+      "observed_kaspi_price_kzt": 15716,
+      "cost_snapshot_kzt": 8987,
+      "headroom_beyond_packaging_kzt": 21,
+      "source_checked": "Almaty only; original specifications unverified",
+      "published": false
+    },
+    {
+      "brand": "STINSS",
+      "article": "S2S1372",
+      "offer_id": 4514,
+      "kaspi_card_id": "105187710",
+      "observed_kaspi_price_kzt": 14822,
+      "cost_snapshot_kzt": 8145,
+      "headroom_beyond_packaging_kzt": 501.75,
+      "source_checked": "Almaty only; original specifications unverified",
+      "published": false
+    },
+    {
+      "brand": "STINSS",
+      "article": "S2S1533",
+      "offer_id": 5416,
+      "kaspi_card_id": "142619944",
+      "observed_kaspi_price_kzt": 18343,
+      "cost_snapshot_kzt": 9718,
+      "headroom_beyond_packaging_kzt": 1223.13,
+      "source_checked": "Almaty only; original specifications unverified",
+      "published": false
+    },
+    {
+      "brand": "STINSS",
+      "article": "S2S1534",
+      "offer_id": 5417,
+      "kaspi_card_id": "142298277",
+      "observed_kaspi_price_kzt": 18343,
+      "cost_snapshot_kzt": 9718,
+      "headroom_beyond_packaging_kzt": 1223.13,
+      "source_checked": "Almaty only; original specifications unverified",
+      "published": false
+    },
+    {
+      "brand": "SUPERZING",
+      "article": "57409",
+      "offer_id": 59039,
+      "kaspi_card_id": "179042763",
+      "observed_kaspi_price_kzt": 14005,
+      "cost_snapshot_kzt": 7162,
+      "headroom_beyond_packaging_kzt": 1261.38,
+      "source_checked": "Almaty only; original specifications unverified",
+      "published": false
+    },
+    {
+      "brand": "SUPERZING",
+      "article": "163827",
+      "offer_id": 59042,
+      "kaspi_card_id": "132689987",
+      "observed_kaspi_price_kzt": 12710,
+      "cost_snapshot_kzt": 6395,
+      "headroom_beyond_packaging_kzt": 1278.75,
+      "source_checked": "Almaty only; original specifications unverified",
+      "published": false
+    },
+    {
+      "brand": "TMG",
+      "article": "706068",
+      "offer_id": 59602,
+      "kaspi_card_id": "174104577",
+      "observed_kaspi_price_kzt": 12047,
+      "cost_snapshot_kzt": 6004,
+      "headroom_beyond_packaging_kzt": 1285.13,
+      "source_checked": "Almaty only; original specifications unverified",
+      "published": false
+    },
+    {
+      "brand": "STINSS",
+      "article": "S2S1542",
+      "offer_id": 5478,
+      "kaspi_card_id": "143949432",
+      "observed_kaspi_price_kzt": 15703,
+      "cost_snapshot_kzt": 8011,
+      "headroom_beyond_packaging_kzt": 1473.63,
+      "source_checked": "Almaty only; original specifications unverified",
+      "published": false
+    },
+    {
+      "brand": "STINSS",
+      "article": "S2S1540",
+      "offer_id": 5032,
+      "kaspi_card_id": "143040608",
+      "observed_kaspi_price_kzt": 16225,
+      "cost_snapshot_kzt": 8278,
+      "headroom_beyond_packaging_kzt": 1529.88,
+      "source_checked": "Almaty only; original specifications unverified",
+      "published": false
+    },
+    {
+      "brand": "STINSS",
+      "article": "S2S1564",
+      "offer_id": 5228,
+      "kaspi_card_id": "143040654",
+      "observed_kaspi_price_kzt": 15269,
+      "cost_snapshot_kzt": 7695,
+      "headroom_beyond_packaging_kzt": 1567.88,
+      "source_checked": "Almaty only; original specifications unverified",
+      "published": false
+    },
+    {
+      "brand": "STINSS",
+      "article": "S2S1560",
+      "offer_id": 5319,
+      "kaspi_card_id": "115446111",
+      "observed_kaspi_price_kzt": 15766,
+      "cost_snapshot_kzt": 7946,
+      "headroom_beyond_packaging_kzt": 1626.25,
+      "source_checked": "Almaty only; original specifications unverified",
+      "published": false
+    },
+    {
+      "brand": "STINSS",
+      "article": "S2S1493",
+      "offer_id": 5408,
+      "kaspi_card_id": "179047940",
+      "observed_kaspi_price_kzt": 15861,
+      "cost_snapshot_kzt": 7946,
+      "headroom_beyond_packaging_kzt": 1709.38,
+      "source_checked": "Almaty only; original specifications unverified",
+      "published": false
+    },
+    {
+      "brand": "STINSS",
+      "article": "S2S1418",
+      "offer_id": 5493,
+      "kaspi_card_id": "143949415",
+      "observed_kaspi_price_kzt": 13229,
+      "cost_snapshot_kzt": 6357,
+      "headroom_beyond_packaging_kzt": 1789.88,
+      "source_checked": "Almaty only; original specifications unverified",
+      "published": false
+    },
+    {
+      "brand": "STINSS",
+      "article": "S2S1554",
+      "offer_id": 5465,
+      "kaspi_card_id": "129584944",
+      "observed_kaspi_price_kzt": 12937,
+      "cost_snapshot_kzt": 6138,
+      "headroom_beyond_packaging_kzt": 1862.88,
+      "source_checked": "Almaty only; original specifications unverified",
+      "published": false
+    },
+    {
+      "brand": "STINSS",
+      "article": "S2S1575",
+      "offer_id": 4155,
+      "kaspi_card_id": "179048707",
+      "observed_kaspi_price_kzt": 12293,
+      "cost_snapshot_kzt": 5604,
+      "headroom_beyond_packaging_kzt": 2100.38,
+      "source_checked": "Almaty only; original specifications unverified",
+      "published": false
+    },
+    {
+      "brand": "STINSS",
+      "article": "S2S1531",
+      "offer_id": 4538,
+      "kaspi_card_id": "179820603",
+      "observed_kaspi_price_kzt": 12286,
+      "cost_snapshot_kzt": 5598,
+      "headroom_beyond_packaging_kzt": 2103.25,
+      "source_checked": "Almaty only; original specifications unverified",
+      "published": false
+    },
+    {
+      "brand": "STINSS",
+      "article": "S2S1553",
+      "offer_id": 4584,
+      "kaspi_card_id": "179046414",
+      "observed_kaspi_price_kzt": 11977,
+      "cost_snapshot_kzt": 5341,
+      "headroom_beyond_packaging_kzt": 2218.38,
+      "source_checked": "Almaty only; original specifications unverified",
+      "published": false
+    },
+    {
+      "brand": "STINSS",
+      "article": "S2S1552",
+      "offer_id": 5460,
+      "kaspi_card_id": "179049603",
+      "observed_kaspi_price_kzt": 12784,
+      "cost_snapshot_kzt": 5603,
+      "headroom_beyond_packaging_kzt": 2531.5,
+      "source_checked": "Almaty only; original specifications unverified",
+      "published": false
+    }
+  ],
+  "evidence_note": {
+    "item": "SUPERZING 57486",
+    "indirect_omega_reference": "https://omega-auto-parts.kz/amortizatory/amortizator-perednij-r-gazomaslyanyj-srr-oe-sgt10035",
+    "meaning": "Page of DIFFERENT item SRR OE SGT10035 lists 57486 Superzing as analogue. It is not the original product page and cannot validate stock, price, side, OEM or fitment of 57486."
+  }
+}
