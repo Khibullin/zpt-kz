@@ -67,6 +67,42 @@
     </div>
   {% endif %}
 
+  <section class="repricer-status" id="manual-price-collector" aria-label="Ручной сбор цен Kaspi">
+    <h2 style="margin:0 0 8px;font-size:19px">Собрать цены сейчас</h2>
+    <p style="margin:0 0 12px">Проверка цен по нашим активным Kaspi-привязкам. Расписание выключено. Сбор выполняется небольшими шагами, пока эта вкладка открыта; при закрытии вкладки можно продолжить позже. Наши цены не меняются.</p>
+    <form id="manual-price-form" method="post" action="{% url 'repricer:manual_start' %}" data-step-url="{% url 'repricer:manual_step' 999999 %}" data-pause-url="{% url 'repricer:manual_pause' 999999 %}" data-resume-url="{% url 'repricer:manual_resume' 999999 %}">
+      {% csrf_token %}
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <label for="manual-price-city">Где собирать</label>
+        <select id="manual-price-city" name="city_id" style="padding:9px;border:1px solid #d1d5db;border-radius:8px">
+          <option value="750000000">Алматы (первичная проверка)</option>
+          <option value="all">Все населённые пункты справочника Kaspi</option>
+          {% for code, name in collection_cities %}{% if code != "750000000" %}
+          <option value="{{ code }}">{{ name }}</option>
+          {% endif %}{% endfor %}
+        </select>
+        <button type="submit" class="repricer-link" id="manual-price-start">Собрать цены</button>
+        <button type="button" class="repricer-link" id="manual-price-pause" hidden>Остановить</button>
+        <button type="button" class="repricer-link" id="manual-price-resume" hidden>Продолжить</button>
+      </div>
+    </form>
+    <div id="manual-price-report" style="margin-top:10px" role="status" aria-live="polite"
+      data-run-id="{% if manual_run %}{{ manual_run.pk }}{% endif %}"
+      data-run-status="{% if manual_run %}{{ manual_run.status }}{% endif %}"
+      data-run-processed="{% if manual_run %}{{ manual_run.next_index }}{% else %}0{% endif %}"
+      data-run-total="{% if manual_run %}{{ manual_run.total }}{% else %}0{% endif %}"
+      data-run-offers="{% if manual_run %}{{ manual_run.saved_offers }}{% else %}0{% endif %}"
+      data-run-error="{% if manual_run %}{{ manual_run.last_error }}{% endif %}">
+      {% if manual_run %}
+        Предыдущий запуск: {{ manual_run.get_status_display }} · {{ manual_run.next_index }}/{{ manual_run.total }} проверок · сохранено предложений: {{ manual_run.saved_offers }}.
+        {% if manual_run.last_error %} Ошибка: {{ manual_run.last_error }}{% endif %}
+      {% else %}
+        Ручных запусков пока не было.
+      {% endif %}
+    </div>
+    <progress id="manual-price-progress" max="{% if manual_run %}{{ manual_run.total }}{% else %}1{% endif %}" value="{% if manual_run %}{{ manual_run.next_index }}{% else %}0{% endif %}" style="width:100%;margin-top:6px"></progress>
+  </section>
+
   <div class="repricer-status repricer-status--warning">
     <strong>Сбор цен по Казахстану:</strong> механизм поддерживает последовательную проверку {{ city_total }} населённых пунктов из справочника Kaspi.
     Фактически собраны данные с известным городом: <strong>{{ covered_city_count }} из {{ city_total }}</strong>.
@@ -124,4 +160,91 @@
     </table>
   </div>
 </main>
+
+<script>
+(function () {
+  "use strict";
+  const form = document.getElementById("manual-price-form");
+  if (!form) return;
+  const start = document.getElementById("manual-price-start");
+  const pause = document.getElementById("manual-price-pause");
+  const resume = document.getElementById("manual-price-resume");
+  const report = document.getElementById("manual-price-report");
+  const progress = document.getElementById("manual-price-progress");
+  const csrf = form.querySelector("input[name=csrfmiddlewaretoken]").value;
+  let active = false;
+  let runId = Number(report.dataset.runId || 0);
+  let status = report.dataset.runStatus || "";
+  const link = (template) => template.replace("999999", String(runId));
+  function buttons() {
+    start.disabled = active || status === "running" || status === "stopped";
+    pause.hidden = !active;
+    resume.hidden = active || !runId || (status !== "stopped" && status !== "running");
+    resume.textContent = status === "running" ? "Продолжить сбор" : "Продолжить";
+  }
+  function show(data) {
+    runId = data.id; status = data.status;
+    progress.max = Math.max(data.total || 1, 1);
+    progress.value = data.processed || 0;
+    const state = status === "done" ? "Завершено" : status === "stopped" ? "Остановлено" : "Идёт сбор";
+    report.textContent = state + " · " + data.processed + "/" + data.total +
+      " проверок · записано предложений: " + data.saved_offers +
+      " · нет предложений: " + data.empty_count +
+      " · без привязки: " + data.skipped_count +
+      " · ошибок: " + data.error_count +
+      (data.current ? " · " + data.current : "") +
+      (data.last_error ? " · " + data.last_error : "");
+    buttons();
+  }
+  async function post(url, body) {
+    const response = await fetch(url, {
+      method: "POST",
+      credentials: "same-origin",
+      headers: {"X-CSRFToken": csrf, "Accept": "application/json"},
+      body: body || new URLSearchParams(),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Ошибка запроса: " + response.status);
+    return data;
+  }
+  async function steps() {
+    active = true; buttons();
+    try {
+      while (active) {
+        const data = await post(link(form.dataset.stepUrl));
+        show(data);
+        if (data.status !== "running") break;
+        await new Promise((resolve) => setTimeout(resolve, 1200));
+      }
+    } catch (error) {
+      report.textContent = "Сбор приостановлен: " + error.message + ". Можно продолжить вручную.";
+    } finally {
+      active = false; buttons();
+      if (status === "done") setTimeout(() => location.reload(), 700);
+    }
+  }
+  form.addEventListener("submit", async function (event) {
+    event.preventDefault();
+    if (active) return;
+    try {
+      show(await post(form.action, new URLSearchParams(new FormData(form))));
+      if (status === "running") steps();
+    } catch (error) { report.textContent = error.message; }
+  });
+  pause.addEventListener("click", async function () {
+    active = false;
+    if (!runId) return;
+    try { show(await post(link(form.dataset.pauseUrl))); }
+    catch (error) { report.textContent = error.message; }
+  });
+  resume.addEventListener("click", async function () {
+    if (!runId || active) return;
+    try {
+      if (status === "stopped") show(await post(link(form.dataset.resumeUrl)));
+      if (status === "running") steps();
+    } catch (error) { report.textContent = error.message; }
+  });
+  buttons();
+})();
+</script>
 {% endblock %}
