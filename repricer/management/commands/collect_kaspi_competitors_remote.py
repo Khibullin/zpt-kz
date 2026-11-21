@@ -71,7 +71,7 @@ class Command(BaseCommand):
 
         parser.add_argument(
             "--all-cities", action="store_true",
-            help="Проверять 20 основных городов Kaspi, требуется --all-active.",
+            help="Проверять все населённые пункты из официальной таблицы городов Kaspi, требуется --all-active.",
         )
 
     def handle(self, *args, **options):
