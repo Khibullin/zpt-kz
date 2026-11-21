@@ -25,8 +25,22 @@ def _title_tokens(title):
 
 
 def _one_unit(title):
-    return bool(re.search(r'(?<!\d)1\s*шт(?=\s|\.|$)', str(title or ''), re.I))
+    """Reject multiple quantity markers or kits; title alone is not proof."""
+    title = str(title or '')
+    units = re.findall(r'(?<!\d)(\d+)\s*шт(?=\s|[.,;:)\]]|$)', title, re.I)
+    if units != ['1']:
+        return False
+    if re.search(r'\b(?:комплект|набор|пара|упаковка)\b', title, re.I):
+        return False
+    return True
 
+
+def _article_in_slug(row, article):
+    """Conservative URL-SKU consistency check for analogue mentions."""
+    slug = urlsplit(str(row.get('url') or '')).path.rstrip('/').rsplit('/', 1)[-1]
+    slug = re.sub(r'-\d{6,15}$', '', slug)
+    return bool(re.search(r'(?<![a-z0-9])' + re.escape(article) +
+                          r'(?![a-z0-9])', slug, re.I))
 
 def _price(value):
     try:
@@ -90,6 +104,10 @@ def select_minimum_seller_quotes(rows, target_skus, *, allowed_categories=SUPPOR
         if len(articles) != 1:
             continue
         key = (brand, next(iter(articles)))
+        # A title may list a target SKU only as an analogue, not the product.
+        # Missing SKU in Kaspi slug needs manual review; no auto quote match.
+        if not _article_in_slug(row, key[1]):
+            continue
         sellers = row.get('offers')
         if not isinstance(sellers, list) or not sellers:
             compromised_skus.add(key)
