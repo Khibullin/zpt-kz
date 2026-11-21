@@ -181,11 +181,14 @@ def _comparison_impl(request, pk):
                  (record.kaspi_url if not source_file else ""))
     # Both prices are read-only source observations. A screenshot's price must
     # never be substituted for the seller minimum of the selected Apify export.
-    stale_cutoff = timezone.now() - timedelta(days=7)
+    # Omega stores a DateField while the Apify audit uses DateTimeField.
+    # Comparing date to datetime raises TypeError and broke every detail page.
+    stale_cutoff = timezone.localdate() - timedelta(days=7)
     omega_checked_at = offer.supplier_checked_on
     kaspi_checked_at = audit.observed_at if audit else None
     omega_price_stale = not omega_checked_at or omega_checked_at < stale_cutoff
-    kaspi_price_stale = not kaspi_checked_at or kaspi_checked_at < stale_cutoff
+    kaspi_price_stale = (not kaspi_checked_at or
+                         timezone.localdate(kaspi_checked_at) < stale_cutoff)
     return render(request, "procurement/eep_comparison.html",
                   context(request, offer=offer, rows=rows,
                           supplier_photo=supplier_photos[0] if supplier_photos else "",
