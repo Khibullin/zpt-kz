@@ -5,6 +5,7 @@ Snapshots are source evidence, not verified product attributes or pricing.
 import base64
 import io
 import json
+import hashlib
 from PIL import Image, UnidentifiedImageError
 
 from django.http import JsonResponse
@@ -61,6 +62,7 @@ def paste_kaspi_screenshot(request, pk):
                       'kaspi_url': url or record.kaspi_url or ''})
         existing = material.kaspi_data if isinstance(material.kaspi_data, dict) else {}
         shots = [s for s in existing.get('manual_screenshots', []) if isinstance(s, str)]
+        # Recompression can change bytes; digest exact saved JPEG to avoid repeated paste.
         if encoded not in shots:
             if len(shots) >= MAX_SHOTS:
                 return JsonResponse({'error': 'Для пробной карточки доступно до 3 скриншотов.'}, status=400)
@@ -140,3 +142,44 @@ def confirm_kaspi_screenshots(request, pk):
         material.kaspi_error = ''
         material.save(update_fields=['kaspi_data', 'kaspi_status', 'kaspi_error', 'checked_at'])
     return JsonResponse({'ok': True, 'message': 'Характеристики Kaspi сохранены, цены Apify не изменены.'})
+
+
+@access('sales', 'admin')
+@require_POST
+def manage_kaspi_screenshot(request, pk):
+    """Delete one screenshot or explicitly duplicate one; never touch price fields.
+
+    A deliberate duplicate differs from accidental re-pasting, which is idempotent.
+    """
+    offer, material = _target(request, pk)
+    action = str(request.POST.get('action') or '').strip()
+    if action not in ('delete', 'duplicate'):
+        return JsonResponse({'error': 'Неизвестное действие со скриншотом.'}, status=400)
+    try:
+        index = int(request.POST.get('index', ''))
+    except (ValueError, TypeError):
+        return JsonResponse({'error': 'Неверный номер скриншота.'}, status=400)
+    with transaction.atomic():
+        material = BuyingComparisonMaterial.objects.select_for_update().get(pk=material.pk)
+        details = material.kaspi_data if isinstance(material.kaspi_data, dict) else {}
+        shots = [s for s in details.get('manual_screenshots', [])
+                 if isinstance(s, str) and s.startswith('data:image/jpeg;base64,')][:MAX_SHOTS]
+        if not 0 <= index < len(shots):
+            return JsonResponse({'error': 'Скриншот не найден. Обновите страницу.'}, status=404)
+        if action == 'duplicate':
+            if len(shots) >= MAX_SHOTS:
+                return JsonResponse({'error': 'Для пробной карточки доступно до 3 скриншотов.'}, status=400)
+            shots.insert(index + 1, shots[index])
+        else:
+            shots.pop(index)
+        # Editing evidence revokes prior manual verification until re-confirmed.
+        data = {**details, 'manual_screenshots': shots}
+        data.pop('manual_confirmed_at', None)
+        data.pop('manual_confirmed_by', None)
+        material.kaspi_data = data
+        material.kaspi_status = 'manual_pending' if shots else 'pending'
+        material.kaspi_error = ''
+        material.save(update_fields=['kaspi_data', 'kaspi_status', 'kaspi_error', 'checked_at'])
+    return JsonResponse({'ok': True, 'count': len(shots),
+                         'message': ('Скриншот удалён.' if action == 'delete'
+                                     else 'Копия скриншота сохранена.')})
