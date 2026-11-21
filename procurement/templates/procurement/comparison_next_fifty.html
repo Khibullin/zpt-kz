@@ -18,8 +18,9 @@
  <p class="batch50-note">Партия №2, позиции после первых 10. Показана последняя сохранённая доходность и минимальная цена продавца из Apify. Не является подтверждением актуальной цены или разрешением закупки. Для сравнения исполнения и применимости заполняйте данные Kaspi по скриншотам.</p>
  <div class="batch50-counts">
   <span>Всего: <strong>{{ total }}</strong></span>
-  <span>Данные Omega подготовлены: <strong>{{ supplier_ready }}</strong></span>
-  <span>Требуют дополнения Omega: <strong>{{ supplier_pending }}</strong></span>
+  <span>Omega: страница изучена — <strong>{{ supplier_ready }}</strong></span>
+  <span>Omega: сведения из каталога — <strong>{{ supplier_snapshot }}</strong></span>
+  {% if supplier_pending %}<span>Omega: требуется дополнение — <strong>{{ supplier_pending }}</strong></span>{% endif %}
  </div>
  <div class="batch50-list">
  {% for item in items %}
@@ -28,7 +29,7 @@
    <div><div class="batch50-title">{{ item.offer.brand }} {{ item.offer.article }}</div><div class="batch50-muted">{{ item.offer.name }} · остаток {{ item.offer.stock }}</div></div>
    <div class="batch50-price"><span class="batch50-muted">Kaspi от</span><div class="batch50-value">{{ item.price|floatformat:0 }} ₸</div></div>
    <div class="batch50-roi"><span class="batch50-muted">Доходность</span><div class="batch50-value">{{ item.roi|floatformat:1 }}%</div></div>
-   <div class="batch50-status">{% if item.supplier_ready %}<span class="batch50-ready">Omega подготовлена</span>{% else %}<span>Omega требует дополнения</span>{% endif %}<div>{{ item.status }}</div>{% if item.screenshots %}<div class="batch50-muted">Скриншотов: {{ item.screenshots }}</div>{% endif %}</div>
+   <div class="batch50-status">{% if item.supplier_ready %}<span class="batch50-ready">Omega: страница проверена</span>{% elif item.supplier_snapshot %}<span>Omega: сведения из каталога</span>{% else %}<span>Omega: требует дополнения</span>{% endif %}<div>{{ item.status }}</div>{% if item.screenshots %}<div class="batch50-muted">Скриншотов: {{ item.screenshots }}</div>{% endif %}</div>
    <a class="button batch50-open" href="{{ item.url }}?apify_source={{ item.source|urlencode }}">Подробности</a>
   </div>
  {% empty %}
