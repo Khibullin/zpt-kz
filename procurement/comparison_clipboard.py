@@ -15,6 +15,7 @@ from django.views.decorators.http import require_POST
 from django.db import transaction
 from .models import Offer, PermanentBuyingItem, BuyingComparisonMaterial
 from .comparison_first_ten import FIRST_TEN_OFFER_IDS
+from .comparison_photo_crop import crop_photo, photo_box_from_request
 from .views import access
 from .comparison_screenshot_ai import (recognize_screenshots, article_agrees,
                                        price_from_image, FIELDS, TEXT_LIMITS)
@@ -68,7 +69,11 @@ def paste_kaspi_screenshot(request, pk):
             if len(shots) >= MAX_SHOTS:
                 return JsonResponse({'error': 'Для пробной карточки доступно до 3 скриншотов.'}, status=400)
             shots.append(encoded)
-        material.kaspi_data = {**existing, 'manual_screenshots': shots}
+        updated = {**existing, 'manual_screenshots': shots}
+        if updated.get('photo_origin') == 'cropped_from_manual_screenshot' and len(shots) != len(existing.get('manual_screenshots', [])):
+            updated.pop('images', None)
+            updated.pop('photo_origin', None)
+        material.kaspi_data = updated
         material.kaspi_status = 'manual_pending'
         material.kaspi_error = ''
         material.save(update_fields=['kaspi_data', 'kaspi_status', 'kaspi_error', 'checked_at'])
@@ -99,8 +104,13 @@ def recognize_kaspi_screenshots(request, pk):
         result = recognize_screenshots(screenshots, article=offer.article, brand=offer.brand)
     except ValueError as exc:
         return JsonResponse({'error': str(exc)}, status=503)
+    # Return the visual crop as a preview, not yet published product data.
+    proposed_box = result.pop('product_photo_box', None)
+    preview = crop_photo(screenshots, proposed_box) if proposed_box else None
     # The manager sees the possible mismatch; no automatic confirmation.
     return JsonResponse({
+        'photo_box': proposed_box if preview else None,
+        'photo_preview': preview or '',
         'ok': True, 'fields': result,
         'article_matches': article_agrees(result.get('article'), offer.article),
         'brand_matches': result.get('brand', '').casefold() == offer.brand.casefold(),
@@ -132,13 +142,26 @@ def confirm_kaspi_screenshots(request, pk):
     with transaction.atomic():
         material = BuyingComparisonMaterial.objects.select_for_update().get(pk=material.pk)
         existing = material.kaspi_data if isinstance(material.kaspi_data, dict) else {}
+        screenshots = [
+            s for s in existing.get('manual_screenshots', [])
+            if isinstance(s, str) and s.startswith('data:image/jpeg;base64,')
+        ][:MAX_SHOTS]
+        selected_box = photo_box_from_request(request.POST.get('photo_box', ''), len(screenshots))
+        photo = crop_photo(screenshots, selected_box) if selected_box else None
         # Keep screenshot price isolated from monetary fields used for profitability.
-        material.kaspi_data = {
+        saved = {
             **existing, **{k: v for k, v in fields.items() if k != 'screenshot_price'},
             'screenshot_price': price_from_image(fields['screenshot_price']),
             'manual_confirmed_at': timezone.now().isoformat(),
             'manual_confirmed_by': request.user.pk,
         }
+        if photo:
+            previous = existing.get('images')
+            old_remote = [v for v in previous if isinstance(v, str) and
+                          v.startswith('https://')] if isinstance(previous, list) else []
+            saved['images'] = [photo] + old_remote[:7]
+            saved['photo_origin'] = 'cropped_from_manual_screenshot'
+        material.kaspi_data = saved
         material.kaspi_status = 'manual_verified'
         material.kaspi_error = ''
         material.save(update_fields=['kaspi_data', 'kaspi_status', 'kaspi_error', 'checked_at'])
@@ -175,6 +198,9 @@ def manage_kaspi_screenshot(request, pk):
             shots.pop(index)
         # Editing evidence revokes prior manual verification until re-confirmed.
         data = {**details, 'manual_screenshots': shots}
+        if data.get('photo_origin') == 'cropped_from_manual_screenshot':
+            data.pop('images', None)
+            data.pop('photo_origin', None)
         data.pop('manual_confirmed_at', None)
         data.pop('manual_confirmed_by', None)
         material.kaspi_data = data
