@@ -68,6 +68,10 @@ def select_minimum_seller_quotes(rows, target_skus, *, allowed_categories=SUPPOR
     chosen = {}
     observed_ids = defaultdict(set)
     equal_minimum_ids = defaultdict(set)
+    # If ANY otherwise relevant live card has an inconsistent/partial seller
+    # snapshot, a more expensive valid card cannot certify this SKU's minimum.
+    # Fail closed for the WHOLE SKU, not just the malformed card.
+    compromised_skus = set()
     for row in rows:
         if not isinstance(row, dict):
             continue
@@ -85,8 +89,10 @@ def select_minimum_seller_quotes(rows, target_skus, *, allowed_categories=SUPPOR
         # neither product's identity. Reject rather than double-linking.
         if len(articles) != 1:
             continue
+        key = (brand, next(iter(articles)))
         sellers = row.get('offers')
         if not isinstance(sellers, list) or not sellers:
+            compromised_skus.add(key)
             continue
         # A partial sellers array cannot prove the lowest quoted price.
         # Do not silently treat a truncated list as a complete comparison.
@@ -96,17 +102,20 @@ def select_minimum_seller_quotes(rows, target_skus, *, allowed_categories=SUPPOR
         if (isinstance(claimed_count, bool) or claimed_count is None
                 or not str(claimed_count).isdigit()
                 or int(claimed_count) != len(sellers)):
+            compromised_skus.add(key)
             continue
         # A broken or unidentified seller offer makes the claimed minimum
         # incomplete. Do not silently discard it and accept a higher quote.
         if any(not isinstance(s, dict) or _price(s.get('price')) is None
                or not (s.get('sellerId') or s.get('sellerName'))
                for s in sellers):
+            compromised_skus.add(key)
             continue
         priced = [(_price(s['price']), s) for s in sellers]
         price, seller = min(priced, key=lambda entry: entry[0])
         # A disagreeing card-level minPrice is an anomaly, not seller evidence.
         if _price(row.get('minPrice')) != price:
+            compromised_skus.add(key)
             continue
         for article in articles:
             key = (brand, article)
@@ -126,6 +135,10 @@ def select_minimum_seller_quotes(rows, target_skus, *, allowed_categories=SUPPOR
                     city=str(row.get('city') or ''),
                     publication_verified=False,
                 )
+    # Do not substitute a higher, well-formed quote when a second matching
+    # Kaspi card was observed but its prices could not be reconciled.
+    for key in compromised_skus:
+        chosen.pop(key, None)
     for key, quote in chosen.items():
         quote['observed_card_ids'] = sorted(observed_ids[key])
         quote['equal_minimum_card_ids'] = sorted(equal_minimum_ids[key])
