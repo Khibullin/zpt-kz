@@ -19,10 +19,11 @@ from .comparison_next_fifty import NEXT_FIFTY_OFFER_IDS
 from .comparison_next_hundred import NEXT_HUNDRED_OFFER_IDS
 from .comparison_fourth_hundred import FOURTH_HUNDRED_OFFER_IDS
 from .comparison_fifth_hundred import FIFTH_HUNDRED_OFFER_IDS
+from .comparison_sixth_hundred import SIXTH_HUNDRED_OFFER_IDS
 
 COMPARISON_BATCH_OFFER_IDS = (FIRST_TEN_OFFER_IDS + NEXT_FIFTY_OFFER_IDS +
                               NEXT_HUNDRED_OFFER_IDS + FOURTH_HUNDRED_OFFER_IDS +
-                              FIFTH_HUNDRED_OFFER_IDS)
+                              FIFTH_HUNDRED_OFFER_IDS + SIXTH_HUNDRED_OFFER_IDS)
 from .comparison_photo_crop import crop_photo, photo_box_from_request
 from .views import access
 from .comparison_screenshot_ai import (recognize_screenshots, article_agrees,
