@@ -6,8 +6,8 @@ from django.test import TestCase
 from django.urls import reverse
 
 from .models import (
-    KaspiPriceAudit, KaspiReviewTask, Membership, Offer,
-    PermanentBuyingItem, Supplier,
+    BuyingComparisonMaterial, KaspiPriceAudit, KaspiReviewTask,
+    Membership, Offer, PermanentBuyingItem, Supplier,
 )
 
 SECOND = 'dataset_kaspi-api_2026-11-21_14-00-09-125.json'
@@ -82,3 +82,38 @@ class ApifyReviewComparisonPermissionTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.context['apify_srr_review'])
         self.assertTrue(response.context['review_only'])
+
+    def test_export_specific_source_title_is_shown_without_candidate_entry(self):
+        """14:00 snapshot's title is evidence for this card, not another export."""
+        material = BuyingComparisonMaterial.objects.create(
+            offer=self.offer, source_filename=SECOND,
+            kaspi_product_id=self.audit.product_id,
+            kaspi_url=self.audit.card_url,
+            kaspi_status='local_snapshot',
+            kaspi_data={
+                'title': 'STINSS передний S2S1552 1 шт',
+                'apify_image_product_id': '179049603',
+                'images': ['https://resources.cdn-kaspi.kz/img/m/p/sample.jpg'],
+            },
+        )
+        self.client.force_login(self.manager)
+        response = self.client.get(self.details(self.offer, SECOND))
+        self.assertEqual(response.status_code, 200)
+        title = next(r for r in response.context['rows']
+                     if r['label'] == 'Наименование товара')
+        self.assertEqual(title['kaspi'], 'STINSS передний S2S1552 1 шт')
+        self.assertTrue(response.context['review_only'])
+        self.audit.refresh_from_db()
+        self.assertEqual(self.audit.identity_status, 'needs_review')
+
+        # A title whose source photo belongs to a different product ID must
+        # never be treated as an observation for this selected card.
+        material.kaspi_data = {
+            'title': 'Другой товар',
+            'apify_image_product_id': '000000000',
+        }
+        material.save(update_fields=['kaspi_data'])
+        response = self.client.get(self.details(self.offer, SECOND))
+        title = next(r for r in response.context['rows']
+                     if r['label'] == 'Наименование товара')
+        self.assertEqual(title['kaspi'], 'Нет данных')
