@@ -1,0 +1,39 @@
+{% extends 'procurement/base.html' %}
+{% block content %}
+<style>
+.batch50{max-width:1340px;margin:auto}.batch50-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.batch50 h1{margin:0}.batch50-note{color:#52677e;font-size:12px;margin:8px 0 13px}
+.batch50-counts{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;font-size:12px}
+.batch50-counts span{padding:4px 9px;border:1px solid #d9e4ed;border-radius:6px;background:#fff}
+.batch50-list{display:grid;gap:5px}
+.batch50-item{display:grid;grid-template-columns:32px minmax(150px,1.4fr) 110px 105px minmax(180px,1fr) 120px;align-items:center;gap:8px;background:#fff;border:1px solid #dbe4ed;border-radius:7px;padding:8px 10px;font-size:12px}
+.batch50-title{font-weight:700;font-size:13px;color:#183e60}.batch50-muted{font-size:11px;color:#61758a}
+.batch50-value{font-variant-numeric:tabular-nums;font-weight:600}.batch50-status{color:#86621b}
+.batch50-ready{color:#237349;font-size:11px}
+.batch50-open{white-space:nowrap;text-align:center}
+@media(max-width:900px){.batch50-item{grid-template-columns:25px minmax(130px,1fr) auto;gap:5px}.batch50-item .batch50-price,.batch50-item .batch50-roi,.batch50-item .batch50-status{grid-column:2}.batch50-item .batch50-open{grid-column:3;grid-row:1 / span 2}}
+</style>
+<div class="batch50">
+ <div class="batch50-head"><h1>Следующие 50 выгодных — подробности</h1><a class="button" href="{% url 'procurement:dashboard' %}?mode=best">← Выгодные к закупке</a></div>
+ <p class="batch50-note">Партия №2, позиции после первых 10. Показана последняя сохранённая доходность и минимальная цена продавца из Apify. Не является подтверждением актуальной цены или разрешением закупки. Для сравнения исполнения и применимости заполняйте данные Kaspi по скриншотам.</p>
+ <div class="batch50-counts">
+  <span>Всего: <strong>{{ total }}</strong></span>
+  <span>Данные Omega подготовлены: <strong>{{ supplier_ready }}</strong></span>
+  <span>Требуют дополнения Omega: <strong>{{ supplier_pending }}</strong></span>
+ </div>
+ <div class="batch50-list">
+ {% for item in items %}
+  <div class="batch50-item">
+   <div class="batch50-muted">{{ forloop.counter|add:10 }}.</div>
+   <div><div class="batch50-title">{{ item.offer.brand }} {{ item.offer.article }}</div><div class="batch50-muted">{{ item.offer.name }} · остаток {{ item.offer.stock }}</div></div>
+   <div class="batch50-price"><span class="batch50-muted">Kaspi от</span><div class="batch50-value">{{ item.price|floatformat:0 }} ₸</div></div>
+   <div class="batch50-roi"><span class="batch50-muted">Доходность</span><div class="batch50-value">{{ item.roi|floatformat:1 }}%</div></div>
+   <div class="batch50-status">{% if item.supplier_ready %}<span class="batch50-ready">Omega подготовлена</span>{% else %}<span>Omega требует дополнения</span>{% endif %}<div>{{ item.status }}</div>{% if item.screenshots %}<div class="batch50-muted">Скриншотов: {{ item.screenshots }}</div>{% endif %}</div>
+   <a class="button batch50-open" href="{{ item.url }}?apify_source={{ item.source|urlencode }}">Подробности</a>
+  </div>
+ {% empty %}
+  <p>Список пока не сформирован.</p>
+ {% endfor %}
+ </div>
+</div>
+{% endblock %}
