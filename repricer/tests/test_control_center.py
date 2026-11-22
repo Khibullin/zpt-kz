@@ -35,6 +35,17 @@ class PriceControlCenterTests(TestCase):
         self.assertNotContains(response, "Предложения конкурентов на Kaspi")
         self.assertContains(self.client.get(self.detail), "Предложения конкурентов на Kaspi")
 
+    def test_monitor_button_is_real_collector_form(self):
+        self.client.force_login(self.user)
+        response = self.client.get(self.dashboard)
+        self.assertContains(response, "Провести мониторинг цен")
+        self.assertContains(response, 'id="manual-price-form"')
+        self.assertContains(response, 'id="manual-price-start"')
+        self.assertContains(response, 'id="manual-price-progress"')
+        self.assertContains(response, 'id="manual-price-pause"')
+        self.assertContains(response, 'id="manual-price-resume"')
+        self.assertContains(response, 'value="all" selected')
+
     def test_manual_draft_does_not_change_live_price(self):
         self.client.force_login(self.user)
         url = reverse("repricer:save_price", args=[self.listing.pk])
