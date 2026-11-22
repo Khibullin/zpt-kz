@@ -103,6 +103,9 @@ def repricer_dashboard(request):
     paginator = Paginator(listings_qs, pagesize)
     page = paginator.get_page(request.GET.get("page"))
     current = list(page.object_list.prefetch_related("manual_price_draft"))
+    start_page = max(1, page.number - 2)
+    end_page = min(paginator.num_pages, page.number + 2)
+    page_numbers = list(range(start_page, end_page + 1))
     monitored = [
         _row(l, _listing_state(l, all_states), CITY_BY_ID.get(city, ""))
         for l in current
@@ -125,7 +128,7 @@ def repricer_dashboard(request):
         for code, name in KASPI_KZ_CITIES
     ]
     response = render(request, "repricer/dashboard.html", {
-        "monitored": monitored, "page": page, "search": search, "supplier": supplier,
+        "monitored": monitored, "page": page, "page_numbers": page_numbers, "search": search, "supplier": supplier,
         "status": status, "selected_city": city, "cities": KASPI_KZ_CITIES,
         "suppliers": ProductKaspiListing._meta.get_field("product").related_model.SUPPLIER_CHOICES,
         "summary": {"total": total, "found": found, "missing": total-found, "drafted": drafted},
