@@ -3,6 +3,19 @@
 {% block content %}
 <style>
 .price-compare .summary{display:grid;grid-template-columns:repeat(5,minmax(130px,1fr));gap:12px;margin:16px 0 20px}.price-compare .metric{background:#fff;border:1px solid #dbe4ee;border-radius:10px;padding:15px}.price-compare .metric strong{display:block;font-size:25px;margin-top:8px;color:#142e4d}.price-compare .filters{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:16px}.price-compare .filters input{min-width:280px;flex:2}.price-compare .filters select{flex:1}.price-compare .best{background:#def8e6;color:#08713b;font-weight:700;border-radius:6px}.price-compare .best-label{color:#08713b;font-weight:700}.price-compare td{font-variant-numeric:tabular-nums}.price-compare .minor{color:#62748a;font-size:12px}.price-compare th{white-space:nowrap}.price-compare .pager{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:16px 0}.price-compare .pager a{padding:8px 12px;background:white;border:1px solid #dbe4ee;border-radius:6px}@media(max-width:1150px){.price-compare .summary{grid-template-columns:repeat(2,1fr)}}@media(max-width:600px){.price-compare .summary{grid-template-columns:1fr}.price-compare .filters input{min-width:100%;flex:1}}
+.price-compare .tablewrap table{min-width:1000px;table-layout:fixed}
+.price-compare .tablewrap th,.price-compare .tablewrap td{padding:6px 9px;font-size:12px;line-height:1.22;vertical-align:middle;white-space:nowrap}
+.price-compare .tablewrap th:nth-child(1){width:42px}
+.price-compare .tablewrap th:nth-child(2){width:180px}
+.price-compare .tablewrap th:nth-child(3){width:auto}
+.price-compare .tablewrap th:nth-child(4),.price-compare .tablewrap th:nth-child(5),.price-compare .tablewrap th:nth-child(6){width:125px}
+.price-compare .tablewrap th:nth-child(7){width:145px}
+.price-compare .tablewrap th:nth-child(8){width:150px}
+.price-compare .tablewrap td:nth-child(3){overflow:hidden;text-overflow:ellipsis;max-width:0}
+.price-compare .tablewrap td small{display:inline;font-size:11px;margin:0 0 0 5px;color:#61718a}
+.price-compare .tablewrap td.best{background:#def8e6}
+.price-compare .tablewrap td:nth-child(3){cursor:help}
+.price-compare .tablewrap th .minor{display:inline;font-size:11px;margin-left:3px}
 </style>
 <div class="price-compare">
 <header><div><h1>⚖ Сравнение цен поставщиков</h1><p class="muted">Одинаковый бренд и полный артикул — одна строка. Зелёным выделена минимальная закупочная цена при наличии.</p></div></header>
@@ -64,15 +77,15 @@
 <button class="primary">Показать</button><a class="button" href="{% url 'procurement:supplier_price_comparison' %}">Сбросить</a>
 </form>
 <p class="muted">Найдено: {{ displayed_count }} · Данные из сохранённых прайсов: Phaeton — {{ snapshot.counts.Phaeton|default:0 }}, ZakazAuto — {{ snapshot.counts.ZakazAuto|default:0 }}, Omega — {{ snapshot.counts.Omega|default:0 }} позиций с положительным остатком. Сравнение не включает доставку.</p>
-<div class="tablewrap"><table><thead><tr><th>№</th><th>Бренд / артикул</th><th>Наименование</th><th>Phaeton<br><span class="minor">Цена / наличие</span></th><th>ZakazAuto<br><span class="minor">Цена / наличие</span></th><th>Omega<br><span class="minor">Цена / наличие</span></th><th>Где дешевле</th><th>Экономия</th></tr></thead>
+<div class="tablewrap"><table><thead><tr><th>№</th><th>Бренд / артикул</th><th>Наименование</th><th>Phaeton <span class="minor">₸ / шт.</span></th><th>ZakazAuto <span class="minor">₸ / шт.</span></th><th>Omega <span class="minor">₸ / шт.</span></th><th>Где дешевле</th><th>Экономия</th></tr></thead>
 <tbody>{% for item in page %}
 <tr><td>{{ page.start_index|add:forloop.counter0 }}</td>
-<td><strong>{{ item.brand }}</strong><br>{{ item.article }}</td><td>{{ item.name }}</td>
-<td {% if item.winner == 'Phaeton' %}class="best"{% endif %}>{% if item.prices.Phaeton %}{{ item.prices.Phaeton|floatformat:0 }} ₸<small>{{ item.stock.Phaeton }}</small>{% else %}—{% endif %}</td>
-<td {% if item.winner == 'ZakazAuto' %}class="best"{% endif %}>{% if item.prices.ZakazAuto %}{{ item.prices.ZakazAuto|floatformat:0 }} ₸<small>{{ item.stock.ZakazAuto }}</small>{% else %}—{% endif %}</td>
-<td {% if item.winner == 'Omega' %}class="best"{% endif %}>{% if item.prices.Omega %}{{ item.prices.Omega|floatformat:0 }} ₸<small>{{ item.stock.Omega }}</small>{% else %}—{% endif %}</td>
+<td><strong>{{ item.brand }}</strong> · {{ item.article }}</td><td title="{{ item.name }}">{{ item.name }}</td>
+<td {% if item.winner == 'Phaeton' %}class="best"{% endif %}>{% if item.prices.Phaeton %}{{ item.prices.Phaeton|floatformat:0 }} ₸ <small>· {{ item.stock.Phaeton }} шт.</small>{% else %}—{% endif %}</td>
+<td {% if item.winner == 'ZakazAuto' %}class="best"{% endif %}>{% if item.prices.ZakazAuto %}{{ item.prices.ZakazAuto|floatformat:0 }} ₸ <small>· {{ item.stock.ZakazAuto }} шт.</small>{% else %}—{% endif %}</td>
+<td {% if item.winner == 'Omega' %}class="best"{% endif %}>{% if item.prices.Omega %}{{ item.prices.Omega|floatformat:0 }} ₸ <small>· {{ item.stock.Omega }} шт.</small>{% else %}—{% endif %}</td>
 <td>{% if item.alternatives == 1 %}<span class="minor">Только один поставщик</span>{% elif item.winner == 'Равная цена' %}Равная цена{% else %}<span class="best-label">{{ item.winner }}</span>{% endif %}</td>
-<td>{% if item.saving != None %}<strong>{{ item.saving|floatformat:0 }} ₸</strong><small>от следующей цены · {{ item.percent|floatformat:1 }}%</small>{% else %}—{% endif %}</td></tr>
+<td>{% if item.saving != None %}<strong>{{ item.saving|floatformat:0 }} ₸</strong> <small>({{ item.percent|floatformat:1 }}%)</small>{% else %}—{% endif %}</td></tr>
 {% empty %}<tr><td colspan="8">Подходящих товаров нет. Проверьте прайсы, наличие и условия поиска.</td></tr>{% endfor %}
 </tbody></table></div>
 <div class="pager"><span class="muted">Страница {{ page.number }} из {{ page.paginator.num_pages }} · по 50 товаров</span><div>
