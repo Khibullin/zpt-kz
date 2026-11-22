@@ -479,7 +479,7 @@ document.addEventListener('DOMContentLoaded',function(){
     try{
       const values=new FormData(form);
       values.set('action','preview_omega_request');
-      const response=await fetch(form.action,{
+      const response=await fetch(form.getAttribute('action') || window.location.pathname,{
         method:'POST',body:values,signal:controller.signal,
         credentials:'same-origin',
         headers:{'Accept':'application/json','X-Requested-With':'XMLHttpRequest'}
