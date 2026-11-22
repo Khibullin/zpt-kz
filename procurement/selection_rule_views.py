@@ -195,6 +195,23 @@ def selection_rules(request):
                 request.session['apify_buying_session_id'] = staged.pk
                 messages.success(request, 'Все исходные строки сохранены. Запустите обработку партиями по 500.')
         return redirect('procurement:selection_rules')
+    if request.method == 'POST' and request.POST.get('action') == 'publish_apify_profitable':
+        from .apify_profitable_publish import publish_profitable
+        session_id = request.session.get('apify_buying_session_id')
+        if not session_id:
+            messages.error(request, 'Не найдена текущая сессия загрузки Apify.')
+        else:
+            try:
+                result = publish_profitable(session_id, request.user)
+            except (ValidationError, ValueError, TypeError):
+                messages.error(request, 'Не удалось загрузить выгодные. Проверьте завершение JSON и повторите.')
+            else:
+                messages.success(request,
+                    f"Выгодные загружены: добавлено {result['added']}; "
+                    f"уже имеется {result['already']}; "
+                    f"не допущено {result['skipped']}. "
+                    "Совпадение товаров остаётся на проверке.")
+        return redirect('procurement:selection_rules')
     if request.method == 'POST' and request.POST.get('action') == 'process_apify_batch':
         from django.http import JsonResponse
         from .apify_batch_intake import process_next_apify_batch
@@ -354,6 +371,11 @@ def selection_rules(request):
         apify_session = Activity.objects.filter(
             pk=session_id, user=request.user, action='apify_upload_session'
         ).first()
+    apify_buying_summary = None
+    if apify_session:
+        from .apify_profitable_publish import complete_session, source_summary
+        if complete_session(apify_session):
+            apify_buying_summary = source_summary(apify_session)
     from .omega_selection_requests import (
         DEFAULT_CATEGORIES, latest_price_batch, price_categories, request_history,
         category_key, category_usage, get_display_history,
@@ -400,4 +422,5 @@ def selection_rules(request):
                           apify_query_count=query_count,
                           json_batches=range(1, batches + 1),
                           json_batch_size=JSON_BATCH_SIZE,
-                          buying_total=buying_total, last_import=last_import))
+                          buying_total=buying_total, last_import=last_import,
+                          apify_buying_summary=apify_buying_summary))
