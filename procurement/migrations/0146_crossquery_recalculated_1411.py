@@ -1,0 +1,377 @@
+"""Corrected cross-query SKU reconciliation of the 1411-card Apify 21 Nov file.
+
+26 conservative net-ROI eligible exact-Omega-brand, exact-article, 1 pc snapshots.
+This is the cross-query recalculation of EXISTING source observations, not new
+live Kaspi collection. Preserve every older price audit and frozen buying item.
+No physical-fitment verification is implied; all new identities remain candidate.
+"""
+from decimal import Decimal
+from django.db import migrations
+
+ORIGINAL='dataset_kaspi-api_2026-11-21_13-39-32-482(2).json'
+SOURCE=ORIGINAL+'#crossquery-20261122'
+# brand, article, Omega ID, frozen wholesale cost, cheapest observed seller price,
+# exact card ID, direction, original image asset path, cheapest named seller
+ROWS=[
+ [
+  "RAMEDER",
+  "20C040059",
+  "4405",
+  "4412",
+  "10389",
+  "179047027",
+  "задний",
+  "p4d/pc8/185999250.jpg",
+  "RIMS"
+ ],
+ [
+  "RAMEDER",
+  "20A040108",
+  "4574",
+  "5968",
+  "11987",
+  "179047332",
+  "задний",
+  "p15/pe4/185999785.jpg",
+  "RIMS"
+ ],
+ [
+  "RAMEDER",
+  "20A040107",
+  "4608",
+  "5968",
+  "11987",
+  "106936315",
+  "задний",
+  "h91/hfe/64342175154206.jpg",
+  "RIMS"
+ ],
+ [
+  "RAMEDER",
+  "20A040152",
+  "4223",
+  "7721",
+  "15320",
+  "174104554",
+  "задний",
+  "p2a/pc5/169340254.jpg",
+  "RIMS"
+ ],
+ [
+  "RAMEDER",
+  "20A040114",
+  "4609",
+  "6401",
+  "12720",
+  "108294489",
+  "задний",
+  "hca/he5/67492743381022.jpg",
+  "RIMS"
+ ],
+ [
+  "RAMEDER",
+  "20C040048",
+  "4355",
+  "6916",
+  "13590",
+  "105579482",
+  "задний",
+  "h37/h5e/65052099411998.jpg",
+  "RIMS"
+ ],
+ [
+  "RAMEDER",
+  "20F040017",
+  "4463",
+  "6978",
+  "13694",
+  "179048113",
+  "задний",
+  "pf9/pfc/186001027.jpg",
+  "RIMS"
+ ],
+ [
+  "RAMEDER",
+  "20D040022",
+  "5119",
+  "7156",
+  "13995",
+  "106607859",
+  "передний",
+  "hc5/hea/64371834617886.jpg",
+  "RIMS"
+ ],
+ [
+  "RAMEDER",
+  "20D040043",
+  "4310",
+  "7210",
+  "14087",
+  "179824789",
+  "задний",
+  "pab/pb6/188580009.jpg",
+  "RIMS"
+ ],
+ [
+  "RAMEDER",
+  "20B040019",
+  "4888",
+  "7481",
+  "14544",
+  "115303132",
+  "передний",
+  "h81/h45/84709075648542.png",
+  "RIMS"
+ ],
+ [
+  "RAMEDER",
+  "20C040047",
+  "4363",
+  "7806",
+  "15093",
+  "179048116",
+  "задний",
+  "p9d/pff/186001030.jpg",
+  "RIMS"
+ ],
+ [
+  "RAMEDER",
+  "20B040026",
+  "4160",
+  "8036",
+  "15482",
+  "105187675",
+  "задний",
+  "h7f/h99/64520805580830.jpg",
+  "RIMS"
+ ],
+ [
+  "RAMEDER",
+  "20A040061",
+  "5039",
+  "10499",
+  "19980",
+  "106936330",
+  "передний",
+  "h87/h21/64419336650782.jpg",
+  "RIMS"
+ ],
+ [
+  "RAMEDER",
+  "20D040010",
+  "5178",
+  "9905",
+  "18696",
+  "115303200",
+  "передний",
+  "hc1/h05/84709262524446.png",
+  "RIMS"
+ ],
+ [
+  "RAMEDER",
+  "20A040137",
+  "5031",
+  "9523",
+  "17975",
+  "143040612",
+  "передний",
+  "pe5/p49/54876444.jpg",
+  "RIMS"
+ ],
+ [
+  "RAMEDER",
+  "20D040009",
+  "5177",
+  "9905",
+  "18355",
+  "179823916",
+  "передний",
+  "p54/p75/188578995.jpg",
+  "RIMS"
+ ],
+ [
+  "RAMEDER",
+  "20A040013",
+  "5439",
+  "7628",
+  "13767",
+  "115314215",
+  "передний",
+  "hb3/h52/84712745992222.png",
+  "RIMS"
+ ],
+ [
+  "RAMEDER",
+  "20E040004",
+  "4254",
+  "8513",
+  "15244",
+  "106121372",
+  "задний",
+  "h5f/h41/65006156513310.jpg",
+  "RIMS"
+ ],
+ [
+  "RAMEDER",
+  "20E040003",
+  "4253",
+  "8513",
+  "15244",
+  "179047539",
+  "задний",
+  "pd6/p9d/186000147.jpg",
+  "RIMS"
+ ],
+ [
+  "RAMEDER",
+  "20A040117",
+  "4487",
+  "4956",
+  "8946",
+  "115303164",
+  "задний",
+  "h3b/h26/84709233295390.png",
+  "RIMS"
+ ],
+ [
+  "RAMEDER",
+  "20E040040",
+  "5065",
+  "8822",
+  "15551",
+  "179048076",
+  "передний",
+  "p8f/p06/186000983.jpg",
+  "RIMS"
+ ],
+ [
+  "SRR",
+  "SA-160016",
+  "4159",
+  "8096",
+  "15584",
+  "144011711",
+  "задний",
+  "pf9/pec/58302687.jpg",
+  "RIMS"
+ ],
+ [
+  "SRR",
+  "SA-160034",
+  "5353",
+  "8697",
+  "15427",
+  "144011747",
+  "передний",
+  "p53/p4a/58302851.jpg",
+  "RIMS"
+ ],
+ [
+  "SRR",
+  "SA-160096",
+  "5234",
+  "7768",
+  "15028",
+  "124181155",
+  "передний",
+  "hae/h94/87267103178782.png",
+  "RIMS"
+ ],
+ [
+  "SRR",
+  "SA-160145",
+  "4890",
+  "6823",
+  "13432",
+  "179047349",
+  "передний",
+  "p3a/pca/185999813.jpg",
+  "RIMS"
+ ],
+ [
+  "SRR",
+  "SRR100196",
+  "4629",
+  "8116",
+  "15908",
+  "179042682",
+  "задний",
+  "p96/pe5/185991440.jpg",
+  "RIMS"
+ ]
+]
+
+def apply(apps,schema_editor):
+    Offer=apps.get_model('procurement','Offer')
+    Candidate=apps.get_model('procurement','KaspiBuyingCandidate')
+    Audit=apps.get_model('procurement','KaspiPriceAudit')
+    Buying=apps.get_model('procurement','PermanentBuyingItem')
+    Material=apps.get_model('procurement','BuyingComparisonMaterial')
+    for brand,article,offer_id,cost,amount,pid,direction,image_path,seller in ROWS:
+        offer=Offer.objects.filter(pk=int(offer_id),supplier__name='Omega',
+            brand__iexact=brand,article__iexact=article).first()
+        if not offer or str(offer.stock or '')[:1] not in '123456789':
+            continue
+        price=Decimal(amount);cost=Decimal(cost)
+        if offer.cost!=cost or cost<Decimal('2000') or direction not in (offer.name or '').casefold():
+            continue
+        profit=price*Decimal('.875')-cost-Decimal('250')
+        roi=(profit*Decimal('100')/cost).quantize(Decimal('.0001'))
+        if profit<=0 or roi<50:
+            continue
+        title=brand.title()+' '+direction+' '+article+' 1 шт'
+        slug=('rameder' if brand=='RAMEDER' else 'srr')+'-'+(
+            'perednii' if direction=='передний' else 'zadnii'
+        )+'-'+article.lower()+'-1-sht-'+pid+'/'
+        url='https://kaspi.kz/shop/p/'+slug
+        photo='https://resources.cdn-kaspi.kz/img/m/p/'+image_path+'?format=preview-large'
+        cities=[{'city':'Almaty','city_id':'750000000','min_price':str(price),
+                'sellers':[{'name':seller,'price':str(price)}],
+                'sellers_count':None}]
+        old=Candidate.objects.filter(product_id=pid).first()
+        if old and (old.offer_id!=offer.pk or old.match_status=='verified'):
+            continue
+        if old:
+            old.minimum_price=price;old.source_filename=SOURCE
+            old.city_offers=cities;old.url=url;old.title=title
+            old.save(update_fields=['minimum_price','source_filename','city_offers',
+                'url','title','imported_at'])
+        else:
+            Candidate.objects.create(product_id=pid,offer_id=offer.pk,title=title,
+                brand=brand.title(),url=url,minimum_price=price,city_offers=cities,
+                match_status='candidate',source_filename=SOURCE)
+        Audit.objects.get_or_create(offer_id=offer.pk,source_filename=SOURCE,defaults={
+            'min_price':price,'product_id':pid,'card_url':url,'card_title':title,
+            'seller_name':seller,'cost_snapshot':cost,
+            'commission_snapshot':Decimal('12.5'),'expenses_snapshot':Decimal('250'),
+            'profit':profit.quantize(Decimal('.01')),'roi':roi,'card_ids':[pid],
+            'identity_status':'needs_review'})
+        Buying.objects.get_or_create(offer_id=offer.pk,defaults={
+            'source':'apify','product_id':pid,'title':title,'kaspi_url':url,
+            'cost_snapshot':cost,'kaspi_price_snapshot':price,
+            'commission_snapshot':Decimal('12.5'),'expenses_snapshot':Decimal('250'),
+            'profit_snapshot':profit.quantize(Decimal('.01')),'roi_snapshot':roi,
+            'identity_status':'candidate','photo_url':offer.photo_url or ''})
+        supplier_photo=str(offer.photo_url or '')
+        Material.objects.get_or_create(offer_id=offer.pk,source_filename=SOURCE,
+            kaspi_product_id=pid,defaults={
+            'supplier_url':offer.supplier_url or '','kaspi_url':url,
+            'supplier_data':{
+                'name':offer.name,'brand':offer.brand,'article':offer.article,
+                'category':offer.category,'description':offer.description or '',
+                'fitment':offer.applicability or '',
+                'cost':str(cost),'stock':offer.stock,
+                'images':[supplier_photo] if supplier_photo.startswith('https://') else [],
+                'source_note':'Omega snapshot, warehouse stock not rechecked live.'},
+            'kaspi_data':{'id':pid,'name':title,'title':title,'brand':brand.title(),
+                'article':article,'package':'1 шт','images':[photo],
+                'minPrice':str(price),'city':'Almaty',
+                'offers':[{'sellerName':seller,'price':str(price)}],
+                'source_note':'Apify 21 Nov 2026 cross-query observation; other sellers may exist.'},
+            'supplier_status':'local_snapshot','kaspi_status':'local_snapshot',
+            'supplier_error':'Before purchase recheck Omega stock and exact configuration.',
+            'kaspi_error':'Kaspi source snapshot; physical equivalence not yet verified.'})
+
+class Migration(migrations.Migration):
+    dependencies=[('procurement','0145_apify_20261121_second_images')]
+    operations=[migrations.RunPython(apply,migrations.RunPython.noop)]
