@@ -72,6 +72,35 @@ class PriceControlCenterTests(TestCase):
         self.assertContains(response, "page=3")
         self.assertContains(response, "Первая страница" if False else "Вперёд")
 
+    def test_active_file_defines_all_rows_including_unmapped_sku(self):
+        from io import BytesIO
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        from openpyxl import Workbook
+        from catalog.models import SellerProfile
+        from repricer.models import KaspiActiveExportRow
+        seller = SellerProfile.objects.create(
+            user=self.user, name="AG Parts", phone="+77000000000",
+        )
+        self.product.seller_profile = seller
+        self.product.save(update_fields=["seller_profile"])
+        wb = Workbook()
+        wb.active.append(["SKU", "price", "PP2", "Наименование"])
+        wb.active.append([self.listing.master_sku, 14000, 4, "Наша запчасть"])
+        wb.active.append(["NOT-MAPPED-777", 16000, 2, "Неизвестный товар"])
+        data = BytesIO()
+        wb.save(data)
+        self.client.force_login(self.user)
+        upload = SimpleUploadedFile("ACTIVE.xlsx", data.getvalue())
+        response = self.client.post(reverse("repricer:upload_kaspi"), {"kaspi_file": upload})
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(KaspiActiveExportRow.objects.count(), 2)
+        dashboard = self.client.get(self.dashboard)
+        self.assertContains(dashboard, "Неизвестный товар")
+        self.assertContains(dashboard, "NOT-MAPPED-777")
+        self.assertEqual(dashboard.context["summary"]["total"], 2)
+        self.assertEqual(dashboard.context["summary"]["unmatched"], 1)
+        self.assertNotContains(dashboard, "extra-unrelated-listing")
+
     def test_upload_kaspi_file_refreshes_only_observed_listing_data(self):
         from io import BytesIO
         from django.core.files.uploadedfile import SimpleUploadedFile
