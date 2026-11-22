@@ -45,7 +45,12 @@
 .pc-tech summary{cursor:pointer;font-weight:700}.pc-tech h2{font-size:17px}.pc-tech .pc-warning{color:#9a5700}
 .pc-tech table{width:100%;border-collapse:collapse}.pc-tech td,.pc-tech th{padding:8px;text-align:left;border-bottom:1px solid #e4eaf0}
 .pc-manual select{max-width:360px}.pc-manual button{margin:3px}.pc-manual progress{width:100%;height:9px}
-.pc-toast{padding:10px;margin:10px 0;border-radius:7px;background:#eefaf4;color:#06664e}
+.pc-toast{padding:10px;margin:10px 0;border-radius:7px;background:#eefaf4;color:#06664e}.pc-kaspi-upload{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#fff;border:1px solid #d5e1ef;border-radius:12px;padding:13px 16px;margin:0 0 16px}
+.pc-kaspi-upload strong{font-size:14px}.pc-kaspi-upload p{font-size:12px;color:#60738c;margin:3px 0 0}
+.pc-kaspi-upload form{display:flex;gap:9px;align-items:center;flex-wrap:wrap;flex:1 1 440px;justify-content:flex-end}
+.pc-kaspi-upload input[type=file]{font-size:13px;max-width:340px}
+.pc-upload-report{padding:12px 15px;border-radius:10px;border:1px solid #add6ce;background:#effbf7;margin-bottom:16px;font-size:13px;line-height:1.5}
+.pc-upload-report summary{cursor:pointer;font-weight:700}
 @media(max-width:1000px){.pc-metrics{grid-template-columns:repeat(2,minmax(125px,1fr))}.pc-top{flex-direction:column}.price-control{padding:15px 10px}}
 </style>
 
@@ -96,6 +101,26 @@
 
     <p class="pc-monitor-hint">Мониторинг только собирает предложения Kaspi. Цены наших товаров не изменяются. Сбор выполняется шагами, пока открыта эта вкладка; незавершённый запуск можно продолжить позже.</p>
   </section>
+  <section class="pc-kaspi-upload" aria-label="Загрузка файла Kaspi">
+    <div><strong>Загрузить ассортимент и цены Kaspi</strong>
+      <p>Файл из кабинета Kaspi (.xlsx или .csv): SKU, цена, количество. Данные сопоставляются с нашими товарами.</p>
+    </div>
+    <form method="post" enctype="multipart/form-data" action="{% url 'repricer:upload_kaspi' %}">
+      {% csrf_token %}
+      <input type="file" name="kaspi_file" accept=".xlsx,.csv" aria-label="Выберите выгрузку Kaspi" required>
+      <button class="pc-button pc-button-primary" type="submit">Загрузить файл Kaspi</button>
+    </form>
+  </section>
+  {% if kaspi_upload_result %}
+  <details class="pc-upload-report" open>
+    <summary>Последняя загрузка: {{ kaspi_upload_result.filename }}</summary>
+    <div>Всего строк: <strong>{{ kaspi_upload_result.rows }}</strong> · Сопоставлено: <strong>{{ kaspi_upload_result.matched }}</strong> · Обновлено цен и остатков: <strong>{{ kaspi_upload_result.updated }}</strong> · Без привязки: <strong>{{ kaspi_upload_result.missing }}</strong> · С ошибками/дубликатами: <strong>{{ kaspi_upload_result.skipped }}</strong>.</div>
+    <p style="margin:6px 0 0">Несопоставленные строки не создают новые товары автоматически. Для загрузки отсутствующих товаров нужна отдельная сверка. Файл не изменяет складской учёт и цены на Kaspi.</p>
+    {% if kaspi_upload_result.unmapped_examples %}<details><summary>Примеры не сопоставленных SKU</summary>
+      <ul>{% for r in kaspi_upload_result.unmapped_examples %}<li>{{ r.sku }} — {{ r.status }}</li>{% endfor %}</ul>
+    </details>{% endif %}
+  </details>
+  {% endif %}
   <section class="pc-metrics" aria-label="Статистика">
     <div class="pc-metric"><span>Наших товаров Kaspi</span><strong>{{ summary.total }}</strong></div>
     <div class="pc-metric"><span>С предложениями конкурентов</span><strong>{{ summary.found }}</strong></div>
