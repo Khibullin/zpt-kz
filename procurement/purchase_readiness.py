@@ -37,8 +37,11 @@ def blocked_permanent_offer_ids(offer_ids):
     for item in items:
         if item.offer_id in blocked:
             continue
+        latest = latest_audits.get(item.offer_id)
+        confirmed = (item.identity_status == 'verified' or
+                     bool(latest and latest.identity_status == 'verified'))
         if (item.source != 'apify'
-                or item.identity_status != 'verified'
+                or not confirmed
                 or item.roi_snapshot < Decimal('50')
                 or item.cost_snapshot != item.offer.cost
                 or not re.match(POSITIVE_STOCK_PATTERN, str(item.offer.stock or ''))):
