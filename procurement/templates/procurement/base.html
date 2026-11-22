@@ -13,6 +13,7 @@
 <body class="office-workspace office-procurement">
 {% if can_access_procurement and not request.GET.compact %}<aside>
 <a class="logo" href="{% url 'office_home' %}" aria-label="ZPT.KZ — Служебный кабинет, главная">ZPT<span>.KZ</span><small>Служебный кабинет</small></a>
+<a href="{% url 'procurement:supplier_price_comparison' %}" {% if request.resolver_match.url_name == 'supplier_price_comparison' %}aria-current="page"{% endif %}>Сравнение цен</a>
 <a href="{{ best_url }}" {% if request.resolver_match.url_name == 'dashboard' and mode == 'best' %}aria-current="page"{% endif %}>Выгодные к закупке</a>
 <a href="{% url 'procurement:basket' %}" {% if request.resolver_match.url_name == 'basket' %}aria-current="page"{% endif %}>Выбрано к закупке · <span data-basket-count>{{ basket_count }}</span></a>
 <a href="{% url 'procurement:kaspi_products' %}" {% if request.resolver_match.url_name == 'kaspi_products' %}aria-current="page"{% endif %}>Товары для Kaspi</a>
