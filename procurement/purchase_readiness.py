@@ -4,6 +4,8 @@ Existing Selection rows remain untouched. A stored Apify minPrice alone is not
 proof of an actual seller offer or a correct vehicle-part execution.
 """
 from decimal import Decimal
+from datetime import timedelta
+from django.utils import timezone
 
 from .models import PermanentBuyingItem, KaspiBuyingCandidate, KaspiPriceAudit
 from .omega_policy import POSITIVE_STOCK_PATTERN
@@ -16,11 +18,12 @@ def blocked_permanent_offer_ids(offer_ids):
             'offer_id', 'product_id', 'source', 'identity_status',
             'roi_snapshot', 'kaspi_price_snapshot', 'cost_snapshot',
             'offer__cost', 'offer__stock').select_related('offer'))
+    cutoff = timezone.now() - timedelta(days=7)
     candidate_map = {
-        c.product_id: c.city_offers
+        c.product_id: c
         for c in KaspiBuyingCandidate.objects.filter(
             product_id__in=[item.product_id for item in items if item.product_id]
-        ).only('product_id', 'city_offers')
+        ).only('product_id', 'city_offers', 'imported_at')
     }
     blocked = set()
     # Rechecks are evidence, not authorization. A newer unverified or
@@ -30,7 +33,7 @@ def blocked_permanent_offer_ids(offer_ids):
             'offer_id', '-observed_at', '-pk'):
         latest_audits.setdefault(audit.offer_id, audit)
     for offer_id, audit in latest_audits.items():
-        if (audit.roi < Decimal('50') or audit.identity_status != 'verified'
+        if (audit.observed_at < cutoff or audit.roi < Decimal('50') or audit.identity_status != 'verified'
                 or not any(item.offer_id == offer_id and item.kaspi_price_snapshot == audit.min_price
                            for item in items)):
             blocked.add(offer_id)
@@ -47,8 +50,12 @@ def blocked_permanent_offer_ids(offer_ids):
                 or not re.match(POSITIVE_STOCK_PATTERN, str(item.offer.stock or ''))):
             blocked.add(item.offer_id)
             continue
+        candidate = candidate_map.get(item.product_id)
+        if not candidate or candidate.imported_at < cutoff:
+            blocked.add(item.offer_id)
+            continue
         prices = []
-        for city in candidate_map.get(item.product_id, []) or []:
+        for city in candidate.city_offers or []:
             if not isinstance(city, dict):
                 continue
             for seller in (city.get('sellers') or []):
