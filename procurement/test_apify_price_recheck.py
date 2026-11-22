@@ -53,6 +53,19 @@ class ApifyMultiCardRecheckTests(TestCase):
                        if offers is None else offers),
         }
 
+    def test_duplicate_supplier_sku_is_blocked_and_counted(self):
+        # Importing duplicate Omega SKUs with different case can hide stock
+        # conflicts. Do not choose the newest or the only positive-stock row.
+        Offer.objects.create(
+            supplier=self.omega, brand='wxqp', article='51331',
+            name='Историческая запись с нулевым остатком',
+            category='Рулевое управление', cost=Decimal('53214'),
+            stock='0', match_verified=True)
+        result = self.send([self.card('155555555', '51331', 78000)])
+        self.assertEqual(result['recheck_duplicate_supplier_sku'], 1)
+        self.assertEqual(result['recheck_unrelated'], 0)
+        self.assertFalse(KaspiPriceAudit.objects.exists())
+
     def test_leading_zero_is_a_different_full_article(self):
         self.send([self.card('175080373', '51331', 145000)])
         result = self.send([self.card('168038942', '051331', 78000)])
