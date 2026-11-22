@@ -6,7 +6,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from .models import (Supplier, Offer, PermanentBuyingItem,
-                     KaspiBuyingCandidate, Selection, Membership)
+                     KaspiBuyingCandidate, Selection, Membership, KaspiPriceAudit)
 from .purchase_readiness import blocked_permanent_offer_ids
 
 
@@ -86,3 +86,57 @@ class BuyingPriceEvidenceTests(TestCase):
         response = self.client.post(reverse('procurement:select', args=[self.offer.pk]), {'quantity': 1})
         self.assertEqual(response.status_code, 302)
         self.assertTrue(Selection.objects.filter(user=self.user, offer=self.offer).exists())
+
+    def _audit(self, **changes):
+        defaults = dict(
+            offer=self.offer, source_filename='2026-11-22-audit.json',
+            min_price=Decimal('145000'), product_id=self.saved.product_id,
+            card_url='https://kaspi.kz/shop/p/example-175080373/',
+            card_title='WXQP 51331', seller_name='Продавец',
+            cost_snapshot=self.offer.cost,
+            commission_snapshot=Decimal('12.5'),
+            expenses_snapshot=Decimal('250'),
+            profit=Decimal('73411'), roi=Decimal('137.9543'),
+            identity_status='needs_review')
+        defaults.update(changes)
+        return KaspiPriceAudit.objects.create(**defaults)
+
+    def test_latest_unverified_audit_blocks_older_verified_identity(self):
+        self._verify_with_seller()
+        self._audit()
+        self.assertEqual(blocked_permanent_offer_ids({self.offer.pk}), {self.offer.pk})
+
+    def test_latest_lower_roi_blocks_even_verified_audit(self):
+        self._verify_with_seller()
+        self._audit(identity_status='verified', roi=Decimal('49.99'))
+        self.assertEqual(blocked_permanent_offer_ids({self.offer.pk}), {self.offer.pk})
+
+    def test_latest_different_price_blocks_even_verified_audit(self):
+        self._verify_with_seller()
+        self._audit(identity_status='verified', min_price=Decimal('140000'))
+        self.assertEqual(blocked_permanent_offer_ids({self.offer.pk}), {self.offer.pk})
+
+    def test_manual_verification_requires_comparison_evidence(self):
+        Membership.objects.create(user=self.user, role='admin')
+        self.client.force_login(self.user)
+        audit = self._audit()
+        response = self.client.post(
+            reverse('procurement:comparison_review_identity', args=[self.offer.pk]),
+            {'source_file': audit.source_filename, 'product_id': audit.product_id,
+             'identity_status': 'verified', 'confirm_all': 'yes'})
+        self.assertEqual(response.status_code, 400)
+        audit.refresh_from_db()
+        self.assertEqual(audit.identity_status, 'needs_review')
+
+    def test_manual_mismatch_sets_status_and_preserves_prices(self):
+        Membership.objects.create(user=self.user, role='admin')
+        self.client.force_login(self.user)
+        audit = self._audit()
+        response = self.client.post(
+            reverse('procurement:comparison_review_identity', args=[self.offer.pk]),
+            {'source_file': audit.source_filename, 'product_id': audit.product_id,
+             'identity_status': 'mismatch'})
+        self.assertEqual(response.status_code, 302)
+        audit.refresh_from_db()
+        self.assertEqual(audit.identity_status, 'mismatch')
+        self.assertEqual(audit.min_price, Decimal('145000'))
