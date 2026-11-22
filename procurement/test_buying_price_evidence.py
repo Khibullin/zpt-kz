@@ -155,3 +155,8 @@ class BuyingPriceEvidenceTests(TestCase):
         KaspiPriceAudit.objects.filter(pk=audit.pk).update(
             observed_at=timezone.now() - timedelta(days=8))
         self.assertEqual(blocked_permanent_offer_ids({self.offer.pk}), {self.offer.pk})
+
+    def test_latest_different_kaspi_card_cannot_inherit_old_confirmation(self):
+        self._verify_with_seller()
+        self._audit(identity_status='verified', product_id='different-card-id')
+        self.assertEqual(blocked_permanent_offer_ids({self.offer.pk}), {self.offer.pk})
