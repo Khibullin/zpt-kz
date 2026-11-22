@@ -72,13 +72,15 @@
 <section class="panel" style="padding:12px 16px;margin-bottom:14px">
 <strong>Проверка совпадений Omega</strong>
 <div style="display:flex;flex-wrap:wrap;gap:18px;margin:8px 0;font-size:13px">
-<span>Omega ↔ Phaeton: <strong>{{ snapshot.overlaps.Phaeton_Omega }}</strong> одинаковых артикулов и брендов</span>
+<span>Omega ↔ Phaeton: <strong>{{ snapshot.overlaps.Phaeton_Omega }}</strong> точных совпадений</span>
 <span>Omega ↔ ZakazAuto: <strong>{{ snapshot.overlaps.ZakazAuto_Omega }}</strong></span>
 <span>Только у Omega: <strong>{{ snapshot.omega_only }}</strong> товаров</span>
+<span>Общие бренды с Phaeton / ZakazAuto: {{ snapshot.brand_overlaps.Phaeton_Omega }} / {{ snapshot.brand_overlaps.ZakazAuto_Omega }}</span>
+<span>Общие артикулы без проверки бренда: {{ snapshot.article_overlaps.Phaeton_Omega }} / {{ snapshot.article_overlaps.ZakazAuto_Omega }}</span>
 <a href="{% url 'procurement:supplier_price_comparison' %}?present=Omega">Посмотреть все цены Omega</a>
 </div>
 {% if snapshot.counts.Omega and not snapshot.overlaps.Phaeton_Omega and not snapshot.overlaps.ZakazAuto_Omega %}
-<p class="muted" style="margin:6px 0 0">В загруженных данных Omega есть цены, но нет точных совпадений по паре «бренд + полный артикул» с двумя другими поставщиками. Прочерк в строке конкурента означает отсутствие точного совпадения, а не нулевую цену Omega.</p>
+<p class="muted" style="margin:6px 0 0">В загруженных данных Omega есть цены, но нет точных совпадений по паре «бренд + полный артикул» с двумя другими поставщиками. Прочерк в строке конкурента означает отсутствие точного совпадения, а не нулевую цену Omega. Общий артикул без одинакового бренда не объединяется автоматически.</p>
 {% endif %}
 </section>
 <form class="filters" method="get">{% if present_filter %}<input type="hidden" name="present" value="{{ present_filter }}">{% endif %}
