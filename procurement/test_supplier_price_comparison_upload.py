@@ -66,3 +66,20 @@ class SupplierPriceComparisonTests(TestCase):
         self.assertEqual(groups['wins']['Omega'], 1)
         self.assertEqual(groups['rows'][0]['saving'], Decimal('200'))
         self.assertEqual(self.client.post(self.url, {'action': 'recalculate'}).status_code, 302)
+
+    def test_omega_only_prices_remain_visible_without_false_matches(self):
+        self.upload('Phaeton', [['OTHER', 'X200', 'Other part', 2300, 5]])
+        comparison = _snapshot()
+        self.assertEqual(comparison['overlaps']['Phaeton_Omega'], 0)
+        self.assertEqual(comparison['omega_only'], 1)
+        self.assertEqual(comparison['counts']['Omega'], 1)
+        response = self.client.get(self.url, {'present': 'Omega'})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'WS9991')
+        self.assertNotContains(response, 'X200')
+
+    def test_exact_omega_match_reports_pairwise_overlap(self):
+        self.upload('Phaeton', [['WINKOD', 'WS-9991', 'Same part', 2300, 5]])
+        comparison = _snapshot()
+        self.assertEqual(comparison['overlaps']['Phaeton_Omega'], 1)
+        self.assertEqual(comparison['wins']['Omega'], 1)
