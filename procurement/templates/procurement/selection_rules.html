@@ -147,7 +147,7 @@
     progress.textContent='Повторная обработка позиции '+(position+1)+' из 50…';
     data.set('retry_position',String(position));
     try {
-     const response=await fetch(form.action,{method:'POST',body:data,credentials:'same-origin'});
+     const response=await fetch(form.getAttribute('action') || window.location.pathname,{method:'POST',body:data,credentials:'same-origin'});
      if(!response.ok)throw new Error('HTTP '+response.status);
      const result=await response.json();
      ok+=result.complete||0;partial+=result.partial||0;missing+=result.no_kaspi_identity||0;
@@ -737,6 +737,7 @@ document.addEventListener('DOMContentLoaded',function(){
         <li><strong>Первичное совпадение — точное совпадение бренда и полного артикула поставщика и Kaspi.</strong></li>
         <li><strong>Цена Kaspi — минимальная подтверждённая цена продавца по соответствующему товару.</strong></li>
         <li><strong>Сравнение карточек — сопоставление наименования, бренда, артикула, фотографий, характеристик и применимости товара поставщика и Kaspi.</strong></li>
+        <li><strong>Скриншот Kaspi — на странице сравнения есть кнопка «Загрузить скриншот»; снимок сохраняется отдельно от фотографии товара и не подтверждает совпадение автоматически.</strong></li>
         <li><strong>Подтверждение соответствия — три статуса: «Совпадение подтверждено», «Требует проверки», «Не соответствует».</strong></li>
         <li><strong>Расчёт доходности — чистая прибыль / закупочная цена × 100%. Упаковка — 250 ₸, учитывается один раз.</strong></li>
         <li><strong>Сортировка — по доходности в процентах, по убыванию.</strong></li>
