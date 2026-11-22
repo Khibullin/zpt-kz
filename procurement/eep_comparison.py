@@ -127,6 +127,8 @@ def _comparison_impl(request, pk):
     record = PermanentBuyingItem.objects.filter(offer=offer).first()
     source_file = request.GET.get("apify_source", "").strip()[:255]
     review_source = 'dataset_kaspi-api_2026-11-21_14-00-09-125.json'
+    # Cross-query finance is provisional: source-labelled audit, not a verified card.
+    crossquery_source = SRR_SOURCE + '#crossquery-20261122'
     # A not-yet-published candidate is viewable for review ONLY when this
     # exact Apify export has an audit; it is NOT admitted to PermanentBuyingItem.
     review_only = not bool(record)
@@ -136,12 +138,16 @@ def _comparison_impl(request, pk):
     apify_second_review = (source_file == review_source and
                            KaspiPriceAudit.objects.filter(
                                offer=offer, source_filename=source_file).exists())
+    apify_crossquery_review = (source_file == crossquery_source and
+                               KaspiPriceAudit.objects.filter(
+                                   offer=offer, source_filename=source_file,
+                                   identity_status='needs_review').exists())
     # Both unverified export review flows are staff-only, even when an offer
     # also has an older buying-register entry. Do not disclose review evidence
     # through the generic workspace user's comparison detail URL.
-    if (srr_snapshot or apify_second_review) and request.procurement_role not in ('sales', 'admin'):
+    if (srr_snapshot or apify_second_review or apify_crossquery_review) and request.procurement_role not in ('sales', 'admin'):
         return render(request, 'procurement/access_denied.html', status=403)
-    if review_only and not (apify_second_review or srr_snapshot):
+    if review_only and not (apify_second_review or srr_snapshot or apify_crossquery_review):
         from django.http import Http404
         raise Http404('Товар не прошёл проверку или отсутствует в закупочном реестре.')
     audits = KaspiPriceAudit.objects.filter(offer=offer)
@@ -153,7 +159,7 @@ def _comparison_impl(request, pk):
         # item appears to have the provisional November 21 Kaspi photo/price
         # even when the viewer did not open the staff-only Apify review.
         audits = audits.exclude(
-            source_filename__in=(SRR_SOURCE, review_source),
+            source_filename__in=(SRR_SOURCE, review_source, crossquery_source),
             identity_status="needs_review",
         )
     audit = audits.order_by("-observed_at", "-pk").first()
@@ -266,10 +272,10 @@ def _comparison_impl(request, pk):
     target = request.GET.get("next", "")
     parsed = urlsplit(target)
     list_path = reverse("procurement:dashboard")
-    if apify_second_review or srr_snapshot:
+    if apify_second_review or srr_snapshot or apify_crossquery_review:
         list_path = reverse("procurement:apify_review")
     if parsed.scheme or parsed.netloc or parsed.path != list_path:
-        target = list_path if apify_second_review or srr_snapshot else list_path + "?mode=best"
+        target = list_path if apify_second_review or srr_snapshot or apify_crossquery_review else list_path + "?mode=best"
     kaspi_url = ((audit.card_url if audit else "") or
                  (srr_snapshot["url"] if srr_snapshot else "") or
                  (candidate.url if candidate else "") or
@@ -302,7 +308,7 @@ def _comparison_impl(request, pk):
                           kaspi_checked_at=kaspi_checked_at,
                           kaspi_price_stale=kaspi_price_stale,
                           material=material, manual_screenshots=manual_screenshots,
-                          review_only=(review_only or bool(srr_snapshot) or apify_second_review),
+                          review_only=(review_only or bool(srr_snapshot) or apify_second_review or apify_crossquery_review),
                           apify_second_review=apify_second_review,
                           apify_srr_review=bool(srr_snapshot),
                           audit_identity_status=(audit.identity_status if audit else ''),
