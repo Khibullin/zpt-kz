@@ -377,6 +377,27 @@ class KaspiCardSearch(models.Model):
     checks = models.JSONField(default=list)
 
 
+
+
+class SupplierComparisonPriceList(models.Model):
+    """Independent supplier price snapshot used only by the comparison screen.
+
+    Uploading here never changes Offer, PriceUpdate, procurement selections or Kaspi tasks.
+    """
+    supplier_code = models.CharField(max_length=24, unique=True)
+    filename = models.CharField(max_length=255)
+    checked_on = models.DateField()
+    uploaded_at = models.DateTimeField(auto_now=True)
+    uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    row_count = models.PositiveIntegerField(default=0)
+    available_count = models.PositiveIntegerField(default=0)
+    skipped_count = models.PositiveIntegerField(default=0)
+    rows = models.JSONField(default=list)
+
+    class Meta:
+        ordering = ['supplier_code']
+
+
 class PriceUpdate(models.Model):
     supplier = models.ForeignKey(Supplier, on_delete=models.PROTECT)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
