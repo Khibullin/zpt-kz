@@ -304,6 +304,8 @@ def _comparison_impl(request, pk):
                           review_only=(review_only or bool(srr_snapshot) or apify_second_review),
                           apify_second_review=apify_second_review,
                           apify_srr_review=bool(srr_snapshot),
+                          audit_identity_status=(audit.identity_status if audit else ''),
+                          can_review_identity=bool(audit and product_id and request.procurement_role in ('sales','admin')),
                           clipboard_pilot=bool(product_id and (record or audit or material or srr_snapshot)),
                           comparison_in_final_remaining=(offer.pk in FINAL_REMAINING_OFFER_IDS),
                           comparison_in_eighth_two_hundred=(offer.pk in EIGHTH_TWO_HUNDRED_OFFER_IDS),
