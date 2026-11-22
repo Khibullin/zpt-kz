@@ -24,8 +24,9 @@ from integrations.kaspi_competitors import (
 from .cities import CITY_BY_ID, KASPI_KZ_CITIES
 from .models import (
     KaspiCompetitorIngestBatch, KaspiCompetitorOfferSnapshot,
-    KaspiManualCollectionRun,
+    KaspiManualCollectionRun, KaspiActiveExportRow,
 )
+from .views import _latest_active_batch
 
 MAX_OFFERS_PER_REQUEST = 100
 
@@ -62,10 +63,21 @@ def manual_start(request):
     if existing:
         return _response(existing)
 
-    ids = list(
-        ProductKaspiListing.objects.filter(is_active=True)
-        .order_by("pk").values_list("pk", flat=True)
-    )
+    # The latest complete ACTIVE upload, not historical catalog bindings,
+    # defines which of our products are eligible for competitor monitoring.
+    active_batch = _latest_active_batch()
+    if active_batch:
+        ids = list(
+            KaspiActiveExportRow.objects.filter(
+                batch=active_batch, listing__is_active=True,
+            ).exclude(listing__isnull=True)
+            .order_by("row_number").values_list("listing_id", flat=True).distinct()
+        )
+    else:
+        ids = list(
+            ProductKaspiListing.objects.filter(is_active=True)
+            .order_by("pk").values_list("pk", flat=True)
+        )
     if not ids:
         return JsonResponse({"error": "Активных Kaspi-привязок нет"}, status=400)
     run = KaspiManualCollectionRun.objects.create(
