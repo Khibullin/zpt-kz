@@ -255,8 +255,7 @@
         <td>{{ saved.details.total }}</td>
         <td>{{ saved.details.query_count }}<small>{{ saved.details.status }}</small></td>
         <td>{% if saved.legacy %}9 файлов подготовлены ранее{% else %}{% for batch in saved.export_batches %}
-          <a data-apify-export-link href="{% url 'procurement:selection_apify_json' %}?request_id={{ saved.id|unlocalize }}&amp;batch={{ batch }}">JSON {{ batch }}</a>
-          <a data-apify-export-link href="{% url 'procurement:selection_apify_json' %}?request_id={{ saved.id|unlocalize }}&amp;batch={{ batch }}&amp;format=mapping">Соответствие</a>
+          <a data-apify-export-link href="{% url 'procurement:selection_apify_json' %}?request_id={{ saved.id|unlocalize }}&amp;batch={{ batch }}">Скачать JSON для Apify{% if saved.export_batches|length > 1 %} №{{ batch }}{% endif %}</a>
         {% endfor %}{% endif %}</td>
       </tr>{% endfor %}</tbody></table>
     </div>
@@ -582,8 +581,7 @@ document.addEventListener('DOMContentLoaded',function(){
     {% if just_saved_request %}
       <span><strong>{{ just_saved_request.details.title }}</strong>: {{ just_saved_request.details.total }} товаров, {{ just_saved_request.details.query_count }} поисковых запросов. Скачайте партии:</span>
       {% for batch in just_saved_batches %}
-      <a class="button primary" data-apify-export-link href="{% url 'procurement:selection_apify_json' %}?request_id={{ just_saved_request.pk|unlocalize }}&amp;batch={{ batch }}">↓ JSON №{{ batch }}</a>
-      <a class="button" data-apify-export-link href="{% url 'procurement:selection_apify_json' %}?request_id={{ just_saved_request.pk|unlocalize }}&amp;batch={{ batch }}&amp;format=mapping">Соответствие №{{ batch }}</a>
+      <a class="button primary" data-apify-export-link href="{% url 'procurement:selection_apify_json' %}?request_id={{ just_saved_request.pk|unlocalize }}&amp;batch={{ batch }}">↓ Скачать JSON для Apify{% if just_saved_batches|length > 1 %} №{{ batch }}{% endif %}</a>
       {% endfor %}
     {% else %}
       <span>Сначала выберите товары в блоке №1 и сохраните запрос. Файлы прошлых запросов доступны в «Истории запросов».</span>
