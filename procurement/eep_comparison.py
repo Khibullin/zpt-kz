@@ -304,14 +304,7 @@ def _comparison_impl(request, pk):
                           review_only=(review_only or bool(srr_snapshot) or apify_second_review),
                           apify_second_review=apify_second_review,
                           apify_srr_review=bool(srr_snapshot),
-                          clipboard_pilot=(bool(srr_snapshot) or bool(audit and audit.source_filename in (
-                              'dataset_kaspi-api_2026-11-21_13-39-32-482(2).json',
-                              review_source) and audit.roi >= 50) or offer.pk in FIRST_TEN_OFFER_IDS or offer.pk in NEXT_FIFTY_OFFER_IDS or
-                                           offer.pk in NEXT_HUNDRED_OFFER_IDS or offer.pk in FOURTH_HUNDRED_OFFER_IDS or
-                                           offer.pk in FIFTH_HUNDRED_OFFER_IDS or offer.pk in SIXTH_HUNDRED_OFFER_IDS or
-                                           offer.pk in SEVENTH_HUNDRED_OFFER_IDS or
-                                           offer.pk in EIGHTH_TWO_HUNDRED_OFFER_IDS or
-                                           offer.pk in FINAL_REMAINING_OFFER_IDS),
+                          clipboard_pilot=bool(product_id and (record or audit or material or srr_snapshot)),
                           comparison_in_final_remaining=(offer.pk in FINAL_REMAINING_OFFER_IDS),
                           comparison_in_eighth_two_hundred=(offer.pk in EIGHTH_TWO_HUNDRED_OFFER_IDS),
                           comparison_in_seventh_hundred=(offer.pk in SEVENTH_HUNDRED_OFFER_IDS),
