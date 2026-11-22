@@ -652,55 +652,68 @@ document.addEventListener('DOMContentLoaded',function(){
     <span id="apify-source-progress" role="status" aria-live="polite" style="display:block;width:100%;font-weight:600;color:#075a83"></span>
   </form>
   {% if apify_session %}
-  <div class="apify-settings" aria-label="Прогресс импорта Apify">
-    <strong>Обработка загруженного JSON: {{ apify_session.details.filename }}</strong>
-    <p>Исходных карточек: {{ apify_session.details.total }}.
-    Завершено партий: <strong id="apify-done">{{ apify_session.details.next_batch }}</strong>
-    из <strong id="apify-total">{{ apify_session.details.total_batches }}</strong> (по 500).</p>
-    <p id="apify-progress" role="status">Сопоставлено: {{ apify_session.details.stats.linked }}.
-    Подтверждено: {{ apify_session.details.stats.verified }}.
-    Не сопоставлено: {{ apify_session.details.stats.unmatched }}.
-    Отклонено (доходность ниже 50%): {{ apify_session.details.stats.rejected_below_50 }}.
-    Нет подтверждённой цены продавца: {{ apify_session.details.stats.rejected_unconfirmed_price|default:0 }}.
-    Недостаточно данных или не выполнены остальные условия: {{ apify_session.details.stats.rejected_unverifiable }}.
-    Ошибочных строк: {{ apify_session.details.stats.invalid }}.</p>
-    {% if apify_session.details.stats.recheck_matched_cards %}
-    <p><strong>Повторная проверка цены:</strong>
-    карточек точного бренда и артикула — {{ apify_session.details.stats.recheck_matched_cards }},
-    с предложениями продавцов — {{ apify_session.details.stats.recheck_price_cards }},
-    посторонних результатов поиска — {{ apify_session.details.stats.recheck_unrelated }}.
-    Новые минимальные цены сохраняются отдельно, без изменения старого реестра.</p>
-    {% endif %}
-    {% if apify_session.details.next_batch < apify_session.details.total_batches %}
-    <form id="apify-batch-form" method="post">
-      {% csrf_token %}
-      <input type="hidden" name="action" value="process_apify_batch">
-      <button type="submit" class="primary" id="apify-run">Продолжить обработку оставшихся партий</button>
-    </form>
-    <p class="muted">Обработка идёт последовательно, с сохранением каждой партии. Не закрывайте вкладку во время выполнения; после сбоя можно продолжить с сохранённой партии.</p>
-    {% else %}
-    <p><strong>Все партии обработаны.</strong> Проверьте результаты в «Выгодные к закупке». Повторно проверенные цены показаны рядом с прежними; окончательное подтверждение исполнения — вручную.</p>
-    {% endif %}
-  </div>
-  {% endif %}
-  <div class="buying-summary" role="status" aria-label="Результаты обработки Apify">
-    <span>Всего сопоставленных карточек: <strong>{{ buying_total }}</strong></span>
-  </div>
-  {% if last_import %}
-  <div class="apify-settings">
-    <strong>Последняя сохранённая выгрузка Apify</strong>
-    <div class="apify-settings-grid">
-      <span><strong>Файл:</strong> {{ last_import.source_filename }}</span>
-      <span><strong>Последнее сохранение:</strong> {{ last_import.last_saved|date:"d.m.Y H:i" }}</span>
-      <span><strong>Карточек по файлу в базе:</strong> {{ last_import.saved }}</span>
-      <span><strong>Сопоставлено:</strong> {{ last_import.linked }}</span>
-      <span><strong>Из них ранее проверенных:</strong> {{ last_import.verified }}</span>
-      <span><strong>Не сопоставлено:</strong> {{ last_import.unmatched }}</span>
+  <div class="apify-settings" aria-label="Результаты обработки Apify">
+    <strong>Результаты JSON: {{ apify_session.details.filename }}</strong>
+    <p class="muted" style="margin-top:5px">
+      {% if apify_buying_summary %}Обработка завершена{% else %}Обработка идёт{% endif %} ·
+      <strong id="apify-done">{{ apify_session.details.next_batch }}</strong>
+      из <strong id="apify-total">{{ apify_session.details.total_batches }}</strong> партий
+    </p>
+    <div class="apify-settings-grid" style="margin-top:12px">
+      <div><small>Карточек обработано</small><br><strong>{{ apify_session.details.total }}</strong></div>
+      <div><small>Сопоставлено с Omega</small><br><strong>{{ apify_session.details.stats.linked }}</strong></div>
+      <div><small>Отклонено по доходности</small><br><strong>{{ apify_session.details.stats.rejected_below_50 }}</strong></div>
+      <div><small>Не сопоставлено</small><br><strong>{{ apify_session.details.stats.unmatched }}</strong></div>
     </div>
-    <p class="muted" style="margin:10px 0 0">Это состояние карточек для каталога; выше ведётся отдельный журнал исходных партий. Отклонённые по доходности товары не создаются в таблице закупочных карточек; число отклонённых показывается в прогрессе.</p>
+    {% if apify_buying_summary %}
+    <p style="margin:12px 0 6px"><strong>Выгодных для загрузки: {{ apify_buying_summary.eligible }}</strong>
+      <span class="muted">· ещё не в реестре: {{ apify_buying_summary.new }} · уже имеется: {{ apify_buying_summary.already }}</span>
+    </p>
+    <p class="muted">Только Omega, доходность не ниже 50%, наличие и минимальная цена из предложений продавцов. Совпадение исполнения требует проверки.</p>
+    {% if apify_buying_summary.published %}
+      <button class="primary" type="button" disabled>✓ Выгодные загружены</button>
+      <a class="button" href="{% url 'procurement:dashboard' %}?mode=best&amp;apify_source={{ apify_session.details.filename|urlencode }}">Посмотреть товары</a>
+      <p class="muted">Добавлено: {{ apify_session.details.buying_import_result.added }} · уже имеется: {{ apify_session.details.buying_import_result.already }} · не допущено: {{ apify_session.details.buying_import_result.skipped }}</p>
+    {% else %}
+      <form method="post" style="margin:12px 0 0">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="publish_apify_profitable">
+        <button type="submit" class="primary" {% if not apify_buying_summary.new %}disabled{% endif %}>↑ Загрузить выгодные ({{ apify_buying_summary.new }})</button>
+        {% if not apify_buying_summary.new %}<span class="muted">Все подходящие товары уже в реестре.</span>{% endif %}
+      </form>
+    {% endif %}
+    {% else %}
+      <form id="apify-batch-form" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="process_apify_batch">
+        <button type="submit" class="primary" id="apify-run">Продолжить обработку оставшихся партий</button>
+      </form>
+    {% endif %}
+    <details style="margin-top:14px">
+      <summary>Подробности обработки: партии, цены и причины отклонений</summary>
+      <p id="apify-progress" role="status">
+        Сопоставлено: {{ apify_session.details.stats.linked }} ·
+        Подтверждено: {{ apify_session.details.stats.verified }} ·
+        Без цены продавца: {{ apify_session.details.stats.rejected_unconfirmed_price|default:0 }} ·
+        Недостаточно данных / другие условия: {{ apify_session.details.stats.rejected_unverifiable }} ·
+        Ошибочных строк: {{ apify_session.details.stats.invalid }}.
+      </p>
+      <p>Точных карточек: {{ apify_session.details.stats.recheck_matched_cards|default:0 }};
+        с предложениями продавцов: {{ apify_session.details.stats.recheck_price_cards|default:0 }};
+        посторонних результатов поиска: {{ apify_session.details.stats.recheck_unrelated|default:0 }}.
+        Несколько карточек могут относиться к одному артикулу.</p>
+      <p>Всего карточек в таблице закупочного поиска: {{ buying_total }}.
+        Это не количество уникальных артикулов прошедшего JSON.</p>
+      {% if last_import %}
+      <p><strong>Последняя сохранённая карточка в каталоге:</strong>
+        {{ last_import.source_filename }} · {{ last_import.last_saved|date:"d.m.Y H:i" }};
+        по этому файлу {{ last_import.saved }} карточек.
+        Это отдельный учёт, не итог текущей партии.</p>
+      {% endif %}
+    </details>
   </div>
   {% else %}
-  <p class="muted">Пока нет сохранённых результатов загрузки Apify.</p>
+    <p class="muted">Загрузите JSON Apify для обработки партиями по 500.</p>
   {% endif %}
 </section>
 
