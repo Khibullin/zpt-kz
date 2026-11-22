@@ -122,11 +122,15 @@ def _snapshot():
     pairs = [('Phaeton', 'ZakazAuto'), ('Phaeton', 'Omega'), ('ZakazAuto', 'Omega')]
     overlaps = {f'{left}_{right}': 0 for left, right in pairs}
     brands_by_supplier = {code: set() for code in SUPPLIER_LABELS}
+    articles_by_supplier = {code: set() for code in SUPPLIER_LABELS}
     for group in grouped.values():
         for code in group['prices']:
             brands_by_supplier[code].add(_identity(group['brand']))
+            articles_by_supplier[code].add(_identity(group['article']))
     brand_overlaps = {f'{left}_{right}': len(brands_by_supplier[left] & brands_by_supplier[right])
                       for left, right in pairs}
+    article_overlaps = {f'{left}_{right}': len(articles_by_supplier[left] & articles_by_supplier[right])
+                        for left, right in pairs}
     rows = []
     for group in grouped.values():
         prices = group['prices']
@@ -148,7 +152,8 @@ def _snapshot():
     rows.sort(key=lambda item: (item['brand'].casefold(), item['article'].casefold()))
     omega_only = sum(1 for group in rows if 'Omega' in group['prices'] and group['alternatives'] == 1)
     return {'rows': rows, 'counts': counts, 'wins': wins, 'shared': shared,
-            'overlaps': overlaps, 'brand_overlaps': brand_overlaps, 'omega_only': omega_only}
+            'overlaps': overlaps, 'brand_overlaps': brand_overlaps,
+            'article_overlaps': article_overlaps, 'omega_only': omega_only}
 
 
 @access('admin', 'sales')
