@@ -1,0 +1,36 @@
+name: Procurement buying rules regression
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'procurement/purchase_readiness.py'
+      - 'procurement/views.py'
+      - 'procurement/eep_comparison.py'
+      - 'procurement/comparison_clipboard.py'
+      - 'procurement/urls.py'
+      - 'procurement/templates/procurement/eep_comparison.html'
+      - 'procurement/templates/procurement/selection_rules.html'
+      - 'procurement/templates/procurement/dashboard.html'
+      - 'procurement/test_buying_price_evidence.py'
+      - 'procurement/test_apify_roi_gate.py'
+      - '.github/workflows/procurement-buying-rules.yml'
+  workflow_dispatch:
+
+jobs:
+  rules-tests:
+    runs-on: ubuntu-latest
+    env:
+      SECRET_KEY: test-only-procurement-rules-ci-key
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - name: Python syntax
+        run: python -m compileall -q procurement
+      - name: Django checks
+        run: python manage.py check --settings=backend.settings_ui_ci
+      - name: Regression tests on ephemeral test DB
+        run: python manage.py test procurement.test_buying_price_evidence procurement.test_apify_roi_gate procurement.tests.test_apify_screenshot_evidence procurement.test_omega_category_requests --settings=backend.settings_ui_ci --noinput --verbosity 2
