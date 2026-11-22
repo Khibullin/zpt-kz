@@ -18,6 +18,7 @@
 .pc-monitor-status{border:1px solid #d5e1ef;border-radius:10px;padding:12px 14px;background:#f7fafc;margin:0 0 17px;font-size:13px}
 .pc-monitor-status #manual-price-report{display:inline;line-height:1.5}
 .pc-monitor-status progress{display:block;width:100%;height:9px;margin-top:10px}
+.pc-monitor-status.is-error{border-color:#efb4a9;background:#fff5f3;color:#8b2116}.pc-monitor-status.is-running{border-color:#8ac8c0;background:#eafaf7}.pc-monitor-status.is-done{border-color:#90d2ad;background:#f0fff6}.pc-monitor-detail{margin:7px 0 0;font-size:12px;color:#63758a}.pc-monitor-status.is-error .pc-monitor-detail{color:#8b2116}.pc-monitor-status progress{accent-color:#007e75}.pc-monitor-status.is-error progress{accent-color:#be4b38}
 .pc-monitor-hint{font-size:12px;color:#64748b;margin:7px 0 0}.pc-button{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:11px 14px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#142e4d;font-weight:700;font-size:13px;text-decoration:none;cursor:pointer}
 .pc-button:hover{background:#eef8f8}.pc-button-primary{background:#007c70;color:white;border-color:#007c70}.pc-button-primary:hover{background:#00675f}.pc-button[disabled]{opacity:.5;cursor:not-allowed}
 .pc-metrics{display:grid;grid-template-columns:repeat(5,minmax(125px,1fr));gap:10px;margin-bottom:18px}
@@ -159,8 +160,8 @@
   <div class="pc-info">Чтобы посмотреть полную карточку товара и предложения конкурентов, нажмите на название товара, число продавцов или «Открыть». Подробности открываются на отдельной странице, не разворачиваются внутри таблицы. Ручное изменение цены выполняется в карточке.</div>
   <details class="pc-tech" id="collector">
     <summary>⚙ Сбор цен и история проверок (техническая информация)</summary>
-    <h2>Собрать цены сейчас</h2>
-    <p>Ручной сбор по активным Kaspi-привязкам. Расписание отключено, наши цены автоматически не меняются.</p>
+    <h2>Техническая информация</h2>
+    <p>История проверки источников и городов. Расписание отключено; цены товаров автоматически не меняются.</p>
     <p>Сохранённых предложений: {{ public_snapshot_count }}. Свежих за {{ fresh_minutes }} минут: {{ fresh_snapshot_count }}.</p>
     <p class="pc-warning">Проверено населённых пунктов: {{ covered_city_count }} из {{ city_total }}. Пакетов без города: {{ cityless_legacy_count }}.</p>
     <details><summary>Состояние по городам</summary><div style="max-height:300px;overflow:auto"><table><thead><tr><th>Город</th><th>Артикулов</th><th>Последний сбор</th></tr></thead><tbody>
@@ -178,80 +179,130 @@
   const resume = document.getElementById("manual-price-resume");
   const report = document.getElementById("manual-price-report");
   const progress = document.getElementById("manual-price-progress");
-  const csrf = form.querySelector("input[name=csrfmiddlewaretoken]").value;
+  const area = document.getElementById("monitor-progress");
+  const csrfInput = form.querySelector("input[name=csrfmiddlewaretoken]");
+  const csrf = csrfInput ? csrfInput.value : "";
   let active = false;
   let runId = Number(report.dataset.runId || 0);
   let status = report.dataset.runStatus || "";
+  let blocked = false;
+  let error = report.dataset.runError || "";
+  let latest = {
+    processed: Number(report.dataset.runProcessed || 0),
+    total: Number(report.dataset.runTotal || 0),
+    saved_offers: Number(report.dataset.runOffers || 0),
+    empty_count: 0, skipped_count: 0, error_count: error ? 1 : 0,
+    last_error: error, status: status, current: ""
+  };
   const link = (template) => template.replace("999999", String(runId));
+  function sourceBlocked(value) {
+    return /\\b(?:401|403|405|429)\\b|отклонил|ограничил частоту/i.test(value || "");
+  }
   function buttons() {
-    start.disabled = active || status === "running" || status === "stopped";
-    pause.hidden = !active;
-    resume.hidden = active || !runId || (status !== "stopped" && status !== "running");
-    resume.textContent = status === "running" ? "Продолжить сбор" : "Продолжить";
+    const running = active || status === "running";
+    start.disabled = running;
+    start.textContent = running ? "Мониторинг выполняется…" : "↻ Провести мониторинг цен";
+    pause.hidden = !running;
+    resume.hidden = running || blocked || !runId || status !== "stopped";
+  }
+  function paint() {
+    blocked = sourceBlocked(error) && status === "stopped";
+    const isError = status === "stopped" && (blocked || latest.error_count > 0);
+    const isDone = status === "done";
+    area.classList.toggle("is-error", isError);
+    area.classList.toggle("is-running", status === "running");
+    area.classList.toggle("is-done", isDone);
+    progress.max = Math.max(latest.total || 1, 1);
+    progress.value = Math.min(latest.processed || 0, progress.max);
+    const count = (latest.processed || 0) + " из " + (latest.total || 0);
+    let heading = "";
+    if (status === "running") heading = "Мониторинг выполняется";
+    else if (isDone) heading = "Мониторинг завершён";
+    else if (isError && blocked) heading = "Мониторинг остановлен: Kaspi отклонил запрос";
+    else if (isError) heading = "Мониторинг остановлен из-за ошибки";
+    else if (status === "stopped") heading = "Мониторинг приостановлен";
+    else heading = "Мониторинг ещё не выполнялся";
+    let details = count + " проверок · предложений записано: " +
+      (latest.saved_offers || 0) + " · ошибок: " + (latest.error_count || 0);
+    if (isError) {
+      details += ". Цены не обновлены.";
+      if (blocked) details += " Источник данных Kaspi пока недоступен — повторный запуск с тем же источником не устранит проблему.";
+    }
+    if (error) details += " Причина: " + error;
+    report.replaceChildren();
+    const headline = document.createElement("strong");
+    headline.textContent = heading + ". ";
+    const rest = document.createElement("span");
+    rest.className = "pc-monitor-detail";
+    rest.textContent = details;
+    report.append(headline, rest);
+    buttons();
   }
   function show(data) {
-    runId = data.id; status = data.status;
-    progress.max = Math.max(data.total || 1, 1);
-    progress.value = data.processed || 0;
-    const state = status === "done" ? "Завершено" : status === "stopped" ? "Остановлено" : "Идёт сбор";
-    report.textContent = state + " · " + data.processed + "/" + data.total +
-      " проверок · записано предложений: " + data.saved_offers +
-      " · нет предложений: " + data.empty_count +
-      " · без привязки: " + data.skipped_count +
-      " · ошибок: " + data.error_count +
-      (data.current ? " · " + data.current : "") +
-      (data.last_error ? " · " + data.last_error : "");
-    buttons();
+    runId = data.id;
+    status = data.status;
+    error = data.last_error || "";
+    latest = data;
+    paint();
   }
   async function post(url, body) {
     const response = await fetch(url, {
-      method: "POST",
-      credentials: "same-origin",
+      method: "POST", credentials: "same-origin",
       headers: {"X-CSRFToken": csrf, "Accept": "application/json"},
-      body: body || new URLSearchParams(),
+      body: body || new URLSearchParams()
     });
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || "Ошибка запроса: " + response.status);
     return data;
   }
   async function steps() {
-    active = true; buttons();
+    active = true;
+    paint();
     try {
       while (active) {
         const data = await post(link(form.dataset.stepUrl));
         show(data);
         if (data.status !== "running") break;
-        await new Promise((resolve) => setTimeout(resolve, 1200));
+        await new Promise(resolve => setTimeout(resolve, 1200));
       }
-    } catch (error) {
-      report.textContent = "Сбор приостановлен: " + error.message + ". Можно продолжить вручную.";
+    } catch (exc) {
+      status = "stopped";
+      error = "Сбой подключения: " + exc.message;
+      latest.error_count = (latest.error_count || 0) + 1;
     } finally {
-      active = false; buttons();
+      active = false;
+      paint();
       if (status === "done") setTimeout(() => location.reload(), 700);
     }
   }
   form.addEventListener("submit", async function (event) {
     event.preventDefault();
-    if (active) return;
+    if (active || status === "running") return;
+    error = "";
     try {
       show(await post(form.action, new URLSearchParams(new FormData(form))));
       if (status === "running") steps();
-    } catch (error) { report.textContent = error.message; }
+    } catch (exc) {
+      status = "stopped";
+      error = exc.message;
+      latest.error_count = (latest.error_count || 0) + 1;
+      paint();
+    }
   });
   pause.addEventListener("click", async function () {
     active = false;
     if (!runId) return;
-    try { show(await post(link(form.dataset.pauseUrl))); }
-    catch (error) { report.textContent = error.message; }
+    try {show(await post(link(form.dataset.pauseUrl)));}
+    catch (exc) {error = exc.message; paint();}
   });
   resume.addEventListener("click", async function () {
-    if (!runId || active) return;
+    if (!runId || active || blocked) return;
     try {
       if (status === "stopped") show(await post(link(form.dataset.resumeUrl)));
       if (status === "running") steps();
-    } catch (error) { report.textContent = error.message; }
+    } catch (exc) {error = exc.message; paint();}
   });
-  buttons();
+  paint();
 })();
 </script>
 
