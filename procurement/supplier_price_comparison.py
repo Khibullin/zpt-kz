@@ -68,7 +68,7 @@ def _parse_price_file(file):
     return rows, len(raw), available, skipped
 
 
-def _snapshot():
+def _snapshot(min_cost=Decimal('0')):
     result = {code: {'rows': [], 'count': 0, 'source': None} for code in SUPPLIER_LABELS}
     uploads = {item.supplier_code: item for item in SupplierComparisonPriceList.objects.all()}
     for code in SUPPLIER_LABELS:
@@ -117,6 +117,12 @@ def _snapshot():
             if code not in group['prices'] or cost < group['prices'][code]:
                 group['prices'][code] = cost
                 group['stock'][code] = offer['stock']
+    # Apply the minimum to the best actual buying price for each SKU,
+    # not to individual supplier quotes: a higher quote must never be presented
+    # as the cheapest merely because a lower quote was filtered out.
+    if min_cost > 0:
+        grouped = {key: group for key, group in grouped.items()
+                   if min(group['prices'].values()) >= min_cost}
     shared = 0
     wins = {code: 0 for code in SUPPLIER_LABELS}
     pairs = [('Phaeton', 'ZakazAuto'), ('Phaeton', 'Omega'), ('ZakazAuto', 'Omega')]
@@ -199,8 +205,17 @@ def supplier_price_comparison(request):
                              'Сравнение обновлено.')
         return redirect('procurement:supplier_price_comparison')
 
+    # The threshold is a view filter, not a change to source prices.
+    raw_min = request.GET.get('min_cost', '2000').strip()
+    try:
+        minimum = Decimal(raw_min)
+        if not minimum.is_finite() or minimum < 0 or minimum > Decimal('999999999999') or minimum.as_tuple().exponent < -2:
+            raise ValueError
+    except (ValueError, ArithmeticError):
+        minimum = Decimal('2000')
+        messages.warning(request, 'Некорректный порог цены. Применено значение 2 000 ₸.')
     # Prices and stock are deliberately not stored in Django's shared cache.
-    snapshot = _snapshot()
+    snapshot = _snapshot(minimum)
     uploads = {batch.supplier_code: batch for batch in SupplierComparisonPriceList.objects.all().only(
         'supplier_code', 'filename', 'checked_on', 'uploaded_at', 'row_count',
         'available_count', 'skipped_count')}
@@ -230,5 +245,6 @@ def supplier_price_comparison(request):
     return render(request, 'procurement/supplier_price_comparison.html',
                   context(request, page=page, snapshot=snapshot, cards=cards,
                           today=timezone.localdate().isoformat(), q=search,
+                          min_cost=minimum,
                           supplier_filter=supplier, present_filter=present, shared_only=shared_only,
                           sort=order, displayed_count=len(rows)))
