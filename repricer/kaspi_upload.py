@@ -4,6 +4,7 @@ Only observed Kaspi listing prices/quantities are refreshed. Product, PP1/PP2
 stock, SKU mapping, price drafts and Kaspi itself are never modified.
 """
 from pathlib import Path
+from zipfile import BadZipFile
 from tempfile import TemporaryDirectory
 
 from django.contrib import messages
@@ -40,7 +41,8 @@ def upload_kaspi_assortment(request):
 
     try:
         with TemporaryDirectory(prefix="zpt_kaspi_import_") as tmp:
-            path = Path(tmp) / ("kaspi_upload" + suffix)
+            # Preserve the original source filename in the import audit batch.
+            path = Path(tmp) / Path(upload.name).name
             with path.open("wb") as destination:
                 for chunk in upload.chunks():
                     destination.write(chunk)
@@ -50,7 +52,7 @@ def upload_kaspi_assortment(request):
                 apply=True,
                 source=KaspiListingFactSnapshot.SOURCE_MANUAL_IMPORT,
             )
-    except (ValueError, OSError, KeyError, RuntimeError) as exc:
+    except (ValueError, OSError, KeyError, RuntimeError, BadZipFile) as exc:
         messages.error(request, "Выгрузку не удалось прочитать: " + str(exc)[:250])
         return redirect("repricer:dashboard")
 
