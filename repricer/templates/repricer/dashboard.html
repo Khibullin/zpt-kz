@@ -39,7 +39,7 @@
 .pc-empty{padding:32px;text-align:center;color:#64748b}.pc-new-price{width:105px;padding:8px;border-radius:7px;border:1px solid #cbd5e1;font:inherit;color:#142e4d}
 .pc-pager{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;margin:15px 0 22px;font-size:13px}
 .pc-pager a{display:inline-block;padding:8px 11px;border:1px solid #cbd5e1;border-radius:6px;text-decoration:none;color:#142e4d}
-.pc-pager .is-current{background:#007c70;color:white}
+.pc-pager .is-current{background:#007c70;color:white}.pc-pager>div{display:flex;gap:5px;align-items:center;flex-wrap:wrap}.pc-pager .is-current{padding:8px 11px;border-radius:6px}
 .pc-info{margin-top:12px;padding:12px 14px;background:#edf5fd;border-radius:8px;font-size:12px;color:#465e76}
 .pc-tech{margin-top:20px;border:1px solid #d5e1ef;border-radius:10px;background:#f7fafc;padding:13px 15px;font-size:13px}
 .pc-tech summary{cursor:pointer;font-weight:700}.pc-tech h2{font-size:17px}.pc-tech .pc-warning{color:#9a5700}
@@ -153,7 +153,12 @@
     <span>Показано {{ page.start_index }}–{{ page.end_index }} из {{ page.paginator.count }} товаров</span>
     <div>
       {% if page.has_previous %}<a href="?q={{ search|urlencode }}&supplier={{ supplier|urlencode }}&city={{ selected_city|urlencode }}&status={{ status|urlencode }}&page={{ page.previous_page_number }}">← Назад</a>{% endif %}
-      <span class="pc-button is-current">{{ page.number }} / {{ page.paginator.num_pages }}</span>
+      {% if page_numbers.0 > 1 %}<a href="?q={{ search|urlencode }}&supplier={{ supplier|urlencode }}&city={{ selected_city|urlencode }}&status={{ status|urlencode }}&page=1" aria-label="Первая страница">1</a>{% if page_numbers.0 > 2 %}<span aria-hidden="true">…</span>{% endif %}{% endif %}
+      {% for number in page_numbers %}
+        {% if number == page.number %}<span class="pc-button is-current" aria-current="page">{{ number }}</span>
+        {% else %}<a href="?q={{ search|urlencode }}&supplier={{ supplier|urlencode }}&city={{ selected_city|urlencode }}&status={{ status|urlencode }}&page={{ number }}">{{ number }}</a>{% endif %}
+      {% endfor %}
+      {% if page_numbers|last < page.paginator.num_pages %}{% if page_numbers|last < page.paginator.num_pages|add:"-1" %}<span aria-hidden="true">…</span>{% endif %}<a href="?q={{ search|urlencode }}&supplier={{ supplier|urlencode }}&city={{ selected_city|urlencode }}&status={{ status|urlencode }}&page={{ page.paginator.num_pages }}" aria-label="Последняя страница">{{ page.paginator.num_pages }}</a>{% endif %}
       {% if page.has_next %}<a href="?q={{ search|urlencode }}&supplier={{ supplier|urlencode }}&city={{ selected_city|urlencode }}&status={{ status|urlencode }}&page={{ page.next_page_number }}">Вперёд →</a>{% endif %}
     </div>
   </div>
