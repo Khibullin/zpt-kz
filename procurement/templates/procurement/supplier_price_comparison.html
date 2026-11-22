@@ -77,7 +77,7 @@
 <span>Только у Omega: <strong>{{ snapshot.omega_only }}</strong> товаров</span>
 <span>Общие бренды с Phaeton / ZakazAuto: {{ snapshot.brand_overlaps.Phaeton_Omega }} / {{ snapshot.brand_overlaps.ZakazAuto_Omega }}</span>
 <span>Общие артикулы без проверки бренда: {{ snapshot.article_overlaps.Phaeton_Omega }} / {{ snapshot.article_overlaps.ZakazAuto_Omega }}</span>
-<a href="{% url 'procurement:supplier_price_comparison' %}?present=Omega">Посмотреть все цены Omega</a>
+<a href="{% url 'procurement:supplier_price_comparison' %}?present=Omega&amp;min_cost={{ min_cost|floatformat:0 }}">Посмотреть все цены Omega</a>
 </div>
 {% if snapshot.counts.Omega and not snapshot.overlaps.Phaeton_Omega and not snapshot.overlaps.ZakazAuto_Omega %}
 <p class="muted" style="margin:6px 0 0">В загруженных данных Omega есть цены, но нет точных совпадений по паре «бренд + полный артикул» с двумя другими поставщиками. Прочерк в строке конкурента означает отсутствие точного совпадения, а не нулевую цену Omega. Общий артикул без одинакового бренда не объединяется автоматически.</p>
@@ -85,12 +85,13 @@
 </section>
 <form class="filters" method="get">{% if present_filter %}<input type="hidden" name="present" value="{{ present_filter }}">{% endif %}
 <input type="search" name="q" value="{{ q }}" placeholder="Поиск по бренду, артикулу или названию">
+<label style="display:flex;align-items:center;gap:6px;white-space:nowrap">Закупка от <input type="number" name="min_cost" min="0" max="999999999999" step="1" value="{{ min_cost|floatformat:0 }}" style="width:112px;min-width:100px;flex:0;padding:8px" aria-label="Минимальная закупочная цена в тенге"> ₸</label>
 <select name="supplier" aria-label="У кого дешевле"><option value="">Все поставщики</option><option value="Phaeton" {% if supplier_filter == 'Phaeton' %}selected{% endif %}>Дешевле Phaeton</option><option value="ZakazAuto" {% if supplier_filter == 'ZakazAuto' %}selected{% endif %}>Дешевле ZakazAuto</option><option value="Omega" {% if supplier_filter == 'Omega' %}selected{% endif %}>Дешевле Omega</option></select>
 <select name="sort" aria-label="Сортировка"><option value="">По бренду</option><option value="saving" {% if sort == 'saving' %}selected{% endif %}>По экономии</option><option value="price" {% if sort == 'price' %}selected{% endif %}>По минимальной цене</option></select>
 <label style="white-space:nowrap"><input type="checkbox" name="shared" value="1" {% if shared_only %}checked{% endif %}> Только совпадения</label>
 <button class="primary">Показать</button><a class="button" href="{% url 'procurement:supplier_price_comparison' %}">Сбросить</a>
 </form>
-<p class="muted">Найдено: {{ displayed_count }} · Данные из сохранённых прайсов: Phaeton — {{ snapshot.counts.Phaeton|default:0 }}, ZakazAuto — {{ snapshot.counts.ZakazAuto|default:0 }}, Omega — {{ snapshot.counts.Omega|default:0 }} позиций с положительным остатком. Сравнение не включает доставку.</p>
+<p class="muted">Найдено: {{ displayed_count }} · Минимальная закупочная цена: {{ min_cost|floatformat:0 }} ₸ (включительно). · Данные из сохранённых прайсов: Phaeton — {{ snapshot.counts.Phaeton|default:0 }}, ZakazAuto — {{ snapshot.counts.ZakazAuto|default:0 }}, Omega — {{ snapshot.counts.Omega|default:0 }} позиций с положительным остатком. Сравнение не включает доставку.</p>
 <div class="tablewrap"><table><thead><tr><th>№</th><th>Бренд / артикул</th><th>Наименование</th><th>Phaeton <span class="minor">₸ / шт.</span></th><th>ZakazAuto <span class="minor">₸ / шт.</span></th><th>Omega <span class="minor">₸ / шт.</span></th><th>Где дешевле</th><th>Экономия</th></tr></thead>
 <tbody>{% for item in page %}
 <tr><td>{{ page.start_index|add:forloop.counter0 }}</td>
@@ -103,9 +104,9 @@
 {% empty %}<tr><td colspan="8">Подходящих товаров нет. Проверьте прайсы, наличие и условия поиска.</td></tr>{% endfor %}
 </tbody></table></div>
 <div class="pager"><span class="muted">Страница {{ page.number }} из {{ page.paginator.num_pages }} · по 50 товаров</span><div>
-{% if page.has_previous %}<a href="?q={{ q|urlencode }}&amp;supplier={{ supplier_filter|urlencode }}&amp;sort={{ sort|default:''|urlencode }}&amp;shared={% if shared_only %}1{% endif %}&amp;present={{ present_filter|urlencode }}&amp;page={{ page.previous_page_number }}">← Назад</a>{% endif %}
+{% if page.has_previous %}<a href="?q={{ q|urlencode }}&amp;supplier={{ supplier_filter|urlencode }}&amp;sort={{ sort|default:''|urlencode }}&amp;shared={% if shared_only %}1{% endif %}&amp;present={{ present_filter|urlencode }}&amp;min_cost={{ min_cost|floatformat:0 }}&amp;page={{ page.previous_page_number }}">← Назад</a>{% endif %}
 {% if page.has_next %}<a href="?q={{ q|urlencode }}&amp;supplier={{ supplier_filter|urlencode }}&amp;sort={{ sort|default:''|urlencode }}&amp;shared={% if shared_only %}1{% endif %}&amp;present={{ present_filter|urlencode }}&amp;page={{ page.next_page_number }}">Далее →</a>{% endif %}
 </div></div>
-<p class="muted">Сравнение только по бренду и артикулу. Совпадение не подтверждает исполнение, комплектацию или применимость. Неизвестное наличие исключается из выбора минимальной цены. При равных ценах победитель не назначается. Даты исходных прайсов требуют проверки перед заказом.</p>
+<p class="muted">Товар участвует, если его минимальная закупочная цена у доступных поставщиков не ниже установленного порога. Сравнение только по бренду и артикулу. Совпадение не подтверждает исполнение, комплектацию или применимость. Неизвестное наличие исключается из выбора минимальной цены. При равных ценах победитель не назначается. Даты исходных прайсов требуют проверки перед заказом.</p>
 </div>
 {% endblock %}
