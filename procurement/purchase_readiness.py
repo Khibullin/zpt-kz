@@ -5,7 +5,7 @@ proof of an actual seller offer or a correct vehicle-part execution.
 """
 from decimal import Decimal
 
-from .models import PermanentBuyingItem, KaspiBuyingCandidate
+from .models import PermanentBuyingItem, KaspiBuyingCandidate, KaspiPriceAudit
 from .omega_policy import POSITIVE_STOCK_PATTERN
 import re
 
@@ -23,7 +23,18 @@ def blocked_permanent_offer_ids(offer_ids):
         ).only('product_id', 'city_offers')
     }
     blocked = set()
+    # Rechecks are evidence, not authorization. A newer unverified or
+    # unprofitable observation invalidates an older permanent snapshot.
+    latest_audits = {}
+    for audit in KaspiPriceAudit.objects.filter(offer_id__in=offer_ids).order_by(
+            'offer_id', '-observed_at', '-pk'):
+        latest_audits.setdefault(audit.offer_id, audit)
+    for offer_id, audit in latest_audits.items():
+        if audit.roi < Decimal('50') or audit.identity_status != 'verified':
+            blocked.add(offer_id)
     for item in items:
+        if item.offer_id in blocked:
+            continue
         if (item.source != 'apify'
                 or item.identity_status != 'verified'
                 or item.roi_snapshot < Decimal('50')
