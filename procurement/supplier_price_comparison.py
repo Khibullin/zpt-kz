@@ -119,9 +119,20 @@ def _snapshot():
                 group['stock'][code] = offer['stock']
     shared = 0
     wins = {code: 0 for code in SUPPLIER_LABELS}
+    pairs = [('Phaeton', 'ZakazAuto'), ('Phaeton', 'Omega'), ('ZakazAuto', 'Omega')]
+    overlaps = {f'{left}_{right}': 0 for left, right in pairs}
+    brands_by_supplier = {code: set() for code in SUPPLIER_LABELS}
+    for group in grouped.values():
+        for code in group['prices']:
+            brands_by_supplier[code].add(_identity(group['brand']))
+    brand_overlaps = {f'{left}_{right}': len(brands_by_supplier[left] & brands_by_supplier[right])
+                      for left, right in pairs}
     rows = []
     for group in grouped.values():
         prices = group['prices']
+        for left, right in pairs:
+            if left in prices and right in prices:
+                overlaps[f'{left}_{right}'] += 1
         cheapest = min(prices.values())
         winners = [code for code, cost in prices.items() if cost == cheapest]
         if len(prices) >= 2:
@@ -135,7 +146,9 @@ def _snapshot():
                      alternatives=len(prices))
         rows.append(group)
     rows.sort(key=lambda item: (item['brand'].casefold(), item['article'].casefold()))
-    return {'rows': rows, 'counts': counts, 'wins': wins, 'shared': shared}
+    omega_only = sum(1 for group in rows if 'Omega' in group['prices'] and group['alternatives'] == 1)
+    return {'rows': rows, 'counts': counts, 'wins': wins, 'shared': shared,
+            'overlaps': overlaps, 'brand_overlaps': brand_overlaps, 'omega_only': omega_only}
 
 
 @access('admin', 'sales')
@@ -192,12 +205,15 @@ def supplier_price_comparison(request):
     search = (request.GET.get('q') or '').strip()[:100]
     supplier = (request.GET.get('supplier') or '').strip()
     shared_only = request.GET.get('shared') == '1'
+    present = request.GET.get('present', '')
     rows = snapshot['rows']
     if search:
         needle = search.casefold()
         rows = [r for r in rows if needle in (r['brand'] + ' ' + r['article'] + ' ' + r['name']).casefold()]
     if supplier in SUPPLIER_LABELS:
         rows = [r for r in rows if r['winner'] == supplier]
+    if present in SUPPLIER_LABELS:
+        rows = [r for r in rows if present in r['prices']]
     if shared_only:
         rows = [r for r in rows if r['alternatives'] > 1]
     order = request.GET.get('sort')
@@ -209,5 +225,5 @@ def supplier_price_comparison(request):
     return render(request, 'procurement/supplier_price_comparison.html',
                   context(request, page=page, snapshot=snapshot, cards=cards,
                           today=timezone.localdate().isoformat(), q=search,
-                          supplier_filter=supplier, shared_only=shared_only,
+                          supplier_filter=supplier, present_filter=present, shared_only=shared_only,
                           sort=order, displayed_count=len(rows)))
