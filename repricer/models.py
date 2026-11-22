@@ -256,3 +256,20 @@ class KaspiManualCollectionRun(models.Model):
     @property
     def total(self):
         return len(self.city_ids) * len(self.listing_ids)
+
+
+class KaspiManualPriceDraft(models.Model):
+    """Saved manual price for later review/export. Never writes to Kaspi."""
+    listing = models.OneToOneField(
+        "catalog.ProductKaspiListing", on_delete=models.CASCADE,
+        related_name="manual_price_draft",
+    )
+    price = models.PositiveIntegerField("Подготовленная цена")
+    updated_by = models.ForeignKey(
+        "auth.User", on_delete=models.SET_NULL, null=True, blank=True,
+    )
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Черновик цены Kaspi"
+        verbose_name_plural = "Черновики цен Kaspi"
