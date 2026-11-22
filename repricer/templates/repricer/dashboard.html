@@ -1,76 +1,119 @@
 {% extends "office/base.html" %}
 {% load humanize %}
-
 {% block title %}Контроль цен Kaspi — ZPT.KZ{% endblock %}
-
-{% block extra_head %}
-<meta name="robots" content="noindex,nofollow">
-{% endblock %}
-
 {% block extra_css %}
 <style>
-  .repricer-page { max-width: 1500px; margin: 0 auto; padding: 28px 20px 48px; color: #111827; }
-  .repricer-top { display: flex; gap: 16px; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
-  .repricer-title { margin: 0 0 6px; font-size: 28px; font-weight: 800; }
-  .repricer-subtitle { margin: 0; color: #6b7280; font-size: 14px; }
-  .repricer-link { display: inline-flex; align-items: center; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 10px; color: #111827; text-decoration: none; background: #fff; font-weight: 600; }
-  .repricer-status { margin-bottom: 18px; padding: 13px 15px; border-radius: 12px; border: 1px solid #e5e7eb; background: #f9fafb; font-size: 13px; line-height: 1.45; }
-  .repricer-status--warning { border-color: #fde68a; background: #fffbeb; color: #92400e; }
-  .repricer-status--ok { border-color: #bbf7d0; background: #f0fdf4; color: #166534; }
-  .repricer-summary { display: grid; grid-template-columns: repeat(5, minmax(120px, 1fr)); gap: 12px; margin-bottom: 20px; }
-  .repricer-card { padding: 16px; border: 1px solid #e5e7eb; border-radius: 14px; background: #fff; }
-  .repricer-card strong { display: block; font-size: 24px; line-height: 1.1; margin-bottom: 5px; }
-  .repricer-card span { color: #6b7280; font-size: 13px; }
-  .repricer-table-wrap { overflow-x: auto; border: 1px solid #e5e7eb; border-radius: 14px; background: #fff; }
-  .repricer-table { width: 100%; border-collapse: collapse; min-width: 1120px; }
-  .repricer-table th, .repricer-table td { padding: 12px 10px; border-bottom: 1px solid #eef0f3; text-align: left; vertical-align: top; font-size: 13px; }
-  .repricer-table th { background: #f9fafb; color: #4b5563; font-weight: 700; white-space: nowrap; }
-  .repricer-table tr:last-child td { border-bottom: 0; }
-  .repricer-product { min-width: 230px; }
-  .repricer-product strong { display: block; margin-bottom: 3px; }
-  .repricer-muted { color: #6b7280; }
-  .repricer-money { white-space: nowrap; font-variant-numeric: tabular-nums; }
-  .repricer-badge { display: inline-flex; padding: 4px 8px; border-radius: 999px; font-weight: 700; font-size: 12px; white-space: nowrap; background: #f3f4f6; color: #374151; }
-  .repricer-badge--lower { background: #fef3c7; color: #92400e; }
-  .repricer-badge--raise { background: #dcfce7; color: #166534; }
-  .repricer-badge--hold { background: #e5e7eb; color: #374151; }
-  .repricer-badge--none { background: #fee2e2; color: #991b1b; }
-  .repricer-reason { max-width: 300px; color: #4b5563; }
-  .repricer-empty { padding: 34px; text-align: center; color: #6b7280; }
-  @media (max-width: 900px) {
-    .repricer-summary { grid-template-columns: repeat(2, minmax(120px, 1fr)); }
-    .repricer-top { flex-direction: column; }
-  }
+.price-control{max-width:1740px;margin:auto;padding:22px 18px 40px;color:#152d4c;font-family:Arial,sans-serif}
+.price-control *{box-sizing:border-box}.pc-back{color:#087e88;text-decoration:none;font-size:13px}
+.pc-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin:12px 0 20px;flex-wrap:wrap}
+.pc-top h1{margin:0 0 5px;font-size:27px}.pc-top p{margin:0;color:#64748b;font-size:13px;max-width:670px}
+.pc-actions{display:flex;gap:8px;flex-wrap:wrap}.pc-button{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:11px 14px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#142e4d;font-weight:700;font-size:13px;text-decoration:none;cursor:pointer}
+.pc-button:hover{background:#eef8f8}.pc-button-primary{background:#007c70;color:white;border-color:#007c70}.pc-button-primary:hover{background:#00675f}.pc-button[disabled]{opacity:.5;cursor:not-allowed}
+.pc-metrics{display:grid;grid-template-columns:repeat(5,minmax(125px,1fr));gap:10px;margin-bottom:18px}
+.pc-metric{border:1px solid #d5e1ef;border-radius:12px;background:white;padding:16px;min-height:90px;display:flex;flex-direction:column;justify-content:space-between;gap:7px}
+.pc-metric span{font-size:12px;color:#526780}.pc-metric strong{font-size:27px;color:#142e4d;line-height:1.1}.pc-metric time{font-size:16px;font-weight:700}.pc-filters{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:18px;align-items:center}
+.pc-filters input,.pc-filters select{border:1px solid #cbd5e1;border-radius:8px;background:white;padding:11px;font-size:13px;min-height:41px;color:#142e4d}
+.pc-filters input{flex:2 1 230px}.pc-filters select{flex:1 1 125px;max-width:240px}
+.pc-table-wrap{overflow:auto;border:1px solid #d5e1ef;border-radius:12px;background:white}
+.pc-table{width:100%;border-collapse:collapse;min-width:1160px;font-size:13px}
+.pc-table th{background:#f2f6fa;color:#142e4d;text-align:left;padding:13px 10px;white-space:nowrap;border-bottom:1px solid #d5e1ef}
+.pc-table td{border-bottom:1px solid #e8eef4;padding:9px 10px;vertical-align:middle}
+.pc-table tr:hover td{background:#f0faf8}.pc-table .money{white-space:nowrap;font-variant-numeric:tabular-nums}
+.pc-product{display:flex;gap:10px;align-items:center;min-width:210px}.pc-thumb{height:47px;width:52px;object-fit:contain;border:1px solid #e2e8f0;border-radius:7px;background:#fff}
+.pc-product a{font-weight:700;color:#142e4d;text-decoration:none}.pc-product a:hover{text-decoration:underline}.pc-sub{display:block;color:#64748b;font-size:11px;margin-top:4px}
+.pc-inline-link{color:#087e88;font-weight:700;text-decoration:underline}.pc-delta-high{color:#b91c1c;font-weight:700}.pc-delta-low{color:#067857;font-weight:700}
+.pc-stale{font-size:11px;color:#ad6800}.pc-blank{color:#8898aa}.pc-status{font-size:11px;color:#62748a;display:block;margin-top:3px}
+.pc-open{font-weight:700;white-space:nowrap;color:#007c70;text-decoration:none}.pc-open:hover{text-decoration:underline}
+.pc-empty{padding:32px;text-align:center;color:#64748b}
+.pc-pager{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;margin:15px 0 22px;font-size:13px}
+.pc-pager a{display:inline-block;padding:8px 11px;border:1px solid #cbd5e1;border-radius:6px;text-decoration:none;color:#142e4d}
+.pc-pager .is-current{background:#007c70;color:white}
+.pc-info{margin-top:12px;padding:12px 14px;background:#edf5fd;border-radius:8px;font-size:12px;color:#465e76}
+.pc-tech{margin-top:20px;border:1px solid #d5e1ef;border-radius:10px;background:#f7fafc;padding:13px 15px;font-size:13px}
+.pc-tech summary{cursor:pointer;font-weight:700}.pc-tech h2{font-size:17px}.pc-tech .pc-warning{color:#9a5700}
+.pc-tech table{width:100%;border-collapse:collapse}.pc-tech td,.pc-tech th{padding:8px;text-align:left;border-bottom:1px solid #e4eaf0}
+.pc-manual select{max-width:360px}.pc-manual button{margin:3px}.pc-manual progress{width:100%;height:9px}
+.pc-toast{padding:10px;margin:10px 0;border-radius:7px;background:#eefaf4;color:#06664e}
+@media(max-width:1000px){.pc-metrics{grid-template-columns:repeat(2,minmax(125px,1fr))}.pc-top{flex-direction:column}.price-control{padding:15px 10px}}
 </style>
 {% endblock %}
-
 {% block content %}
-<main class="repricer-page">
-  <div class="repricer-top">
-    <div>
-      <h1 class="repricer-title">Контроль цен Kaspi</h1>
-      <p class="repricer-subtitle">Режим v1: анализ и рекомендации. Автоматическая отправка цен в Kaspi отключена.</p>
+<div class="price-control">
+  <a href="{% url 'inventory:overview' %}" class="pc-back">← Учёт товаров и денег</a>
+  <div class="pc-top">
+    <div><h1>Контроль цен Kaspi</h1><p>Наши товары, цены конкурентов и ручная подготовка новых цен. Автоматическое изменение цен отключено.</p></div>
+    <div class="pc-actions">
+      <a class="pc-button" href="#collector">↻ Собрать цены</a>
+      <a class="pc-button pc-button-primary" href="{% url 'repricer:export' %}">⬇ Скачать Excel</a>
     </div>
-    <a class="repricer-link" href="{% url 'admin:repricer_kaspirepricerrule_changelist' %}">Настроить правила</a>
   </div>
-
-  {% if own_merchant_configured %}
-    <div class="repricer-status repricer-status--ok">
-      Наш продавец Kaspi идентифицирован. Сохранённых предложений Kaspi: {{ public_snapshot_count }}. Актуальных записей за последние {{ fresh_minutes }} мин.: {{ fresh_snapshot_count }}.
-      {% if latest_public_snapshot %}Последний сбор: {{ latest_public_snapshot.captured_at|date:"d.m.Y H:i" }}.{% endif %}
+  {% if messages %}{% for message in messages %}<div class="pc-toast" role="status">{{ message }}</div>{% endfor %}{% endif %}
+  <section class="pc-metrics" aria-label="Статистика">
+    <div class="pc-metric"><span>Наших товаров Kaspi</span><strong>{{ summary.total }}</strong></div>
+    <div class="pc-metric"><span>С предложениями конкурентов</span><strong>{{ summary.found }}</strong></div>
+    <div class="pc-metric"><span>Без проверенных предложений</span><strong>{{ summary.missing }}</strong></div>
+    <div class="pc-metric"><span>Подготовлено цен вручную</span><strong>{{ summary.drafted }}</strong></div>
+    <div class="pc-metric"><span>Последний сбор</span><time>{% if last_collection %}{{ last_collection.captured_at|date:"d.m.Y H:i" }}{% else %}Пока нет{% endif %}</time><span>Городов с данными: {{ covered_city_count }} из {{ city_total }}</span></div>
+  </section>
+  <form class="pc-filters" method="get" action="{% url 'repricer:dashboard' %}">
+    <input name="q" value="{{ search }}" aria-label="Поиск товаров" placeholder="Поиск: артикул, бренд, название, SKU…">
+    <select name="supplier" aria-label="Поставщик"><option value="">Все поставщики</option>{% for code,label in suppliers %}<option value="{{ code }}" {% if supplier == code %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+    <select name="city" aria-label="Город"><option value="">Все города</option>{% for code,name in cities %}<option value="{{ code }}" {% if selected_city == code %}selected{% endif %}>{{ name }}</option>{% endfor %}</select>
+    <select name="status" aria-label="Наличие конкурентов">
+      <option value="">Все товары</option>
+      <option value="offers" {% if status == "offers" %}selected{% endif %}>Есть конкуренты</option>
+      <option value="missing" {% if status == "missing" %}selected{% endif %}>Без конкурентов</option>
+      <option value="higher" {% if status == "higher" %}selected{% endif %}>Наша цена выше</option>
+      <option value="draft" {% if status == "draft" %}selected{% endif %}>Изменённые вручную</option>
+    </select>
+    <button type="submit" class="pc-button">Показать</button>
+    <a class="pc-button" href="{% url 'repricer:dashboard' %}">Сбросить</a>
+  </form>
+  <div class="pc-table-wrap">
+    <table class="pc-table">
+      <thead><tr>
+        <th>Товар</th><th>Артикул / бренд</th><th>Остаток</th><th>Закупка, ₸</th><th>Наша цена, ₸</th>
+        <th>Мин. Kaspi, ₸</th><th>Продавцов</th><th>Новая цена, ₸</th><th>Разница</th><th>Действия</th>
+      </tr></thead>
+      <tbody>{% for row in monitored %}
+        <tr>
+          <td>
+            <div class="pc-product">
+              {% with photo=row.listing.product.storefront_image %}
+              {% if photo %}<img class="pc-thumb" src="{{ photo.url }}" alt="" loading="lazy">
+              {% else %}<span class="pc-thumb" aria-hidden="true"></span>{% endif %}{% endwith %}
+              <div><a href="{% url 'repricer:product' row.listing.pk %}">{{ row.listing.product.title }}</a>
+              <small class="pc-sub">{{ row.listing.product.category.name|default:"Категория не указана" }}</small></div>
+            </div>
+          </td>
+          <td>{{ row.listing.product.article|default:"—" }}<span class="pc-sub">{{ row.listing.product.brand.name|default:"Бренд не указан" }}</span></td>
+          <td class="money">{% if row.listing.last_known_kaspi_qty != None %}{{ row.listing.last_known_kaspi_qty }} шт.{% else %}<span class="pc-blank">—</span>{% endif %}</td>
+          <td class="money">{% if row.listing.product.cost_price != None %}{{ row.listing.product.cost_price|intcomma }}{% else %}—{% endif %}</td>
+          <td class="money">{% if row.our != None %}<strong>{{ row.our|intcomma }}</strong>{% else %}—{% endif %}</td>
+          <td class="money">{% if row.state.best_price != None %}{{ row.state.best_price|floatformat:0|intcomma }}{% if row.state.is_stale %}<span class="pc-stale">Устарело</span>{% endif %}{% else %}—{% endif %}</td>
+          <td><a class="pc-inline-link" href="{% url 'repricer:product' row.listing.pk %}">{{ row.state.competitor_count }}</a><span class="pc-status">{{ row.state.state_label }}</span></td>
+          <td class="money">{% if row.draft %}<strong>{{ row.draft.price|intcomma }}</strong><span class="pc-sub">Черновик</span>{% else %}<span class="pc-blank">—</span>{% endif %}</td>
+          <td class="money">{% if row.delta != None %}<span class="{% if row.delta > 0 %}pc-delta-high{% elif row.delta < 0 %}pc-delta-low{% endif %}">{{ row.delta|floatformat:0|intcomma }}</span>{% else %}—{% endif %}</td>
+          <td><a class="pc-open" href="{% url 'repricer:product' row.listing.pk %}">Открыть ↗</a></td>
+        </tr>
+      {% empty %}<tr><td colspan="10" class="pc-empty">По выбранным фильтрам товаров нет.</td></tr>{% endfor %}</tbody>
+    </table>
+  </div>
+  <div class="pc-pager">
+    <span>Показано {{ page.start_index }}–{{ page.end_index }} из {{ page.paginator.count }} товаров</span>
+    <div>
+      {% if page.has_previous %}<a href="?q={{ search|urlencode }}&supplier={{ supplier|urlencode }}&city={{ selected_city|urlencode }}&status={{ status|urlencode }}&page={{ page.previous_page_number }}">← Назад</a>{% endif %}
+      <span class="pc-button is-current">{{ page.number }} / {{ page.paginator.num_pages }}</span>
+      {% if page.has_next %}<a href="?q={{ search|urlencode }}&supplier={{ supplier|urlencode }}&city={{ selected_city|urlencode }}&status={{ status|urlencode }}&page={{ page.next_page_number }}">Вперёд →</a>{% endif %}
     </div>
-  {% else %}
-    <div class="repricer-status repricer-status--warning">
-      Сохранённых предложений Kaspi: {{ public_snapshot_count }}. Актуальных записей за последние {{ fresh_minutes }} мин.: {{ fresh_snapshot_count }}.
-      {% if latest_public_snapshot %}Последний сбор: {{ latest_public_snapshot.captured_at|date:"d.m.Y H:i" }}. {% endif %}
-      Рекомендации по публичным данным заблокированы, пока не указан наш продавец через KASPI_OWN_MERCHANT_IDS или KASPI_OWN_MERCHANT_NAMES.
-    </div>
-  {% endif %}
-
-  <section class="repricer-status" id="manual-price-collector" aria-label="Ручной сбор цен Kaspi">
-    <h2 style="margin:0 0 8px;font-size:19px">Собрать цены сейчас</h2>
-    <p style="margin:0 0 12px">Проверка цен по нашим активным Kaspi-привязкам. Расписание выключено. Сбор выполняется небольшими шагами, пока эта вкладка открыта; при закрытии вкладки можно продолжить позже. Наши цены не меняются.</p>
-    <form id="manual-price-form" method="post" action="{% url 'repricer:manual_start' %}" data-step-url="{% url 'repricer:manual_step' 999999 %}" data-pause-url="{% url 'repricer:manual_pause' 999999 %}" data-resume-url="{% url 'repricer:manual_resume' 999999 %}">
+  </div>
+  <div class="pc-info">Чтобы посмотреть полную карточку товара и предложения конкурентов, нажмите на название товара, число продавцов или «Открыть». Подробности открываются на отдельной странице, не разворачиваются внутри таблицы. Ручное изменение цены выполняется в карточке.</div>
+  <details class="pc-tech" id="collector">
+    <summary>⚙ Сбор цен и история проверок (техническая информация)</summary>
+    <h2>Собрать цены сейчас</h2>
+    <p>Ручной сбор по активным Kaspi-привязкам. Расписание отключено, наши цены автоматически не меняются.</p>
+    <div class="pc-manual">
+      <form id="manual-price-form" method="post" action="{% url 'repricer:manual_start' %}" data-step-url="{% url 'repricer:manual_step' 999999 %}" data-pause-url="{% url 'repricer:manual_pause' 999999 %}" data-resume-url="{% url 'repricer:manual_resume' 999999 %}">
       {% csrf_token %}
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
         <label for="manual-price-city">Где собирать</label>
@@ -101,67 +144,15 @@
       {% endif %}
     </div>
     <progress id="manual-price-progress" max="{% if manual_run %}{{ manual_run.total }}{% else %}1{% endif %}" value="{% if manual_run %}{{ manual_run.next_index }}{% else %}0{% endif %}" style="width:100%;margin-top:6px"></progress>
-  </section>
-
-  <div class="repricer-status repricer-status--warning">
-    <strong>Сбор цен по Казахстану:</strong> механизм поддерживает последовательную проверку {{ city_total }} населённых пунктов из справочника Kaspi.
-    Фактически собраны данные с известным городом: <strong>{{ covered_city_count }} из {{ city_total }}</strong>.
-    Исторических пакетов без указания города: <strong>{{ cityless_legacy_count }}</strong>.
-    {% if not fresh_snapshot_count %}<strong>Нет свежих снимков за последние {{ fresh_minutes }} минут.</strong>{% endif %}
-    Автоматическое расписание пока не утверждено и не включено.
-  </div>
-  <details class="repricer-status" style="margin-bottom:18px">
-    <summary style="cursor:pointer;font-weight:700">Состояние сбора по городам ({{ covered_city_count }}/{{ city_total }})</summary>
-    <div class="repricer-table-wrap" style="margin-top:12px;max-height:350px;overflow:auto">
-      <table class="repricer-table" style="min-width:520px">
-        <thead><tr><th>Город</th><th>Артикулов с данными</th><th>Последний сбор</th></tr></thead>
-        <tbody>{% for city in city_coverage %}
-          <tr><td>{{ city.name }}</td><td>{{ city.articles }}</td>
-            <td>{% if city.last_collected %}{{ city.last_collected|date:"d.m.Y H:i" }}{% else %}Ещё не проверялся{% endif %}</td></tr>
-        {% endfor %}</tbody>
-      </table>
+  
     </div>
+    <p>Сохранённых предложений: {{ public_snapshot_count }}. Свежих за {{ fresh_minutes }} минут: {{ fresh_snapshot_count }}.</p>
+    <p class="pc-warning">Проверено населённых пунктов: {{ covered_city_count }} из {{ city_total }}. Пакетов без города: {{ cityless_legacy_count }}.</p>
+    <details><summary>Состояние по городам</summary><div style="max-height:300px;overflow:auto"><table><thead><tr><th>Город</th><th>Артикулов</th><th>Последний сбор</th></tr></thead><tbody>
+    {% for city in city_coverage %}<tr><td>{{ city.name }}</td><td>{{ city.articles }}</td><td>{% if city.last_collected %}{{ city.last_collected|date:"d.m.Y H:i" }}{% else %}Нет данных{% endif %}</td></tr>{% endfor %}
+    </tbody></table></div></details>
   </details>
-
-  <div class="repricer-status">
-    Активных Kaspi-привязок: <strong>{{ active_listing_count }}</strong>.
-    Есть сохранённые предложения: <strong>{{ collected_listing_count }}</strong> привязок.
-    Создано правил контроля цены: <strong>{{ summary.total }}</strong>.
-    {% if not summary.total %}Для расчёта рекомендаций необходимо настроить правила и минимальные допустимые цены; наличие снимков само по себе не создаёт правила.{% endif %}
-  </div>
-
-  <section class="repricer-summary" aria-label="Сводка репрайсера">
-    <div class="repricer-card"><strong>{{ summary.total }}</strong><span>правил контроля цены</span></div>
-    <div class="repricer-card"><strong>{{ summary.lower }}</strong><span>можно снизить</span></div>
-    <div class="repricer-card"><strong>{{ summary.raise }}</strong><span>можно повысить</span></div>
-    <div class="repricer-card"><strong>{{ summary.hold }}</strong><span>оставить цену</span></div>
-    <div class="repricer-card"><strong>{{ summary.without_recommendation }}</strong><span>ещё без расчёта</span></div>
-  </section>
-
-  <div class="repricer-status"><strong>Товары Kaspi</strong> — список всех активных привязок, даже без правил. Исторические цены не являются основанием для изменения нашей цены. Для действия нужны свежие данные и установленная минимально допустимая цена.</div>
-  <div class="repricer-table-wrap">
-    <table class="repricer-table">
-      <thead><tr><th>Товар / Kaspi</th><th>Наша цена</th><th>Цена из последнего снимка</th><th>Город снимка</th><th>Продавец</th><th>Предложений</th><th>Последний сбор</th><th>Состояние</th></tr></thead>
-      <tbody>
-      {% for row in monitored %}
-        <tr>
-          <td class="repricer-product"><strong>{{ row.listing.product.title }}</strong><span class="repricer-muted">{{ row.listing.product.article|default:"без артикула" }} · Kaspi {{ row.listing.master_sku }}</span></td>
-          <td class="repricer-money">{% if row.listing.last_known_our_price != None %}{{ row.listing.last_known_our_price|intcomma }} ₸{% else %}—{% endif %}</td>
-          <td class="repricer-money">{% if row.state.best_price != None %}{{ row.state.best_price|floatformat:0|intcomma }} ₸{% if row.state.is_stale %} <small class="repricer-muted">(устарело)</small>{% endif %}{% else %}—{% endif %}</td>
-          <td>{{ row.city }}</td>
-          <td>{{ row.state.best_seller_name|default:"—" }}</td>
-          <td>{{ row.state.competitor_count }}</td>
-          <td class="repricer-muted">{% if row.state.captured_at %}{{ row.state.captured_at|date:"d.m.Y H:i" }}{% else %}—{% endif %}</td>
-          <td><span class="repricer-badge {% if row.state.is_stale %}repricer-badge--lower{% elif row.state.is_fresh %}repricer-badge--raise{% else %}repricer-badge--none{% endif %}">{{ row.state.state_label }}</span></td>
-        </tr>
-      {% empty %}
-        <tr><td colspan="8" class="repricer-empty">Активных Kaspi-привязок пока нет.</td></tr>
-      {% endfor %}
-      </tbody>
-    </table>
-  </div>
-</main>
-
+</div>
 <script>
 (function () {
   "use strict";
@@ -248,4 +239,5 @@
   buttons();
 })();
 </script>
+
 {% endblock %}
