@@ -1,6 +1,7 @@
 from django.urls import path
 from django.contrib.auth.views import LogoutView
 from . import views
+from .supplier_price_comparison import supplier_price_comparison
 from . import eep_comparison
 from . import apify_review
 from . import comparison_views
@@ -20,6 +21,7 @@ from .kaspi_price_feed import price_feed
 
 app_name = 'procurement'
 urlpatterns = [
+    path('supplier-prices/', supplier_price_comparison, name='supplier_price_comparison'),
     path('selection-rules/', selection_rule_views.selection_rules, name='selection_rules'),
     path('selection-rules/rules/', selection_rule_views.omega_selection_rules_help, name='omega_selection_rules_help'),
     path('selection-rules/export/excel/', selection_exports.selection_excel, name='selection_excel'),
