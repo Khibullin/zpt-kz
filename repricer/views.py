@@ -18,10 +18,10 @@ from django.views.decorators.http import require_POST
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill
 
-from catalog.models import ProductKaspiListing
+from catalog.models import ProductKaspiListing, CatalogImportBatch
 from .cities import KASPI_KZ_CITIES, CITY_BY_ID
 from .competitor_display import competitor_fresh_minutes, competitor_states_for_listings, overlay_unresolved_mapping
-from .models import KaspiCompetitorIngestBatch, KaspiCompetitorOfferSnapshot, KaspiManualCollectionRun, KaspiManualPriceDraft
+from .models import KaspiCompetitorIngestBatch, KaspiCompetitorOfferSnapshot, KaspiManualCollectionRun, KaspiManualPriceDraft, KaspiActiveExportRow
 from .services import configured_own_merchants
 
 PUBLIC_SOURCES = ("kaspi_public", "office_collector")
@@ -60,6 +60,116 @@ def _row(listing, state, city=""):
         "listing": listing, "state": state, "city": city,
         "draft": draft, "our": our,
         "delta": (our - best) if our is not None and best is not None else None,
+    }
+
+
+
+def _latest_active_batch():
+    """Only completed full imports with a complete row ledger become authoritative."""
+    return (
+        CatalogImportBatch.objects.filter(
+            source=CatalogImportBatch.SOURCE_KASPI_LISTING_FACTS,
+            source_scope=CatalogImportBatch.SCOPE_FULL,
+            status=CatalogImportBatch.STATUS_SUCCESS,
+            repricer_active_rows__isnull=False,
+        ).distinct().order_by("-finished_at", "-pk").first()
+    )
+
+
+def _active_assortment(request, batch):
+    """Paginated ACTIVE rows including unmapped SKUs and their original prices."""
+    qs = KaspiActiveExportRow.objects.filter(batch=batch).select_related(
+        "listing", "listing__product", "listing__product__brand",
+        "listing__product__category", "listing__manual_price_draft",
+    ).order_by("row_number", "pk")
+    search = (request.GET.get("q") or "").strip()[:120]
+    supplier = (request.GET.get("supplier") or "").strip()
+    city = (request.GET.get("city") or "").strip()
+    status = (request.GET.get("status") or "").strip()
+    if search:
+        qs = qs.filter(
+            Q(master_sku__icontains=search)
+            | Q(merchant_sku__icontains=search)
+            | Q(product_name__icontains=search)
+            | Q(brand__icontains=search)
+            | Q(listing__product__title__icontains=search)
+            | Q(listing__product__article__icontains=search)
+            | Q(listing__product__brand__name__icontains=search)
+        )
+    if supplier:
+        qs = qs.filter(listing__product__supplier=supplier)
+    if city and city in CITY_BY_ID:
+        city_ids = KaspiCompetitorOfferSnapshot.objects.filter(
+            city_id=city, source__in=PUBLIC_SOURCES,
+        ).values("listing_id")
+        qs = qs.filter(listing_id__in=city_ids)
+    elif city:
+        city = ""
+
+    active_ids = list(KaspiActiveExportRow.objects.filter(batch=batch)
+                      .exclude(listing_id__isnull=True)
+                      .values_list("listing_id", flat=True))
+    states = competitor_states_for_listings(active_ids)
+    valid_offers = {pk for pk, state in states.items() if state.competitor_count > 0}
+    if status == "offers":
+        qs = qs.filter(listing_id__in=valid_offers)
+    elif status == "missing":
+        qs = qs.exclude(listing_id__in=valid_offers)
+    elif status == "unmatched":
+        qs = qs.filter(listing__isnull=True)
+    elif status == "draft":
+        qs = qs.filter(listing__manual_price_draft__isnull=False)
+    elif status == "higher":
+        qualifying = [
+            pk for pk, st in states.items() if st.is_fresh and st.best_price is not None
+        ]
+        qs = qs.filter(listing_id__in=qualifying, price__isnull=False)
+        above = {pk for pk, price in qs.values_list("listing_id", "price")
+                 if pk in states and states[pk].best_price is not None
+                 and price > states[pk].best_price}
+        qs = qs.filter(listing_id__in=above)
+
+    page = Paginator(qs, 20).get_page(request.GET.get("page"))
+    rows = []
+    for record in page.object_list:
+        listing = record.listing
+        state = _listing_state(listing, states) if listing else None
+        draft = getattr(listing, "manual_price_draft", None) if listing else None
+        best = state.best_price if state else None
+        rows.append({
+            "active": record, "listing": listing,
+            "item_title": record.product_name or (
+                listing.product.title if listing else "Товар Kaspi без карточки ZPT.KZ"
+            ),
+            "article": (listing.product.article if listing else record.merchant_sku) or "—",
+            "brand_name": record.brand or (
+                listing.product.brand.name if listing and listing.product.brand else ""
+            ) or "—",
+            "our": record.price, "quantity": record.quantity,
+            "draft": draft, "state": state,
+            "count": state.competitor_count if state else 0,
+            "state_label": (state.state_label if state else "Требует сопоставления"),
+            "best": best,
+            "stale": bool(state and state.is_stale),
+            "delta": record.price - best if record.price is not None and best is not None else None,
+        })
+    total = KaspiActiveExportRow.objects.filter(batch=batch).count()
+    matched = KaspiActiveExportRow.objects.filter(batch=batch, listing__isnull=False).count()
+    found = KaspiActiveExportRow.objects.filter(batch=batch, listing_id__in=valid_offers).count()
+    drafted = KaspiActiveExportRow.objects.filter(
+        batch=batch, listing__manual_price_draft__isnull=False
+    ).count()
+    start_page = max(1, min(page.number - 2, page.paginator.num_pages - 4))
+    end_page = min(page.paginator.num_pages, start_page + 4)
+    return {
+        "monitored": rows, "page": page,
+        "page_numbers": list(range(start_page, end_page + 1)),
+        "summary": {
+            "total": total, "found": found, "missing": total - found,
+            "drafted": drafted, "unmatched": total - matched,
+        },
+        "search": search, "supplier": supplier, "selected_city": city,
+        "status": status, "active_batch": batch,
     }
 
 
@@ -127,6 +237,8 @@ def repricer_dashboard(request):
          "last_collected": city_stats.get(code, {}).get("last_collected")}
         for code, name in KASPI_KZ_CITIES
     ]
+    active_batch = _latest_active_batch()
+    active_context = _active_assortment(request, active_batch) if active_batch else {}
     response = render(request, "repricer/dashboard.html", {
         "monitored": monitored, "page": page, "page_numbers": page_numbers, "search": search, "supplier": supplier,
         "status": status, "selected_city": city, "cities": KASPI_KZ_CITIES,
@@ -145,6 +257,7 @@ def repricer_dashboard(request):
         "collection_cities": KASPI_KZ_CITIES,
         "manual_run": KaspiManualCollectionRun.objects.filter(created_by=request.user).first(),
         "kaspi_upload_result": request.session.get("kaspi_upload_result"),
+        **active_context,
     })
     response["X-Robots-Tag"] = "noindex, nofollow"
     return response
