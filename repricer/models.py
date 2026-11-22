@@ -273,3 +273,41 @@ class KaspiManualPriceDraft(models.Model):
     class Meta:
         verbose_name = "Черновик цены Kaspi"
         verbose_name_plural = "Черновики цен Kaspi"
+
+
+class KaspiActiveExportRow(models.Model):
+    """One actual row of an uploaded Kaspi ACTIVE export, including unmatched SKU.
+
+    Latest *completed* import batch with these rows defines the repicing universe.
+    Never create catalog products implicitly from an unmatched row.
+    """
+    batch = models.ForeignKey(
+        "catalog.CatalogImportBatch", on_delete=models.CASCADE,
+        related_name="repricer_active_rows",
+    )
+    row_number = models.PositiveIntegerField()
+    master_sku = models.CharField(max_length=128, blank=True, db_index=True)
+    merchant_sku = models.CharField(max_length=128, blank=True)
+    product_name = models.CharField(max_length=500, blank=True)
+    brand = models.CharField(max_length=150, blank=True)
+    price = models.PositiveIntegerField(null=True, blank=True)
+    quantity = models.PositiveIntegerField(null=True, blank=True)
+    listing = models.ForeignKey(
+        "catalog.ProductKaspiListing", on_delete=models.SET_NULL,
+        null=True, blank=True, related_name="active_export_rows",
+    )
+    status = models.CharField(max_length=40, db_index=True)
+    reason = models.CharField(max_length=255, blank=True)
+
+    class Meta:
+        verbose_name = "Строка выгрузки ACTIVE Kaspi"
+        verbose_name_plural = "Строки выгрузки ACTIVE Kaspi"
+        ordering = ("row_number", "pk")
+        constraints = [
+            models.UniqueConstraint(
+                fields=("batch", "row_number"), name="repr_active_batch_row_uniq",
+            ),
+        ]
+        indexes = [
+            models.Index(fields=("batch", "status"), name="repr_active_batch_status_idx"),
+        ]
