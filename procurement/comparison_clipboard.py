@@ -10,11 +10,14 @@ from PIL import Image, UnidentifiedImageError
 
 from django.http import JsonResponse
 from django.utils import timezone
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
+from django.urls import reverse
+from urllib.parse import urlencode
 from django.views.decorators.http import require_POST
 from django.db import transaction
 from django.db.models import Q
-from .models import Offer, PermanentBuyingItem, BuyingComparisonMaterial, KaspiPriceAudit, KaspiReviewTask
+from .models import Offer, PermanentBuyingItem, BuyingComparisonMaterial, KaspiPriceAudit, KaspiReviewTask, Activity
 from .srr_review_snapshots import srr_review_snapshot
 from .comparison_first_ten import FIRST_TEN_OFFER_IDS
 from .comparison_next_fifty import NEXT_FIFTY_OFFER_IDS
@@ -305,3 +308,71 @@ def manage_kaspi_screenshot(request, pk):
     return JsonResponse({'ok': True, 'count': len(shots),
                          'message': ('Скриншот удалён.' if action == 'delete'
                                      else 'Копия скриншота сохранена.')})
+
+
+@access('sales', 'admin')
+@require_POST
+def review_kaspi_identity(request, pk):
+    """Explicit human identity decision for one audited source/card pair.
+
+    Does not change any recorded supplier or Kaspi price, or automatically
+    admit a candidate to the permanent buying register.
+    """
+    offer = get_object_or_404(Offer, pk=pk)
+    source = str(request.POST.get('source_file') or '').strip()[:255]
+    product = str(request.POST.get('product_id') or '').strip()[:80]
+    audit = get_object_or_404(KaspiPriceAudit, offer=offer,
+                              source_filename=source, product_id=product)
+    status = str(request.POST.get('identity_status') or '').strip()
+    if status not in ('verified', 'needs_review', 'mismatch'):
+        return JsonResponse({'error': 'Неизвестный статус соответствия.'}, status=400)
+    if status == 'verified':
+        if request.POST.get('confirm_all') != 'yes':
+            return JsonResponse({'error': 'Подтвердите проверку наименования, бренда, артикула, фото, характеристик, применимости и комплектации.'}, status=400)
+        material = BuyingComparisonMaterial.objects.filter(
+            offer=offer, source_filename=source, kaspi_product_id=product).first()
+        supplier = offer.characteristics if isinstance(offer.characteristics, dict) else {}
+        kaspi = material.kaspi_data if material and isinstance(material.kaspi_data, dict) else {}
+        supplier_material = material.supplier_data if material and isinstance(material.supplier_data, dict) else {}
+        supplier_images = offer.photo_url or supplier.get('supplier_images') or supplier_material.get('images')
+        kaspi_source = supplier.get('kaspi_card_details') or supplier.get('kaspi_details') or {}
+        firsthand = supplier.get('firsthand_omega_20261117') or {}
+        kaspi_images = kaspi.get('images') or (
+            kaspi_source.get('images') if isinstance(kaspi_source, dict) else None) or (
+            firsthand.get('images') if isinstance(firsthand, dict) and
+            str(firsthand.get('kaspi_product_id', '')) == product else None)
+        supplier_specs = (supplier_material.get('specs') or supplier.get('technical_characteristics')
+                          or supplier.get('specifications') or supplier.get('technical_specs'))
+        if not (material and material.kaspi_status == 'manual_verified'
+                and kaspi.get('manual_confirmed_at')):
+            return JsonResponse({'error': 'Сначала сохраните проверенные сведения Kaspi по скриншотам.'}, status=400)
+        if not (article_agrees(kaspi.get('article'), offer.article)
+                and str(kaspi.get('brand') or '').casefold() == str(offer.brand).casefold()):
+            return JsonResponse({'error': 'Бренд или полный артикул не совпадают.'}, status=400)
+        if not (supplier_images and kaspi_images and supplier_specs and
+                (kaspi.get('specs') or kaspi.get('characteristics')) and
+                (offer.applicability or supplier_material.get('fitment')) and
+                kaspi.get('fitment') and kaspi.get('name') and
+                kaspi.get('package')):
+            return JsonResponse({'error': 'Недостаточно фото, характеристик, применимости или комплектности. Оставьте «Требует проверки».'}, status=400)
+        from .omega_policy import POSITIVE_STOCK_PATTERN
+        import re
+        if not (audit.roi >= 50 and audit.cost_snapshot == offer.cost
+                and re.match(POSITIVE_STOCK_PATTERN, str(offer.stock or ''))
+                and audit.min_price > 0 and audit.seller_name):
+            return JsonResponse({'error': 'Доходность, остаток, закупочная цена или цена продавца не подтверждены.'}, status=400)
+    before = audit.identity_status
+    if before != status:
+        audit.identity_status = status
+        audit.save(update_fields=['identity_status'])
+        Activity.objects.create(
+            user=request.user, action='kaspi_identity_review',
+            details={'offer': offer.pk, 'source': source, 'product_id': product,
+                     'previous_status': before, 'status': status})
+    messages.success(request, {
+        'verified': 'Совпадение подтверждено. Финансовые условия перед закупкой проверяются повторно.',
+        'needs_review': 'Карточка оставлена на проверку.',
+        'mismatch': 'Карточка помечена «Не соответствует». Закупка заблокирована.',
+    }[status])
+    return redirect(reverse('procurement:comparison', args=[offer.pk]) + '?' +
+                    urlencode({'apify_source': source}))
