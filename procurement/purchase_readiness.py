@@ -34,7 +34,8 @@ def blocked_permanent_offer_ids(offer_ids):
         latest_audits.setdefault(audit.offer_id, audit)
     for offer_id, audit in latest_audits.items():
         if (audit.observed_at < cutoff or audit.roi < Decimal('50') or audit.identity_status != 'verified'
-                or not any(item.offer_id == offer_id and item.kaspi_price_snapshot == audit.min_price
+                or not any(item.offer_id == offer_id and item.product_id == audit.product_id
+                           and item.kaspi_price_snapshot == audit.min_price
                            for item in items)):
             blocked.add(offer_id)
     for item in items:
