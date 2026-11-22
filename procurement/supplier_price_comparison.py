@@ -176,7 +176,6 @@ def supplier_price_comparison(request):
         except (ValueError, TypeError, OSError, KeyError, UnicodeError) as error:
             messages.error(request, 'Прайс не загружен: ' + str(error)[:250])
         else:
-            cache.delete(CACHE_KEY)
             messages.success(request, f'{supplier}: прайс загружен — {row_count} строк, '
                              f'{available} с наличием, пропущено некорректных: {skipped}. '
                              'Сравнение обновлено.')
