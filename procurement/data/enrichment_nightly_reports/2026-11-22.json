@@ -1,0 +1,203 @@
+{
+  "schema": 1,
+  "night_end_date": "2026-11-22",
+  "period_start": "2026-11-21T23:00:00+05:00",
+  "period_end": "2026-11-22T06:00:00+05:00",
+  "status": "no_confirmed_results_supplier_3_5_missing_in_live_database",
+  "reason": {
+    "automation_id": "Automation_53216c82774c819184d7b160c159c83f",
+    "is_enabled": false,
+    "updated_at": "2026-11-16T04:20:19.919164+00:00",
+    "last_recorded_run": {
+      "id": "46955e11-3d3c-8332-be79-b2e9b813d5ee",
+      "recorded_status": "no_update",
+      "scheduled_for": "2026-11-16T00:00:00Z",
+      "started_at": "2026-11-16T00:04:33.730258Z",
+      "completed_at": "2026-11-16T00:04:34.627908Z",
+      "chat_ref": null
+    },
+    "cause_of_disabling": "not established"
+  },
+  "evidence": {
+    "original_nightly_report": "HTTP 404 before report creation",
+    "night_data_commits": [],
+    "photo_task_statuses": [
+      {
+        "count": 13409,
+        "last_update": "2026-11-10T14:14:16.725489Z",
+        "night_updated": 0,
+        "snapshot_at": "2026-11-22T00:58:31.987304Z",
+        "status": "done",
+        "supplier_id": 1
+      },
+      {
+        "count": 202,
+        "last_update": "2026-11-10T04:59:42.634236Z",
+        "night_updated": 0,
+        "snapshot_at": "2026-11-22T00:58:31.987304Z",
+        "status": "needs_source",
+        "supplier_id": 1
+      },
+      {
+        "count": 1135,
+        "last_update": "2026-11-10T14:14:17.037274Z",
+        "night_updated": 0,
+        "snapshot_at": "2026-11-22T00:58:31.987304Z",
+        "status": "skipped",
+        "supplier_id": 1
+      }
+    ],
+    "supplier_inventory": [
+      {
+        "id": 1,
+        "latest_created_at": "2026-11-20T10:46:06.326779Z",
+        "latest_supplier_checked_on": "2026-11-20T00:00:00Z",
+        "name": "Omega",
+        "offers": 21019,
+        "positive_stock": 8026
+      },
+      {
+        "id": 6,
+        "latest_created_at": null,
+        "latest_supplier_checked_on": null,
+        "name": "Китай — поставщик уточняется",
+        "offers": 0,
+        "positive_stock": 0
+      }
+    ],
+    "queue_sha": "19e3c6b93f3f2dcebe54c503fe250fa7a7d08edd",
+    "queue_heartbeat": "2026-11-15T12:59:04.663Z",
+    "queue_status": "lease_acquired_researching_jashi_202000362aa",
+    "expired_shared_lease": {
+      "owner": "weekend-enrichment-20261115-1759-item25110",
+      "acquired_at": "2026-11-15T12:59:04.663Z",
+      "heartbeat_at": "2026-11-15T12:59:04.663Z",
+      "expires_at": "2026-11-15T13:39:04.663Z",
+      "checkpoint_path": "procurement/data/enrichment_queue_20261113.json",
+      "supplier_id": 5,
+      "offer_id": 25110,
+      "product_id": 6727,
+      "task_id": 4700
+    },
+    "historical_last_success": {
+      "at": "2026-11-15T12:57:59.368Z",
+      "supplier_id": 5,
+      "offer_id": 25131,
+      "product_id": 6714,
+      "task_id": 4687,
+      "brand": "HYUNDAI-KIA",
+      "article": "553112S400",
+      "saved": {
+        "photo": true,
+        "thumbnail": true,
+        "fitment": true,
+        "years_or_engines": true
+      },
+      "db_verified": true,
+      "ui_verified": true,
+      "fitment_ids": [
+        111538,
+        111539
+      ],
+      "configuration_count": 2,
+      "engine_rows": 1,
+      "live_commit": "046b420383c4e71238f37a201012daa8754c2b12",
+      "deploy_id": "dep-dbsqmme417fc73fqh5l0",
+      "ui_url": "https://zpt.kz/hyundai-zpt-25131/"
+    },
+    "last_success_live_db": [],
+    "last_success_item_sha": "76c43271ffcae56d74ae13ff59a2065d6090c565",
+    "runtime_enrichment_logs": {
+      "hasMore": false,
+      "logs": [],
+      "nextEndTime": "2026-11-22T01:00:00Z",
+      "nextStartTime": "2026-11-21T18:00:00Z"
+    }
+  },
+  "queue": {
+    "checkpoint_next": {
+      "phase": "other_in_stock_control",
+      "sequence": 15,
+      "batch_size": 20,
+      "supplier_id": 5,
+      "offer_id": 25110,
+      "product_id": 6727,
+      "task_id": 4700,
+      "brand": "JASHI",
+      "article": "202000362AA"
+    },
+    "publication_pending": null,
+    "pending_candidate": {
+      "supplier_id": 5,
+      "offer_id": 25110,
+      "product_id": 6727,
+      "task_id": 4700,
+      "brand": "JASHI",
+      "article": "202000362AA",
+      "state": "researching_new_sources"
+    },
+    "checkpoint_actionable": false,
+    "reason": "Supplier 5 and referenced offers 25110/25131 absent in live DB. Do not resume blindly from stale checkpoint.",
+    "active_photo_task_statuses": [],
+    "live_process_state": "No active task status recorded; expired lease does not prove current process liveness."
+  },
+  "limitations": [
+    "Zeros mean confirmed additions only; VehicleFitment has no write timestamp, so unlogged changes cannot be ruled out.",
+    "Suppliers 3 and 5 are absent, not out of stock; missing rows prevent verification of their night results and backlog.",
+    "Positive stock follows procurement.retail.stock_quantity; missing photo means neither offer.photo_url nor linked RetailListing.product.main_image; missing structured fitment means no VehicleFitment with nonempty make/model.",
+    "Current DB snapshot does not establish why or when suppliers disappeared.",
+    "No mass processing or data restoration attempted."
+  ],
+  "delivery": {
+    "status": "ready_to_send",
+    "recipient": "rkhaibullin@gmail.com",
+    "subject": "ZPT.KZ — ночной отчёт по фото и применимости — 22.11.2026",
+    "duplicate_check": "Nightly report absent (404), Gmail exact recipient/subject SENT search empty."
+  },
+  "verified_at": "2026-11-22T01:00:13.723454Z",
+  "supplier_stats": {
+    "1": {
+      "name": "Омега",
+      "verification_status": "no_confirmed_additions",
+      "processed_unique_confirmed": 0,
+      "photos_added_confirmed": 0,
+      "thumbnails_added_confirmed": 0,
+      "text_fitment_added_confirmed": 0,
+      "structured_fitment_added_confirmed": 0,
+      "years_added_confirmed": 0,
+      "engines_added_confirmed": 0,
+      "remaining_snapshot": {
+        "night_task_updates": 0,
+        "positive_stock": 8026,
+        "snapshot_at": "2026-11-22T01:00:13.723454Z",
+        "supplier_id": 1,
+        "without_photo": 1351,
+        "without_structured": 7666
+      }
+    },
+    "3": {
+      "name": "Фаэтон",
+      "verification_status": "supplier_missing_unverifiable",
+      "processed_unique_confirmed": null,
+      "photos_added_confirmed": null,
+      "thumbnails_added_confirmed": null,
+      "text_fitment_added_confirmed": null,
+      "structured_fitment_added_confirmed": null,
+      "years_added_confirmed": null,
+      "engines_added_confirmed": null,
+      "remaining_snapshot": null
+    },
+    "5": {
+      "name": "ЗаказАвто",
+      "verification_status": "supplier_missing_unverifiable",
+      "processed_unique_confirmed": null,
+      "photos_added_confirmed": null,
+      "thumbnails_added_confirmed": null,
+      "text_fitment_added_confirmed": null,
+      "structured_fitment_added_confirmed": null,
+      "years_added_confirmed": null,
+      "engines_added_confirmed": null,
+      "remaining_snapshot": null
+    }
+  }
+}
