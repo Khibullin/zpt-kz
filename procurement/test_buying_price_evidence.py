@@ -3,9 +3,10 @@ from decimal import Decimal
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
+from django.urls import reverse
 
 from .models import (Supplier, Offer, PermanentBuyingItem,
-                     KaspiBuyingCandidate, Selection)
+                     KaspiBuyingCandidate, Selection, Membership)
 from .purchase_readiness import blocked_permanent_offer_ids
 
 
@@ -51,3 +52,37 @@ class BuyingPriceEvidenceTests(TestCase):
         Selection.objects.create(user=self.user, offer=self.offer, quantity=2)
         self.assertTrue(Selection.objects.filter(user=self.user, offer=self.offer).exists())
         self.assertEqual(blocked_permanent_offer_ids({self.offer.id}), {self.offer.id})
+
+    def _verify_with_seller(self):
+        self.candidate.city_offers = [
+            {'city': 'Алматы', 'sellers': [{'name': 'Продавец', 'price': '145000'}]}]
+        self.candidate.save(update_fields=['city_offers'])
+        self.saved.identity_status = 'verified'
+        self.saved.save(update_fields=['identity_status'])
+
+    def test_supplier_stock_must_still_be_positive_before_purchase(self):
+        self._verify_with_seller()
+        self.offer.stock = '0'
+        self.offer.save(update_fields=['stock'])
+        self.assertEqual(blocked_permanent_offer_ids({self.offer.pk}), {self.offer.pk})
+
+    def test_supplier_price_change_requires_fresh_profit_review(self):
+        self._verify_with_seller()
+        self.offer.cost = Decimal('70000')
+        self.offer.save(update_fields=['cost'])
+        self.assertEqual(blocked_permanent_offer_ids({self.offer.pk}), {self.offer.pk})
+
+    def test_single_selection_rejects_unverified_item_without_mutating_basket(self):
+        Membership.objects.create(user=self.user, role='admin')
+        self.client.force_login(self.user)
+        response = self.client.post(reverse('procurement:select', args=[self.offer.pk]), {'quantity': 1})
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(Selection.objects.filter(user=self.user, offer=self.offer).exists())
+
+    def test_selection_accepted_only_after_evidence_and_stock(self):
+        Membership.objects.create(user=self.user, role='admin')
+        self._verify_with_seller()
+        self.client.force_login(self.user)
+        response = self.client.post(reverse('procurement:select', args=[self.offer.pk]), {'quantity': 1})
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(Selection.objects.filter(user=self.user, offer=self.offer).exists())
