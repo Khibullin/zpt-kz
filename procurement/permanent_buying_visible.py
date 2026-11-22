@@ -287,6 +287,9 @@ def visible_permanent_buying_rows(request, preferences, filters):
         })
         audit = audits.get(offer.pk)
         if audit:
+            # Status is scoped to the current source and selected card. Never
+            # infer an approved match from a different saved price audit.
+            row['review_identity_status'] = audit.identity_status
             # Current comparison is a distinct calculation, not a rewrite of
             # the permanently saved historical price or its economic proof.
             row['previous_kaspi_price'] = item.kaspi_price_snapshot
