@@ -191,6 +191,46 @@ def repricer_save_price(request, listing_id):
 
 
 @staff_member_required
+@require_POST
+def repricer_save_prices(request):
+    """Save only explicitly changed row prices; never alter the Kaspi listing."""
+    saved = 0
+    for key, raw in request.POST.items():
+        if not key.startswith("price_"):
+            continue
+        try:
+            listing_id = int(key[6:])
+        except ValueError:
+            continue
+        text = str(raw).strip()
+        if not text:
+            continue
+        if not text.isascii() or not text.isdecimal() or len(text) > 10:
+            messages.error(request, f"Цена товара {listing_id} не сохранена: неверное число.")
+            continue
+        value = int(text)
+        if not (1 <= value <= 999999999):
+            messages.error(request, f"Цена товара {listing_id} вне допустимого диапазона.")
+            continue
+        listing = ProductKaspiListing.objects.filter(pk=listing_id, is_active=True).first()
+        if listing is None:
+            continue
+        draft = KaspiManualPriceDraft.objects.filter(listing_id=listing_id).first()
+        original = draft.price if draft else listing.last_known_our_price
+        if original == value:
+            continue
+        KaspiManualPriceDraft.objects.update_or_create(
+            listing=listing, defaults={"price": value, "updated_by": request.user},
+        )
+        saved += 1
+    if saved:
+        messages.success(request, f"Сохранено черновиков цен: {saved}. На Kaspi цены не изменены.")
+    else:
+        messages.info(request, "Изменений цен для сохранения нет.")
+    return redirect("repricer:dashboard")
+
+
+@staff_member_required
 def repricer_export(request):
     drafts = list(KaspiManualPriceDraft.objects.select_related("listing", "listing__product")
                   .filter(listing__is_active=True).order_by("listing__merchant_sku", "listing_id"))
