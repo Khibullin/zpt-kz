@@ -10,6 +10,26 @@
 {% if mode == 'best' and request.GET.batch == 'next200' %}<small>Партия №8 — 200 товаров 561–760; предварительные совпадения бренда и артикула, исполнение и цена требуют подтверждения до закупки.</small>{% endif %}
 {% if mode == 'best' and request.GET.batch == 'final153' %}<small>Оставшиеся 153 финансовых кандидата Omega; совпадения бренда и артикула предварительные, исполнение и комплектация Kaspi ещё требуют проверки.</small>{% endif %}
 <h1>{% if mode == 'best' %}Выгодные к закупке{% else %}Оптовые закупки{% endif %}</h1>
+{% if mode == 'best' %}
+<details class="panel" id="buying-policy" style="padding:12px 16px;margin:12px 0">
+ <summary style="cursor:pointer;font-weight:700">Правила отбора и публикации выгодных товаров (12)</summary>
+ <ol style="padding-left:24px;line-height:1.6;font-size:13px">
+  <li>Доходность — не ниже 50% после комиссии и всех расходов.</li>
+  <li>Категории — все выбранные.</li>
+  <li>Наличие — подтверждённый положительный остаток у поставщика.</li>
+  <li>Первичное совпадение — точное совпадение бренда и полного артикула поставщика и Kaspi.</li>
+  <li>Цена Kaspi — минимальная подтверждённая цена продавца по соответствующему товару.</li>
+  <li>Сравнение карточек — наименование, бренд, артикул, фотографии, характеристики и применимость поставщика и Kaspi.</li>
+  <li>На странице сравнения под изображением Kaspi — кнопка «Загрузить скриншот».</li>
+  <li>Статусы: «Совпадение подтверждено», «Требует проверки», «Не соответствует».</li>
+  <li>Доходность = чистая прибыль / закупочная цена × 100%. Упаковка — 250 ₸, один раз.</li>
+  <li>Сортировка — по доходности в процентах, по убыванию.</li>
+  <li>История цен, расчётов, сравнений и подтверждений сохраняется; старые товары автоматически не удаляются.</li>
+  <li>Закупка — только после подтверждения соответствия, актуальной цены и возможности исполнения.</li>
+ </ol>
+ <p style="font-size:13px;margin:7px 0 0">Отсутствие фотографии или характеристик — повод для статуса «Требует проверки», а не доказательство несовпадения. Скриншот не заменяет фото товара и не подтверждает идентичность автоматически.</p>
+</details>
+{% endif %}
 {% if mode == 'best' %}<div class="actions"><a class="button" href="{% url 'procurement:dashboard' %}?mode=best&amp;batch=next50">Партия 50</a> <a class="button" href="{% url 'procurement:dashboard' %}?mode=best&amp;batch=next100">Партия 61–160</a> <a class="button" href="{% url 'procurement:dashboard' %}?mode=best&amp;batch=next100b">Партия 161–260</a> <a class="button" href="{% url 'procurement:dashboard' %}?mode=best&amp;batch=next100c">Партия 261–360</a> <a class="button" href="{% url 'procurement:dashboard' %}?mode=best&amp;batch=next100d">Партия 361–460</a> <a class="button" href="{% url 'procurement:dashboard' %}?mode=best&amp;batch=next100e">Партия 461–560</a> <a class="button" href="{% url 'procurement:dashboard' %}?mode=best&amp;batch=next200">Новые 200 товаров</a> <a class="button" href="{% url 'procurement:dashboard' %}?mode=best&amp;batch=final153">Оставшиеся 153</a> <a class="button" href="{% url 'procurement:apify_review' %}">Apify 21.11 — на проверке</a> {% if request.GET.batch == 'next50' or request.GET.batch == 'next100' or request.GET.batch == 'next100b' or request.GET.batch == 'next100c' or request.GET.batch == 'next100d' or request.GET.batch == 'next100e' or request.GET.batch == 'next200' or request.GET.batch == 'final153' %}<a href="{% url 'procurement:dashboard' %}?mode=best">Все выгодные</a>{% endif %}</div>{% endif %}
 <form method="get" class="supplier-picker"><input type="hidden" name="mode" value="{{ mode }}">{% if mode == 'best' and request.GET.batch == 'next50' %}<input type="hidden" name="batch" value="next50">{% elif mode == 'best' and request.GET.batch == 'next100' %}<input type="hidden" name="batch" value="next100">{% elif mode == 'best' and request.GET.batch == 'next100b' %}<input type="hidden" name="batch" value="next100b">{% elif mode == 'best' and request.GET.batch == 'next100c' %}<input type="hidden" name="batch" value="next100c">{% elif mode == 'best' and request.GET.batch == 'next100d' %}<input type="hidden" name="batch" value="next100d">{% elif mode == 'best' and request.GET.batch == 'next100e' %}<input type="hidden" name="batch" value="next100e">{% elif mode == 'best' and request.GET.batch == 'next200' %}<input type="hidden" name="batch" value="next200">{% elif mode == 'best' and request.GET.batch == 'final153' %}<input type="hidden" name="batch" value="final153">{% endif %}{% if mode == "best" and request.GET.apify_source %}<input type="hidden" name="apify_source" value="{{ request.GET.apify_source }}">{% endif %}<label>Поставщик {{ filter_form.supplier }}</label><button{% if mode == 'best' %} class="visually-hidden"{% endif %}>Выбрать</button></form>
 {% if can_manage and mode != 'best' %}<div class="actions"><a class="button" href="{% url 'procurement:selection_rules' %}#upload-step-title">Загрузить прайс-лист</a></div>{% endif %}
