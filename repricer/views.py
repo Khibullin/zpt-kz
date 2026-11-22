@@ -103,8 +103,8 @@ def repricer_dashboard(request):
     paginator = Paginator(listings_qs, pagesize)
     page = paginator.get_page(request.GET.get("page"))
     current = list(page.object_list.prefetch_related("manual_price_draft"))
-    start_page = max(1, page.number - 2)
-    end_page = min(paginator.num_pages, page.number + 2)
+    start_page = max(1, min(page.number - 2, paginator.num_pages - 4))
+    end_page = min(paginator.num_pages, start_page + 4)
     page_numbers = list(range(start_page, end_page + 1))
     monitored = [
         _row(l, _listing_state(l, all_states), CITY_BY_ID.get(city, ""))
