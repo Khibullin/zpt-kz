@@ -1,7 +1,9 @@
-{% extends "office/base.html" %}
+{% extends "inventory/base.html" %}
 {% load humanize %}
 {% block title %}Контроль цен Kaspi — ZPT.KZ{% endblock %}
-{% block extra_css %}
+
+{% block content %}
+
 <style>
 .price-control{max-width:1740px;margin:auto;padding:22px 18px 40px;color:#152d4c;font-family:Arial,sans-serif}
 .price-control *{box-sizing:border-box}.pc-back{color:#087e88;text-decoration:none;font-size:13px}
@@ -36,8 +38,7 @@
 .pc-toast{padding:10px;margin:10px 0;border-radius:7px;background:#eefaf4;color:#06664e}
 @media(max-width:1000px){.pc-metrics{grid-template-columns:repeat(2,minmax(125px,1fr))}.pc-top{flex-direction:column}.price-control{padding:15px 10px}}
 </style>
-{% endblock %}
-{% block content %}
+
 <div class="price-control">
   <a href="{% url 'inventory:overview' %}" class="pc-back">← Учёт товаров и денег</a>
   <div class="pc-top">
