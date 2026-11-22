@@ -42,7 +42,7 @@
 <label for="price-file-{{ card.code }}">Прайс XLSX или CSV</label>
 <input id="price-file-{{ card.code }}" type="file" name="file" accept=".xlsx,.csv" required>
 <label for="price-date-{{ card.code }}">Дата актуальности прайса</label>
-<input id="price-date-{{ card.code }}" type="date" name="checked_on" value="{{ today }}" max="{{ today }}" required>
+<input id="price-date-{{ card.code }}" type="date" name="checked_on" max="{{ today }}" required>
 <button type="submit">↑ Загрузить прайс {{ card.code }}</button>
 </form>
 </section>
