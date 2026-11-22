@@ -7,7 +7,6 @@ from datetime import date
 from decimal import Decimal
 
 from django.contrib import messages
-from django.core.cache import cache
 from django.core.paginator import Paginator
 from django.db import transaction
 from django.shortcuts import redirect, render
@@ -20,7 +19,6 @@ from .models import Offer, Supplier, SupplierComparisonPriceList
 from .views import access, context
 
 SUPPLIER_LABELS = ('Phaeton', 'ZakazAuto', 'Omega')
-CACHE_KEY = 'procurement:supplier-price-comparison:v2'
 
 
 def _supplier_key(name):
@@ -146,7 +144,6 @@ def supplier_price_comparison(request):
     if request.method == 'POST':
         action = request.POST.get('action')
         if action == 'recalculate':
-            cache.delete(CACHE_KEY)
             messages.success(request, 'Сравнение пересчитано по сохранённым прайсам.')
             return redirect('procurement:supplier_price_comparison')
         if action != 'upload':
@@ -185,15 +182,13 @@ def supplier_price_comparison(request):
                              'Сравнение обновлено.')
         return redirect('procurement:supplier_price_comparison')
 
-    snapshot = cache.get(CACHE_KEY)
-    if snapshot is None:
-        snapshot = _snapshot()
-        cache.set(CACHE_KEY, snapshot, 300)
+    # Prices and stock are deliberately not stored in Django's shared cache.
+    snapshot = _snapshot()
     uploads = {batch.supplier_code: batch for batch in SupplierComparisonPriceList.objects.all().only(
         'supplier_code', 'filename', 'checked_on', 'uploaded_at', 'row_count',
         'available_count', 'skipped_count')}
     cards = [{'code': code, 'batch': uploads.get(code),
-              'fallback': snapshot.get(code, {}).get('source') == 'catalogue',
+              'fallback': code == 'Omega' and code not in uploads and snapshot['counts'][code] > 0,
               'count': snapshot['counts'][code]} for code in SUPPLIER_LABELS]
     search = (request.GET.get('q') or '').strip()[:100]
     supplier = (request.GET.get('supplier') or '').strip()
