@@ -90,6 +90,7 @@ def import_apify_recheck_results(raw, filename, user):
         'rejected_unconfirmed_price': 0,
         'recheck_matched_cards': 0, 'recheck_price_cards': 0,
         'recheck_unrelated': 0, 'recheck_missing_sellers': 0,
+        'recheck_duplicate_supplier_sku': 0,
         'recheck_offer_updates': 0,
     }
     if commission is None or expenses is None:
@@ -111,7 +112,15 @@ def import_apify_recheck_results(raw, filename, user):
         tokens = article_tokens(title)
         matching = [offer for offer in index.get(brand, [])
                     if normalize_article(offer.article) in tokens]
-        if len(matching) != 1:
+        # Omega may have two Offer rows for the same case-insensitive
+        # brand+article, with contradictory stock snapshots (e.g. old 0,
+        # new >20). Never silently select one row or treat this as an
+        # unrelated Kaspi card: require reconciliation of supplier identity.
+        if len(matching) > 1:
+            stats['unmatched'] += 1
+            stats['recheck_duplicate_supplier_sku'] += 1
+            continue
+        if not matching:
             stats['unmatched'] += 1
             stats['recheck_unrelated'] += 1
             continue
