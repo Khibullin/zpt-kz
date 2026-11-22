@@ -18,7 +18,7 @@
 <a href="{% url 'procurement:kaspi_products' %}" {% if request.resolver_match.url_name == 'kaspi_products' %}aria-current="page"{% endif %}>Товары для Kaspi</a>
 {% if can_manage %}<a href="{% url 'procurement:selection_rules' %}" {% if request.resolver_match.url_name == 'selection_rules' %}aria-current="page"{% endif %}>Подготовка товаров к закупке</a>{% endif %}
 {% if request.user.is_superuser or role == "admin" %}<a href="{% url 'inventory:purchases' %}" {% if request.resolver_match.url_name == 'purchases' %}aria-current="page"{% endif %}>Учёт закупок</a>{% endif %}
-{% if request.user.is_staff %}<a href="{% url 'repricer:dashboard' %}" {% if request.resolver_match.namespace == 'repricer' %}aria-current="page"{% endif %}>Контроль цен Kaspi</a>{% endif %}
+
 <div class="role">{{ request.user.get_username }}<br>{% if role == 'admin' %}Администратор{% elif role == 'sales' %}Менеджер-продажник{% else %}Пользователь{% endif %}</div>{% if request.user.is_authenticated %}<form method="post" action="{% url 'procurement:logout' %}">{% csrf_token %}<button>Выйти</button>
 </form>{% endif %}</aside>{% endif %}
 <main{% if request.GET.compact or not can_access_procurement %} style="margin-left:0;padding:16px"{% endif %}>{% if can_access_procurement %}<nav class="office-home-nav" aria-label="Служебная навигация">{% block workspace_back %}{% endblock %}<a class="office-back-link office-home-button" href="{% url 'office_home' %}">← Служебный кабинет</a></nav>{% endif %}{% for message in messages %}<div class="notice" role="status">{{ message }}</div>{% endfor %}{% block content %}{% endblock %}<footer>Закупки и продажи · ZPT.KZ · Неизвестные данные не считаются нулём. Отзывы не равны продажам.</footer>
