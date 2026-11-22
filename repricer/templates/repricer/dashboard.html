@@ -196,7 +196,7 @@
   };
   const link = (template) => template.replace("999999", String(runId));
   function sourceBlocked(value) {
-    return /\\b(?:401|403|405|429)\\b|отклонил|ограничил частоту/i.test(value || "");
+    return /\b(?:401|403|405|429)\b|отклонил|ограничил частоту/i.test(value || "");
   }
   function buttons() {
     const running = active || status === "running";
