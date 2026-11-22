@@ -161,7 +161,8 @@ def repricer_product(request, listing_id):
     offers = list(snapshots.filter(captured_at=latest, is_available=True)
                   .order_by("price", "pk")) if latest else []
     own_ids, _ = configured_own_merchants()
-    offers = [o for o in offers if o.seller_code.strip().casefold() not in own_ids]
+    # Never label unknown own-merchant offers as competitors.
+    offers = [o for o in offers if o.seller_code.strip().casefold() not in own_ids] if own_ids else []
     for offer in offers:
         offer.city_name = CITY_BY_ID.get(offer.city_id, "Не указан")
     response = render(request, "repricer/product.html", {
