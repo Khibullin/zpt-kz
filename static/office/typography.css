@@ -1,0 +1,102 @@
+/*
+ * ZPT.KZ — unified back-office typography, 22 November 2026.
+ * Shared by office landing, procurement and control panel.
+ * Typography only: no changes to layout, business logic or status colors.
+ */
+:root {
+  --office-font-family: Arial, Helvetica, sans-serif;
+  --office-font-body: 15px;
+  --office-font-page: 26px;
+  --office-font-section: 20px;
+  --office-font-subsection: 17px;
+  --office-font-label: 14px;
+  --office-font-table: 14px;
+  --office-font-table-heading: 13px;
+  --office-font-note: 13px;
+}
+.office-workspace {
+  font-family: var(--office-font-family);
+  font-size: var(--office-font-body);
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+}
+.office-workspace button,
+.office-workspace input,
+.office-workspace select,
+.office-workspace textarea {
+  font-family: var(--office-font-family);
+}
+.office-workspace :is(.office-main, .cp-main, main) h1 {
+  font-size: var(--office-font-page);
+  line-height: 1.2;
+  font-weight: 700;
+}
+.office-workspace :is(.office-main, .cp-main, main) h2 {
+  font-size: var(--office-font-section);
+  line-height: 1.3;
+  font-weight: 700;
+}
+.office-workspace :is(.office-main, .cp-main, main) h3 {
+  font-size: var(--office-font-subsection);
+  line-height: 1.35;
+  font-weight: 600;
+}
+.office-workspace :is(.office-main, .cp-main, main) :is(p, li) {
+  line-height: 1.5;
+}
+.office-workspace :is(.office-main, .cp-main, main) :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea) {
+  font-size: var(--office-font-body);
+  line-height: 1.4;
+}
+.office-workspace :is(.office-main, .cp-main, main) :is(button, .button, .office-button, .cp-btn) {
+  font-size: var(--office-font-label);
+  font-weight: 600;
+  line-height: 1.35;
+}
+.office-workspace :is(.office-main, .cp-main, main) :is(th, .cp-table th) {
+  font-size: var(--office-font-table-heading);
+  font-weight: 600;
+  line-height: 1.4;
+}
+.office-workspace :is(.office-main, .cp-main, main) :is(td, .cp-table td) {
+  font-size: var(--office-font-table);
+  line-height: 1.45;
+}
+.office-workspace :is(.office-main, .cp-main, main) :is(label, .cp-filters label, .buying-upload label) {
+  font-size: var(--office-font-label);
+  line-height: 1.4;
+}
+.office-workspace :is(.office-main, .cp-main, main) :is(.muted, .cp-breadcrumbs, .cp-kpi-hint, .office-subtitle) {
+  font-size: var(--office-font-note);
+  line-height: 1.5;
+}
+.office-workspace :is(.office-main, .cp-main, main) small {
+  font-size: 12px;
+  line-height: 1.4;
+}
+.office-workspace :is(.office-main, .cp-main, main) :is(.cp-kpi-value, .buying-summary strong, .result-count strong) {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+/* Increase the specificity for the historically inconsistent modules. */
+body.office-procurement main :is(.rule-header h1, .compact-header h1) { font-size: var(--office-font-page); }
+body.office-procurement main :is(.rule-card h2, .step-heading h2) { font-size: var(--office-font-section); }
+body.office-procurement main :is(.rule-card h3, .step-card h3) { font-size: var(--office-font-subsection); }
+body.office-procurement main :is(.step-results th, .buying-table th) { font-size: var(--office-font-table-heading); }
+body.office-procurement main :is(.step-results td, .buying-table td) { font-size: var(--office-font-table); }
+body.office-procurement main :is(.rule-field > label, .rule-field > span, .buying-upload label) { font-size: var(--office-font-label); }
+body.office-control .cp-main .cp-h1 { font-size: var(--office-font-page); font-weight: 700; }
+body.office-control .cp-main .cp-kpi-value { font-size: 24px; font-weight: 700; }
+body.office-control .cp-main .cp-table th { font-size: var(--office-font-table-heading); }
+body.office-control .cp-main .cp-table td { font-size: var(--office-font-table); }
+body.office-control .cp-main .cp-filters label { font-size: var(--office-font-label); }
+body.office-body .office-main .office-subtitle { font-size: var(--office-font-body); }
+body.office-body .office-main .office-launcher-heading h1 { font-size: var(--office-font-page); }
+body.office-body .office-main .office-launcher-card h2 { font-size: var(--office-font-section); }
+body.office-body .office-main .office-button { font-size: var(--office-font-label); }
+@media (max-width: 600px) {
+  :root { --office-font-page: 23px; --office-font-section: 18px; --office-font-subsection: 16px; }
+  .office-workspace :is(.office-main, .cp-main, main) h1 { overflow-wrap: anywhere; }
+}
