@@ -6,6 +6,49 @@
 </style>
 <div class="price-compare">
 <header><div><h1>⚖ Сравнение цен поставщиков</h1><p class="muted">Одинаковый бренд и полный артикул — одна строка. Зелёным выделена минимальная закупочная цена при наличии.</p></div></header>
+<style>
+.price-compare .upload-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:12px 0 16px}
+.price-compare .upload-card{background:#fff;border:1px solid #dbe4ee;border-radius:10px;padding:16px;min-width:0}
+.price-compare .upload-card h3{font-size:17px;margin:0 0 8px}
+.price-compare .upload-card form{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.price-compare .upload-card input[type=file]{width:100%;font-size:12px;padding:8px}
+.price-compare .upload-card input[type=date]{width:100%}
+.price-compare .upload-card .status{font-size:12px;color:#63748a;line-height:1.6}
+.price-compare .upload-card .status strong{color:#08713b}
+.price-compare .upload-title{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+@media(max-width:1020px){.price-compare .upload-grid{grid-template-columns:1fr}}
+</style>
+<div class="upload-title"><h2>Обновление прайсов поставщиков</h2>
+<form method="post">{% csrf_token %}<input type="hidden" name="action" value="recalculate"><button class="primary" type="submit">↻ Пересчитать сравнение</button></form>
+</div>
+<div class="upload-grid">
+{% for card in cards %}
+<section class="upload-card">
+<h3>{{ card.code }} {% if card.batch %}<span class="badge" style="background:#dcfce7;color:#08713b">Загружен</span>{% elif card.code == 'Omega' and card.count %}<span class="badge">Сохранённый каталог</span>{% else %}<span class="badge weak">Прайс не загружен</span>{% endif %}</h3>
+<div class="status">
+{% if card.batch %}
+<div>Последняя загрузка: <strong>{{ card.batch.uploaded_at|date:"d.m.Y H:i" }}</strong></div>
+<div>Дата прайса: {{ card.batch.checked_on|date:"d.m.Y" }}</div>
+<div>Файл: {{ card.batch.filename }}</div>
+<div>Строк: {{ card.batch.row_count }} · С наличием: <strong>{{ card.batch.available_count }}</strong></div>
+{% if card.batch.skipped_count %}<div>Пропущено строк: {{ card.batch.skipped_count }}</div>{% endif %}
+{% elif card.code == 'Omega' and card.count %}
+<div>Временно показаны товары из существующего каталога.</div><div>Для актуального сравнения загрузите новый прайс.</div>
+{% else %}<div>Нет загруженного прайса для сравнения.</div>{% endif %}
+</div>
+<form method="post" enctype="multipart/form-data">
+{% csrf_token %}<input type="hidden" name="action" value="upload">
+<input type="hidden" name="supplier" value="{{ card.code }}">
+<label for="price-file-{{ card.code }}">Прайс XLSX или CSV</label>
+<input id="price-file-{{ card.code }}" type="file" name="file" accept=".xlsx,.csv" required>
+<label for="price-date-{{ card.code }}">Дата актуальности прайса</label>
+<input id="price-date-{{ card.code }}" type="date" name="checked_on" value="{{ today }}" max="{{ today }}" required>
+<button type="submit">↑ Загрузить прайс {{ card.code }}</button>
+</form>
+</section>
+{% endfor %}
+</div>
+<p class="muted">Каждая загрузка заменяет только сравнительный прайс выбранного поставщика. Рабочие товары, Kaspi и список закупки не изменяются. После успешной загрузки сравнение пересчитывается автоматически.</p>
 <div class="summary">
 <div class="metric"><span>Уникальных товаров</span><strong>{{ snapshot.rows|length }}</strong></div>
 <div class="metric"><span>У 2+ поставщиков</span><strong>{{ snapshot.shared }}</strong></div>
