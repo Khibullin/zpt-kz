@@ -6,13 +6,16 @@ proof of an actual seller offer or a correct vehicle-part execution.
 from decimal import Decimal
 
 from .models import PermanentBuyingItem, KaspiBuyingCandidate
+from .omega_policy import POSITIVE_STOCK_PATTERN
+import re
 
 
 def blocked_permanent_offer_ids(offer_ids):
     items = list(PermanentBuyingItem.objects.filter(
         offer_id__in=offer_ids).only(
             'offer_id', 'product_id', 'source', 'identity_status',
-            'roi_snapshot', 'kaspi_price_snapshot'))
+            'roi_snapshot', 'kaspi_price_snapshot', 'cost_snapshot',
+            'offer__cost', 'offer__stock').select_related('offer'))
     candidate_map = {
         c.product_id: c.city_offers
         for c in KaspiBuyingCandidate.objects.filter(
@@ -23,7 +26,9 @@ def blocked_permanent_offer_ids(offer_ids):
     for item in items:
         if (item.source != 'apify'
                 or item.identity_status != 'verified'
-                or item.roi_snapshot < Decimal('50')):
+                or item.roi_snapshot < Decimal('50')
+                or item.cost_snapshot != item.offer.cost
+                or not re.match(POSITIVE_STOCK_PATTERN, str(item.offer.stock or ''))):
             blocked.add(item.offer_id)
             continue
         prices = []
