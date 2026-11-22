@@ -1,4 +1,5 @@
 {% extends 'procurement/base.html' %}
+{% load l10n %}
 {% block title %}Подготовка товаров к закупке · ZPT.KZ
 {% endblock %}
 {% block content %}
@@ -254,8 +255,8 @@
         <td>{{ saved.details.total }}</td>
         <td>{{ saved.details.query_count }}<small>{{ saved.details.status }}</small></td>
         <td>{% if saved.legacy %}9 файлов подготовлены ранее{% else %}{% for batch in saved.export_batches %}
-          <a data-apify-export-link href="{% url 'procurement:selection_apify_json' %}?request_id={{ saved.id }}&amp;batch={{ batch }}">JSON {{ batch }}</a>
-          <a data-apify-export-link href="{% url 'procurement:selection_apify_json' %}?request_id={{ saved.id }}&amp;batch={{ batch }}&amp;format=mapping">Соответствие</a>
+          <a data-apify-export-link href="{% url 'procurement:selection_apify_json' %}?request_id={{ saved.id|unlocalize }}&amp;batch={{ batch }}">JSON {{ batch }}</a>
+          <a data-apify-export-link href="{% url 'procurement:selection_apify_json' %}?request_id={{ saved.id|unlocalize }}&amp;batch={{ batch }}&amp;format=mapping">Соответствие</a>
         {% endfor %}{% endif %}</td>
       </tr>{% endfor %}</tbody></table>
     </div>
@@ -581,8 +582,8 @@ document.addEventListener('DOMContentLoaded',function(){
     {% if just_saved_request %}
       <span><strong>{{ just_saved_request.details.title }}</strong>: {{ just_saved_request.details.total }} товаров, {{ just_saved_request.details.query_count }} поисковых запросов. Скачайте партии:</span>
       {% for batch in just_saved_batches %}
-      <a class="button primary" data-apify-export-link href="{% url 'procurement:selection_apify_json' %}?request_id={{ just_saved_request.pk }}&amp;batch={{ batch }}">↓ JSON №{{ batch }}</a>
-      <a class="button" data-apify-export-link href="{% url 'procurement:selection_apify_json' %}?request_id={{ just_saved_request.pk }}&amp;batch={{ batch }}&amp;format=mapping">Соответствие №{{ batch }}</a>
+      <a class="button primary" data-apify-export-link href="{% url 'procurement:selection_apify_json' %}?request_id={{ just_saved_request.pk|unlocalize }}&amp;batch={{ batch }}">↓ JSON №{{ batch }}</a>
+      <a class="button" data-apify-export-link href="{% url 'procurement:selection_apify_json' %}?request_id={{ just_saved_request.pk|unlocalize }}&amp;batch={{ batch }}&amp;format=mapping">Соответствие №{{ batch }}</a>
       {% endfor %}
     {% else %}
       <span>Сначала выберите товары в блоке №1 и сохраните запрос. Файлы прошлых запросов доступны в «Истории запросов».</span>
