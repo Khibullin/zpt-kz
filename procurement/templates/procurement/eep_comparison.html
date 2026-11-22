@@ -103,6 +103,23 @@
 {% endif %}
  {% if material and material.kaspi_status == "unavailable" %}<p class="eep-muted" role="status">Данные Kaspi не загружены автоматически: {{ material.kaspi_error }}</p>{% elif material and material.kaspi_status == "manual_verified" %}<p class="eep-muted" role="status">Характеристики сверены по предоставленному снимку страницы Kaspi. Автоматический доступ ограничен (HTTP 429).</p>{% endif %}</section>
 </div>
+{% if can_review_identity %}
+<section class="eep-source" style="margin-top:13px" aria-label="Решение о соответствии">
+ <h2>Результат проверки товара</h2>
+ <p class="eep-muted">Текущий статус: <strong>{% if audit_identity_status == 'verified' %}Совпадение подтверждено{% elif audit_identity_status == 'mismatch' %}Не соответствует{% else %}Требует проверки{% endif %}</strong></p>
+ <form method="post" action="{% url 'procurement:comparison_review_identity' offer.pk %}" style="display:grid;gap:10px">
+  {% csrf_token %}
+  <input type="hidden" name="source_file" value="{{ comparison_source }}">
+  <input type="hidden" name="product_id" value="{{ selected_product_id }}">
+  <label><input type="radio" name="identity_status" value="needs_review" {% if audit_identity_status != 'verified' and audit_identity_status != 'mismatch' %}checked{% endif %}> Требует проверки</label>
+  <label><input type="radio" name="identity_status" value="verified" {% if audit_identity_status == 'verified' %}checked{% endif %}> Совпадение подтверждено</label>
+  <label><input type="radio" name="identity_status" value="mismatch" {% if audit_identity_status == 'mismatch' %}checked{% endif %}> Не соответствует</label>
+  <label style="font-size:13px"><input type="checkbox" name="confirm_all" value="yes"> Я проверил наименование, бренд, артикул, фото, характеристики, применимость и комплектность. При отсутствии сведений оставляю статус «Требует проверки».</label>
+  <div><button class="button primary" type="submit">Сохранить решение</button></div>
+ </form>
+ <p class="eep-muted" style="font-size:12px">Подтверждение возможно только после сохранения проверенных сведений Kaspi и при наличии подтверждённых фото, характеристик, применимости и комплектности. История решений сохраняется; цены не изменяются.</p>
+</section>
+{% endif %}
 <section class="eep-fields" aria-label="Сравнение полей">
 {% for row in rows %}
  <div class="eep-label">{{ row.label }}</div>
