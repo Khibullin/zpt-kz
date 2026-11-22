@@ -67,6 +67,7 @@ urlpatterns = [
     path('comparison/<int:pk>/manage-screenshot/', comparison_clipboard.manage_kaspi_screenshot, name='comparison_manage_screenshot'),
     path('comparison/<int:pk>/recognize-screenshots/', comparison_clipboard.recognize_kaspi_screenshots, name='comparison_recognize_screenshots'),
     path('comparison/<int:pk>/confirm-screenshots/', comparison_clipboard.confirm_kaspi_screenshots, name='comparison_confirm_screenshots'),
+    path('comparison/<int:pk>/review-identity/', comparison_clipboard.review_kaspi_identity, name='comparison_review_identity'),
     path('comparison/eep-59a200068/', eep_comparison.eep_comparison, name='eep_comparison'),
     path('product/<int:pk>/', views.detail, name='detail'),
     path('product/<int:pk>/select/', views.select, name='select'),
