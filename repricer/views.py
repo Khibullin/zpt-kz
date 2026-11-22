@@ -144,6 +144,7 @@ def repricer_dashboard(request):
         ).count(),
         "collection_cities": KASPI_KZ_CITIES,
         "manual_run": KaspiManualCollectionRun.objects.filter(created_by=request.user).first(),
+        "kaspi_upload_result": request.session.get("kaspi_upload_result"),
     })
     response["X-Robots-Tag"] = "noindex, nofollow"
     return response
