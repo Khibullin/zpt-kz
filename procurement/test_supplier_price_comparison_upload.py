@@ -1,0 +1,68 @@
+"""The comparison upload is isolated from operational purchasing."""
+from datetime import date
+from decimal import Decimal
+from io import BytesIO
+from unittest.mock import patch
+
+from django.contrib.auth import get_user_model
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import TestCase
+from django.urls import reverse
+from openpyxl import Workbook
+
+from procurement.models import Offer, Supplier, SupplierComparisonPriceList
+from procurement.supplier_price_comparison import _snapshot
+
+
+def price_file(lines):
+    book = Workbook()
+    sheet = book.active
+    sheet.append(['Бренд', 'Артикул', 'Наименование', 'Цена', 'Остаток'])
+    for row in lines:
+        sheet.append(row)
+    buffer = BytesIO()
+    book.save(buffer)
+    return SimpleUploadedFile('supplier.xlsx', buffer.getvalue(),
+                              content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+
+
+class SupplierPriceComparisonTests(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_superuser(
+            username='comparison_admin', email='comparison@example.com', password='test-pass')
+        self.client.force_login(self.user)
+        self.url = reverse('procurement:supplier_price_comparison')
+        self.omega = Supplier.objects.create(name='Omega')
+        Offer.objects.create(supplier=self.omega, brand='WINKOD', article='WS9991',
+                             name='Test', cost=Decimal('1800'), stock='2')
+
+    def upload(self, code, rows):
+        return self.client.post(self.url, {
+            'action': 'upload', 'supplier': code,
+            'checked_on': date.today().isoformat(),
+            'file': price_file(rows)}, follow=True)
+
+    def test_upload_replaces_only_comparison_snapshot(self):
+        response = self.upload('Phaeton', [['WINKOD', 'WS9991', 'Part', 2300, 8]])
+        self.assertEqual(response.status_code, 200)
+        batch = SupplierComparisonPriceList.objects.get(supplier_code='Phaeton')
+        self.assertEqual(batch.available_count, 1)
+        self.assertEqual(Offer.objects.get(supplier=self.omega).cost, Decimal('1800'))
+        self.assertEqual(_snapshot()['wins']['Omega'], 1)
+
+    def test_invalid_upload_preserves_previous_snapshot(self):
+        self.upload('ZakazAuto', [['WINKOD', 'WS9991', 'Part', 1300, 8]])
+        previous = SupplierComparisonPriceList.objects.get(supplier_code='ZakazAuto')
+        self.upload('ZakazAuto', [['', '', '', 0, '']])
+        previous.refresh_from_db()
+        self.assertEqual(previous.available_count, 1)
+        self.assertEqual(previous.rows[0]['cost'], '1300')
+
+    def test_cheapest_and_equal_prices(self):
+        self.upload('Phaeton', [['WINKOD', 'WS9991', 'Part', 2000, 5]])
+        self.upload('ZakazAuto', [['WINKOD', 'WS9991', 'Part', 2000, 4]])
+        groups = _snapshot()
+        self.assertEqual(groups['shared'], 1)
+        self.assertEqual(groups['wins']['Omega'], 1)
+        self.assertEqual(groups['rows'][0]['saving'], Decimal('200'))
+        self.assertEqual(self.client.post(self.url, {'action': 'recalculate'}).status_code, 302)
