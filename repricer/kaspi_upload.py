@@ -19,6 +19,7 @@ from catalog.kaspi_listing_facts import (
 )
 from catalog.models import KaspiListingFactSnapshot, SellerProfile
 from .models import KaspiActiveExportRow
+from catalog.warehouse_stock_sync import parse_stock_quantity
 
 def _optional_index(headers, names):
     normalized = [normalize_header(x) for x in headers]
@@ -46,13 +47,20 @@ def _persist_active_rows(result, source_rows):
     records = []
     for row in result.rows:
         values = original.get(row.row_number, [])
+        # Preserve usable prices/quantities even for unmatched or duplicate
+        # source SKUs; do not confuse missing or invalid values with zero.
+        raw_price = values[result.column_map["price"]] if len(values) > result.column_map["price"] else None
+        raw_qty = values[result.column_map["quantity"]] if len(values) > result.column_map["quantity"] else None
+        observed_price, price_error = parse_stock_quantity(raw_price)
+        observed_qty, qty_error = parse_stock_quantity(raw_qty)
         records.append(KaspiActiveExportRow(
             batch=batch, row_number=row.row_number,
             master_sku=row.master_sku[:128],
             product_name=_optional_text(values, indices["name"], 500),
             brand=_optional_text(values, indices["brand"], 150),
             merchant_sku=row.merchant_sku or _optional_text(values, indices["merchant"], 128),
-            price=row.observed_price, quantity=row.observed_qty,
+            price=observed_price if not price_error else None,
+            quantity=observed_qty if not qty_error else None,
             listing_id=row.listing_id, status=row.status, reason=row.reason[:255],
         ))
     if not records:
