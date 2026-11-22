@@ -8,12 +8,61 @@ from zipfile import BadZipFile
 from tempfile import TemporaryDirectory
 
 from django.contrib import messages
+from django.db import transaction
 from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import redirect
 from django.views.decorators.http import require_POST
 
-from catalog.kaspi_listing_facts import summarize_kaspi_fact_rows, sync_kaspi_listing_facts
+from catalog.ag_parts_import import cell_text, normalize_header
+from catalog.kaspi_listing_facts import (
+    load_kaspi_fact_rows, summarize_kaspi_fact_rows, sync_kaspi_listing_facts,
+)
 from catalog.models import KaspiListingFactSnapshot, SellerProfile
+from .models import KaspiActiveExportRow
+
+def _optional_index(headers, names):
+    normalized = [normalize_header(x) for x in headers]
+    wanted = {normalize_header(x) for x in names}
+    return next((i for i, name in enumerate(normalized) if name in wanted), None)
+
+
+def _optional_text(values, index, limit):
+    if index is None or index >= len(values):
+        return ""
+    return cell_text(values[index])[:limit]
+
+
+def _persist_active_rows(result, source_rows):
+    """Preserve every file row, including unresolved/invalid, without inventing matches."""
+    from catalog.models import CatalogImportBatch
+    batch = CatalogImportBatch.objects.get(pk=result.batch_id)
+    headers = result.headers
+    indices = {
+        "name": _optional_index(headers, ("Название", "Наименование", "Наименование товара", "Название товара", "name", "title", "product name")),
+        "brand": _optional_index(headers, ("Бренд", "Марка", "brand")),
+        "merchant": _optional_index(headers, ("Merchant SKU", "merchant_sku", "Артикул продавца", "Артикул", "Код товара продавца")),
+    }
+    original = {number: values for number, values in source_rows}
+    records = []
+    for row in result.rows:
+        values = original.get(row.row_number, [])
+        records.append(KaspiActiveExportRow(
+            batch=batch, row_number=row.row_number,
+            master_sku=row.master_sku[:128],
+            product_name=_optional_text(values, indices["name"], 500),
+            brand=_optional_text(values, indices["brand"], 150),
+            merchant_sku=row.merchant_sku or _optional_text(values, indices["merchant"], 128),
+            price=row.observed_price, quantity=row.observed_qty,
+            listing_id=row.listing_id, status=row.status, reason=row.reason[:255],
+        ))
+    if not records:
+        raise ValueError("В выгрузке нет строк товаров.")
+    KaspiActiveExportRow.objects.bulk_create(records, batch_size=500)
+    # A fully uploaded ACTIVE file defines the assortment, even when some SKU
+    # need reconciliation. No catalog products or Kaspi publication are created.
+    batch.source_scope = CatalogImportBatch.SCOPE_FULL
+    batch.save(update_fields=["source_scope"])
+
 
 MAX_UPLOAD_BYTES = 15 * 1024 * 1024
 ALLOWED_SUFFIXES = {".xlsx", ".csv"}
@@ -46,12 +95,17 @@ def upload_kaspi_assortment(request):
             with path.open("wb") as destination:
                 for chunk in upload.chunks():
                     destination.write(chunk)
-            result = sync_kaspi_listing_facts(
-                path=path,
-                seller=matches[0],
-                apply=True,
-                source=KaspiListingFactSnapshot.SOURCE_MANUAL_IMPORT,
-            )
+            _sheet, _headers, _mapping, source_rows = load_kaspi_fact_rows(path)
+            if not source_rows:
+                raise ValueError("В файле нет товаров.")
+            with transaction.atomic():
+                result = sync_kaspi_listing_facts(
+                    path=path,
+                    seller=matches[0],
+                    apply=True,
+                    source=KaspiListingFactSnapshot.SOURCE_ACTIVE_XLSX,
+                )
+                _persist_active_rows(result, source_rows)
     except (ValueError, OSError, KeyError, RuntimeError, BadZipFile) as exc:
         messages.error(request, "Выгрузку не удалось прочитать: " + str(exc)[:250])
         return redirect("repricer:dashboard")
@@ -70,6 +124,7 @@ def upload_kaspi_assortment(request):
         "invalid": counts["invalid_price"] + counts["invalid_quantity"],
         "duplicates": counts["duplicate_master_sku"],
         "skipped": problems,
+        "active_source": True,
         "unmapped_examples": [
             {"sku": row.master_sku[:90], "status": row.status}
             for row in result.rows
@@ -80,6 +135,6 @@ def upload_kaspi_assortment(request):
         request,
         f"Файл Kaspi обработан: строк {counts['total_rows']}, "
         f"найдено наших товаров {matched}, обновлено цен/остатков {counts['updated']}, "
-        f"не сопоставлено/ошибок {problems}. Складские остатки не изменены."
+        f"не сопоставлено/ошибок {problems}. Все строки ACTIVE сохранены для репрайсинга. Складские остатки не изменены."
     )
     return redirect("repricer:dashboard")
