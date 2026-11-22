@@ -26,7 +26,7 @@
 .pc-inline-link{color:#087e88;font-weight:700;text-decoration:underline}.pc-delta-high{color:#b91c1c;font-weight:700}.pc-delta-low{color:#067857;font-weight:700}
 .pc-stale{font-size:11px;color:#ad6800}.pc-blank{color:#8898aa}.pc-status{font-size:11px;color:#62748a;display:block;margin-top:3px}
 .pc-open{font-weight:700;white-space:nowrap;color:#007c70;text-decoration:none}.pc-open:hover{text-decoration:underline}
-.pc-empty{padding:32px;text-align:center;color:#64748b}
+.pc-empty{padding:32px;text-align:center;color:#64748b}.pc-new-price{width:105px;padding:8px;border-radius:7px;border:1px solid #cbd5e1;font:inherit;color:#142e4d}
 .pc-pager{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;margin:15px 0 22px;font-size:13px}
 .pc-pager a{display:inline-block;padding:8px 11px;border:1px solid #cbd5e1;border-radius:6px;text-decoration:none;color:#142e4d}
 .pc-pager .is-current{background:#007c70;color:white}
@@ -45,6 +45,7 @@
     <div><h1>Контроль цен Kaspi</h1><p>Наши товары, цены конкурентов и ручная подготовка новых цен. Автоматическое изменение цен отключено.</p></div>
     <div class="pc-actions">
       <a class="pc-button" href="#collector">↻ Собрать цены</a>
+      <button class="pc-button pc-button-primary" type="submit" form="bulk-price-form">Сохранить изменения</button>
       <a class="pc-button pc-button-primary" href="{% url 'repricer:export' %}">⬇ Скачать Excel</a>
     </div>
   </div>
@@ -70,6 +71,7 @@
     <button type="submit" class="pc-button">Показать</button>
     <a class="pc-button" href="{% url 'repricer:dashboard' %}">Сбросить</a>
   </form>
+  <form method="post" id="bulk-price-form" action="{% url 'repricer:save_prices' %}">{% csrf_token %}
   <div class="pc-table-wrap">
     <table class="pc-table">
       <thead><tr>
@@ -93,13 +95,14 @@
           <td class="money">{% if row.our != None %}<strong>{{ row.our|intcomma }}</strong>{% else %}—{% endif %}</td>
           <td class="money">{% if row.state.best_price != None %}{{ row.state.best_price|floatformat:0|intcomma }}{% if row.state.is_stale %}<span class="pc-stale">Устарело</span>{% endif %}{% else %}—{% endif %}</td>
           <td><a class="pc-inline-link" href="{% url 'repricer:product' row.listing.pk %}">{{ row.state.competitor_count }}</a><span class="pc-status">{{ row.state.state_label }}</span></td>
-          <td class="money">{% if row.draft %}<strong>{{ row.draft.price|intcomma }}</strong><span class="pc-sub">Черновик</span>{% else %}<span class="pc-blank">—</span>{% endif %}</td>
+          <td class="money"><input class="pc-new-price" aria-label="Новая цена для {{ row.listing.product.article }}" name="price_{{ row.listing.pk }}" type="number" min="1" max="999999999" step="1" value="{% if row.draft %}{{ row.draft.price }}{% elif row.our != None %}{{ row.our }}{% endif %}">{% if row.draft %}<span class="pc-sub">Черновик</span>{% endif %}</td>
           <td class="money">{% if row.delta != None %}<span class="{% if row.delta > 0 %}pc-delta-high{% elif row.delta < 0 %}pc-delta-low{% endif %}">{{ row.delta|floatformat:0|intcomma }}</span>{% else %}—{% endif %}</td>
           <td><a class="pc-open" href="{% url 'repricer:product' row.listing.pk %}">Открыть ↗</a></td>
         </tr>
       {% empty %}<tr><td colspan="10" class="pc-empty">По выбранным фильтрам товаров нет.</td></tr>{% endfor %}</tbody>
     </table>
   </div>
+  </form>
   <div class="pc-pager">
     <span>Показано {{ page.start_index }}–{{ page.end_index }} из {{ page.paginator.count }} товаров</span>
     <div>
