@@ -85,6 +85,35 @@ class PermanentBuyingPageTests(TestCase):
         self.assertEqual(self.dashboard(q='no-such-part').context['total'], 0)
         self.assertEqual(self.dashboard(min_profit='30000').context['total'], 0)
 
+    def test_search_brand_and_article_across_fields(self):
+        # Regression: the site used to return zero for "RAMEDER 20A040152".
+        self.offer.brand = 'RAMEDER'
+        self.offer.article = '20A040152'
+        self.offer.save(update_fields=['brand', 'article'])
+        response = self.dashboard(q='RAMEDER 20A040152')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['total'], 1)
+        self.assertEqual(response.context['page'].object_list[0]['offer'].pk,
+                         self.offer.pk)
+
+    def test_search_brand_and_article_on_default_audited_buying(self):
+        self.offer.brand = 'RAMEDER'
+        self.offer.article = '20A040152'
+        self.offer.save(update_fields=['brand', 'article'])
+        KaspiPriceAudit.objects.create(
+            offer=self.offer, source_filename='kaspi.json',
+            min_price=Decimal('20000'), product_id='123456789',
+            card_url='https://kaspi.kz/shop/p/rameder-123456789/',
+            card_title='Rameder 20A040152 1 шт', seller_name='Seller',
+            cost_snapshot=Decimal('10000'), commission_snapshot=Decimal('12.5'),
+            expenses_snapshot=Decimal('250'), profit=Decimal('7250'),
+            roi=Decimal('72.5000'), card_ids=['123456789'])
+        response = self.client.get(reverse('procurement:dashboard'),
+                                   {'mode': 'best', 'supplier': str(self.supplier.pk),
+                                    'q': 'RAMEDER 20A040152'})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['total'], 1)
+
     def test_rechecked_shortcut_shows_only_audited_items(self):
         other = Offer.objects.create(
             supplier=self.supplier, brand='OTHER', article='B2',
