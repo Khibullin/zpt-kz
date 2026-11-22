@@ -110,12 +110,17 @@ def visible_permanent_buying_rows(request, preferences, filters):
     if filters.get('category'):
         rows = rows.filter(offer__category=filters['category'])
     if filters.get('q'):
-        q = filters['q'].strip()
-        rows = rows.filter(Q(offer__article__icontains=q) |
-                           Q(offer__brand__icontains=q) |
-                           Q(offer__name__icontains=q) |
-                           Q(title__icontains=q) |
-                           Q(offer__applicability__icontains=q))
+        # Search each typed word across all product fields. Full strings such as
+        # "RAMEDER 20A040152" span separate brand/article fields; treating
+        # them as one substring incorrectly returned zero results.
+        for token in filters['q'].split():
+            rows = rows.filter(
+                Q(offer__article__icontains=token) |
+                Q(offer__brand__icontains=token) |
+                Q(offer__name__icontains=token) |
+                Q(title__icontains=token) |
+                Q(offer__applicability__icontains=token)
+            )
     if filters.get('max_cost') is not None:
         rows = rows.filter(cost_snapshot__lte=filters['max_cost'])
     if filters.get('min_profit') is not None:
