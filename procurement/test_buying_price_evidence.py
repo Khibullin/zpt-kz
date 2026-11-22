@@ -1,5 +1,7 @@
 """Evidence gate tests. Retaining a product is not the same as approving a purchase."""
 from decimal import Decimal
+from datetime import timedelta
+from django.utils import timezone
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
@@ -140,3 +142,16 @@ class BuyingPriceEvidenceTests(TestCase):
         audit.refresh_from_db()
         self.assertEqual(audit.identity_status, 'mismatch')
         self.assertEqual(audit.min_price, Decimal('145000'))
+
+    def test_old_seller_evidence_is_not_current_price(self):
+        self._verify_with_seller()
+        KaspiBuyingCandidate.objects.filter(pk=self.candidate.pk).update(
+            imported_at=timezone.now() - timedelta(days=8))
+        self.assertEqual(blocked_permanent_offer_ids({self.offer.pk}), {self.offer.pk})
+
+    def test_old_audit_blocks_purchase_even_if_verified(self):
+        self._verify_with_seller()
+        audit = self._audit(identity_status='verified')
+        KaspiPriceAudit.objects.filter(pk=audit.pk).update(
+            observed_at=timezone.now() - timedelta(days=8))
+        self.assertEqual(blocked_permanent_offer_ids({self.offer.pk}), {self.offer.pk})
