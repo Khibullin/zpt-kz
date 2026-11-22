@@ -83,3 +83,28 @@ class SupplierPriceComparisonTests(TestCase):
         comparison = _snapshot()
         self.assertEqual(comparison['overlaps']['Phaeton_Omega'], 1)
         self.assertEqual(comparison['wins']['Omega'], 1)
+
+    def test_default_minimum_price_is_inclusive_and_configurable(self):
+        self.upload('Phaeton', [
+            ['LOW', 'L01', 'Cheap part', 1999, 5],
+            ['EDGE', 'E01', 'Boundary part', 2000, 4],
+            ['HIGH', 'H01', 'Expensive part', 2500, 3],
+        ])
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'L01')
+        self.assertContains(response, 'E01')
+        self.assertContains(response, 'H01')
+        response = self.client.get(self.url, {'min_cost': '1500'})
+        self.assertContains(response, 'L01')
+        response = self.client.get(self.url, {'min_cost': '2500'})
+        self.assertNotContains(response, 'E01')
+        self.assertContains(response, 'H01')
+
+    def test_price_filter_keeps_real_cheapest_supplier(self):
+        self.upload('Phaeton', [['WINKOD', 'WS9991', 'Part', 2000, 5]])
+        response = self.client.get(self.url)  # Omega is cheaper at 1800
+        self.assertNotContains(response, 'WS9991')
+        response = self.client.get(self.url, {'min_cost': '1800'})
+        self.assertContains(response, 'WS9991')
+        self.assertEqual(_snapshot(Decimal('1800'))['wins']['Omega'], 1)
