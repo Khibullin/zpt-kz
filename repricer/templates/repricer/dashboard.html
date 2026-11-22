@@ -21,7 +21,7 @@
 .pc-monitor-status.is-error{border-color:#efb4a9;background:#fff5f3;color:#8b2116}.pc-monitor-status.is-running{border-color:#8ac8c0;background:#eafaf7}.pc-monitor-status.is-done{border-color:#90d2ad;background:#f0fff6}.pc-monitor-detail{margin:7px 0 0;font-size:12px;color:#63758a}.pc-monitor-status.is-error .pc-monitor-detail{color:#8b2116}.pc-monitor-status progress{accent-color:#007e75}.pc-monitor-status.is-error progress{accent-color:#be4b38}
 .pc-monitor-hint{font-size:12px;color:#64748b;margin:7px 0 0}.pc-button{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:11px 14px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#142e4d;font-weight:700;font-size:13px;text-decoration:none;cursor:pointer}
 .pc-button:hover{background:#eef8f8}.pc-button-primary{background:#007c70;color:white;border-color:#007c70}.pc-button-primary:hover{background:#00675f}.pc-button[disabled]{opacity:.5;cursor:not-allowed}
-.pc-metrics{display:grid;grid-template-columns:repeat(5,minmax(125px,1fr));gap:10px;margin-bottom:18px}
+.pc-metrics{display:grid;grid-template-columns:repeat(6,minmax(125px,1fr));gap:10px;margin-bottom:18px}
 .pc-metric{border:1px solid #d5e1ef;border-radius:12px;background:white;padding:16px;min-height:90px;display:flex;flex-direction:column;justify-content:space-between;gap:7px}
 .pc-metric span{font-size:12px;color:#526780}.pc-metric strong{font-size:27px;color:#142e4d;line-height:1.1}.pc-metric time{font-size:16px;font-weight:700}.pc-filters{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:18px;align-items:center}
 .pc-filters input,.pc-filters select{border:1px solid #cbd5e1;border-radius:8px;background:white;padding:11px;font-size:13px;min-height:41px;color:#142e4d}
@@ -122,10 +122,10 @@
   </details>
   {% endif %}
   <section class="pc-metrics" aria-label="Статистика">
-    <div class="pc-metric"><span>Наших товаров Kaspi</span><strong>{{ summary.total }}</strong></div>
+    <div class="pc-metric"><span>В продаже по ACTIVE.xlsx</span><strong>{{ summary.total }}</strong><span>{% if active_batch %}{{ active_batch.filename }} · {{ active_batch.finished_at|date:"d.m.Y H:i" }}{% else %}Пока показаны привязки ZPT.KZ. Загрузите ACTIVE.xlsx{% endif %}</span></div>
     <div class="pc-metric"><span>С предложениями конкурентов</span><strong>{{ summary.found }}</strong></div>
     <div class="pc-metric"><span>Без проверенных предложений</span><strong>{{ summary.missing }}</strong></div>
-    <div class="pc-metric"><span>Подготовлено цен вручную</span><strong>{{ summary.drafted }}</strong></div>
+    <div class="pc-metric"><span>Не сопоставлено с ZPT.KZ</span><strong>{{ summary.unmatched|default:"0" }}</strong></div><div class="pc-metric"><span>Подготовлено цен вручную</span><strong>{{ summary.drafted }}</strong></div>
     <div class="pc-metric"><span>Последний сбор</span><time>{% if last_collection %}{{ last_collection.captured_at|date:"d.m.Y H:i" }}{% else %}Пока нет{% endif %}</time><span>Городов с данными: {{ covered_city_count }} из {{ city_total }}</span></div>
   </section>
   <form class="pc-filters" method="get" action="{% url 'repricer:dashboard' %}">
@@ -138,6 +138,7 @@
       <option value="missing" {% if status == "missing" %}selected{% endif %}>Без конкурентов</option>
       <option value="higher" {% if status == "higher" %}selected{% endif %}>Наша цена выше</option>
       <option value="draft" {% if status == "draft" %}selected{% endif %}>Изменённые вручную</option>
+      {% if active_batch %}<option value="unmatched" {% if status == "unmatched" %}selected{% endif %}>Не сопоставлены с ZPT.KZ</option>{% endif %}
     </select>
     <button type="submit" class="pc-button">Показать</button>
     <a class="pc-button" href="{% url 'repricer:dashboard' %}">Сбросить</a>
@@ -153,22 +154,28 @@
         <tr>
           <td>
             <div class="pc-product">
-              {% with photo=row.listing.product.storefront_image %}
-              {% if photo %}<img class="pc-thumb" src="{{ photo.url }}" alt="" loading="lazy">
-              {% else %}<span class="pc-thumb" aria-hidden="true"></span>{% endif %}{% endwith %}
-              <div><a href="{% url 'repricer:product' row.listing.pk %}">{{ row.listing.product.title }}</a>
-              <small class="pc-sub">{{ row.listing.product.category.name|default:"Категория не указана" }}</small></div>
+              {% if row.listing %}
+                {% with photo=row.listing.product.storefront_image %}
+                {% if photo %}<img class="pc-thumb" src="{{ photo.url }}" alt="" loading="lazy">
+                {% else %}<span class="pc-thumb" aria-hidden="true"></span>{% endif %}
+                {% endwith %}
+                <div><a href="{% url 'repricer:product' row.listing.pk %}">{% if row.active %}{{ row.item_title }}{% else %}{{ row.listing.product.title }}{% endif %}</a>
+                <small class="pc-sub">{{ row.listing.product.category.name|default:"Категория не указана" }}</small></div>
+              {% else %}
+                <span class="pc-thumb" aria-hidden="true"></span>
+                <div><strong>{{ row.item_title }}</strong><small class="pc-sub">Требует сопоставления · Kaspi SKU: {{ row.active.master_sku }}</small></div>
+              {% endif %}
             </div>
           </td>
-          <td>{{ row.listing.product.article|default:"—" }}<span class="pc-sub">{{ row.listing.product.brand.name|default:"Бренд не указан" }}</span></td>
-          <td class="money">{% if row.listing.last_known_kaspi_qty != None %}{{ row.listing.last_known_kaspi_qty }} шт.{% else %}<span class="pc-blank">—</span>{% endif %}</td>
-          <td class="money">{% if row.listing.product.cost_price != None %}{{ row.listing.product.cost_price|intcomma }}{% else %}—{% endif %}</td>
+          <td>{% if row.active %}{{ row.article }}<span class="pc-sub">{{ row.brand_name }}</span>{% else %}{{ row.listing.product.article|default:"—" }}<span class="pc-sub">{{ row.listing.product.brand.name|default:"Бренд не указан" }}</span>{% endif %}</td>
+          <td class="money">{% if row.active %}{% if row.quantity != None %}{{ row.quantity }} шт.{% else %}—{% endif %}{% elif row.listing.last_known_kaspi_qty != None %}{{ row.listing.last_known_kaspi_qty }} шт.{% else %}—{% endif %}</td>
+          <td class="money">{% if row.listing and row.listing.product.cost_price != None %}{{ row.listing.product.cost_price|intcomma }}{% else %}—{% endif %}</td>
           <td class="money">{% if row.our != None %}<strong>{{ row.our|intcomma }}</strong>{% else %}—{% endif %}</td>
-          <td class="money">{% if row.state.best_price != None %}{{ row.state.best_price|floatformat:0|intcomma }}{% if row.state.is_stale %}<span class="pc-stale">Устарело</span>{% endif %}{% else %}—{% endif %}</td>
-          <td><a class="pc-inline-link" href="{% url 'repricer:product' row.listing.pk %}">{{ row.state.competitor_count }}</a><span class="pc-status">{{ row.state.state_label }}</span></td>
-          <td class="money"><input class="pc-new-price" aria-label="Новая цена для {{ row.listing.product.article }}" name="price_{{ row.listing.pk }}" type="number" min="1" max="999999999" step="1" value="{% if row.draft %}{{ row.draft.price }}{% elif row.our != None %}{{ row.our }}{% endif %}">{% if row.draft %}<span class="pc-sub">Черновик</span>{% endif %}</td>
+          <td class="money">{% if row.active %}{% if row.best != None %}{{ row.best|floatformat:0|intcomma }}{% if row.stale %}<span class="pc-stale">Устарело</span>{% endif %}{% else %}—{% endif %}{% else %}{% if row.state.best_price != None %}{{ row.state.best_price|floatformat:0|intcomma }}{% if row.state.is_stale %}<span class="pc-stale">Устарело</span>{% endif %}{% else %}—{% endif %}{% endif %}</td>
+          <td>{% if row.listing %}<a class="pc-inline-link" href="{% url 'repricer:product' row.listing.pk %}">{% if row.active %}{{ row.count }}{% else %}{{ row.state.competitor_count }}{% endif %}</a>{% else %}—{% endif %}<span class="pc-status">{% if row.active %}{{ row.state_label }}{% else %}{{ row.state.state_label }}{% endif %}</span></td>
+          <td class="money">{% if row.listing %}<input class="pc-new-price" aria-label="Новая цена" name="price_{{ row.listing.pk }}" type="number" min="1" max="999999999" step="1" value="{% if row.draft %}{{ row.draft.price }}{% elif row.our != None %}{{ row.our }}{% endif %}">{% if row.draft %}<span class="pc-sub">Черновик</span>{% endif %}{% else %}<span class="pc-sub">После сопоставления</span>{% endif %}</td>
           <td class="money">{% if row.delta != None %}<span class="{% if row.delta > 0 %}pc-delta-high{% elif row.delta < 0 %}pc-delta-low{% endif %}">{{ row.delta|floatformat:0|intcomma }}</span>{% else %}—{% endif %}</td>
-          <td><a class="pc-open" href="{% url 'repricer:product' row.listing.pk %}">Открыть ↗</a></td>
+          <td>{% if row.listing %}<a class="pc-open" href="{% url 'repricer:product' row.listing.pk %}">Открыть ↗</a>{% else %}<span class="pc-status">Нет привязки</span>{% endif %}</td>
         </tr>
       {% empty %}<tr><td colspan="10" class="pc-empty">По выбранным фильтрам товаров нет.</td></tr>{% endfor %}</tbody>
     </table>
@@ -187,7 +194,7 @@
       {% if page.has_next %}<a href="?q={{ search|urlencode }}&supplier={{ supplier|urlencode }}&city={{ selected_city|urlencode }}&status={{ status|urlencode }}&page={{ page.next_page_number }}">Вперёд →</a>{% endif %}
     </div>
   </div>
-  <div class="pc-info">Чтобы посмотреть полную карточку товара и предложения конкурентов, нажмите на название товара, число продавцов или «Открыть». Подробности открываются на отдельной странице, не разворачиваются внутри таблицы. Ручное изменение цены выполняется в карточке.</div>
+  <div class="pc-info">Основной ассортимент определяется последним успешно загруженным ACTIVE.xlsx. Несопоставленные SKU остаются в списке, но изменение их цен недоступно до проверки привязки. Ссылки «Открыть» ведут в отдельную карточку.</div>
   <details class="pc-tech" id="collector">
     <summary>⚙ Сбор цен и история проверок (техническая информация)</summary>
     <h2>Техническая информация</h2>
