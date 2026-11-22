@@ -9,7 +9,16 @@
 .price-control *{box-sizing:border-box}.pc-back{color:#087e88;text-decoration:none;font-size:13px}
 .pc-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin:12px 0 20px;flex-wrap:wrap}
 .pc-top h1{margin:0 0 5px;font-size:27px}.pc-top p{margin:0;color:#64748b;font-size:13px;max-width:670px}
-.pc-actions{display:flex;gap:8px;flex-wrap:wrap}.pc-button{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:11px 14px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#142e4d;font-weight:700;font-size:13px;text-decoration:none;cursor:pointer}
+.pc-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.pc-monitor-form,.pc-monitor-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pc-monitor-label{font-size:12px;color:#526780;font-weight:700}
+.pc-monitor-controls select{font:inherit;font-size:13px;border:1px solid #cbd5e1;border-radius:8px;background:white;padding:10px;max-width:245px}
+.pc-button-monitor{background:#007e75!important;color:white!important;border-color:#007e75!important}
+.pc-button-monitor:hover{background:#006e65!important}
+.pc-monitor-status{border:1px solid #d5e1ef;border-radius:10px;padding:12px 14px;background:#f7fafc;margin:0 0 17px;font-size:13px}
+.pc-monitor-status #manual-price-report{display:inline;line-height:1.5}
+.pc-monitor-status progress{display:block;width:100%;height:9px;margin-top:10px}
+.pc-monitor-hint{font-size:12px;color:#64748b;margin:7px 0 0}.pc-button{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:11px 14px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#142e4d;font-weight:700;font-size:13px;text-decoration:none;cursor:pointer}
 .pc-button:hover{background:#eef8f8}.pc-button-primary{background:#007c70;color:white;border-color:#007c70}.pc-button-primary:hover{background:#00675f}.pc-button[disabled]{opacity:.5;cursor:not-allowed}
 .pc-metrics{display:grid;grid-template-columns:repeat(5,minmax(125px,1fr));gap:10px;margin-bottom:18px}
 .pc-metric{border:1px solid #d5e1ef;border-radius:12px;background:white;padding:16px;min-height:90px;display:flex;flex-direction:column;justify-content:space-between;gap:7px}
@@ -44,12 +53,48 @@
   <div class="pc-top">
     <div><h1>Контроль цен Kaspi</h1><p>Наши товары, цены конкурентов и ручная подготовка новых цен. Автоматическое изменение цен отключено.</p></div>
     <div class="pc-actions">
-      <a class="pc-button" href="#collector">↻ Собрать цены</a>
+      <form id="manual-price-form" class="pc-monitor-form" method="post" action="{% url 'repricer:manual_start' %}" data-step-url="{% url 'repricer:manual_step' 999999 %}" data-pause-url="{% url 'repricer:manual_pause' 999999 %}" data-resume-url="{% url 'repricer:manual_resume' 999999 %}">
+      {% csrf_token %}
+      <div class="pc-monitor-controls">
+        <label for="manual-price-city" class="pc-monitor-label">Город:</label>
+        <select id="manual-price-city" name="city_id" aria-label="Город мониторинга">
+          <option value="750000000">Алматы</option>
+          <option value="all" selected>Весь Казахстан (77 городов)</option>
+          {% for code, name in collection_cities %}{% if code != "750000000" %}
+          <option value="{{ code }}">{{ name }}</option>
+          {% endif %}{% endfor %}
+        </select>
+        <button type="submit" class="pc-button pc-button-monitor" id="manual-price-start">↻ Провести мониторинг цен</button>
+        <button type="button" class="pc-button" id="manual-price-pause" hidden>Остановить</button>
+        <button type="button" class="pc-button" id="manual-price-resume" hidden>Продолжить</button>
+      </div>
+    </form>
       <button class="pc-button pc-button-primary" type="submit" form="bulk-price-form">Сохранить изменения</button>
       <a class="pc-button pc-button-primary" href="{% url 'repricer:export' %}">⬇ Скачать Excel</a>
     </div>
   </div>
   {% if messages %}{% for message in messages %}<div class="pc-toast" role="status">{{ message }}</div>{% endfor %}{% endif %}
+  <section class="pc-monitor-status" id="monitor-progress" aria-label="Ход мониторинга цен">
+    <strong>Ход мониторинга:</strong>
+    <div id="manual-price-report" role="status" aria-live="polite"
+      data-run-id="{% if manual_run %}{{ manual_run.pk }}{% endif %}"
+      data-run-status="{% if manual_run %}{{ manual_run.status }}{% endif %}"
+      data-run-processed="{% if manual_run %}{{ manual_run.next_index }}{% else %}0{% endif %}"
+      data-run-total="{% if manual_run %}{{ manual_run.total }}{% else %}0{% endif %}"
+      data-run-offers="{% if manual_run %}{{ manual_run.saved_offers }}{% else %}0{% endif %}"
+      data-run-error="{% if manual_run %}{{ manual_run.last_error }}{% endif %}">
+      {% if manual_run %}
+        Предыдущий запуск: {{ manual_run.get_status_display }} · {{ manual_run.next_index }}/{{ manual_run.total }} проверок · сохранено предложений: {{ manual_run.saved_offers }}.
+        {% if manual_run.last_error %} Ошибка: {{ manual_run.last_error }}{% endif %}
+      {% else %}
+        Ручных запусков пока не было.
+      {% endif %}
+    </div>
+    <progress id="manual-price-progress" max="{% if manual_run %}{{ manual_run.total }}{% else %}1{% endif %}" value="{% if manual_run %}{{ manual_run.next_index }}{% else %}0{% endif %}" style="width:100%;margin-top:6px"></progress>
+  
+
+    <p class="pc-monitor-hint">Мониторинг только собирает предложения Kaspi. Цены наших товаров не изменяются. Сбор выполняется шагами, пока открыта эта вкладка; незавершённый запуск можно продолжить позже.</p>
+  </section>
   <section class="pc-metrics" aria-label="Статистика">
     <div class="pc-metric"><span>Наших товаров Kaspi</span><strong>{{ summary.total }}</strong></div>
     <div class="pc-metric"><span>С предложениями конкурентов</span><strong>{{ summary.found }}</strong></div>
@@ -116,40 +161,6 @@
     <summary>⚙ Сбор цен и история проверок (техническая информация)</summary>
     <h2>Собрать цены сейчас</h2>
     <p>Ручной сбор по активным Kaspi-привязкам. Расписание отключено, наши цены автоматически не меняются.</p>
-    <div class="pc-manual">
-      <form id="manual-price-form" method="post" action="{% url 'repricer:manual_start' %}" data-step-url="{% url 'repricer:manual_step' 999999 %}" data-pause-url="{% url 'repricer:manual_pause' 999999 %}" data-resume-url="{% url 'repricer:manual_resume' 999999 %}">
-      {% csrf_token %}
-      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-        <label for="manual-price-city">Где собирать</label>
-        <select id="manual-price-city" name="city_id" style="padding:9px;border:1px solid #d1d5db;border-radius:8px">
-          <option value="750000000">Алматы (первичная проверка)</option>
-          <option value="all">Все населённые пункты справочника Kaspi</option>
-          {% for code, name in collection_cities %}{% if code != "750000000" %}
-          <option value="{{ code }}">{{ name }}</option>
-          {% endif %}{% endfor %}
-        </select>
-        <button type="submit" class="repricer-link" id="manual-price-start">Собрать цены</button>
-        <button type="button" class="repricer-link" id="manual-price-pause" hidden>Остановить</button>
-        <button type="button" class="repricer-link" id="manual-price-resume" hidden>Продолжить</button>
-      </div>
-    </form>
-    <div id="manual-price-report" style="margin-top:10px" role="status" aria-live="polite"
-      data-run-id="{% if manual_run %}{{ manual_run.pk }}{% endif %}"
-      data-run-status="{% if manual_run %}{{ manual_run.status }}{% endif %}"
-      data-run-processed="{% if manual_run %}{{ manual_run.next_index }}{% else %}0{% endif %}"
-      data-run-total="{% if manual_run %}{{ manual_run.total }}{% else %}0{% endif %}"
-      data-run-offers="{% if manual_run %}{{ manual_run.saved_offers }}{% else %}0{% endif %}"
-      data-run-error="{% if manual_run %}{{ manual_run.last_error }}{% endif %}">
-      {% if manual_run %}
-        Предыдущий запуск: {{ manual_run.get_status_display }} · {{ manual_run.next_index }}/{{ manual_run.total }} проверок · сохранено предложений: {{ manual_run.saved_offers }}.
-        {% if manual_run.last_error %} Ошибка: {{ manual_run.last_error }}{% endif %}
-      {% else %}
-        Ручных запусков пока не было.
-      {% endif %}
-    </div>
-    <progress id="manual-price-progress" max="{% if manual_run %}{{ manual_run.total }}{% else %}1{% endif %}" value="{% if manual_run %}{{ manual_run.next_index }}{% else %}0{% endif %}" style="width:100%;margin-top:6px"></progress>
-  
-    </div>
     <p>Сохранённых предложений: {{ public_snapshot_count }}. Свежих за {{ fresh_minutes }} минут: {{ fresh_snapshot_count }}.</p>
     <p class="pc-warning">Проверено населённых пунктов: {{ covered_city_count }} из {{ city_total }}. Пакетов без города: {{ cityless_legacy_count }}.</p>
     <details><summary>Состояние по городам</summary><div style="max-height:300px;overflow:auto"><table><thead><tr><th>Город</th><th>Артикулов</th><th>Последний сбор</th></tr></thead><tbody>
