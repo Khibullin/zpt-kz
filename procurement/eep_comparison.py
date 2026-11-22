@@ -131,10 +131,11 @@ def _comparison_impl(request, pk):
     # exact Apify export has an audit; it is NOT admitted to PermanentBuyingItem.
     review_only = not bool(record)
     srr_snapshot = srr_review_snapshot(offer, source_file)
+    # Keep a reviewed card accessible after changing its identity status.
+    # Review remains staff-only, including rejected and approved results.
     apify_second_review = (source_file == review_source and
                            KaspiPriceAudit.objects.filter(
-                               offer=offer, source_filename=source_file,
-                               identity_status='needs_review', roi__gte=50).exists())
+                               offer=offer, source_filename=source_file).exists())
     # Both unverified export review flows are staff-only, even when an offer
     # also has an older buying-register entry. Do not disclose review evidence
     # through the generic workspace user's comparison detail URL.
