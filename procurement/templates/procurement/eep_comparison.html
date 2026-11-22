@@ -50,6 +50,10 @@
  {% if kaspi_url %}<a href="{{ kaspi_url }}" target="_blank" rel="noopener noreferrer">{% if apify_srr_review %}Выбранная карточка Kaspi из исходной выгрузки (не проверена){% else %}Карточка Kaspi с минимальной сохранённой ценой{% endif %}</a>{% else %}<p class="eep-muted">Ссылка на выбранную карточку Kaspi отсутствует</p>{% endif %}
  {% if cheaper_kaspi_url %}<p class="eep-muted">Для этого артикула в той же выгрузке нашлась другая карточка с более низкой ценой продавца; ниже в расчётном поле показана именно она.</p><a href="{{ cheaper_kaspi_url }}" target="_blank" rel="noopener noreferrer">Дешевле: карточка Kaspi ID {{ cheaper_kaspi_id }}</a>{% endif %}
  {% if clipboard_pilot %}
+ <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+  <button type="button" class="button primary" id="eep-upload-screenshot">Загрузить скриншот</button>
+  <input type="file" id="eep-screenshot-file" accept="image/png,image/jpeg,image/webp" style="display:none" aria-label="Выберите скриншот Kaspi">
+ </div>
  <div id="eep-paste-zone" class="eep-paste-zone" tabindex="0" role="button" aria-label="Вставить скриншот Kaspi из буфера обмена правым щелчком мыши">
   <strong>Правый щелчок — вставить скриншот Kaspi</strong>
   <small>На Kaspi: Win+Shift+S → выделить область; здесь: правая кнопка. Запасной способ — Ctrl+V. До 3 снимков.</small>
@@ -193,7 +197,7 @@
   }
   async function send(blob){
     if(sending)return;
-    if(gallery.querySelectorAll('img').length>=3){show('Для пробы достаточно 3 скриншотов.');return;}
+    if(gallery.querySelectorAll('img').length>=3){show('К карточке можно прикрепить до 3 скриншотов.');return;}
     sending=true;zone.classList.add('busy');show('Сохраняем скриншот…');
     try{
       const data=new FormData(form);
@@ -211,6 +215,19 @@
     }catch(err){show('Не удалось сохранить: '+err.message);}
     finally{sending=false;zone.classList.remove('busy');}
   }
+  const uploadButton=document.getElementById('eep-upload-screenshot');
+  const fileInput=document.getElementById('eep-screenshot-file');
+  uploadButton?.addEventListener('click',()=>fileInput?.click());
+  fileInput?.addEventListener('change',async()=>{
+    const file=fileInput.files?.[0];
+    if(file){await send(file);fileInput.value='';}
+  });
+  zone.addEventListener('dragover',event=>{event.preventDefault();});
+  zone.addEventListener('drop',event=>{
+    event.preventDefault();
+    const file=[...(event.dataTransfer?.files||[])].find(f=>f.type.startsWith('image/'));
+    if(file)send(file);else show('Перетащите файл изображения PNG, JPEG или WebP.');
+  });
   zone.addEventListener('contextmenu',event=>{event.preventDefault();pasteFromClipboard();});
   zone.addEventListener('keydown',event=>{
     if(event.key==='Enter'||event.key===' '){event.preventDefault();pasteFromClipboard();}
