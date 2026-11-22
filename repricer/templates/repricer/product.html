@@ -1,0 +1,87 @@
+{% extends "office/base.html" %}
+{% load humanize %}
+{% block title %}{{ row.listing.product.title }} — Контроль цен Kaspi{% endblock %}
+{% block extra_css %}
+<style>
+.pc-detail{max-width:1400px;margin:0 auto;padding:22px 18px 45px;color:#142e4d;font-family:Arial,sans-serif}
+.pc-detail *{box-sizing:border-box}.pc-detail a{color:#007e75}.pc-detail .back{font-weight:700;font-size:13px;text-decoration:none}
+.pc-detail h1{font-size:26px;margin:18px 0 6px}.pc-detail .muted{color:#64748b;font-size:13px}
+.pc-detail .columns{display:grid;grid-template-columns:minmax(320px,1fr) minmax(380px,1.25fr);gap:16px;margin:22px 0}
+.pc-detail .card{background:#fff;border:1px solid #d5e1ef;border-radius:12px;padding:20px;min-width:0}
+.pc-detail h2{font-size:19px;margin:0 0 14px}.pc-detail .identity{display:flex;gap:18px;align-items:flex-start}
+.pc-detail .photo{width:155px;height:155px;object-fit:contain;border:1px solid #e2e8f0;border-radius:9px;flex-shrink:0}
+.pc-detail dl{display:grid;grid-template-columns:155px 1fr;gap:11px;margin:0;font-size:14px}
+.pc-detail dt{color:#64748b}.pc-detail dd{margin:0;font-weight:600;overflow-wrap:anywhere}
+.pc-detail table{border-collapse:collapse;width:100%;font-size:13px}
+.pc-detail th,.pc-detail td{padding:11px 9px;border-bottom:1px solid #e2e8f0;text-align:left}
+.pc-detail th{background:#f4f8fc}.pc-detail .muted-banner{border:1px solid #f2d394;background:#fff9eb;color:#8b5400;border-radius:8px;padding:11px;margin:12px 0;font-size:13px}
+.pc-detail .edit{margin-top:20px;border-top:1px solid #e2e8f0;padding-top:18px}
+.pc-detail input{padding:11px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:16px;width:170px;max-width:100%}
+.pc-detail button{padding:12px 16px;background:#007c70;border:0;border-radius:8px;color:white;font-weight:700;cursor:pointer}
+.pc-detail .edit label{display:block;margin-bottom:8px;font-size:13px;font-weight:700}
+.pc-detail .note{font-size:12px;color:#64748b;margin:9px 0 0;line-height:1.5}
+.pc-detail .message{padding:12px;background:#e9faf2;border-radius:8px;margin-bottom:12px}
+.pc-detail .empty{padding:22px;color:#64748b;background:#f7fafc;border-radius:8px}
+@media(max-width:900px){.pc-detail .columns{grid-template-columns:1fr}.pc-detail .identity{flex-direction:column}.pc-detail dl{grid-template-columns:130px 1fr}}
+</style>
+{% endblock %}
+{% block content %}
+<div class="pc-detail">
+<a class="back" href="{% url 'repricer:dashboard' %}">← Контроль цен Kaspi</a>
+<h1>{{ row.listing.product.title }}</h1>
+<p class="muted">Сравнение нашей карточки с предложениями конкурентов на Kaspi. Ручной режим, без автоматического изменения цен.</p>
+{% if messages %}{% for message in messages %}<p class="message" role="status">{{ message }}</p>{% endfor %}{% endif %}
+<div class="columns">
+  <section class="card">
+    <h2>Наш товар</h2>
+    <div class="identity">
+      {% with photo=row.listing.product.storefront_image %}
+        {% if photo %}<img src="{{ photo.url }}" class="photo" alt="Фото товара">{% endif %}
+      {% endwith %}
+      <dl>
+        <dt>Наименование</dt><dd>{{ row.listing.product.title }}</dd>
+        <dt>Артикул</dt><dd>{{ row.listing.product.article|default:"Не указан" }}</dd>
+        <dt>Бренд</dt><dd>{{ row.listing.product.brand.name|default:"Не указан" }}</dd>
+        <dt>Категория</dt><dd>{{ row.listing.product.category.name|default:"Не указана" }}</dd>
+        <dt>Kaspi master SKU</dt><dd>{{ row.listing.master_sku }}</dd>
+        <dt>Merchant SKU</dt><dd>{{ row.listing.merchant_sku|default:"—" }}</dd>
+        <dt>Остаток Kaspi</dt><dd>{% if row.listing.last_known_kaspi_qty != None %}{{ row.listing.last_known_kaspi_qty }} шт.{% else %}Нет данных{% endif %}</dd>
+        <dt>Закупочная цена</dt><dd>{% if row.listing.product.cost_price != None %}{{ row.listing.product.cost_price|intcomma }} ₸{% else %}Нет данных{% endif %}</dd>
+        <dt>Наша цена Kaspi</dt><dd>{% if row.our != None %}{{ row.our|intcomma }} ₸{% else %}Нет данных{% endif %}</dd>
+        <dt>Последняя проверка</dt><dd>{% if row.state.captured_at %}{{ row.state.captured_at|date:"d.m.Y H:i" }}{% else %}Не проверялся{% endif %}</dd>
+        <dt>Поставщик</dt><dd>{{ row.listing.product.get_supplier_display }}</dd>
+      </dl>
+    </div>
+    {% if row.listing.product.description %}<h2 style="margin-top:22px">Описание</h2><p>{{ row.listing.product.description|linebreaksbr }}</p>{% endif %}
+    {% if row.listing.product.compatibility %}<h2 style="margin-top:22px">Применимость</h2><p>{{ row.listing.product.compatibility|linebreaksbr }}</p>{% endif %}
+    {% if row.listing.public_url %}<p><a href="{{ row.listing.public_url }}" target="_blank" rel="noopener noreferrer">Открыть карточку Kaspi ↗</a></p>{% endif %}
+  </section>
+  <section class="card">
+    <h2>Предложения конкурентов на Kaspi</h2>
+    <p class="muted">Найдено в последнем снимке: {{ offers|length }}. {{ row.state.state_label }}.</p>
+    {% if is_stale %}<div class="muted-banner">Данные устарели. Они показаны для сведения, а не как актуальные цены рынка.</div>{% endif %}
+    {% if offers %}
+      <div style="overflow:auto"><table>
+        <thead><tr><th>№</th><th>Продавец</th><th>Город</th><th>Цена, ₸</th><th>Kaspi</th></tr></thead>
+        <tbody>{% for offer in offers %}
+        <tr><td>{{ forloop.counter }}</td><td>{{ offer.seller_name|default:"Не указан" }}</td>
+          <td>{{ offer.city_name }}</td><td><strong>{{ offer.price|floatformat:0|intcomma }}</strong></td>
+          <td>{% if row.listing.public_url %}<a target="_blank" rel="noopener noreferrer" href="{{ row.listing.public_url }}">Карточка ↗</a>{% else %}Нет ссылки{% endif %}</td>
+        </tr>{% endfor %}</tbody>
+      </table></div>
+    {% else %}<div class="empty">Достоверных предложений конкурентов по последнему снимку нет. Неизвестная цена не приравнивается к нулю.</div>{% endif %}
+    <div class="edit">
+      <h2>Новая цена (вручную)</h2>
+      <form method="post" action="{% url 'repricer:save_price' row.listing.pk %}">
+        {% csrf_token %}
+        <label for="new-price">Цена, ₸</label>
+        <input id="new-price" name="price" type="number" min="1" max="999999999" step="1" required
+          value="{% if row.draft %}{{ row.draft.price }}{% elif row.our != None %}{{ row.our }}{% endif %}">
+        <button type="submit">Сохранить черновик</button>
+      </form>
+      <p class="note">Здесь сохраняется только подготовленная цена. На Kaspi ничего не отправляется. Никакие правила автоматического снижения или повышения не применяются.</p>
+    </div>
+  </section>
+</div>
+</div>
+{% endblock %}
