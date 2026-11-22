@@ -61,6 +61,51 @@ class PriceControlCenterTests(TestCase):
                          {"price": "-100"})
         self.assertFalse(KaspiManualPriceDraft.objects.exists())
 
+    def test_price_control_pagination_links(self):
+        self.client.force_login(self.user)
+        ProductKaspiListing.objects.bulk_create([
+            ProductKaspiListing(product=self.product, master_sku=f"extra-{i}")
+            for i in range(45)
+        ])
+        response = self.client.get(self.dashboard + "?page=1")
+        self.assertContains(response, "page=2")
+        self.assertContains(response, "page=3")
+        self.assertContains(response, "Первая страница" if False else "Вперёд")
+
+    def test_upload_kaspi_file_refreshes_only_observed_listing_data(self):
+        from io import BytesIO
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        from openpyxl import Workbook
+        from catalog.models import SellerProfile, ProductWarehouseStock
+        seller = SellerProfile.objects.create(
+            user=self.user, name="AG Parts", phone="+77000000000",
+        )
+        self.product.seller_profile = seller
+        self.product.save(update_fields=["seller_profile"])
+        workbook = Workbook()
+        workbook.active.append(["SKU", "price", "PP2"])
+        workbook.active.append([self.listing.master_sku, 17000, 9])
+        data = BytesIO()
+        workbook.save(data)
+        upload = SimpleUploadedFile(
+            "active.xlsx", data.getvalue(),
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
+        self.client.force_login(self.user)
+        response = self.client.post(
+            reverse("repricer:upload_kaspi"), {"kaspi_file": upload},
+        )
+        self.assertRedirects(response, self.dashboard)
+        self.listing.refresh_from_db()
+        self.product.refresh_from_db()
+        self.assertEqual(self.listing.last_known_our_price, 17000)
+        self.assertEqual(self.listing.last_known_kaspi_qty, 9)
+        self.assertEqual(self.product.cost_price, 8000)
+        self.assertEqual(self.product.stock_qty, 7)
+        self.assertEqual(self.product.price, None)
+        self.assertEqual(ProductWarehouseStock.objects.count(), 0)
+        self.assertContains(self.client.get(self.dashboard), "Последняя загрузка")
+
     def test_xlsx_download_contains_saved_draft(self):
         self.client.force_login(self.user)
         KaspiManualPriceDraft.objects.create(listing=self.listing, price=11900, updated_by=self.user)
