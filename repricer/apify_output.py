@@ -55,7 +55,7 @@ def _positive_price(value):
         amount = Decimal(str(value).replace(" ", "").replace(",", "."))
     except (InvalidOperation, ValueError):
         return None
-    if amount <= 0 or amount != amount.to_integral_value() or amount > 999999999:
+    if not amount.is_finite() or amount <= 0 or amount != amount.to_integral_value() or amount > 999999999:
         return None
     return int(amount)
 
