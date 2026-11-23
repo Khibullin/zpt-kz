@@ -64,6 +64,9 @@ def input_and_mapping(rows, cities, cards):
             # The merchant SKU is a useful fallback only if the Kaspi export
             # has no meaningful title; never assume it is a public Kaspi ID.
             target = " ".join(part for part in (brand, name) if part).strip()
+            exact_article = (listing.product.article or "").strip() if listing else merchant_code
+            if exact_article and exact_article.casefold() not in target.casefold():
+                target = (target + " " + exact_article).strip()
             if not target:
                 target = merchant_code or row.master_sku
             kind = "search"
