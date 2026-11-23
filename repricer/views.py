@@ -135,7 +135,9 @@ def _active_assortment(request, batch):
         listing = record.listing
         state = _listing_state(listing, states) if listing else None
         draft = getattr(listing, "manual_price_draft", None) if listing else None
-        best = state.best_price if state else None
+        # Output Apify for this exact ACTIVE row supersedes old cached direct-Kaspi data.
+        apify_best = record.competitor_min_price
+        best = apify_best if apify_best is not None else (state.best_price if state else None)
         rows.append({
             "active": record, "listing": listing,
             "item_title": record.product_name or (
@@ -150,12 +152,22 @@ def _active_assortment(request, batch):
             "count": state.competitor_count if state else 0,
             "state_label": (state.state_label if state else "Требует сопоставления"),
             "best": best,
-            "stale": bool(state and state.is_stale),
+            "apify_best": apify_best,
+            "best_seller": record.competitor_seller,
+            "best_city": record.competitor_city,
+            "best_url": record.competitor_url,
+            "apify_checked_at": record.competitor_checked_at,
+            "stale": bool(state and state.is_stale) if apify_best is None else False,
             "delta": record.price - best if record.price is not None and best is not None else None,
         })
     total = KaspiActiveExportRow.objects.filter(batch=batch).count()
     matched = KaspiActiveExportRow.objects.filter(batch=batch, listing__isnull=False).count()
-    found = KaspiActiveExportRow.objects.filter(batch=batch, listing_id__in=valid_offers).count()
+    apify_found = KaspiActiveExportRow.objects.filter(
+        batch=batch, competitor_min_price__isnull=False
+    ).count()
+    found = KaspiActiveExportRow.objects.filter(
+        batch=batch,
+    ).filter(Q(competitor_min_price__isnull=False) | Q(listing_id__in=valid_offers)).count()
     drafted = KaspiActiveExportRow.objects.filter(
         batch=batch, listing__manual_price_draft__isnull=False
     ).count()
@@ -167,6 +179,7 @@ def _active_assortment(request, batch):
         "summary": {
             "total": total, "found": found, "missing": total - found,
             "drafted": drafted, "unmatched": total - matched,
+            "apify_found": apify_found,
         },
         "search": search, "supplier": supplier, "selected_city": city,
         "status": status, "active_batch": batch,
@@ -257,6 +270,7 @@ def repricer_dashboard(request):
         "collection_cities": KASPI_KZ_CITIES,
         "manual_run": KaspiManualCollectionRun.objects.filter(created_by=request.user).first(),
         "kaspi_upload_result": request.session.get("kaspi_upload_result"),
+        "apify_result": request.session.get("repricer_apify_result"),
         **active_context,
     })
     response["X-Robots-Tag"] = "noindex, nofollow"
