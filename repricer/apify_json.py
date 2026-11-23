@@ -48,6 +48,7 @@ def input_and_mapping(rows, cities, cards):
             (listing.public_url or "").strip().split("?", 1)[0]
             if listing and listing.public_url_verified_at else ""
         )
+        weak_query = False
         if verified_url:
             kind, target = "url", verified_url
             urls.append(target)
@@ -82,6 +83,7 @@ def input_and_mapping(rows, cities, cards):
             generic_words = {"воздушный фильтр", "салонный фильтр",
                              "масляный фильтр", "фильтр", "свеча зажигания"}
             if (not target or target.casefold().strip() in generic_words) and sku:
+                weak_query = True
                 target = ((target + " " + sku).strip() if target else sku)
             kind = "search"
             if target:
@@ -99,11 +101,7 @@ def input_and_mapping(rows, cities, cards):
             "kind": kind,
             "input": target,
             "requires_result_verification": kind == "search",
-            "source_sku_only_fallback": (
-                kind == "search" and not bool(
-                    row.merchant_sku or (listing and listing.product.article)
-                ) and not bool(re.search(r"[A-Za-z]", row.master_sku or ""))
-            ),
+            "source_sku_only_fallback": weak_query,
         })
     payload = {
         "startUrls": urls,
