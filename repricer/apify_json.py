@@ -84,8 +84,8 @@ def input_and_mapping(rows, cities, cards):
             "requires_result_verification": kind == "search",
         })
     payload = {
-        "startUrls": list(dict.fromkeys(urls)),
-        "searchQueries": list(dict.fromkeys(queries)),
+        "startUrls": urls,
+        "searchQueries": queries,
         "cities": list(cities),
         "sortOrder": "relevance",
         "maxItems": 0,
