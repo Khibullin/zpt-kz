@@ -124,6 +124,62 @@ def input_and_mapping(rows, cities, cards):
     return payload, mapping
 
 
+
+def remaining_input_and_mapping(rows, cities, cards):
+    """Build additional Apify searches only for rows without competitor prices."""
+    queries, mapping = [], []
+    for row in rows:
+        if row.competitor_min_price is not None:
+            continue
+        listing = row.listing
+        title = (row.product_name or (listing.product.title if listing else "") or "").strip()
+        brand = (row.brand or (
+            listing.product.brand.name if listing and listing.product.brand else ""
+        ) or "").strip()
+        article = (listing.product.article or "").strip() if listing else ""
+        article = article or (row.merchant_sku or "").strip()
+        if not article:
+            codes = [
+                token for token in re.findall(r"[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*", title)
+                if len(token) >= 5 and any(ch.isdigit() for ch in token)
+            ]
+            article = codes[-1] if codes else ""
+        if not article:
+            sku = (row.master_sku or "").strip()
+            if re.fullmatch(r"[A-Za-z0-9-]{5,60}", sku):
+                article = sku
+        candidates = []
+        if article:
+            candidates.append(article)
+            if brand:
+                candidates.append(f"{brand} {article}")
+            if title and article.casefold() not in title.casefold():
+                candidates.append(f"{title} {article}")
+            elif title and len(candidates) == 1:
+                candidates.append(title)
+        elif title:
+            candidates.append(title)
+        searches = list(dict.fromkeys(x.strip() for x in candidates if x.strip()))
+        queries.extend(searches)
+        mapping.append({
+            "sku": row.master_sku, "row_number": row.row_number,
+            "article": article, "title": title, "brand": brand,
+            "searches": searches, "existing_status": row.competitor_scan_status,
+            "requires_result_verification": True,
+        })
+    return {
+        "startUrls": [], "searchQueries": list(dict.fromkeys(queries)),
+        "cities": list(cities), "sortOrder": "relevance",
+        "maxItems": 0, "maxItemsPerQuery": cards,
+        "includeOffers": True, "maxOffersPerProduct": 0,
+        "includeReviews": False,
+        "proxyConfiguration": {
+            "useApifyProxy": True, "apifyProxyGroups": ["RESIDENTIAL"],
+            "apifyProxyCountry": "KZ",
+        },
+    }, mapping
+
+
 def _download(data, filename):
     response = HttpResponse(
         json.dumps(data, ensure_ascii=False, indent=2),
