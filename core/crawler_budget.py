@@ -19,6 +19,26 @@ class CrawlerFilterBudgetMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
+        # Reject malformed pagination before querying public AG Parts products.
+        # Automated requests have sent e.g. "1\u00a0818" as the page value.
+        if request.path == '/seller/ag-parts/' and 'page' in request.GET:
+            values = request.GET.getlist('page')
+            if (
+                len(values) != 1
+                or not values[0].isascii()
+                or not values[0].isdecimal()
+                or len(values[0]) > 6
+                or int(values[0]) < 1
+            ):
+                response = HttpResponse(
+                    'Invalid page number.',
+                    status=400,
+                    content_type='text/plain; charset=utf-8',
+                )
+                response['X-Robots-Tag'] = 'noindex, nofollow'
+                response['Cache-Control'] = 'private, no-store'
+                return response
+
         user_agent = request.headers.get('User-Agent', '').casefold()
         if (
             request.path in ('/', '/market/')
