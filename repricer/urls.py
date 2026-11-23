@@ -4,6 +4,7 @@ from .views import repricer_dashboard, repricer_product, repricer_save_price, re
 from .manual_collection import manual_start, manual_step, manual_pause, manual_resume
 from .kaspi_upload import upload_kaspi_assortment
 from .apify_json import repricer_rules, repricer_apify_export
+from .apify_output import repricer_output_upload, repricer_clear_output
 
 
 app_name = "repricer"
@@ -12,6 +13,8 @@ urlpatterns = [
     path("", repricer_dashboard, name="dashboard"),
     path("rules/", repricer_rules, name="rules"),
     path("apify-json/", repricer_apify_export, name="apify_export"),
+    path("apify-output/", repricer_output_upload, name="apify_output"),
+    path("apify-clear/", repricer_clear_output, name="apify_clear"),
     path("product/<int:listing_id>/", repricer_product, name="product"),
     path("product/<int:listing_id>/save-price/", repricer_save_price, name="save_price"),
     path("save-prices/", repricer_save_prices, name="save_prices"),
