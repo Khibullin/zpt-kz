@@ -16,6 +16,17 @@
 .price-compare .tablewrap td.best{background:#def8e6}
 .price-compare .tablewrap td:nth-child(3){cursor:help}
 .price-compare .tablewrap th .minor{display:inline;font-size:11px;margin-left:3px}
+.price-compare .compare-pagination{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:space-between;margin:12px 0}
+.price-compare .compare-page-links{display:flex;align-items:center;flex-wrap:wrap;gap:4px}
+.price-compare .compare-page-links a,.price-compare .compare-page-current{min-width:30px;height:32px;padding:6px 8px;border:1px solid #d3e0ed;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;background:#fff;font-size:12px;text-decoration:none}
+.price-compare .compare-page-links a:hover{background:#eaf4ff}
+.price-compare .compare-page-current{background:#087e88;border-color:#087e88;color:#fff;font-weight:bold}
+.price-compare .compare-ellipsis{color:#64748b;padding:0 3px}
+.price-compare .compare-jump{display:flex;align-items:center;gap:6px;font-size:12px}
+.price-compare .compare-jump input{width:66px;padding:7px}
+.price-compare .compare-jump button{padding:7px 10px}
+.price-compare .compare-middle{white-space:nowrap}
+#price-results{scroll-margin-top:10px}
 </style>
 <div class="price-compare">
 <header><div><h1>⚖ Сравнение цен поставщиков</h1><p class="muted">Одинаковый бренд и полный артикул — одна строка. Зелёным выделена минимальная закупочная цена при наличии.</p></div></header>
@@ -92,7 +103,8 @@
 <button class="primary">Показать</button><a class="button" href="{% url 'procurement:supplier_price_comparison' %}">Сбросить</a>
 </form>
 <p class="muted">Найдено: {{ displayed_count }} · Минимальная закупочная цена: {{ min_cost|floatformat:0 }} ₸ (включительно). · Данные из сохранённых прайсов: Phaeton — {{ snapshot.counts.Phaeton|default:0 }}, ZakazAuto — {{ snapshot.counts.ZakazAuto|default:0 }}, Omega — {{ snapshot.counts.Omega|default:0 }} позиций с положительным остатком. Сравнение не включает доставку.</p>
-<div class="tablewrap"><table><thead><tr><th>№</th><th>Бренд / артикул</th><th>Наименование</th><th>Phaeton <span class="minor">₸ / шт.</span></th><th>ZakazAuto <span class="minor">₸ / шт.</span></th><th>Omega <span class="minor">₸ / шт.</span></th><th>Где дешевле</th><th>Экономия</th></tr></thead>
+{% include "procurement/_supplier_price_pagination.html" with position="top" %}
+<div id="price-results" class="tablewrap"><table><thead><tr><th>№</th><th>Бренд / артикул</th><th>Наименование</th><th>Phaeton <span class="minor">₸ / шт.</span></th><th>ZakazAuto <span class="minor">₸ / шт.</span></th><th>Omega <span class="minor">₸ / шт.</span></th><th>Где дешевле</th><th>Экономия</th></tr></thead>
 <tbody>{% for item in page %}
 <tr><td>{{ page.start_index|add:forloop.counter0 }}</td>
 <td><strong>{{ item.brand }}</strong> · {{ item.article }}</td><td title="{{ item.name }}">{{ item.name }}</td>
@@ -103,10 +115,7 @@
 <td>{% if item.saving != None %}<strong>{{ item.saving|floatformat:0 }} ₸</strong> <small>({{ item.percent|floatformat:1 }}%)</small>{% else %}—{% endif %}</td></tr>
 {% empty %}<tr><td colspan="8">Подходящих товаров нет. Проверьте прайсы, наличие и условия поиска.</td></tr>{% endfor %}
 </tbody></table></div>
-<div class="pager"><span class="muted">Страница {{ page.number }} из {{ page.paginator.num_pages }} · по 50 товаров</span><div>
-{% if page.has_previous %}<a href="?q={{ q|urlencode }}&amp;supplier={{ supplier_filter|urlencode }}&amp;sort={{ sort|default:''|urlencode }}&amp;shared={% if shared_only %}1{% endif %}&amp;present={{ present_filter|urlencode }}&amp;min_cost={{ min_cost|floatformat:0 }}&amp;page={{ page.previous_page_number }}">← Назад</a>{% endif %}
-{% if page.has_next %}<a href="?q={{ q|urlencode }}&amp;supplier={{ supplier_filter|urlencode }}&amp;sort={{ sort|default:''|urlencode }}&amp;shared={% if shared_only %}1{% endif %}&amp;present={{ present_filter|urlencode }}&amp;page={{ page.next_page_number }}">Далее →</a>{% endif %}
-</div></div>
+{% include "procurement/_supplier_price_pagination.html" with position="bottom" %}
 <p class="muted">Товар участвует, если его минимальная закупочная цена у доступных поставщиков не ниже установленного порога. Сравнение только по бренду и артикулу. Совпадение не подтверждает исполнение, комплектацию или применимость. Неизвестное наличие исключается из выбора минимальной цены. При равных ценах победитель не назначается. Даты исходных прайсов требуют проверки перед заказом.</p>
 </div>
 {% endblock %}
