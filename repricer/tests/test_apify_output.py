@@ -116,6 +116,70 @@ class ApifyOutputTests(TestCase):
         self.assertIsNone(self.active.competitor_min_price)
         self.assertEqual(KaspiActiveCompetitorOffer.objects.count(), 0)
 
+    def test_search_card_reordered_title_matches_unique_part_code(self):
+        unmatched = KaspiActiveExportRow.objects.create(
+            batch=self.batch, row_number=4,
+            master_sku="115651957_689543859",
+            product_name="FORGA стойка стабилизатора F1207022",
+            brand="forga", price=1900, status="MISSING_LISTING",
+        )
+        response = self._upload([{
+            "id": "115651957",
+            "title": "Стойка стабилизатора FORGA F1207022",
+            "brand": "FORGA",
+            "url": "https://kaspi.kz/shop/p/forga-stoika-f1207022-115651957/",
+            "city": "Almaty",
+            "offers": [
+                {"sellerId": "other-store", "sellerName": "Other Store", "price": 1600}
+            ],
+        }])
+        self.assertRedirects(response, reverse("repricer:dashboard"))
+        unmatched.refresh_from_db()
+        self.assertEqual(unmatched.competitor_min_price, 1600)
+        self.assertEqual(unmatched.competitor_scan_status, "MATCHED")
+        self.assertIsNone(self.unknown.competitor_min_price)
+
+    def test_search_card_rejects_wrong_part_article(self):
+        wrong = KaspiActiveExportRow.objects.create(
+            batch=self.batch, row_number=4,
+            master_sku="115651957_689543859",
+            product_name="FORGA стойка стабилизатора F1207022",
+            brand="forga", price=1900, status="MISSING_LISTING",
+        )
+        self._upload([{
+            "id": "115651957",
+            "title": "Стойка стабилизатора FORGA F1207033",
+            "brand": "FORGA",
+            "city": "Almaty",
+            "offers": [{"sellerId": "other-store", "price": 1200}],
+        }])
+        wrong.refresh_from_db()
+        self.assertIsNone(wrong.competitor_min_price)
+
+    def test_empty_offers_are_diagnosed_separately(self):
+        self._upload([{
+            "id": "141407587",
+            "title": self.product.title,
+            "url": self.listing.public_url,
+            "city": "Almaty",
+            "offers": [],
+        }])
+        self.active.refresh_from_db()
+        self.assertEqual(self.active.competitor_scan_status, "NO_OFFERS")
+        self.assertIn("пустой список", self.active.competitor_scan_note)
+
+    def test_own_only_is_not_competition(self):
+        self._upload([{
+            "id": "141407587",
+            "title": self.product.title,
+            "url": self.listing.public_url,
+            "city": "Almaty",
+            "offers": [{"sellerId": "30363568", "sellerName": "AG Parts", "price": 100}],
+        }])
+        self.active.refresh_from_db()
+        self.assertIsNone(self.active.competitor_min_price)
+        self.assertIn("Только предложения", self.active.competitor_scan_note)
+
     def test_clear_only_competitor_evidence(self):
         self._upload([{
             "id": "141407587", "title": self.product.title,
