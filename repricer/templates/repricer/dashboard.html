@@ -57,6 +57,9 @@
 .pc-upload-report{padding:12px 15px;border-radius:10px;border:1px solid #add6ce;background:#effbf7;margin-bottom:16px;font-size:13px;line-height:1.5}
 .pc-upload-report summary{cursor:pointer;font-weight:700}
 @media(max-width:1000px){.pc-metrics{grid-template-columns:repeat(2,minmax(125px,1fr))}.pc-top{flex-direction:column}.price-control{padding:15px 10px}}
+.pc-table-toolbar{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap;margin:18px 0 10px}
+.pc-table-toolbar h2{font-size:19px;margin:0 0 5px}
+.pc-table-toolbar p{font-size:12px;color:#64748b;margin:0}
 .pc-source-pill{display:inline-flex;padding:10px 13px;border-radius:9px;background:#e4f7f2;color:#066d65;font-weight:700;font-size:12px;white-space:nowrap}.pc-pill-secondary{background:#eef4fc;color:#2d496f}
 .pc-pipeline{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin:17px 0 20px}
 .pc-pipeline-card{background:#fff;border:1px solid #cfdfe9;border-radius:16px;overflow:hidden;box-shadow:0 5px 18px rgba(18,52,86,.055);min-width:0}
@@ -206,6 +209,13 @@
     <button type="submit" class="pc-button">Показать</button>
     <a class="pc-button" href="{% url 'repricer:dashboard' %}">Сбросить</a>
   </form>
+  <div class="pc-table-toolbar">
+    <div><h2>Таблица репрайсинга</h2><p>Наши товары, минимальные цены конкурентов и ручная корректировка.</p></div>
+    <div class="pc-actions">
+      <button class="pc-button pc-button-primary" type="submit" form="bulk-price-form">Сохранить изменения</button>
+      <a class="pc-button pc-button-primary" href="{% url 'repricer:export' %}">Скачать Excel</a>
+    </div>
+  </div>
   <form method="post" id="bulk-price-form" action="{% url 'repricer:save_prices' %}">{% csrf_token %}
   <div class="pc-table-wrap">
     <table class="pc-table">
