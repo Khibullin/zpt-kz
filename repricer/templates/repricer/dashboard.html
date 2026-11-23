@@ -71,7 +71,7 @@
 .pc-field-label{font-size:13px;color:#142e4d;font-weight:700}
 .pc-upload-inline,.pc-output-form{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .pc-upload-inline input[type=file],.pc-output-form input[type=file]{min-width:150px;max-width:100%;flex:1 1 230px;border:1px solid #cbd8e7;padding:9px 11px;border-radius:8px;font-size:12px;background:#fbfdff}
-.pc-file-hint{font-size:12px;color:#5d7188;margin:0;line-height:1.45}
+.pc-file-hint{font-size:12px;color:#5d7188;margin:0;line-height:1.45}.pc-small-link{display:inline-block;font-size:11px;margin-top:3px}
 .pc-settings-row{display:flex;align-items:center;gap:18px;flex-wrap:wrap;font-size:13px;color:#3e5873}
 .pc-inline-rules{border:1px solid #d7e7ed;border-radius:10px;background:#f5f9fc}
 .pc-inline-rules>summary{cursor:pointer;font-weight:700;color:#153655;list-style:revert;padding:12px 15px}
@@ -233,7 +233,7 @@
           <td class="money">{% if row.active %}{% if row.quantity != None %}{{ row.quantity }} шт.{% else %}—{% endif %}{% elif row.listing.last_known_kaspi_qty != None %}{{ row.listing.last_known_kaspi_qty }} шт.{% else %}—{% endif %}</td>
           <td class="money">{% if row.listing and row.listing.product.cost_price != None %}{{ row.listing.product.cost_price|intcomma }}{% else %}—{% endif %}</td>
           <td class="money">{% if row.our != None %}<strong>{{ row.our|intcomma }}</strong>{% else %}—{% endif %}</td>
-          <td class="money">{% if row.active %}{% if row.best != None %}{{ row.best|floatformat:0|intcomma }}{% if row.stale %}<span class="pc-stale">Устарело</span>{% endif %}{% else %}—{% endif %}{% else %}{% if row.state.best_price != None %}{{ row.state.best_price|floatformat:0|intcomma }}{% if row.state.is_stale %}<span class="pc-stale">Устарело</span>{% endif %}{% else %}—{% endif %}{% endif %}</td>
+          <td class="money">{% if row.active %}{% if row.best != None %}<strong>{{ row.best|floatformat:0|intcomma }}</strong>{% if row.apify_best != None %}<span class="pc-sub">{{ row.best_seller }} · {{ row.best_city }}</span>{% if row.best_url %}<a class="pc-inline-link pc-small-link" href="{{ row.best_url }}" target="_blank" rel="noopener noreferrer">Kaspi ↗</a>{% endif %}{% elif row.stale %}<span class="pc-stale">Устарело</span>{% endif %}{% else %}—{% endif %}{% else %}{% if row.state.best_price != None %}{{ row.state.best_price|floatformat:0|intcomma }}{% if row.state.is_stale %}<span class="pc-stale">Устарело</span>{% endif %}{% else %}—{% endif %}{% endif %}</td>
           <td>{% if row.listing %}<a class="pc-inline-link" href="{% url 'repricer:product' row.listing.pk %}">{% if row.active %}{{ row.count }}{% else %}{{ row.state.competitor_count }}{% endif %}</a>{% else %}—{% endif %}<span class="pc-status">{% if row.active %}{{ row.state_label }}{% else %}{{ row.state.state_label }}{% endif %}</span></td>
           <td class="money">{% if row.listing %}<input class="pc-new-price" aria-label="Новая цена" name="price_{{ row.listing.pk }}" type="number" min="1" max="999999999" step="1" value="{% if row.draft %}{{ row.draft.price }}{% elif row.our != None %}{{ row.our }}{% endif %}">{% if row.draft %}<span class="pc-sub">Черновик</span>{% endif %}{% else %}<span class="pc-sub">После сопоставления</span>{% endif %}</td>
           <td class="money">{% if row.delta != None %}<span class="{% if row.delta > 0 %}pc-delta-high{% elif row.delta < 0 %}pc-delta-low{% endif %}">{{ row.delta|floatformat:0|intcomma }}</span>{% else %}—{% endif %}</td>
