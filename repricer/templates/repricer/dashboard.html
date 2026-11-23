@@ -30,7 +30,11 @@
 .pc-table{width:100%;border-collapse:collapse;min-width:1160px;font-size:13px}
 .pc-table th{background:#f2f6fa;color:#142e4d;text-align:left;padding:13px 10px;white-space:nowrap;border-bottom:1px solid #d5e1ef}
 .pc-table td{border-bottom:1px solid #e8eef4;padding:9px 10px;vertical-align:middle}
-.pc-table tr:hover td{background:#f0faf8}.pc-table .money{white-space:nowrap;font-variant-numeric:tabular-nums}
+.pc-table tr:hover td{background:#f0faf8}
+.pc-table tbody tr.pc-price-higher td{background:#fff0f0}
+.pc-table tbody tr.pc-price-higher:hover td{background:#ffe6e6}
+.pc-table tbody tr.pc-price-higher{border-left:3px solid #eba6a6}
+.pc-table .money{white-space:nowrap;font-variant-numeric:tabular-nums}
 .pc-product{display:flex;gap:10px;align-items:center;min-width:210px}.pc-thumb{height:47px;width:52px;object-fit:contain;border:1px solid #e2e8f0;border-radius:7px;background:#fff}
 .pc-product a{font-weight:700;color:#142e4d;text-decoration:none}.pc-product a:hover{text-decoration:underline}.pc-sub{display:block;color:#64748b;font-size:11px;margin-top:4px}
 .pc-inline-link{color:#087e88;font-weight:700;text-decoration:underline}.pc-delta-high{color:#b91c1c;font-weight:700}.pc-delta-low{color:#067857;font-weight:700}
@@ -223,7 +227,9 @@
       <option value="missing" {% if status == "missing" %}selected{% endif %}>Без цены конкурента</option>
       <option value="only_own" {% if status == "only_own" %}selected{% endif %}>Только AG Parts в Output</option>
       <option value="unconfirmed" {% if status == "unconfirmed" %}selected{% endif %}>Не подтверждена карточка</option>
-      <option value="higher" {% if status == "higher" %}selected{% endif %}>Наша цена выше</option>
+      <option value="higher" {% if status == "higher" %}selected{% endif %}>Наша цена выше конкурента</option>
+      <option value="equal" {% if status == "equal" %}selected{% endif %}>Наша цена равна конкуренту</option>
+      <option value="lower" {% if status == "lower" %}selected{% endif %}>Наша цена ниже конкурента</option>
       <option value="draft" {% if status == "draft" %}selected{% endif %}>Изменённые вручную</option>
       {% if active_batch %}<option value="unmatched" {% if status == "unmatched" %}selected{% endif %}>Не сопоставлены с ZPT.KZ</option>{% endif %}
     </select>
@@ -245,7 +251,7 @@
         <th>Мин. Kaspi, ₸</th><th>Продавцов</th><th>Новая цена, ₸</th><th>Разница</th><th>Действия</th>
       </tr></thead>
       <tbody>{% for row in monitored %}
-        <tr>
+        <tr{% if row.above_competitor %} class="pc-price-higher"{% endif %}>
           <td>
             <div class="pc-product">
               {% if row.listing %}
