@@ -134,7 +134,10 @@ def repricer_rules(request):
             error = "Выберите от одного до шести городов."
         elif cards_raw not in ("1", "2", "3"):
             error = "Количество карточек должно быть 1, 2 или 3."
-        else:
+        if error and request.POST.get("return_to") == "dashboard":
+            messages.error(request, error)
+            return redirect("repricer:dashboard")
+        if not error:
             rules.cities = [city for city in APIFY_CITIES if city in selected]
             rules.cards_per_product = int(cards_raw)
             rules.save(update_fields=["cities", "cards_per_product", "updated_at"])
