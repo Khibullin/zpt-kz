@@ -180,10 +180,10 @@
           <button class="pc-button" type="submit" onclick="return confirm('Очистить результаты мониторинга по текущему ACTIVE.xlsx?')">Очистить результаты</button>
         </form>
         <div class="pc-output-stats">
-          <div><small>Товаров ACTIVE</small><strong>{{ summary.total }}</strong></div>
-          <div><small>Проверено</small><strong>{{ apify_scan_processed }}</strong></div>
-          <div><small>С ценами</small><strong>{{ apify_scan_count }}</strong></div>
-          <div><small>Без совпадений</small><strong>{{ apify_scan_missing }}</strong></div>
+          <div><small>Наши цены из ACTIVE</small><strong>{{ apify_scan_our_prices }} / {{ summary.total }}</strong></div>
+          <div><small>Цены конкурентов</small><strong>{{ apify_scan_count }}</strong></div>
+          <div><small>Только AG Parts в Output</small><strong>{{ apify_scan_only_own }}</strong></div>
+          <div><small>Нужна проверка карточки</small><strong>{{ apify_scan_unconfirmed }}</strong></div>
         </div>
         {% if apify_scan_reasons %}
         <details class="pc-output-diagnostics">
@@ -193,13 +193,13 @@
               <div><span>{{ item.competitor_scan_note }}</span><strong>{{ item.total }}</strong></div>
             {% endfor %}
           </div>
-          <p>Для анализа конкретных SKU используйте пояснения в строках таблицы. Старый Output JSON необходимо загрузить повторно, чтобы применить улучшенное сопоставление.</p>
+          <p>Отчёт фиксирует результат последней обработки Output JSON. Отсутствие другого продавца в файле не доказывает отсутствие конкурентов на Kaspi.</p>
         </details>
         {% endif %}
         {% if apify_result and active_batch and apify_result.source_batch_id == active_batch.pk %}
           <div class="pc-output-note"><strong>Обработан {{ apify_result.filename }}</strong> · {{ apify_result.checked_at }}.
-          Подтверждено {{ apify_result.with_prices }} товаров, без подтверждённых предложений {{ apify_result.without_prices }};
-          отклонено неоднозначных совпадений: {{ apify_result.unconfirmed }}.</div>
+          Цены конкурентов найдены для {{ apify_scan_count }} товаров, только AG Parts — для {{ apify_scan_only_own }},
+          требуют проверки карточки — {{ apify_scan_unconfirmed }}. Отклонено неподтверждённых результатов поиска: {{ apify_result.unconfirmed }}.</div>
         {% else %}
           <p class="pc-file-hint">После обработки здесь появится отчёт. В таблицу попадут только подтверждённые цены конкурентов; наши цены продажи останутся без изменений.</p>
         {% endif %}
@@ -220,7 +220,9 @@
     <select name="status" aria-label="Наличие конкурентов">
       <option value="">Все товары</option>
       <option value="offers" {% if status == "offers" %}selected{% endif %}>Есть конкуренты</option>
-      <option value="missing" {% if status == "missing" %}selected{% endif %}>Без конкурентов</option>
+      <option value="missing" {% if status == "missing" %}selected{% endif %}>Без цены конкурента</option>
+      <option value="only_own" {% if status == "only_own" %}selected{% endif %}>Только AG Parts в Output</option>
+      <option value="unconfirmed" {% if status == "unconfirmed" %}selected{% endif %}>Не подтверждена карточка</option>
       <option value="higher" {% if status == "higher" %}selected{% endif %}>Наша цена выше</option>
       <option value="draft" {% if status == "draft" %}selected{% endif %}>Изменённые вручную</option>
       {% if active_batch %}<option value="unmatched" {% if status == "unmatched" %}selected{% endif %}>Не сопоставлены с ZPT.KZ</option>{% endif %}
