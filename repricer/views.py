@@ -270,6 +270,7 @@ def repricer_dashboard(request):
     rules = saved_rules()
     scan_rows = KaspiActiveExportRow.objects.filter(batch=active_batch) if active_batch else KaspiActiveExportRow.objects.none()
     scan_count = scan_rows.filter(competitor_min_price__isnull=False).count()
+    scan_processed = scan_rows.filter(competitor_scan_status__in=["MATCHED", "NO_OFFERS"]).count()
     scan_date = scan_rows.aggregate(last=Max("competitor_checked_at"))["last"]
     response = render(request, "repricer/dashboard.html", {
         "monitored": monitored, "page": page, "page_numbers": page_numbers, "search": search, "supplier": supplier,
@@ -295,6 +296,7 @@ def repricer_dashboard(request):
         ],
         "apify_cards": str(rules.cards_per_product),
         "apify_scan_count": scan_count,
+        "apify_scan_processed": scan_processed,
         "apify_scan_date": scan_date,
         "apify_scan_missing": max(0, (active_context.get("summary", {}).get("total", 0) - scan_count)),
         "kaspi_upload_result": request.session.get("kaspi_upload_result"),
