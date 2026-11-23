@@ -133,6 +133,37 @@ class RepricerApifyRulesTests(TestCase):
         self.assertRedirects(response, reverse("repricer:dashboard"))
         self.assertEqual(len(KaspiRepricerSearchSettings.objects.get(pk=1).cities), 6)
 
+    def test_followup_queries_only_missing_competitor_prices(self):
+        from repricer.apify_json import remaining_input_and_mapping
+        rows = list(KaspiActiveExportRow.objects.filter(batch=self.batch).select_related(
+            "listing", "listing__product", "listing__product__brand"))
+        # Current live listing had a verified competing price in a previous run.
+        rows[0].competitor_min_price = 2000
+        rows[1].product_name = "FORGA стойка стабилизатора F1207022"
+        rows[1].brand = "FORGA"
+        payload, mapping = remaining_input_and_mapping(rows, ["Almaty"], 3)
+        self.assertEqual(payload["startUrls"], [])
+        self.assertEqual(payload["cities"], ["Almaty"])
+        self.assertEqual(payload["maxItemsPerQuery"], 3)
+        self.assertEqual(len(mapping), 1)
+        self.assertIn("F1207022", " ".join(payload["searchQueries"]))
+        self.assertTrue(mapping[0]["requires_result_verification"])
+        self.assertNotIn("1017110XEN01", " ".join(payload["searchQueries"]))
+
+    def test_followup_download_uses_last_saved_cities(self):
+        from repricer.apify_json import remaining_input_and_mapping
+        self.client.force_login(self.staff)
+        response = self.client.post(reverse("repricer:rules"), {
+            "cities": ["Almaty", "Shymkent"], "cards_per_product": "3",
+            "return_to": "dashboard", "action": "generate_remaining",
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("remaining", response["Content-Disposition"])
+        payload = json.loads(response.content)
+        self.assertEqual(payload["cities"], ["Almaty", "Shymkent"])
+        self.assertEqual(payload["maxItemsPerQuery"], 3)
+        self.assertEqual(payload["startUrls"], [])
+
     def test_invalid_rules_do_not_change_settings(self):
         self.client.force_login(self.staff)
         self.client.post(reverse("repricer:rules"), {
