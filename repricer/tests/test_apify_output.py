@@ -214,6 +214,50 @@ class ApifyOutputTests(TestCase):
         unconfirmed = self.client.get(reverse("repricer:dashboard") + "?status=unconfirmed")
         self.assertEqual(unconfirmed.context["page"].paginator.count, 1)
 
+    def test_followup_output_does_not_erase_existing_confirmed_minimum(self):
+        self._upload([{
+            "id": "141407587", "url": self.listing.public_url,
+            "title": self.product.title, "city": "Almaty",
+            "offers": [{"sellerId": "other-shop", "price": 2200}],
+        }])
+        self.active.refresh_from_db()
+        self.assertEqual(self.active.competitor_min_price, 2200)
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        # A later discovery batch has only our own seller for that product:
+        # it must not erase the earlier confirmed competitor's 2200.
+        upload = SimpleUploadedFile("followup.json", json.dumps([{
+            "id": "141407587", "url": self.listing.public_url,
+            "title": self.product.title, "city": "Astana",
+            "offers": [{"sellerId": "30363568", "price": 2000}],
+        }]).encode("utf-8"))
+        result = self.client.post(reverse("repricer:apify_output"), {
+            "apify_output": upload, "merge": "1",
+        })
+        self.assertRedirects(result, reverse("repricer:dashboard"))
+        self.active.refresh_from_db()
+        self.assertEqual(self.active.competitor_min_price, 2200)
+        self.assertEqual(KaspiActiveCompetitorOffer.objects.count(), 1)
+
+    def test_followup_cheaper_offer_updates_minimum_without_editing_our_price(self):
+        self._upload([{
+            "id": "141407587", "url": self.listing.public_url,
+            "title": self.product.title, "city": "Almaty",
+            "offers": [{"sellerId": "other-shop", "price": 2200}],
+        }])
+        upload = SimpleUploadedFile("followup.json", json.dumps([{
+            "id": "141407587", "url": self.listing.public_url,
+            "title": self.product.title, "city": "Astana",
+            "offers": [{"sellerId": "new-shop", "price": 1900}],
+        }]).encode("utf-8"))
+        self.client.post(reverse("repricer:apify_output"), {
+            "apify_output": upload, "merge": "1",
+        })
+        self.active.refresh_from_db()
+        self.listing.refresh_from_db()
+        self.assertEqual(self.active.competitor_min_price, 1900)
+        self.assertEqual(KaspiActiveCompetitorOffer.objects.count(), 2)
+        self.assertEqual(self.listing.last_known_our_price, 2700)
+
     def test_nonstaff_cannot_import(self):
         self.client.force_login(User.objects.create_user("not-staff"))
         self.assertNotEqual(self._upload([]).status_code, 200)
