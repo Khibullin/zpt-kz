@@ -311,3 +311,17 @@ class KaspiActiveExportRow(models.Model):
         indexes = [
             models.Index(fields=("batch", "status"), name="repr_active_batch_status_idx"),
         ]
+
+
+class KaspiRepricerSearchSettings(models.Model):
+    """Persisted operator choices for producing an Apify input file.
+
+    These settings only affect the generated JSON, never Kaspi or our prices.
+    """
+    cities = models.JSONField(default=list, verbose_name="Города Kaspi")
+    cards_per_product = models.PositiveSmallIntegerField(default=2, verbose_name="Карточек на товар")
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Настройки поиска цен Kaspi"
+        verbose_name_plural = "Настройки поиска цен Kaspi"
