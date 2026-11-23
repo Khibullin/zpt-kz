@@ -93,6 +93,13 @@
 .pc-output-stats small{display:block;color:#536a82;font-size:11px;min-height:28px}
 .pc-output-stats strong{display:block;color:#112e50;font-size:23px;margin-top:4px}
 .pc-output-note{padding:10px 12px;border-radius:8px;background:#e8f8f1;font-size:12px;line-height:1.5;color:#14594c}
+.pc-output-diagnostics{border:1px solid #d5e2ef;background:#f7fafd;border-radius:9px;padding:9px 11px;font-size:12px}
+.pc-output-diagnostics>summary{cursor:pointer;color:#183e5b;font-weight:700}
+.pc-diagnostic-rows{margin-top:10px;display:grid;gap:5px}
+.pc-diagnostic-rows>div{display:flex;gap:15px;justify-content:space-between}
+.pc-diagnostic-rows strong{font-variant-numeric:tabular-nums}
+.pc-output-diagnostics p{color:#667b8a;line-height:1.5}
+.pc-diagnostic-note{display:block;color:#a25713;font-size:10px;line-height:1.35;margin-top:3px;max-width:180px}
 @media(max-width:1250px){.pc-pipeline{grid-template-columns:1fr}.pc-pipeline-card{max-width:none}}
 @media(max-width:600px){.pc-pipeline-body{padding:12px}.pc-pipeline-header{padding:13px}.pc-cities-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.pc-output-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.pc-pipeline-header h2{font-size:17px}}
 </style>
@@ -177,6 +184,17 @@
           <div><small>С ценами</small><strong>{{ apify_scan_count }}</strong></div>
           <div><small>Без совпадений</small><strong>{{ apify_scan_missing }}</strong></div>
         </div>
+        {% if apify_scan_reasons %}
+        <details class="pc-output-diagnostics">
+          <summary>Почему не найдены цены — подробная диагностика</summary>
+          <div class="pc-diagnostic-rows">
+            {% for item in apify_scan_reasons %}
+              <div><span>{{ item.competitor_scan_note }}</span><strong>{{ item.total }}</strong></div>
+            {% endfor %}
+          </div>
+          <p>Для анализа конкретных SKU используйте пояснения в строках таблицы. Старый Output JSON необходимо загрузить повторно, чтобы применить улучшенное сопоставление.</p>
+        </details>
+        {% endif %}
         {% if apify_result and active_batch and apify_result.source_batch_id == active_batch.pk %}
           <div class="pc-output-note"><strong>Обработан {{ apify_result.filename }}</strong> · {{ apify_result.checked_at }}.
           Подтверждено {{ apify_result.with_prices }} товаров, без подтверждённых предложений {{ apify_result.without_prices }};
@@ -245,7 +263,7 @@
           <td class="money">{% if row.listing and row.listing.product.cost_price != None %}{{ row.listing.product.cost_price|intcomma }}{% else %}—{% endif %}</td>
           <td class="money">{% if row.our != None %}<strong>{{ row.our|intcomma }}</strong>{% else %}—{% endif %}</td>
           <td class="money">{% if row.active %}{% if row.best != None %}<strong>{{ row.best|floatformat:0|intcomma }}</strong>{% if row.apify_best != None %}<span class="pc-sub">{{ row.best_seller }} · {{ row.best_city }}</span>{% if row.best_url %}<a class="pc-inline-link pc-small-link" href="{{ row.best_url }}" target="_blank" rel="noopener noreferrer">Kaspi ↗</a>{% endif %}{% elif row.stale %}<span class="pc-stale">Устарело</span>{% endif %}{% else %}—{% endif %}{% else %}{% if row.state.best_price != None %}{{ row.state.best_price|floatformat:0|intcomma }}{% if row.state.is_stale %}<span class="pc-stale">Устарело</span>{% endif %}{% else %}—{% endif %}{% endif %}</td>
-          <td>{% if row.listing %}<a class="pc-inline-link" href="{% url 'repricer:product' row.listing.pk %}">{% if row.active %}{{ row.count }}{% else %}{{ row.state.competitor_count }}{% endif %}</a>{% else %}—{% endif %}<span class="pc-status">{% if row.active %}{{ row.state_label }}{% else %}{{ row.state.state_label }}{% endif %}</span></td>
+          <td>{% if row.listing %}<a class="pc-inline-link" href="{% url 'repricer:product' row.listing.pk %}">{% if row.active %}{{ row.count }}{% else %}{{ row.state.competitor_count }}{% endif %}</a>{% else %}—{% endif %}<span class="pc-status">{% if row.active %}{{ row.state_label }}{% else %}{{ row.state.state_label }}{% endif %}{% if row.scan_note %}<span class="pc-diagnostic-note">{{ row.scan_note }}</span>{% endif %}</span></td>
           <td class="money">{% if row.listing %}<input class="pc-new-price" aria-label="Новая цена" name="price_{{ row.listing.pk }}" type="number" min="1" max="999999999" step="1" value="{% if row.draft %}{{ row.draft.price }}{% elif row.our != None %}{{ row.our }}{% endif %}">{% if row.draft %}<span class="pc-sub">Черновик</span>{% endif %}{% else %}<span class="pc-sub">После сопоставления</span>{% endif %}</td>
           <td class="money">{% if row.delta != None %}<span class="{% if row.delta > 0 %}pc-delta-high{% elif row.delta < 0 %}pc-delta-low{% endif %}">{{ row.delta|floatformat:0|intcomma }}</span>{% else %}—{% endif %}</td>
           <td>{% if row.listing %}<a class="pc-open" href="{% url 'repricer:product' row.listing.pk %}">Открыть ↗</a>{% else %}<span class="pc-status">Нет привязки</span>{% endif %}</td>
