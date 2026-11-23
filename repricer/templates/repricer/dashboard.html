@@ -131,7 +131,7 @@
               <li>Результат — одна минимальная подтверждённая цена конкурента на товар.</li>
               <li>Сохраняем продавца, город, ссылку и дату проверки; наши цены не меняем.</li>
             </ol>
-            <form method="post" action="{% url 'repricer:rules' %}" class="pc-rule-form">
+            <form method="post" action="{% url 'repricer:rules' %}" class="pc-rule-form" id="repricer-rules-form">
               {% csrf_token %}<input type="hidden" name="return_to" value="dashboard">
               <div class="pc-field-label">Выберите города поиска</div>
               <div class="pc-cities-grid">
@@ -151,11 +151,11 @@
           </div>
         </details>
         <div class="pc-panel-actions">
-          <a class="pc-button pc-button-primary" href="{% url 'repricer:apify_export' %}">Сформировать JSON для Apify</a>
+          <button class="pc-button pc-button-primary" type="submit" form="repricer-rules-form" name="action" value="generate">Сформировать JSON для Apify</button>
           <a class="pc-button" href="{% url 'repricer:apify_export' %}?format=mapping">Соответствия SKU</a>
           <a class="pc-text-link" href="https://apify.com/firsthand/kaspi-api" target="_blank" rel="noopener noreferrer">Открыть Apify</a>
         </div>
-        <p class="pc-file-hint">JSON формируется из последнего ACTIVE.xlsx и сохранённых правил. Запуск Apify производится в его кабинете.</p>
+        <p class="pc-file-hint">Кнопка сохраняет отмеченные города и число карточек, затем скачивает JSON. Для товара без точного артикула поиск помечается как требующий подтверждения. Apify запускается отдельно.</p>
       </div>
     </section>
     <section class="pc-pipeline-card pc-pipeline-output">
