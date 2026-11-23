@@ -18,6 +18,8 @@ DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
 # Preserve internal procurement while retiring public storefront work.
 PUBLIC_CATALOG_ENABLED = os.getenv('PUBLIC_CATALOG_ENABLED', 'false').lower() == 'true'
+# Temporarily suspend all public functions; keep staff procurement and data intact.
+PUBLIC_SITE_ENABLED = os.getenv('PUBLIC_SITE_ENABLED', 'false').lower() == 'true'
 
 _DEV_SECRET_KEY = 'django-insecure-dev-only-change-me'
 _BUILD_COMMANDS = {'collectstatic', 'migrate', 'check', 'makemigrations'}
@@ -84,6 +86,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'core.public_site_suspension.PublicSiteSuspensionMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
