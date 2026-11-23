@@ -153,7 +153,7 @@
 {% endif %}<td class="row-actions">
 <button type="button" class="quick-view" data-url="{% url 'procurement:detail' row.offer.pk %}?compact=1" aria-haspopup="dialog">Просмотр</button>
 {% if mode == 'best' %}
-{% if row.in_basket %}<small data-in-basket>Уже в списке</small>{% else %}<label class="purchase-check"><input type="checkbox" name="offer_ids" value="{{ row.offer.pk|unlocalize }}" form="bulk-selection" aria-label="Отметить в список закупки: {{ row.offer.brand }} {{ row.offer.article }}"> В список</label>{% if not row.purchase_ready %}<small class="preliminary-status">Требует проверки до заказа</small>{% endif %}{% endif %}
+{% if row.in_basket %}<small data-in-basket>Уже в списке</small>{% else %}<label class="purchase-check"><input type="checkbox" name="offer_ids" value="{{ row.offer.pk|unlocalize }}" form="bulk-selection" aria-label="Отметить в список закупки: {{ row.offer.brand }} {{ row.offer.article }}"> В список</label>{% endif %}
 {% elif mode == 'kaspi_prices' %}<small class="preliminary-status">Только для ознакомления — нужна повторная проверка</small>{% elif mode == 'stale_prices' %}<small class="preliminary-status">Сначала обновите цену Kaspi</small>{% elif row.omega_review %}<small class="preliminary-status">Предварительно: требуется проверка Kaspi по Казахстану</small>{% else %}<form method="post" action="{% url 'procurement:select' row.offer.pk %}" data-selection-form>{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button class="primary">+ В закупку</button><small data-selection-status role="status" aria-live="polite"></small></form>{% endif %}
 </td>
 </tr>{% empty %}<tr>
