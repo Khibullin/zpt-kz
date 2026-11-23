@@ -39,7 +39,7 @@ def _persist_active_rows(result, source_rows):
     batch = CatalogImportBatch.objects.get(pk=result.batch_id)
     headers = result.headers
     indices = {
-        "name": _optional_index(headers, ("Название", "Наименование", "Наименование товара", "Название товара", "name", "title", "product name")),
+        "name": _optional_index(headers, ("Название", "Наименование", "Наименование товара", "Название товара", "name", "title", "product name", "model")),
         "brand": _optional_index(headers, ("Бренд", "Марка", "brand")),
         "merchant": _optional_index(headers, ("Merchant SKU", "merchant_sku", "Артикул продавца", "Артикул", "Код товара продавца")),
     }
