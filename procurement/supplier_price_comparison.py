@@ -241,10 +241,17 @@ def supplier_price_comparison(request):
         rows = sorted(rows, key=lambda r: (r['saving'] is None, -(r['saving'] or 0)))
     elif order == 'price':
         rows = sorted(rows, key=lambda r: min(r['prices'].values()))
-    page = Paginator(rows, 50).get_page(request.GET.get('page'))
+    paginator = Paginator(rows, 50)
+    page = paginator.get_page(request.GET.get('page'))
+    page_links = list(paginator.get_elided_page_range(
+        number=page.number, on_each_side=2, on_ends=1,
+    ))
+    middle_page = max(1, (paginator.num_pages + 1) // 2)
     return render(request, 'procurement/supplier_price_comparison.html',
                   context(request, page=page, snapshot=snapshot, cards=cards,
                           today=timezone.localdate().isoformat(), q=search,
                           min_cost=minimum,
                           supplier_filter=supplier, present_filter=present, shared_only=shared_only,
-                          sort=order, displayed_count=len(rows)))
+                          sort=order, displayed_count=len(rows),
+                          page_links=page_links, middle_page=middle_page,
+                          page_ellipsis=Paginator.ELLIPSIS))
