@@ -59,7 +59,8 @@
   </section>
   <section class="card">
     <h2>Предложения конкурентов на Kaspi</h2>
-    <p class="muted">Найдено в последнем снимке: {{ offers|length }}. {{ row.state.state_label }}.</p>
+    <p class="muted">{% if active_row and active_row.competitor_checked_at %}Подтверждённых предложений Apify: {{ offers|length }}. Обработано {{ active_row.competitor_checked_at|date:"d.m.Y H:i" }}.{% else %}Найдено в последнем снимке: {{ offers|length }}. {{ row.state.state_label }}.{% endif %}</p>
+    {% if active_row and active_row.competitor_min_price != None %}<p><strong>Минимальная цена конкурента: {{ active_row.competitor_min_price }} ₸</strong> · {{ active_row.competitor_seller }} · {{ active_row.competitor_city }}</p>{% endif %}
     {% if is_stale %}<div class="muted-banner">Данные устарели. Они показаны для сведения, а не как актуальные цены рынка.</div>{% endif %}
     {% if offers %}
       <div style="overflow:auto"><table>
@@ -67,7 +68,7 @@
         <tbody>{% for offer in offers %}
         <tr><td>{{ forloop.counter }}</td><td>{{ offer.seller_name|default:"Не указан" }}</td>
           <td>{{ offer.city_name }}</td><td><strong>{{ offer.price|floatformat:0|intcomma }}</strong></td>
-          <td>{% if row.listing.public_url %}<a target="_blank" rel="noopener noreferrer" href="{{ row.listing.public_url }}">Карточка ↗</a>{% else %}Нет ссылки{% endif %}</td>
+          <td>{% if offer.product_url %}<a target="_blank" rel="noopener noreferrer" href="{{ offer.product_url }}">Карточка ↗</a>{% elif row.listing.public_url %}<a target="_blank" rel="noopener noreferrer" href="{{ row.listing.public_url }}">Карточка ↗</a>{% else %}Нет ссылки{% endif %}</td>
         </tr>{% endfor %}</tbody>
       </table></div>
     {% else %}<div class="empty">Достоверных предложений конкурентов по последнему снимку нет. Неизвестная цена не приравнивается к нулю.</div>{% endif %}
