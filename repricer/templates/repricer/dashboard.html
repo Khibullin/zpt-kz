@@ -118,7 +118,7 @@
           <button type="submit" class="pc-button">Загрузить ACTIVE</button>
         </form>
         <div class="pc-file-hint">{% if active_batch %}<strong>{{ active_batch.filename }}</strong> · {{ summary.total }} строк · {{ active_batch.finished_at|date:"d.m.Y H:i" }}{% else %}Загрузите последнюю выгрузку ACTIVE.xlsx для полного ассортимента.{% endif %}</div>
-        <div class="pc-settings-row"><span><strong>Города:</strong> {{ apify_rules.cities|length }} из 6</span><span><strong>Карточек:</strong> {{ apify_rules.cards_per_product }}</span></div>
+        <div class="pc-settings-row"><span><strong>Города:</strong> <span id="apify-selected-cities">{{ apify_rules.cities|length }}</span> из 6</span><span><strong>Карточек:</strong> <span id="apify-selected-cards">{{ apify_rules.cards_per_product }}</span></span></div>
         <details class="pc-inline-rules" id="inline-rules">
           <summary>Правила поиска и обработки</summary>
           <div class="pc-rules-content">
@@ -273,5 +273,21 @@
     <p>Старый прямой источник Kaspi возвращал HTTP 405. Рабочий сценарий теперь: ACTIVE.xlsx → Apify Input JSON → загрузка Output JSON.</p>
     <p>Исторических предложений: {{ public_snapshot_count }}. Свежих за {{ fresh_minutes }} минут: {{ fresh_snapshot_count }}. Городов с данными: {{ covered_city_count }} из {{ city_total }}.</p>
   </details>
+<script>
+(function () {
+  const rules = document.getElementById('repricer-rules-form');
+  if (!rules) return;
+  const citiesCount = document.getElementById('apify-selected-cities');
+  const cardsCount = document.getElementById('apify-selected-cards');
+  function update() {
+    const chosenCities = rules.querySelectorAll('input[name="cities"]:checked');
+    const chosenCards = rules.querySelector('input[name="cards_per_product"]:checked');
+    if (citiesCount) citiesCount.textContent = String(chosenCities.length);
+    if (cardsCount && chosenCards) cardsCount.textContent = chosenCards.value;
+  }
+  rules.addEventListener('change', update);
+  update();
+})();
+</script>
 </div>
 {% endblock %}
