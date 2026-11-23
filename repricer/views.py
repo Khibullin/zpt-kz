@@ -291,6 +291,7 @@ def repricer_dashboard(request):
     scan_rows = KaspiActiveExportRow.objects.filter(batch=active_batch) if active_batch else KaspiActiveExportRow.objects.none()
     scan_count = scan_rows.filter(competitor_min_price__isnull=False).count()
     scan_processed = scan_rows.filter(competitor_scan_status__in=["MATCHED", "NO_OFFERS"]).count()
+    scan_remaining = scan_rows.filter(competitor_min_price__isnull=True).count()
     scan_only_own = scan_rows.filter(competitor_scan_note="Только предложения нашего продавца AG Parts").count()
     scan_unconfirmed = scan_rows.filter(competitor_scan_status="NOT_CONFIRMED").count()
     scan_our_prices = scan_rows.filter(price__isnull=False).count()
@@ -327,6 +328,7 @@ def repricer_dashboard(request):
         "apify_scan_count": scan_count,
         "apify_scan_processed": scan_processed,
         "apify_scan_only_own": scan_only_own,
+        "apify_scan_remaining": scan_remaining,
         "apify_scan_unconfirmed": scan_unconfirmed,
         "apify_scan_our_prices": scan_our_prices,
         "apify_scan_reasons": scan_reasons,
