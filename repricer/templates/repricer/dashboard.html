@@ -57,21 +57,132 @@
 .pc-upload-report{padding:12px 15px;border-radius:10px;border:1px solid #add6ce;background:#effbf7;margin-bottom:16px;font-size:13px;line-height:1.5}
 .pc-upload-report summary{cursor:pointer;font-weight:700}
 @media(max-width:1000px){.pc-metrics{grid-template-columns:repeat(2,minmax(125px,1fr))}.pc-top{flex-direction:column}.price-control{padding:15px 10px}}
+.pc-source-pill{display:inline-flex;padding:10px 13px;border-radius:9px;background:#e4f7f2;color:#066d65;font-weight:700;font-size:12px;white-space:nowrap}.pc-pill-secondary{background:#eef4fc;color:#2d496f}
+.pc-pipeline{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin:17px 0 20px}
+.pc-pipeline-card{background:#fff;border:1px solid #cfdfe9;border-radius:16px;overflow:hidden;box-shadow:0 5px 18px rgba(18,52,86,.055);min-width:0}
+.pc-pipeline-input{border-color:#b0ddd6}.pc-pipeline-output{border-color:#bed9f4}
+.pc-pipeline-header{display:flex;gap:13px;align-items:center;padding:16px 19px;background:#e9f8f5;min-height:88px}
+.pc-pipeline-output .pc-pipeline-header{background:#eaf4ff}
+.pc-step-number{flex:none;display:grid;place-items:center;width:43px;height:43px;border-radius:50%;background:#069b8e;color:white;font-size:23px;font-weight:800}
+.pc-pipeline-output .pc-step-number{background:#238fe1}
+.pc-pipeline-header h2{font-size:19px;line-height:1.2;color:#142e4d;margin:0 0 4px}
+.pc-pipeline-header p{font-size:12px;color:#526a83;margin:0}
+.pc-pipeline-body{padding:17px 19px;display:flex;flex-direction:column;gap:12px}
+.pc-field-label{font-size:13px;color:#142e4d;font-weight:700}
+.pc-upload-inline,.pc-output-form{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.pc-upload-inline input[type=file],.pc-output-form input[type=file]{min-width:150px;max-width:100%;flex:1 1 230px;border:1px solid #cbd8e7;padding:9px 11px;border-radius:8px;font-size:12px;background:#fbfdff}
+.pc-file-hint{font-size:12px;color:#5d7188;margin:0;line-height:1.45}
+.pc-settings-row{display:flex;align-items:center;gap:18px;flex-wrap:wrap;font-size:13px;color:#3e5873}
+.pc-inline-rules{border:1px solid #d7e7ed;border-radius:10px;background:#f5f9fc}
+.pc-inline-rules>summary{cursor:pointer;font-weight:700;color:#153655;list-style:revert;padding:12px 15px}
+.pc-inline-rules[open]>summary{background:#def7f2;color:#08766e}
+.pc-rules-content{padding:10px 15px 15px}.pc-rules-content ol{font-size:12px;line-height:1.55;padding-left:19px;margin:2px 0 14px}.pc-rules-content li{margin:3px 0}
+.pc-rule-form{padding-top:10px;border-top:1px solid #d6e5ed;display:grid;gap:11px}
+.pc-cities-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.pc-cities-grid label{display:flex;align-items:center;gap:6px;font-size:12px;padding:8px 6px;border-radius:7px;background:#fff;border:1px solid #e0e9ef}
+.pc-cities-grid input,.pc-radio-line input{accent-color:#008f82}
+.pc-rule-bottom{display:flex;align-items:end;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.pc-radio-line{display:flex;gap:12px;margin-top:6px}.pc-radio-line label{display:flex;align-items:center;gap:5px}
+.pc-panel-actions{display:flex;flex-wrap:wrap;align-items:center;gap:9px}
+.pc-text-link{font-size:12px;color:#007a72;text-decoration:underline;font-weight:700}
+.pc-clear-form{margin-top:-5px}.pc-output-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:3px}
+.pc-output-stats>div{background:#f6f9fd;border:1px solid #dce6ee;border-radius:9px;padding:13px 10px}
+.pc-output-stats small{display:block;color:#536a82;font-size:11px;min-height:28px}
+.pc-output-stats strong{display:block;color:#112e50;font-size:23px;margin-top:4px}
+.pc-output-note{padding:10px 12px;border-radius:8px;background:#e8f8f1;font-size:12px;line-height:1.5;color:#14594c}
+@media(max-width:1250px){.pc-pipeline{grid-template-columns:1fr}.pc-pipeline-card{max-width:none}}
+@media(max-width:600px){.pc-pipeline-body{padding:12px}.pc-pipeline-header{padding:13px}.pc-cities-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.pc-output-stats{grid-template-columns:repeat(3,minmax(0,1fr))}.pc-pipeline-header h2{font-size:17px}}
 </style>
 
 <div class="price-control">
   <a href="{% url 'inventory:overview' %}" class="pc-back">← Учёт товаров и денег</a>
   <div class="pc-top">
-    <div><h1>Контроль цен Kaspi</h1><p>Наши товары, цены конкурентов и ручная подготовка новых цен. Автоматическое изменение цен отключено.</p></div>
+    <div><h1>Контроль цен Kaspi — Репрайсинг</h1><p>Мониторинг предложений конкурентов AG Parts. Новые цены подготавливаются вручную.</p></div>
     <div class="pc-actions">
-
-      <a class="pc-button" href="{% url 'repricer:rules' %}">⚙ Правила</a>
-      <a class="pc-button pc-button-primary" href="{% url 'repricer:apify_export' %}">Скачать JSON Apify</a>
-      <button class="pc-button pc-button-primary" type="submit" form="bulk-price-form">Сохранить изменения</button>
-      <a class="pc-button pc-button-primary" href="{% url 'repricer:export' %}">⬇ Скачать Excel</a>
+      <span class="pc-source-pill">ACTIVE: {% if active_batch %}{{ summary.total }} товаров{% else %}не загружен{% endif %}</span>
+      <span class="pc-source-pill pc-pill-secondary">Последняя проверка: {% if apify_scan_date %}{{ apify_scan_date|date:"d.m.Y H:i" }}{% else %}—{% endif %}</span>
     </div>
   </div>
   {% if messages %}{% for message in messages %}<div class="pc-toast" role="status">{{ message }}</div>{% endfor %}{% endif %}
+  <div class="pc-pipeline">
+    <section class="pc-pipeline-card pc-pipeline-input">
+      <header class="pc-pipeline-header"><span class="pc-step-number">1</span><div><h2>Подготовка задания Apify (Input JSON)</h2><p>ACTIVE.xlsx → правила поиска → JSON для Apify</p></div></header>
+      <div class="pc-pipeline-body">
+        <div class="pc-field-label">Файл ACTIVE.xlsx (наши товары Kaspi)</div>
+        <form class="pc-upload-inline" method="post" enctype="multipart/form-data" action="{% url 'repricer:upload_kaspi' %}">
+          {% csrf_token %}
+          <input type="file" name="kaspi_file" accept=".xlsx,.csv" aria-label="Выбрать файл ACTIVE.xlsx" required>
+          <button type="submit" class="pc-button">Загрузить ACTIVE</button>
+        </form>
+        <div class="pc-file-hint">{% if active_batch %}<strong>{{ active_batch.filename }}</strong> · {{ summary.total }} строк · {{ active_batch.finished_at|date:"d.m.Y H:i" }}{% else %}Загрузите последнюю выгрузку ACTIVE.xlsx для полного ассортимента.{% endif %}</div>
+        <div class="pc-settings-row"><span><strong>Города:</strong> {{ apify_rules.cities|length }} из 6</span><span><strong>Карточек:</strong> {{ apify_rules.cards_per_product }}</span></div>
+        <details class="pc-inline-rules" id="inline-rules">
+          <summary>Правила поиска и обработки</summary>
+          <div class="pc-rules-content">
+            <ol>
+              <li>Ассортимент — все товары последнего ACTIVE.xlsx, включая несопоставленные SKU.</li>
+              <li>Города — выбранные галочками из шести городов.</li>
+              <li>Карточки — подтверждённая карточка или 1–3 кандидата поиска.</li>
+              <li>Поиск — подтверждённая ссылка, иначе название, бренд и артикул.</li>
+              <li>Продавцы — все доступные, кроме AG Parts.</li>
+              <li>Результат — одна минимальная подтверждённая цена конкурента на товар.</li>
+              <li>Сохраняем продавца, город, ссылку и дату проверки; наши цены не меняем.</li>
+            </ol>
+            <form method="post" action="{% url 'repricer:rules' %}" class="pc-rule-form">
+              {% csrf_token %}<input type="hidden" name="return_to" value="dashboard">
+              <div class="pc-field-label">Выберите города поиска</div>
+              <div class="pc-cities-grid">
+                {% for city in apify_cities %}<label><input type="checkbox" name="cities" value="{{ city.code }}" {% if city.checked %}checked{% endif %}>{{ city.name }}</label>{% endfor %}
+              </div>
+              <div class="pc-rule-bottom">
+                <div><span class="pc-field-label">Карточек на товар</span>
+                  <div class="pc-radio-line">
+                    <label><input type="radio" name="cards_per_product" value="1" {% if apify_cards == "1" %}checked{% endif %}>1</label>
+                    <label><input type="radio" name="cards_per_product" value="2" {% if apify_cards == "2" %}checked{% endif %}>2</label>
+                    <label><input type="radio" name="cards_per_product" value="3" {% if apify_cards == "3" %}checked{% endif %}>3</label>
+                  </div>
+                </div>
+                <button class="pc-button" type="submit">Сохранить правила</button>
+              </div>
+            </form>
+          </div>
+        </details>
+        <div class="pc-panel-actions">
+          <a class="pc-button pc-button-primary" href="{% url 'repricer:apify_export' %}">Сформировать JSON для Apify</a>
+          <a class="pc-button" href="{% url 'repricer:apify_export' %}?format=mapping">Соответствия SKU</a>
+          <a class="pc-text-link" href="https://apify.com/firsthand/kaspi-api" target="_blank" rel="noopener noreferrer">Открыть Apify</a>
+        </div>
+        <p class="pc-file-hint">JSON формируется из последнего ACTIVE.xlsx и сохранённых правил. Запуск Apify производится в его кабинете.</p>
+      </div>
+    </section>
+    <section class="pc-pipeline-card pc-pipeline-output">
+      <header class="pc-pipeline-header"><span class="pc-step-number">2</span><div><h2>Обработка результатов Apify (Output JSON)</h2><p>Загрузите Dataset JSON и проведите сравнение цен</p></div></header>
+      <div class="pc-pipeline-body">
+        <div class="pc-field-label">Output JSON с предложениями продавцов</div>
+        <form method="post" enctype="multipart/form-data" action="{% url 'repricer:apify_output' %}" class="pc-output-form">
+          {% csrf_token %}
+          <input name="apify_output" type="file" accept=".json,application/json" aria-label="Выберите Output JSON" required>
+          <button class="pc-button pc-button-primary" type="submit">Обработать / Провести мониторинг</button>
+        </form>
+        <form method="post" action="{% url 'repricer:apify_clear' %}" class="pc-clear-form">
+          {% csrf_token %}
+          <button class="pc-button" type="submit" onclick="return confirm('Очистить результаты мониторинга по текущему ACTIVE.xlsx?')">Очистить результаты</button>
+        </form>
+        <div class="pc-output-stats">
+          <div><small>Товаров ACTIVE</small><strong>{{ summary.total }}</strong></div>
+          <div><small>Обработано с ценами</small><strong>{{ apify_scan_count }}</strong></div>
+          <div><small>Без подтверждения</small><strong>{{ apify_scan_missing }}</strong></div>
+        </div>
+        {% if apify_result and active_batch and apify_result.source_batch_id == active_batch.pk %}
+          <div class="pc-output-note"><strong>Обработан {{ apify_result.filename }}</strong> · {{ apify_result.checked_at }}.
+          Подтверждено {{ apify_result.with_prices }} товаров, без подтверждённых предложений {{ apify_result.without_prices }};
+          отклонено неоднозначных совпадений: {{ apify_result.unconfirmed }}.</div>
+        {% else %}
+          <p class="pc-file-hint">После обработки здесь появится отчёт. В таблицу попадут только подтверждённые цены конкурентов; наши цены продажи останутся без изменений.</p>
+        {% endif %}
+      </div>
+    </section>
+  </div>
   <section class="pc-metrics" aria-label="Статистика">
     <div class="pc-metric"><span>В продаже по ACTIVE.xlsx</span><strong>{{ summary.total }}</strong><span>{% if active_batch %}{{ active_batch.filename }} · {{ active_batch.finished_at|date:"d.m.Y H:i" }}{% else %}Пока показаны привязки ZPT.KZ. Загрузите ACTIVE.xlsx{% endif %}</span></div>
     <div class="pc-metric"><span>С предложениями конкурентов</span><strong>{{ summary.found }}</strong></div>
@@ -146,219 +257,10 @@
     </div>
   </div>
   <div class="pc-info">Основной ассортимент определяется последним успешно загруженным ACTIVE.xlsx. Несопоставленные SKU остаются в списке, но изменение их цен недоступно до проверки привязки. Ссылки «Открыть» ведут в отдельную карточку.</div>
-  <details class="pc-tech" id="collector">
-    <summary>⚙ Сбор цен и история проверок (техническая информация)</summary>
-    <p>Прямой источник Kaspi отклонял запросы (HTTP 405). Для актуального мониторинга используйте файл JSON Apify из раздела «Правила».</p>
-    <details class="pc-legacy-monitor">
-      <summary>Старая диагностика прямого сбора Kaspi</summary>
-            <form id="manual-price-form" class="pc-monitor-form" method="post" action="{% url 'repricer:manual_start' %}" data-step-url="{% url 'repricer:manual_step' 999999 %}" data-pause-url="{% url 'repricer:manual_pause' 999999 %}" data-resume-url="{% url 'repricer:manual_resume' 999999 %}">
-      {% csrf_token %}
-      <div class="pc-monitor-controls">
-        <label for="manual-price-city" class="pc-monitor-label">Город:</label>
-        <select id="manual-price-city" name="city_id" aria-label="Город мониторинга">
-          <option value="750000000">Алматы</option>
-          <option value="all" selected>Весь Казахстан (77 городов)</option>
-          {% for code, name in collection_cities %}{% if code != "750000000" %}
-          <option value="{{ code }}">{{ name }}</option>
-          {% endif %}{% endfor %}
-        </select>
-        <button type="submit" class="pc-button pc-button-monitor" id="manual-price-start">↻ Провести мониторинг цен</button>
-        <button type="button" class="pc-button" id="manual-price-pause" hidden>Остановить</button>
-        <button type="button" class="pc-button" id="manual-price-resume" hidden>Продолжить</button>
-      </div>
-    </form>
-        <section class="pc-monitor-status" id="monitor-progress" aria-label="Ход мониторинга цен">
-    <strong>Ход мониторинга:</strong>
-    <div id="manual-price-report" role="status" aria-live="polite"
-      data-run-id="{% if manual_run %}{{ manual_run.pk }}{% endif %}"
-      data-run-status="{% if manual_run %}{{ manual_run.status }}{% endif %}"
-      data-run-processed="{% if manual_run %}{{ manual_run.next_index }}{% else %}0{% endif %}"
-      data-run-total="{% if manual_run %}{{ manual_run.total }}{% else %}0{% endif %}"
-      data-run-offers="{% if manual_run %}{{ manual_run.saved_offers }}{% else %}0{% endif %}"
-      data-run-error="{% if manual_run %}{{ manual_run.last_error }}{% endif %}">
-      {% if manual_run %}
-        Предыдущий запуск: {{ manual_run.get_status_display }} · {{ manual_run.next_index }}/{{ manual_run.total }} проверок · сохранено предложений: {{ manual_run.saved_offers }}.
-        {% if manual_run.last_error %} Ошибка: {{ manual_run.last_error }}{% endif %}
-      {% else %}
-        Ручных запусков пока не было.
-      {% endif %}
-    </div>
-    <progress id="manual-price-progress" max="{% if manual_run %}{{ manual_run.total }}{% else %}1{% endif %}" value="{% if manual_run %}{{ manual_run.next_index }}{% else %}0{% endif %}" style="width:100%;margin-top:6px"></progress>
-  
-
-    <p class="pc-monitor-hint">Мониторинг только собирает предложения Kaspi. Цены наших товаров не изменяются. Сбор выполняется шагами, пока открыта эта вкладка; незавершённый запуск можно продолжить позже.</p>
-  </section>
-  <section class="pc-kaspi-upload" aria-label="Загрузка файла Kaspi">
-    <div><strong>Загрузить ассортимент и цены Kaspi</strong>
-      <p>Файл из кабинета Kaspi (.xlsx или .csv): SKU, цена, количество. Данные сопоставляются с нашими товарами.</p>
-    </div>
-    <form method="post" enctype="multipart/form-data" action="{% url 'repricer:upload_kaspi' %}">
-      {% csrf_token %}
-      <input type="file" name="kaspi_file" accept=".xlsx,.csv" aria-label="Выберите выгрузку Kaspi" required>
-      <button class="pc-button pc-button-primary" type="submit">Загрузить файл Kaspi</button>
-    </form>
-  </section>
-  <div class="pc-workflow" aria-label="Работа с Apify">
-    <div><span class="pc-workflow-number">1</span><strong>Загрузить ACTIVE.xlsx</strong><small>Актуальный список наших товаров Kaspi</small></div>
-    <div><span class="pc-workflow-number">2</span><strong><a href="{% url 'repricer:rules' %}">Настроить правила</a></strong><small>6 городов · 1–3 карточки на товар</small></div>
-    <div><span class="pc-workflow-number">3</span><strong><a href="{% url 'repricer:apify_export' %}">Получить JSON</a></strong><small>Готовый файл для запуска в Apify</small></div>
-  </div>
-  {% if kaspi_upload_result %}
-  <details class="pc-upload-report" open>
-    <summary>Последняя загрузка: {{ kaspi_upload_result.filename }}</summary>
-    <div>Всего строк: <strong>{{ kaspi_upload_result.rows }}</strong> · Сопоставлено: <strong>{{ kaspi_upload_result.matched }}</strong> · Обновлено цен и остатков: <strong>{{ kaspi_upload_result.updated }}</strong> · Без привязки: <strong>{{ kaspi_upload_result.missing }}</strong> · С ошибками/дубликатами: <strong>{{ kaspi_upload_result.skipped }}</strong>.</div>
-    <p style="margin:6px 0 0">Несопоставленные строки не создают новые товары автоматически. Для загрузки отсутствующих товаров нужна отдельная сверка. Файл не изменяет складской учёт и цены на Kaspi.</p>
-    {% if kaspi_upload_result.unmapped_examples %}<details><summary>Примеры не сопоставленных SKU</summary>
-      <ul>{% for r in kaspi_upload_result.unmapped_examples %}<li>{{ r.sku }} — {{ r.status }}</li>{% endfor %}</ul>
-    </details>{% endif %}
-  </details>
-  {% endif %}
-
-    </details>
-    <h2>Техническая информация</h2>
-    <p>История проверки источников и городов. Расписание отключено; цены товаров автоматически не меняются.</p>
-    <p>Сохранённых предложений: {{ public_snapshot_count }}. Свежих за {{ fresh_minutes }} минут: {{ fresh_snapshot_count }}.</p>
-    <p class="pc-warning">Проверено населённых пунктов: {{ covered_city_count }} из {{ city_total }}. Пакетов без города: {{ cityless_legacy_count }}.</p>
-    <details><summary>Состояние по городам</summary><div style="max-height:300px;overflow:auto"><table><thead><tr><th>Город</th><th>Артикулов</th><th>Последний сбор</th></tr></thead><tbody>
-    {% for city in city_coverage %}<tr><td>{{ city.name }}</td><td>{{ city.articles }}</td><td>{% if city.last_collected %}{{ city.last_collected|date:"d.m.Y H:i" }}{% else %}Нет данных{% endif %}</td></tr>{% endfor %}
-    </tbody></table></div></details>
+  <details class="pc-tech">
+    <summary>Техническая история проверок</summary>
+    <p>Старый прямой источник Kaspi возвращал HTTP 405. Рабочий сценарий теперь: ACTIVE.xlsx → Apify Input JSON → загрузка Output JSON.</p>
+    <p>Исторических предложений: {{ public_snapshot_count }}. Свежих за {{ fresh_minutes }} минут: {{ fresh_snapshot_count }}. Городов с данными: {{ covered_city_count }} из {{ city_total }}.</p>
   </details>
 </div>
-<script>
-(function () {
-  "use strict";
-  const form = document.getElementById("manual-price-form");
-  if (!form) return;
-  const start = document.getElementById("manual-price-start");
-  const pause = document.getElementById("manual-price-pause");
-  const resume = document.getElementById("manual-price-resume");
-  const report = document.getElementById("manual-price-report");
-  const progress = document.getElementById("manual-price-progress");
-  const area = document.getElementById("monitor-progress");
-  const csrfInput = form.querySelector("input[name=csrfmiddlewaretoken]");
-  const csrf = csrfInput ? csrfInput.value : "";
-  let active = false;
-  let runId = Number(report.dataset.runId || 0);
-  let status = report.dataset.runStatus || "";
-  let blocked = false;
-  let error = report.dataset.runError || "";
-  let latest = {
-    processed: Number(report.dataset.runProcessed || 0),
-    total: Number(report.dataset.runTotal || 0),
-    saved_offers: Number(report.dataset.runOffers || 0),
-    empty_count: 0, skipped_count: 0, error_count: error ? 1 : 0,
-    last_error: error, status: status, current: ""
-  };
-  const link = (template) => template.replace("999999", String(runId));
-  function sourceBlocked(value) {
-    return /\b(?:401|403|405|429)\b|отклонил|ограничил частоту/i.test(value || "");
-  }
-  function buttons() {
-    const running = active || status === "running";
-    start.disabled = running;
-    start.textContent = running ? "Мониторинг выполняется…" : "↻ Провести мониторинг цен";
-    pause.hidden = !running;
-    resume.hidden = running || blocked || !runId || status !== "stopped";
-  }
-  function paint() {
-    blocked = sourceBlocked(error) && status === "stopped";
-    const isError = status === "stopped" && (blocked || latest.error_count > 0);
-    const isDone = status === "done";
-    area.classList.toggle("is-error", isError);
-    area.classList.toggle("is-running", status === "running");
-    area.classList.toggle("is-done", isDone);
-    progress.max = Math.max(latest.total || 1, 1);
-    progress.value = Math.min(latest.processed || 0, progress.max);
-    const count = (latest.processed || 0) + " из " + (latest.total || 0);
-    let heading = "";
-    if (status === "running") heading = "Мониторинг выполняется";
-    else if (isDone) heading = "Мониторинг завершён";
-    else if (isError && blocked) heading = "Мониторинг остановлен: Kaspi отклонил запрос";
-    else if (isError) heading = "Мониторинг остановлен из-за ошибки";
-    else if (status === "stopped") heading = "Мониторинг приостановлен";
-    else heading = "Мониторинг ещё не выполнялся";
-    let details = count + " проверок · предложений записано: " +
-      (latest.saved_offers || 0) + " · ошибок: " + (latest.error_count || 0);
-    if (isError) {
-      details += ". Цены не обновлены.";
-      if (blocked) details += " Источник данных Kaspi пока недоступен — повторный запуск с тем же источником не устранит проблему.";
-    }
-    if (error) details += " Причина: " + error;
-    report.replaceChildren();
-    const headline = document.createElement("strong");
-    headline.textContent = heading + ". ";
-    const rest = document.createElement("span");
-    rest.className = "pc-monitor-detail";
-    rest.textContent = details;
-    report.append(headline, rest);
-    buttons();
-  }
-  function show(data) {
-    runId = data.id;
-    status = data.status;
-    error = data.last_error || "";
-    latest = data;
-    paint();
-  }
-  async function post(url, body) {
-    const response = await fetch(url, {
-      method: "POST", credentials: "same-origin",
-      headers: {"X-CSRFToken": csrf, "Accept": "application/json"},
-      body: body || new URLSearchParams()
-    });
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error || "Ошибка запроса: " + response.status);
-    return data;
-  }
-  async function steps() {
-    active = true;
-    paint();
-    try {
-      while (active) {
-        const data = await post(link(form.dataset.stepUrl));
-        show(data);
-        if (data.status !== "running") break;
-        await new Promise(resolve => setTimeout(resolve, 1200));
-      }
-    } catch (exc) {
-      status = "stopped";
-      error = "Сбой подключения: " + exc.message;
-      latest.error_count = (latest.error_count || 0) + 1;
-    } finally {
-      active = false;
-      paint();
-      if (status === "done") setTimeout(() => location.reload(), 700);
-    }
-  }
-  form.addEventListener("submit", async function (event) {
-    event.preventDefault();
-    if (active || status === "running") return;
-    error = "";
-    try {
-      show(await post(form.action, new URLSearchParams(new FormData(form))));
-      if (status === "running") steps();
-    } catch (exc) {
-      status = "stopped";
-      error = exc.message;
-      latest.error_count = (latest.error_count || 0) + 1;
-      paint();
-    }
-  });
-  pause.addEventListener("click", async function () {
-    active = false;
-    if (!runId) return;
-    try {show(await post(link(form.dataset.pauseUrl)));}
-    catch (exc) {error = exc.message; paint();}
-  });
-  resume.addEventListener("click", async function () {
-    if (!runId || active || blocked) return;
-    try {
-      if (status === "stopped") show(await post(link(form.dataset.resumeUrl)));
-      if (status === "running") steps();
-    } catch (exc) {error = exc.message; paint();}
-  });
-  paint();
-})();
-</script>
-
 {% endblock %}
