@@ -4,6 +4,7 @@ No Apify API call, scraping, automatic repricing or price write occurs here.
 This module deliberately keeps the Actor input free of local mapping metadata.
 """
 import json
+import re
 
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
@@ -65,10 +66,23 @@ def input_and_mapping(rows, cities, cards):
             # has no meaningful title; never assume it is a public Kaspi ID.
             target = " ".join(part for part in (brand, name) if part).strip()
             exact_article = (listing.product.article or "").strip() if listing else merchant_code
+            # ACTIVE SKU may be a part article, but it is never automatically a
+            # verified Kaspi product ID. Include alphanumeric SKU in search.
+            sku = (row.master_sku or "").strip()
+            sku_looks_like_article = bool(
+                re.fullmatch(r"[A-Za-z0-9-]{5,64}", sku) and
+                re.search(r"[A-Za-z]", sku)
+            )
+            if not exact_article and sku_looks_like_article:
+                exact_article = sku
             if exact_article and exact_article.casefold() not in target.casefold():
                 target = (target + " " + exact_article).strip()
-            if not target:
-                target = merchant_code or row.master_sku
+            # A generic product name must not go to Apify unqualified.
+            # Its numeric SKU is a search qualifier, not a verified part ID.
+            generic_words = {"воздушный фильтр", "салонный фильтр",
+                             "масляный фильтр", "фильтр", "свеча зажигания"}
+            if (not target or target.casefold().strip() in generic_words) and sku:
+                target = ((target + " " + sku).strip() if target else sku)
             kind = "search"
             if target:
                 queries.append(target)
@@ -85,6 +99,11 @@ def input_and_mapping(rows, cities, cards):
             "kind": kind,
             "input": target,
             "requires_result_verification": kind == "search",
+            "source_sku_only_fallback": (
+                kind == "search" and not bool(
+                    row.merchant_sku or (listing and listing.product.article)
+                ) and not bool(re.search(r"[A-Za-z]", row.master_sku or ""))
+            ),
         })
     payload = {
         "startUrls": urls,
@@ -141,7 +160,20 @@ def repricer_rules(request):
             rules.cities = [city for city in APIFY_CITIES if city in selected]
             rules.cards_per_product = int(cards_raw)
             rules.save(update_fields=["cities", "cards_per_product", "updated_at"])
-            messages.success(request, "Правила сохранены. Можно сформировать JSON для Apify.")
+            # Generate from exactly the selected checkboxes, not stale rules.
+            if request.POST.get("action") == "generate":
+                if batch is None:
+                    messages.error(request, "Сначала загрузите ACTIVE.xlsx.")
+                    return redirect("repricer:dashboard")
+                rows = export_units(batch)
+                payload, mapping = input_and_mapping(
+                    rows, rules.cities, rules.cards_per_product
+                )
+                if not rows or not (payload["startUrls"] or payload["searchQueries"]):
+                    messages.error(request, "В ACTIVE.xlsx нет запросов для Apify.")
+                    return redirect("repricer:dashboard")
+                return _download(payload, f"zpt_apify_active_{batch.pk}.json")
+            messages.success(request, "Правила сохранены.")
             return redirect("repricer:dashboard" if request.POST.get("return_to") == "dashboard" else "repricer:rules")
     rows = export_units(batch) if batch else []
     payload, mapping = input_and_mapping(rows, rules.cities, rules.cards_per_product)
