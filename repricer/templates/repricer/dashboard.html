@@ -64,22 +64,7 @@
   <div class="pc-top">
     <div><h1>Контроль цен Kaspi</h1><p>Наши товары, цены конкурентов и ручная подготовка новых цен. Автоматическое изменение цен отключено.</p></div>
     <div class="pc-actions">
-      <form id="manual-price-form" class="pc-monitor-form" method="post" action="{% url 'repricer:manual_start' %}" data-step-url="{% url 'repricer:manual_step' 999999 %}" data-pause-url="{% url 'repricer:manual_pause' 999999 %}" data-resume-url="{% url 'repricer:manual_resume' 999999 %}">
-      {% csrf_token %}
-      <div class="pc-monitor-controls">
-        <label for="manual-price-city" class="pc-monitor-label">Город:</label>
-        <select id="manual-price-city" name="city_id" aria-label="Город мониторинга">
-          <option value="750000000">Алматы</option>
-          <option value="all" selected>Весь Казахстан (77 городов)</option>
-          {% for code, name in collection_cities %}{% if code != "750000000" %}
-          <option value="{{ code }}">{{ name }}</option>
-          {% endif %}{% endfor %}
-        </select>
-        <button type="submit" class="pc-button pc-button-monitor" id="manual-price-start">↻ Провести мониторинг цен</button>
-        <button type="button" class="pc-button" id="manual-price-pause" hidden>Остановить</button>
-        <button type="button" class="pc-button" id="manual-price-resume" hidden>Продолжить</button>
-      </div>
-    </form>
+
       <a class="pc-button" href="{% url 'repricer:rules' %}">⚙ Правила</a>
       <a class="pc-button pc-button-primary" href="{% url 'repricer:apify_export' %}">Скачать JSON Apify</a>
       <button class="pc-button pc-button-primary" type="submit" form="bulk-price-form">Сохранить изменения</button>
@@ -87,52 +72,6 @@
     </div>
   </div>
   {% if messages %}{% for message in messages %}<div class="pc-toast" role="status">{{ message }}</div>{% endfor %}{% endif %}
-  <section class="pc-monitor-status" id="monitor-progress" aria-label="Ход мониторинга цен">
-    <strong>Ход мониторинга:</strong>
-    <div id="manual-price-report" role="status" aria-live="polite"
-      data-run-id="{% if manual_run %}{{ manual_run.pk }}{% endif %}"
-      data-run-status="{% if manual_run %}{{ manual_run.status }}{% endif %}"
-      data-run-processed="{% if manual_run %}{{ manual_run.next_index }}{% else %}0{% endif %}"
-      data-run-total="{% if manual_run %}{{ manual_run.total }}{% else %}0{% endif %}"
-      data-run-offers="{% if manual_run %}{{ manual_run.saved_offers }}{% else %}0{% endif %}"
-      data-run-error="{% if manual_run %}{{ manual_run.last_error }}{% endif %}">
-      {% if manual_run %}
-        Предыдущий запуск: {{ manual_run.get_status_display }} · {{ manual_run.next_index }}/{{ manual_run.total }} проверок · сохранено предложений: {{ manual_run.saved_offers }}.
-        {% if manual_run.last_error %} Ошибка: {{ manual_run.last_error }}{% endif %}
-      {% else %}
-        Ручных запусков пока не было.
-      {% endif %}
-    </div>
-    <progress id="manual-price-progress" max="{% if manual_run %}{{ manual_run.total }}{% else %}1{% endif %}" value="{% if manual_run %}{{ manual_run.next_index }}{% else %}0{% endif %}" style="width:100%;margin-top:6px"></progress>
-  
-
-    <p class="pc-monitor-hint">Мониторинг только собирает предложения Kaspi. Цены наших товаров не изменяются. Сбор выполняется шагами, пока открыта эта вкладка; незавершённый запуск можно продолжить позже.</p>
-  </section>
-  <section class="pc-kaspi-upload" aria-label="Загрузка файла Kaspi">
-    <div><strong>Загрузить ассортимент и цены Kaspi</strong>
-      <p>Файл из кабинета Kaspi (.xlsx или .csv): SKU, цена, количество. Данные сопоставляются с нашими товарами.</p>
-    </div>
-    <form method="post" enctype="multipart/form-data" action="{% url 'repricer:upload_kaspi' %}">
-      {% csrf_token %}
-      <input type="file" name="kaspi_file" accept=".xlsx,.csv" aria-label="Выберите выгрузку Kaspi" required>
-      <button class="pc-button pc-button-primary" type="submit">Загрузить файл Kaspi</button>
-    </form>
-  </section>
-  <div class="pc-workflow" aria-label="Работа с Apify">
-    <div><span class="pc-workflow-number">1</span><strong>Загрузить ACTIVE.xlsx</strong><small>Актуальный список наших товаров Kaspi</small></div>
-    <div><span class="pc-workflow-number">2</span><strong><a href="{% url 'repricer:rules' %}">Настроить правила</a></strong><small>6 городов · 1–3 карточки на товар</small></div>
-    <div><span class="pc-workflow-number">3</span><strong><a href="{% url 'repricer:apify_export' %}">Получить JSON</a></strong><small>Готовый файл для запуска в Apify</small></div>
-  </div>
-  {% if kaspi_upload_result %}
-  <details class="pc-upload-report" open>
-    <summary>Последняя загрузка: {{ kaspi_upload_result.filename }}</summary>
-    <div>Всего строк: <strong>{{ kaspi_upload_result.rows }}</strong> · Сопоставлено: <strong>{{ kaspi_upload_result.matched }}</strong> · Обновлено цен и остатков: <strong>{{ kaspi_upload_result.updated }}</strong> · Без привязки: <strong>{{ kaspi_upload_result.missing }}</strong> · С ошибками/дубликатами: <strong>{{ kaspi_upload_result.skipped }}</strong>.</div>
-    <p style="margin:6px 0 0">Несопоставленные строки не создают новые товары автоматически. Для загрузки отсутствующих товаров нужна отдельная сверка. Файл не изменяет складской учёт и цены на Kaspi.</p>
-    {% if kaspi_upload_result.unmapped_examples %}<details><summary>Примеры не сопоставленных SKU</summary>
-      <ul>{% for r in kaspi_upload_result.unmapped_examples %}<li>{{ r.sku }} — {{ r.status }}</li>{% endfor %}</ul>
-    </details>{% endif %}
-  </details>
-  {% endif %}
   <section class="pc-metrics" aria-label="Статистика">
     <div class="pc-metric"><span>В продаже по ACTIVE.xlsx</span><strong>{{ summary.total }}</strong><span>{% if active_batch %}{{ active_batch.filename }} · {{ active_batch.finished_at|date:"d.m.Y H:i" }}{% else %}Пока показаны привязки ZPT.KZ. Загрузите ACTIVE.xlsx{% endif %}</span></div>
     <div class="pc-metric"><span>С предложениями конкурентов</span><strong>{{ summary.found }}</strong></div>
@@ -209,6 +148,73 @@
   <div class="pc-info">Основной ассортимент определяется последним успешно загруженным ACTIVE.xlsx. Несопоставленные SKU остаются в списке, но изменение их цен недоступно до проверки привязки. Ссылки «Открыть» ведут в отдельную карточку.</div>
   <details class="pc-tech" id="collector">
     <summary>⚙ Сбор цен и история проверок (техническая информация)</summary>
+    <p>Прямой источник Kaspi отклонял запросы (HTTP 405). Для актуального мониторинга используйте файл JSON Apify из раздела «Правила».</p>
+    <details class="pc-legacy-monitor">
+      <summary>Старая диагностика прямого сбора Kaspi</summary>
+            <form id="manual-price-form" class="pc-monitor-form" method="post" action="{% url 'repricer:manual_start' %}" data-step-url="{% url 'repricer:manual_step' 999999 %}" data-pause-url="{% url 'repricer:manual_pause' 999999 %}" data-resume-url="{% url 'repricer:manual_resume' 999999 %}">
+      {% csrf_token %}
+      <div class="pc-monitor-controls">
+        <label for="manual-price-city" class="pc-monitor-label">Город:</label>
+        <select id="manual-price-city" name="city_id" aria-label="Город мониторинга">
+          <option value="750000000">Алматы</option>
+          <option value="all" selected>Весь Казахстан (77 городов)</option>
+          {% for code, name in collection_cities %}{% if code != "750000000" %}
+          <option value="{{ code }}">{{ name }}</option>
+          {% endif %}{% endfor %}
+        </select>
+        <button type="submit" class="pc-button pc-button-monitor" id="manual-price-start">↻ Провести мониторинг цен</button>
+        <button type="button" class="pc-button" id="manual-price-pause" hidden>Остановить</button>
+        <button type="button" class="pc-button" id="manual-price-resume" hidden>Продолжить</button>
+      </div>
+    </form>
+        <section class="pc-monitor-status" id="monitor-progress" aria-label="Ход мониторинга цен">
+    <strong>Ход мониторинга:</strong>
+    <div id="manual-price-report" role="status" aria-live="polite"
+      data-run-id="{% if manual_run %}{{ manual_run.pk }}{% endif %}"
+      data-run-status="{% if manual_run %}{{ manual_run.status }}{% endif %}"
+      data-run-processed="{% if manual_run %}{{ manual_run.next_index }}{% else %}0{% endif %}"
+      data-run-total="{% if manual_run %}{{ manual_run.total }}{% else %}0{% endif %}"
+      data-run-offers="{% if manual_run %}{{ manual_run.saved_offers }}{% else %}0{% endif %}"
+      data-run-error="{% if manual_run %}{{ manual_run.last_error }}{% endif %}">
+      {% if manual_run %}
+        Предыдущий запуск: {{ manual_run.get_status_display }} · {{ manual_run.next_index }}/{{ manual_run.total }} проверок · сохранено предложений: {{ manual_run.saved_offers }}.
+        {% if manual_run.last_error %} Ошибка: {{ manual_run.last_error }}{% endif %}
+      {% else %}
+        Ручных запусков пока не было.
+      {% endif %}
+    </div>
+    <progress id="manual-price-progress" max="{% if manual_run %}{{ manual_run.total }}{% else %}1{% endif %}" value="{% if manual_run %}{{ manual_run.next_index }}{% else %}0{% endif %}" style="width:100%;margin-top:6px"></progress>
+  
+
+    <p class="pc-monitor-hint">Мониторинг только собирает предложения Kaspi. Цены наших товаров не изменяются. Сбор выполняется шагами, пока открыта эта вкладка; незавершённый запуск можно продолжить позже.</p>
+  </section>
+  <section class="pc-kaspi-upload" aria-label="Загрузка файла Kaspi">
+    <div><strong>Загрузить ассортимент и цены Kaspi</strong>
+      <p>Файл из кабинета Kaspi (.xlsx или .csv): SKU, цена, количество. Данные сопоставляются с нашими товарами.</p>
+    </div>
+    <form method="post" enctype="multipart/form-data" action="{% url 'repricer:upload_kaspi' %}">
+      {% csrf_token %}
+      <input type="file" name="kaspi_file" accept=".xlsx,.csv" aria-label="Выберите выгрузку Kaspi" required>
+      <button class="pc-button pc-button-primary" type="submit">Загрузить файл Kaspi</button>
+    </form>
+  </section>
+  <div class="pc-workflow" aria-label="Работа с Apify">
+    <div><span class="pc-workflow-number">1</span><strong>Загрузить ACTIVE.xlsx</strong><small>Актуальный список наших товаров Kaspi</small></div>
+    <div><span class="pc-workflow-number">2</span><strong><a href="{% url 'repricer:rules' %}">Настроить правила</a></strong><small>6 городов · 1–3 карточки на товар</small></div>
+    <div><span class="pc-workflow-number">3</span><strong><a href="{% url 'repricer:apify_export' %}">Получить JSON</a></strong><small>Готовый файл для запуска в Apify</small></div>
+  </div>
+  {% if kaspi_upload_result %}
+  <details class="pc-upload-report" open>
+    <summary>Последняя загрузка: {{ kaspi_upload_result.filename }}</summary>
+    <div>Всего строк: <strong>{{ kaspi_upload_result.rows }}</strong> · Сопоставлено: <strong>{{ kaspi_upload_result.matched }}</strong> · Обновлено цен и остатков: <strong>{{ kaspi_upload_result.updated }}</strong> · Без привязки: <strong>{{ kaspi_upload_result.missing }}</strong> · С ошибками/дубликатами: <strong>{{ kaspi_upload_result.skipped }}</strong>.</div>
+    <p style="margin:6px 0 0">Несопоставленные строки не создают новые товары автоматически. Для загрузки отсутствующих товаров нужна отдельная сверка. Файл не изменяет складской учёт и цены на Kaspi.</p>
+    {% if kaspi_upload_result.unmapped_examples %}<details><summary>Примеры не сопоставленных SKU</summary>
+      <ul>{% for r in kaspi_upload_result.unmapped_examples %}<li>{{ r.sku }} — {{ r.status }}</li>{% endfor %}</ul>
+    </details>{% endif %}
+  </details>
+  {% endif %}
+
+    </details>
     <h2>Техническая информация</h2>
     <p>История проверки источников и городов. Расписание отключено; цены товаров автоматически не меняются.</p>
     <p>Сохранённых предложений: {{ public_snapshot_count }}. Свежих за {{ fresh_minutes }} минут: {{ fresh_snapshot_count }}.</p>
