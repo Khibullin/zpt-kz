@@ -139,7 +139,7 @@ def repricer_rules(request):
             rules.cards_per_product = int(cards_raw)
             rules.save(update_fields=["cities", "cards_per_product", "updated_at"])
             messages.success(request, "Правила сохранены. Можно сформировать JSON для Apify.")
-            return redirect("repricer:rules")
+            return redirect("repricer:dashboard" if request.POST.get("return_to") == "dashboard" else "repricer:rules")
     rows = export_units(batch) if batch else []
     payload, mapping = input_and_mapping(rows, rules.cities, rules.cards_per_product)
     context = {
