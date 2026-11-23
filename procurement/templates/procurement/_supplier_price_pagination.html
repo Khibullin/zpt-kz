@@ -1,0 +1,36 @@
+<nav class="compare-pagination" aria-label="Страницы сравнения цен">
+  <span class="muted">Страница {{ page.number }} из {{ page.paginator.num_pages }} · по 50 товаров</span>
+  <div class="compare-page-links">
+    {% if page.has_previous %}
+      <a href="?{{ page_query }}&amp;page=1#price-results" aria-label="В начало">«</a>
+      <a href="?{{ page_query }}&amp;page={{ page.previous_page_number }}#price-results" aria-label="Предыдущая страница">‹</a>
+    {% endif %}
+    {% for number in page_links %}
+      {% if number == page_ellipsis %}
+        <span class="compare-ellipsis">…</span>
+      {% elif number == page.number %}
+        <span class="compare-page-current" aria-current="page">{{ number }}</span>
+      {% else %}
+        <a href="?{{ page_query }}&amp;page={{ number }}#price-results">{{ number }}</a>
+      {% endif %}
+    {% endfor %}
+    {% if page.paginator.num_pages > 5 and middle_page != page.number %}
+      <a class="compare-middle" href="?{{ page_query }}&amp;page={{ middle_page }}#price-results" title="Перейти к середине списка">Середина: {{ middle_page }}</a>
+    {% endif %}
+    {% if page.has_next %}
+      <a href="?{{ page_query }}&amp;page={{ page.next_page_number }}#price-results" aria-label="Следующая страница">›</a>
+      <a href="?{{ page_query }}&amp;page={{ page.paginator.num_pages }}#price-results" aria-label="В конец">»</a>
+    {% endif %}
+  </div>
+  <form method="get" action="#price-results" class="compare-jump">
+    <input type="hidden" name="q" value="{{ q }}">
+    <input type="hidden" name="supplier" value="{{ supplier_filter }}">
+    <input type="hidden" name="sort" value="{{ sort|default:'' }}">
+    <input type="hidden" name="present" value="{{ present_filter }}">
+    <input type="hidden" name="min_cost" value="{{ min_cost }}">
+    {% if shared_only %}<input type="hidden" name="shared" value="1">{% endif %}
+    <label for="page-number-{{ position }}">Страница №</label>
+    <input type="number" id="page-number-{{ position }}" name="page" min="1" max="{{ page.paginator.num_pages }}" value="{{ page.number }}" required>
+    <button type="submit">Перейти</button>
+  </form>
+</nav>
