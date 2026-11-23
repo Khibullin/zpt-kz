@@ -126,20 +126,32 @@ def _active_assortment(request, batch):
         qs = qs.filter(competitor_scan_status="NOT_CONFIRMED")
     elif status == "draft":
         qs = qs.filter(listing__manual_price_draft__isnull=False)
-    elif status == "higher" and not has_apify_scan:
-        qualifying = [
-            pk for pk, st in states.items() if st.is_fresh and st.best_price is not None
-        ]
-        qs = qs.filter(listing_id__in=qualifying, price__isnull=False)
-        above = {pk for pk, price in qs.values_list("listing_id", "price")
-                 if pk in states and states[pk].best_price is not None
-                 and price > states[pk].best_price}
-        qs = qs.filter(listing_id__in=above)
-    elif status == "higher" and has_apify_scan:
-        ids = [rid for rid, current, best in qs.exclude(competitor_min_price__isnull=True)
-               .values_list("pk", "price", "competitor_min_price")
-               if current is not None and current > best]
-        qs = qs.filter(pk__in=ids)
+    elif status in ("higher", "equal", "lower"):
+        # Comparison is based only on a confirmed competitor minimum.
+        # After Apify has run, never use old direct-Kaspi snapshot prices.
+        if has_apify_scan:
+            prices = qs.filter(price__isnull=False, competitor_min_price__isnull=False)
+            matches = [
+                row_id for row_id, own, minimum in prices.values_list(
+                    "pk", "price", "competitor_min_price"
+                ) if ((own > minimum) if status == "higher" else
+                      (own == minimum) if status == "equal" else (own < minimum))
+            ]
+            qs = qs.filter(pk__in=matches)
+        else:
+            candidate_prices = {
+                pk: state.best_price for pk, state in states.items()
+                if state.is_fresh and state.best_price is not None
+            }
+            matches = [
+                pk for pk, own in qs.filter(
+                    listing_id__in=candidate_prices, price__isnull=False
+                ).values_list("listing_id", "price")
+                if ((own > candidate_prices[pk]) if status == "higher" else
+                    (own == candidate_prices[pk]) if status == "equal" else
+                    (own < candidate_prices[pk]))
+            ]
+            qs = qs.filter(listing_id__in=matches)
 
     page = Paginator(qs, 20).get_page(request.GET.get("page"))
     rows = []
@@ -178,6 +190,7 @@ def _active_assortment(request, batch):
             "apify_checked_at": record.competitor_checked_at,
             "stale": False if has_apify_scan else bool(state and state.is_stale),
             "delta": record.price - best if record.price is not None and best is not None else None,
+            "above_competitor": bool(record.price is not None and best is not None and record.price > best),
         })
     total = KaspiActiveExportRow.objects.filter(batch=batch).count()
     matched = KaspiActiveExportRow.objects.filter(batch=batch, listing__isnull=False).count()
