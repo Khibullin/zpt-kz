@@ -247,6 +247,10 @@ def supplier_price_comparison(request):
         number=page.number, on_each_side=2, on_ends=1,
     ))
     middle_page = max(1, (paginator.num_pages + 1) // 2)
+    preserved = request.GET.copy()
+    preserved.pop('page', None)
+    preserved['min_cost'] = str(minimum)
+    page_query = preserved.urlencode()
     return render(request, 'procurement/supplier_price_comparison.html',
                   context(request, page=page, snapshot=snapshot, cards=cards,
                           today=timezone.localdate().isoformat(), q=search,
@@ -254,4 +258,5 @@ def supplier_price_comparison(request):
                           supplier_filter=supplier, present_filter=present, shared_only=shared_only,
                           sort=order, displayed_count=len(rows),
                           page_links=page_links, middle_page=middle_page,
+                          page_query=page_query,
                           page_ellipsis=Paginator.ELLIPSIS))
