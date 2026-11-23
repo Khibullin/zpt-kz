@@ -79,6 +79,11 @@
 .pc-upload-inline,.pc-output-form{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .pc-upload-inline input[type=file],.pc-output-form input[type=file]{min-width:150px;max-width:100%;flex:1 1 230px;border:1px solid #cbd8e7;padding:9px 11px;border-radius:8px;font-size:12px;background:#fbfdff}
 .pc-file-hint{font-size:12px;color:#5d7188;margin:0;line-height:1.45}.pc-small-link{display:inline-block;font-size:11px;margin-top:3px}
+.pc-button-followup{border-color:#93bce0;background:#e8f4ff;color:#115384}
+.pc-button-followup:hover{background:#d8ebfc}
+.pc-merge-label{font-size:12px;color:#32526e;display:flex;gap:6px;align-items:center}
+.pc-merge-label input{accent-color:#008e80}
+
 .pc-settings-row{display:flex;align-items:center;gap:18px;flex-wrap:wrap;font-size:13px;color:#3e5873}
 .pc-inline-rules{border:1px solid #d7e7ed;border-radius:10px;background:#f5f9fc}
 .pc-inline-rules>summary{cursor:pointer;font-weight:700;color:#153655;list-style:revert;padding:12px 15px}
@@ -163,10 +168,13 @@
         </details>
         <div class="pc-panel-actions">
           <button class="pc-button pc-button-primary" type="submit" form="repricer-rules-form" name="action" value="generate">Сформировать JSON для Apify</button>
+          {% if active_batch and apify_scan_remaining %}
+          <button class="pc-button pc-button-followup" type="submit" form="repricer-rules-form" name="action" value="generate_remaining">Найти альтернативы для {{ apify_scan_remaining }} товаров</button>
+          {% endif %}
           <a class="pc-button" href="{% url 'repricer:apify_export' %}?format=mapping">Соответствия SKU</a>
           <a class="pc-text-link" href="https://apify.com/firsthand/kaspi-api" target="_blank" rel="noopener noreferrer">Открыть Apify</a>
         </div>
-        <p class="pc-file-hint">Кнопка сохраняет отмеченные города и число карточек, затем скачивает JSON. Для товара без точного артикула поиск помечается как требующий подтверждения. Apify запускается отдельно.</p>
+        <p class="pc-file-hint">«Сформировать JSON» проверяет полный ассортимент. «Найти альтернативы» ищет только позиции без минимальной цены конкурента по нескольким вариантам артикула, бренда и названия. Настройки городов сохраняются. Результаты требуют проверки точного совпадения.</p>
       </div>
     </section>
     <section class="pc-pipeline-card pc-pipeline-output">
@@ -176,6 +184,7 @@
         <form method="post" enctype="multipart/form-data" action="{% url 'repricer:apify_output' %}" class="pc-output-form">
           {% csrf_token %}
           <input name="apify_output" type="file" accept=".json,application/json" aria-label="Выберите Output JSON" required>
+          <label class="pc-merge-label"><input name="merge" type="checkbox" value="1" checked> Дополнить уже найденные цены, не удалять их</label>
           <button class="pc-button pc-button-primary" type="submit">Обработать / Провести мониторинг</button>
         </form>
         <div><a class="pc-text-link" href="{% url 'repricer:apify_diagnostics' %}">Скачать диагностику всех товаров (CSV)</a></div>
