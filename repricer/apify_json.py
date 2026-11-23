@@ -4,7 +4,6 @@ No Apify API call, scraping, automatic repricing or price write occurs here.
 This module deliberately keeps the Actor input free of local mapping metadata.
 """
 import json
-from collections import Counter
 
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
@@ -45,7 +44,7 @@ def input_and_mapping(rows, cities, cards):
         # Only use URLs previously verified as our merchant card, not numeric
         # SKU values which may not be public Kaspi product ids.
         verified_url = (
-            (listing.public_url or "").strip()
+            (listing.public_url or "").strip().split("?", 1)[0]
             if listing and listing.public_url_verified_at else ""
         )
         if verified_url:
