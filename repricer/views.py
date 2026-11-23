@@ -163,6 +163,7 @@ def _active_assortment(request, batch):
                 else "Нет подтверждённой цены" if has_apify_scan
                 else state.state_label if state else "Требует сопоставления"
             ),
+            "scan_note": record.competitor_scan_note,
             "best": best,
             "apify_best": apify_best,
             "best_seller": record.competitor_seller,
@@ -272,6 +273,12 @@ def repricer_dashboard(request):
     scan_count = scan_rows.filter(competitor_min_price__isnull=False).count()
     scan_processed = scan_rows.filter(competitor_scan_status__in=["MATCHED", "NO_OFFERS"]).count()
     scan_date = scan_rows.aggregate(last=Max("competitor_checked_at"))["last"]
+    scan_reasons = list(
+        scan_rows.exclude(competitor_scan_note="")
+        .values("competitor_scan_note")
+        .annotate(total=Count("pk"))
+        .order_by("-total", "competitor_scan_note")
+    )
     response = render(request, "repricer/dashboard.html", {
         "monitored": monitored, "page": page, "page_numbers": page_numbers, "search": search, "supplier": supplier,
         "status": status, "selected_city": city, "cities": KASPI_KZ_CITIES,
@@ -297,6 +304,7 @@ def repricer_dashboard(request):
         "apify_cards": str(rules.cards_per_product),
         "apify_scan_count": scan_count,
         "apify_scan_processed": scan_processed,
+        "apify_scan_reasons": scan_reasons,
         "apify_scan_date": scan_date,
         "apify_scan_missing": max(0, (active_context.get("summary", {}).get("total", 0) - scan_count)),
         "kaspi_upload_result": request.session.get("kaspi_upload_result"),
