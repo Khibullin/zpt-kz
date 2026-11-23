@@ -196,6 +196,24 @@ class ApifyOutputTests(TestCase):
         self.assertEqual(self.listing.last_known_our_price, 2700)
         self.assertEqual(KaspiActiveCompetitorOffer.objects.count(), 0)
 
+    def test_four_distinct_price_statuses_are_explained(self):
+        self._upload([{
+            "id": "141407587", "title": self.product.title,
+            "url": self.listing.public_url, "city": "Almaty",
+            "offers": [{"sellerId": "30363568", "sellerName": "AG Parts", "price": 2700}],
+        }])
+        page = self.client.get(reverse("repricer:dashboard"))
+        self.assertEqual(page.status_code, 200)
+        self.assertEqual(page.context["apify_scan_our_prices"], 2)
+        self.assertEqual(page.context["apify_scan_only_own"], 1)
+        self.assertEqual(page.context["apify_scan_unconfirmed"], 1)
+        self.assertContains(page, "Только AG Parts в Output")
+        self.assertContains(page, "Не подтверждена карточка")
+        filtered = self.client.get(reverse("repricer:dashboard") + "?status=only_own")
+        self.assertEqual(filtered.context["page"].paginator.count, 1)
+        unconfirmed = self.client.get(reverse("repricer:dashboard") + "?status=unconfirmed")
+        self.assertEqual(unconfirmed.context["page"].paginator.count, 1)
+
     def test_nonstaff_cannot_import(self):
         self.client.force_login(User.objects.create_user("not-staff"))
         self.assertNotEqual(self._upload([]).status_code, 200)
