@@ -81,7 +81,7 @@ def _active_assortment(request, batch):
     qs = KaspiActiveExportRow.objects.filter(batch=batch).select_related(
         "listing", "listing__product", "listing__product__brand",
         "listing__product__category", "listing__manual_price_draft",
-    ).order_by("row_number", "pk")
+    ).prefetch_related("verified_competitor_offers").order_by("row_number", "pk")
     search = (request.GET.get("q") or "").strip()[:120]
     supplier = (request.GET.get("supplier") or "").strip()
     city = (request.GET.get("city") or "").strip()
@@ -149,7 +149,7 @@ def _active_assortment(request, batch):
             ) or "—",
             "our": record.price, "quantity": record.quantity,
             "draft": draft, "state": state,
-            "count": state.competitor_count if state else 0,
+            "count": len(record.verified_competitor_offers.all()) if apify_best is not None else (state.competitor_count if state else 0),
             "state_label": (state.state_label if state else "Требует сопоставления"),
             "best": best,
             "apify_best": apify_best,
@@ -252,6 +252,12 @@ def repricer_dashboard(request):
     ]
     active_batch = _latest_active_batch()
     active_context = _active_assortment(request, active_batch) if active_batch else {}
+    from .apify_json import saved_rules
+    from procurement.apify_cities import APIFY_CITIES, CITY_NAMES_RU
+    rules = saved_rules()
+    scan_rows = KaspiActiveExportRow.objects.filter(batch=active_batch) if active_batch else KaspiActiveExportRow.objects.none()
+    scan_count = scan_rows.filter(competitor_min_price__isnull=False).count()
+    scan_date = scan_rows.aggregate(last=Max("competitor_checked_at"))["last"]
     response = render(request, "repricer/dashboard.html", {
         "monitored": monitored, "page": page, "page_numbers": page_numbers, "search": search, "supplier": supplier,
         "status": status, "selected_city": city, "cities": KASPI_KZ_CITIES,
@@ -269,6 +275,15 @@ def repricer_dashboard(request):
         ).count(),
         "collection_cities": KASPI_KZ_CITIES,
         "manual_run": KaspiManualCollectionRun.objects.filter(created_by=request.user).first(),
+        "apify_rules": rules,
+        "apify_cities": [
+            {"code": code, "name": CITY_NAMES_RU[code], "checked": code in rules.cities}
+            for code in APIFY_CITIES
+        ],
+        "apify_cards": str(rules.cards_per_product),
+        "apify_scan_count": scan_count,
+        "apify_scan_date": scan_date,
+        "apify_scan_missing": max(0, (active_context.get("summary", {}).get("total", 0) - scan_count)),
         "kaspi_upload_result": request.session.get("kaspi_upload_result"),
         "apify_result": request.session.get("repricer_apify_result"),
         **active_context,
