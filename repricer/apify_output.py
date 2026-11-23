@@ -3,6 +3,7 @@
 Never write our prices, warehouse data, or Kaspi API. Search-only candidates
 without verifiable exact identity do not enter the market minimum.
 """
+import csv
 import json
 import re
 from collections import defaultdict
@@ -12,9 +13,10 @@ from urllib.parse import urlparse
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.db import transaction
+from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.utils import timezone
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_GET
 
 from procurement.apify_cities import APIFY_CITIES
 from .apify_json import saved_rules
@@ -374,3 +376,33 @@ def repricer_clear_output(request):
     request.session.pop("repricer_apify_result", None)
     messages.success(request, "Результаты мониторинга очищены. Наши цены не изменены.")
     return redirect("repricer:dashboard")
+
+
+
+@staff_member_required
+@require_GET
+def repricer_output_diagnostics(request):
+    """Excel-compatible CSV report of all ACTIVE SKUs and exact absence causes."""
+    batch = _latest_active_batch()
+    if not batch:
+        return redirect("repricer:dashboard")
+    response = HttpResponse(content_type="text/csv; charset=utf-8")
+    response["Content-Disposition"] = (
+        'attachment; filename="zpt_apify_diagnostics_%d.csv"' % batch.pk
+    )
+    response.write("\ufeff")
+    writer = csv.writer(response)
+    writer.writerow([
+        "SKU Kaspi", "Товар", "Сопоставление ZPT", "Статус поиска",
+        "Причина отсутствия цены", "Минимальная цена, KZT",
+        "Продавец", "Город", "Ссылка Kaspi",
+    ])
+    for row in KaspiActiveExportRow.objects.filter(batch=batch).order_by("row_number"):
+        writer.writerow([
+            row.master_sku, row.product_name,
+            "Есть" if row.listing_id else "Не сопоставлен",
+            row.competitor_scan_status or "Ещё не проверялся",
+            row.competitor_scan_note, row.competitor_min_price or "",
+            row.competitor_seller, row.competitor_city, row.competitor_url,
+        ])
+    return response
