@@ -1,0 +1,107 @@
+{% extends "inventory/base.html" %}
+{% block content %}
+<style>
+.rep-rules{max-width:1100px;margin:0 auto;padding:20px 18px 40px;color:#142e4d;font:14px Arial,sans-serif}
+.rep-rules *{box-sizing:border-box}
+.rep-rules a{color:#087e79}
+.rep-rules-header{display:flex;align-items:start;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:6px 0 18px}
+.rep-rules h1{font-size:28px;margin:5px 0}.rep-rules .sub{color:#677b91;margin:4px 0;line-height:1.5}
+.rep-rule-card{border:1px solid #dae5f1;border-radius:15px;background:#fff;padding:21px 23px;margin:12px 0;box-shadow:0 8px 26px rgba(20,48,82,.05)}
+.rep-rule-head{display:flex;gap:12px;align-items:center;margin-bottom:18px}
+.rep-rule-step{background:#def5f0;color:#057b70;border-radius:10px;font-size:19px;font-weight:800;display:grid;place-items:center;width:40px;height:40px}
+.rep-rules h2{font-size:20px;margin:0 0 4px}
+.rep-check-grid{display:grid;grid-template-columns:repeat(3, minmax(120px,1fr));gap:10px;margin:13px 0}
+.rep-check-grid label{display:flex;align-items:center;gap:9px;padding:11px;background:#eef5fd;border:1px solid #dce7f2;border-radius:8px;cursor:pointer;font-size:14px}
+.rep-check-grid label:has(input:checked){background:#e3f8f2;border-color:#8ed0bf;font-weight:700}
+.rep-check-grid input{accent-color:#008e80;width:17px;height:17px}
+.rep-radio{display:flex;gap:12px;flex-wrap:wrap;margin:14px 0}
+.rep-radio label{display:flex;gap:9px;align-items:center;padding:11px 15px;background:#f3f7fc;border:1px solid #dce6ef;border-radius:8px;cursor:pointer}
+.rep-radio input{accent-color:#008e80}
+.rep-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.rep-btn{display:inline-block;padding:11px 16px;border:1px solid #cbd7e4;border-radius:8px;background:#fff;color:#183a57;text-decoration:none;font-weight:700;font-size:14px;cursor:pointer}
+.rep-btn.primary{background:#008b80;color:#fff;border-color:#008b80}
+.rep-btn:hover{filter:brightness(.97)}
+.rep-facts{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:14px 0}
+.rep-fact{padding:13px;border:1px solid #dfebf1;border-radius:9px;background:#f5f9fc}
+.rep-fact b{font-size:23px;display:block}
+.rep-fact small{font-size:12px;color:#62768b}
+.rep-rule-list{margin:0;padding-left:23px;line-height:1.65}
+.rep-rule-list li{margin:5px 0}
+.rep-alert{border-radius:8px;background:#fff8e8;border:1px solid #efda9d;padding:11px 14px;margin:13px 0}
+.rep-ok{padding:10px;background:#e9f8f3;color:#087058;border-radius:8px;margin:12px 0}
+@media(max-width:650px){.rep-check-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.rep-facts{grid-template-columns:1fr}.rep-rule-card{padding:15px}.rep-rules{padding:12px}.rep-rules h1{font-size:24px}}
+</style>
+<div class="rep-rules">
+  <a href="{% url 'repricer:dashboard' %}">← Контроль цен Kaspi</a>
+  <div class="rep-rules-header">
+    <div><h1>Правила мониторинга Kaspi</h1><p class="sub">Управление поиском конкурентов и подготовка JSON для Apify. Цены наших товаров автоматически не меняются.</p></div>
+    <a class="rep-btn" href="{% url 'repricer:dashboard' %}">Вернуться к репрайсингу</a>
+  </div>
+  {% for message in messages %}<div class="rep-ok">{{ message }}</div>{% endfor %}
+  {% if error %}<div class="rep-alert" role="alert">{{ error }}</div>{% endif %}
+  <section class="rep-rule-card">
+    <div class="rep-rule-head"><div class="rep-rule-step">1</div><div><h2>Источник товаров</h2><p class="sub">Всегда последняя загруженная выгрузка ACTIVE.xlsx из кабинета Kaspi</p></div></div>
+    {% if active_batch %}
+      <div class="rep-facts">
+        <div class="rep-fact"><small>Файл</small><b style="font-size:15px">{{ active_batch.filename }}</b></div>
+        <div class="rep-fact"><small>Строк товаров</small><b>{{ row_count }}</b></div>
+        <div class="rep-fact"><small>Требуют сопоставления</small><b>{{ unmapped_count }}</b></div>
+      </div>
+      <p class="sub">Загружен {{ active_batch.finished_at|date:"d.m.Y H:i" }}. Все строки включаются в JSON, даже если нет карточки ZPT.KZ.</p>
+    {% else %}
+      <div class="rep-alert">Актуальный ACTIVE.xlsx ещё не загружен по новой схеме. Вернитесь в «Контроль цен Kaspi» и загрузите файл.</div>
+      <a class="rep-btn" href="{% url 'repricer:dashboard' %}">Загрузить ACTIVE.xlsx</a>
+    {% endif %}
+  </section>
+  <section class="rep-rule-card">
+    <div class="rep-rule-head"><div class="rep-rule-step">2</div><div><h2>Города и количество карточек</h2><p class="sub">Те же шесть городов, что в «Подготовке товаров к закупке»</p></div></div>
+    <form method="post" action="{% url 'repricer:rules' %}">
+      {% csrf_token %}
+      <strong>Города поиска</strong>
+      <div class="rep-check-grid">
+        {% for city in cities %}
+          <label><input type="checkbox" name="cities" value="{{ city.code }}" {% if city.checked %}checked{% endif %}>{{ city.name }}</label>
+        {% endfor %}
+      </div>
+      <strong>Карточек Kaspi на каждый товар</strong>
+      <div class="rep-radio">
+        <label><input type="radio" name="cards_per_product" value="1" {% if cards == "1" %}checked{% endif %}>1 карточка</label>
+        <label><input type="radio" name="cards_per_product" value="2" {% if cards == "2" %}checked{% endif %}>2 карточки</label>
+        <label><input type="radio" name="cards_per_product" value="3" {% if cards == "3" %}checked{% endif %}>3 карточки</label>
+      </div>
+      <div class="rep-actions"><button type="submit" class="rep-btn primary">Сохранить правила</button><span class="sub">Настройки сохраняются для следующих выгрузок.</span></div>
+    </form>
+  </section>
+  <section class="rep-rule-card">
+    <div class="rep-rule-head"><div class="rep-rule-step">3</div><div><h2>Сформировать JSON для Apify</h2><p class="sub">Сохраняем входной файл Actor и отдельную таблицу соответствий SKU</p></div></div>
+    <div class="rep-facts">
+      <div class="rep-fact"><small>Товаров в ACTIVE</small><b>{{ row_count }}</b></div>
+      <div class="rep-fact"><small>Подтверждённых ссылок Kaspi</small><b>{{ url_count }}</b></div>
+      <div class="rep-fact"><small>Поисков по названию и артикулу</small><b>{{ query_count }}</b></div>
+    </div>
+    {% if active_batch %}
+      <div class="rep-actions">
+        <a class="rep-btn primary" href="{% url 'repricer:apify_export' %}">Скачать JSON для Apify</a>
+        <a class="rep-btn" href="{% url 'repricer:apify_export' %}?format=mapping">Скачать соответствия SKU</a>
+        <a href="{{ actor_url }}" target="_blank" rel="noopener noreferrer">Открыть Apify Actor ↗</a>
+      </div>
+    {% else %}
+      <div class="rep-alert">Для формирования JSON необходим ACTIVE.xlsx.</div>
+    {% endif %}
+    <p class="sub" style="margin-top:13px">JSON содержит параметры Actor и задания поиска, но не отправляется в Apify автоматически. Для карточек, найденных поиском, требуется подтверждение совпадения бренда и артикула.</p>
+  </section>
+  <section class="rep-rule-card">
+    <h2>Утверждённые правила</h2>
+    <ol class="rep-rule-list">
+      <li><strong>Ассортимент:</strong> все товары последнего ACTIVE.xlsx, включая несопоставленные.</li>
+      <li><strong>Города:</strong> только отмеченные галочками из шести городов.</li>
+      <li><strong>Карточки:</strong> 1, 2 или 3 варианта на каждый товар.</li>
+      <li><strong>Поиск:</strong> подтверждённая ссылка Kaspi, иначе название и бренд / артикул; похожие товары не считаем подтверждёнными.</li>
+      <li><strong>Продавцы:</strong> все доступные предложения, кроме AG Parts.</li>
+      <li><strong>Минимальная цена:</strong> одна самая низкая подтверждённая цена конкурента среди выбранных городов.</li>
+      <li><strong>Результат:</strong> минимальная цена, продавец, город, ссылка Kaspi, дата проверки.</li>
+    </ol>
+    <p class="sub">Исключение AG Parts (merchant ID 30363568), проверка соответствий и расчёт минимума выполняются при обработке результатов, а не при формировании входного JSON.</p>
+  </section>
+</div>
+{% endblock %}
