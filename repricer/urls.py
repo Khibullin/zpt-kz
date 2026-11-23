@@ -3,12 +3,15 @@ from django.urls import path
 from .views import repricer_dashboard, repricer_product, repricer_save_price, repricer_save_prices, repricer_export
 from .manual_collection import manual_start, manual_step, manual_pause, manual_resume
 from .kaspi_upload import upload_kaspi_assortment
+from .apify_json import repricer_rules, repricer_apify_export
 
 
 app_name = "repricer"
 
 urlpatterns = [
     path("", repricer_dashboard, name="dashboard"),
+    path("rules/", repricer_rules, name="rules"),
+    path("apify-json/", repricer_apify_export, name="apify_export"),
     path("product/<int:listing_id>/", repricer_product, name="product"),
     path("product/<int:listing_id>/save-price/", repricer_save_price, name="save_price"),
     path("save-prices/", repricer_save_prices, name="save_prices"),
