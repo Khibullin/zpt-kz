@@ -84,7 +84,7 @@ class PriceControlCenterTests(TestCase):
         self.product.seller_profile = seller
         self.product.save(update_fields=["seller_profile"])
         wb = Workbook()
-        wb.active.append(["SKU", "price", "PP2", "Наименование"])
+        wb.active.append(["SKU", "price", "PP2", "model"])
         wb.active.append([self.listing.master_sku, 14000, 4, "Наша запчасть"])
         wb.active.append(["NOT-MAPPED-777", 16000, 2, "Неизвестный товар"])
         data = BytesIO()
@@ -99,6 +99,8 @@ class PriceControlCenterTests(TestCase):
         self.assertContains(dashboard, "NOT-MAPPED-777")
         self.assertEqual(dashboard.context["summary"]["total"], 2)
         self.assertEqual(dashboard.context["summary"]["unmatched"], 1)
+        from repricer.models import KaspiActiveExportRow
+        self.assertEqual(KaspiActiveExportRow.objects.get(master_sku="NOT-MAPPED-777").product_name, "Неизвестный товар")
         self.assertNotContains(dashboard, "extra-unrelated-listing")
 
     def test_upload_kaspi_file_refreshes_only_observed_listing_data(self):
