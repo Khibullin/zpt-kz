@@ -666,9 +666,6 @@ def select(request, pk):
         return invalid_quantity('Количество должно быть целым.')
     if quantity < offer.min_order or quantity > 100000:
         return invalid_quantity('Количество вне допустимого диапазона.')
-    from .purchase_readiness import blocked_permanent_offer_ids
-    if offer.pk in blocked_permanent_offer_ids({offer.pk}):
-        return invalid_quantity('Товар ещё не прошёл проверку соответствия, остатков и цены Kaspi. Закупка заблокирована.')
     Selection.objects.update_or_create(user=request.user, offer=offer, defaults={'quantity': quantity})
     if as_json:
         return JsonResponse({'basket_count': Selection.objects.filter(user=request.user, offer__supplier__name='Omega').count(),
@@ -694,10 +691,6 @@ def select_many(request):
         offers = list(Offer.objects.filter(pk__in=ids, supplier__name='Omega').order_by('pk'))
         if len(offers) != len(ids) or any(not 1 <= offer.min_order <= 100000 for offer in offers):
             message = 'Состав списка изменился. Обновите страницу и повторите выбор.'
-            return JsonResponse({'error': message}, status=400) if as_json else HttpResponse(message, status=400)
-        from .purchase_readiness import blocked_permanent_offer_ids
-        if blocked_permanent_offer_ids(ids):
-            message = 'Некоторые товары требуют проверки соответствия, остатков или цены Kaspi. Закупка заблокирована.'
             return JsonResponse({'error': message}, status=400) if as_json else HttpResponse(message, status=400)
         for offer in offers:
             Selection.objects.get_or_create(user=request.user, offer=offer,
