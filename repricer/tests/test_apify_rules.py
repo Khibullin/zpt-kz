@@ -89,6 +89,50 @@ class RepricerApifyRulesTests(TestCase):
         self.assertEqual(mapping["rows"][1]["sku"], "UNMAPPED")
         self.assertTrue(mapping["rows"][1]["requires_result_verification"])
 
+
+    def test_vague_name_is_qualified_by_source_sku(self):
+        from repricer.apify_json import input_and_mapping
+        row = KaspiActiveExportRow(batch=self.batch, row_number=81,
+            master_sku="365030770", product_name="Воздушный фильтр",
+            price=2730, status="MISSING_LISTING")
+        payload, mapping = input_and_mapping([row], ["Almaty"], 2)
+        self.assertEqual(payload["searchQueries"], ["Воздушный фильтр 365030770"])
+        self.assertTrue(mapping[0]["source_sku_only_fallback"])
+
+    def test_alphanumeric_sku_is_included(self):
+        from repricer.apify_json import input_and_mapping
+        row = KaspiActiveExportRow(batch=self.batch, row_number=86,
+            master_sku="F081109111HD", product_name="AS воздушный фильтр Jetour DASHING",
+            brand="ag-parts", price=2730, status="MISSING_LISTING")
+        payload, mapping = input_and_mapping([row], ["Almaty"], 2)
+        self.assertIn("F081109111HD", payload["searchQueries"][0])
+        self.assertTrue(mapping[0]["requires_result_verification"])
+
+    def test_one_click_generation_saves_checked_cities(self):
+        self.client.force_login(self.staff)
+        response = self.client.post(reverse("repricer:rules"), {
+            "cities": ["Almaty", "Astana", "Shymkent"],
+            "cards_per_product": "2",
+            "return_to": "dashboard",
+            "action": "generate",
+        })
+        self.assertEqual(response.status_code, 200)
+        payload = json.loads(response.content)
+        self.assertEqual(payload["cities"], ["Almaty", "Astana", "Shymkent"])
+        saved = KaspiRepricerSearchSettings.objects.get(pk=1)
+        self.assertEqual(saved.cities, payload["cities"])
+        self.assertContains(self.client.get(reverse("repricer:dashboard")),
+                            'form="repricer-rules-form"')
+
+    def test_one_click_requires_one_city(self):
+        self.client.force_login(self.staff)
+        response = self.client.post(reverse("repricer:rules"), {
+            "cards_per_product": "2", "return_to": "dashboard",
+            "action": "generate",
+        })
+        self.assertRedirects(response, reverse("repricer:dashboard"))
+        self.assertEqual(len(KaspiRepricerSearchSettings.objects.get(pk=1).cities), 6)
+
     def test_invalid_rules_do_not_change_settings(self):
         self.client.force_login(self.staff)
         self.client.post(reverse("repricer:rules"), {
