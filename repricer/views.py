@@ -311,8 +311,19 @@ def repricer_product(request, listing_id):
     offers = [o for o in offers if o.seller_code.strip().casefold() not in own_ids] if own_ids else []
     for offer in offers:
         offer.city_name = CITY_BY_ID.get(offer.city_id, "Не указан")
+    active_batch = _latest_active_batch()
+    active_row = KaspiActiveExportRow.objects.filter(
+        batch=active_batch, listing=listing,
+    ).first() if active_batch else None
+    if active_row and active_row.competitor_checked_at:
+        from procurement.apify_cities import CITY_NAMES_RU
+        offers = list(active_row.verified_competitor_offers.all())
+        for offer in offers:
+            offer.city_name = CITY_NAMES_RU.get(offer.city, offer.city)
     response = render(request, "repricer/product.html", {
-        "row": _row(listing, state), "offers": offers, "is_stale": state.is_stale,
+        "row": _row(listing, state), "offers": offers,
+        "is_stale": bool(state.is_stale and not (active_row and active_row.competitor_checked_at)),
+        "active_row": active_row,
     })
     response["X-Robots-Tag"] = "noindex, nofollow"
     return response
