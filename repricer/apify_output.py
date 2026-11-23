@@ -93,7 +93,7 @@ def parse_apify_offers(data, active_rows, cities):
             titles[_normalized(name)].append(row)
 
     evidence = {}
-    recognized = 0
+    recognized_row_ids = set()
     not_confirmed = 0
     item_count = 0
     for item in _as_items(data):
@@ -102,6 +102,8 @@ def parse_apify_offers(data, active_rows, cities):
             continue
         city = str(item.get("city") or "").strip()
         if city not in allowed:
+            continue
+        if str(item.get("currency") or "KZT").upper() != "KZT":
             continue
         url = _valid_kaspi_url(item.get("url"))
         pid = str(item.get("id") or "").strip()
@@ -140,7 +142,7 @@ def parse_apify_offers(data, active_rows, cities):
         offers = item.get("offers")
         if not isinstance(offers, list):
             continue
-        recognized += 1
+        recognized_row_ids.add(row.pk)
         for offer in offers:
             if not isinstance(offer, dict):
                 continue
@@ -159,7 +161,8 @@ def parse_apify_offers(data, active_rows, cities):
                     "price": price, "url": url,
                 }
     return {
-        "items": item_count, "recognized": recognized,
+        "items": item_count, "recognized": len(recognized_row_ids),
+        "recognized_row_ids": recognized_row_ids,
         "unconfirmed": not_confirmed, "evidence": list(evidence.values()),
     }
 
@@ -212,7 +215,7 @@ def repricer_output_upload(request):
             row.competitor_city = best["city"] if best else ""
             row.competitor_url = best["url"] if best else ""
             row.competitor_checked_at = clock if best else None
-            row.competitor_scan_status = "MATCHED" if best else "NO_CONFIRMED_OFFERS"
+            row.competitor_scan_status = ("MATCHED" if best else "NO_OFFERS" if row.pk in result["recognized_row_ids"] else "NOT_CONFIRMED")
         KaspiActiveExportRow.objects.bulk_update(rows, [
             "competitor_min_price", "competitor_seller", "competitor_seller_id",
             "competitor_city", "competitor_url", "competitor_checked_at",
@@ -234,6 +237,8 @@ def repricer_output_upload(request):
         "unconfirmed": result["unconfirmed"],
         "with_prices": with_prices,
         "without_prices": len(rows) - with_prices,
+        "processed": result["recognized"],
+        "not_confirmed_rows": len(rows) - result["recognized"],
         "checked_at": timezone.localtime(clock).strftime("%d.%m.%Y %H:%M"),
     }
     messages.success(
