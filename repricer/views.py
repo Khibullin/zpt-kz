@@ -110,16 +110,19 @@ def _active_assortment(request, batch):
                       .exclude(listing_id__isnull=True)
                       .values_list("listing_id", flat=True))
     states = competitor_states_for_listings(active_ids)
+    has_apify_scan = KaspiActiveExportRow.objects.filter(batch=batch).exclude(
+        competitor_scan_status=""
+    ).exists()
     valid_offers = {pk for pk, state in states.items() if state.competitor_count > 0}
     if status == "offers":
-        qs = qs.filter(listing_id__in=valid_offers)
+        qs = qs.filter(competitor_min_price__isnull=False) if has_apify_scan else qs.filter(listing_id__in=valid_offers)
     elif status == "missing":
-        qs = qs.exclude(listing_id__in=valid_offers)
+        qs = qs.filter(competitor_min_price__isnull=True) if has_apify_scan else qs.exclude(listing_id__in=valid_offers)
     elif status == "unmatched":
         qs = qs.filter(listing__isnull=True)
     elif status == "draft":
         qs = qs.filter(listing__manual_price_draft__isnull=False)
-    elif status == "higher":
+    elif status == "higher" and not has_apify_scan:
         qualifying = [
             pk for pk, st in states.items() if st.is_fresh and st.best_price is not None
         ]
@@ -128,6 +131,11 @@ def _active_assortment(request, batch):
                  if pk in states and states[pk].best_price is not None
                  and price > states[pk].best_price}
         qs = qs.filter(listing_id__in=above)
+    elif status == "higher" and has_apify_scan:
+        ids = [rid for rid, current, best in qs.exclude(competitor_min_price__isnull=True)
+               .values_list("pk", "price", "competitor_min_price")
+               if current is not None and current > best]
+        qs = qs.filter(pk__in=ids)
 
     page = Paginator(qs, 20).get_page(request.GET.get("page"))
     rows = []
@@ -137,7 +145,7 @@ def _active_assortment(request, batch):
         draft = getattr(listing, "manual_price_draft", None) if listing else None
         # Output Apify for this exact ACTIVE row supersedes old cached direct-Kaspi data.
         apify_best = record.competitor_min_price
-        best = apify_best if apify_best is not None else (state.best_price if state else None)
+        best = apify_best if has_apify_scan else (state.best_price if state else None)
         rows.append({
             "active": record, "listing": listing,
             "item_title": record.product_name or (
@@ -149,15 +157,19 @@ def _active_assortment(request, batch):
             ) or "—",
             "our": record.price, "quantity": record.quantity,
             "draft": draft, "state": state,
-            "count": len(record.verified_competitor_offers.all()) if apify_best is not None else (state.competitor_count if state else 0),
-            "state_label": (state.state_label if state else "Требует сопоставления"),
+            "count": len(record.verified_competitor_offers.all()) if has_apify_scan else (state.competitor_count if state else 0),
+            "state_label": (
+                "Минимальная цена найдена" if apify_best is not None
+                else "Нет подтверждённой цены" if has_apify_scan
+                else state.state_label if state else "Требует сопоставления"
+            ),
             "best": best,
             "apify_best": apify_best,
             "best_seller": record.competitor_seller,
             "best_city": record.competitor_city,
             "best_url": record.competitor_url,
             "apify_checked_at": record.competitor_checked_at,
-            "stale": bool(state and state.is_stale) if apify_best is None else False,
+            "stale": False if has_apify_scan else bool(state and state.is_stale),
             "delta": record.price - best if record.price is not None and best is not None else None,
         })
     total = KaspiActiveExportRow.objects.filter(batch=batch).count()
@@ -165,9 +177,10 @@ def _active_assortment(request, batch):
     apify_found = KaspiActiveExportRow.objects.filter(
         batch=batch, competitor_min_price__isnull=False
     ).count()
-    found = KaspiActiveExportRow.objects.filter(
-        batch=batch,
-    ).filter(Q(competitor_min_price__isnull=False) | Q(listing_id__in=valid_offers)).count()
+    found = (
+        apify_found if has_apify_scan else
+        KaspiActiveExportRow.objects.filter(batch=batch, listing_id__in=valid_offers).count()
+    )
     drafted = KaspiActiveExportRow.objects.filter(
         batch=batch, listing__manual_price_draft__isnull=False
     ).count()
