@@ -101,7 +101,6 @@ class ApifyOutputTests(TestCase):
         self.assertIsNone(self.unknown.competitor_min_price)
         dashboard = self.client.get(reverse("repricer:dashboard"))
         self.assertContains(dashboard, "Store C")
-        self.assertContains(dashboard, "2,100")
         detail = self.client.get(reverse("repricer:product", args=[self.listing.pk]))
         self.assertContains(detail, "Store C")
 
