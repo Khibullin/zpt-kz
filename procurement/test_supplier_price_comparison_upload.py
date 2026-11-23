@@ -108,3 +108,27 @@ class SupplierPriceComparisonTests(TestCase):
         response = self.client.get(self.url, {'min_cost': '1800'})
         self.assertContains(response, 'WS9991')
         self.assertEqual(_snapshot(Decimal('1800'))['wins']['Omega'], 1)
+
+    def test_numbered_navigation_preserves_filters(self):
+        from unittest.mock import patch
+        from django.utils.http import urlencode
+        from decimal import Decimal
+        rows = [
+            {'brand': 'TEST', 'article': f'{i:04}', 'name': 'Example',
+             'prices': {'Phaeton': Decimal('2000')}, 'stock': {'Phaeton': '1'},
+             'winner': 'Phaeton', 'alternatives': 1, 'saving': None, 'percent': None}
+            for i in range(151)
+        ]
+        snapshot = {'rows': rows, 'counts': {'Phaeton': 151, 'ZakazAuto': 0, 'Omega': 0},
+                    'wins': {'Phaeton': 0, 'ZakazAuto': 0, 'Omega': 0}, 'shared': 0,
+                    'overlaps': {'Phaeton_Omega': 0, 'ZakazAuto_Omega': 0},
+                    'brand_overlaps': {'Phaeton_Omega': 0, 'ZakazAuto_Omega': 0},
+                    'article_overlaps': {'Phaeton_Omega': 0, 'ZakazAuto_Omega': 0},
+                    'omega_only': 0}
+        with patch('procurement.supplier_price_comparison._snapshot', return_value=snapshot):
+            response = self.client.get(self.url, {'page': '2', 'min_cost': '2000', 'q': 'TEST'})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Страница 2 из 4', count=2)
+        self.assertContains(response, 'page=3#price-results')
+        self.assertContains(response, 'min_cost=2000')
+        self.assertContains(response, 'name="page"')
