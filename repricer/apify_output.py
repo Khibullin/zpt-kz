@@ -297,21 +297,56 @@ def repricer_output_upload(request):
     offers_by_row = defaultdict(list)
     for record in evidence:
         offers_by_row[record["row_id"]].append(record)
+    merge_mode = request.POST.get("merge") == "1"
+    # An additional Apify search should supplement the 50 existing verified
+    # prices, not erase them when a smaller dataset is uploaded.
+    combined = {}
+    if merge_mode:
+        for old in KaspiActiveCompetitorOffer.objects.filter(active_row__batch=batch):
+            key = (old.active_row_id, old.city, old.seller_id)
+            combined[key] = {
+                "row_id": old.active_row_id, "city": old.city,
+                "seller_id": old.seller_id, "seller_name": old.seller_name,
+                "price": old.price, "url": old.product_url,
+                "checked_at": old.checked_at,
+            }
+    for item in evidence:
+        key = (item["row_id"], item["city"], item["seller_id"])
+        if key not in combined or item["price"] < combined[key]["price"]:
+            combined[key] = {**item, "checked_at": clock}
+    all_by_row = defaultdict(list)
+    for item in combined.values():
+        all_by_row[item["row_id"]].append(item)
+
     with transaction.atomic():
         KaspiActiveCompetitorOffer.objects.filter(active_row__batch=batch).delete()
         for row in rows:
-            offers = offers_by_row.get(row.pk, [])
+            offers = all_by_row.get(row.pk, [])
             best = min(offers, key=lambda e: e["price"]) if offers else None
+            # Retain the status of previously confirmed cards when partial
+            # discovery did not include their record.
+            previous_status = row.competitor_scan_status
+            previous_note = row.competitor_scan_note
             row.competitor_min_price = best["price"] if best else None
             row.competitor_seller = best["seller_name"] if best else ""
             row.competitor_seller_id = best["seller_id"] if best else ""
             row.competitor_city = best["city"] if best else ""
             row.competitor_url = best["url"] if best else ""
-            row.competitor_checked_at = clock if best else None
-            row.competitor_scan_status = ("MATCHED" if best else "NO_OFFERS" if row.pk in result["recognized_row_ids"] else "NOT_CONFIRMED")
-            row.competitor_scan_note = "" if best else _missing_reason(
-                row.pk, result["recognized_row_ids"], result["offer_counters"]
-            )
+            row.competitor_checked_at = best["checked_at"] if best else None
+            if best:
+                row.competitor_scan_status = "MATCHED"
+                row.competitor_scan_note = ""
+            elif merge_mode and row.pk not in result["recognized_row_ids"]:
+                row.competitor_scan_status = previous_status or "NOT_CONFIRMED"
+                row.competitor_scan_note = previous_note or "Карточка не подтверждена по артикулу и бренду"
+            else:
+                row.competitor_scan_status = (
+                    "NO_OFFERS" if row.pk in result["recognized_row_ids"]
+                    else "NOT_CONFIRMED"
+                )
+                row.competitor_scan_note = _missing_reason(
+                    row.pk, result["recognized_row_ids"], result["offer_counters"]
+                )
         KaspiActiveExportRow.objects.bulk_update(rows, [
             "competitor_min_price", "competitor_seller", "competitor_seller_id",
             "competitor_city", "competitor_url", "competitor_checked_at",
@@ -321,12 +356,14 @@ def repricer_output_upload(request):
             KaspiActiveCompetitorOffer(
                 active_row_id=e["row_id"], seller_id=e["seller_id"],
                 seller_name=e["seller_name"], city=e["city"],
-                price=e["price"], product_url=e["url"], checked_at=clock,
-            ) for e in evidence
+                price=e["price"], product_url=e["url"],
+                checked_at=e["checked_at"],
+            ) for e in combined.values()
         ], batch_size=500)
-    with_prices = len(offers_by_row)
+    with_prices = len(all_by_row)
     request.session["repricer_apify_result"] = {
         "filename": upload.name[:120],
+        "merge_mode": merge_mode,
         "source_batch_id": batch.pk,
         "rows_in_file": len(items),
         "recognized": result["recognized"],
