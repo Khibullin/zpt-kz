@@ -215,18 +215,24 @@ def repricer_rules(request):
             rules.cards_per_product = int(cards_raw)
             rules.save(update_fields=["cities", "cards_per_product", "updated_at"])
             # Generate from exactly the selected checkboxes, not stale rules.
-            if request.POST.get("action") == "generate":
+            if request.POST.get("action") in ("generate", "generate_remaining"):
                 if batch is None:
                     messages.error(request, "Сначала загрузите ACTIVE.xlsx.")
                     return redirect("repricer:dashboard")
                 rows = export_units(batch)
-                payload, mapping = input_and_mapping(
-                    rows, rules.cities, rules.cards_per_product
+                remaining = request.POST.get("action") == "generate_remaining"
+                payload, mapping = (
+                    remaining_input_and_mapping(rows, rules.cities, rules.cards_per_product)
+                    if remaining else input_and_mapping(rows, rules.cities, rules.cards_per_product)
                 )
                 if not rows or not (payload["startUrls"] or payload["searchQueries"]):
                     messages.error(request, "В ACTIVE.xlsx нет запросов для Apify.")
                     return redirect("repricer:dashboard")
-                return _download(payload, f"zpt_apify_active_{batch.pk}.json")
+                filename = (
+                    f"zpt_apify_remaining_{batch.pk}.json"
+                    if remaining else f"zpt_apify_active_{batch.pk}.json"
+                )
+                return _download(payload, filename)
             messages.success(request, "Правила сохранены.")
             return redirect("repricer:dashboard" if request.POST.get("return_to") == "dashboard" else "repricer:rules")
     rows = export_units(batch) if batch else []
@@ -269,7 +275,11 @@ def repricer_apify_export(request):
     if not rows:
         messages.error(request, "ACTIVE.xlsx не содержит товаров.")
         return redirect("repricer:dashboard")
-    payload, mapping = input_and_mapping(rows, rules.cities, rules.cards_per_product)
+    remaining = request.GET.get("scope") == "remaining"
+    payload, mapping = (
+        remaining_input_and_mapping(rows, rules.cities, rules.cards_per_product)
+        if remaining else input_and_mapping(rows, rules.cities, rules.cards_per_product)
+    )
     if not payload["startUrls"] and not payload["searchQueries"]:
         messages.error(request, "Не удалось сформировать запросы из ACTIVE.xlsx.")
         return redirect("repricer:rules")
@@ -289,4 +299,7 @@ def repricer_apify_export(request):
             "rows": mapping,
         }
         return _download(result, f"zpt_kaspi_mapping_{batch.pk}.json")
-    return _download(payload, f"zpt_apify_active_{batch.pk}.json")
+    return _download(payload, (
+        f"zpt_apify_remaining_{batch.pk}.json" if remaining
+        else f"zpt_apify_active_{batch.pk}.json"
+    ))
