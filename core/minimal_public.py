@@ -24,9 +24,9 @@ a.button{display:inline-block;margin-top:22px;padding:13px 20px;color:white;back
 a{color:#244c7b}footer{border-top:1px solid #dfe4ec;color:#647287;font-size:14px}
 </style></head><body>
 <header><a class="logo" href="/">ZPT.KZ</a><a href="/office/login/">Вход в кабинет</a></header>
-<main><h1>Платформа управления закупками автозапчастей</h1>
-<p>Внутренняя работа с поставщиками, закупками, остатками и финансовым учётом.</p>
-<a class="button" href="/office/login/">Перейти в служебный кабинет</a></main>
+<main><h1>Публичный сервис временно приостановлен</h1>
+<p>Сейчас доступен только служебный кабинет для сотрудников ZPT.KZ.</p>
+<a class="button" href="/office/login/">Служебный кабинет</a></main>
 <footer><a href="/contacts/">Контакты</a> · <a href="/privacy/">Конфиденциальность</a></footer>
 </body></html>""",
         content_type="text/html; charset=utf-8",
@@ -36,12 +36,7 @@ a{color:#244c7b}footer{border-top:1px solid #dfe4ec;color:#647287;font-size:14px
 @require_GET
 def minimal_robots(request):
     return HttpResponse(
-        "User-agent: *\\nDisallow: /office/\\nDisallow: /admin/\\n"
-        "Disallow: /control/\\nDisallow: /api/\\nDisallow: /internal/\\n"
-        "Disallow: /market/\\nDisallow: /seller/\\n"
-        "Disallow: /avtozapchasti/\\nDisallow: /maintenance-kits/\\n"
-        "Disallow: /our-products/\\n"
-        "Sitemap: https://zpt.kz/sitemap.xml\\n",
+        "User-agent: *\\nDisallow: /\\n",
         content_type="text/plain; charset=utf-8",
     )
 
@@ -50,10 +45,7 @@ def minimal_robots(request):
 def minimal_sitemap(request):
     return HttpResponse(
         '<?xml version="1.0" encoding="UTF-8"?>'
-        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
-        '<url><loc>https://zpt.kz/</loc></url>'
-        '<url><loc>https://zpt.kz/contacts/</loc></url>'
-        '</urlset>',
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>',
         content_type="application/xml; charset=utf-8",
     )
 
