@@ -37,10 +37,10 @@ class PublicSiteSuspensionMiddleware:
         # External buyers and sellers cannot use the public API.
         if path.startswith("/api/"):
             user = request.user
-            if user.is_authenticated and user.is_active and (
-                user.is_staff or user.is_superuser
-            ):
-                return None
+            if user.is_authenticated and user.is_active:
+                from core.office_views import office_access
+                if office_access(user):
+                    return None
 
         response = HttpResponse(
             "Публичный сервис ZPT.KZ временно приостановлен. "
