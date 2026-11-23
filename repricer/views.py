@@ -120,6 +120,10 @@ def _active_assortment(request, batch):
         qs = qs.filter(competitor_min_price__isnull=True) if has_apify_scan else qs.exclude(listing_id__in=valid_offers)
     elif status == "unmatched":
         qs = qs.filter(listing__isnull=True)
+    elif status == "only_own":
+        qs = qs.filter(competitor_scan_note="Только предложения нашего продавца AG Parts")
+    elif status == "unconfirmed":
+        qs = qs.filter(competitor_scan_status="NOT_CONFIRMED")
     elif status == "draft":
         qs = qs.filter(listing__manual_price_draft__isnull=False)
     elif status == "higher" and not has_apify_scan:
@@ -159,8 +163,10 @@ def _active_assortment(request, batch):
             "draft": draft, "state": state,
             "count": len(record.verified_competitor_offers.all()) if has_apify_scan else (state.competitor_count if state else 0),
             "state_label": (
-                "Минимальная цена найдена" if apify_best is not None
-                else "Нет подтверждённой цены" if has_apify_scan
+                "Минимальная цена конкурента" if apify_best is not None
+                else "Только AG Parts" if record.competitor_scan_note == "Только предложения нашего продавца AG Parts"
+                else "Карточка не подтверждена" if record.competitor_scan_status == "NOT_CONFIRMED"
+                else "Нет цены конкурента" if has_apify_scan
                 else state.state_label if state else "Требует сопоставления"
             ),
             "scan_note": record.competitor_scan_note,
@@ -272,6 +278,9 @@ def repricer_dashboard(request):
     scan_rows = KaspiActiveExportRow.objects.filter(batch=active_batch) if active_batch else KaspiActiveExportRow.objects.none()
     scan_count = scan_rows.filter(competitor_min_price__isnull=False).count()
     scan_processed = scan_rows.filter(competitor_scan_status__in=["MATCHED", "NO_OFFERS"]).count()
+    scan_only_own = scan_rows.filter(competitor_scan_note="Только предложения нашего продавца AG Parts").count()
+    scan_unconfirmed = scan_rows.filter(competitor_scan_status="NOT_CONFIRMED").count()
+    scan_our_prices = scan_rows.filter(price__isnull=False).count()
     scan_date = scan_rows.aggregate(last=Max("competitor_checked_at"))["last"]
     scan_reasons = list(
         scan_rows.exclude(competitor_scan_note="")
@@ -304,6 +313,9 @@ def repricer_dashboard(request):
         "apify_cards": str(rules.cards_per_product),
         "apify_scan_count": scan_count,
         "apify_scan_processed": scan_processed,
+        "apify_scan_only_own": scan_only_own,
+        "apify_scan_unconfirmed": scan_unconfirmed,
+        "apify_scan_our_prices": scan_our_prices,
         "apify_scan_reasons": scan_reasons,
         "apify_scan_date": scan_date,
         "apify_scan_missing": max(0, (active_context.get("summary", {}).get("total", 0) - scan_count)),
