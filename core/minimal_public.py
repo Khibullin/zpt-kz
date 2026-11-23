@@ -36,7 +36,7 @@ a{color:#244c7b}footer{border-top:1px solid #dfe4ec;color:#647287;font-size:14px
 @require_GET
 def minimal_robots(request):
     return HttpResponse(
-        "User-agent: *\\nDisallow: /\\n",
+        "User-agent: *\nDisallow: /\n",
         content_type="text/plain; charset=utf-8",
     )
 
