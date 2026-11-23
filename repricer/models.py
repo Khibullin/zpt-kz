@@ -298,6 +298,13 @@ class KaspiActiveExportRow(models.Model):
     )
     status = models.CharField(max_length=40, db_index=True)
     reason = models.CharField(max_length=255, blank=True)
+    competitor_min_price = models.PositiveIntegerField(null=True, blank=True)
+    competitor_seller = models.CharField(max_length=255, blank=True)
+    competitor_seller_id = models.CharField(max_length=128, blank=True)
+    competitor_city = models.CharField(max_length=80, blank=True)
+    competitor_url = models.URLField(max_length=500, blank=True)
+    competitor_checked_at = models.DateTimeField(null=True, blank=True)
+    competitor_scan_status = models.CharField(max_length=40, blank=True)
 
     class Meta:
         verbose_name = "Строка выгрузки ACTIVE Kaspi"
@@ -325,3 +332,23 @@ class KaspiRepricerSearchSettings(models.Model):
     class Meta:
         verbose_name = "Настройки поиска цен Kaspi"
         verbose_name_plural = "Настройки поиска цен Kaspi"
+
+
+class KaspiActiveCompetitorOffer(models.Model):
+    """Verified offer from a manually uploaded Apify dataset."""
+    active_row = models.ForeignKey(
+        KaspiActiveExportRow, on_delete=models.CASCADE,
+        related_name="verified_competitor_offers",
+    )
+    seller_id = models.CharField(max_length=128)
+    seller_name = models.CharField(max_length=255, blank=True)
+    city = models.CharField(max_length=80)
+    price = models.PositiveIntegerField()
+    product_url = models.URLField(max_length=500, blank=True)
+    checked_at = models.DateTimeField()
+
+    class Meta:
+        ordering = ("price", "pk")
+        indexes = [
+            models.Index(fields=("active_row", "price"), name="repr_active_offer_price_idx"),
+        ]
