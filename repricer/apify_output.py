@@ -72,29 +72,90 @@ def _as_items(data):
     return []
 
 
-def parse_apify_offers(data, active_rows, cities):
-    """Return evidence only for verified product identities.
+def _part_codes(title):
+    """Distinctive article-shaped tokens; bare numerical Kaspi SKU is not a part code."""
+    codes = set()
+    for value in re.findall(r"[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*", str(title or "").upper()):
+        if len(value) < 5 or len(value) > 50 or not any(ch.isdigit() for ch in value):
+            continue
+        if value.isdigit() and len(value) == 4 and value.startswith(("19", "20")):
+            continue
+        codes.add(value)
+    return codes
 
-    A verified Kaspi card ID may come from a previously seller-confirmed URL.
-    Search-only candidates need exact title AND trustworthy brand/article match;
-    ambiguous candidates are never auto-confirmed.
+
+def _brand_normalized(value):
+    return "".join(re.findall(r"[a-z0-9а-яё]+", str(value or "").casefold()))
+
+
+def _source_codes(row):
+    listing = row.listing
+    name = row.product_name or (listing.product.title if listing else "")
+    codes = _part_codes(name)
+    if listing and listing.product.article:
+        codes.update(_part_codes(listing.product.article))
+    if row.merchant_sku:
+        codes.update(_part_codes(row.merchant_sku))
+    # Alphanumeric source SKU may be a part article, numeric SKU may be
+    # a Kaspi merchant identifier and cannot prove article equality.
+    sku = (row.master_sku or "").strip()
+    if re.fullmatch(r"[A-Za-z0-9-]{5,50}", sku) and any(ch.isalpha() for ch in sku):
+        codes.update(_part_codes(sku))
+    return codes
+
+
+def _search_match(row, item):
+    """Require an exact distinctive article and corroborating brand, if known."""
+    title = str(item.get("title") or "")
+    found_codes = _part_codes(title)
+    expected_codes = _source_codes(row)
+    # Beware of title dates/variants: matching a distinctive part code is
+    # necessary; a common category title alone is never enough.
+    matched_codes = expected_codes & found_codes
+    if not matched_codes:
+        return False
+    brand = _brand_normalized(
+        row.brand or (
+            row.listing.product.brand.name
+            if row.listing and row.listing.product.brand else ""
+        )
+    )
+    if brand:
+        item_brand = _brand_normalized(item.get("brand"))
+        item_title = _brand_normalized(title)
+        if not (brand == item_brand or brand in item_title):
+            return False
+    return True
+
+
+def parse_apify_offers(data, active_rows, cities):
+    """Map Apify offers to a verified card or a uniquely confirmed part article.
+
+    Preserve mismatch/empty-offer causes for each ACTIVE row. Unverified
+    search candidates never set a price, and own offers never compete.
     """
     allowed = set(cities)
-    id_map = defaultdict(list)
-    titles = defaultdict(list)
+    verified_ids = defaultdict(list)
+    source_id_hints = defaultdict(list)
+    code_index = defaultdict(list)
     for row in active_rows:
         listing = row.listing
         if listing and listing.public_url_verified_at:
-            identifier = _product_id(listing.public_url)
-            if identifier:
-                id_map[identifier].append(row)
-        name = row.product_name or (listing.product.title if listing else "")
-        if name and len(_normalized(name)) >= 12:
-            titles[_normalized(name)].append(row)
+            pid = _product_id(listing.public_url)
+            if pid:
+                verified_ids[pid].append(row)
+        # A numeric Kaspi SKU prefix is a candidate hint, not proof by itself.
+        prefix = (row.master_sku or "").split("_", 1)[0]
+        if prefix.isdecimal() and len(prefix) >= 8:
+            source_id_hints[prefix].append(row)
+        for code in _source_codes(row):
+            code_index[code].append(row)
 
     evidence = {}
-    recognized_row_ids = set()
-    not_confirmed = 0
+    verified_rows = set()
+    unconfirmed = 0
+    skipped_city = 0
+    offer_counters = defaultdict(lambda: defaultdict(int))
     item_count = 0
     for item in _as_items(data):
         item_count += 1
@@ -102,6 +163,7 @@ def parse_apify_offers(data, active_rows, cities):
             continue
         city = str(item.get("city") or "").strip()
         if city not in allowed:
+            skipped_city += 1
             continue
         if str(item.get("currency") or "KZT").upper() != "KZT":
             continue
@@ -109,62 +171,91 @@ def parse_apify_offers(data, active_rows, cities):
         pid = str(item.get("id") or "").strip()
         url_id = _product_id(url)
         if pid and url_id and pid != url_id:
-            not_confirmed += 1
+            unconfirmed += 1
             continue
         pid = url_id or pid
-        candidates = id_map.get(pid, []) if pid else []
-        if len(candidates) != 1:
-            candidates = titles.get(_normalized(item.get("title")), [])
-            if len(candidates) == 1:
-                candidate = candidates[0]
-                expected_brand = _normalized(
-                    candidate.brand or (
-                        candidate.listing.product.brand.name
-                        if candidate.listing and candidate.listing.product.brand else ""
-                    )
-                )
-                actual_brand = _normalized(item.get("brand"))
-                article = (
-                    candidate.listing.product.article if candidate.listing else
-                    candidate.merchant_sku
-                )
-                # Never accept a search result on a title alone.
-                article_ok = bool(article and _normalized(article) in _normalized(item.get("title")))
-                brand_ok = bool(expected_brand and expected_brand == actual_brand)
-                if not (article_ok and brand_ok):
-                    candidates = []
-            else:
-                candidates = []
-        if len(candidates) != 1:
-            not_confirmed += 1
+
+        rows = verified_ids.get(pid, []) if pid else []
+        if len(rows) != 1:
+            # Candidate hints must agree with a distinctive part article,
+            # and known brand, not merely the numeric merchant SKU.
+            candidates = set()
+            title_codes = _part_codes(item.get("title"))
+            for code in title_codes:
+                for row in code_index.get(code, []):
+                    candidates.add(row.pk)
+            by_id = source_id_hints.get(pid, []) if pid else []
+            if by_id:
+                by_id_pks = {row.pk for row in by_id}
+                candidates &= by_id_pks
+            rows = [
+                row for row in active_rows
+                if row.pk in candidates and _search_match(row, item)
+            ]
+        if len(rows) != 1:
+            unconfirmed += 1
             continue
-        row = candidates[0]
+        row = rows[0]
         offers = item.get("offers")
         if not isinstance(offers, list):
+            offer_counters[row.pk]["missing_offers_array"] += 1
+            verified_rows.add(row.pk)
             continue
-        recognized_row_ids.add(row.pk)
+        verified_rows.add(row.pk)
+        if not offers:
+            offer_counters[row.pk]["empty_offers"] += 1
         for offer in offers:
             if not isinstance(offer, dict):
                 continue
-            seller_id = str(offer.get("sellerId") or "").strip()
-            if not seller_id or seller_id in OWN_MERCHANT_IDS:
+            offer_counters[row.pk]["raw_offers"] += 1
+            seller_id = str(
+                offer.get("sellerId") or offer.get("merchantId") or ""
+            ).strip()
+            if not seller_id:
+                offer_counters[row.pk]["missing_seller_id"] += 1
+                continue
+            if seller_id in OWN_MERCHANT_IDS:
+                offer_counters[row.pk]["own"] += 1
                 continue
             price = _positive_price(offer.get("price"))
             if price is None:
+                offer_counters[row.pk]["invalid_price"] += 1
                 continue
             key = (row.pk, city, seller_id)
             if key not in evidence or price < evidence[key]["price"]:
                 evidence[key] = {
-                    "row_id": row.pk, "city": city,
-                    "seller_id": seller_id,
+                    "row_id": row.pk, "city": city, "seller_id": seller_id,
                     "seller_name": str(offer.get("sellerName") or "")[:255],
                     "price": price, "url": url,
                 }
+            offer_counters[row.pk]["valid"] += 1
+
     return {
-        "items": item_count, "recognized": len(recognized_row_ids),
-        "recognized_row_ids": recognized_row_ids,
-        "unconfirmed": not_confirmed, "evidence": list(evidence.values()),
+        "items": item_count,
+        "recognized": len(verified_rows),
+        "recognized_row_ids": verified_rows,
+        "unconfirmed": unconfirmed,
+        "skipped_city": skipped_city,
+        "evidence": list(evidence.values()),
+        "offer_counters": {k: dict(v) for k, v in offer_counters.items()},
     }
+
+
+def _missing_reason(row_id, recognized_ids, counters):
+    if row_id not in recognized_ids:
+        return "Карточка не подтверждена по артикулу и бренду"
+    state = counters.get(row_id, {})
+    if state.get("missing_offers_array"):
+        return "Apify не вернул поле offers"
+    if state.get("empty_offers"):
+        return "Apify вернул пустой список offers"
+    if state.get("missing_seller_id"):
+        return "У предложений отсутствует идентификатор продавца"
+    if state.get("invalid_price"):
+        return "У предложений некорректная или пустая цена"
+    if state.get("own") and not state.get("valid"):
+        return "Только предложения нашего продавца AG Parts"
+    return "Нет подтверждённых предложений других продавцов"
 
 
 @staff_member_required
@@ -216,10 +307,13 @@ def repricer_output_upload(request):
             row.competitor_url = best["url"] if best else ""
             row.competitor_checked_at = clock if best else None
             row.competitor_scan_status = ("MATCHED" if best else "NO_OFFERS" if row.pk in result["recognized_row_ids"] else "NOT_CONFIRMED")
+            row.competitor_scan_note = "" if best else _missing_reason(
+                row.pk, result["recognized_row_ids"], result["offer_counters"]
+            )
         KaspiActiveExportRow.objects.bulk_update(rows, [
             "competitor_min_price", "competitor_seller", "competitor_seller_id",
             "competitor_city", "competitor_url", "competitor_checked_at",
-            "competitor_scan_status",
+            "competitor_scan_status", "competitor_scan_note",
         ], batch_size=300)
         KaspiActiveCompetitorOffer.objects.bulk_create([
             KaspiActiveCompetitorOffer(
@@ -239,6 +333,10 @@ def repricer_output_upload(request):
         "without_prices": len(rows) - with_prices,
         "processed": result["recognized"],
         "not_confirmed_rows": len(rows) - result["recognized"],
+        "reason_counts": dict(__import__("collections").Counter(
+            _missing_reason(row.pk, result["recognized_row_ids"], result["offer_counters"])
+            for row in rows if row.pk not in offers_by_row
+        )),
         "checked_at": timezone.localtime(clock).strftime("%d.%m.%Y %H:%M"),
     }
     messages.success(
@@ -266,11 +364,12 @@ def repricer_clear_output(request):
             row.competitor_url = ""
             row.competitor_checked_at = None
             row.competitor_scan_status = ""
+            row.competitor_scan_note = ""
         if rows:
             KaspiActiveExportRow.objects.bulk_update(rows, [
                 "competitor_min_price", "competitor_seller", "competitor_seller_id",
                 "competitor_city", "competitor_url", "competitor_checked_at",
-                "competitor_scan_status",
+                "competitor_scan_status", "competitor_scan_note",
             ])
     request.session.pop("repricer_apify_result", None)
     messages.success(request, "Результаты мониторинга очищены. Наши цены не изменены.")
