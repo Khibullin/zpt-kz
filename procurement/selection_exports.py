@@ -18,7 +18,7 @@ from .selection_rule_views import _stock_filter, _group_filter, matching_years
 from .views import access
 
 JSON_BATCH_SIZE = 500
-APIFY_CITIES = ['Almaty', 'Astana', 'Shymkent', 'Karaganda', 'Aktobe', 'Atyrau']
+from .apify_cities import APIFY_CITIES
 APIFY_MIN_SUPPLIER_COST = Decimal('2000')
 APIFY_MAX_ITEMS_PER_QUERY = 2  # Default; configurable from 1 to 5.
 
