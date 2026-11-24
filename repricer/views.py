@@ -124,6 +124,8 @@ def _active_assortment(request, batch):
         qs = qs.filter(competitor_scan_note="Только предложения нашего продавца AG Parts")
     elif status == "unconfirmed":
         qs = qs.filter(competitor_scan_status="NOT_CONFIRMED")
+    elif status == "review":
+        qs = qs.filter(candidate_price__isnull=False)
     elif status == "draft":
         qs = qs.filter(listing__manual_price_draft__isnull=False)
     elif status in ("higher", "equal", "lower"):
@@ -182,6 +184,9 @@ def _active_assortment(request, batch):
                 else state.state_label if state else "Требует сопоставления"
             ),
             "scan_note": record.competitor_scan_note,
+            "candidate_price": record.candidate_price,
+            "candidate_title": record.candidate_title,
+            "candidate_url": record.candidate_url,
             "best": best,
             "apify_best": apify_best,
             "best_seller": record.competitor_seller,
@@ -294,6 +299,7 @@ def repricer_dashboard(request):
     scan_remaining = scan_rows.filter(competitor_min_price__isnull=True).count()
     scan_only_own = scan_rows.filter(competitor_scan_note="Только предложения нашего продавца AG Parts").count()
     scan_unconfirmed = scan_rows.filter(competitor_scan_status="NOT_CONFIRMED").count()
+    scan_review = scan_rows.filter(candidate_price__isnull=False).count()
     scan_our_prices = scan_rows.filter(price__isnull=False).count()
     scan_date = scan_rows.aggregate(last=Max("competitor_checked_at"))["last"]
     scan_reasons = list(
@@ -330,6 +336,7 @@ def repricer_dashboard(request):
         "apify_scan_only_own": scan_only_own,
         "apify_scan_remaining": scan_remaining,
         "apify_scan_unconfirmed": scan_unconfirmed,
+        "apify_scan_review": scan_review,
         "apify_scan_our_prices": scan_our_prices,
         "apify_scan_reasons": scan_reasons,
         "apify_scan_date": scan_date,
