@@ -156,6 +156,66 @@ class ApifyOutputTests(TestCase):
         wrong.refresh_from_db()
         self.assertIsNone(wrong.competitor_min_price)
 
+    def test_exact_article_unbranded_card_is_allowed_only_for_same_part_type(self):
+        row = KaspiActiveExportRow.objects.create(
+            batch=self.batch, row_number=4, master_sku="343875218",
+            merchant_sku="M111109111", product_name="Воздушный фильтр M111109111",
+            brand="Chery", price=2500, status="MISSING_LISTING",
+        )
+        self._upload([
+            {
+                "id": "161941852", "title": "Воздушный фильтр M111109111",
+                "brand": "Без бренда", "city": "Almaty",
+                "url": "https://kaspi.kz/shop/p/vozdushnyi-filtr-m111109111-161941852/",
+                "offers": [{"sellerId": "5050005", "price": 3500}],
+            },
+            {
+                "id": "161941853", "title": "Салонный фильтр M111109111",
+                "brand": "Без бренда", "city": "Almaty",
+                "offers": [{"sellerId": "5050006", "price": 100}],
+            },
+        ])
+        row.refresh_from_db()
+        self.assertEqual(row.competitor_min_price, 3500)
+
+    def test_different_branded_part_is_not_automatically_identical(self):
+        row = KaspiActiveExportRow.objects.create(
+            batch=self.batch, row_number=4, master_sku="180634092",
+            merchant_sku="D20T0120700",
+            product_name="Свеча зажигания AG Parts D20T0120700",
+            brand="ag-parts", price=4550, status="MISSING_LISTING",
+        )
+        self._upload([{
+            "id": "167557785", "title": "Свеча зажигания TORCH D20T0120700",
+            "brand": "TORCH", "city": "Almaty",
+            "offers": [{"sellerId": "30422258", "price": 5000}],
+        }])
+        row.refresh_from_db()
+        self.assertIsNone(row.competitor_min_price)
+
+    def test_two_active_skus_with_same_identical_part_both_get_comparison(self):
+        a = KaspiActiveExportRow.objects.create(
+            batch=self.batch, row_number=4, master_sku="F081109111HD",
+            product_name="AS воздушный фильтр Jetour DASHING",
+            brand="ag-parts", price=2730, status="MISSING_LISTING",
+        )
+        b = KaspiActiveExportRow.objects.create(
+            batch=self.batch, row_number=5, master_sku="323939926",
+            merchant_sku="F081109111HD",
+            product_name="AG Parts воздушный фильтр F081109111HD",
+            brand="ag-parts", price=2730, status="MISSING_LISTING",
+        )
+        self._upload([{
+            "id": "123456788",
+            "title": "AG Parts воздушный фильтр F081109111HD",
+            "brand": "AG Parts", "city": "Almaty",
+            "offers": [{"sellerId": "competitor", "price": 3250}],
+        }])
+        a.refresh_from_db()
+        b.refresh_from_db()
+        self.assertEqual(a.competitor_min_price, 3250)
+        self.assertEqual(b.competitor_min_price, 3250)
+
     def test_empty_offers_are_diagnosed_separately(self):
         self._upload([{
             "id": "141407587",
