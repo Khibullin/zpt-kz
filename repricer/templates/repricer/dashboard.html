@@ -112,8 +112,8 @@
 @media(max-width:1250px){.pc-pipeline{grid-template-columns:1fr}.pc-pipeline-card{max-width:none}}
 @media(max-width:600px){.pc-pipeline-body{padding:12px}.pc-pipeline-header{padding:13px}.pc-cities-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.pc-output-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.pc-pipeline-header h2{font-size:17px}}
 .pc-top .pc-actions{justify-content:flex-end}
-.pc-rules-button{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid #b6cbdc;color:#173f5e;text-decoration:none;border-radius:8px;padding:10px 15px;font-weight:700;font-size:13px}
-.pc-rules-button:hover{background:#eaf5fc}
+.pc-rules-button{display:inline-flex;align-items:center;gap:7px;min-width:105px;justify-content:center;padding:8px 14px;border:2px solid #5fcfc2;border-radius:9px;background:#e9fbf8;color:#0f5f5a;text-decoration:none;font-weight:700;font-size:13px;box-shadow:0 2px 6px rgba(16,96,90,.08)}
+.pc-rules-button:hover{background:#d8f6f1;border-color:#27b7a7;color:#0b4f4a}
 .pc-pipeline{gap:11px;margin:10px 0 14px}
 .pc-pipeline-card{border-radius:11px}
 .pc-pipeline-header{padding:10px 13px;min-height:55px;gap:9px}
@@ -150,7 +150,7 @@
     <div class="pc-actions">
       <span class="pc-source-pill">ACTIVE: {% if active_batch %}{{ summary.total }} товаров{% else %}не загружен{% endif %}</span>
       <span class="pc-source-pill pc-pill-secondary">Последняя проверка: {% if apify_scan_date %}{{ apify_scan_date|date:"d.m.Y H:i" }}{% else %}—{% endif %}</span>
-      <a class="pc-rules-button" href="{% url 'repricer:rules' %}" title="Открыть правила репрайсинга">⚙ Правила</a>
+      <a class="pc-rules-button" href="{% url 'repricer:rules' %}" title="Открыть утверждённые правила репрайсинга">Правила</a>
     </div>
   </div>
   {% if messages %}{% for message in messages %}<div class="pc-toast" role="status">{{ message }}</div>{% endfor %}{% endif %}
