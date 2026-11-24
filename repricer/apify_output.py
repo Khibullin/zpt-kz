@@ -116,8 +116,11 @@ def _search_match(row, item):
     matched_codes = expected_codes & found_codes
     if not matched_codes:
         return False
+    listed_brand = (row.brand or "").strip()
+    if listed_brand.casefold() in ("ag-parts", "ag parts"):
+        listed_brand = ""
     brand = _brand_normalized(
-        row.brand or (
+        listed_brand or (
             row.listing.product.brand.name
             if row.listing and row.listing.product.brand else ""
         )
