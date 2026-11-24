@@ -7,30 +7,13 @@
     <p>Выберите направление работы</p>
   </div>
   <div class="office-launcher-grid">
-    {% if office_accounting %}
-    <a class="office-launcher-card office-launcher-account" href="{% url 'inventory:overview' %}">
-      <div class="office-launcher-top">
-        <span class="office-launcher-symbol" aria-hidden="true">₸</span>
-        <span class="office-launcher-number">01</span>
-      </div>
+    {% if office_procurement or office_accounting %}
+    <a class="office-launcher-card office-launcher-account" href="{% if office_accounting %}{% url 'inventory:overview' %}{% else %}{% url 'procurement:dashboard' %}?mode=best{% endif %}">
       <div class="office-launcher-card-main">
-        <h2>Учёт товаров и денег</h2>
-        <p>Остатки, приход, перемещения, продажи и расчёты</p>
+        <h2>AG Parts — единый кабинет</h2>
+        <p>Подбор товаров и закупки{% if office_accounting %} · Учёт товаров и денег{% endif %} · Kaspi</p>
       </div>
-      <span class="office-launcher-link">Открыть учёт <span aria-hidden="true">→</span></span>
-    </a>
-    {% endif %}
-    {% if office_procurement %}
-    <a class="office-launcher-card office-launcher-purchase" href="{% url 'procurement:dashboard' %}?mode=best">
-      <div class="office-launcher-top">
-        <span class="office-launcher-symbol" aria-hidden="true">✓</span>
-        <span class="office-launcher-number">02</span>
-      </div>
-      <div class="office-launcher-card-main">
-        <h2>Подбор товаров и закупки</h2>
-        <p>Выгодные товары, сравнение цен Kaspi и список закупки</p>
-      </div>
-      <span class="office-launcher-link">Открыть подбор <span aria-hidden="true">→</span></span>
+      <span class="office-launcher-link">Открыть AG Parts <span aria-hidden="true">→</span></span>
     </a>
     {% endif %}
   </div>
