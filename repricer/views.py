@@ -125,7 +125,7 @@ def _active_assortment(request, batch):
     elif status == "unconfirmed":
         qs = qs.filter(competitor_scan_status="NOT_CONFIRMED")
     elif status == "review":
-        qs = qs.filter(candidate_price__isnull=False)
+        qs = qs.filter(candidate_price__isnull=False, competitor_min_price__isnull=True)
     elif status == "draft":
         qs = qs.filter(listing__manual_price_draft__isnull=False)
     elif status in ("higher", "equal", "lower"):
@@ -299,7 +299,7 @@ def repricer_dashboard(request):
     scan_remaining = scan_rows.filter(competitor_min_price__isnull=True).count()
     scan_only_own = scan_rows.filter(competitor_scan_note="Только предложения нашего продавца AG Parts").count()
     scan_unconfirmed = scan_rows.filter(competitor_scan_status="NOT_CONFIRMED").count()
-    scan_review = scan_rows.filter(candidate_price__isnull=False).count()
+    scan_review = scan_rows.filter(candidate_price__isnull=False, competitor_min_price__isnull=True).count()
     scan_our_prices = scan_rows.filter(price__isnull=False).count()
     scan_date = scan_rows.aggregate(last=Max("competitor_checked_at"))["last"]
     scan_reasons = list(
