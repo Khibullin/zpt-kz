@@ -3,7 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.views import LoginView
 from django.core.exceptions import ValidationError
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.views.decorators.cache import never_cache
 from procurement.permissions import workspace_role
 from inventory.permissions import can_access_accounting
@@ -32,9 +33,10 @@ class OfficeLoginView(LoginView):
 def office_home(request):
     if not office_access(request.user):
         return render(request,'office/denied.html',status=403)
-    role=workspace_role(request.user)
-    return render(request,'office/home.html',{
-        'office_accounting':can_access_accounting(request.user),
-        'office_procurement':role is not None,
-        'office_role':'Администратор' if request.user.is_staff or role=='admin' else 'Сотрудник',
-    })
+    if can_access_accounting(request.user):
+        return redirect('inventory:overview')
+    if workspace_role(request.user) is not None:
+        return redirect(reverse('procurement:dashboard') + '?supplier=&mode=best')
+    if request.user.is_staff:
+        return redirect('repricer:dashboard')
+    return render(request,'office/denied.html',status=403)
