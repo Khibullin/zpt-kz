@@ -342,6 +342,7 @@ def visible_permanent_buying_rows(request, preferences, filters):
             row['purchase_ready'] = False
             row['historical'] = False
             row['candidate'] = {
+                'id': audit.product_id,
                 'title': audit.card_title,
                 'url': audit.card_url,
                 'match_status': 'candidate',
