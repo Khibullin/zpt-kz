@@ -29,7 +29,7 @@
 #price-results{scroll-margin-top:10px}
 </style>
 <div class="price-compare">
-<header><div><h1>⚖ Сравнение цен поставщиков</h1><p class="muted">Одинаковый бренд и полный артикул — одна строка. Зелёным выделена минимальная закупочная цена при наличии.</p></div></header>
+<header><div><h1>Сравнение цен</h1><p class="muted">Одинаковый бренд и полный артикул — одна строка. Зелёным выделена минимальная закупочная цена при наличии.</p></div></header>
 <style>
 .price-compare .upload-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:12px 0 16px}
 .price-compare .upload-card{background:#fff;border:1px solid #dbe4ee;border-radius:10px;padding:16px;min-width:0}
@@ -42,7 +42,7 @@
 .price-compare .upload-title{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
 @media(max-width:1020px){.price-compare .upload-grid{grid-template-columns:1fr}}
 </style>
-<div class="upload-title"><h2>Обновление прайсов поставщиков</h2>
+<details><summary>Обновление прайсов поставщиков</summary><div class="upload-title"><h2>Обновление прайсов поставщиков</h2>
 <form method="post">{% csrf_token %}<input type="hidden" name="action" value="recalculate"><button class="primary" type="submit">↻ Пересчитать сравнение</button></form>
 </div>
 <div class="upload-grid">
@@ -73,7 +73,7 @@
 {% endfor %}
 </div>
 <p class="muted">Каждая загрузка заменяет только сравнительный прайс выбранного поставщика. Рабочие товары, Kaspi и список закупки не изменяются. После успешной загрузки сравнение пересчитывается автоматически.</p>
-<div class="summary">
+</details><div class="summary">
 <div class="metric"><span>Уникальных товаров</span><strong>{{ snapshot.rows|length }}</strong></div>
 <div class="metric"><span>У 2+ поставщиков</span><strong>{{ snapshot.shared }}</strong></div>
 <div class="metric"><span>Дешевле у Phaeton</span><strong>{{ snapshot.wins.Phaeton }}</strong></div>
@@ -98,8 +98,8 @@
 <input type="search" name="q" value="{{ q }}" placeholder="Поиск по бренду, артикулу или названию">
 <label style="display:flex;align-items:center;gap:6px;white-space:nowrap">Закупка от <input type="number" name="min_cost" min="0" max="999999999999" step="1" value="{{ min_cost|floatformat:0 }}" style="width:112px;min-width:100px;flex:0;padding:8px" aria-label="Минимальная закупочная цена в тенге"> ₸</label>
 <select name="supplier" aria-label="У кого дешевле"><option value="">Все поставщики</option><option value="Phaeton" {% if supplier_filter == 'Phaeton' %}selected{% endif %}>Дешевле Phaeton</option><option value="ZakazAuto" {% if supplier_filter == 'ZakazAuto' %}selected{% endif %}>Дешевле ZakazAuto</option><option value="Omega" {% if supplier_filter == 'Omega' %}selected{% endif %}>Дешевле Omega</option></select>
-<select name="sort" aria-label="Сортировка"><option value="">По бренду</option><option value="saving" {% if sort == 'saving' %}selected{% endif %}>По экономии</option><option value="price" {% if sort == 'price' %}selected{% endif %}>По минимальной цене</option></select>
-<label style="white-space:nowrap"><input type="checkbox" name="shared" value="1" {% if shared_only %}checked{% endif %}> Только совпадения</label>
+<select name="sort" aria-label="Сортировка"><option value="brand" {% if sort == 'brand' %}selected{% endif %}>По бренду</option><option value="percent" {% if sort == 'percent' %}selected{% endif %}>По экономии, %</option><option value="saving" {% if sort == 'saving' %}selected{% endif %}>По экономии</option><option value="price" {% if sort == 'price' %}selected{% endif %}>По минимальной цене</option></select>
+<select name="shared" aria-label="Состав сравнения"><option value="1" {% if scope == '1' %}selected{% endif %}>Два и более поставщика</option><option value="0" {% if scope == '0' %}selected{% endif %}>Все товары</option><option value="single" {% if scope == 'single' %}selected{% endif %}>Один поставщик</option></select>
 <button class="primary">Показать</button><a class="button" href="{% url 'procurement:supplier_price_comparison' %}">Сбросить</a>
 </form>
 <p class="muted">Найдено: {{ displayed_count }} · Минимальная закупочная цена: {{ min_cost|floatformat:0 }} ₸ (включительно). · Данные из сохранённых прайсов: Phaeton — {{ snapshot.counts.Phaeton|default:0 }}, ZakazAuto — {{ snapshot.counts.ZakazAuto|default:0 }}, Omega — {{ snapshot.counts.Omega|default:0 }} позиций с положительным остатком. Сравнение не включает доставку.</p>
@@ -108,14 +108,14 @@
 <tbody>{% for item in page %}
 <tr><td>{{ page.start_index|add:forloop.counter0 }}</td>
 <td><strong>{{ item.brand }}</strong> · {{ item.article }}</td><td title="{{ item.name }}">{{ item.name }}</td>
-<td {% if item.winner == 'Phaeton' %}class="best"{% endif %}>{% if item.prices.Phaeton %}{{ item.prices.Phaeton|floatformat:0 }} ₸ <small>· {{ item.stock.Phaeton }} шт.</small>{% else %}—{% endif %}</td>
-<td {% if item.winner == 'ZakazAuto' %}class="best"{% endif %}>{% if item.prices.ZakazAuto %}{{ item.prices.ZakazAuto|floatformat:0 }} ₸ <small>· {{ item.stock.ZakazAuto }} шт.</small>{% else %}—{% endif %}</td>
-<td {% if item.winner == 'Omega' %}class="best"{% endif %}>{% if item.prices.Omega %}{{ item.prices.Omega|floatformat:0 }} ₸ <small>· {{ item.stock.Omega }} шт.</small>{% else %}—{% endif %}</td>
+<td {% if item.alternatives > 1 and 'Phaeton' in item.winners %}class="best"{% endif %}>{% if item.prices.Phaeton %}{{ item.prices.Phaeton|floatformat:0 }} ₸ <small>· {{ item.stock.Phaeton }} шт.</small>{% else %}—{% endif %}</td>
+<td {% if item.alternatives > 1 and 'ZakazAuto' in item.winners %}class="best"{% endif %}>{% if item.prices.ZakazAuto %}{{ item.prices.ZakazAuto|floatformat:0 }} ₸ <small>· {{ item.stock.ZakazAuto }} шт.</small>{% else %}—{% endif %}</td>
+<td {% if item.alternatives > 1 and 'Omega' in item.winners %}class="best"{% endif %}>{% if item.prices.Omega %}{{ item.prices.Omega|floatformat:0 }} ₸ <small>· {{ item.stock.Omega }} шт.</small>{% else %}—{% endif %}</td>
 <td>{% if item.alternatives == 1 %}<span class="minor">Только один поставщик</span>{% elif item.winner == 'Равная цена' %}Равная цена{% else %}<span class="best-label">{{ item.winner }}</span>{% endif %}</td>
 <td>{% if item.saving != None %}<strong>{{ item.saving|floatformat:0 }} ₸</strong> <small>({{ item.percent|floatformat:1 }}%)</small>{% else %}—{% endif %}</td></tr>
 {% empty %}<tr><td colspan="8">Подходящих товаров нет. Проверьте прайсы, наличие и условия поиска.</td></tr>{% endfor %}
 </tbody></table></div>
 {% include "procurement/_supplier_price_pagination.html" with position="bottom" %}
-<p class="muted">Товар участвует, если его минимальная закупочная цена у доступных поставщиков не ниже установленного порога. Сравнение только по бренду и артикулу. Совпадение не подтверждает исполнение, комплектацию или применимость. Неизвестное наличие исключается из выбора минимальной цены. При равных ценах победитель не назначается. Даты исходных прайсов требуют проверки перед заказом.</p>
+<p class="muted">Товар участвует, если его минимальная закупочная цена у доступных поставщиков не ниже установленного порога. Сравнение только по бренду и артикулу. Совпадение не подтверждает исполнение, комплектацию или применимость. Неизвестное наличие исключается из выбора минимальной цены. При равных минимальных ценах учитываются все поставщики с этой ценой. Экономия относительно самого дорогого предложения. Даты исходных прайсов требуют проверки перед заказом.</p>
 </div>
 {% endblock %}
