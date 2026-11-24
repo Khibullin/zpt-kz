@@ -12,7 +12,7 @@
 {% include "includes/office_favicon.html" %}<link rel="stylesheet" href="{% static 'office/agparts-sidebar.css' %}?v=20261124"></head>
 <body class="office-workspace office-procurement">
 {% if can_access_procurement and not request.GET.compact %}{% include 'includes/agparts_sidebar.html' %}{% endif %}
-<main{% if request.GET.compact or not can_access_procurement %} style="margin-left:0;padding:16px"{% endif %}>{% if can_access_procurement %}<nav class="office-home-nav" aria-label="Служебная навигация">{% block workspace_back %}{% endblock %}<a class="office-back-link office-home-button" href="{% url 'office_home' %}">← Служебный кабинет</a></nav>{% endif %}{% for message in messages %}<div class="notice" role="status">{{ message }}</div>{% endfor %}{% block content %}{% endblock %}<footer>Закупки и продажи · ZPT.KZ · Неизвестные данные не считаются нулём. Отзывы не равны продажам.</footer>
+<main{% if request.GET.compact or not can_access_procurement %} style="margin-left:0;padding:16px"{% endif %}>{% if can_access_procurement %}<nav class="office-home-nav" aria-label="Служебная навигация">{% block workspace_back %}{% endblock %}</nav>{% endif %}{% for message in messages %}<div class="notice" role="status">{{ message }}</div>{% endfor %}{% block content %}{% endblock %}<footer>Закупки и продажи · ZPT.KZ · Неизвестные данные не считаются нулём. Отзывы не равны продажам.</footer>
 </main>
 {% load static %}<script src="{% static 'procurement/selection.js' %}?v=20261118-list" defer></script>
 </body>
