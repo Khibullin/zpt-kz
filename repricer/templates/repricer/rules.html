@@ -47,14 +47,14 @@
         <div class="rep-fact"><small>Строк товаров</small><b>{{ row_count }}</b></div>
         <div class="rep-fact"><small>Требуют сопоставления</small><b>{{ unmapped_count }}</b></div>
       </div>
-      <p class="sub">Загружен {{ active_batch.finished_at|date:"d.m.Y H:i" }}. Все строки включаются в JSON, даже если нет карточки ZPT.KZ.</p>
+      <p class="sub">Загружен {{ active_batch.finished_at|date:"d.m.Y H:i" }}. Полный режим включает все SKU; дополнительный — только товары без цены конкурента.</p>
     {% else %}
       <div class="rep-alert">Актуальный ACTIVE.xlsx ещё не загружен по новой схеме. Вернитесь в «Контроль цен Kaspi» и загрузите файл.</div>
       <a class="rep-btn" href="{% url 'repricer:dashboard' %}">Загрузить ACTIVE.xlsx</a>
     {% endif %}
   </section>
   <section class="rep-rule-card">
-    <div class="rep-rule-head"><div class="rep-rule-step">2</div><div><h2>Города и количество карточек</h2><p class="sub">Те же шесть городов, что в «Подготовке товаров к закупке»</p></div></div>
+    <div class="rep-rule-head"><div class="rep-rule-step">2</div><div><h2>Города и количество карточек</h2><p class="sub">Выбранные города сохраняются; рекомендованы Алматы, Астана и Шымкент</p></div></div>
     <form method="post" action="{% url 'repricer:rules' %}">
       {% csrf_token %}
       <strong>Города поиска</strong>
@@ -63,7 +63,7 @@
           <label><input type="checkbox" name="cities" value="{{ city.code }}" {% if city.checked %}checked{% endif %}>{{ city.name }}</label>
         {% endfor %}
       </div>
-      <strong>Сколько карточек проверять при поиске товара</strong>
+      <strong>Сколько карточек проверять на каждый поисковый запрос (рекомендуем 3)</strong>
       <div class="rep-radio">
         <label><input type="radio" name="cards_per_product" value="1" {% if cards == "1" %}checked{% endif %}>1 карточка</label>
         <label><input type="radio" name="cards_per_product" value="2" {% if cards == "2" %}checked{% endif %}>2 карточки</label>
@@ -75,14 +75,16 @@
   <section class="rep-rule-card">
     <div class="rep-rule-head"><div class="rep-rule-step">3</div><div><h2>Сформировать JSON для Apify</h2><p class="sub">Сохраняем входной файл Actor и отдельную таблицу соответствий SKU</p></div></div>
     <div class="rep-facts">
-      <div class="rep-fact"><small>Товаров в ACTIVE</small><b>{{ row_count }}</b></div>
-      <div class="rep-fact"><small>Подтверждённых ссылок Kaspi</small><b>{{ url_count }}</b></div>
-      <div class="rep-fact"><small>Поисков по названию и артикулу</small><b>{{ query_count }}</b></div>
+      <div class="rep-fact"><small>Товаров полного мониторинга</small><b>{{ row_count }}</b></div>
+      <div class="rep-fact"><small>Осталось без цен конкурентов</small><b>{{ remaining_count }}</b></div>
+      <div class="rep-fact"><small>Запросов дополнительного поиска</small><b>{{ additional_search_count }}</b></div>
     </div>
     {% if active_batch %}
       <div class="rep-actions">
-        <a class="rep-btn primary" href="{% url 'repricer:apify_export' %}">Скачать JSON для Apify</a>
-        <a class="rep-btn" href="{% url 'repricer:apify_export' %}?format=mapping">Скачать соответствия SKU</a>
+        <a class="rep-btn primary" href="{% url 'repricer:apify_export' %}">Полный мониторинг — {{ row_count }} товаров</a>
+        {% if remaining_count %}<a class="rep-btn primary" href="{% url 'repricer:apify_export' %}?scope=remaining">Дополнительный поиск — {{ remaining_count }} товаров</a>{% endif %}
+        <a class="rep-btn" href="{% url 'repricer:apify_export' %}?format=mapping">Соответствия полного режима</a>
+        {% if remaining_count %}<a class="rep-btn" href="{% url 'repricer:apify_export' %}?scope=remaining&amp;format=mapping">Соответствия дополнительного режима</a>{% endif %}
         <a href="{{ actor_url }}" target="_blank" rel="noopener noreferrer">Открыть Apify Actor ↗</a>
       </div>
     {% else %}
@@ -93,13 +95,14 @@
   <section class="rep-rule-card">
     <h2>Утверждённые правила</h2>
     <ol class="rep-rule-list">
-      <li><strong>Ассортимент:</strong> все товары последнего ACTIVE.xlsx, включая несопоставленные.</li>
-      <li><strong>Города:</strong> только отмеченные галочками из шести городов.</li>
-      <li><strong>Карточки:</strong> одна подтверждённая карточка по проверенной ссылке или 1–3 поисковых кандидата, если точной ссылки нет.</li>
-      <li><strong>Поиск:</strong> подтверждённая ссылка Kaspi, иначе название и бренд / артикул; похожие товары не считаем подтверждёнными.</li>
-      <li><strong>Продавцы:</strong> все доступные предложения, кроме AG Parts.</li>
-      <li><strong>Минимальная цена:</strong> одна самая низкая подтверждённая цена конкурента среди выбранных городов.</li>
-      <li><strong>Результат:</strong> минимальная цена, продавец, город, ссылка Kaspi, дата проверки.</li>
+      <li><strong>Полный режим:</strong> каждый товар ACTIVE.xlsx, проверенная Kaspi-ссылка плюс альтернативный поиск по артикулу.</li>
+      <li><strong>Дополнительный режим:</strong> только SKU без подтверждённой цены; ранее найденные предложения сохраняем при объединении Output JSON.</li>
+      <li><strong>Города:</strong> только выбранные галочками из шести городов; рекомендуемые Алматы, Астана, Шымкент.</li>
+      <li><strong>Карточки:</strong> 1–3 карточки на поисковый запрос, рекомендуемые 3.</li>
+      <li><strong>Поиск:</strong> точный артикул; бренд + артикул; название + артикул; бездефисный вариант артикула. Числовой SKU не приравнивается к артикулу.</li>
+      <li><strong>Подтверждение:</strong> точный артикул и достоверный бренд; похожие товары не учитываем как подтверждённые.</li>
+      <li><strong>Продавцы:</strong> все доступные предложения в выбранных городах, кроме AG Parts (merchant ID 30363568).</li>
+      <li><strong>Результат:</strong> одна самая низкая подтверждённая цена, продавец, город, ссылка и время; наши цены не меняем.</li>
     </ol>
     <p class="sub">Исключение AG Parts (merchant ID 30363568), проверка соответствий и расчёт минимума выполняются при обработке результатов, а не при формировании входного JSON.</p>
   </section>
