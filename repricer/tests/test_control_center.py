@@ -43,7 +43,9 @@ class PriceControlCenterTests(TestCase):
         self.assertContains(response, 'name="kaspi_file"')
         self.assertContains(response, 'name="apify_output"')
         self.assertContains(response, "Полный мониторинг — JSON для всех")
-        self.assertContains(response, "Правила поиска и обработки")
+        self.assertContains(response, "Карточек на запрос")
+        self.assertContains(response, "Правила")
+        self.assertContains(response, reverse("repricer:rules"))
         self.assertContains(response, "Сохранить изменения")
 
     def test_manual_draft_does_not_change_live_price(self):
