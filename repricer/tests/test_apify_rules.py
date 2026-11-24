@@ -98,7 +98,7 @@ class RepricerApifyRulesTests(TestCase):
             master_sku="365030770", product_name="Воздушный фильтр",
             price=2730, status="MISSING_LISTING")
         payload, mapping = input_and_mapping([row], ["Almaty"], 2)
-        self.assertEqual(payload["searchQueries"], ["Воздушный фильтр"])
+        self.assertEqual(payload["searchQueries"], [])
         self.assertTrue(mapping[0]["source_sku_only_fallback"])
         self.assertTrue(mapping[0]["requires_result_verification"])
 
