@@ -1,0 +1,27 @@
+{% with route=request.resolver_match.url_name ns=request.resolver_match.namespace %}
+<aside class="agparts-sidebar" aria-label="AG Parts — единое меню">
+<a class="agparts-logo logo inventory-sidebar-logo" href="{% url 'office_home' %}">ZPT<span>.KZ</span><small>Служебный кабинет · AG Parts</small></a>
+{% if can_access_accounting %}<a href="{% url 'inventory:overview' %}" {% if ns == 'inventory' and route == 'overview' %}aria-current="page"{% endif %}>Обзор</a>{% endif %}
+{% if can_access_procurement %}
+<div class="agparts-group">ОПТОВЫЕ ЗАКУПКИ</div>
+<a href="{% url 'procurement:supplier_price_comparison' %}" {% if ns == 'procurement' and route == 'supplier_price_comparison' %}aria-current="page"{% endif %}>Сравнение цен</a>
+<a href="{% url 'procurement:dashboard' %}?supplier=&amp;mode=best" {% if ns == 'procurement' and route == 'dashboard' or ns == 'procurement' and route == 'comparison' or ns == 'procurement' and route == 'detail' %}aria-current="page"{% endif %}>Выгодные к закупке</a>
+<a href="{% url 'procurement:basket' %}" {% if ns == 'procurement' and route == 'basket' or ns == 'procurement' and route == 'purchase_confirm' %}aria-current="page"{% endif %}>Список закупки{% if agparts_basket_count != None %} · <span data-basket-count>{{ agparts_basket_count }}</span>{% endif %}</a>
+{% if agparts_can_manage %}<a href="{% url 'procurement:selection_rules' %}" {% if ns == 'procurement' and route == 'selection_rules' or ns == 'procurement' and route == 'omega_selection_rules_help' %}aria-current="page"{% endif %}>Подготовка товаров к закупке</a>{% endif %}
+{% endif %}
+{% if can_access_accounting %}
+<div class="agparts-group">СКЛАДСКОЙ УЧЁТ</div>
+<a href="{% url 'inventory:purchases' %}" {% if ns == 'inventory' and route == 'purchases' or ns == 'inventory' and route == 'purchase_register_detail' or ns == 'inventory' and route == 'purchase_action' or ns == 'procurement' and route == 'purchase_detail' or ns == 'procurement' and route == 'purchase_receive' %}aria-current="page"{% endif %}>Учёт закупок</a>
+<a href="{% url 'inventory:receipts' %}" {% if ns == 'inventory' and route == 'receipts' or ns == 'inventory' and route == 'goods_detail' or ns == 'inventory' and route == 'goods_edit' %}aria-current="page"{% endif %}>Приходы и накладные</a>
+<a href="{% url 'inventory:items' %}" {% if ns == 'inventory' and route == 'items' and request.GET.compare != '1' or ns == 'inventory' and route == 'item_detail' %}aria-current="page"{% endif %}>Товары и остатки</a>
+<a href="{% url 'inventory:updates' %}" {% if ns == 'inventory' and route == 'updates' or ns == 'inventory' and route == 'comparison' or ns == 'inventory' and route == 'reconciliation' or ns == 'inventory' and route == 'sales' or ns == 'inventory' and route == 'items' and request.GET.compare == '1' %}aria-current="page"{% endif %}>Сверка остатков и продаж</a>
+{% endif %}
+{% if can_access_procurement or request.user.is_staff %}
+<div class="agparts-group">KASPI</div>
+{% if can_access_procurement %}<a href="{% url 'procurement:kaspi_products' %}" {% if ns == 'procurement' and route == 'kaspi_products' or ns == 'procurement' and route == 'kaspi_card_pricing' %}aria-current="page"{% endif %}>Товары для Kaspi</a>{% endif %}
+{% if request.user.is_staff and request.user.is_active %}<a href="{% url 'repricer:dashboard' %}" {% if ns == 'repricer' %}aria-current="page"{% endif %}>Контроль цен Kaspi</a>{% endif %}
+{% endif %}
+<div class="agparts-role">{{ request.user.get_username }}<br>{% if agparts_role == 'admin' %}Администратор{% else %}Сотрудник{% endif %}</div>
+{% if request.user.is_authenticated %}<form method="post" action="{% url 'office_logout' %}">{% csrf_token %}<button type="submit">Выйти</button></form>{% endif %}
+</aside>
+{% endwith %}
