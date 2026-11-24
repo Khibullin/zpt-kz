@@ -32,79 +32,25 @@
 @media(max-width:650px){.rep-check-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.rep-facts{grid-template-columns:1fr}.rep-rule-card{padding:15px}.rep-rules{padding:12px}.rep-rules h1{font-size:24px}}
 </style>
 <div class="rep-rules">
-  <a href="{% url 'repricer:dashboard' %}">← Контроль цен Kaspi</a>
   <div class="rep-rules-header">
-    <div><h1>Правила мониторинга Kaspi</h1><p class="sub">Управление поиском конкурентов и подготовка JSON для Apify. Цены наших товаров автоматически не меняются.</p></div>
-    <a class="rep-btn" href="{% url 'repricer:dashboard' %}">Вернуться к репрайсингу</a>
+    <div><h1>Правила мониторинга цен Kaspi</h1><p class="sub">Утверждённые правила поиска и сравнения цен.</p></div>
+    <a class="rep-btn" href="{% url 'repricer:dashboard' %}">← Назад к репрайсингу</a>
   </div>
-  {% for message in messages %}<div class="rep-ok">{{ message }}</div>{% endfor %}
-  {% if error %}<div class="rep-alert" role="alert">{{ error }}</div>{% endif %}
   <section class="rep-rule-card">
-    <div class="rep-rule-head"><div class="rep-rule-step">1</div><div><h2>Источник товаров</h2><p class="sub">Всегда последняя загруженная выгрузка ACTIVE.xlsx из кабинета Kaspi</p></div></div>
-    {% if active_batch %}
-      <div class="rep-facts">
-        <div class="rep-fact"><small>Файл</small><b style="font-size:15px">{{ active_batch.filename }}</b></div>
-        <div class="rep-fact"><small>Строк товаров</small><b>{{ row_count }}</b></div>
-        <div class="rep-fact"><small>Требуют сопоставления</small><b>{{ unmapped_count }}</b></div>
-      </div>
-      <p class="sub">Загружен {{ active_batch.finished_at|date:"d.m.Y H:i" }}. Полный режим включает все SKU; дополнительный — только товары без цены конкурента.</p>
-    {% else %}
-      <div class="rep-alert">Актуальный ACTIVE.xlsx ещё не загружен по новой схеме. Вернитесь в «Контроль цен Kaspi» и загрузите файл.</div>
-      <a class="rep-btn" href="{% url 'repricer:dashboard' %}">Загрузить ACTIVE.xlsx</a>
-    {% endif %}
-  </section>
-  <section class="rep-rule-card">
-    <div class="rep-rule-head"><div class="rep-rule-step">2</div><div><h2>Города и количество карточек</h2><p class="sub">Выбранные города сохраняются; рекомендованы Алматы, Астана и Шымкент</p></div></div>
-    <form method="post" action="{% url 'repricer:rules' %}">
-      {% csrf_token %}
-      <strong>Города поиска</strong>
-      <div class="rep-check-grid">
-        {% for city in cities %}
-          <label><input type="checkbox" name="cities" value="{{ city.code }}" {% if city.checked %}checked{% endif %}>{{ city.name }}</label>
-        {% endfor %}
-      </div>
-      <strong>Сколько карточек проверять на каждый поисковый запрос (рекомендуем 3)</strong>
-      <div class="rep-radio">
-        <label><input type="radio" name="cards_per_product" value="1" {% if cards == "1" %}checked{% endif %}>1 карточка</label>
-        <label><input type="radio" name="cards_per_product" value="2" {% if cards == "2" %}checked{% endif %}>2 карточки</label>
-        <label><input type="radio" name="cards_per_product" value="3" {% if cards == "3" %}checked{% endif %}>3 карточки</label>
-      </div>
-      <div class="rep-actions"><button type="submit" class="rep-btn primary">Сохранить правила</button><span class="sub">Настройки сохраняются для следующих выгрузок.</span></div>
-    </form>
-  </section>
-  <section class="rep-rule-card">
-    <div class="rep-rule-head"><div class="rep-rule-step">3</div><div><h2>Сформировать JSON для Apify</h2><p class="sub">Сохраняем входной файл Actor и отдельную таблицу соответствий SKU</p></div></div>
-    <div class="rep-facts">
-      <div class="rep-fact"><small>Товаров полного мониторинга</small><b>{{ row_count }}</b></div>
-      <div class="rep-fact"><small>Осталось без цен конкурентов</small><b>{{ remaining_count }}</b></div>
-      <div class="rep-fact"><small>Запросов дополнительного поиска</small><b>{{ additional_search_count }}</b></div>
-    </div>
-    {% if active_batch %}
-      <div class="rep-actions">
-        <a class="rep-btn primary" href="{% url 'repricer:apify_export' %}">Полный мониторинг — {{ row_count }} товаров</a>
-        {% if remaining_count %}<a class="rep-btn primary" href="{% url 'repricer:apify_export' %}?scope=remaining">Дополнительный поиск — {{ remaining_count }} товаров</a>{% endif %}
-        <a class="rep-btn" href="{% url 'repricer:apify_export' %}?format=mapping">Соответствия полного режима</a>
-        {% if remaining_count %}<a class="rep-btn" href="{% url 'repricer:apify_export' %}?scope=remaining&amp;format=mapping">Соответствия дополнительного режима</a>{% endif %}
-        <a href="{{ actor_url }}" target="_blank" rel="noopener noreferrer">Открыть Apify Actor ↗</a>
-      </div>
-    {% else %}
-      <div class="rep-alert">Для формирования JSON необходим ACTIVE.xlsx.</div>
-    {% endif %}
-    <p class="sub" style="margin-top:13px">JSON содержит параметры Actor и задания поиска, но не отправляется в Apify автоматически. Для карточек, найденных поиском, требуется подтверждение совпадения бренда и артикула.</p>
-  </section>
-  <section class="rep-rule-card">
-    <h2>Утверждённые правила</h2>
     <ol class="rep-rule-list">
-      <li><strong>Полный режим:</strong> каждый товар ACTIVE.xlsx, проверенная Kaspi-ссылка плюс альтернативный поиск по артикулу.</li>
-      <li><strong>Дополнительный режим:</strong> только SKU без подтверждённой цены; ранее найденные предложения сохраняем при объединении Output JSON.</li>
-      <li><strong>Города:</strong> только выбранные галочками из шести городов; рекомендуемые Алматы, Астана, Шымкент.</li>
-      <li><strong>Карточки:</strong> 1–3 карточки на поисковый запрос, рекомендуемые 3.</li>
-      <li><strong>Поиск:</strong> точный артикул; бренд + артикул; название + артикул; бездефисный вариант артикула. Числовой SKU не приравнивается к артикулу.</li>
-      <li><strong>Подтверждение:</strong> точный артикул и достоверный бренд; похожие товары не учитываем как подтверждённые.</li>
-      <li><strong>Продавцы:</strong> все доступные предложения в выбранных городах, кроме AG Parts (merchant ID 30363568).</li>
-      <li><strong>Результат:</strong> одна самая низкая подтверждённая цена, продавец, город, ссылка и время; наши цены не меняем.</li>
+      <li><strong>Ассортимент:</strong> все товары последнего ACTIVE.xlsx. Не сопоставленные SKU остаются в таблице.</li>
+      <li><strong>Полный мониторинг:</strong> проверенная карточка Kaspi и поиск альтернативных карточек по каждому товару.</li>
+      <li><strong>Дополнительный поиск:</strong> только товары без подтверждённой цены конкурента, без потери ранее найденных цен.</li>
+      <li><strong>Поисковые запросы:</strong> артикул; бренд + артикул; название + артикул; при необходимости артикул без дефисов.</li>
+      <li><strong>Города:</strong> выбранные в основном окне репрайсинга. Рекомендуемые — Алматы, Астана и Шымкент.</li>
+      <li><strong>Карточки:</strong> 1–3 на поисковый запрос, по умолчанию 3.</li>
+      <li><strong>Проверка совпадения:</strong> точный артикул, соответствующий тип детали и подтверждённый бренд. Похожие товары без подтверждения не учитываются.</li>
+      <li><strong>Продавцы:</strong> все предложения в выбранных городах, кроме нашего AG Parts (merchant ID 30363568).</li>
+      <li><strong>Цена конкурента:</strong> минимальная подтверждённая цена среди подходящих предложений; сохраняем продавца, город, ссылку и дату.</li>
+      <li><strong>Сравнение:</strong> если наша цена выше минимальной цены конкурента, строка выделяется светло-красным цветом и доступна через фильтр.</li>
+      <li><strong>Неоднозначные результаты:</strong> отдельно «Проверить бренд», без включения цены в подтверждённый минимум.</li>
+      <li><strong>Безопасность:</strong> наши цены и остатки на Kaspi автоматически не меняются.</li>
     </ol>
-    <p class="sub">Исключение AG Parts (merchant ID 30363568), проверка соответствий и расчёт минимума выполняются при обработке результатов, а не при формировании входного JSON.</p>
   </section>
 </div>
 {% endblock %}
