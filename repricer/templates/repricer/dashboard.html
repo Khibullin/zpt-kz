@@ -125,7 +125,7 @@
   {% if messages %}{% for message in messages %}<div class="pc-toast" role="status">{{ message }}</div>{% endfor %}{% endif %}
   <div class="pc-pipeline">
     <section class="pc-pipeline-card pc-pipeline-input">
-      <header class="pc-pipeline-header"><span class="pc-step-number">1</span><div><h2>Подготовка задания Apify (Input JSON)</h2><p>ACTIVE.xlsx → правила поиска → JSON для Apify</p></div></header>
+      <header class="pc-pipeline-header"><span class="pc-step-number">1</span><div><h2>Подготовка задания Apify (Input JSON)</h2><p>ACTIVE.xlsx → полный или дополнительный поиск → JSON Apify</p></div></header>
       <div class="pc-pipeline-body">
         <div class="pc-field-label">Файл ACTIVE.xlsx (наши товары Kaspi)</div>
         <form class="pc-upload-inline" method="post" enctype="multipart/form-data" action="{% url 'repricer:upload_kaspi' %}">
@@ -139,13 +139,14 @@
           <summary>Правила поиска и обработки</summary>
           <div class="pc-rules-content">
             <ol>
-              <li>Ассортимент — все товары последнего ACTIVE.xlsx, включая несопоставленные SKU.</li>
-              <li>Города — выбранные галочками из шести городов.</li>
-              <li>Карточки — подтверждённая карточка или 1–3 кандидата поиска.</li>
-              <li>Поиск — подтверждённая ссылка, иначе название, бренд и артикул.</li>
-              <li>Продавцы — все доступные, кроме AG Parts.</li>
-              <li>Результат — одна минимальная подтверждённая цена конкурента на товар.</li>
-              <li>Сохраняем продавца, город, ссылку и дату проверки; наши цены не меняем.</li>
+              <li><strong>Полный мониторинг:</strong> все SKU из последнего ACTIVE.xlsx; проверенная ссылка Kaspi и поиск альтернативных карточек для каждого товара.</li>
+              <li><strong>Дополнительный поиск:</strong> только SKU без подтверждённой цены конкурента. Найденные ранее цены сохраняются.</li>
+              <li><strong>Порядок поиска:</strong> точный артикул → бренд + артикул → название + артикул; при наличии артикула с дефисом пробуем и без него.</li>
+              <li><strong>Города:</strong> только отмеченные из шести; по умолчанию Алматы, Астана, Шымкент.</li>
+              <li><strong>Карточки:</strong> по умолчанию три результата <em>на каждый поисковый запрос</em>; выбор 1–3.</li>
+              <li><strong>Проверка:</strong> точный артикул и подходящий бренд; похожая карточка и числовой SKU сами по себе не подтверждают совпадение.</li>
+              <li><strong>Продавцы:</strong> все доступные предложения, кроме AG Parts (ID 30363568), во всех выбранных городах.</li>
+              <li><strong>Итог:</strong> минимальная подтверждённая цена конкурента, продавец, город, ссылка и дата. Нашу цену не изменяем.</li>
             </ol>
             <form method="post" action="{% url 'repricer:rules' %}" class="pc-rule-form" id="repricer-rules-form">
               {% csrf_token %}<input type="hidden" name="return_to" value="dashboard">
@@ -154,7 +155,7 @@
                 {% for city in apify_cities %}<label><input type="checkbox" name="cities" value="{{ city.code }}" {% if city.checked %}checked{% endif %}>{{ city.name }}</label>{% endfor %}
               </div>
               <div class="pc-rule-bottom">
-                <div><span class="pc-field-label">Карточек на товар</span>
+                <div><span class="pc-field-label">Карточек на поисковый запрос</span>
                   <div class="pc-radio-line">
                     <label><input type="radio" name="cards_per_product" value="1" {% if apify_cards == "1" %}checked{% endif %}>1</label>
                     <label><input type="radio" name="cards_per_product" value="2" {% if apify_cards == "2" %}checked{% endif %}>2</label>
@@ -167,14 +168,14 @@
           </div>
         </details>
         <div class="pc-panel-actions">
-          <button class="pc-button pc-button-primary" type="submit" form="repricer-rules-form" name="action" value="generate">Сформировать JSON для Apify</button>
+          <button class="pc-button pc-button-primary" type="submit" form="repricer-rules-form" name="action" value="generate">Полный мониторинг — JSON для всех {{ summary.total }}</button>
           {% if active_batch and apify_scan_remaining %}
-          <button class="pc-button pc-button-followup" type="submit" form="repricer-rules-form" name="action" value="generate_remaining">Найти альтернативы для {{ apify_scan_remaining }} товаров</button>
+          <button class="pc-button pc-button-followup" type="submit" form="repricer-rules-form" name="action" value="generate_remaining">Дополнительный поиск — {{ apify_scan_remaining }} товаров</button>
           {% endif %}
           <a class="pc-button" href="{% url 'repricer:apify_export' %}?format=mapping">Соответствия SKU</a>
           <a class="pc-text-link" href="https://apify.com/firsthand/kaspi-api" target="_blank" rel="noopener noreferrer">Открыть Apify</a>
         </div>
-        <p class="pc-file-hint">«Сформировать JSON» проверяет полный ассортимент. «Найти альтернативы» ищет только позиции без минимальной цены конкурента по нескольким вариантам артикула, бренда и названия. Настройки городов сохраняются. Результаты требуют проверки точного совпадения.</p>
+        <p class="pc-file-hint">Полный JSON включает прямые проверенные карточки и отдельный поиск альтернатив для всех товаров. Дополнительный JSON не перепроверяет 50 найденных цен и собирает только недостающие. Результаты поиска требуют подтверждения артикула и бренда.</p>
       </div>
     </section>
     <section class="pc-pipeline-card pc-pipeline-output">
