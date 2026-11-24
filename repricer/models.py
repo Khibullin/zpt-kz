@@ -327,7 +327,7 @@ class KaspiRepricerSearchSettings(models.Model):
     These settings only affect the generated JSON, never Kaspi or our prices.
     """
     cities = models.JSONField(default=list, verbose_name="Города Kaspi")
-    cards_per_product = models.PositiveSmallIntegerField(default=2, verbose_name="Карточек на товар")
+    cards_per_product = models.PositiveSmallIntegerField(default=3, verbose_name="Карточек на запрос")
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
