@@ -20,7 +20,7 @@ from .views import _latest_active_batch
 def saved_rules():
     rules, _ = KaspiRepricerSearchSettings.objects.get_or_create(
         pk=1, defaults={
-            "cities": list(APIFY_CITIES),
+            "cities": ["Almaty", "Astana", "Shymkent"],
             "cards_per_product": 3,
         },
     )
