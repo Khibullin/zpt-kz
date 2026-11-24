@@ -306,6 +306,10 @@ class KaspiActiveExportRow(models.Model):
     competitor_checked_at = models.DateTimeField(null=True, blank=True)
     competitor_scan_status = models.CharField(max_length=40, blank=True)
     competitor_scan_note = models.CharField(max_length=255, blank=True)
+    candidate_price = models.PositiveIntegerField(null=True, blank=True)
+    candidate_title = models.CharField(max_length=500, blank=True)
+    candidate_url = models.URLField(max_length=500, blank=True)
+    candidate_seller = models.CharField(max_length=255, blank=True)
 
     class Meta:
         verbose_name = "Строка выгрузки ACTIVE Kaspi"
