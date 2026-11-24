@@ -21,7 +21,7 @@ def saved_rules():
     rules, _ = KaspiRepricerSearchSettings.objects.get_or_create(
         pk=1, defaults={
             "cities": list(APIFY_CITIES),
-            "cards_per_product": 2,
+            "cards_per_product": 3,
         },
     )
     return rules
@@ -36,139 +36,53 @@ def export_units(batch):
     )
 
 
-def input_and_mapping(rows, cities, cards):
-    urls = []
+
+def _identity(row):
+    listing = row.listing
+    name = (row.product_name or (listing.product.title if listing else "") or "").strip()
+    catalog_brand = listing.product.brand.name if listing and listing.product.brand else ""
+    listed_brand = (row.brand or "").strip()
+    brand = catalog_brand if listed_brand.lower() in ("ag-parts", "ag parts") else (listed_brand or catalog_brand)
+    article = (listing.product.article or "").strip() if listing else ""
+    article = article or (row.merchant_sku or "").strip()
+    if not article:
+        codes = [x for x in re.findall(r"[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*", name)
+                 if len(x) >= 5 and any(ch.isdigit() for ch in x)]
+        article = codes[-1] if codes else ""
+    if not article:
+        sku = (row.master_sku or "").strip()
+        if re.fullmatch(r"[A-Za-z0-9-]{5,60}", sku) and re.search(r"[A-Za-z]", sku):
+            article = sku
+    return name, brand, article
+
+
+def _queries_for_row(row):
+    name, brand, article = _identity(row)
+    candidates = []
+    if article:
+        candidates.append(article)
+        if brand:
+            candidates.append(f"{brand} {article}")
+        if name:
+            candidates.append(name if article.casefold() in name.casefold() else f"{name} {article}")
+        if "-" in article:
+            candidates.append(article.replace("-", ""))
+    elif name:
+        candidates.append(f"{brand} {name}" if brand else name)
     queries = []
-    mapping = []
-    for row in rows:
-        listing = row.listing
-        # Only use URLs previously verified as our merchant card, not numeric
-        # SKU values which may not be public Kaspi product ids.
-        verified_url = (
-            (listing.public_url or "").strip().split("?", 1)[0]
-            if listing and listing.public_url_verified_at else ""
-        )
-        weak_query = False
-        if verified_url:
-            kind, target = "url", verified_url
-            urls.append(target)
-        else:
-            name = (row.product_name or (
-                listing.product.title if listing else ""
-            ) or "").strip()
-            brand = (row.brand or (
-                listing.product.brand.name
-                if listing and listing.product.brand else ""
-            ) or "").strip()
-            merchant_code = (row.merchant_sku or (
-                listing.merchant_sku if listing else ""
-            ) or "").strip()
-            # The merchant SKU is a useful fallback only if the Kaspi export
-            # has no meaningful title; never assume it is a public Kaspi ID.
-            target = " ".join(part for part in (brand, name) if part).strip()
-            exact_article = (listing.product.article or "").strip() if listing else merchant_code
-            # ACTIVE SKU may be a part article, but it is never automatically a
-            # verified Kaspi product ID. Include alphanumeric SKU in search.
-            sku = (row.master_sku or "").strip()
-            sku_looks_like_article = bool(
-                re.fullmatch(r"[A-Za-z0-9-]{5,64}", sku) and
-                re.search(r"[A-Za-z]", sku)
-            )
-            if not exact_article and sku_looks_like_article:
-                exact_article = sku
-            if exact_article and exact_article.casefold() not in target.casefold():
-                target = (target + " " + exact_article).strip()
-            # A generic product name must not go to Apify unqualified.
-            # Its numeric SKU is a search qualifier, not a verified part ID.
-            generic_words = {"воздушный фильтр", "салонный фильтр",
-                             "масляный фильтр", "фильтр", "свеча зажигания"}
-            if (not target or target.casefold().strip() in generic_words) and sku:
-                weak_query = True
-                target = ((target + " " + sku).strip() if target else sku)
-            kind = "search"
-            if target:
-                queries.append(target)
-        mapping.append({
-            "row_number": row.row_number,
-            "sku": row.master_sku,
-            "merchant_sku": row.merchant_sku,
-            "title": row.product_name,
-            "brand": row.brand,
-            "our_price_kzt": row.price,
-            "kaspi_quantity": row.quantity,
-            "listing_id": row.listing_id,
-            "match_status": row.status,
-            "kind": kind,
-            "input": target,
-            "requires_result_verification": kind == "search",
-            "source_sku_only_fallback": weak_query,
-        })
-    payload = {
-        "startUrls": urls,
-        "searchQueries": queries,
-        "cities": list(cities),
-        "sortOrder": "relevance",
-        "maxItems": 0,
-        "maxItemsPerQuery": cards,
-        "includeOffers": True,
-        "maxOffersPerProduct": 0,
-        "includeReviews": False,
-        "proxyConfiguration": {
-            "useApifyProxy": True,
-            "apifyProxyGroups": ["RESIDENTIAL"],
-            "apifyProxyCountry": "KZ",
-        },
-    }
-    # Do not put ZPT-specific fields in the Apify Actor payload. Mapping is
-    # downloaded separately for exact SKU reconciliation of actor results.
-    return payload, mapping
+    seen = set()
+    for candidate in candidates:
+        candidate = " ".join(candidate.split()).strip()
+        if candidate and candidate.casefold() not in seen:
+            seen.add(candidate.casefold())
+            queries.append(candidate)
+    return queries, name, brand, article
 
 
-
-def remaining_input_and_mapping(rows, cities, cards):
-    """Build additional Apify searches only for rows without competitor prices."""
-    queries, mapping = [], []
-    for row in rows:
-        if row.competitor_min_price is not None:
-            continue
-        listing = row.listing
-        title = (row.product_name or (listing.product.title if listing else "") or "").strip()
-        brand = (row.brand or (
-            listing.product.brand.name if listing and listing.product.brand else ""
-        ) or "").strip()
-        article = (listing.product.article or "").strip() if listing else ""
-        article = article or (row.merchant_sku or "").strip()
-        if not article:
-            codes = [
-                token for token in re.findall(r"[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*", title)
-                if len(token) >= 5 and any(ch.isdigit() for ch in token)
-            ]
-            article = codes[-1] if codes else ""
-        if not article:
-            sku = (row.master_sku or "").strip()
-            if re.fullmatch(r"[A-Za-z0-9-]{5,60}", sku):
-                article = sku
-        candidates = []
-        if article:
-            candidates.append(article)
-            if brand:
-                candidates.append(f"{brand} {article}")
-            if title and article.casefold() not in title.casefold():
-                candidates.append(f"{title} {article}")
-            elif title and len(candidates) == 1:
-                candidates.append(title)
-        elif title:
-            candidates.append(title)
-        searches = list(dict.fromkeys(x.strip() for x in candidates if x.strip()))
-        queries.extend(searches)
-        mapping.append({
-            "sku": row.master_sku, "row_number": row.row_number,
-            "article": article, "title": title, "brand": brand,
-            "searches": searches, "existing_status": row.competitor_scan_status,
-            "requires_result_verification": True,
-        })
+def _payload(urls, queries, cities, cards):
     return {
-        "startUrls": [], "searchQueries": list(dict.fromkeys(queries)),
+        "startUrls": list(dict.fromkeys(urls)),
+        "searchQueries": list(dict.fromkeys(queries)),
         "cities": list(cities), "sortOrder": "relevance",
         "maxItems": 0, "maxItemsPerQuery": cards,
         "includeOffers": True, "maxOffersPerProduct": 0,
@@ -177,7 +91,52 @@ def remaining_input_and_mapping(rows, cities, cards):
             "useApifyProxy": True, "apifyProxyGroups": ["RESIDENTIAL"],
             "apifyProxyCountry": "KZ",
         },
-    }, mapping
+    }
+
+
+def input_and_mapping(rows, cities, cards):
+    """Full search: verified card plus alternate search for every ACTIVE SKU."""
+    urls, queries, mapping = [], [], []
+    for row in rows:
+        listing = row.listing
+        url = ((listing.public_url or "").strip().split("?", 1)[0]
+               if listing and listing.public_url_verified_at else "")
+        searches, name, brand, article = _queries_for_row(row)
+        if url:
+            urls.append(url)
+        queries.extend(searches)
+        mapping.append({
+            "row_number": row.row_number, "sku": row.master_sku,
+            "merchant_sku": row.merchant_sku,
+            "title": name, "brand": brand, "article": article,
+            "our_price_kzt": row.price, "kaspi_quantity": row.quantity,
+            "listing_id": row.listing_id, "match_status": row.status,
+            "kind": "url_and_search" if url else "search",
+            "input": url or (searches[0] if searches else ""),
+            "verified_url": url, "searches": searches,
+            "requires_result_verification": True,
+            "source_sku_only_fallback": not bool(article),
+        })
+    return _payload(urls, queries, cities, cards), mapping
+
+
+def remaining_input_and_mapping(rows, cities, cards):
+    """Additional search only for SKUs without a confirmed competitor price."""
+    queries, mapping = [], []
+    for row in rows:
+        if row.competitor_min_price is not None:
+            continue
+        searches, name, brand, article = _queries_for_row(row)
+        queries.extend(searches)
+        mapping.append({
+            "row_number": row.row_number, "sku": row.master_sku,
+            "merchant_sku": row.merchant_sku, "title": name,
+            "brand": brand, "article": article, "searches": searches,
+            "existing_status": row.competitor_scan_status,
+            "requires_result_verification": True,
+            "source_sku_only_fallback": not bool(article),
+        })
+    return _payload([], queries, cities, cards), mapping
 
 
 def _download(data, filename):
@@ -250,6 +209,8 @@ def repricer_rules(request):
         "url_count": len(payload["startUrls"]),
         "query_count": len(payload["searchQueries"]),
         "unmapped_count": sum(1 for row in rows if row.listing_id is None),
+        "remaining_count": sum(row.competitor_min_price is None for row in rows),
+        "additional_search_count": len(remaining_input_and_mapping(rows, rules.cities, rules.cards_per_product)[0]["searchQueries"]),
         "actor_url": "https://apify.com/firsthand/kaspi-api",
     }
     response = render(request, "repricer/rules.html", context)
