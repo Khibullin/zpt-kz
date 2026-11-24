@@ -171,14 +171,18 @@ def visible_permanent_buying_rows(request, preferences, filters):
          Q(cost_snapshot__gte=MIN_PROFITABLE_COST))
     )
     from .buying_history_display import buying_history, product_key
-    purchase_history, own_stock = buying_history(request.user)
+    purchase_history, own_stock, order_choices = buying_history(request.user)
+    request.buying_order_choices = order_choices
+    selected_order = next((x['value'] for x in order_choices if x['value'] == request.GET.get('purchased')), None)
     purchased_filter = request.GET.get('purchased')
     stock_filter = request.GET.get('own_stock')
-    if purchased_filter in ('yes', 'no') or stock_filter in ('yes', 'no'):
+    if selected_order or purchased_filter in ('yes', 'no') or stock_filter in ('yes', 'no'):
         matching = []
         for pk, brand, article in rows.values_list('pk', 'offer__brand', 'offer__article').iterator(chunk_size=1000):
             key = product_key(brand, article)
             bought = bool(purchase_history.get(key))
+            if selected_order and not any(f"order:{x['pk']}" == selected_order for x in purchase_history.get(key, [])):
+                continue
             balance = own_stock.get(key)
             if purchased_filter == 'yes' and not bought or purchased_filter == 'no' and bought:
                 continue

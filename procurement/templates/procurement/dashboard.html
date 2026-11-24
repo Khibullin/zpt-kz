@@ -41,7 +41,7 @@
 <input type="hidden" name="mode" value="best">
 {% for key,values in request.GET.lists %}{% if key == 'batch' or key == 'apify_source' or key == 'rechecked' or key == 'sort' %}{% for value in values %}<input type="hidden" name="{{ key }}" value="{{ value }}">{% endfor %}{% endif %}{% endfor %}
 <label class="filter-field">Поставщик {{ filter_form.supplier }}</label>
-<label class="filter-field">Закупки <select name="purchased"><option value="">Все товары</option><option value="yes" {% if request.GET.purchased == 'yes' %}selected{% endif %}>Закупались</option><option value="no" {% if request.GET.purchased == 'no' %}selected{% endif %}>Не закупались</option></select></label>
+<label class="filter-field">Закупки <select name="purchased"><option value="">Все товары</option><option value="yes" {% if request.GET.purchased == 'yes' %}selected{% endif %}>Закупались</option><option value="no" {% if request.GET.purchased == 'no' %}selected{% endif %}>Не закупались</option>{% for choice in buying_order_choices %}<option value="{{ choice.value }}" {% if request.GET.purchased == choice.value %}selected{% endif %}>{{ choice.label }}</option>{% endfor %}</select></label>
 <label class="filter-field">Наш склад <select name="own_stock"><option value="">Все товары</option><option value="yes" {% if request.GET.own_stock == 'yes' %}selected{% endif %}>В наличии</option><option value="no" {% if request.GET.own_stock == 'no' %}selected{% endif %}>Нет в наличии</option></select></label>
 <label class="filter-field buying-search">Поиск товара {{ filter_form.q }}</label><button type="submit">Найти</button>
 </form>
@@ -159,7 +159,7 @@
 </td>
 <td class="money">{% if row.profit != None and row.profit < 0 %}<strong style="color:#a32b20">Убыток: {{ row.profit|floatformat:2 }} ₸</strong>{% elif row.profit != None %}<strong>{{ row.profit|floatformat:2 }} ₸</strong>{% if mode == 'best' and row.audit_file %}<small>Было: {{ row.previous_profit|floatformat:2 }} ₸</small>{% endif %}{% else %}Прибыль не рассчитана{% endif %}
 </td>{% endif %}
-{% endif %}{% if mode == 'best' %}<td class="buying-orders">{% for order in row.purchase_history %}<small><a href="{% url 'procurement:purchase_detail' order.pk %}">№{{ order.pk }} — {{ order.quantity }} шт.</a></small>{% empty %}—{% endfor %}</td><td class="money">{{ row.own_stock|default_if_none:"—" }}</td>{% endif %}<td class="row-actions">
+{% endif %}{% if mode == 'best' %}<td class="buying-orders">{% for order in row.purchase_history %}<small>{% if order.own %}<a href="{% url 'procurement:purchase_detail' order.pk %}">{{ order.label }} — {{ order.quantity }} шт.</a>{% elif request.user.is_superuser %}<a href="{% url 'inventory:purchase_register_detail' order.pk %}">{{ order.label }} — {{ order.quantity }} шт.</a>{% else %}{{ order.label }} — {{ order.quantity }} шт.{% endif %}</small>{% empty %}—{% endfor %}</td><td class="money">{{ row.own_stock|default_if_none:"—" }}</td>{% endif %}<td class="row-actions">
 <button type="button" class="quick-view" data-url="{% url 'procurement:detail' row.offer.pk %}?compact=1" aria-haspopup="dialog">Просмотр</button>
 {% if mode == 'best' %}
 {% if row.in_basket %}<small data-in-basket>Уже в списке</small>{% else %}<label class="purchase-check"><input type="checkbox" name="offer_ids" value="{{ row.offer.pk|unlocalize }}" form="bulk-selection" aria-label="Отметить в список закупки: {{ row.offer.brand }} {{ row.offer.article }}"> В список</label>{% endif %}
