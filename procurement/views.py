@@ -503,6 +503,11 @@ def dashboard(request):
     ).values_list('offer_id', flat=True))
     for row in page.object_list:
         row['in_basket'] = row['offer'].pk in selected_ids
+        if request.GET.get('mode') == 'best' and row['offer'].pk == 8114:
+            pairs = VehicleFitment.objects.filter(offer_id=8114, verified=True).order_by('make', 'model').values_list('make', 'model').distinct()
+            models = list(dict.fromkeys(f'{make} {model}'.strip() for make, model in pairs if make and model))
+            row['preview_vehicle_models'] = models
+            row['preview_vehicle_extra'] = max(0, len(models) - 1)
     apify_in_best = 0
     apify_sources = []
     apify_selected_source = request.GET.get('apify_source', '').strip()[:255]

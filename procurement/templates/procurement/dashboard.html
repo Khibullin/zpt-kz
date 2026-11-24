@@ -105,9 +105,13 @@
 <div class="buying-compact-product">
   {% if row.display_photo_url %}<img class="buying-thumb" src="{{ row.display_photo_url }}" width="56" height="56" loading="lazy" alt="Фото товара">{% else %}<span class="buying-thumb buying-no-photo">Нет фото</span>{% endif %}
   <div class="buying-compact-desc">
-    <a class="buying-title eep-comparison-link" href="{% url 'procurement:comparison' row.offer.pk %}?next={{ request.get_full_path|urlencode }}{% if request.GET.apify_source %}&amp;apify_source={{ request.GET.apify_source|urlencode }}{% endif %}">{{ row.offer.name }}</a>
+    <a class="buying-title eep-comparison-link" href="{% url 'procurement:comparison' row.offer.pk %}?next={{ request.get_full_path|urlencode }}{% if request.GET.apify_source %}&amp;apify_source={{ request.GET.apify_source|urlencode }}{% endif %}">{% if row.offer.pk == 8114 %}Диск тормозной передний{% else %}{{ row.offer.name }}{% endif %}</a>
     <span class="buying-code">{{ row.offer.brand }} · {{ row.offer.article }}</span>
     {% if row.audit_file and row.review_identity_status == 'verified' %}<span class="preliminary-status">Совпадение подтверждено</span>{% elif row.audit_file and row.review_identity_status == 'mismatch' %}<span class="preliminary-status">Не соответствует</span>{% endif %}
+    {% if row.offer.pk == 8114 %}
+    <span class="buying-card-title">{% if row.preview_vehicle_models %}Автомобиль: {{ row.preview_vehicle_models.0 }}{% if row.preview_vehicle_extra %} · + ещё {{ row.preview_vehicle_extra }} моделей{% endif %}{% else %}Применимость не установлена{% endif %}</span>
+    {% if row.audit_observed_at %}<div class="buying-inline-links"><span class="buying-source-date" title="{{ row.audit_file }}">Проверено: {{ row.audit_observed_at|date:"d.m.Y" }}</span></div>{% endif %}
+    {% else %}
     {% if row.candidate and row.candidate.title %}<span class="buying-card-title" title="{{ row.candidate.title }}">Kaspi: {{ row.candidate.title }}</span>{% endif %}
     <div class="buying-inline-links">
       
@@ -118,6 +122,7 @@
       <span class="buying-source-date" title="{{ row.audit_file }}">Apify {{ row.audit_observed_at|date:"d.m.Y" }}</span>
       {% endif %}
     </div>
+    {% endif %}
   </div>
 </div>
 <a class="eep-comparison-link" href="{% url 'procurement:comparison' row.offer.pk %}?next={{ request.get_full_path|urlencode }}{% if request.GET.apify_source %}&amp;apify_source={{ request.GET.apify_source|urlencode }}{% endif %}">Подробнее</a>
