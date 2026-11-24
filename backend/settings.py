@@ -74,7 +74,10 @@ INSTALLED_APPS = [
     'control_panel.apps.ControlPanelConfig',
 ]
 
+DOMAIN_BOUNDARY_ENABLED = os.getenv('DOMAIN_BOUNDARY_ENABLED', 'false').lower() == 'true'
+
 MIDDLEWARE = [
+    'core.domain_boundary.DomainBoundaryMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.gzip.GZipMiddleware',
     'core.crawler_budget.CrawlerFilterBudgetMiddleware',
