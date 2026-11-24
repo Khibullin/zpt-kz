@@ -147,11 +147,11 @@ def _snapshot(min_cost=Decimal('0')):
         winners = [code for code, cost in prices.items() if cost == cheapest]
         if len(prices) >= 2:
             shared += 1
-            if len(winners) == 1:
-                wins[winners[0]] += 1
-        higher = min((v for v in prices.values() if v > cheapest), default=None)
+            for code in winners:
+                wins[code] += 1
+        higher = max(prices.values()) if len(prices) > 1 else None
         saving = higher - cheapest if higher is not None else None
-        group.update(winner=winners[0] if len(winners) == 1 else 'Равная цена',
+        group.update(winners=winners, winner=winners[0] if len(winners) == 1 else 'Равная цена',
                      saving=saving, percent=saving / higher * 100 if saving is not None else None,
                      alternatives=len(prices))
         rows.append(group)
@@ -224,21 +224,26 @@ def supplier_price_comparison(request):
               'count': snapshot['counts'][code]} for code in SUPPLIER_LABELS]
     search = (request.GET.get('q') or '').strip()[:100]
     supplier = (request.GET.get('supplier') or '').strip()
-    shared_only = request.GET.get('shared') == '1'
+    scope = request.GET.get('shared', '1')
+    shared_only = scope == '1'
     present = request.GET.get('present', '')
     rows = snapshot['rows']
     if search:
         needle = search.casefold()
         rows = [r for r in rows if needle in (r['brand'] + ' ' + r['article'] + ' ' + r['name']).casefold()]
     if supplier in SUPPLIER_LABELS:
-        rows = [r for r in rows if r['winner'] == supplier]
+        rows = [r for r in rows if supplier in r['winners'] and r['alternatives'] > 1]
     if present in SUPPLIER_LABELS:
         rows = [r for r in rows if present in r['prices']]
     if shared_only:
         rows = [r for r in rows if r['alternatives'] > 1]
-    order = request.GET.get('sort')
+    elif scope == 'single':
+        rows = [r for r in rows if r['alternatives'] == 1]
+    order = request.GET.get('sort', 'percent')
     if order == 'saving':
         rows = sorted(rows, key=lambda r: (r['saving'] is None, -(r['saving'] or 0)))
+    elif order == 'percent':
+        rows = sorted(rows, key=lambda r: (r['percent'] is None, -(r['percent'] or 0)))
     elif order == 'price':
         rows = sorted(rows, key=lambda r: min(r['prices'].values()))
     paginator = Paginator(rows, 50)
@@ -256,7 +261,7 @@ def supplier_price_comparison(request):
                           today=timezone.localdate().isoformat(), q=search,
                           min_cost=minimum,
                           supplier_filter=supplier, present_filter=present, shared_only=shared_only,
-                          sort=order, displayed_count=len(rows),
+                          scope=scope, sort=order, displayed_count=len(rows),
                           page_links=page_links, middle_page=middle_page,
                           page_query=page_query,
                           page_ellipsis=Paginator.ELLIPSIS))
