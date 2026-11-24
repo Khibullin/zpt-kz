@@ -51,7 +51,8 @@ def _identity(row):
         article = codes[-1] if codes else ""
     if not article:
         sku = (row.master_sku or "").strip()
-        if re.fullmatch(r"[A-Za-z0-9-]{5,60}", sku) and re.search(r"[A-Za-z]", sku):
+        if (re.fullmatch(r"[A-Za-z0-9-]{5,60}", sku)
+                and re.search(r"[A-Za-z]", sku) and re.search(r"[0-9]", sku)):
             article = sku
     return name, brand, article
 
@@ -68,7 +69,10 @@ def _queries_for_row(row):
         if "-" in article:
             candidates.append(article.replace("-", ""))
     elif name:
-        candidates.append(f"{brand} {name}" if brand else name)
+        generic = {"воздушный фильтр", "салонный фильтр", "масляный фильтр",
+                   "фильтр", "свеча зажигания"}
+        if name.casefold() not in generic:
+            candidates.append(f"{brand} {name}" if brand else name)
     queries = []
     seen = set()
     for candidate in candidates:
