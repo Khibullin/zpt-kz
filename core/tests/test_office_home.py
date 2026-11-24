@@ -59,3 +59,30 @@ class OfficeHomeTests(TestCase):
         self.assertContains(response,'Доступ к служебному кабинету не выдан')
         response=self.client.post(reverse('office_login'),{'username':'office-admin','password':'test-password','next':'https://example.com/'})
         self.assertRedirects(response,reverse('office_home'))
+
+    def test_shared_agparts_navigation(self):
+        self.client.force_login(self.user)
+        home = self.client.get(reverse('office_home'))
+        self.assertContains(home, 'AG Parts — единый кабинет')
+        self.assertContains(home, 'Открыть AG Parts', count=1)
+        for route in ['inventory:overview', 'inventory:updates', 'inventory:purchases',
+                      'procurement:supplier_price_comparison', 'procurement:basket',
+                      'repricer:dashboard']:
+            response = self.client.get(reverse(route))
+            self.assertEqual(response.status_code, 200, route)
+            self.assertContains(response, 'aria-label="AG Parts — единое меню"')
+            for label in ['Сравнение цен', 'Выгодные к закупке', 'Список закупки',
+                          'Учёт закупок', 'Товары и остатки', 'Сверка остатков и продаж',
+                          'Контроль цен Kaspi']:
+                self.assertContains(response, label)
+        response = self.client.get(reverse('inventory:updates'))
+        self.assertContains(response, 'href="' + reverse('inventory:updates') + '" aria-current="page"')
+
+    def test_shared_sidebar_does_not_expand_sales_permissions(self):
+        user = get_user_model().objects.create_user(username='agparts-sales', password='test-password')
+        Membership.objects.create(user=user, role='sales', active=True)
+        self.client.force_login(user)
+        response = self.client.get(reverse('procurement:basket'))
+        self.assertContains(response, 'Список закупки')
+        self.assertNotContains(response, 'href="' + reverse('inventory:overview') + '"')
+        self.assertNotContains(response, 'href="' + reverse('repricer:dashboard') + '"')
