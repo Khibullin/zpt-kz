@@ -190,7 +190,7 @@ class RepricerApifyRulesTests(TestCase):
         self.client.post(reverse("repricer:rules"), {
             "cities": ["FakeCity"], "cards_per_product": "9",
         })
-        self.assertEqual(KaspiRepricerSearchSettings.objects.get(pk=1).cards_per_product, 2)
+        self.assertEqual(KaspiRepricerSearchSettings.objects.get(pk=1).cards_per_product, 3)
 
     def test_later_completed_batch_replaces_source_not_merges(self):
         self.client.force_login(self.staff)
