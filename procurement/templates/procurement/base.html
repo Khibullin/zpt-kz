@@ -9,19 +9,9 @@
 [data-selection-status]{display:block;width:100%;line-height:1.4;min-height:2.8em}
 </style>
 {% load static %}<link rel="stylesheet" href="{% static 'office/typography.css' %}?v=20261122a">
-{% include "includes/office_favicon.html" %}</head>
+{% include "includes/office_favicon.html" %}<link rel="stylesheet" href="{% static 'office/agparts-sidebar.css' %}?v=20261124"></head>
 <body class="office-workspace office-procurement">
-{% if can_access_procurement and not request.GET.compact %}<aside>
-<a class="logo" href="{% url 'office_home' %}" aria-label="ZPT.KZ — Служебный кабинет, главная">ZPT<span>.KZ</span><small>Служебный кабинет</small></a>
-<a href="{% url 'procurement:supplier_price_comparison' %}" {% if request.resolver_match.url_name == 'supplier_price_comparison' %}aria-current="page"{% endif %}>Сравнение цен</a>
-<a href="{{ best_url }}" {% if request.resolver_match.url_name == 'dashboard' and mode == 'best' %}aria-current="page"{% endif %}>Выгодные к закупке</a>
-<a href="{% url 'procurement:basket' %}" {% if request.resolver_match.url_name == 'basket' %}aria-current="page"{% endif %}>Выбрано к закупке · <span data-basket-count>{{ basket_count }}</span></a>
-<a href="{% url 'procurement:kaspi_products' %}" {% if request.resolver_match.url_name == 'kaspi_products' %}aria-current="page"{% endif %}>Товары для Kaspi</a>
-{% if can_manage %}<a href="{% url 'procurement:selection_rules' %}" {% if request.resolver_match.url_name == 'selection_rules' %}aria-current="page"{% endif %}>Подготовка товаров к закупке</a>{% endif %}
-{% if request.user.is_superuser or role == "admin" %}<a href="{% url 'inventory:purchases' %}" {% if request.resolver_match.url_name == 'purchases' %}aria-current="page"{% endif %}>Учёт закупок</a>{% endif %}
-
-<div class="role">{{ request.user.get_username }}<br>{% if role == 'admin' %}Администратор{% elif role == 'sales' %}Менеджер-продажник{% else %}Пользователь{% endif %}</div>{% if request.user.is_authenticated %}<form method="post" action="{% url 'procurement:logout' %}">{% csrf_token %}<button>Выйти</button>
-</form>{% endif %}</aside>{% endif %}
+{% if can_access_procurement and not request.GET.compact %}{% include 'includes/agparts_sidebar.html' %}{% endif %}
 <main{% if request.GET.compact or not can_access_procurement %} style="margin-left:0;padding:16px"{% endif %}>{% if can_access_procurement %}<nav class="office-home-nav" aria-label="Служебная навигация">{% block workspace_back %}{% endblock %}<a class="office-back-link office-home-button" href="{% url 'office_home' %}">← Служебный кабинет</a></nav>{% endif %}{% for message in messages %}<div class="notice" role="status">{{ message }}</div>{% endfor %}{% block content %}{% endblock %}<footer>Закупки и продажи · ZPT.KZ · Неизвестные данные не считаются нулём. Отзывы не равны продажам.</footer>
 </main>
 {% load static %}<script src="{% static 'procurement/selection.js' %}?v=20261118-list" defer></script>
