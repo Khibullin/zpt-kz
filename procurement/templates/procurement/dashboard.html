@@ -107,13 +107,10 @@
   <div class="buying-compact-desc">
     <a class="buying-title eep-comparison-link" href="{% url 'procurement:comparison' row.offer.pk %}?next={{ request.get_full_path|urlencode }}{% if request.GET.apify_source %}&amp;apify_source={{ request.GET.apify_source|urlencode }}{% endif %}">{% if row.offer.pk == 8114 %}Диск тормозной передний{% else %}{{ row.offer.name }}{% endif %}</a>
     <span class="buying-code">{{ row.offer.brand }} · {{ row.offer.article }}</span>
-    {% if row.audit_file and row.review_identity_status == 'verified' %}<span class="preliminary-status">Совпадение подтверждено</span>{% elif row.audit_file and row.review_identity_status == 'mismatch' %}<span class="preliminary-status">Не соответствует</span>{% endif %}
     <span class="buying-card-title" title="{{ row.applicability_full }}">{{ row.applicability_short }}</span>
-    {% if row.applicability_conflict %}<span class="preliminary-status">Применимость требует уточнения</span>{% endif %}
-    {% if row.audit_observed_at %}<div class="buying-inline-links"><span class="buying-source-date" title="{{ row.audit_file }}">Проверено: {{ row.audit_observed_at|date:"d.m.Y" }}</span></div>{% endif %}
+    <a class="eep-comparison-link buying-more" href="{% url 'procurement:comparison' row.offer.pk %}?next={{ request.get_full_path|urlencode }}{% if request.GET.apify_source %}&amp;apify_source={{ request.GET.apify_source|urlencode }}{% endif %}">Подробнее</a>
   </div>
 </div>
-<a class="eep-comparison-link" href="{% url 'procurement:comparison' row.offer.pk %}?next={{ request.get_full_path|urlencode }}{% if request.GET.apify_source %}&amp;apify_source={{ request.GET.apify_source|urlencode }}{% endif %}">Подробнее</a>
 {% else %}
 <a href="{% url 'procurement:detail' row.offer.pk %}"><strong>{{ row.offer.name }}</strong></a>
 <small>{{ row.offer.brand }} · {{ row.offer.article }}</small>
@@ -207,14 +204,15 @@
 </style>
 <style>
 /* Buying list: dense rows. Full evidence remains behind the per-item disclosure. */
-.compact-dashboard:has(.buying-compact-product) tbody td {padding:8px 9px;vertical-align:middle}
+.compact-dashboard:has(.buying-compact-product) tbody td {padding:5px 9px;vertical-align:middle}
 .compact-dashboard:has(.buying-compact-product) tbody td.product{width:33%;min-width:300px}
-.buying-compact-product{display:flex;align-items:center;gap:10px;min-height:58px}
+.buying-compact-product{display:flex;align-items:center;gap:8px;min-height:56px}
 .buying-thumb{width:56px;height:56px;flex:0 0 56px;object-fit:contain;border:1px solid #e2e8f0;border-radius:6px;background:#fff}
 .buying-no-photo{display:flex;align-items:center;justify-content:center;font-size:10px;color:#65768a;text-align:center}
-.buying-compact-desc{min-width:0;display:flex;flex-direction:column;gap:2px}
+.buying-compact-desc{min-width:0;display:flex;flex-direction:column;gap:1px;line-height:1.2}
 .buying-title{font-size:13px;font-weight:700;line-height:1.25}
 .buying-code{font-size:12px;color:#64748b}
+.buying-more{font-size:12px;line-height:1.2;align-self:flex-start;margin:0;padding:0}
 .buying-card-title{font-size:11px;color:#64748b;max-width:440px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .buying-inline-links{display:flex;align-items:center;gap:12px;font-size:11px;margin-top:2px}
 .buying-recheck-tag{color:#0b7667;font-weight:600}
