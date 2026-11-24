@@ -31,9 +31,7 @@ def organization_details():
 
 
 def purchaser_name(user):
-    # The owner's existing admin account has no first/last name configured.
-    owner = 'Ринат Хайбуллин' if user.is_superuser and user.username == 'admin' else ''
-    return user.get_full_name().strip() or owner or user.get_username()
+    return 'Рашид Хайбуллин'
 
 
 def offer_unit(offer):
@@ -74,7 +72,7 @@ def export_purchase_list(selections, buyer):
     title.fill = PatternFill('solid', fgColor=navy)
     merged(2, f'Дата: {timezone.localtime():%d.%m.%Y %H:%M} · Планируемая закупка')
     merged(3, f'Покупатель: {organization["name"]} · ИИН: {organization["bin"]}')
-    merged(4, f'Закупщик: {buyer}')
+    merged(4, f'Закупщик: {buyer} · Менеджер по закупкам')
     merged(5, f'Адрес: {organization["address"]}', 30)
     merged(6, f'Телефон: {organization["phone"]} · Email: {organization["email"]}', 25)
     merged(7, f'Банк: {organization["bank"]} · БИК: {organization["bik"]} · ИИК: {organization["account"]} · КБе: {organization["kbe"]}', 30)
@@ -165,7 +163,7 @@ def export_purchase_list(selections, buyer):
         for index, value in enumerate((
             f'Дата: {timezone.localtime():%d.%m.%Y %H:%M} · Планируемая закупка',
             f'Покупатель: {organization["name"]} · ИИН: {organization["bin"]}',
-            f'Закупщик: {buyer}',
+            f'Закупщик: {buyer} · Менеджер по закупкам',
             f'Адрес: {organization["address"]}',
             f'Телефон: {organization["phone"]} · Email: {organization["email"]}',
             f'Банк: {organization["bank"]} · БИК: {organization["bik"]} · ИИК: {organization["account"]} · КБе: {organization["kbe"]}',
