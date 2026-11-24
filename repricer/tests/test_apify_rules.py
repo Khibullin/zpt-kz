@@ -134,7 +134,7 @@ class RepricerApifyRulesTests(TestCase):
             "action": "generate",
         })
         self.assertRedirects(response, reverse("repricer:dashboard"))
-        self.assertEqual(len(KaspiRepricerSearchSettings.objects.get(pk=1).cities), 6)
+        self.assertEqual(KaspiRepricerSearchSettings.objects.get(pk=1).cities, ["Almaty", "Astana", "Shymkent"])
 
     def test_full_mode_searches_verified_product_by_url_and_article(self):
         from repricer.apify_json import input_and_mapping
