@@ -78,7 +78,9 @@ class RepricerApifyRulesTests(TestCase):
         self.assertTrue(data["includeOffers"])
         self.assertFalse(data["includeReviews"])
         self.assertEqual(len(data["startUrls"]), 1)
-        self.assertEqual(len(data["searchQueries"]), 1)
+        self.assertGreaterEqual(len(data["searchQueries"]), 2)
+        self.assertIn("1017110XEN01", data["searchQueries"])
+        self.assertIn("https://kaspi.kz/shop/p/filtr-141407587/", data["startUrls"])
         self.assertNotIn("mapping", data)
         self.assertNotIn("our_price", data)
 
@@ -96,8 +98,9 @@ class RepricerApifyRulesTests(TestCase):
             master_sku="365030770", product_name="Воздушный фильтр",
             price=2730, status="MISSING_LISTING")
         payload, mapping = input_and_mapping([row], ["Almaty"], 2)
-        self.assertEqual(payload["searchQueries"], ["Воздушный фильтр 365030770"])
+        self.assertEqual(payload["searchQueries"], ["Воздушный фильтр"])
         self.assertTrue(mapping[0]["source_sku_only_fallback"])
+        self.assertTrue(mapping[0]["requires_result_verification"])
 
     def test_alphanumeric_sku_is_included(self):
         from repricer.apify_json import input_and_mapping
@@ -132,6 +135,24 @@ class RepricerApifyRulesTests(TestCase):
         })
         self.assertRedirects(response, reverse("repricer:dashboard"))
         self.assertEqual(len(KaspiRepricerSearchSettings.objects.get(pk=1).cities), 6)
+
+    def test_full_mode_searches_verified_product_by_url_and_article(self):
+        from repricer.apify_json import input_and_mapping
+        rows = list(KaspiActiveExportRow.objects.filter(batch=self.batch).select_related(
+            "listing", "listing__product", "listing__product__brand"))
+        payload, mapping = input_and_mapping(rows, ["Almaty", "Astana"], 3)
+        self.assertEqual(len(payload["startUrls"]), 1)
+        self.assertIn("1017110XEN01", payload["searchQueries"])
+        self.assertTrue(mapping[0]["requires_result_verification"])
+
+    def test_additional_mode_keeps_verified_url_out_of_recheck(self):
+        from repricer.apify_json import remaining_input_and_mapping
+        rows = list(KaspiActiveExportRow.objects.filter(batch=self.batch).select_related(
+            "listing", "listing__product", "listing__product__brand"))
+        payload, mapping = remaining_input_and_mapping(rows, ["Almaty"], 3)
+        self.assertEqual(payload["startUrls"], [])
+        self.assertEqual(len(mapping), 2)
+        self.assertIn("1017110XEN01", payload["searchQueries"])
 
     def test_followup_queries_only_missing_competitor_prices(self):
         from repricer.apify_json import remaining_input_and_mapping
