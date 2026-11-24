@@ -75,19 +75,38 @@ def _as_items(data):
 
 
 def _part_codes(title):
-    """Distinctive article-shaped tokens; bare numerical Kaspi SKU is not a part code."""
+    """Normalise exact article tokens including optional hyphens."""
     codes = set()
-    for value in re.findall(r"[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*", str(title or "").upper()):
-        if len(value) < 5 or len(value) > 50 or not any(ch.isdigit() for ch in value):
+    for token in re.findall(r"[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*", str(title or "").upper()):
+        if len(token) < 5 or len(token) > 50 or not any(ch.isdigit() for ch in token):
             continue
-        if value.isdigit() and len(value) == 4 and value.startswith(("19", "20")):
+        if token.isdecimal() and len(token) == 4 and token.startswith(("19", "20")):
             continue
-        codes.add(value)
+        codes.add(token.replace("-", ""))
     return codes
 
 
 def _brand_normalized(value):
     return "".join(re.findall(r"[a-z0-9а-яё]+", str(value or "").casefold()))
+
+
+def _part_type(text):
+    text = _normalized(text)
+    if "комплект" in text or "набор" in text:
+        return "set"
+    if "свеч" in text and "зажиган" in text:
+        return "spark"
+    if "маслян" in text and "фильтр" in text:
+        return "oil"
+    if "салонн" in text and "фильтр" in text:
+        return "cabin"
+    if "воздушн" in text and "фильтр" in text:
+        return "air"
+    if "пыльник" in text:
+        return "boot"
+    if "шрус" in text:
+        return "cv"
+    return ""
 
 
 def _source_codes(row):
@@ -98,37 +117,40 @@ def _source_codes(row):
         codes.update(_part_codes(listing.product.article))
     if row.merchant_sku:
         codes.update(_part_codes(row.merchant_sku))
-    # Alphanumeric source SKU may be a part article, numeric SKU may be
-    # a Kaspi merchant identifier and cannot prove article equality.
     sku = (row.master_sku or "").strip()
-    if re.fullmatch(r"[A-Za-z0-9-]{5,50}", sku) and any(ch.isalpha() for ch in sku):
+    # A numeric Kaspi SKU cannot establish identity of a car part.
+    if (re.fullmatch(r"[A-Za-z0-9-]{5,50}", sku)
+            and any(ch.isalpha() for ch in sku)
+            and any(ch.isdigit() for ch in sku)):
         codes.update(_part_codes(sku))
     return codes
 
 
 def _search_match(row, item):
-    """Require an exact distinctive article and corroborating brand, if known."""
+    """Require exact article, identical part type and compatible product brand.
+
+    'Без бренда' is neutral only when article and type match exactly.
+    Explicitly different product brands are NOT automatically interchangeable.
+    """
     title = str(item.get("title") or "")
-    found_codes = _part_codes(title)
-    expected_codes = _source_codes(row)
-    # Beware of title dates/variants: matching a distinctive part code is
-    # necessary; a common category title alone is never enough.
-    matched_codes = expected_codes & found_codes
-    if not matched_codes:
+    if not (_source_codes(row) & _part_codes(title)):
         return False
-    listed_brand = (row.brand or "").strip()
-    if listed_brand.casefold() in ("ag-parts", "ag parts"):
-        listed_brand = ""
-    brand = _brand_normalized(
-        listed_brand or (
-            row.listing.product.brand.name
-            if row.listing and row.listing.product.brand else ""
-        )
-    )
-    if brand:
-        item_brand = _brand_normalized(item.get("brand"))
-        item_title = _brand_normalized(title)
-        if not (brand == item_brand or brand in item_title):
+    item_type = _part_type(title)
+    own_type = _part_type(row.product_name)
+    if not own_type and row.listing:
+        own_type = _part_type(row.listing.product.title)
+    if own_type and item_type != own_type:
+        return False
+    # An explicit brand in ACTIVE is a product brand, not necessarily the
+    # vehicle brand in the catalog. Keep AG Parts when it is the label.
+    source_brand = (row.brand or "").strip()
+    if not source_brand and row.listing and row.listing.product.brand:
+        source_brand = row.listing.product.brand.name
+    expected = _brand_normalized(source_brand)
+    claimed = _brand_normalized(item.get("brand"))
+    item_title = _brand_normalized(title)
+    if expected and claimed not in ("", "безбренда", "nobrand"):
+        if expected != claimed and expected not in item_title:
             return False
     return True
 
@@ -197,43 +219,57 @@ def parse_apify_offers(data, active_rows, cities):
                 row for row in active_rows
                 if row.pk in candidates and _search_match(row, item)
             ]
-        if len(rows) != 1:
+        if not rows:
             unconfirmed += 1
             continue
-        row = rows[0]
+        # Several of our ACTIVE offers may contain the SAME manufacturer's
+        # part number. Give them the same market comparison only when the
+        # verified article and part type are identical; otherwise reject.
+        if len(rows) > 1:
+            common = set.intersection(*(_source_codes(row) for row in rows))
+            own_types = {
+                _part_type(row.product_name) or (
+                    _part_type(row.listing.product.title) if row.listing else ""
+                )
+                for row in rows
+            }
+            if not common.intersection(_part_codes(item.get("title"))) or len(own_types) != 1:
+                unconfirmed += 1
+                continue
         offers = item.get("offers")
-        if not isinstance(offers, list):
-            offer_counters[row.pk]["missing_offers_array"] += 1
+        for row in rows:
+            if not isinstance(offers, list):
+                offer_counters[row.pk]["missing_offers_array"] += 1
+                verified_rows.add(row.pk)
+                continue
             verified_rows.add(row.pk)
-            continue
-        verified_rows.add(row.pk)
-        if not offers:
-            offer_counters[row.pk]["empty_offers"] += 1
-        for offer in offers:
-            if not isinstance(offer, dict):
-                continue
-            offer_counters[row.pk]["raw_offers"] += 1
-            seller_id = str(
-                offer.get("sellerId") or offer.get("merchantId") or ""
-            ).strip()
-            if not seller_id:
-                offer_counters[row.pk]["missing_seller_id"] += 1
-                continue
-            if seller_id in OWN_MERCHANT_IDS:
-                offer_counters[row.pk]["own"] += 1
-                continue
-            price = _positive_price(offer.get("price"))
-            if price is None:
-                offer_counters[row.pk]["invalid_price"] += 1
-                continue
-            key = (row.pk, city, seller_id)
-            if key not in evidence or price < evidence[key]["price"]:
-                evidence[key] = {
-                    "row_id": row.pk, "city": city, "seller_id": seller_id,
-                    "seller_name": str(offer.get("sellerName") or "")[:255],
-                    "price": price, "url": url,
-                }
-            offer_counters[row.pk]["valid"] += 1
+            if not offers:
+                offer_counters[row.pk]["empty_offers"] += 1
+            for offer in offers:
+                if not isinstance(offer, dict):
+                    continue
+                offer_counters[row.pk]["raw_offers"] += 1
+                seller_id = str(
+                    offer.get("sellerId") or offer.get("merchantId") or ""
+                ).strip()
+                if not seller_id:
+                    offer_counters[row.pk]["missing_seller_id"] += 1
+                    continue
+                if seller_id in OWN_MERCHANT_IDS:
+                    offer_counters[row.pk]["own"] += 1
+                    continue
+                price = _positive_price(offer.get("price"))
+                if price is None:
+                    offer_counters[row.pk]["invalid_price"] += 1
+                    continue
+                key = (row.pk, city, seller_id)
+                if key not in evidence or price < evidence[key]["price"]:
+                    evidence[key] = {
+                        "row_id": row.pk, "city": city, "seller_id": seller_id,
+                        "seller_name": str(offer.get("sellerName") or "")[:255],
+                        "price": price, "url": url,
+                    }
+                offer_counters[row.pk]["valid"] += 1
 
     return {
         "items": item_count,
