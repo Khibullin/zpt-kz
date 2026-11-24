@@ -170,11 +170,30 @@ def visible_permanent_buying_rows(request, preferences, filters):
         (legacy & Q(roi_snapshot__gte=MIN_PROFITABLE_ROI) &
          Q(cost_snapshot__gte=MIN_PROFITABLE_COST))
     )
+    from .buying_history_display import buying_history, product_key
+    purchase_history, own_stock = buying_history(request.user)
+    purchased_filter = request.GET.get('purchased')
+    stock_filter = request.GET.get('own_stock')
+    if purchased_filter in ('yes', 'no') or stock_filter in ('yes', 'no'):
+        matching = []
+        for pk, brand, article in rows.values_list('pk', 'offer__brand', 'offer__article').iterator(chunk_size=1000):
+            key = product_key(brand, article)
+            bought = bool(purchase_history.get(key))
+            balance = own_stock.get(key)
+            if purchased_filter == 'yes' and not bought or purchased_filter == 'no' and bought:
+                continue
+            if stock_filter == 'yes' and (balance is None or balance <= 0):
+                continue
+            if stock_filter == 'no' and balance != 0:
+                continue
+            matching.append(pk)
+        rows = rows.filter(pk__in=matching)
     # Approved 21.11.2026: highest net percentage return first across the
     # FULL filtered queryset (not merely the current page). Net profit in
     # tenge is the tie-breaker; stable ID makes pagination deterministic.
-    rows = rows.order_by(Coalesce('_latest_roi', 'roi_snapshot').desc(),
-                         Coalesce('_latest_profit', 'profit_snapshot').desc(), 'pk')
+    roi_order = Coalesce('_latest_roi', 'roi_snapshot').desc()
+    profit_order = Coalesce('_latest_profit', 'profit_snapshot').desc()
+    rows = rows.order_by(profit_order, roi_order, 'pk') if request.GET.get('sort') == 'profit' else rows.order_by(roi_order, profit_order, 'pk')
     paginator = Paginator(rows, 200 if eighth_two_hundred else 153 if final_remaining else 100 if (next_hundred or fourth_hundred or fifth_hundred or sixth_hundred or seventh_hundred) else 50 if next_fifty else 40)
     page = paginator.get_page(request.GET.get('page'))
     items = list(page.object_list)
@@ -331,6 +350,9 @@ def visible_permanent_buying_rows(request, preferences, filters):
             row['apify_previous_audit_price'] = prior_price
             row['audit_file'] = audit.source_filename
             row['audit_observed_at'] = audit.observed_at
+        key = product_key(offer.brand, offer.article)
+        row['purchase_history'] = purchase_history.get(key, [])
+        row['own_stock'] = own_stock.get(key)
         result.append(row)
     page.object_list = result
     request.catalog_page = page
