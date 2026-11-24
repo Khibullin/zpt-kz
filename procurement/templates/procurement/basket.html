@@ -2,10 +2,10 @@
 {% block title %}Выбрано к закупке · ZPT.KZ
 {% endblock %}
 {% block content %}
-<header><h1>Выбрано к закупке</h1></header>
+<header><h1>Список закупки</h1></header>
 <section class="panel purchase-document">
 <form method="get" action="{% url 'procurement:basket_excel' %}" class="purchase-export">
-<label>Закупщик {{ export_form.buyer }}</label>
+<label>Закупщик {{ export_form.buyer }} <small>Менеджер по закупкам ИП «КВАНТ»</small></label>
 <button class="primary" {% if not selections %}disabled{% endif %}>Скачать Excel</button>
 </form>
 <details class="buyer-details"><summary>Наши реквизиты для Excel</summary>
