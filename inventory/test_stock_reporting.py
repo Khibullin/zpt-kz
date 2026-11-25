@@ -30,6 +30,7 @@ class WarehouseReportingTests(TestCase):
         with CaptureQueriesContext(connection) as queries:
             rows=stock_rows()
         self.assertLess(len(queries),20)
+        self.assertTrue(all('original_data' not in q['sql'] for q in queries))
         self.assertEqual(rows[0].pp1,10)
 
     def test_snapshot_fallback_no_double_count_or_posting(self):
