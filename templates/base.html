@@ -62,7 +62,7 @@
 {% include 'includes/storefront_footer_links.html' %}
 <footer style="padding:18px 16px;text-align:center;font-size:12px;color:#6b7280;">
   {% if seo_editorial_enabled %}<a href="{% url 'editorial_index' %}" style="color:inherit;">Полезные материалы</a><span style="margin:0 8px;">·</span>{% endif %}
-  <a href="{% url 'zpt_gid' %}" style="color:inherit;">ZPT Гид</a>
+  <a href="{% url 'zpt_gid' %}" style="color:inherit;">{% if agparts_storefront %}Помощь{% else %}ZPT Гид{% endif %}</a>
   <span style="margin:0 8px;">·</span>
   <p style="margin:12px 0 6px;line-height:1.6;">Оператор платформы {{ public_brand|default:"ZPT.KZ" }} — ТОО «Азия Грейт». БИН: 120140021357.</p>
   <a href="{% url 'platform_contacts' %}" style="color:inherit;">Контакты и реквизиты</a>

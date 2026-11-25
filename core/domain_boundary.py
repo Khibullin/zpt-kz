@@ -134,6 +134,12 @@ class DomainBoundaryMiddleware:
                 if request.method in ("GET", "HEAD"):
                     return HttpResponsePermanentRedirect("https://agparts.kz" + request.get_full_path()[len("/market"):])
             return None
+        # Legacy production public switches must not reopen anonymous ZPT APIs.
+        if request.path.startswith('/api/'):
+            from core.office_views import office_access
+            if request.resolver_match.view_name == 'whatsapp_webhook' or office_access(request.user):
+                return None
+            return noindex(HttpResponseNotFound())
         # Preserve office, integrations and existing authenticated office APIs.
         if private_path(request.path) or request.path in ("/robots.txt", "/sitemap.xml", "/favicon.ico", "/manifest.json") or request.path.startswith(("/products/", "/static/", "/api/")):
             return None

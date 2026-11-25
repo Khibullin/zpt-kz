@@ -1,5 +1,5 @@
 """Minimal public ZPT landing. No catalogue queries or background work."""
-from core.domain_boundary import is_storefront
+from core.domain_boundary import is_storefront, enabled, domain_role
 from django.http import HttpResponse
 from django.conf import settings
 from django.views.decorators.http import require_GET, require_safe
@@ -61,6 +61,8 @@ def public_home(request):
 
 @require_GET
 def public_robots(request):
+    if enabled() and domain_role(request) == "office":
+        return minimal_robots(request)
     if getattr(settings, "PUBLIC_CATALOG_ENABLED", False) or is_storefront(request):
         from core.seo_views import robots_txt
         return robots_txt(request)
@@ -69,6 +71,8 @@ def public_robots(request):
 
 @require_GET
 def public_sitemap(request):
+    if enabled() and domain_role(request) == "office":
+        return minimal_sitemap(request)
     if getattr(settings, "PUBLIC_CATALOG_ENABLED", False) or is_storefront(request):
         from core.seo_views import sitemap_index
         return sitemap_index(request)

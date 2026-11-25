@@ -75,6 +75,15 @@ class StoreBoundaryTests(TestCase):
             self.assertEqual(response.status_code,200)
             response.close()
 
+    @override_settings(PUBLIC_CATALOG_ENABLED=True, PUBLIC_SITE_ENABLED=True)
+    def test_legacy_public_flags_cannot_reopen_office_site(self):
+        self.assertEqual(self.client.get('/robots.txt',HTTP_HOST='zpt.kz').content,b'User-agent: *\nDisallow: /\n')
+        self.assertNotContains(self.client.get('/sitemap.xml',HTTP_HOST='zpt.kz'),'sitemap-products')
+        self.assertEqual(self.client.get('/api/countries/',HTTP_HOST='zpt.kz').status_code,404)
+        user=User.objects.create_user(username='office-api',is_staff=True)
+        self.client.force_login(user)
+        self.assertEqual(self.client.get('/api/countries/',HTTP_HOST='zpt.kz').status_code,200)
+
     def test_old_wix_category_and_zpt_product_alias_keep_distinct_intent(self):
         self.assertEqual(self.client.get('/changan/', HTTP_HOST='agparts.kz')['Location'], 'https://agparts.kz/avtozapchasti/changan/')
         self.assertEqual(self.client.get('/changan/', HTTP_HOST='zpt.kz')['Location'], 'https://agparts.kz/changan-uni-k-1109190cr01/')
