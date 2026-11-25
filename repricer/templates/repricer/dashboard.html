@@ -292,8 +292,9 @@
   <div class="pc-table-toolbar">
     <div><h2>Таблица репрайсинга</h2><p>Наши товары, минимальные цены конкурентов и ручная корректировка.</p></div>
     <div class="pc-actions">
+      <a class="pc-button pc-button-primary" href="{% url 'repricer:prepare_prices' %}">Подготовить Excel для Kaspi (−3%)</a>
       <button class="pc-button pc-button-primary" type="submit" form="bulk-price-form">Сохранить изменения</button>
-      <a class="pc-button pc-button-primary" href="{% url 'repricer:export' %}?{{ request.GET.urlencode }}">Скачать Excel</a>
+      <a class="pc-button pc-button-primary" href="{% url 'repricer:export' %}?{{ request.GET.urlencode }}">Excel-отчёт контроля цен</a>
     </div>
   </div>
   <form method="post" id="bulk-price-form" action="{% url 'repricer:save_prices' %}">{% csrf_token %}

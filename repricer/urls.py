@@ -7,6 +7,8 @@ from .apify_json import repricer_rules, repricer_apify_export
 from .apify_output import repricer_output_upload, repricer_clear_output, repricer_output_diagnostics
 
 
+from .price_upload import prepare_kaspi_prices
+
 app_name = "repricer"
 
 urlpatterns = [
@@ -20,6 +22,7 @@ urlpatterns = [
     path("product/<int:listing_id>/save-price/", repricer_save_price, name="save_price"),
     path("save-prices/", repricer_save_prices, name="save_prices"),
     path("export/", repricer_export, name="export"),
+    path("prepare-kaspi-prices/", prepare_kaspi_prices, name="prepare_prices"),
     path("upload-kaspi/", upload_kaspi_assortment, name="upload_kaspi"),
     path("manual/start/", manual_start, name="manual_start"),
     path("manual/<int:run_id>/step/", manual_step, name="manual_step"),
