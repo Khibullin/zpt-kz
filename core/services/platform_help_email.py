@@ -4,6 +4,7 @@ import logging
 from typing import Any
 
 from django.conf import settings
+from core.site_urls import office_base_url
 from django.core.mail import send_mail
 from django.urls import NoReverseMatch, reverse
 from django.utils import timezone
@@ -59,7 +60,7 @@ def _admin_url(name: str, object_id: Any) -> str:
         path = reverse(name, args=[object_id])
     except NoReverseMatch:
         return ''
-    base = getattr(settings, 'PUBLIC_BASE_URL', 'https://zpt.kz').rstrip('/')
+    base = office_base_url()
     return f'{base}{path}'
 
 

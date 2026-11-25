@@ -35,7 +35,7 @@ class OfficeHomeTests(TestCase):
         self.assertEqual(self.client.get(reverse('inventory:overview')).status_code,403)
         self.client.logout()
         response=self.client.post(reverse('office_login'),{'username':'sales','password':'test-password'})
-        self.assertRedirects(response,reverse('office_home'))
+        self.assertRedirects(response,reverse('office_home'), fetch_redirect_response=False)
 
     def test_staff_without_procurement_gets_no_accounting(self):
         user=get_user_model().objects.create_user(username='staff',password='test-password',is_staff=True)
@@ -50,7 +50,7 @@ class OfficeHomeTests(TestCase):
         self.assertEqual(response.status_code,200)
         self.assertContains(response,'Доступ к служебному кабинету не выдан')
         response=self.client.post(reverse('office_login'),{'username':'office-admin','password':'test-password','next':'https://example.com/'})
-        self.assertRedirects(response,reverse('office_home'))
+        self.assertRedirects(response,reverse('office_home'), fetch_redirect_response=False)
 
     def test_shared_agparts_navigation(self):
         self.client.force_login(self.user)

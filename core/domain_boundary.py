@@ -3,7 +3,7 @@ from django.conf import settings
 from django.http import HttpResponseNotFound, HttpResponseRedirect, HttpResponsePermanentRedirect
 
 STORE_HOSTS = frozenset({"agparts.kz", "www.agparts.kz"})
-OFFICE_HOSTS = frozenset({"zpt.kz", "www.zpt.kz"})
+OFFICE_HOSTS = frozenset({"zpt.kz", "www.zpt.kz", "zpt-kz-backend.onrender.com"})
 PRIVATE_PREFIXES = ("/office/", "/admin/", "/control/", "/marketing/", "/internal/")
 PRIVATE_ROOTS = frozenset(p.rstrip("/") for p in PRIVATE_PREFIXES)
 
@@ -61,7 +61,7 @@ def domain_role(request):
     host = request.get_host().split(":", 1)[0].lower().rstrip(".")
     if host in STORE_HOSTS:
         return "store"
-    if host in OFFICE_HOSTS or host.endswith(".onrender.com"):
+    if host in OFFICE_HOSTS:
         return "office"
     return "other"
 
@@ -109,7 +109,10 @@ class DomainBoundaryMiddleware:
         if role == "store" and path == "/favicon.ico":
             return HttpResponsePermanentRedirect("/static/agparts/favicon.png")
         response = self.get_response(request)
-        if role == "office":
+        if role == "office" and not path.startswith("/static/"):
+            from core.office_privacy import protect_office_response
+            return protect_office_response(response)
+        if role == "store" and response.status_code >= 400:
             return noindex(response)
         return response
 
@@ -141,7 +144,7 @@ class DomainBoundaryMiddleware:
                 return None
             return noindex(HttpResponseNotFound())
         # Preserve office, integrations and existing authenticated office APIs.
-        if private_path(request.path) or request.path in ("/robots.txt", "/sitemap.xml", "/favicon.ico", "/manifest.json") or request.path.startswith(("/products/", "/static/", "/api/")):
+        if private_path(request.path) or request.path in ("/robots.txt", "/sitemap.xml", "/favicon.ico", "/manifest.json") or request.path.startswith(("/products/", "/static/")):
             return None
         if public_view(request, view_func) and request.method in ("GET", "HEAD"):
             # Old ZPT product aliases may overlap old AGParts category URLs.

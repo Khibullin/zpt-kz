@@ -17,20 +17,33 @@ def serve_media(request, path):
         raise Http404('File not found')
 
     from core.domain_boundary import enabled, is_storefront
+    private_media = False
     if enabled():
-        public_image = (safe_path.parts and safe_path.parts[0] in {
+        resolved_parts = file_path.relative_to(media_root).parts
+        public_image = (resolved_parts and resolved_parts[0] in {
             'products', 'seller_logos', 'maintenance_kits', 'seller_directory'
         } and file_path.suffix.lower() in {'.jpg', '.jpeg', '.png', '.webp', '.gif', '.avif'})
         if not public_image:
             from core.office_views import office_access
             if is_storefront(request) or not request.user.is_authenticated or not office_access(request.user):
                 raise Http404('File not found')
+        private_media = not is_storefront(request)
     content_type, _ = mimetypes.guess_type(str(file_path))
     response = FileResponse(
         file_path.open('rb'),
+        as_attachment=private_media and not (content_type or '').startswith('image/'),
+        filename=file_path.name,
         content_type=content_type or 'application/octet-stream',
     )
-    response['Cache-Control'] = (
-        'public, max-age=86400, stale-while-revalidate=604800'
-    )
+    response['X-Content-Type-Options'] = 'nosniff'
+    if private_media:
+        from core.office_privacy import protect_office_response
+        if (content_type or '').startswith('image/') and content_type != 'image/svg+xml':
+            response['Cache-Control'] = 'private, max-age=3600'
+            response.office_image_cache = True
+        if content_type == 'image/svg+xml':
+            response['Content-Disposition'] = 'attachment'
+        protect_office_response(response)
+    else:
+        response['Cache-Control'] = 'public, max-age=86400, stale-while-revalidate=604800'
     return response

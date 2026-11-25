@@ -14,8 +14,18 @@ def _gtm_id():
     return value if _GTM_RE.fullmatch(value) else ''
 
 
-@register.simple_tag
-def google_tag_manager_head():
+def _private_context(context):
+    request = context.get('request') if context is not None else None
+    if request is None:
+        return False
+    from core.office_privacy import is_private_request
+    return is_private_request(request)
+
+
+@register.simple_tag(takes_context=True)
+def google_tag_manager_head(context=None):
+    if _private_context(context):
+        return ''
     container_id = _gtm_id()
     if not container_id:
         return ''
@@ -28,8 +38,10 @@ def google_tag_manager_head():
     )
 
 
-@register.simple_tag
-def google_tag_manager_body():
+@register.simple_tag(takes_context=True)
+def google_tag_manager_body(context=None):
+    if _private_context(context):
+        return ''
     container_id = _gtm_id()
     if not container_id:
         return ''

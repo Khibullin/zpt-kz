@@ -7,6 +7,7 @@ from datetime import timedelta
 from typing import Any
 
 from django.conf import settings
+from core.site_urls import office_url
 from django.core.mail import send_mail
 from django.db.models import Count, Q
 from django.db import close_old_connections, connections
@@ -26,7 +27,7 @@ def _admin_url(name: str, *args: Any) -> str | None:
         path = reverse(name, args=args)
     except NoReverseMatch:
         return None
-    return f"{getattr(settings, 'PUBLIC_BASE_URL', 'https://zpt.kz').rstrip('/')}{path}"
+    return office_url(path)
 
 
 def _enabled() -> bool:
@@ -84,7 +85,7 @@ def notify_new_request(request_id: int, *, service: bool = False) -> bool:
             for photo in request.photos.all():
                 url = photo.image.url
                 if not url.startswith(('https://', 'http://')):
-                    url = getattr(settings, 'PUBLIC_BASE_URL', 'https://zpt.kz').rstrip('/') + '/' + url.lstrip('/')
+                    url = office_url(url)
                 lines.append(f'Фото: {url}')
         admin_name = 'admin:service_requests_servicerequest_change' if service else 'control_panel:parts_request_process'
         request_url = _admin_url(admin_name, request.pk)

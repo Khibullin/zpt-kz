@@ -3,6 +3,7 @@ from datetime import timedelta
 from decimal import Decimal,ROUND_CEILING
 from xml.etree import ElementTree as ET
 from django.conf import settings
+from core.site_urls import office_url
 from django.core import signing
 from django.http import Http404,HttpResponse
 from django.urls import reverse
@@ -53,7 +54,7 @@ def integration_ready():
 def feed_url():
     if not feed_configured(): return ''
     token=signing.Signer(salt='kaspi-full-price-feed').sign(settings.KASPI_MERCHANT_ID)
-    return str(getattr(settings,'PUBLIC_BASE_URL','') or 'https://zpt.kz').rstrip('/')+reverse('procurement:kaspi_price_feed',args=[token])
+    return office_url(reverse('procurement:kaspi_price_feed',args=[token]))
 
 
 def merge_feed(original,rows,merchant,store):

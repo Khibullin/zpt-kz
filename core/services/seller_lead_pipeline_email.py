@@ -4,6 +4,7 @@ import logging
 from typing import Any
 
 from django.conf import settings
+from core.site_urls import office_base_url
 from django.core.mail import send_mail
 from django.db.models import Count
 from django.urls import NoReverseMatch, reverse
@@ -116,7 +117,7 @@ def _admin_url(name: str, *args: Any) -> str | None:
         path = reverse(name, args=args)
     except NoReverseMatch:
         return None
-    base = getattr(settings, 'PUBLIC_BASE_URL', 'https://zpt.kz').rstrip('/')
+    base = office_base_url()
     return f'{base}{path}'
 
 

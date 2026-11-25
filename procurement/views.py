@@ -104,10 +104,13 @@ def latest_price_list_keys(batch_id):
     cache_key = f'procurement:last-price-keys:{batch_id}'
     keys = cache.get(cache_key)
     if keys is None:
-        batch_rows = PriceUpdate.objects.filter(pk=batch_id, status='done').values_list('rows', flat=True).first() or []
-        keys = {(row.get('brand'), row.get('article')) for row in batch_rows
-                if isinstance(row, dict) and not row.get('_conflict')
-                and row.get('brand') and row.get('article')}
+        from .price_source import iter_price_rows
+        keys = set()
+        if PriceUpdate.objects.filter(pk=batch_id, status='done').exists():
+            keys = {(row.get('brand'), row.get('article'))
+                    for row in iter_price_rows(batch_id, fields=('brand', 'article', '_conflict'))
+                    if isinstance(row, dict) and not row.get('_conflict')
+                    and row.get('brand') and row.get('article')}
         cache.set(cache_key, keys, 3600)
     return keys
 

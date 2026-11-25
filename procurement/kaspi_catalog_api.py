@@ -2,6 +2,7 @@
 import json
 import requests
 from django.conf import settings
+from core.site_urls import office_base_url
 from django.core import signing
 from django.http import Http404, HttpResponse
 from django.urls import reverse
@@ -78,7 +79,7 @@ class CatalogClient:
 
 def signed_image_url(asset):
     token = signing.dumps({'image':asset.pk,'digest':asset.digest},salt='kaspi-published-photo',compress=True)
-    base = str(getattr(settings,'PUBLIC_BASE_URL','') or 'https://zpt.kz').rstrip('/')
+    base = office_base_url()
     return base+reverse('procurement:kaspi_shared_image',args=[token])
 
 

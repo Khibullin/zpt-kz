@@ -14,6 +14,7 @@ from django.db import transaction
 
 from .analysis import stock_status
 from .models import Activity, PriceUpdate
+from .price_source import CATEGORY_FIELDS, iter_price_rows
 
 DEFAULT_CATEGORIES = (
     'Амортизатор', 'Колодки', 'Шрус (граната)', 'Рычаг',
@@ -76,9 +77,8 @@ def _is_spring(row):
 
 def pick_rows(batch, categories, minimum, max_age, in_stock_only=True, exclude_springs=False):
     keys = {category_key(v) for v in categories}
-    source = PriceUpdate.objects.only('rows').get(pk=batch.pk)
     selected, unknown = [], 0
-    for row in source.rows:
+    for row in iter_price_rows(batch.pk):
         if category_key(row.get('category') or 'Без категории') not in keys:
             continue
         if row.get('_conflict') or not row.get('brand') or not row.get('article') or _cost(row) < minimum:
@@ -102,9 +102,8 @@ def price_categories(batch, minimum=Decimal('2000')):
     cached = cache.get(key)
     if cached is not None:
         return cached
-    source = PriceUpdate.objects.only('rows').get(pk=batch.pk)
     counts = defaultdict(lambda: {'total': 0, 'in_stock': 0, 'eligible': 0})
-    for row in source.rows:
+    for row in iter_price_rows(batch.pk, fields=CATEGORY_FIELDS):
         name = ' '.join(str(row.get('category') or '').strip().split()) or 'Без категории'
         info = counts[name]
         info['total'] += 1
@@ -155,7 +154,7 @@ def request_history():
 def request_rows(saved):
     """Read the immutable source batch, not today's offers or price."""
     details = saved.details
-    batch = PriceUpdate.objects.only('rows', 'sha256').get(pk=details['price_batch_id'])
+    batch = PriceUpdate.objects.only('sha256').get(pk=details['price_batch_id'])
     if batch.sha256 != details['price_sha256']:
         raise ValidationError('Исходный прайс изменился. Запрос нельзя воспроизвести.')
     minimum = Decimal(details['min_cost'])
@@ -183,7 +182,7 @@ def request_queries(saved):
 @transaction.atomic
 def save_request(*, batch_id, categories, minimum, user,
                  max_vehicle_age=20, in_stock_only=True, exclude_springs=False):
-    batch = PriceUpdate.objects.select_for_update().get(
+    batch = PriceUpdate.objects.select_for_update().defer('rows').get(
         pk=batch_id, supplier__name='Omega')
     try:
         minimum = Decimal(str(minimum).replace(',', '.'))
@@ -233,7 +232,7 @@ def preview_request(*, batch_id, categories, minimum, max_vehicle_age, in_stock_
         raise ValidationError('Проверьте цену закупки и возраст автомобиля.')
     if not minimum.is_finite() or minimum < 0 or not 0 <= max_vehicle_age <= 100:
         raise ValidationError('Некорректные параметры отбора.')
-    batch = PriceUpdate.objects.get(pk=batch_id, supplier__name='Omega')
+    batch = PriceUpdate.objects.defer('rows').get(pk=batch_id, supplier__name='Omega')
     available = {row['key'] for row in price_categories(batch)}
     keys = {category_key(x) for x in categories}
     if not keys.issubset(available):
