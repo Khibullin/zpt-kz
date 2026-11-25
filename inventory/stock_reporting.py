@@ -10,7 +10,7 @@ def stock_rows(items=None, supplier=''):
     items = list(items if items is not None else Item.objects.prefetch_related('aliases','supplier_links__supplier').order_by('code'))
     batches = {kind: ImportBatch.objects.filter(kind=kind).order_by('-as_of', '-pk').first() for kind in ('pp1', 'stock', 'pp2')}
     snapshots = defaultdict(list)
-    for s in StockSnapshot.objects.filter(batch_id__in=[b.pk for b in batches.values() if b]):
+    for s in StockSnapshot.objects.filter(batch_id__in=[b.pk for b in batches.values() if b]).select_related('batch'):
         snapshots[s.batch.kind].append(s)
     owners = {(a.source, a.code): a.item_id for a in ItemAlias.objects.all()}
     articles = list(Item.objects.exclude(article='').values_list('article', flat=True))

@@ -152,7 +152,6 @@ class Command(BaseCommand):
             passes_started += 1
             close_old_connections()
             photo_progress = 0
-            facet_progress = False
             try:
                 # Supplier price uploads have absolute priority: Kaspi access
                 # errors, images or storefront snapshots must never delay a
@@ -218,13 +217,13 @@ class Command(BaseCommand):
                     from catalog.storefront import refresh_home_facets, refresh_country_facets, refresh_brand_facets
                     if refresh_home_facets():
                         self.stdout.write('Public storefront filter snapshot refreshed')
-                    facet_progress=refresh_country_facets()
+                    refresh_country_facets()
                     # Fill public make/model snapshots in bounded batches before
                     # resuming other idle work; price uploads stay first.
-                    for _ in range(8):
-                        if not running or not refresh_brand_facets():
-                            break
-                        facet_progress=True
+                    # One make per pass: on a shared half-CPU instance a busy
+                    # refresh loop must leave time for office requests and SQL.
+                    if running:
+                        refresh_brand_facets()
                     from core.seo_views import refresh_sitemap_snapshots
                     if refresh_sitemap_snapshots():
                         self.stdout.write('Public sitemap snapshots refreshed')
@@ -262,7 +261,7 @@ class Command(BaseCommand):
             if options['watch'] and resident > 192 * MIB:
                 logger.info('Price consumer recycling after complete pass: resident_bytes=%s', resident)
                 break
-            if options['watch'] and (photo_progress or facet_progress):
+            if options['watch'] and photo_progress:
                 continue
             if not options['watch']:
                 break

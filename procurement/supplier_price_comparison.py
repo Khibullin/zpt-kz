@@ -75,7 +75,7 @@ def _snapshot(min_cost=Decimal('0')):
     for code in SUPPLIER_LABELS:
         batch = uploads.get(code)
         if batch:
-            result[code]['rows'] = iter_json_rows(SupplierComparisonPriceList, batch.pk)
+            result[code]['rows'] = iter_json_rows(SupplierComparisonPriceList, batch.pk, chunk_size=512)
             result[code]['count'] = batch.available_count
             result[code]['source'] = 'upload'
     # Preserve the previously working Omega catalogue until its own comparison

@@ -20,6 +20,18 @@ class WarehouseReportingTests(TestCase):
     def snapshot(self,kind,sku,quantity):
         return StockSnapshot.objects.create(batch=self.batches[kind],warehouse='PP1' if kind=='pp1' else 'PP2',sku=sku,name='Свечи A123',quantity=quantity)
 
+    def test_snapshot_sources_are_loaded_once_for_the_whole_report(self):
+        from django.db import connection
+        from django.test.utils import CaptureQueriesContext
+        StockSnapshot.objects.bulk_create([
+            StockSnapshot(batch=self.batches['pp1'], warehouse='PP1',
+                          sku=f'OTHER-{n}', name='Unrelated', quantity=1)
+            for n in range(100)])
+        with CaptureQueriesContext(connection) as queries:
+            rows=stock_rows()
+        self.assertLess(len(queries),20)
+        self.assertEqual(rows[0].pp1,10)
+
     def test_snapshot_fallback_no_double_count_or_posting(self):
         row=stock_rows()[0]
         self.assertEqual((row.pp1,row.pp2,row.kaspi,row.total),(10,4,4,14))
@@ -55,8 +67,9 @@ class WarehouseReportingTests(TestCase):
         filtered=self.client.get(reverse('inventory:items'),{'warehouse':'Kaspi','stock_state':'positive'})
         self.assertEqual(filtered.context['item_count'],1)
         response=self.client.get(reverse('inventory:items'),{'export':'xlsx'})
-        rows=list(load_workbook(BytesIO(response.content)).active.values)
+        workbook=load_workbook(BytesIO(response.content))
+        rows=list(workbook.active.values)
         header=next(n for n,row in enumerate(rows) if row[0]=='Артикул')
         self.assertEqual(rows[header+1][5:10],(10,'Файл от 21.09.2026',4,'По Kaspi · Файл от 21.09.2026 · сопоставление предварительное',14))
         self.assertEqual(len(rows)-header-1,52)
-        self.assertIn(('Наименований',52),[tuple(v for v in r if v is not None) for r in rows])
+        self.assertIn(('Наименований',52),[tuple(v for v in r if v is not None) for r in workbook['Сводка и фильтры'].values])

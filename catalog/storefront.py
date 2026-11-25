@@ -269,7 +269,7 @@ def refresh_country_facets():
     from django.db import transaction
     from django.utils import timezone
     from .models import Country, StorefrontFacetSnapshot
-    cutoff=timezone.now()-timedelta(minutes=5)
+    cutoff=timezone.now()-timedelta(minutes=30)
     ready=set(StorefrontFacetSnapshot.objects.filter(key__startswith='country:',
         built_at__gte=cutoff).values_list('key',flat=True))
     country_id=next((pk for pk in Country.objects.order_by('pk').values_list('pk',flat=True)
@@ -314,7 +314,7 @@ def refresh_brand_facets():
     from .models import StorefrontFacetSnapshot
     root=load_home_facets()
     counts=root.get('brand',({},{}))[0]
-    cutoff=timezone.now()-timedelta(minutes=5)
+    cutoff=timezone.now()-timedelta(minutes=30)
     ready=set(StorefrontFacetSnapshot.objects.filter(key__startswith='brand:',
         built_at__gte=cutoff).values_list('key',flat=True))
     candidates=sorted(counts,key=lambda pk:-(counts[pk] or 0))
