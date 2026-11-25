@@ -149,3 +149,20 @@ class PriceControlCenterTests(TestCase):
         from openpyxl import load_workbook
         workbook = load_workbook(BytesIO(response.content), read_only=True)
         self.assertEqual(workbook.active["F2"].value, 11900)
+
+    def test_xlsx_without_drafts_downloads_full_table(self):
+        from io import BytesIO
+        from openpyxl import load_workbook
+        self.client.force_login(self.user)
+        response = self.client.get(reverse("repricer:export"))
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("attachment;", response["Content-Disposition"])
+        sheet = load_workbook(BytesIO(response.content)).active
+        self.assertEqual(sheet["C2"].value, "ABC-101")
+        self.assertIsNone(sheet["F2"].value)
+        self.assertFalse(KaspiManualPriceDraft.objects.exists())
+
+    def test_xlsx_requires_staff(self):
+        self.assertEqual(self.client.get(reverse("repricer:export")).status_code, 302)
+        self.client.force_login(User.objects.create_user("ordinary"))
+        self.assertEqual(self.client.get(reverse("repricer:export")).status_code, 302)
