@@ -201,7 +201,7 @@ def import_apify_results(upload, filename, user=None):
             if match.cost < MIN_CONSUMABLE_COST:
                 counts['rejected_unverifiable'] += 1
                 continue
-        elif match.cost <= MIN_PROFITABLE_COST:
+        elif match.cost < MIN_PROFITABLE_COST:
             counts['rejected_unverifiable'] += 1
             continue
         # Top-level minPrice is a card/search observation, not proof of
@@ -220,7 +220,9 @@ def import_apify_results(upload, filename, user=None):
             continue
         # Permanent acquisition ledger is strictly append-only: an imported
         # price can never rewrite an earlier approved opportunity.
-        if user is not None:
+        if user is not None and verified:
+            # Unverified text matches belong in the review queue only, never
+            # in the permanent buying register or public purchasing pipeline.
             with transaction.atomic():
                 PermanentBuyingItem.objects.get_or_create(
                     offer_id=match.pk,

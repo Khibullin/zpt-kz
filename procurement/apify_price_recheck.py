@@ -20,7 +20,7 @@ from django.db import transaction
 from django.db.models import Q
 
 from .analysis import PACKAGING_COST
-from .catalog_paging import net_buying_profit
+from .catalog_paging import MIN_PROFITABLE_COST, net_buying_profit
 from .models import KaspiPriceAudit, Offer, Preferences
 from .omega_policy import POSITIVE_STOCK_PATTERN
 
@@ -105,6 +105,11 @@ def import_apify_recheck_results(raw, filename, user):
         stats['linked'] += 1
         stats['recheck_matched_cards'] += 1
         if not re.match(POSITIVE_STOCK_PATTERN, str(offer.stock or '')):
+            stats['rejected_unverifiable'] += 1
+            continue
+        # The Omega policy includes an exact 2,000 KZT purchase cost,
+        # but never audits below that threshold as a profitable candidate.
+        if offer.cost < MIN_PROFITABLE_COST:
             stats['rejected_unverifiable'] += 1
             continue
         if re.search(r'пружин|spring', ' '.join((
