@@ -52,6 +52,9 @@ class PurchaseListTests(TestCase):
         self.assertIn('Навои', sheet['A5'].value)
         self.assertIn('rkhaibullin@gmail.com', sheet['A6'].value)
         self.assertIn('CASPKZKA', sheet['A7'].value)
+        self.assertIn('Алматы, микрорайон Атырау, 159/8, восьмой ангар', sheet['A9'].value)
+        self.assertIn('менеджер Рашид Хайбуллин', sheet['A9'].value)
+        self.assertIn('+7 706 600 3112', sheet['A9'].value)
         self.assertEqual(sheet['D11'].value, '00001')
         self.assertEqual(sheet['D11'].data_type, 's')
         self.assertEqual(sheet['G11'].value, 3)
@@ -75,6 +78,24 @@ class PurchaseListTests(TestCase):
         self.assertEqual(workbook['Фаетон']['I11'].value, 200)
         self.assertEqual(workbook['Omega']['I13'].value, 6741)
         self.assertEqual(workbook['Фаетон']['I13'].value, 200)
+        for sheet in workbook:
+            self.assertEqual(sheet['A9'].value, workbook.active['A9'].value)
+            self.assertIn('1:10', str(sheet.print_title_rows))
+
+    def test_delivery_details_on_summary_and_every_supplier_sheet(self):
+        from .purchase_list_excel import export_purchase_list
+        selections = Selection.objects.filter(user=self.user).select_related('offer__supplier')
+        workbook = load_workbook(export_purchase_list(selections, 'Другой закупщик'))
+        self.assertEqual(set(workbook.sheetnames), {'Список закупки', 'Omega', 'Фаетон'})
+        for sheet in workbook:
+            self.assertIn('Адрес доставки: Алматы, микрорайон Атырау, 159/8, восьмой ангар', sheet['A9'].value)
+            self.assertIn('Контактное лицо: менеджер Рашид Хайбуллин', sheet['A9'].value)
+            self.assertIn('+7 706 600 3112', sheet['A9'].value)
+            self.assertIn('Другой закупщик', sheet['A4'].value)
+            self.assertIn('Навои', sheet['A5'].value)
+            self.assertTrue(sheet['A9'].alignment.wrap_text)
+        self.assertEqual(workbook['Omega']['I11'].value, 6741)
+        self.assertEqual(workbook['Фаетон']['I11'].value, 200)
 
     def test_bulk_remove_checks_ownership_and_requires_post(self):
         mine = list(Selection.objects.filter(user=self.user).order_by('pk'))
@@ -106,6 +127,8 @@ class PurchaseListTests(TestCase):
         response = self.client.get(reverse('procurement:basket'))
         self.assertContains(response, 'Скачать Excel')
         self.assertContains(response, 'Рашид Хайбуллин')
+        self.assertContains(response, 'Алматы, микрорайон Атырау, 159/8, восьмой ангар')
+        self.assertContains(response, '+7 706 600 3112')
         self.assertContains(response, 'data-basket-count', count=1)
         self.assertNotContains(response, 'Обновление прайсов')
         self.assertNotContains(response, 'Поставщик<br>')

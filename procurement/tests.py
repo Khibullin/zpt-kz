@@ -921,6 +921,9 @@ class WorkspaceTests(TestCase):
         self.assertEqual(sheet['F8'].value, 1000)
         self.assertEqual(sheet['G8'].value, '=E8*F8')
         self.assertIn(order.order_number, sheet['A1'].value)
+        self.assertIn('Алматы, микрорайон Атырау, 159/8, восьмой ангар', sheet['A2'].value)
+        self.assertIn('менеджер Рашид Хайбуллин', sheet['A2'].value)
+        self.assertIn('+7 706 600 3112', sheet['A2'].value)
         self.login(self.other)
         self.assertEqual(self.client.get(self.url('purchase_excel', pk=order.pk)).status_code, 404)
 

@@ -8,6 +8,7 @@
 <label>Закупщик {{ export_form.buyer }} <small>Менеджер по закупкам ИП «КВАНТ»</small></label>
 <button class="primary" {% if not selections %}disabled{% endif %}>Скачать Excel</button>
 </form>
+<p><strong>Адрес доставки:</strong> {{ buyer_details.delivery_address }}<br><strong>Контактное лицо:</strong> {{ buyer_details.delivery_role }} {{ buyer_details.delivery_contact }} · {{ buyer_details.delivery_phone }}</p>
 <details class="buyer-details"><summary>Наши реквизиты для Excel</summary>
 <p><strong>{{ buyer_details.name }}</strong> · ИИН {{ buyer_details.bin }}<br>{{ buyer_details.address }}<br>{{ buyer_details.phone }} · {{ buyer_details.email }} · {{ buyer_details.site }}<br>Банк: {{ buyer_details.bank }} · БИК: {{ buyer_details.bik }} · ИИК: {{ buyer_details.account }} · КБе: {{ buyer_details.kbe }}</p></details>
 </section>

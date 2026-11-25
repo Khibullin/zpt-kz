@@ -19,6 +19,10 @@ ORGANIZATION = {
     'phone': '+7 701 191 00 00', 'email': 'rkhaibullin@gmail.com', 'site': 'https://zpt.kz',
     'bank': 'АО «Kaspi Bank»', 'bik': 'CASPKZKA',
     'account': 'KZ07722S000001183310', 'kbe': '19',
+    'delivery_address': 'Алматы, микрорайон Атырау, 159/8, восьмой ангар',
+    'delivery_contact': 'Рашид Хайбуллин',
+    'delivery_role': 'менеджер',
+    'delivery_phone': '+7 706 600 3112',
 }
 
 
@@ -28,6 +32,13 @@ class PurchaseListExportForm(forms.Form):
 
 def organization_details():
     return {**ORGANIZATION, **getattr(settings, 'PROCUREMENT_BUYER_DETAILS', {})}
+
+
+def delivery_details_text(organization=None):
+    details = organization if organization is not None else organization_details()
+    return (f'Адрес доставки: {details["delivery_address"]}\n'
+            f'Контактное лицо: {details["delivery_role"]} {details["delivery_contact"]} · '
+            f'Телефон: {details["delivery_phone"]}')
 
 
 def purchaser_name(user):
@@ -77,6 +88,7 @@ def export_purchase_list(selections, buyer):
     merged(6, f'Телефон: {organization["phone"]} · Email: {organization["email"]}', 25)
     merged(7, f'Банк: {organization["bank"]} · БИК: {organization["bik"]} · ИИК: {organization["account"]} · КБе: {organization["kbe"]}', 30)
     merged(8, f'Позиций: {len(selections)} · Валюта: казахстанский тенге (₸) · Сайт: {organization["site"]}')
+    merged(9, delivery_details_text(organization), 40)
     headers = ['№', 'Поставщик', 'Бренд', 'Артикул', 'Наименование', 'Ед.', 'Количество', 'Цена, ₸', 'Сумма, ₸']
     for column, label in enumerate(headers, 1):
         cell = text(10, column, label)
@@ -174,6 +186,11 @@ def export_purchase_list(selections, buyer):
             cell.data_type = 's'
             cell.alignment = Alignment(wrap_text=True, vertical='center')
             tab.row_dimensions[index].height = 30 if index in (5, 7) else 22
+        tab.merge_cells('A9:I9')
+        cell = tab.cell(9, 1, delivery_details_text(organization))
+        cell.data_type = 's'
+        cell.alignment = Alignment(wrap_text=True, vertical='center')
+        tab.row_dimensions[9].height = 40
         for col, label in enumerate(headers, 1):
             cell = tab.cell(10, col, label)
             cell.font = Font(name='Arial', bold=True, color='FFFFFF')

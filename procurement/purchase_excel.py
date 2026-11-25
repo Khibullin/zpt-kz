@@ -8,6 +8,7 @@ from openpyxl.workbook.properties import CalcProperties
 
 
 def export_order(order):
+    from .purchase_list_excel import delivery_details_text
     workbook = Workbook()
     workbook.properties.creator = 'ZPT.KZ'
     workbook.calculation = CalcProperties(calcId=191029, fullCalcOnLoad=True)
@@ -25,6 +26,11 @@ def export_order(order):
     sheet['A1'].font = Font(name='Calibri', size=18, bold=True, color='FFFFFF')
     sheet['A1'].fill = PatternFill('solid', fgColor='142E4D')
     sheet.row_dimensions[1].height = 32
+    sheet.merge_cells('A2:G2')
+    contact = literal(2, 1, delivery_details_text())
+    contact.font = Font(name='Arial', size=11, color='142E4D')
+    contact.alignment = Alignment(wrap_text=True, vertical='center')
+    sheet.row_dimensions[2].height = 40
     headers = ['№', 'Артикул', 'Бренд', 'Наименование', 'Количество, ед.', 'Цена, ₸', 'Сумма, ₸']
     for col, name in enumerate(headers, 1):
         cell = literal(7, col, name)
