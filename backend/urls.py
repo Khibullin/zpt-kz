@@ -45,7 +45,14 @@ from catalog.views_zpt_guide import zpt_guide_view
 
 from core.manual_short_link_views import short_link
 
+from core.storefront_migration import preview_redirect, filter_category
+
 urlpatterns = [
+    path('filters/<slug:category>/', filter_category, name='store_filter_category'),
+    *[path(f'{lang}/', preview_redirect, {'lang': lang}, name=f'preview_{lang}') for lang in ('ru', 'kk', 'zh')],
+    *[path(f'{lang}/catalog/<slug:slug>/', preview_redirect, {'lang': lang, 'section': 'category'}, name=f'preview_category_{lang}') for lang in ('ru', 'kk', 'zh')],
+    *[path(f'{lang}/product/<slug:slug>/', preview_redirect, {'lang': lang, 'section': 'product'}, name=f'preview_product_{lang}') for lang in ('ru', 'kk', 'zh')],
+    *[path(f'{lang}/<str:section>/', preview_redirect, {'lang': lang}, name=f'preview_section_{lang}') for lang in ('ru', 'kk', 'zh')],
     # The root landing performs no product, stock, or finance DB work.
     path('', public_home, name='home'),
     path('robots.txt', public_robots, name='minimal_robots'),

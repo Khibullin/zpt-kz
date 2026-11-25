@@ -45,7 +45,7 @@ ALLOWED_HOSTS = [
     host.strip()
     for host in os.getenv(
         'ALLOWED_HOSTS',
-        'zpt.kz,www.zpt.kz,.onrender.com,127.0.0.1,localhost',
+        'zpt.kz,www.zpt.kz,agparts.kz,www.agparts.kz,.onrender.com,127.0.0.1,localhost',
     ).split(',')
     if host.strip()
 ]
@@ -75,6 +75,8 @@ INSTALLED_APPS = [
 ]
 
 DOMAIN_BOUNDARY_ENABLED = os.getenv('DOMAIN_BOUNDARY_ENABLED', 'false').lower() == 'true'
+if DOMAIN_BOUNDARY_ENABLED:
+    ALLOWED_HOSTS = list(dict.fromkeys([*ALLOWED_HOSTS, 'agparts.kz', 'www.agparts.kz']))
 
 MIDDLEWARE = [
     'core.domain_boundary.DomainBoundaryMiddleware',
@@ -178,6 +180,8 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
     'https://zpt.kz',
     'https://www.zpt.kz',
+    'https://agparts.kz',
+    'https://www.agparts.kz',
     'https://zpt-kz-backend.onrender.com',
 ]
 
@@ -192,6 +196,8 @@ CSRF_COOKIE_HTTPONLY = True
 CSRF_TRUSTED_ORIGINS = [
     'https://zpt.kz',
     'https://www.zpt.kz',
+    'https://agparts.kz',
+    'https://www.agparts.kz',
     'https://zpt-kz-backend.onrender.com',
 ]
 
@@ -276,7 +282,7 @@ WHATSAPP_WEBHOOK_VERIFY_TOKEN = os.getenv(
 ).strip()
 META_APP_SECRET = os.getenv('META_APP_SECRET', '').strip()
 
-PUBLIC_BASE_URL = os.getenv("PUBLIC_BASE_URL", "https://zpt.kz")
+PUBLIC_BASE_URL = 'https://agparts.kz' if DOMAIN_BOUNDARY_ENABLED else os.getenv("PUBLIC_BASE_URL", "https://zpt.kz")
 SEO_PRODUCT_SITEMAP_ENABLED = os.getenv('SEO_PRODUCT_SITEMAP_ENABLED', 'True').lower() in ('true', '1', 'yes')
 
 BUYER_BROADCAST_MODE = (os.getenv("BUYER_BROADCAST_MODE", "OFF") or "OFF").strip().upper()

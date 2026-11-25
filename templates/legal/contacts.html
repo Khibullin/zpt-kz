@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
-{% block title %}Контакты и реквизиты — ZPT.KZ{% endblock %}
-{% block meta_description %}Контакты оператора платформы ZPT.KZ — ТОО «Азия Грейт», БИН 120140021357.{% endblock %}
+{% block title %}Контакты и реквизиты — {{ public_brand|default:"ZPT.KZ" }}{% endblock %}
+{% block meta_description %}Контакты оператора платформы {{ public_brand|default:"ZPT.KZ" }} — ТОО «Азия Грейт», БИН 120140021357.{% endblock %}
 {% block content %}
 {% include 'includes/site_header_simple.html' %}
 <section class="section"><div class="container" style="max-width:900px;line-height:1.65;overflow-wrap:anywhere;">
 <h1>Контакты и реквизиты</h1>
-<p>ZPT.KZ — сайт продажи автозапчастей от AG Parts, включая товары поставщиков. Если нужной детали нет в каталоге, покупатель может оставить заявку — мы поможем подобрать сторонних продавцов. Оператор сайта — ТОО «Азия Грейт».</p>
+<p>{{ public_brand|default:"ZPT.KZ" }} — сайт продажи автозапчастей от AG Parts, включая товары поставщиков. Если нужной детали нет в каталоге, покупатель может оставить заявку — мы поможем подобрать сторонних продавцов. Оператор сайта — ТОО «Азия Грейт».</p>
 <h2>Товары и заказы</h2><p>По вопросам наличия, совместимости, оплаты, доставки, возврата или гарантии укажите артикул и номер заказа, если он есть. Условия подтверждаем до оплаты.</p><p><a href="/">Каталог запчастей</a> · <a href="/find-part/?request=1">Оставить заявку на поиск продавцов</a></p>
 {% include 'legal/operator_details.html' %}
 <p><a href="{% url 'feedback' %}">Обратная связь</a> · <a href="{% url 'privacy' %}">Политика конфиденциальности</a></p>

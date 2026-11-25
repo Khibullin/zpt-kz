@@ -76,7 +76,7 @@ def _latest_active_batch():
     )
 
 
-def _active_assortment(request, batch):
+def _active_assortment(request, batch, *, paginate=True):
     """Paginated ACTIVE rows including unmapped SKUs and their original prices."""
     qs = KaspiActiveExportRow.objects.filter(batch=batch).select_related(
         "listing", "listing__product", "listing__product__brand",
@@ -155,7 +155,9 @@ def _active_assortment(request, batch):
             ]
             qs = qs.filter(listing_id__in=matches)
 
-    page = Paginator(qs, 20).get_page(request.GET.get("page"))
+    page = Paginator(qs, 20 if paginate else max(qs.count(), 1)).get_page(
+        request.GET.get("page") if paginate else 1
+    )
     rows = []
     for record in page.object_list:
         listing = record.listing
@@ -224,15 +226,7 @@ def _active_assortment(request, batch):
     }
 
 
-@staff_member_required
-def repricer_dashboard(request):
-    listings_qs, search, supplier = _filtered_listings(request)
-    # The KPI values represent all active listings, regardless of page/filter.
-    total = ProductKaspiListing.objects.filter(is_active=True).count()
-    all_ids = list(ProductKaspiListing.objects.filter(is_active=True).values_list("id", flat=True))
-    all_states = competitor_states_for_listings(all_ids)
-    found = sum(1 for st in all_states.values() if st.competitor_count > 0)
-    drafted = KaspiManualPriceDraft.objects.filter(listing__is_active=True).count()
+def _filter_legacy_rows(request, listings_qs, all_states):
     city = (request.GET.get("city") or "").strip()
     if city and city in CITY_BY_ID:
         # City filter means a captured offer in that city exists, not that the
@@ -259,6 +253,20 @@ def repricer_dashboard(request):
             ).values_list("id", "last_known_our_price") if own > price_pairs[i]
         ]
         listings_qs = listings_qs.filter(pk__in=higher_ids)
+
+    return listings_qs, city, status
+
+
+@staff_member_required
+def repricer_dashboard(request):
+    listings_qs, search, supplier = _filtered_listings(request)
+    # The KPI values represent all active listings, regardless of page/filter.
+    total = ProductKaspiListing.objects.filter(is_active=True).count()
+    all_ids = list(ProductKaspiListing.objects.filter(is_active=True).values_list("id", flat=True))
+    all_states = competitor_states_for_listings(all_ids)
+    found = sum(1 for st in all_states.values() if st.competitor_count > 0)
+    drafted = KaspiManualPriceDraft.objects.filter(listing__is_active=True).count()
+    listings_qs, city, status = _filter_legacy_rows(request, listings_qs, all_states)
 
     pagesize = 20
     paginator = Paginator(listings_qs, pagesize)
@@ -447,28 +455,60 @@ def repricer_save_prices(request):
 
 @staff_member_required
 def repricer_export(request):
-    drafts = list(KaspiManualPriceDraft.objects.select_related("listing", "listing__product")
-                  .filter(listing__is_active=True).order_by("listing__merchant_sku", "listing_id"))
-    if not drafts:
-        messages.warning(request, "Нет сохранённых изменений цен для выгрузки.")
-        return redirect("repricer:dashboard")
+    batch = _latest_active_batch()
     wb = Workbook()
     ws = wb.active
-    ws.title = "Подготовленные цены"
-    ws.append(["Merchant SKU", "Kaspi SKU", "Артикул", "Товар", "Текущая цена, ₸", "Новая цена, ₸"])
-    for draft in drafts:
-        listing = draft.listing
-        ws.append([listing.merchant_sku, listing.master_sku, listing.product.article,
-                   listing.product.title, listing.last_known_our_price, draft.price])
+    ws.title = "Контроль цен"
+    ws.append(["Merchant SKU", "Kaspi SKU", "Артикул", "Товар", "Текущая цена, ₸",
+               "Новая цена, ₸", "Бренд", "Остаток", "Закупка, ₸", "Мин. Kaspi, ₸",
+               "Продавцов", "Продавец с минимальной ценой", "Город", "Разница, ₸",
+               "Статус", "Ссылка Kaspi"])
+    if batch:
+        rows = _active_assortment(request, batch, paginate=False)["monitored"]
+        for row in rows:
+            record, listing, draft = row["active"], row["listing"], row["draft"]
+            ws.append([
+                record.merchant_sku, record.master_sku, row["article"], row["item_title"],
+                row["our"], draft.price if draft else None, row["brand_name"], row["quantity"],
+                listing.product.cost_price if listing else None, row["best"], row["count"],
+                row["best_seller"], row["best_city"], row["delta"], row["state_label"],
+                row["best_url"],
+            ])
+    else:
+        listings, _, _ = _filtered_listings(request)
+        states = competitor_states_for_listings(list(listings.values_list("pk", flat=True)))
+        listings, _, _ = _filter_legacy_rows(request, listings, states)
+        for listing in listings.select_related("manual_price_draft"):
+            state = _listing_state(listing, states)
+            draft = getattr(listing, "manual_price_draft", None)
+            ws.append([
+                listing.merchant_sku, listing.master_sku, listing.product.article,
+                listing.product.title, listing.last_known_our_price,
+                draft.price if draft else None,
+                listing.product.brand.name if listing.product.brand else "",
+                listing.last_known_kaspi_qty, listing.product.cost_price,
+                state.best_price, state.competitor_count, "", "",
+                _row(listing, state)["delta"], state.state_label, listing.public_url,
+            ])
+    # Imported labels and SKUs are text, including values starting with '='.
+    for cells in ws.iter_rows(min_row=2):
+        for cell in cells:
+            if isinstance(cell.value, str):
+                cell.data_type = "s"
     ws.freeze_panes = "A2"
     ws.auto_filter.ref = ws.dimensions
     for cell in ws[1]:
         cell.font = Font(color="FFFFFF", bold=True)
         cell.fill = PatternFill(fill_type="solid", fgColor="142E4D")
-    for col, width in {"A": 25, "B": 24, "C": 25, "D": 55, "E": 22, "F": 22}.items():
+    for col, width in {"A": 25, "B": 24, "C": 25, "D": 55, "E": 22, "F": 22, "G": 22, "H": 14, "I": 20, "J": 20,
+                       "K": 14, "L": 36, "M": 22, "N": 20, "O": 36, "P": 55}.items():
         ws.column_dimensions[col].width = width
     info = wb.create_sheet("Инструкция")
-    info.append(["Черновик ручных изменений цен ZPT.KZ"])
+    info.append(["Контроль цен Kaspi · ZPT.KZ"])
+    info.append(["Дата выгрузки", timezone.localtime().isoformat()])
+    info.append(["Источник", batch.filename if batch else "Активные товары ZPT.KZ"])
+    info.append(["Фильтры", request.GET.urlencode()])
+    info.append(["Новая цена заполняется только для сохранённых ручных изменений."])
     info.append(["Этот файл НЕ является подтверждённым шаблоном импорта Kaspi."])
     info.append(["Перед загрузкой перенесите SKU и цены в актуальный шаблон личного кабинета Kaspi."])
     info.append(["Экспорт не изменяет цены на Kaspi."])
@@ -478,5 +518,5 @@ def repricer_export(request):
         output.getvalue(),
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     )
-    response["Content-Disposition"] = 'attachment; filename="zpt-kaspi-price-drafts.xlsx"'
+    response["Content-Disposition"] = 'attachment; filename="zpt-kaspi-price-control.xlsx"'
     return response

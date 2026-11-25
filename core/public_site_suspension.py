@@ -24,6 +24,9 @@ class PublicSiteSuspensionMiddleware:
         return self.get_response(request)
 
     def process_view(self, request, view_func, view_args, view_kwargs):
+        from core.domain_boundary import is_storefront
+        if is_storefront(request):
+            return None
         if getattr(settings, "PUBLIC_SITE_ENABLED", False):
             return None
 

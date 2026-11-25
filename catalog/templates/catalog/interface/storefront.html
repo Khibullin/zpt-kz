@@ -1,5 +1,5 @@
 {% extends 'catalog/interface/base.html' %}{% load static product_extras humanize phone_extras interface_ui %}
-{% block title %}Купить автозапчасти AG Parts — подбор по автомобилю | ZPT.KZ{% endblock %}
+{% block title %}Купить автозапчасти AG Parts — подбор по автомобилю | {{ public_brand|default:"ZPT.KZ" }}{% endblock %}
 {% block meta_description %}Подбор автозапчастей по марке, модели, году и двигателю. Товары продавца AG Parts: фото, цены и наличие.{% endblock %}
 {% block extra_css %}{{ block.super }}<link rel="stylesheet" href="{% static 'interface/storefront.css' %}?v=20261112instant2">{% endblock %}
 {% block interface_content %}<div class="retail-home">

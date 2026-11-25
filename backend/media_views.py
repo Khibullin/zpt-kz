@@ -13,9 +13,18 @@ def serve_media(request, path):
     media_root = settings.MEDIA_ROOT.resolve()
     file_path = (settings.MEDIA_ROOT / safe_path).resolve()
 
-    if not str(file_path).startswith(str(media_root)) or not file_path.is_file():
+    if not file_path.is_relative_to(media_root) or not file_path.is_file():
         raise Http404('File not found')
 
+    from core.domain_boundary import enabled, is_storefront
+    if enabled():
+        public_image = (safe_path.parts and safe_path.parts[0] in {
+            'products', 'seller_logos', 'maintenance_kits', 'seller_directory'
+        } and file_path.suffix.lower() in {'.jpg', '.jpeg', '.png', '.webp', '.gif', '.avif'})
+        if not public_image:
+            from core.office_views import office_access
+            if is_storefront(request) or not request.user.is_authenticated or not office_access(request.user):
+                raise Http404('File not found')
     content_type, _ = mimetypes.guess_type(str(file_path))
     response = FileResponse(
         file_path.open('rb'),

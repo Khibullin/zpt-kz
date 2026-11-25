@@ -81,13 +81,13 @@ def cache_sitemap(view):
     """Keep feature switches effective even while a public XML response is cached."""
     @wraps(view)
     def cached(request, *args, **kwargs):
-        prefix=f"v2:{int(settings.SEO_PRODUCT_SITEMAP_ENABLED)}:{int(settings.SEO_EDITORIAL_ENABLED)}"
+        prefix=f"{canonical_url_for_path('/')}:v3:{int(settings.SEO_PRODUCT_SITEMAP_ENABLED)}:{int(settings.SEO_EDITORIAL_ENABLED)}"
         return cache_page(300, cache='seo_sitemaps', key_prefix=prefix)(view)(request,*args,**kwargs)
     return cached
 
 
 def sitemap_snapshot_key(path):
-    return f'{int(settings.SEO_PRODUCT_SITEMAP_ENABLED)}:{int(settings.SEO_EDITORIAL_ENABLED)}:{path}'
+    return f'{canonical_url_for_path("/")}:{int(settings.SEO_PRODUCT_SITEMAP_ENABLED)}:{int(settings.SEO_EDITORIAL_ENABLED)}:{path}'
 
 
 def stored_sitemap(path):
@@ -144,9 +144,6 @@ def refresh_sitemap_snapshots(force=False):
         now=timezone.now()
         for path,xml in documents.items():
             PublicSitemapSnapshot.objects.update_or_create(pk=sitemap_snapshot_key(path),defaults={'xml':xml,'built_at':now})
-        # Drop obsolete trailing parts only from this feature-switch variant.
-        PublicSitemapSnapshot.objects.filter(key__startswith=sitemap_snapshot_key('/sitemap-products')).exclude(
-            pk__in=[sitemap_snapshot_key(path) for path in documents]).delete()
         lock.built_at=now;lock.save(update_fields=['built_at'])
     return True
 
@@ -258,9 +255,12 @@ def render_sitemap_index(request):
 
 @require_GET
 def sitemap_static(request):
+    paths = STATIC_SITEMAP_PATHS
+    if getattr(settings, 'DOMAIN_BOUNDARY_ENABLED', False):
+        paths = tuple(path for path in paths if path not in {'/request-parts/', '/request-parts/guide/', '/prodavat/'}) + tuple(f'/filters/{kind}/' for kind in ('cabin','air','oil','spark'))
     items = ''.join(
         f'<url><loc>{escape(canonical_url_for_path(path))}</loc></url>'
-        for path in STATIC_SITEMAP_PATHS
+        for path in paths
     )
     return HttpResponse(_urlset(items), content_type='application/xml; charset=utf-8')
 

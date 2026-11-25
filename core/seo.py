@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from django.conf import settings
+from core.domain_boundary import is_storefront
 
 
 CATALOG_FILTER_QUERY_KEYS = frozenset({
@@ -129,7 +130,7 @@ def canonical_path(path: str) -> str:
 
 
 def canonical_url_for_path(path: str) -> str:
-    origin = (getattr(settings, 'PUBLIC_BASE_URL', '') or 'https://zpt.kz').rstrip('/')
+    origin = ('https://agparts.kz' if getattr(settings, 'DOMAIN_BOUNDARY_ENABLED', False) else (getattr(settings, 'PUBLIC_BASE_URL', '') or 'https://zpt.kz')).rstrip('/')
     return f'{origin}{canonical_path(path)}'
 
 
@@ -261,6 +262,8 @@ def robots_directive(request) -> str:
 
 def seo_context(request) -> dict[str, str]:
     return {
+        'agparts_storefront': is_storefront(request),
+        'public_brand': 'AG Parts' if is_storefront(request) else 'ZPT.KZ',
         'seo_editorial_enabled': getattr(settings, 'SEO_EDITORIAL_ENABLED', False),
         'seo_canonical_url': canonical_url_for_request(request),
         'seo_robots': robots_directive(request),

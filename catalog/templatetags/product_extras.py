@@ -93,7 +93,8 @@ def public_product_whatsapp_message(product):
         return message
 
     legacy_url = f'https://zpt.kz/{slug}/'
-    canonical_url = f'https://zpt.kz{public_product_url(product)}'
+    from core.seo import canonical_url_for_path
+    canonical_url = canonical_url_for_path(public_product_url(product))
     return message.replace(legacy_url, canonical_url)
 
 
@@ -140,7 +141,8 @@ def _absolute_public_url(path_or_url):
         return ''
     if value.startswith(('http://', 'https://')):
         return value
-    origin = (getattr(settings, 'PUBLIC_BASE_URL', '') or 'https://zpt.kz').rstrip('/')
+    from core.seo import canonical_url_for_path
+    origin = canonical_url_for_path('/').rstrip('/')
     return f'{origin}/{value.lstrip("/")}'
 
 

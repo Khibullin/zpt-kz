@@ -12,6 +12,10 @@ def _static_path(relative_path):
 
 
 def manifest_json(request):
+    from core.domain_boundary import is_storefront
+    if is_storefront(request):
+        from django.http import JsonResponse
+        return JsonResponse({'name': 'AG Parts', 'short_name': 'AG Parts', 'start_url': '/', 'scope': '/', 'display': 'standalone', 'theme_color': '#c51e29', 'background_color': '#ffffff', 'icons': [{'src': '/static/agparts/favicon.png', 'sizes': '96x96', 'type': 'image/png'}]})
     file_path = _static_path('manifest.json')
     with file_path.open('rb') as manifest_file:
         return HttpResponse(

@@ -1,9 +1,9 @@
-{% load interface_ui %}
-<footer id="footer"><div class="footer-desktop"><div class="container"><a class="logo" href="/">ZPT.<em>KZ</em></a>{% include 'includes/directory_menu.html' %}<a href="{% url 'zpt_gid' %}">{% ui 'guide' %}</a>{% if seo_editorial_enabled %}<a href="{% url 'editorial_index' %}">{% ui 'articles' %}</a>{% endif %}<a href="{% url 'feedback' %}">{% ui 'feedback' %}</a><a href="{% url 'platform_contacts' %}">Контакты</a><a href="{% url 'privacy' %}">{% ui 'privacy' %}</a></div></div>
+{% load static interface_ui %}
+<footer id="footer"><div class="footer-desktop"><div class="container"><a class="logo" href="/">{% if agparts_storefront %}<img src="{% static 'agparts/logo.png' %}" alt="AG Parts" width="108" height="66" class="agparts-logo">{% else %}ZPT.<em>KZ</em>{% endif %}</a>{% include 'includes/directory_menu.html' %}<a href="{% url 'zpt_gid' %}">{% ui 'guide' %}</a>{% if seo_editorial_enabled %}<a href="{% url 'editorial_index' %}">{% ui 'articles' %}</a>{% endif %}<a href="{% url 'feedback' %}">{% ui 'feedback' %}</a><a href="{% url 'platform_contacts' %}">Контакты</a><a href="{% url 'privacy' %}">{% ui 'privacy' %}</a></div></div>
 <nav class="mobile-nav" aria-label="Основное меню">
 <a href="/"{% if interface_home %} class="active" aria-current="page"{% endif %}>{% ui_icon 'home' %}{% ui 'home' %}</a>
 {% include 'includes/directory_menu.html' %}
 <a href="{% url 'orders:cart' %}">{% ui_icon 'cart' %}<span>{% ui 'cart' %} (<span data-cart-count data-cart-show-zero>{{ cart_count|default:0 }}</span>)</span></a>
 <a href="{% url 'zpt_gid' %}">{% ui_icon 'help' %}{% ui 'guide' %}</a>
-<a href="{% url 'interface_section' section='account' %}">{% ui_icon 'user' %}{% ui 'account' %}</a>
+{% if not agparts_storefront %}<a href="{% url 'interface_section' section='account' %}">{% ui_icon 'user' %}{% ui 'account' %}</a>{% endif %}
 </nav></footer>

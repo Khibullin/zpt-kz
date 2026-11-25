@@ -321,3 +321,39 @@ class ApifyOutputTests(TestCase):
     def test_nonstaff_cannot_import(self):
         self.client.force_login(User.objects.create_user("not-staff"))
         self.assertNotEqual(self._upload([]).status_code, 200)
+
+    def test_price_control_export_all_pages_including_unmapped_without_drafts(self):
+        from openpyxl import load_workbook
+        KaspiActiveExportRow.objects.bulk_create([
+            KaspiActiveExportRow(batch=self.batch, row_number=i + 4,
+                                 master_sku=f"extra-{i}", product_name="Extra",
+                                 status="MISSING_LISTING")
+            for i in range(25)
+        ])
+        self.active.competitor_min_price = 2200
+        self.active.competitor_scan_status = "MATCHED"
+        self.active.save()
+        response = self.client.get(reverse("repricer:export") + "?page=2")
+        self.assertEqual(response.status_code, 200)
+        sheet = load_workbook(BytesIO(response.content)).active
+        self.assertEqual(sheet.max_row, 28)
+        self.assertEqual(sheet["E2"].value, 2700)
+        self.assertEqual(sheet["J2"].value, 2200)
+        self.assertEqual(sheet["N2"].value, 500)
+        self.assertEqual(sheet["B3"].value, "UNMAPPED")
+        self.assertIsNone(sheet["F2"].value)
+        self.assertIsNone(sheet["J3"].value)
+
+    def test_price_control_export_preserves_filters_and_empty_results(self):
+        from openpyxl import load_workbook
+        url = reverse("repricer:export")
+        for query, expected in [("?status=unmatched", "UNMAPPED"),
+                                ("?q=1017110XEN01", "1017110XEN01")]:
+            sheet = load_workbook(BytesIO(self.client.get(url + query).content)).active
+            self.assertEqual(sheet.max_row, 2)
+            self.assertEqual(sheet["B2"].value, expected)
+        empty = self.client.get(url + "?q=nonexistent")
+        self.assertEqual(empty.status_code, 200)
+        self.assertEqual(load_workbook(BytesIO(empty.content)).active.max_row, 1)
+        dashboard = self.client.get(reverse("repricer:dashboard") + "?status=unmatched&q=UNMAPPED")
+        self.assertContains(dashboard, url + "?status=unmatched&amp;q=UNMAPPED")

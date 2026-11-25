@@ -2,7 +2,7 @@
 {% load static humanize phone_extras product_extras seller_extras kaspi_buy l10n %}
 
 {% block title %}
-Купить {{ product|public_product_seo_name }}{% if title_vehicle_line %} {{ title_vehicle_line }}{% endif %} в Казахстане — цена и наличие | ZPT.KZ
+Купить {{ product|public_product_seo_name }}{% if title_vehicle_line %} {{ title_vehicle_line }}{% endif %} в Казахстане — цена и наличие | {{ public_brand|default:"ZPT.KZ" }}
 {% endblock %}
 
 {% block extra_css %}
@@ -132,7 +132,7 @@
 <div class="breadcrumbs">
 
   <a href="{% url 'home' %}">
-    ZPT.KZ
+    {{ public_brand|default:"ZPT.KZ" }}
   </a>
 
   <span> / </span>

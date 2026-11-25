@@ -2,9 +2,9 @@
 <a
   class="site-logo-link market-brand logo market-header-logo no-underline{% if show_subtitle %} site-logo-link--with-subtitle{% endif %}{% if extra_classes %} {{ extra_classes }}{% endif %}"
   href="{% url 'home' %}"
-  title="ZPT.KZ — главная"
+  title="{{ public_brand|default:"ZPT.KZ" }} — главная"
 >
-  <img src="{% static 'images/logo.png' %}" alt="ZPT.KZ">
+  <img src="{% if agparts_storefront %}{% static 'agparts/logo.png' %}{% else %}{% static 'images/logo.png' %}{% endif %}" alt="{{ public_brand|default:"ZPT.KZ" }}">
   {% if show_subtitle %}
   <span class="market-brand-subtitle">{{ subtitle|default:"Маркетплейс автозапчастей Казахстана" }}</span>
   {% endif %}
