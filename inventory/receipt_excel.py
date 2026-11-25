@@ -1,6 +1,7 @@
 from io import BytesIO
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
+import re
 from zipfile import ZipFile
 from django.core.exceptions import ValidationError
 
@@ -53,24 +54,79 @@ def parse_receipt(upload):
                 break
         else:
             raise ValueError('Не найдены колонки: бренд, артикул, наименование, количество, цена')
-        result = []
+        # Omega groups have the same header, a one-cell vehicle heading and
+        # a subtotal outside the required columns. Only this known structure
+        # enables group/footer recognition; incomplete products remain visible.
+        omega = {'модель', 'oem', 'сумма со скидкой'}.issubset(
+            {norm(value).casefold() for value in rows[i]})
+        groups = set()
+        if omega:
+            for row in rows[i+1:]:
+                for value in row:
+                    match = re.fullmatch(r'Итого,\s*(.+):', norm(value), re.IGNORECASE)
+                    if match:
+                        groups.add(match[1].casefold())
+        result, skipped = [], []
         for index, row in enumerate(rows[i+1:], i+2):
-            data = {key: norm(row[j]) if j < len(row) else '' for key,j in cols.items()}
-            if not any(data.values()) or any(v.casefold() in ('итого','всего','итого:','всего:') for v in data.values()):
+            cells = [norm(value) for value in row]
+            nonempty = [value for value in cells if value]
+            if not nonempty:
                 continue
-            if not all(data.values()):
-                raise ValueError(f'Строка {index}: не заполнены все обязательные колонки')
-            try:
-                q = Decimal(data['packages'].replace(' ','').replace(',','.'))
-                cost = Decimal(data['cost'].replace(' ','').replace(',','.'))
-                if not q.is_finite() or not cost.is_finite() or q <= 0 or q != q.to_integral_value() or cost < 0 or cost != cost.quantize(Decimal('.01')):
-                    raise ValueError()
-            except (InvalidOperation, ValueError):
-                raise ValueError(f'Строка {index}: проверьте количество и цену')
-            data.update(packages=int(q), cost=cost, multiplier=1)
+            data = {key: cells[j] if j < len(cells) else '' for key,j in cols.items()}
+            repeated = all(data[key].casefold() in aliases for key, aliases in ALIASES.items())
+            identity = any(data[key] for key in ('article', 'brand', 'name'))
+            subtotal = not identity and any(
+                re.fullmatch(r'(?:итого|всего)(?:\s*[:,].*)?', value, re.IGNORECASE)
+                for value in nonempty)
+            group = omega and len(nonempty) == 1 and nonempty[0].casefold() in groups
+            footer = omega and not identity and any(
+                re.fullmatch(r'(?:Количество:|Сумма всего:|Сумма заказа|'
+                             r'Сальдо по контрагенту \(на .+\):|'
+                             r'.+ — Предоплата|Итого к оплате:)', value, re.IGNORECASE)
+                for value in nonempty)
+            if repeated or subtotal or group or footer:
+                reason = 'Заголовок таблицы' if repeated else 'Название группы' if group else 'Итог / служебная строка'
+                skipped.append({'source_row': index, 'reason': reason, 'source_values': cells})
+                continue
+            errors = []
+            missing = [key for key in ALIASES if not data[key]]
+            if missing:
+                labels = {'article': 'артикул', 'brand': 'бренд', 'name': 'название',
+                          'packages': 'количество', 'cost': 'цена'}
+                errors.append('Не заполнены: ' + ', '.join(labels[key] for key in missing))
+            for key in ('packages', 'cost'):
+                if not data[key]:
+                    continue
+                try:
+                    value = Decimal(data[key].replace(' ', '').replace(',', '.'))
+                    if key == 'packages':
+                        valid = value.is_finite() and 0 < value <= 10000000 and value == value.to_integral_value()
+                    else:
+                        valid = value.is_finite() and 0 <= value < Decimal('1000000000000') and value == value.quantize(Decimal('.01'))
+                    if not valid:
+                        raise ValueError()
+                    data[key] = int(value) if key == 'packages' else value
+                except (InvalidOperation, ValueError):
+                    errors.append('Проверьте ' + ('количество' if key == 'packages' else 'цену'))
+            data.update(multiplier=1, source_row=index, errors=errors, source_values=cells)
             result.append(data)
         if not result or len(result) > 300:
             raise ValueError('В накладной должно быть от 1 до 300 товарных строк')
-        return result
+        totals = {}
+        if omega:
+            for row in rows[i+1:]:
+                cells = [norm(value) for value in row]
+                if 'Сумма всего:' in cells:
+                    try:
+                        declared = Decimal(cells[-1].replace(' ', '').replace(',', '.'))
+                        if declared.is_finite() and declared >= 0:
+                            totals['declared'] = declared
+                    except InvalidOperation:
+                        pass
+        if not any(row['errors'] for row in result):
+            totals['calculated'] = sum(row['packages'] * row['cost'] for row in result)
+            if 'declared' in totals:
+                totals['difference'] = totals['calculated'] - totals['declared']
+        return {'rows': result, 'skipped': skipped, 'totals': totals}
     except Exception as exc:
         raise ValidationError(f'Не удалось разобрать накладную: {exc}') from exc

@@ -1,0 +1,25 @@
+name: Supplier invoice preview
+on:
+  pull_request:
+    paths:
+      - 'inventory/receipt_excel.py'
+      - 'inventory/workspace_views.py'
+      - 'inventory/templates/inventory/goods_form.html'
+      - 'inventory/test_receipt_excel.py'
+      - '.github/workflows/receipt-excel-ci.yml'
+permissions:
+  contents: read
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    env:
+      SECRET_KEY: isolated-invoice-ci
+      DEBUG: 'True'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: python manage.py test inventory.test_receipt_excel inventory.test_workspace --settings=backend.settings_ui_ci --noinput
