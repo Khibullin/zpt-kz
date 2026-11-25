@@ -62,6 +62,22 @@ def apify_source_summary(source, supplier=None):
     return counts
 
 
+def price_audits_for_display(offer_ids, source=''):
+    audits = {}
+    display_audits = KaspiPriceAudit.objects.filter(offer_id__in=offer_ids)
+    if source:
+        display_audits = display_audits.filter(source_filename=source)
+    previous = KaspiPriceAudit.objects.filter(
+        offer_id=OuterRef('offer_id'), pk__lt=OuterRef('pk')).order_by('-pk')
+    for audit in display_audits.annotate(
+            _previous_display_price=Subquery(previous.values('min_price')[:1])
+            ).order_by('offer_id', '-observed_at', '-pk'):
+        audits.setdefault(audit.offer_id, audit)
+    previous_audit = {offer_id: audit._previous_display_price
+                      for offer_id, audit in audits.items()}
+    return audits, previous_audit
+
+
 def visible_permanent_buying_rows(request, preferences, filters):
     rows = PermanentBuyingItem.objects.select_related('offer', 'offer__supplier')
     # Published second batch is a view of the SAME buying register, not a
@@ -207,17 +223,7 @@ def visible_permanent_buying_rows(request, preferences, filters):
             product_id__in=[i.product_id for i in items if i.product_id]
         )
     }
-    audits = {}
-    display_audits = KaspiPriceAudit.objects.filter(offer_id__in=offer_ids)
-    if source:
-        display_audits = display_audits.filter(source_filename=source)
-    for audit in display_audits.order_by('offer_id', '-observed_at', '-pk'):
-        audits.setdefault(audit.offer_id, audit)
-    previous_audit = {}
-    for offer_id, audit in audits.items():
-        previous_audit[offer_id] = KaspiPriceAudit.objects.filter(
-            offer_id=offer_id, pk__lt=audit.pk).order_by('-pk').values_list(
-                'min_price', flat=True).first()
+    audits, previous_audit = price_audits_for_display(offer_ids, source)
     prepared_photos = dict(KaspiPreparedCard.objects.filter(
         offer_id__in=offer_ids).exclude(photo_url='').values_list('offer_id', 'photo_url'))
     favorite_ids = set(Favorite.objects.filter(

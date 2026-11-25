@@ -5,6 +5,7 @@ supplier imports, stock, public catalogue, Kaspi prices, or existing ROI rules.
 """
 from datetime import date
 from hashlib import sha256
+from time import time
 import json
 from decimal import Decimal
 
@@ -90,6 +91,49 @@ def matching_years(rows, age):
         offer_id=OuterRef('pk'), verified=True, details__regex=year_pattern,
     )
     return rows.filter(Q(applicability__regex=year_pattern) | Exists(fitments))
+
+
+
+def selection_preview_counts(effective, *, refresh=False, force=False):
+    supplier = effective.get('supplier')
+    supplier_id = getattr(supplier, 'pk', supplier)
+    age = int(effective.get('max_vehicle_age', 20))
+    criteria = dict(supplier=supplier_id, min_cost=str(effective.get('min_cost') or 0),
+                    stock=bool(effective.get('in_stock_only')),
+                    groups=sorted(effective.get('category_groups') or []),
+                    mode=effective.get('classification_mode', 'auto'), age=age,
+                    year=date.today().year)
+    key = 'zpt:selection-preview:v3:' + sha256(
+        json.dumps(criteria, sort_keys=True).encode()).hexdigest()
+    preview_cache = caches['procurement_options']
+    completed = preview_cache.get(key)
+    # Ordinary navigation keeps the last complete count while the consumer
+    # refreshes it. Explicit form submissions always calculate their criteria.
+    if completed is not None and not force:
+        if not refresh or time() - completed['at'] < 60:
+            return tuple(completed['counts'])
+    rows = Offer.objects.filter(supplier__name='Omega')
+    if supplier_id:
+        rows = rows.filter(supplier_id=supplier_id)
+    rows = rows.filter(cost__gte=effective.get('min_cost') or 0)
+    if effective.get('in_stock_only'):
+        rows = rows.filter(_stock_filter())
+    rows = rows.filter(_group_filter(effective.get('category_groups') or [],
+                                   effective.get('classification_mode', 'auto')))
+    result = (rows.count(), matching_years(rows, age).count())
+    preview_cache.set(key, {'counts': result, 'at': time()}, timeout=300)
+    return result
+
+
+def warm_selection_preview():
+    # Shared saved rule only; no user/session, imports, prices or stock writes.
+    rule = WholesaleSelectionRule.objects.filter(singleton_key=1).first()
+    omega_id = Supplier.objects.filter(name='Omega').values_list('pk', flat=True).first()
+    if rule is None or omega_id is None:
+        return
+    effective = {name: getattr(rule, name) for name in (
+        'min_cost', 'max_vehicle_age', 'category_groups', 'in_stock_only', 'classification_mode')}
+    selection_preview_counts(dict(effective, supplier=omega_id), refresh=True)
 
 
 def _omega_selection_fingerprint(post):
@@ -306,42 +350,8 @@ def selection_rules(request):
     # Preview against the already imported offers. No destructive updates or
     # automatic purchases / Kaspi calls are initiated by this screen.
     effective = form.cleaned_data if form.is_bound and form.is_valid() else initial
-    rows = Offer.objects.filter(supplier=omega)
-    if effective.get('supplier'):
-        supplier = effective['supplier']
-        rows = rows.filter(supplier_id=supplier.pk if hasattr(supplier, 'pk') else supplier)
-    rows = rows.filter(cost__gte=effective.get('min_cost') or 0)
-    if effective.get('in_stock_only'):
-        rows = rows.filter(_stock_filter())
-    rows = rows.filter(_group_filter(effective.get('category_groups') or [],
-                                   effective.get('classification_mode', 'auto')))
-    # A page refresh must not repeatedly scan tens of thousands of fitments.
-    # Short TTL bounds staleness after external imports and avoids caching prices.
-    age = int(effective.get('max_vehicle_age', 20))
-    supplier_key = effective.get('supplier')
-    supplier_key = getattr(supplier_key, 'pk', supplier_key)
-    criteria = {
-        'supplier': supplier_key,
-        'min_cost': str(effective.get('min_cost') or 0),
-        'stock': bool(effective.get('in_stock_only')),
-        'groups': sorted(effective.get('category_groups') or []),
-        'mode': effective.get('classification_mode', 'auto'),
-        'age': age,
-        'year': date.today().year,
-    }
-    stats_key = 'zpt:selection-preview:v2:' + sha256(
-        json.dumps(criteria, sort_keys=True).encode('utf-8')
-    ).hexdigest()
-    preview_cache = caches['procurement_options']
-    stats = preview_cache.get(stats_key) if request.method == 'GET' else None
-    if stats is None:
-        before_years = rows.count()
-        # No source years: do not infer vehicle fitment.
-        matched = matching_years(rows, age).count()
-        stats = (before_years, matched)
-        if request.method == 'GET':
-            preview_cache.set(stats_key, stats, timeout=60)
-    before_years, matched = stats
+    before_years, matched = selection_preview_counts(
+        effective, force=request.method != 'GET')
     unknown_years = max(0, before_years - matched)
     # All download actions use the last saved rule, not unsaved form values.
     # Preview is intentionally short and read-only; full records go to Excel.

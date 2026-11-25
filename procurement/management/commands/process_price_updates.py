@@ -174,6 +174,11 @@ class Command(BaseCommand):
                         del rows
                         del batch
                 if options['watch']:
+                    from procurement.supplier_price_comparison import _snapshot
+                    from decimal import Decimal
+                    _snapshot(Decimal('2000'), warm_only=True)
+                    from procurement.selection_rule_views import warm_selection_preview
+                    warm_selection_preview()
                     # Kaspi validation and image work are independent from uploads.
                     # storefront and purchased-card work, so Kaspi does not
                     # starve behind unrelated enrichment queues.
@@ -203,9 +208,6 @@ class Command(BaseCommand):
                     refresh_filter_snapshots()
                     from procurement.kaspi_materials import process_purchased_cards
                     process_purchased_cards(fetch_photos=True, throttle=True)
-                    from procurement.supplier_price_comparison import _snapshot
-                    from decimal import Decimal
-                    _snapshot(Decimal('2000'), warm_only=True)
                 from procurement.models import RetailPublicationRun
                 from procurement.stock_retail import advance_publication, start_publication
                 # Continue an already-authorized run that previously deferred OEM variants.

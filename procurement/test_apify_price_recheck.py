@@ -147,3 +147,18 @@ class ApifyMultiCardRecheckTests(TestCase):
         row = self.card('199999999', '51331-A', 100)
         self.send([row])
         self.assertFalse(KaspiPriceAudit.objects.exists())
+
+    def test_display_history_uses_one_query_and_preserves_selected_source(self):
+        from django.db import connection
+        from django.test.utils import CaptureQueriesContext
+        from .permanent_buying_visible import price_audits_for_display
+        self.send([self.card('175080373','51331',145000)],'early-history.json')
+        self.send([self.card('175080373','51331',78000)],'later-history.json')
+        with CaptureQueriesContext(connection) as queries:
+            latest,previous=price_audits_for_display([self.offer.pk])
+        self.assertEqual(len(queries),1)
+        self.assertEqual(latest[self.offer.pk].min_price,Decimal('78000'))
+        self.assertEqual(previous[self.offer.pk],Decimal('145000'))
+        early,previous=price_audits_for_display([self.offer.pk],'early-history.json')
+        self.assertEqual(early[self.offer.pk].min_price,Decimal('145000'))
+        self.assertIsNone(previous[self.offer.pk])

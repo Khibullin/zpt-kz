@@ -101,3 +101,19 @@ class PreparationPerformanceTests(TestCase):
             'classification_mode': 'auto'})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['matched'], filtered_offers(self.rule).count())
+
+    def test_background_updates_completed_counts_without_blocking_navigation(self):
+        from unittest.mock import patch
+        from time import time
+        from .selection_rule_views import warm_selection_preview
+        first=self.client.get(self.url)
+        self.assertEqual(first.context['matched'],2)
+        Offer.objects.filter(pk=self.old.pk).update(applicability=self.year)
+        # The last complete preview remains usable while the consumer refreshes.
+        with patch('procurement.selection_rule_views.time',return_value=time()+61):
+            warm_selection_preview()
+        cache.clear()
+        with CaptureQueriesContext(connection) as queries:
+            response=self.client.get(self.url)
+        self.assertEqual(response.context['matched'],3)
+        self.assertFalse(any('procurement_vehiclefitment' in q['sql'] for q in queries))
