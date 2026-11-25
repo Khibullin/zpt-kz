@@ -1,0 +1,155 @@
+[
+  {
+    "host": "zpt.kz",
+    "path": "/",
+    "status": 302,
+    "location": "/office/login/",
+    "robots": "noindex, nofollow, noarchive",
+    "cache": "private, no-store",
+    "bytes": 0
+  },
+  {
+    "host": "zpt.kz",
+    "path": "/office/login/",
+    "status": 200,
+    "location": null,
+    "robots": "noindex, nofollow, noarchive",
+    "cache": "private, no-store",
+    "bytes": 2584
+  },
+  {
+    "host": "zpt.kz",
+    "path": "/robots.txt",
+    "status": 200,
+    "location": null,
+    "robots": "noindex, nofollow, noarchive",
+    "cache": "private, no-store",
+    "bytes": 26
+  },
+  {
+    "host": "agparts.kz",
+    "path": "/",
+    "status": 200,
+    "location": null,
+    "robots": null,
+    "cache": null,
+    "bytes": 627086
+  },
+  {
+    "host": "www.agparts.kz",
+    "path": "/",
+    "status": 301,
+    "location": "https://agparts.kz/",
+    "robots": null,
+    "cache": null,
+    "bytes": 54
+  },
+  {
+    "host": "agparts.kz",
+    "path": "/robots.txt",
+    "status": 200,
+    "location": null,
+    "robots": null,
+    "cache": null,
+    "bytes": 1169
+  },
+  {
+    "host": "agparts.kz",
+    "path": "/sitemap.xml",
+    "status": 200,
+    "location": null,
+    "robots": null,
+    "cache": "max-age=300",
+    "bytes": 529
+  },
+  {
+    "host": "agparts.kz",
+    "path": "/sitemap-static.xml",
+    "status": 200,
+    "location": null,
+    "robots": null,
+    "cache": null,
+    "bytes": 2033
+  },
+  {
+    "host": "agparts.kz",
+    "path": "/office/login/",
+    "status": 404,
+    "location": null,
+    "robots": "noindex, nofollow, noarchive",
+    "cache": "private, no-store",
+    "bytes": 0
+  },
+  {
+    "host": "agparts.kz",
+    "path": "/office/procurement/",
+    "status": 404,
+    "location": null,
+    "robots": "noindex, nofollow, noarchive",
+    "cache": "private, no-store",
+    "bytes": 0
+  },
+  {
+    "host": "agparts.kz",
+    "path": "/office/accounting/",
+    "status": 404,
+    "location": null,
+    "robots": "noindex, nofollow, noarchive",
+    "cache": "private, no-store",
+    "bytes": 0
+  },
+  {
+    "host": "agparts.kz",
+    "path": "/office/repricer/",
+    "status": 404,
+    "location": null,
+    "robots": "noindex, nofollow, noarchive",
+    "cache": "private, no-store",
+    "bytes": 0
+  },
+  {
+    "host": "agparts.kz",
+    "path": "/admin/",
+    "status": 404,
+    "location": null,
+    "robots": "noindex, nofollow, noarchive",
+    "cache": "private, no-store",
+    "bytes": 0
+  },
+  {
+    "host": "agparts.kz",
+    "path": "/internal/agparts/v1/products/",
+    "status": 404,
+    "location": null,
+    "robots": "noindex, nofollow, noarchive",
+    "cache": "private, no-store",
+    "bytes": 0
+  },
+  {
+    "host": "agparts.kz",
+    "path": "/api/seller-profile/",
+    "status": 404,
+    "location": null,
+    "robots": "noindex, nofollow",
+    "cache": "private, no-store",
+    "bytes": 0
+  },
+  {
+    "host": "agparts.kz",
+    "path": "/market/seller/dashboard/",
+    "status": 404,
+    "location": null,
+    "robots": "noindex, nofollow",
+    "cache": "private, no-store",
+    "bytes": 0
+  },
+  {
+    "host": "agparts.kz",
+    "path": "/products/procurement/test.xlsx",
+    "status": 404,
+    "location": null,
+    "robots": null,
+    "cache": null,
+    "bytes": 2901
+  }
+]

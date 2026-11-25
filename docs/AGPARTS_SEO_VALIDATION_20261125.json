@@ -1,0 +1,42 @@
+{
+  "/sitemap.xml": {
+    "status": 200,
+    "location": null,
+    "urls": 6,
+    "all_agparts": true,
+    "office_urls": false
+  },
+  "/sitemap-static.xml": {
+    "status": 200,
+    "location": null,
+    "urls": 33,
+    "all_agparts": true,
+    "office_urls": false
+  },
+  "/robots.txt": {
+    "status": 200,
+    "location": null,
+    "body": "User-agent: *\nDisallow: /admin/\nDisallow: /office/procurement/\nDisallow: /office/accounting/\nDisallow: /control/\nDisallow: /api/\nDisallow: /marketing/\nDisallow: /ajax/\nDisallow: /catalog/ajax/\nDisallow: /market/ajax/\nDisallow: /go/\nDisallow: /r/\nDisallow: /sr/\nDisallow: /internal/\nDisallow: /my-request/\nDisallow: /my-requests/\nDisallow: /seller/join/\nDisallow: /seller/dashboard/\nDisallow: /seller/profile/\nDisallow: /service-request/personal/\nDisallow: /service-request/result/\nDisallow: /request-parts/cabinet/\nDisallow: /service-request/cabinet/\nDisallow: /?picker=\nDisallow: /?*&picker=\nDisallow: /?country=\nDisallow: /?*&country=\nDisallow: /?brand=\nDisallow: /?*&brand=\nDisallow: /?model=\nDisallow: /?*&model=\nDisallow: /?year=\nDisallow: /?*&year=\nDisallow: /?engine=\nDisallow: /?*&engine=\nDisallow: /?category=\nDisallow: /?*&category=\nDisallow: /?subgroup=\nDisallow: /?*&subgroup=\nDisallow: /?maker=\nDisallow: /?*&maker=\nDisallow: /?stock=\nDisallow: /?*&stock=\nDisallow: /?q=\nDisallow: /?*&q=\nDisallow: /?sort=\nDisallow: /?*&sort=\nDisallow: /?all=\nDisallow: /?*&all=\nDisallow: /market/\nAllow: /static/\nAllow: /products/\n\nSitemap: https://agparts.kz/sitemap.xml\n"
+  },
+  "/eep-15b060001-zpt-2281/": {
+    "status": 200,
+    "location": null,
+    "canonical": [
+      "https://agparts.kz/eep-15b060001-zpt-2281/"
+    ],
+    "jsonld_uses_agparts": true,
+    "contains_private_navigation": false
+  },
+  "/changan/": {
+    "status": 301,
+    "location": "https://agparts.kz/avtozapchasti/changan/"
+  },
+  "/ru/": {
+    "status": 301,
+    "location": "https://agparts.kz/"
+  },
+  "/kk/catalog/cabin/": {
+    "status": 301,
+    "location": "https://agparts.kz/filters/cabin/"
+  }
+}

@@ -27,7 +27,7 @@ Latest price-control download fix from main was merged into the migration work b
 
 ## Validation
 
-Django check and git diff --check pass. Targeted host-isolation, catalog search/fitment, product metadata, media protection, price-control export and preserved supplier-price regression suites pass (see final rollout report for count). The original procurement purchase-list/supplier-workspace suites have eight failures also reproduced unchanged on the pre-rollout main commit; these are baseline assertions, not new migration regressions. The broader inventory lifecycle suite also has an unrelated assertion about displayed text; it is not modified by this rollout.
+Django check and git diff --check pass. 86 targeted host-isolation, catalog search/fitment, product metadata, media protection, price-control export and preserved supplier-price regression tests pass. A further 63 cart, manual-checkout and inactive-product tests pass: 149 passing tests in total. The original procurement purchase-list/supplier-workspace suites have eight failures also reproduced unchanged on the pre-rollout main commit; these are baseline assertions, not new migration regressions. The broader inventory lifecycle suite has one displayed-text assertion failure also reproduced on the pre-rollout main commit; it is not modified by this rollout.
 
 ## Rollback procedure
 
@@ -39,4 +39,19 @@ Django check and git diff --check pass. Targeted host-isolation, catalog search/
 
 ## Publication status
 
-Prepared for rollout. Final domain assignments, live deploy, browser checks and suspension status must be recorded after execution; this preparation document does not claim publication success.
+Published and verified on 25 November 2026.
+
+- Render zpt-kz-backend runs migration/agparts-domain-split, DOMAIN_BOUNDARY_ENABLED=true.
+- Final application commit: 315f9d7ea01da7a924295f56f1ed2c27c3f39e0e.
+- Final live deploy: dep-dc365su8bjmc73beu7ng, live at 04:25:52 UTC (09:25:52 Asia/Qyzylorda).
+- agparts.kz and www.agparts.kz moved from the old service to zpt-kz-backend. Both verified with certificates issued. www redirects to the apex. Existing zpt.kz and www.zpt.kz are also verified/certificates issued.
+- DNS was inspected, not changed: apex agparts.kz A 216.24.57.1; www CNAME agparts-kz.onrender.com. Render successfully verifies/routes the www hostname to the new service; HTTPS redirect was rechecked after suspension. DNS remains hosted by Wix (ns6/ns7.wixdns.net). The www CNAME can later be aligned with zpt-kz-backend.onrender.com during ordinary DNS maintenance; it does not currently prevent routing.
+- Workspace domain billing unchanged: 2 included plus 4 charged domains before and after the transfer. No new paid resources created. A domain-add auto-review initially rejected the displayed recurring fee; after verifying that the old binding removal reduced charged domains from 4 to 3 and transfer restores the original total, the same transfer was accepted.
+- Fresh browser checks: shop home/catalog, exact search 15B060001, product /eep-15b060001-zpt-2281/, loaded 180 px thumbnail and 800 px photo, Honda CR-V applicability, country → Honda → CR-V picker (44 results), canonical AGParts URL. Root storefront displays 43,014 public products from existing catalog snapshots.
+- Fresh authenticated ZPT browser checks: root leads into authorized office, accounting overview, supplier-price comparison, profitable buying list, saved purchase list, Kaspi goods and price control. No orders were submitted, no messages sent and no Kaspi prices/listings changed during QA.
+- HTTP checks: ZPT root 302 to /office/login/, login 200, robots Disallow: /, empty sitemap, anonymous /api/countries/ 404. AGParts root/robots/sitemap/static sitemap 200; all sitemap locs use AGParts; no office URLs. Exact product canonical and JSON-LD use AGParts. Reviewed legacy redirects return 301.
+- AGParts office/login, procurement, accounting, repricer, admin, internal catalog API, seller profile API and duplicate seller-dashboard path return 404 without private content. Staff-authenticated attempts and media document restrictions also pass isolated regression tests.
+- Old agparts-kz suspended through Render browser UI only after both sites passed fresh browser checks. Render confirms suspended by user at 04:26:37 UTC (09:26:37 Asia/Qyzylorda), not billed while suspended. Connector independently confirms suspended. Source, service configuration and data are retained.
+- Shop was reloaded successfully after suspension; www redirect remains working. Current application error log query returned no errors during the final deployment window.
+
+Documentation-only commits after this application SHA use [skip render] to avoid unnecessary restarts. The historical checkpoint remains as history; this document is the current handoff.
