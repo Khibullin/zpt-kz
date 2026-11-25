@@ -11,6 +11,19 @@ _lock = threading.Lock()
 _last_release = 0.0
 
 
+def idle_work_has_headroom():
+    """Keep 160 MiB free before optional public-cache rebuilding on Render."""
+    try:
+        limit = Path('/sys/fs/cgroup/memory.max').read_text().strip()
+        if limit == 'max':
+            return True
+        used = int(Path('/sys/fs/cgroup/memory.current').read_text())
+        return used + 160 * MIB < int(limit)
+    except (OSError, ValueError):
+        # Other platforms do not expose this Linux cgroup interface.
+        return True
+
+
 def resident_bytes():
     try:
         return int(Path('/proc/self/statm').read_text().split()[1]) * os.sysconf('SC_PAGE_SIZE')

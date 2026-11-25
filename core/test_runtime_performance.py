@@ -12,6 +12,16 @@ from orders.constants import SESSION_CART_KEY
 
 
 class RuntimePerformanceTests(SimpleTestCase):
+    def test_optional_work_waits_for_memory_headroom(self):
+        with patch.object(process_memory.Path, 'read_text', side_effect=[str(512*process_memory.MIB), str(400*process_memory.MIB)]):
+            self.assertFalse(process_memory.idle_work_has_headroom())
+        with patch.object(process_memory.Path, 'read_text', side_effect=[str(512*process_memory.MIB), str(300*process_memory.MIB)]):
+            self.assertTrue(process_memory.idle_work_has_headroom())
+        with patch.object(process_memory.Path, 'read_text', return_value='max'):
+            self.assertTrue(process_memory.idle_work_has_headroom())
+        with patch.object(process_memory.Path, 'read_text', side_effect=OSError):
+            self.assertTrue(process_memory.idle_work_has_headroom())
+
     def test_allocator_release_is_bounded_and_throttled(self):
         with patch.object(process_memory, '_last_release', 0), \
              patch.object(process_memory, 'resident_bytes', side_effect=[180*process_memory.MIB, 130*process_memory.MIB, 130*process_memory.MIB]), \

@@ -218,24 +218,26 @@ class Command(BaseCommand):
                     while running and retail_run.status == 'running':
                         retail_run = advance_publication(retail_run.pk)
                     self.stdout.write(f'Retail publication {retail_run.pk}: {retail_run.processed}/{retail_run.total}')
-                if options['watch'] and running and getattr(settings, 'PUBLIC_CATALOG_ENABLED', True):
+                from core.process_memory import idle_work_has_headroom
+                if (options['watch'] and running and getattr(settings, 'PUBLIC_CATALOG_ENABLED', True)
+                        and idle_work_has_headroom()):
                     from catalog.storefront import refresh_home_facets, refresh_country_facets, refresh_brand_facets
                     if refresh_home_facets():
                         self.stdout.write('Public storefront filter snapshot refreshed')
-                    refresh_country_facets()
                     # Fill public make/model snapshots in bounded batches before
                     # resuming other idle work; price uploads stay first.
                     # One make per pass: on a shared half-CPU instance a busy
                     # refresh loop must leave time for office requests and SQL.
-                    if running:
+                    if running and idle_work_has_headroom() and not refresh_country_facets():
                         refresh_brand_facets()
                     from core.seo_views import refresh_sitemap_snapshots
-                    if refresh_sitemap_snapshots():
+                    if idle_work_has_headroom() and refresh_sitemap_snapshots():
                         self.stdout.write('Public sitemap snapshots refreshed')
                     from catalog.source_photos import process_photo_tasks
                     # Photo enrichment is owner-triggered only. The price worker
                     # must not drain the photo queue automatically during idle loops.
-                    if getattr(settings, 'CATALOG_PHOTO_AUTORUN_ENABLED', False) and photo_window_open(timezone.now()):
+                    if (getattr(settings, 'CATALOG_PHOTO_AUTORUN_ENABLED', False)
+                            and photo_window_open(timezone.now()) and idle_work_has_headroom()):
                         photo_progress = process_photo_tasks(limit=10)
                 if options['watch']:
                     tasks = eligible_scheduled_kaspi_tasks(
