@@ -4,7 +4,7 @@
 <h1>{{ title }}</h1><p><a href="{% url 'inventory:journal' %}">← Все документы</a></p>
 <form method="post" enctype="multipart/form-data">{% csrf_token %}{{ form.non_field_errors }}{% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
 <section class="panel receipt-head">{% for field in form.visible_fields %}<p>{{ field.label_tag }}{{ field }}{{ field.errors }}</p>{% endfor %}</section>
-<p><button type="button" id="parse-excel">Разобрать файл</button> <span id="parse-status" role="status"></span></p><p>Единицы заполнены по накладной. Количество и цена сохранены как у поставщика; комплект учитывается целиком, с множителем 1.</p><details id="parse-skipped" hidden><summary>Служебные строки файла</summary><ul></ul></details>
+<p><button type="button" id="parse-excel">Разобрать файл</button> <span id="parse-status" role="status"></span></p><p>Единицы заполнены по накладной. Количество и цена сохранены как у поставщика; комплект учитывается целиком, а упаковка для существующего поштучного товара пересчитывается автоматически.</p><details id="parse-skipped" hidden><summary>Служебные строки файла</summary><ul></ul></details>
 {{ lines.management_form }}{{ lines.non_form_errors }}
 <div class="receipt-summary"><strong>Товары документа</strong><span>Позиций: <b id="receipt-count">0</b></span><span>Сумма: <b id="receipt-total">0</b> ₸</span></div>
 <div class="receipt-lines"><table><thead><tr><th>Карточка товара</th><th>Бренд</th><th>Артикул</th><th>Название</th><th>Ед.</th><th>Кол-во</th><th>Единиц учёта<br>в упаковке</th><th>Цена, ₸</th><th>Исключить</th></tr></thead><tbody id="document-lines">{% for line in lines %}{% include 'inventory/receipt_line_compact.html' with line=line %}{% endfor %}</tbody></table></div>

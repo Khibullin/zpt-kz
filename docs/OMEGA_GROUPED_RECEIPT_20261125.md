@@ -13,8 +13,9 @@ items. No receipt, item, attachment or stock operation is created by parsing.
 Units are populated from explicit unit columns, package/kit wording in names
 and descriptions, or the ordinary individual-item convention of the recognized
 Omega format. Kits stay in supplier document units with multiplier one.
-Conflicts with an existing exact catalogue item require review and never change
-its confirmed unit during preview. Unknown formats without unit evidence also
+Explicit pack sizes may convert to an existing piece card via the multiplier,
+provided its unit price is exactly representable in cents. Other conflicts require
+review and never change the confirmed catalogue unit during preview. Unknown formats without unit evidence also
 require review. Missing-unit validation points to the unit field.
 
 Declared supplier totals and calculated line totals are compared in the preview.

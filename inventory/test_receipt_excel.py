@@ -115,7 +115,7 @@ class ReceiptPreviewTests(TestCase):
         self.client.force_login(user)
         item = Item.objects.create(code='conflict', article='001', brand='EEP', name='Диск', unit='piece')
         response = self.client.post(reverse('inventory:goods_new', args=['receipt']),
-                                   {'action': 'parse_excel', 'file': upload([HEADER, product(name='Диск (1 уп по 2 шт = 2 шт)')])})
+                                   {'action': 'parse_excel', 'file': upload([HEADER, product(cost='100.01', name='Диск (1 уп по 2 шт = 2 шт)')])})
         row = response.json()['rows'][0]
         self.assertNotIn('item', row)
         self.assertEqual(row['unit'], '')
@@ -131,3 +131,15 @@ class ReceiptPreviewTests(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn('unit', form.errors)
         self.assertNotIn('__all__', form.errors)
+
+    def test_explicit_pack_converts_to_existing_piece_unit_without_amount_change(self):
+        user = get_user_model().objects.create_superuser(username='piece-pack', password='test')
+        self.client.force_login(user)
+        item = Item.objects.create(code='piece-pack', article='001', brand='EEP', name='Диск', unit='piece')
+        response = self.client.post(reverse('inventory:goods_new', args=['receipt']),
+                                   {'action': 'parse_excel', 'file': upload([HEADER, product(quantity=1, cost='100.02', name='Диск (1 уп по 2 шт = 2 шт)')])})
+        row = response.json()['rows'][0]
+        self.assertEqual((row['item'], row['unit'], row['packages'], row['multiplier']), (item.pk, 'piece', 1, 2))
+        self.assertEqual(Decimal(row['cost']), Decimal('100.02'))
+        self.assertFalse(row['errors'])
+        self.assertFalse(StockEntry.objects.exists())

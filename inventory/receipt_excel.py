@@ -17,13 +17,16 @@ def norm(v):
         return str(int(v))
     return ' '.join(str(v if v is not None else '').strip().split())
 
+PACK_SIZE = re.compile(r'\b1\s*уп(?:аковка|ак)?\.?\s*(?:по\s*)?(\d+)\s*шт', re.IGNORECASE)
+
+
 def receipt_unit(name, description='', omega=False, explicit=''):
     """Keep supplier quantities/prices in document units; never unpack sets."""
     text = norm(name + ' ' + description).casefold()
     explicit = norm(explicit).casefold().rstrip('.')
     piece = explicit in {'шт', 'штука', 'штук', 'piece', 'pcs'}
     kit = explicit in {'компл', 'комплект', 'набор', 'set', 'уп', 'упак', 'упаковка'}
-    packed = re.search(r'\b1\s*уп(?:аковка|ак)?\.?\s*(?:по\s*)?(\d+)\s*шт', text)
+    packed = PACK_SIZE.search(text)
     kit = kit or bool(packed) or bool(re.search(r'\b(?:комплект|набор)\b', text))
     if piece and kit:
         return '', 'Единица «штука» противоречит указанию комплекта / упаковки.'
@@ -139,7 +142,8 @@ def parse_receipt(upload):
                     errors.append('Проверьте ' + ('количество' if key == 'packages' else 'цену'))
             extra = {key: cells[j] if j < len(cells) else '' for key, j in optional_cols.items()}
             unit, basis = receipt_unit(data['name'], extra.get('description', ''), omega, extra.get('unit', ''))
-            data.update(unit=unit, unit_basis=basis, multiplier=1, source_row=index, errors=errors, source_values=cells)
+            packed = PACK_SIZE.search(data['name'] + ' ' + extra.get('description', ''))
+            data.update(package_size=int(packed[1]) if packed else None, unit=unit, unit_basis=basis, multiplier=1, source_row=index, errors=errors, source_values=cells)
             if not unit:
                 errors.append(basis)
             result.append(data)
