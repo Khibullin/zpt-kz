@@ -164,14 +164,17 @@ def new_document(request, kind, pk=None):
         if not uploaded:
             return JsonResponse({'error':'Выберите Excel-файл.'}, status=400)
         try:
-            rows = parse_receipt(uploaded)
+            preview = parse_receipt(uploaded)
+            rows = preview['rows']
         except ValidationError as exc:
             return JsonResponse({'error':'; '.join(exc.messages)}, status=400)
         for row in rows:
+            if row['errors']:
+                continue
             matches = list(Item.objects.filter(article__iexact=row['article'], brand__iexact=row['brand'])[:2])
             if len(matches) == 1 and matches[0].unit in ('piece','set'):
                 row.update(item=matches[0].pk, unit=matches[0].unit)
-        return JsonResponse({'rows':rows})
+        return JsonResponse(preview)
     initial={'key':uuid.uuid4()};initial_lines=[]
     if editing:
         active=list(editing.lines.exclude(status='cancelled').order_by('pk'))
