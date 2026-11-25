@@ -20,7 +20,7 @@ from django.views.decorators.http import require_POST, require_GET
 
 from procurement.apify_cities import APIFY_CITIES
 from .apify_json import saved_rules
-from .models import KaspiActiveCompetitorOffer, KaspiActiveExportRow
+from .models import KaspiActiveCompetitorOffer, KaspiActiveExportRow, KaspiActiveCityCheck
 from .views import _latest_active_batch
 
 MAX_UPLOAD = 25 * 1024 * 1024
@@ -180,6 +180,7 @@ def parse_apify_offers(data, active_rows, cities):
 
     evidence = {}
     verified_rows = set()
+    covered_pairs = set()
     unconfirmed = 0
     skipped_city = 0
     offer_counters = defaultdict(lambda: defaultdict(int))
@@ -243,6 +244,13 @@ def parse_apify_offers(data, active_rows, cities):
                 verified_rows.add(row.pk)
                 continue
             verified_rows.add(row.pk)
+            complete = all(isinstance(offer, dict) and
+                str(offer.get('sellerId') or offer.get('merchantId') or '').strip() and
+                (str(offer.get('sellerId') or offer.get('merchantId')).strip() in OWN_MERCHANT_IDS
+                 or _positive_price(offer.get('price')) is not None)
+                for offer in offers)
+            if complete:
+                covered_pairs.add((row.pk, city))
             if not offers:
                 offer_counters[row.pk]["empty_offers"] += 1
             for offer in offers:
@@ -273,6 +281,7 @@ def parse_apify_offers(data, active_rows, cities):
 
     return {
         "items": item_count,
+        "covered_pairs": covered_pairs,
         "recognized": len(verified_rows),
         "recognized_row_ids": verified_rows,
         "unconfirmed": unconfirmed,
@@ -299,49 +308,34 @@ def _missing_reason(row_id, recognized_ids, counters):
     return "Нет подтверждённых предложений других продавцов"
 
 
-@staff_member_required
-@require_POST
-def repricer_output_upload(request):
-    batch = _latest_active_batch()
-    if not batch:
-        messages.error(request, "Сначала загрузите ACTIVE.xlsx.")
-        return redirect("repricer:dashboard")
-    upload = request.FILES.get("apify_output")
-    if not upload or not upload.name.lower().endswith(".json"):
-        messages.error(request, "Выберите файл Output JSON из Apify.")
-        return redirect("repricer:dashboard")
-    if upload.size > MAX_UPLOAD:
-        messages.error(request, "Файл Output JSON превышает 25 МБ.")
-        return redirect("repricer:dashboard")
-    try:
-        data = json.loads(upload.read().decode("utf-8-sig"))
-    except (ValueError, UnicodeError):
-        messages.error(request, "Некорректный JSON. Экспортируйте Apify Dataset в JSON.")
-        return redirect("repricer:dashboard")
+@transaction.atomic
+def import_apify_result(data, batch, *, filename, merge_mode=True, cities=None, captured_at=None):
+    """Apply one verified dataset without changing prices or stock."""
     items = _as_items(data)
     if not items or len(items) > 30000:
-        messages.error(request, "Нет записей Apify или превышен предел 30 000 строк.")
-        return redirect("repricer:dashboard")
-
+        raise ValueError("Нет записей Apify или превышен предел 30 000 строк.")
+    type(batch).objects.select_for_update().get(pk=batch.pk)
     rows = list(KaspiActiveExportRow.objects.filter(batch=batch).select_related(
         "listing", "listing__product", "listing__product__brand",
     ))
-    selection = saved_rules().cities
+    selection = cities if cities is not None else saved_rules().cities
     result = parse_apify_offers(data, rows, selection)
     if result["recognized"] == 0:
-        messages.error(request, "Не удалось подтвердить ни одну карточку Kaspi. Данные не изменены.")
-        return redirect("repricer:dashboard")
-    clock = timezone.now()
+        raise ValueError("Не удалось подтвердить ни одну карточку Kaspi. Данные не изменены.")
+    clock = captured_at or timezone.now()
     evidence = result["evidence"]
     offers_by_row = defaultdict(list)
     for record in evidence:
         offers_by_row[record["row_id"]].append(record)
-    merge_mode = request.POST.get("merge") == "1"
     # An additional Apify search should supplement the 50 existing verified
     # prices, not erase them when a smaller dataset is uploaded.
     combined = {}
+    latest_by_city = {(check.active_row_id, check.city): check.checked_at
+        for check in KaspiActiveCityCheck.objects.filter(active_row__batch=batch)}
     if merge_mode:
         for old in KaspiActiveCompetitorOffer.objects.filter(active_row__batch=batch):
+            pair = (old.active_row_id, old.city)
+            latest_by_city[pair] = max(old.checked_at, latest_by_city.get(pair, old.checked_at))
             key = (old.active_row_id, old.city, old.seller_id)
             combined[key] = {
                 "row_id": old.active_row_id, "city": old.city,
@@ -349,15 +343,25 @@ def repricer_output_upload(request):
                 "price": old.price, "url": old.product_url,
                 "checked_at": old.checked_at,
             }
+    accepted_pairs = {pair for pair in result['covered_pairs']
+                      if pair not in latest_by_city or clock >= latest_by_city[pair]}
+    for key, old in list(combined.items()):
+        if (old["row_id"], old["city"]) in accepted_pairs:
+            del combined[key]
     for item in evidence:
         key = (item["row_id"], item["city"], item["seller_id"])
-        if key not in combined or item["price"] < combined[key]["price"]:
+        if (item['row_id'], item['city']) in accepted_pairs:
             combined[key] = {**item, "checked_at": clock}
     all_by_row = defaultdict(list)
+    selected_cities = set(saved_rules().cities)
     for item in combined.values():
-        all_by_row[item["row_id"]].append(item)
+        if item['city'] in selected_cities:
+            all_by_row[item["row_id"]].append(item)
 
     with transaction.atomic():
+        for row_id, city in accepted_pairs:
+            KaspiActiveCityCheck.objects.update_or_create(active_row_id=row_id, city=city,
+                                                         defaults={'checked_at': clock})
         KaspiActiveCompetitorOffer.objects.filter(active_row__batch=batch).delete()
         for row in rows:
             offers = all_by_row.get(row.pk, [])
@@ -400,8 +404,8 @@ def repricer_output_upload(request):
             ) for e in combined.values()
         ], batch_size=500)
     with_prices = len(all_by_row)
-    request.session["repricer_apify_result"] = {
-        "filename": upload.name[:120],
+    summary = {
+        "filename": filename[:120],
         "merge_mode": merge_mode,
         "source_batch_id": batch.pk,
         "rows_in_file": len(items),
@@ -412,14 +416,49 @@ def repricer_output_upload(request):
         "processed": result["recognized"],
         "not_confirmed_rows": len(rows) - result["recognized"],
         "reason_counts": dict(__import__("collections").Counter(
-            _missing_reason(row.pk, result["recognized_row_ids"], result["offer_counters"])
-            for row in rows if row.pk not in offers_by_row
+            row.competitor_scan_note
+            for row in rows if row.competitor_min_price is None
         )),
         "checked_at": timezone.localtime(clock).strftime("%d.%m.%Y %H:%M"),
     }
+    return summary
+
+
+@staff_member_required
+@require_POST
+def repricer_output_upload(request):
+    batch = _latest_active_batch()
+    if not batch:
+        messages.error(request, "Сначала загрузите ACTIVE.xlsx.")
+        return redirect("repricer:dashboard")
+    upload = request.FILES.get("apify_output")
+    if not upload or not upload.name.lower().endswith(".json"):
+        messages.error(request, "Выберите файл Output JSON из Apify.")
+        return redirect("repricer:dashboard")
+    if upload.size > MAX_UPLOAD:
+        messages.error(request, "Файл Output JSON превышает 25 МБ.")
+        return redirect("repricer:dashboard")
+    try:
+        data = json.loads(upload.read().decode("utf-8-sig"))
+    except (ValueError, UnicodeError):
+        messages.error(request, "Некорректный JSON. Экспортируйте Apify Dataset в JSON.")
+        return redirect("repricer:dashboard")
+    items = _as_items(data)
+    if not items or len(items) > 30000:
+        messages.error(request, "Нет записей Apify или превышен предел 30 000 строк.")
+        return redirect("repricer:dashboard")
+
+    try:
+        summary = import_apify_result(data, batch, filename=upload.name,
+                                      merge_mode=request.POST.get("merge") == "1")
+    except ValueError as exc:
+        messages.error(request, str(exc))
+        return redirect("repricer:dashboard")
+    request.session["repricer_apify_result"] = summary
+    with_prices = summary["with_prices"]
     messages.success(
         request, f"Output Apify обработан: {with_prices} товаров с ценами "
-        f"конкурентов, {len(rows)-with_prices} без подтверждённых предложений. "
+        f"конкурентов, {summary['without_prices']} без подтверждённых предложений. "
         "Наши цены и остатки не изменены."
     )
     return redirect("repricer:dashboard")
@@ -433,6 +472,7 @@ def repricer_clear_output(request):
         return redirect("repricer:dashboard")
     rows = list(KaspiActiveExportRow.objects.filter(batch=batch))
     with transaction.atomic():
+        KaspiActiveCityCheck.objects.filter(active_row__batch=batch).delete()
         KaspiActiveCompetitorOffer.objects.filter(active_row__batch=batch).delete()
         for row in rows:
             row.competitor_min_price = None

@@ -216,6 +216,7 @@
           {% endif %}
           <a class="pc-button" href="{% url 'repricer:apify_export' %}?format=mapping">Соответствия SKU</a>
           <a class="pc-text-link" href="https://apify.com/firsthand/kaspi-api" target="_blank" rel="noopener noreferrer">Открыть Apify</a>
+          <a class="pc-button" href="{% url 'repricer:apify_api' %}">Прогоны Apify и получение результатов</a>
         </div>
 
       </div>
@@ -231,6 +232,10 @@
           <button class="pc-button pc-button-primary" type="submit">Обработать / Провести мониторинг</button>
         </form>
         <div><a class="pc-text-link" href="{% url 'repricer:apify_diagnostics' %}">Скачать диагностику всех товаров (CSV)</a></div>
+        <details class="pc-optional-upload"><summary>Фактическое покрытие городов</summary>
+          {% for city in apify_city_coverage %}<p>{{ city.name }}: {{ city.checked }} / {{ summary.total }} товаров · {% if city.last %}{{ city.last|date:'d.m.Y H:i' }}{% else %}проверка не зафиксирована{% endif %}</p>{% endfor %}
+          <p>Количество означает подтверждённые карточки с полученным списком продавцов. Для старых загрузок без истории городов покрытие не подтверждено.</p>
+        </details>
         <form method="post" action="{% url 'repricer:apify_clear' %}" class="pc-clear-form">
           {% csrf_token %}
           <button class="pc-button" type="submit" onclick="return confirm('Очистить результаты мониторинга по текущему ACTIVE.xlsx?')">Очистить результаты</button>

@@ -167,7 +167,7 @@ def repricer_rules(request):
         if not selected or len(set(selected)) != len(selected) or any(
             city not in APIFY_CITIES for city in selected
         ):
-            error = "Выберите от одного до шести городов."
+            error = "Выберите города из списка."
         elif cards_raw not in ("1", "2", "3"):
             error = "Количество карточек должно быть 1, 2 или 3."
         if error and request.POST.get("return_to") == "dashboard":

@@ -357,3 +357,40 @@ class KaspiActiveCompetitorOffer(models.Model):
         indexes = [
             models.Index(fields=("active_row", "price"), name="repr_active_offer_price_idx"),
         ]
+
+
+class KaspiApifyRun(models.Model):
+    """A bounded API run/import, bound permanently to its source ACTIVE file."""
+    batch = models.ForeignKey('catalog.CatalogImportBatch', on_delete=models.PROTECT)
+    created_by = models.ForeignKey('auth.User', on_delete=models.PROTECT)
+    external_id = models.CharField(max_length=64, blank=True)
+    status = models.CharField(max_length=32, default='STARTING')
+    scope = models.CharField(max_length=16, default='remaining')
+    input_snapshot = models.JSONField(default=dict)
+    dataset_id = models.CharField(max_length=64, blank=True)
+    captured_at = models.DateTimeField(null=True)
+    max_charge_usd = models.DecimalField(max_digits=6, decimal_places=2, null=True)
+    actual_charge_usd = models.DecimalField(max_digits=10, decimal_places=5, null=True)
+    offset = models.PositiveIntegerField(default=0)
+    total = models.PositiveIntegerField(default=0)
+    raw_items = models.JSONField(default=list)
+    result = models.JSONField(default=dict)
+    error = models.CharField(max_length=255, blank=True)
+    imported_at = models.DateTimeField(null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ('-created_at',)
+        constraints = [models.UniqueConstraint(fields=('batch', 'external_id'),
+            condition=~models.Q(external_id=''), name='repr_apify_run_batch_unique')]
+
+
+class KaspiActiveCityCheck(models.Model):
+    """Latest complete verified card observation, including an empty seller list."""
+    active_row = models.ForeignKey(KaspiActiveExportRow, on_delete=models.CASCADE)
+    city = models.CharField(max_length=80)
+    checked_at = models.DateTimeField()
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=('active_row', 'city'), name='repr_active_city_check_unique')]

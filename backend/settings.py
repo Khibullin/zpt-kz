@@ -15,6 +15,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_UPLOAD_MAX_MEMORY_SIZE = 16 * 1024 * 1024
 
 DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
+APIFY_API_TOKEN = os.getenv('APIFY_API_TOKEN', '')
+APIFY_MAX_RUN_USD = os.getenv('APIFY_MAX_RUN_USD', '5')
 
 # Preserve internal procurement while retiring public storefront work.
 PUBLIC_CATALOG_ENABLED = os.getenv('PUBLIC_CATALOG_ENABLED', 'false').lower() == 'true'

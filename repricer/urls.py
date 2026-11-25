@@ -5,6 +5,7 @@ from .manual_collection import manual_start, manual_step, manual_pause, manual_r
 from .kaspi_upload import upload_kaspi_assortment
 from .apify_json import repricer_rules, repricer_apify_export
 from .apify_output import repricer_output_upload, repricer_clear_output, repricer_output_diagnostics
+from .apify_api import api_runs, api_attach, api_start, api_step
 
 
 from .price_upload import prepare_kaspi_prices
@@ -18,6 +19,10 @@ urlpatterns = [
     path("apify-output/", repricer_output_upload, name="apify_output"),
     path("apify-clear/", repricer_clear_output, name="apify_clear"),
     path("apify-diagnostics/", repricer_output_diagnostics, name="apify_diagnostics"),
+    path('apify/', api_runs, name='apify_api'),
+    path('apify/attach/', api_attach, name='apify_attach'),
+    path('apify/start/', api_start, name='apify_start'),
+    path('apify/<int:pk>/step/', api_step, name='apify_step'),
     path("product/<int:listing_id>/", repricer_product, name="product"),
     path("product/<int:listing_id>/save-price/", repricer_save_price, name="save_price"),
     path("save-prices/", repricer_save_prices, name="save_prices"),

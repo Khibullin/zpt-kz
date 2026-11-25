@@ -316,6 +316,10 @@ def repricer_dashboard(request):
         .annotate(total=Count("pk"))
         .order_by("-total", "competitor_scan_note")
     )
+    from .models import KaspiActiveCityCheck
+    apify_coverage = {row['city']: row for row in KaspiActiveCityCheck.objects.filter(
+        active_row__batch=active_batch).values('city').annotate(
+            checked=Count('active_row_id', distinct=True), last=Max('checked_at'))}
     response = render(request, "repricer/dashboard.html", {
         "monitored": monitored, "page": page, "page_numbers": page_numbers, "search": search, "supplier": supplier,
         "status": status, "selected_city": city, "cities": KASPI_KZ_CITIES,
@@ -339,6 +343,10 @@ def repricer_dashboard(request):
             for code in APIFY_CITIES
         ],
         "apify_cards": str(rules.cards_per_product),
+        'apify_city_coverage': [{'name': CITY_NAMES_RU[city],
+            'checked': apify_coverage.get(city, {}).get('checked', 0),
+            'last': apify_coverage.get(city, {}).get('last')}
+            for city in rules.cities if city in CITY_NAMES_RU],
         "apify_scan_count": scan_count,
         "apify_scan_processed": scan_processed,
         "apify_scan_only_own": scan_only_own,

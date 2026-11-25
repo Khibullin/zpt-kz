@@ -1,0 +1,47 @@
+{% extends 'inventory/base.html' %}
+{% block content %}
+<style>
+.apify-console{max-width:1150px;margin:20px auto;padding:0 18px;color:#142e4d;font:14px Arial,sans-serif}.apify-console section{background:#fff;border:1px solid #dbe4ee;border-radius:12px;padding:20px;margin:16px 0}.apify-console h1{font-size:26px}.apify-console h2{font-size:19px}.apify-console form{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:12px 0}.apify-console input,.apify-console select,.apify-console button{padding:9px;border:1px solid #cad7e2;border-radius:6px;font:inherit}.apify-console button{background:#087e88;color:white;cursor:pointer}.apify-console button:disabled{opacity:.5;cursor:default}.apify-console a{color:#087e88}.apify-console table{border-collapse:collapse;width:100%}.apify-console td,.apify-console th{text-align:left;padding:9px;border-bottom:1px solid #e1e8ef}.apify-console .tablewrap{overflow:auto}.apify-console p{line-height:1.5}.apify-console .notice{padding:12px;background:#fff8e8;border-radius:6px}
+</style>
+<div class="apify-console">
+<a href="{% url 'repricer:dashboard' %}">← Назад к контролю цен</a>
+<h1>Прогоны Apify</h1>
+{% for message in messages %}<p class="notice" role="status">{{ message }}</p>{% endfor %}
+{% if error %}<p class="notice" role="alert">{{ error }}</p>{% endif %}
+{% if not connected %}<p class="notice">Прямое подключение пока не настроено: нужен ключ Apify на сервере. Загрузка Output JSON в контроле цен остаётся доступной.</p>{% endif %}
+<section><h2>1. Проверить прошлые прогоны</h2>
+<p>Сначала используйте сохранённые результаты. Эти действия не запускают новый платный поиск.</p>
+<a href="?refresh=1">Показать историю Apify</a>
+{% if history.items %}<div class="tablewrap"><table><thead><tr><th>Прогон</th><th>Статус</th><th>Начало</th><th>Расход, $</th><th></th></tr></thead><tbody>
+{% for item in history.items %}<tr><td>{{ item.id }}</td><td>{{ item.status }}</td><td>{{ item.startedAt }}</td><td>{{ item.usageTotalUsd|default_if_none:'—' }}</td><td><form method="post" action="{% url 'repricer:apify_attach' %}">{% csrf_token %}<input type="hidden" name="run_id" value="{{ item.id }}"><button {% if not batch %}disabled{% endif %}>Подключить результаты</button></form></td></tr>{% endfor %}
+</tbody></table></div>{% if history.next_offset < history.total %}<a href="?refresh=1&amp;offset={{ history.next_offset }}">Следующие прогоны</a>{% endif %}{% endif %}
+<form method="post" action="{% url 'repricer:apify_attach' %}">{% csrf_token %}<label>ID прошлого прогона <input name="run_id" required maxlength="64"></label><button {% if not connected or not batch %}disabled{% endif %}>Подключить по ID</button></form>
+</section>
+<section><h2>2. Получить результаты</h2><p>Результаты проверяются по артикулу, бренду и исполнению. AG Parts исключается. Дата цены — начало прогона; старые данные не выдаются за сегодняшнюю проверку.</p>
+{% for run in runs %}<article>
+<strong>{{ run.external_id|default:'Запуск без подтверждённого ID' }}</strong> · ACTIVE: {{ run.batch.filename }} · {{ run.status }} · {{ run.offset }} записей
+{% if run.max_charge_usd != None %} · лимит ${{ run.max_charge_usd }}{% endif %}
+{% if run.actual_charge_usd != None %} · расход ${{ run.actual_charge_usd }}{% endif %}
+{% if run.imported_at %}<p>Импортирован: {{ run.imported_at|date:'d.m.Y H:i' }}. С ценами: {{ run.result.with_prices }}, без цены: {{ run.result.without_prices }}. Города: {{ run.result.cities|join:', ' }}.</p>
+{% else %}{% if run.error %}<p class="notice">{{ run.error }}</p>{% endif %}
+{% if run.external_id %}<form method="post" action="{% url 'repricer:apify_step' run.pk %}" class="apify-step" {% if run.pk|stringformat:'s' == collect_id %}data-auto-collect{% endif %}>{% csrf_token %}<button {% if not connected %}disabled{% endif %}>Получить результаты</button><span role="status"></span></form>
+{% else %}<form method="post" action="{% url 'repricer:apify_attach' %}">{% csrf_token %}<input type="hidden" name="local_run_id" value="{{ run.pk }}"><label>ID из истории Apify <input name="run_id" required maxlength="64"></label><button {% if not connected %}disabled{% endif %}>Связать с этим запуском</button></form>{% endif %}{% endif %}
+</article>{% empty %}<p>Подключённых прогонов пока нет.</p>{% endfor %}
+</section>
+<section><h2>3. Новый поиск</h2><p>После разбора прошлых прогонов можно проверить только пропуски. Города и число карточек берутся из сохранённых настроек контроля цен. Предел — два новых запуска на один ACTIVE.xlsx. Автоматического повтора при ошибке нет.</p>
+<form method="post" action="{% url 'repricer:apify_start' %}">{% csrf_token %}
+<label>Поиск <select name="scope"><option value="remaining">Только без подтверждённой цены</option><option value="all">Все товары ACTIVE</option></select></label>
+<label>Лимит расходов, $ <input type="number" name="max_charge_usd" min="0.01" step="0.01" required></label>
+<label><input type="checkbox" name="authorize_charge" value="yes" required> Разрешаю расход в пределах указанного лимита</label>
+<button {% if not connected or not batch %}disabled{% endif %}>Запустить проверку</button>
+</form><p>Наши цены и остатки автоматически не меняются. Подготовленный Excel загружает в Kaspi менеджер.</p></section>
+</div>
+<script>
+document.querySelectorAll('.apify-step').forEach(form=>form.addEventListener('submit',async event=>{
+event.preventDefault(); const button=form.querySelector('button'), status=form.querySelector('[role="status"]'); button.disabled=true;
+async function step(){try{const response=await fetch(form.action,{method:'POST',body:new FormData(form),credentials:'same-origin',headers:{'Accept':'application/json'}});const result=await response.json();if(!response.ok||result.error)throw new Error(result.error||'Не удалось получить результаты.');status.textContent=result.status+' · '+(result.offset||0)+' записей';if(result.done){window.location.reload();return;}setTimeout(step,5000);}catch(error){status.textContent=error.message;button.disabled=false;}}
+step();
+}));
+document.querySelectorAll('[data-auto-collect]').forEach(form=>form.requestSubmit());
+</script>
+{% endblock %}
