@@ -75,6 +75,11 @@ class StoreBoundaryTests(TestCase):
             self.assertEqual(response.status_code,200)
             response.close()
 
+    def test_old_wix_category_and_zpt_product_alias_keep_distinct_intent(self):
+        self.assertEqual(self.client.get('/changan/', HTTP_HOST='agparts.kz')['Location'], 'https://agparts.kz/avtozapchasti/changan/')
+        self.assertEqual(self.client.get('/changan/', HTTP_HOST='zpt.kz')['Location'], 'https://agparts.kz/changan-uni-k-1109190cr01/')
+        self.assertEqual(self.client.get('/product-page/filterscheryexceedjetour', HTTP_HOST='agparts.kz')['Location'], 'https://agparts.kz/chery-tiggo-7-t151109111/')
+
     def test_old_agparts_languages_redirect(self):
         self.assertEqual(self.client.get('/ru/',HTTP_HOST='agparts.kz')['Location'],'https://agparts.kz/')
         self.assertEqual(self.client.get('/kk/catalog/cabin/',HTTP_HOST='agparts.kz')['Location'],'https://agparts.kz/filters/cabin/')

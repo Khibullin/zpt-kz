@@ -38,6 +38,15 @@ PUBLIC_ACTIONS = frozenset({
     "maintenance_kit_add_to_cart", "feedback",
     "create_home_parts_request", "create_request",
 })
+LEGACY_STORE_REDIRECTS = {
+    '/changan/': '/avtozapchasti/changan/',
+    '/chery/': '/avtozapchasti/chery/',
+    '/haval/': '/avtozapchasti/haval/',
+    '/zeekr/': '/avtozapchasti/zeekr/',
+    '/oilfilters/': '/avtozapchasti/maslyanye-filtry/',
+    '/product-page/filterscheryexceedjetour/': '/chery-tiggo-7-t151109111/',
+    '/product-page/воздушный-фильтр-1109190cr01/': '/changan-uni-k-1109190cr01/',
+}
 PUBLIC_ALIAS_FUNCTIONS = frozenset({
     "fitment_slug_redirect", "fitment_canonical_alias",
     "legacy_product_redirect", "canonical_product_alias",
@@ -93,6 +102,10 @@ class DomainBoundaryMiddleware:
             return noindex(HttpResponseRedirect("/office/login/")) if request.method in ("GET", "HEAD") else noindex(HttpResponseNotFound())
         if role == "store" and request.get_host().split(":")[0].lower().rstrip(".") == "www.agparts.kz":
             return HttpResponsePermanentRedirect("https://agparts.kz" + request.get_full_path()) if request.method in ("GET", "HEAD") else noindex(HttpResponseNotFound())
+        if role == "store" and request.method in ("GET", "HEAD"):
+            legacy_target = LEGACY_STORE_REDIRECTS.get(path.rstrip('/') + '/')
+            if legacy_target:
+                return HttpResponsePermanentRedirect('https://agparts.kz' + legacy_target)
         if role == "store" and path == "/favicon.ico":
             return HttpResponsePermanentRedirect("/static/agparts/favicon.png")
         response = self.get_response(request)
@@ -125,5 +138,11 @@ class DomainBoundaryMiddleware:
         if private_path(request.path) or request.path in ("/robots.txt", "/sitemap.xml", "/favicon.ico", "/manifest.json") or request.path.startswith(("/products/", "/static/", "/api/")):
             return None
         if public_view(request, view_func) and request.method in ("GET", "HEAD"):
+            # Old ZPT product aliases may overlap old AGParts category URLs.
+            # Resolve them before crossing hosts, preserving exact product intent.
+            if getattr(view_func, '__name__', '') in PUBLIC_ALIAS_FUNCTIONS:
+                slug = view_kwargs.get('new_slug')
+                if slug:
+                    return HttpResponsePermanentRedirect('https://agparts.kz/' + slug + '/')
             return HttpResponsePermanentRedirect("https://agparts.kz" + request.get_full_path())
         return noindex(HttpResponseNotFound())
