@@ -17,6 +17,7 @@ from .analysis import stock_status
 from .importing import load_rows, money
 from .models import Offer, Supplier, SupplierComparisonPriceList
 from .views import access, context
+from .price_source import iter_json_rows
 
 SUPPLIER_LABELS = ('Phaeton', 'ZakazAuto', 'Omega')
 
@@ -70,11 +71,11 @@ def _parse_price_file(file):
 
 def _snapshot(min_cost=Decimal('0')):
     result = {code: {'rows': [], 'count': 0, 'source': None} for code in SUPPLIER_LABELS}
-    uploads = {item.supplier_code: item for item in SupplierComparisonPriceList.objects.all()}
+    uploads = {item.supplier_code: item for item in SupplierComparisonPriceList.objects.defer('rows')}
     for code in SUPPLIER_LABELS:
         batch = uploads.get(code)
         if batch:
-            result[code]['rows'] = batch.rows
+            result[code]['rows'] = iter_json_rows(SupplierComparisonPriceList, batch.pk)
             result[code]['count'] = batch.available_count
             result[code]['source'] = 'upload'
     # Preserve the previously working Omega catalogue until its own comparison
@@ -83,14 +84,15 @@ def _snapshot(min_cost=Decimal('0')):
         ids = [pk for pk, name in Supplier.objects.values_list('pk', 'name')
                if _supplier_key(name) == 'Omega']
         if ids:
-            fallback = []
-            for brand, article, name, category, cost, stock in (
+            fallback = (
+                {'brand': brand, 'article': article, 'name': name,
+                 'category': category, 'cost': str(cost), 'stock': stock}
+                for brand, article, name, category, cost, stock in (
                 Offer.objects.filter(supplier_id__in=ids, cost__gt=0)
                 .values_list('brand', 'article', 'name', 'category', 'cost', 'stock')
-                .iterator(chunk_size=2000)
-            ):
-                fallback.append({'brand': brand, 'article': article, 'name': name,
-                                 'category': category, 'cost': str(cost), 'stock': stock})
+                .iterator(chunk_size=128)
+                )
+            )
             result['Omega']['rows'] = fallback
             result['Omega']['source'] = 'catalogue'
 

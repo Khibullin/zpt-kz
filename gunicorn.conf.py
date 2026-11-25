@@ -15,8 +15,19 @@ worker_class = 'gthread'
 threads = 2
 # Recycle the request worker before cumulative allocations hit Render's 512 MiB limit.
 # Gunicorn drains in-flight requests before replacing a worker.
-max_requests = 150
-max_requests_jitter = 25
+max_requests = 100
+max_requests_jitter = 20
+
+
+def post_request(worker, req, environ, resp):
+    from core.process_memory import MIB, release_idle_memory
+    # gthread drains in-flight requests before exiting, just as max_requests
+    # does. A large completed response must not keep growing the shared 512 MiB
+    # instance until the next request-count recycle.
+    resident = release_idle_memory()
+    if resident > 192 * MIB and worker.alive:
+        worker.log.info('Recycling idle HTTP worker: resident_bytes=%s', resident)
+        worker.alive = False
 
 
 def on_starting(server):

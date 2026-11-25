@@ -257,6 +257,11 @@ class Command(BaseCommand):
                 connection.close()
             # Polling delays are for an idle queue. Recheck price jobs and other
             # work between photo batches, then keep draining staged photos.
+            from core.process_memory import MIB, release_idle_memory
+            resident = release_idle_memory()
+            if options['watch'] and resident > 192 * MIB:
+                logger.info('Price consumer recycling after complete pass: resident_bytes=%s', resident)
+                break
             if options['watch'] and (photo_progress or facet_progress):
                 continue
             if not options['watch']:

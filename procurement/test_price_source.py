@@ -52,5 +52,6 @@ class PostgresStreamingTests(SimpleTestCase):
         self.assertEqual(cursor.fetchmany.call_args.args,(2,))
         sql,params=cursor.execute.call_args.args
         self.assertIn('jsonb_array_elements',sql)
+        self.assertIn('ORDER BY line.row_number',sql)
         self.assertEqual(params[-1],42)
         self.assertNotIn('description',sql)

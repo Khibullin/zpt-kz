@@ -20,6 +20,7 @@ class CrawlerFilterBudgetTests(SimpleTestCase):
             'Mozilla/5.0 (compatible; meta-externalagent/1.1)',
             'facebookexternalhit/1.1',
             'Bytespider/1.0',
+            'GPTBot/1.4',
         ):
             with self.subTest(user_agent=user_agent):
                 response = self.get('/?brand=119&model=918&picker=1', user_agent)

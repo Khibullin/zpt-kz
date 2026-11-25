@@ -10,7 +10,7 @@ from django.http import HttpResponse
 from core.seo import CATALOG_FILTER_QUERY_KEYS
 
 
-_CRAWLER_USER_AGENTS = ('bytespider', 'meta-externalagent', 'facebookexternalhit')
+_CRAWLER_USER_AGENTS = ('bytespider', 'meta-externalagent', 'facebookexternalhit', 'gptbot')
 _FACET_KEYS = CATALOG_FILTER_QUERY_KEYS - {'page'}
 
 

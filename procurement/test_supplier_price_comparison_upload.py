@@ -73,7 +73,7 @@ class SupplierPriceComparisonTests(TestCase):
         self.assertEqual(comparison['overlaps']['Phaeton_Omega'], 0)
         self.assertEqual(comparison['omega_only'], 1)
         self.assertEqual(comparison['counts']['Omega'], 1)
-        response = self.client.get(self.url, {'present': 'Omega'})
+        response = self.client.get(self.url, {'present': 'Omega', 'shared': '0', 'min_cost': '1800'})
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'WS9991')
         self.assertNotContains(response, 'X200')
@@ -90,14 +90,14 @@ class SupplierPriceComparisonTests(TestCase):
             ['EDGE', 'E01', 'Boundary part', 2000, 4],
             ['HIGH', 'H01', 'Expensive part', 2500, 3],
         ])
-        response = self.client.get(self.url)
+        response = self.client.get(self.url, {'shared': '0'})
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, 'L01')
         self.assertContains(response, 'E01')
         self.assertContains(response, 'H01')
-        response = self.client.get(self.url, {'min_cost': '1500'})
+        response = self.client.get(self.url, {'min_cost': '1500', 'shared': '0'})
         self.assertContains(response, 'L01')
-        response = self.client.get(self.url, {'min_cost': '2500'})
+        response = self.client.get(self.url, {'min_cost': '2500', 'shared': '0'})
         self.assertNotContains(response, 'E01')
         self.assertContains(response, 'H01')
 
@@ -126,7 +126,7 @@ class SupplierPriceComparisonTests(TestCase):
                     'article_overlaps': {'Phaeton_Omega': 0, 'ZakazAuto_Omega': 0},
                     'omega_only': 0}
         with patch('procurement.supplier_price_comparison._snapshot', return_value=snapshot):
-            response = self.client.get(self.url, {'page': '2', 'min_cost': '2000', 'q': 'TEST'})
+            response = self.client.get(self.url, {'page': '2', 'min_cost': '2000', 'q': 'TEST', 'shared': '0'})
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Страница 2 из 4', count=2)
         self.assertContains(response, 'page=3#price-results')
