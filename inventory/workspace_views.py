@@ -157,6 +157,21 @@ class BundleLine(forms.Form):
 def new_document(request, kind, pk=None):
     if kind not in ['receipt', 'transfer', 'sale', 'return', 'writeoff', 'opening', 'adjustment']: raise Http404
     editing=get_object_or_404(GoodsDocument,pk=pk,kind=kind,evidence_only=False) if pk else None
+    if kind == 'receipt' and request.method == 'POST' and request.POST.get('action') == 'parse_excel':
+        from django.http import JsonResponse
+        from .receipt_excel import parse_receipt
+        uploaded = request.FILES.get('file')
+        if not uploaded:
+            return JsonResponse({'error':'Выберите Excel-файл.'}, status=400)
+        try:
+            rows = parse_receipt(uploaded)
+        except ValidationError as exc:
+            return JsonResponse({'error':'; '.join(exc.messages)}, status=400)
+        for row in rows:
+            matches = list(Item.objects.filter(article__iexact=row['article'], brand__iexact=row['brand'])[:2])
+            if len(matches) == 1 and matches[0].unit in ('piece','set'):
+                row.update(item=matches[0].pk, unit=matches[0].unit)
+        return JsonResponse({'rows':rows})
     initial={'key':uuid.uuid4()};initial_lines=[]
     if editing:
         active=list(editing.lines.exclude(status='cancelled').order_by('pk'))
