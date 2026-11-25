@@ -17,6 +17,28 @@ def norm(v):
         return str(int(v))
     return ' '.join(str(v if v is not None else '').strip().split())
 
+def receipt_unit(name, description='', omega=False, explicit=''):
+    """Keep supplier quantities/prices in document units; never unpack sets."""
+    text = norm(name + ' ' + description).casefold()
+    explicit = norm(explicit).casefold().rstrip('.')
+    piece = explicit in {'шт', 'штука', 'штук', 'piece', 'pcs'}
+    kit = explicit in {'компл', 'комплект', 'набор', 'set', 'уп', 'упак', 'упаковка'}
+    packed = re.search(r'\b1\s*уп(?:аковка|ак)?\.?\s*(?:по\s*)?(\d+)\s*шт', text)
+    kit = kit or bool(packed) or bool(re.search(r'\b(?:комплект|набор)\b', text))
+    if piece and kit:
+        return '', 'Единица «штука» противоречит указанию комплекта / упаковки.'
+    if kit:
+        detail = f'Комплект: {packed[1]} шт. в упаковке.' if packed else 'Комплект указан в накладной.'
+        return 'set', detail
+    if piece:
+        return 'piece', 'Штука указана в колонке единицы.'
+    if explicit or re.search(r'\b(?:уп(?:ак(?:овка)?|аковки|аковок)?\.?|шт\.?|пара)\b', text):
+        return '', 'Проверьте единицу и комплектность: неоднозначное обозначение в накладной.'
+    if omega and name:
+        return 'piece', 'Штука: поштучная позиция Omega без указания комплекта / упаковки.'
+    return '', 'В накладной не указана единица: выберите штуку или комплект.'
+
+
 def parse_receipt(upload):
     if upload.size > 10 * 1024 * 1024:
         raise ValidationError('Файл не должен превышать 10 МБ.')
@@ -66,6 +88,13 @@ def parse_receipt(upload):
                     match = re.fullmatch(r'Итого,\s*(.+):', norm(value), re.IGNORECASE)
                     if match:
                         groups.add(match[1].casefold())
+        optional_cols = {}
+        for j, value in enumerate(rows[i]):
+            label = norm(value).casefold()
+            if label == 'описание':
+                optional_cols['description'] = j
+            elif label in {'ед.', 'ед', 'ед. изм.', 'ед.изм.', 'единица', 'единица измерения'}:
+                optional_cols['unit'] = j
         result, skipped = [], []
         for index, row in enumerate(rows[i+1:], i+2):
             cells = [norm(value) for value in row]
@@ -108,7 +137,11 @@ def parse_receipt(upload):
                     data[key] = int(value) if key == 'packages' else value
                 except (InvalidOperation, ValueError):
                     errors.append('Проверьте ' + ('количество' if key == 'packages' else 'цену'))
-            data.update(multiplier=1, source_row=index, errors=errors, source_values=cells)
+            extra = {key: cells[j] if j < len(cells) else '' for key, j in optional_cols.items()}
+            unit, basis = receipt_unit(data['name'], extra.get('description', ''), omega, extra.get('unit', ''))
+            data.update(unit=unit, unit_basis=basis, multiplier=1, source_row=index, errors=errors, source_values=cells)
+            if not unit:
+                errors.append(basis)
             result.append(data)
         if not result or len(result) > 300:
             raise ValueError('В накладной должно быть от 1 до 300 товарных строк')
@@ -123,7 +156,7 @@ def parse_receipt(upload):
                             totals['declared'] = declared
                     except InvalidOperation:
                         pass
-        if not any(row['errors'] for row in result):
+        if all(isinstance(row['packages'], int) and isinstance(row['cost'], Decimal) for row in result):
             totals['calculated'] = sum(row['packages'] * row['cost'] for row in result)
             if 'declared' in totals:
                 totals['difference'] = totals['calculated'] - totals['declared']

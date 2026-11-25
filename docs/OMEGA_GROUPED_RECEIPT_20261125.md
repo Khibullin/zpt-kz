@@ -10,7 +10,12 @@ known footer rows and repeated headers are reported separately. Every other
 nonempty row remains in the editable preview, with original Excel row number,
 raw cell values and validation problems. Valid rows alone may match catalogue
 items. No receipt, item, attachment or stock operation is created by parsing.
-Existing form validation and manual unit/packaging confirmation still apply.
+Units are populated from explicit unit columns, package/kit wording in names
+and descriptions, or the ordinary individual-item convention of the recognized
+Omega format. Kits stay in supplier document units with multiplier one.
+Conflicts with an existing exact catalogue item require review and never change
+its confirmed unit during preview. Unknown formats without unit evidence also
+require review. Missing-unit validation points to the unit field.
 
 Declared supplier totals and calculated line totals are compared in the preview.
 Any difference is shown without modifying original prices or uploaded bytes.

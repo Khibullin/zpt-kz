@@ -142,8 +142,10 @@ class BundleLine(forms.Form):
         if kind == 'return': self.fields['related_sale'].required = True; self.fields['return_condition'].required = True
     def clean(self):
         d = super().clean()
-        if self.kind == 'receipt' and not d.get('item') and not all(d.get(k) for k in ['article', 'brand', 'name', 'unit']):
-            raise forms.ValidationError('Выберите товар либо заполните артикул, бренд, название и единицу нового товара.')
+        if self.kind == 'receipt' and not d.get('item'):
+            for key, label in [('article', 'артикул'), ('brand', 'бренд'), ('name', 'название'), ('unit', 'единицу учёта')]:
+                if not d.get(key):
+                    self.add_error(key, 'Укажите ' + label + '.')
         if d.get('item') and d['item'].unit == 'pending': self.add_error('item', 'Сначала подтвердите единицу товара в его карточке.')
         if d.get('packages') and d.get('multiplier') and d['packages'] * d['multiplier'] > 100000000:
             self.add_error('packages', 'Слишком большое количество.')
@@ -169,11 +171,17 @@ def new_document(request, kind, pk=None):
         except ValidationError as exc:
             return JsonResponse({'error':'; '.join(exc.messages)}, status=400)
         for row in rows:
-            if row['errors']:
+            if not row['article'] or not row['brand']:
                 continue
             matches = list(Item.objects.filter(article__iexact=row['article'], brand__iexact=row['brand'])[:2])
             if len(matches) == 1 and matches[0].unit in ('piece','set'):
-                row.update(item=matches[0].pk, unit=matches[0].unit)
+                if row['unit'] and row['unit'] != matches[0].unit:
+                    row['errors'].append('Комплектность накладной отличается от единицы существующего товара. Проверьте пересчёт.')
+                    row['unit'] = ''
+                else:
+                    row.update(item=matches[0].pk, unit=matches[0].unit)
+                    row['errors'] = [error for error in row['errors'] if error != row['unit_basis']]
+                    row['unit_basis'] = 'Единица из существующей карточки точного бренда и артикула.'
         return JsonResponse(preview)
     initial={'key':uuid.uuid4()};initial_lines=[]
     if editing:
