@@ -2,7 +2,7 @@ from datetime import date
 from decimal import Decimal
 
 from django.contrib.auth import get_user_model
-from django.core.cache import cache
+from django.core.cache import cache, caches
 from django.db import connection
 from django.db.models import Q
 from django.test import TestCase
@@ -45,6 +45,7 @@ class PreparationPerformanceTests(TestCase):
 
     def setUp(self):
         cache.clear()
+        caches['procurement_options'].clear()
         self.client.force_login(self.user)
         self.url = reverse('procurement:selection_rules')
 
@@ -75,6 +76,7 @@ class PreparationPerformanceTests(TestCase):
 
     def test_cached_page_does_not_repeat_catalogue_counts_for_download_links(self):
         first = self.client.get(self.url)
+        cache.clear()  # A replacement HTTP process has an empty local cache.
         with CaptureQueriesContext(connection) as queries:
             second = self.client.get(self.url)
         self.assertEqual(second.status_code, 200)

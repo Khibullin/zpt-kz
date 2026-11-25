@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import TestCase
+from django.test import TestCase, TransactionTestCase
 from django.urls import reverse
 from openpyxl import Workbook
 
@@ -132,3 +132,35 @@ class SupplierPriceComparisonTests(TestCase):
         self.assertContains(response, 'page=3#price-results')
         self.assertContains(response, 'min_cost=2000')
         self.assertContains(response, 'name="page"')
+
+
+class ComparisonVersionCacheTests(TransactionTestCase):
+    def test_uploaded_versions_are_reused_and_new_upload_is_visible_immediately(self):
+        from tempfile import TemporaryDirectory
+        from django.core.cache import caches
+        from django.test import override_settings
+        user=get_user_model().objects.create_user('versioned-comparison')
+        for code,cost in [('Omega','2000'),('Phaeton','2300'),('ZakazAuto','2500')]:
+            SupplierComparisonPriceList.objects.create(supplier_code=code,filename=code+'.xlsx',
+                checked_on=date.today(),uploaded_by=user,row_count=1,available_count=1,
+                rows=[{'brand':'EEP','article':'A1','name':'Part','cost':cost,'stock':'1'}])
+        with TemporaryDirectory() as root, override_settings(CACHES={
+            'default':{'BACKEND':'django.core.cache.backends.locmem.LocMemCache'},
+            'supplier_comparison':{'BACKEND':'django.core.cache.backends.filebased.FileBasedCache',
+                                   'LOCATION':root+'/private','OPTIONS':{'MAX_ENTRIES':8}}}):
+            first=_snapshot(Decimal('2000'))
+            self.assertEqual(first['rows'][0]['winner'],'Omega')
+            with patch('procurement.supplier_price_comparison.iter_json_rows',side_effect=AssertionError('must reuse uploaded version')):
+                self.assertEqual(_snapshot(Decimal('2000')),first)
+            # Idle warming must not deserialize the whole cache on every pass.
+            with patch.object(caches['supplier_comparison'],'get',side_effect=AssertionError('must only inspect expiry')):
+                self.assertIsNone(_snapshot(Decimal('2000'),warm_only=True))
+            batch=SupplierComparisonPriceList.objects.get(supplier_code='Omega')
+            batch.rows[0]['cost']='2600'
+            batch.save()
+            fresh=_snapshot(Decimal('2000'))
+            self.assertEqual(fresh['rows'][0]['winner'],'Phaeton')
+            self.assertEqual(fresh['rows'][0]['prices']['Omega'],Decimal('2600'))
+            self.assertEqual(_snapshot(Decimal('3000'))['rows'],[])
+            batch.refresh_from_db()
+            self.assertEqual(batch.rows[0]['cost'],'2600')

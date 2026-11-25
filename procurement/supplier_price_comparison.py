@@ -3,12 +3,20 @@
 Uploads on this screen never update operational Offers or Kaspi records.
 """
 import re
+import hashlib
+import json
+import os
+import fcntl
+from pathlib import Path
 from datetime import date
 from decimal import Decimal
 
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db import transaction
+from django.db import connection
+from django.core.cache import caches
+from django.conf import settings
 from django.shortcuts import redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods
@@ -69,7 +77,36 @@ def _parse_price_file(file):
     return rows, len(raw), available, skipped
 
 
-def _snapshot(min_cost=Decimal('0')):
+def _snapshot(min_cost=Decimal('0'), *, warm_only=False):
+    # Only immutable uploaded comparison facts are reused. The operational
+    # Omega fallback must always read live Offers. No personal data or retail
+    # basket enters this private instance-local cache.
+    versions = list(SupplierComparisonPriceList.objects.order_by('supplier_code')
+                    .values_list('supplier_code', 'uploaded_at'))
+    if connection.in_atomic_block or {code for code, _ in versions} != set(SUPPLIER_LABELS):
+        return None if warm_only else _build_snapshot(min_cost)
+    fingerprint = json.dumps([(code, stamp.isoformat()) for code, stamp in versions])
+    key = 'comparison-v1:' + hashlib.sha256((fingerprint + ':' + str(min_cost.normalize())).encode()).hexdigest()
+    cache = caches['supplier_comparison']
+    if warm_only and cache.has_key(key):
+        return None
+    result = cache.get(key)
+    if result is not None:
+        return None if warm_only else result
+    # Serialize cold builds across the HTTP worker and existing consumer, so
+    # two simultaneous clicks cannot duplicate the large aggregation in RAM.
+    root = Path(settings.CACHES['supplier_comparison']['LOCATION'])
+    root.mkdir(mode=0o700, parents=True, exist_ok=True)
+    with os.fdopen(os.open(root / 'build.lock', os.O_CREAT | os.O_RDWR, 0o600), 'a') as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        result = cache.get(key)
+        if result is None:
+            result = _build_snapshot(min_cost)
+            cache.set(key, result, 3600)
+        return None if warm_only else result
+
+
+def _build_snapshot(min_cost=Decimal('0')):
     result = {code: {'rows': [], 'count': 0, 'source': None} for code in SUPPLIER_LABELS}
     uploads = {item.supplier_code: item for item in SupplierComparisonPriceList.objects.defer('rows')}
     for code in SUPPLIER_LABELS:

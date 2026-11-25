@@ -535,7 +535,8 @@ TELEGRAM_SUBSCRIBER_DELIVERY_ENABLED = _env_flag('TELEGRAM_SUBSCRIBER_DELIVERY_E
 TELEGRAM_SUBSCRIBER_DELIVERY_ACTOR_ID = os.getenv('TELEGRAM_SUBSCRIBER_DELIVERY_ACTOR_ID', '')
 TELEGRAM_SUBSCRIBER_DELIVERY_SINCE = os.getenv('TELEGRAM_SUBSCRIBER_DELIVERY_SINCE', '')
 
-# Cache only public facet counts, never prices, availability, users or carts.
+# Public caches hold only facet counts. Uploaded comparison snapshots have a
+# separate private, versioned file cache; live prices/users/carts never go there.
 CACHES = {
     "default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
     # Shared by request threads/processes on this instance. Only non-personal
@@ -544,6 +545,11 @@ CACHES = {
         "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
         "LOCATION": os.path.join(tempfile.gettempdir(), "zpt-procurement-options"),
         "OPTIONS": {"MAX_ENTRIES": 128},
+    },
+    "supplier_comparison": {
+        "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
+        "LOCATION": os.path.join(tempfile.gettempdir(), "zpt-private-price-comparison"),
+        "OPTIONS": {"MAX_ENTRIES": 8},
     },
     "storefront_common": {
         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",

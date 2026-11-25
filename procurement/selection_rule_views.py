@@ -10,7 +10,7 @@ from decimal import Decimal
 
 from django import forms
 from django.core.exceptions import ValidationError
-from django.core.cache import cache
+from django.core.cache import cache, caches
 from django.contrib import messages
 from django.db.models import Q, Count, Max, Exists, OuterRef
 from django.shortcuts import redirect, render
@@ -332,14 +332,15 @@ def selection_rules(request):
     stats_key = 'zpt:selection-preview:v2:' + sha256(
         json.dumps(criteria, sort_keys=True).encode('utf-8')
     ).hexdigest()
-    stats = cache.get(stats_key) if request.method == 'GET' else None
+    preview_cache = caches['procurement_options']
+    stats = preview_cache.get(stats_key) if request.method == 'GET' else None
     if stats is None:
         before_years = rows.count()
         # No source years: do not infer vehicle fitment.
         matched = matching_years(rows, age).count()
         stats = (before_years, matched)
         if request.method == 'GET':
-            cache.set(stats_key, stats, timeout=60)
+            preview_cache.set(stats_key, stats, timeout=60)
     before_years, matched = stats
     unknown_years = max(0, before_years - matched)
     # All download actions use the last saved rule, not unsaved form values.
