@@ -175,7 +175,13 @@ def new_document(request, kind, pk=None):
                 continue
             matches = list(Item.objects.filter(article__iexact=row['article'], brand__iexact=row['brand'])[:2])
             if len(matches) == 1 and matches[0].unit in ('piece','set'):
-                if row['unit'] and row['unit'] != matches[0].unit:
+                size = row.get('package_size')
+                if (row['unit'] == 'set' and matches[0].unit == 'piece' and size
+                        and 1 <= size <= 100000 and isinstance(row['cost'], Decimal)
+                        and row['cost'] / size == (row['cost'] / size).quantize(Decimal('.01'))):
+                    row.update(item=matches[0].pk, unit='piece', multiplier=size,
+                               unit_basis=f'Упаковка {size} шт.; учёт в штуках по существующей карточке. Цена за упаковку.')
+                elif row['unit'] and row['unit'] != matches[0].unit:
                     row['errors'].append('Комплектность накладной отличается от единицы существующего товара. Проверьте пересчёт.')
                     row['unit'] = ''
                 else:
