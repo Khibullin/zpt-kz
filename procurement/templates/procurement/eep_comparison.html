@@ -70,7 +70,7 @@
  </div>
  <dialog id="eep-shot-preview" class="eep-shot-preview" aria-label="Просмотр скриншота Kaspi"><button type="button" class="eep-shot-close">Закрыть ×</button><img alt="Увеличенный скриншот Kaspi"></dialog>
  <form id="eep-manage-form" action="{% url 'procurement:comparison_manage_screenshot' offer.pk %}" method="post" hidden>{% csrf_token %}</form>
- <p class="eep-paste-status" id="eep-paste-status" role="status">Снимки сохраняются к этому товару; сведения Omega и цена не изменяются.</p>
+ <p class="eep-paste-status" id="eep-paste-status" role="status">Снимки сохраняются к этому товару; сведения {{ offer.supplier.name }} и цена не изменяются.</p>
  <form id="eep-paste-form" action="{% url 'procurement:comparison_paste_screenshot' offer.pk %}" method="post" hidden>{% csrf_token %}</form>
  <div class="eep-ai-actions" id="eep-ai-actions">
   <button type="button" class="button primary" id="eep-ai-recognize" {% if not manual_screenshots %}disabled{% endif %}>Распознать и заполнить</button>
@@ -115,9 +115,9 @@
  <div class="eep-label">Цена товара</div>
  <div class="eep-row eep-prices">
   <div class="eep-cell">
-   <div class="eep-price-name">Omega — закупочная цена</div>
+   <div class="eep-price-name">{{ offer.supplier.name }} — закупочная цена</div>
    <div class="eep-price-amount">{% if omega_price is not None %}{{ omega_price|floatformat:0 }} ₸{% else %}Нет данных{% endif %}</div>
-   <span class="eep-price-date">Прайс Omega: {% if omega_checked_at %}{{ omega_checked_at|date:"d.m.Y" }}{% else %}дата неизвестна{% endif %}</span>
+   <span class="eep-price-date">Прайс {{ offer.supplier.name }}: {% if omega_checked_at %}{{ omega_checked_at|date:"d.m.Y" }}{% else %}дата неизвестна{% endif %}</span>
    {% if omega_price_stale %}<div class="eep-price-stale">Требует обновления</div>{% endif %}
   </div>
   <div class="eep-cell">
