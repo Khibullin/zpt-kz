@@ -549,6 +549,7 @@ document.addEventListener('DOMContentLoaded',function(){
   </form>
 </details>
 <style>
+#apify-generated-files[hidden]{display:none}
 .apify-export-controls{display:flex;align-items:flex-end;gap:20px;flex-wrap:wrap;margin:12px 0;padding:12px 14px;border:1px solid #dbe7f2;border-radius:10px;background:#f8fafc}
 .apify-export-controls fieldset{border:0;margin:0;padding:0;flex:1 1 430px}
 .apify-city-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:9px}
@@ -577,17 +578,17 @@ document.addEventListener('DOMContentLoaded',function(){
   <div class="apify-export-controls" id="apify-export-controls">
     <fieldset><legend><strong>Города поиска</strong></legend>
       <div class="apify-city-grid">
-        <label><input type="checkbox" name="city" value="Almaty" checked> Алматы</label>
-        <label><input type="checkbox" name="city" value="Astana" checked> Астана</label>
-        <label><input type="checkbox" name="city" value="Shymkent" checked> Шымкент</label>
-        <label><input type="checkbox" name="city" value="Karaganda" checked> Караганда</label>
-        <label><input type="checkbox" name="city" value="Aktobe" checked> Актобе</label>
-        <label><input type="checkbox" name="city" value="Atyrau" checked> Атырау</label>
+        <label><input type="checkbox" name="city" value="Almaty"{% if 'Almaty' in export_cities %} checked{% endif %}> Алматы</label>
+        <label><input type="checkbox" name="city" value="Astana"{% if 'Astana' in export_cities %} checked{% endif %}> Астана</label>
+        <label><input type="checkbox" name="city" value="Shymkent"{% if 'Shymkent' in export_cities %} checked{% endif %}> Шымкент</label>
+        <label><input type="checkbox" name="city" value="Karaganda"{% if 'Karaganda' in export_cities %} checked{% endif %}> Караганда</label>
+        <label><input type="checkbox" name="city" value="Aktobe"{% if 'Aktobe' in export_cities %} checked{% endif %}> Актобе</label>
+        <label><input type="checkbox" name="city" value="Atyrau"{% if 'Atyrau' in export_cities %} checked{% endif %}> Атырау</label>
       </div>
     </fieldset>
     <label for="apify-export-cards"><strong>Карточек Kaspi на запрос</strong>
       <select id="apify-export-cards" name="cards">
-        <option value="1">1</option><option value="2" selected>2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+        {% for number in export_card_choices %}<option value="{{ number }}"{% if number == export_cards %} selected{% endif %}>{{ number }}</option>{% endfor %}
       </select>
     </label>
     <label for="apify-export-batch-size"><strong>Запросов в партии</strong>
@@ -602,7 +603,18 @@ document.addEventListener('DOMContentLoaded',function(){
     </form>
     <p id="apify-export-error" class="rule-errors" role="alert" hidden>Выберите хотя бы один город.</p>
   </div>
-  <div class="step-line">
+  <div class="step-line" style="margin:12px 0">
+    <label for="apify-export-request"><strong>Сохранённый запрос</strong></label>
+    <select id="apify-export-request">
+      <option value="">Выберите запрос или завершите отбор в блоке №1</option>
+      {% for saved in omega_requests %}{% if saved.id %}
+      <option value="{{ saved.id|unlocalize }}" data-min-cost="{{ saved.details.min_cost|unlocalize }}"{% if saved.id == just_saved_request.pk %} selected{% endif %}>{{ saved.details.title }} · {{ saved.details.total }} товаров · от {{ saved.details.min_cost }} ₸</option>
+      {% endif %}{% endfor %}
+    </select>
+    <button type="button" class="primary" id="apify-generate">Сформировать JSON для Apify</button>
+    <span id="apify-generate-status" class="muted" role="status" aria-live="polite"></span>
+  </div>
+  <div class="step-line" id="apify-generated-files">
     {% if just_saved_request %}
       <span><strong>{{ just_saved_request.details.title }}</strong>: {{ just_saved_request.details.total }} товаров, {{ just_saved_request.details.query_count }} поисковых запросов. Скачайте партии:</span>
       <span class="step-line" data-apify-batches data-primary="1" data-request-id="{{ just_saved_request.pk|unlocalize }}" data-query-count="{{ just_saved_request.details.query_count|unlocalize }}" data-export-url="{% url 'procurement:selection_apify_json' %}">
@@ -611,10 +623,10 @@ document.addEventListener('DOMContentLoaded',function(){
       {% endfor %}</span>
       <small data-apify-file-count aria-live="polite">Файлов: {{ just_saved_batches|length }}</small>
     {% else %}
-      <span>Сначала выберите товары в блоке №1 и сохраните запрос. Файлы прошлых запросов доступны в «Истории запросов».</span>
+      <span>Выберите сохранённый запрос выше и нажмите «Сформировать JSON для Apify». Для нового отбора сначала выберите товары в блоке №1 и сохраните запрос.</span>
     {% endif %}
   </div>
-  {% load static %}<script src="{% static 'procurement/js/apify_exports.js' %}?v=20261126" defer></script>
+  {% load static %}<script src="{% static 'procurement/js/apify_exports.js' %}?v=20261126-generate" defer></script>
 </section>
 
 <section class="rule-card step-card" aria-labelledby="buying-step-title">

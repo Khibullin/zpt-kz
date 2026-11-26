@@ -100,3 +100,35 @@ class ApifyExportControlsTests(TestCase):
         self.assertEqual(self.offer.cost, Decimal('6000'))
         self.assertEqual(Selection.objects.get(user=self.user).quantity, 2)
         self.assertEqual(response.context['omega_requests'][0]['id'], self.saved.pk)
+
+    def test_generation_button_is_available_without_active_request(self):
+        page = self.client.get(reverse('procurement:selection_rules'), {'supplier': self.phaeton.pk})
+        self.assertContains(page, 'id="apify-generate"')
+        self.assertContains(page, 'Сформировать JSON для Apify')
+        self.assertContains(page, 'id="apify-export-request"')
+        self.assertContains(page, f'value="{self.saved.pk}" data-min-cost="2000"')
+        self.assertIsNone(page.context['just_saved_request'])
+
+    def test_saving_confirmed_draft_preserves_export_settings(self):
+        url = reverse('procurement:selection_rules')
+        data = {'supplier': self.phaeton.pk, 'price_batch_id': self.price.pk,
+                'omega_category':['Рычаг'], 'omega_min_cost':'2000',
+                'omega_max_vehicle_age':'20', 'omega_stock_submitted':'1',
+                'omega_in_stock_only':'on', 'action':'preview_omega_request'}
+        self.assertEqual(self.client.post(url, data).status_code, 200)
+        data.update(action='save_omega_request', apify_export_settings='1',
+                    apify_generate='1', apify_batch_size='2000', apify_cards='1', apify_city=['Almaty'])
+        page = self.client.post(url, data, follow=True)
+        self.assertEqual(page.status_code, 200)
+        self.assertIn('#apify-step-title', page.redirect_chain[0][0])
+        self.assertEqual(page.context['selected_batch_size'], 2000)
+        self.assertEqual(page.context['export_cards'], 1)
+        self.assertEqual(page.context['export_cities'], ['Almaty'])
+        self.assertIsNotNone(page.context['just_saved_request'])
+        self.assertEqual(page.context['just_saved_request'].details['number'], 2)
+
+    def test_active_request_cannot_borrow_another_supplier_snapshot(self):
+        page = self.client.get(reverse('procurement:selection_rules'), {
+            'supplier':self.omega.pk, 'saved_request':self.saved.pk})
+        self.assertIsNone(page.context['just_saved_request'])
+        self.assertNotContains(page, f'data-request-id="{self.saved.pk}"')

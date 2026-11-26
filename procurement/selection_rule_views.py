@@ -6,6 +6,7 @@ supplier imports, stock, public catalogue, Kaspi prices, or existing ROI rules.
 from datetime import date
 from hashlib import sha256
 from time import time
+from urllib.parse import urlencode
 import json
 from decimal import Decimal
 
@@ -171,6 +172,14 @@ def selection_rules(request):
         selected_batch_size = export_batch_size(request.GET.get('batch_size', JSON_BATCH_SIZE))
     except ValueError:
         selected_batch_size = JSON_BATCH_SIZE
+    ui_cities = ('Almaty', 'Astana', 'Shymkent', 'Karaganda', 'Aktobe', 'Atyrau')
+    export_cities = [city for city in request.GET.getlist('city') if city in ui_cities] or list(ui_cities)
+    try:
+        export_cards = int(request.GET.get('cards', '2'))
+    except (TypeError, ValueError):
+        export_cards = 2
+    if export_cards not in range(1, 6):
+        export_cards = 2
     rule, _ = WholesaleSelectionRule.objects.get_or_create(singleton_key=1)
     from .price_update_views import SupplierPriceUploadForm, price_history_context
     uploading_price = request.method == 'POST' and request.POST.get('action') == 'upload_price'
@@ -337,7 +346,19 @@ def selection_rules(request):
         else:
             request.session.pop('omega_confirmed_preview', None)
             messages.success(request, f"{saved.details['title']} сохранён. Можно перейти к формированию JSON.")
-            return redirect(reverse('procurement:selection_rules') + '?saved_request=' + str(saved.pk) + '#omega-pick-saved')
+            params = [('supplier', str(omega.pk)), ('saved_request', str(saved.pk))]
+            if request.POST.get('apify_export_settings'):
+                try:
+                    size = export_batch_size(request.POST.get('apify_batch_size', 500))
+                    cards = int(request.POST.get('apify_cards', 2))
+                    if cards not in range(1, 6):
+                        raise ValueError
+                    params.extend([('batch_size', str(size)), ('cards', str(cards))])
+                    params.extend(('city', city) for city in request.POST.getlist('apify_city') if city in ui_cities)
+                except (TypeError, ValueError):
+                    pass
+            anchor = '#apify-step-title' if request.POST.get('apify_generate') else '#omega-pick-saved'
+            return redirect(reverse('procurement:selection_rules') + '?' + urlencode(params) + anchor)
         return redirect('procurement:selection_rules')
     if request.method == 'POST' and not uploading_price:
         form = SelectionRuleForm(request.POST)
@@ -432,8 +453,7 @@ def selection_rules(request):
     selected_saved_id = request.GET.get('saved_request', '')
     just_saved_request = None
     if selected_saved_id.isdigit():
-        just_saved_request = Activity.objects.filter(
-            pk=int(selected_saved_id), action='omega_category_selection_request').first()
+        just_saved_request = next((saved for saved in saved_omega_requests if saved.pk == int(selected_saved_id)), None)
     just_saved_batches = range(
         1, (int(just_saved_request.details.get('query_count', 0)) + selected_batch_size - 1) // selected_batch_size + 1
     ) if just_saved_request else ()
@@ -452,6 +472,8 @@ def selection_rules(request):
                           just_saved_request=just_saved_request,
                           just_saved_batches=just_saved_batches,
                           export_batch_sizes=EXPORT_BATCH_SIZES,
+                          export_cities=export_cities, export_cards=export_cards,
+                          export_card_choices=range(1, 6),
                           selected_batch_size=selected_batch_size,
                           apify_query_count=query_count,
                           json_batches=range(1, batches + 1),
