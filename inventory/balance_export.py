@@ -34,7 +34,12 @@ def balance_totals(rows,field,basis):
     for unit,label in [('piece','шт.'),('set','компл.'),('pending','ед. (единица не подтверждена)')]:
         vals=[i.filtered_stock for i in rows if i.unit==unit and i.filtered_stock is not None]
         if vals:groups.append({'unit':label,'quantity':sum(vals)})
-    for item in rows:item.stock_value=value_stock(item,field,basis)
+    for item in rows:
+        item.stock_value=value_stock(item,field,basis)
+        # Remaining FIFO lots define the weighted purchase price, never a sale price.
+        item.purchase_price=(item.stock_value / item.filtered_stock
+                             if item.stock_value is not None and item.filtered_stock and item.filtered_stock > 0
+                             else None)
     return {'groups':groups,'unknown':sum(i.filtered_stock is None or (field=='total' and i.partial_total and basis!='posted') for i in rows),
             'known_value':sum((i.stock_value for i in rows if i.stock_value is not None),Decimal(0)),
             'unknown_value':sum(i.stock_value is None for i in rows)}
@@ -49,7 +54,7 @@ def filter_labels(request):
         ('Остаток',{'positive':'В наличии','zero':'Нулевой','unknown':'Нет данных'}.get(g.get('stock_state'),'Все')),
         ('Привязка кодов',{'yes':'Коды привязаны','no':'Коды не привязаны'}.get(g.get('mapped'),'Все товары')),
         ('Источник остатка',{'posted':'По складскому учёту','snapshot':'По загруженному файлу'}.get(g.get('basis'),'Все источники')),
-        ('Сортировка',{'-code':'Код по убыванию','name':'Название по возрастанию','-name':'Название по убыванию'}.get(g.get('sort'),'Код по возрастанию')),
+        ('Сортировка',{'-code':'Код по убыванию','name':'Название по возрастанию','-name':'Название по убыванию','price':'Закупочная цена по возрастанию','-price':'Закупочная цена по убыванию','value':'Стоимость остатка по возрастанию','-value':'Стоимость остатка по убыванию'}.get(g.get('sort'),'Код по возрастанию')),
         ('Сравнение с Kaspi','Да' if g.get('compare')=='1' else 'Нет')]
 
 
@@ -63,7 +68,7 @@ def export_balances(request,rows,totals):
     else:
         headers+=['Остаток PP1','Источник и дата PP1','Остаток PP2','Источник и дата PP2','Известное количество PP1 + PP2']
         if request.GET.get('compare')=='1':headers+=['Остаток Kaspi','Источник и дата Kaspi','PP2 − Kaspi']
-    headers+=['Закупочная стоимость остатка, ₸','В пути','Брак']
+    headers+=['Закупочная цена, ₸/ед.','Закупочная стоимость остатка, ₸','В пути','Брак']
     sheet.append(headers);header_row=sheet.max_row
     for i in rows:
         data=[i.article or i.code,i.brand,i.name,i.supplier_label,i.get_unit_display()]
@@ -71,7 +76,7 @@ def export_balances(request,rows,totals):
         else:
             data += [i.pp1 if i.pp1 is not None else 'Нет данных',i.pp1_source,i.pp2 if i.pp2 is not None else 'Нет данных',i.pp2_source,i.total if i.total is not None else 'Нет данных']
             if request.GET.get('compare')=='1':data += [i.kaspi if i.kaspi is not None else 'Нет данных',i.kaspi_source,i.difference]
-        data += [i.stock_value if i.stock_value is not None else 'Не определена',i.transit,i.damaged]
+        data += [i.purchase_price if i.purchase_price is not None else 'Нет данных',i.stock_value if i.stock_value is not None else 'Не определена',i.transit,i.damaged]
         sheet.append(data)
     for row in sheet:
         for cell in row:
@@ -100,6 +105,7 @@ def export_balances(request,rows,totals):
     sheet.column_dimensions['A'].width=36
     for row in sheet.iter_rows(min_row=header_row+1):
         sheet.row_dimensions[row[0].row].height=42
+        row[-4].number_format='#,##0.00'
         row[-3].number_format='#,##0.00'
     sheet.sheet_properties.pageSetUpPr.fitToPage=True
     sheet.page_setup.orientation='landscape';sheet.page_setup.paperSize=sheet.PAPERSIZE_A3;sheet.page_setup.fitToWidth=1;sheet.page_setup.fitToHeight=0
@@ -114,7 +120,7 @@ def export_balances(request,rows,totals):
     summary.append(['Известная закупочная стоимость остатка, ₸' if totals['unknown_value'] else 'Закупочная стоимость остатка, ₸',totals['known_value']])
     summary.cell(summary.max_row,2).number_format='#,##0.00'
     if totals['unknown_value']:summary.append(['Стоимость не определена, товаров',totals['unknown_value']])
-    summary.append(['Источник стоимости','Оставшиеся партии по складскому учёту. Цена Kaspi не является закупочной стоимостью.'])
+    summary.append(['Источник стоимости','Оставшиеся партии по складскому учёту. Закупочная цена — стоимость остатка / количество, средневзвешенная по оставшимся партиям. При нулевом или неизвестном количестве цена не определяется. Цена Kaspi не является закупочной стоимостью.'])
     summary.append([])
 
     stream=BytesIO();book.save(stream)

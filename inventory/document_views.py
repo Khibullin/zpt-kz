@@ -88,11 +88,18 @@ def items(request):
     summary=stock_summary(rows)
     from .balance_export import balance_totals, export_balances
     balance_summary=balance_totals(rows,field,basis)
+    sort=request.GET.get('sort','')
+    sort_attr={'price':'purchase_price','value':'stock_value'}.get(sort.lstrip('-'))
+    if sort_attr:
+        # Sort the whole selection before pagination/export; unknown values stay last.
+        known=[i for i in rows if getattr(i,sort_attr) is not None]
+        unknown=[i for i in rows if getattr(i,sort_attr) is None]
+        rows=sorted(known,key=lambda i:getattr(i,sort_attr),reverse=sort.startswith('-'))+unknown
     if request.GET.get('export')=='xlsx':return export_balances(request,rows,balance_summary)
     page=Paginator(rows,50).get_page(request.GET.get('page'))
     query=request.GET.copy();query.pop('page',None)
     selected_summary=next((s for s in summary if s['label']=={'PP1':'PP1','PP2':'PP2 · Rapida','Kaspi':'Kaspi'}.get(request.GET.get('warehouse'),'Всего PP1 + PP2')),summary[-1])
-    return render(request,'inventory/items.html',{'balance_summary':balance_summary,'supplier_options':supplier_options,'selected_supplier':supplier_name(request.GET.get('supplier','')),'selected_brand':brand_name(request.GET.get('brand','')),'selected_summary':selected_summary,'selected_warehouse':request.GET.get('warehouse',''),'compare':request.GET.get('compare')=='1','summary':summary,'item_count':len(rows),'page':page,'q':q,'query':query.urlencode(),'brands':Item.objects.exclude(brand='').values_list('brand',flat=True).distinct().order_by('brand'),'units':Item._meta.get_field('unit').choices})
+    return render(request,'inventory/items.html',{'value_sorts':[('price','Закупочная цена ↑'),('-price','Закупочная цена ↓'),('value','Стоимость остатка ↑'),('-value','Стоимость остатка ↓')],'balance_summary':balance_summary,'supplier_options':supplier_options,'selected_supplier':supplier_name(request.GET.get('supplier','')),'selected_brand':brand_name(request.GET.get('brand','')),'selected_summary':selected_summary,'selected_warehouse':request.GET.get('warehouse',''),'compare':request.GET.get('compare')=='1','summary':summary,'item_count':len(rows),'page':page,'q':q,'query':query.urlencode(),'brands':Item.objects.exclude(brand='').values_list('brand',flat=True).distinct().order_by('brand'),'units':Item._meta.get_field('unit').choices})
 
 @never_cache
 @accounting_access
