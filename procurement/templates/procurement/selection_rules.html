@@ -257,9 +257,10 @@
         <td>{% if saved.details.max_vehicle_age != None %}{{ saved.details.max_vehicle_age }} лет{% else %}Не зафиксирован{% endif %}</td>
         <td>{{ saved.details.total }}</td>
         <td>{{ saved.details.query_count }}<small>{{ saved.details.status }}</small></td>
-        <td>{% if saved.legacy %}9 файлов подготовлены ранее{% else %}{% for batch in saved.export_batches %}
-          <a data-apify-export-link href="{% url 'procurement:selection_apify_json' %}?request_id={{ saved.id|unlocalize }}&amp;batch={{ batch }}">Скачать JSON для Apify{% if saved.export_batches|length > 1 %} №{{ batch }}{% endif %}</a>
-        {% endfor %}{% endif %}</td>
+        <td>{% if saved.legacy %}9 файлов подготовлены ранее{% else %}<span data-apify-batches data-request-id="{{ saved.id|unlocalize }}" data-query-count="{{ saved.details.query_count|unlocalize }}" data-export-url="{% url 'procurement:selection_apify_json' %}">
+        {% for batch in saved.export_batches %}
+          <a data-apify-export-link href="{% url 'procurement:selection_apify_json' %}?request_id={{ saved.id|unlocalize }}&amp;batch={{ batch }}&amp;batch_size={{ selected_batch_size|unlocalize }}">Скачать JSON для Apify{% if saved.export_batches|length > 1 %} №{{ batch }}{% endif %}</a>
+        {% endfor %}</span>{% endif %}</td>
       </tr>{% endfor %}</tbody></table>
     </div>
   </details>
@@ -565,7 +566,8 @@ document.addEventListener('DOMContentLoaded',function(){
       <li><strong>Карточки Kaspi — от 1 до 5 на запрос, по умолчанию 2.</strong></li>
       <li><strong>Продавцы — все доступные предложения.</strong></li>
       <li><strong>Отзывы — не загружать.</strong></li>
-      <li><strong>Партия JSON — до 500 запросов.</strong></li>
+      <li><strong>Партия JSON — 500, 1 000, 1 500 или 2 000 запросов; по умолчанию 500.</strong> Размер меняет число файлов, но не общий объём проверки.</li>
+      <li><strong>Сброс подготовки</strong> убирает текущий запрос из блока и возвращает к выбору товаров. Прайсы, история запросов и результаты проверок сохраняются; внешние запуски Apify не отменяются.</li>
       <li><strong>Дубли запросов — исключать.</strong></li>
       <li><strong>Лимит Apify — до $10 на запуск, вручную.</strong></li>
       <li><strong>Результат — JSON для поиска и проверки цен Kaspi.</strong></li>
@@ -588,47 +590,31 @@ document.addEventListener('DOMContentLoaded',function(){
         <option value="1">1</option><option value="2" selected>2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
       </select>
     </label>
+    <label for="apify-export-batch-size"><strong>Запросов в партии</strong>
+      <select id="apify-export-batch-size" name="batch_size">
+        {% for size in export_batch_sizes %}<option value="{{ size|unlocalize }}"{% if size == selected_batch_size %} selected{% endif %}>{{ size }}</option>{% endfor %}
+      </select>
+    </label>
+    <form method="post" action="{% url 'procurement:selection_rules' %}">
+      {% csrf_token %}<input type="hidden" name="action" value="reset_apify_preparation">
+      <input type="hidden" name="supplier" value="{{ selected_supplier.pk|unlocalize }}">
+      <button type="submit">Сбросить подготовку</button>
+    </form>
     <p id="apify-export-error" class="rule-errors" role="alert" hidden>Выберите хотя бы один город.</p>
   </div>
   <div class="step-line">
     {% if just_saved_request %}
       <span><strong>{{ just_saved_request.details.title }}</strong>: {{ just_saved_request.details.total }} товаров, {{ just_saved_request.details.query_count }} поисковых запросов. Скачайте партии:</span>
+      <span class="step-line" data-apify-batches data-primary="1" data-request-id="{{ just_saved_request.pk|unlocalize }}" data-query-count="{{ just_saved_request.details.query_count|unlocalize }}" data-export-url="{% url 'procurement:selection_apify_json' %}">
       {% for batch in just_saved_batches %}
-      <a class="button primary" data-apify-export-link href="{% url 'procurement:selection_apify_json' %}?request_id={{ just_saved_request.pk|unlocalize }}&amp;batch={{ batch }}">↓ Скачать JSON для Apify{% if just_saved_batches|length > 1 %} №{{ batch }}{% endif %}</a>
-      {% endfor %}
+      <a class="button primary" data-apify-export-link href="{% url 'procurement:selection_apify_json' %}?request_id={{ just_saved_request.pk|unlocalize }}&amp;batch={{ batch }}&amp;batch_size={{ selected_batch_size|unlocalize }}">↓ Скачать JSON для Apify{% if just_saved_batches|length > 1 %} №{{ batch }}{% endif %}</a>
+      {% endfor %}</span>
+      <small data-apify-file-count aria-live="polite">Файлов: {{ just_saved_batches|length }}</small>
     {% else %}
       <span>Сначала выберите товары в блоке №1 и сохраните запрос. Файлы прошлых запросов доступны в «Истории запросов».</span>
     {% endif %}
   </div>
-  <script>
-
-});
-
-  (function(){
-    var controls=document.getElementById('apify-export-controls');
-    if(!controls)return;
-    var error=document.getElementById('apify-export-error');
-    var cards=controls.querySelector('#apify-export-cards');
-    var links=document.querySelectorAll('a[data-apify-export-link]');
-    function configuredHref(href){
-      var url=new URL(href,window.location.href);
-      url.searchParams.delete('city');
-      controls.querySelectorAll('input[name="city"]:checked').forEach(function(box){url.searchParams.append('city',box.value);});
-      url.searchParams.set('cards',cards.value);
-      return url.toString();
-    }
-    links.forEach(function(link){
-      var original=link.href;
-      link.addEventListener('click',function(event){
-        if(!controls.querySelector('input[name="city"]:checked')){
-          event.preventDefault();error.hidden=false;controls.scrollIntoView({behavior:'smooth',block:'center'});return;
-        }
-        error.hidden=true;
-        link.href=configuredHref(original);
-      });
-    });
-  })();
-  </script>
+  {% load static %}<script src="{% static 'procurement/js/apify_exports.js' %}?v=20261126" defer></script>
 </section>
 
 <section class="rule-card step-card" aria-labelledby="buying-step-title">
@@ -734,9 +720,6 @@ document.addEventListener('DOMContentLoaded',function(){
 {% load static %}
 <script src="{% static 'procurement/js/apify_upload.js' %}?v=20261121-200mb" defer></script>
 <script>
-
-});
-
 (function () {
   const form = document.getElementById('apify-batch-form');
   if (!form) return;

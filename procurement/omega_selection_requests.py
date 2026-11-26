@@ -167,11 +167,11 @@ def category_usage(saved_requests, include_legacy=True):
     return {key: sorted(numbers) for key, numbers in usage.items()}
 
 
-def get_display_history(saved_requests, include_legacy=True):
+def get_display_history(saved_requests, include_legacy=True, batch_size=500):
     """Historical request is shown as a disclosure, not falsified as an Apify run."""
     history = [{'id': item.pk, 'details': item.details,
                 'created_at': item.created_at, 'legacy': False,
-                'export_batches': range(1, (int(item.details.get('query_count') or 0) + 499) // 500 + 1)}
+                'export_batches': range(1, (int(item.details.get('query_count') or 0) + batch_size - 1) // batch_size + 1)}
                for item in saved_requests]
     if include_legacy and not any(int(item['details'].get('number', 0)) == 1 for item in history):
         history.insert(0, {'id': None, 'details': LEGACY_FIRST_REQUEST,

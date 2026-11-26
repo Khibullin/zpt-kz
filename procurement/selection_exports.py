@@ -20,6 +20,18 @@ from .selection_rule_views import _stock_filter, _group_filter, matching_years
 from .views import access
 
 JSON_BATCH_SIZE = 500
+EXPORT_BATCH_SIZES = (500, 1000, 1500, 2000)
+
+
+def export_batch_size(value):
+    try:
+        size = int(value)
+    except (ValueError, TypeError):
+        raise ValueError('Размер партии: 500, 1000, 1500 или 2000 запросов.')
+    if size not in EXPORT_BATCH_SIZES:
+        raise ValueError('Размер партии: 500, 1000, 1500 или 2000 запросов.')
+    return size
+
 from .apify_cities import APIFY_CITIES
 APIFY_MIN_SUPPLIER_COST = Decimal('2000')
 APIFY_MAX_ITEMS_PER_QUERY = 2  # Default; configurable from 1 to 5.
@@ -101,6 +113,10 @@ def apify_queries(rule):
 @access('sales', 'admin')
 @require_GET
 def selection_apify_json(request):
+    try:
+        batch_size = export_batch_size(request.GET.get('batch_size', JSON_BATCH_SIZE))
+    except ValueError as error:
+        return JsonResponse({'error': str(error)}, status=400)
     rule = get_object_or_404(WholesaleSelectionRule, singleton_key=1)
     try:
         batch = int(request.GET.get('batch', '1'))
@@ -121,8 +137,8 @@ def selection_apify_json(request):
             return JsonResponse({'error': 'Некорректный запрос.'}, status=400)
     else:
         mapping = apify_queries(rule)
-    start = (batch - 1) * JSON_BATCH_SIZE
-    rows = mapping[start:start + JSON_BATCH_SIZE]
+    start = (batch - 1) * batch_size
+    rows = mapping[start:start + batch_size]
     if not rows:
         return JsonResponse({'error': 'Нет запросов в этой партии.'}, status=404)
     # Export-only settings: never modify the saved supplier selection.
@@ -158,6 +174,8 @@ def selection_apify_json(request):
             },
         }
         filename = f'apify_input_{saved_id}_{batch:02d}.json' if saved_id else f'apify_input_{batch:02d}.json'
+    if batch_size != JSON_BATCH_SIZE:
+        filename = filename.removesuffix('.json') + f'_size{batch_size}.json'
     response = HttpResponse(json.dumps(payload, ensure_ascii=False, indent=2),
                             content_type='application/json; charset=utf-8')
     response['Content-Disposition'] = f'attachment; filename="{filename}"'

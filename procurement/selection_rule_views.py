@@ -162,6 +162,15 @@ def selection_rules(request):
     omega = Supplier.objects.filter(pk=selected_id, name__in=ACTIVE_SUPPLIER_NAMES).first() if str(selected_id or '').isdigit() else None
     omega = omega or Supplier.objects.get(name='Omega')
     request.session['preparation_supplier'] = omega.pk
+    if request.method == 'POST' and request.POST.get('action') == 'reset_apify_preparation':
+        request.session.pop('omega_confirmed_preview', None)
+        messages.success(request, 'Подготовка сброшена. Прайсы, история запросов и результаты проверок сохранены.')
+        return redirect(reverse('procurement:selection_rules') + f'?supplier={omega.pk}#omega-pick-title')
+    from .selection_exports import EXPORT_BATCH_SIZES, JSON_BATCH_SIZE, export_batch_size
+    try:
+        selected_batch_size = export_batch_size(request.GET.get('batch_size', JSON_BATCH_SIZE))
+    except ValueError:
+        selected_batch_size = JSON_BATCH_SIZE
     rule, _ = WholesaleSelectionRule.objects.get_or_create(singleton_key=1)
     from .price_update_views import SupplierPriceUploadForm, price_history_context
     uploading_price = request.method == 'POST' and request.POST.get('action') == 'upload_price'
@@ -415,7 +424,7 @@ def selection_rules(request):
     ))
     from .omega_category_groups import group_categories
     omega_category_groups = group_categories(omega_categories)
-    omega_requests = get_display_history(saved_omega_requests, include_legacy=omega.name == 'Omega')
+    omega_requests = get_display_history(saved_omega_requests, include_legacy=omega.name == 'Omega', batch_size=selected_batch_size)
     next_omega_number = max(
         [int(saved.details.get('number', 0)) for saved in saved_omega_requests] + [1 if omega.name == 'Omega' else 0]
     ) + 1
@@ -426,7 +435,7 @@ def selection_rules(request):
         just_saved_request = Activity.objects.filter(
             pk=int(selected_saved_id), action='omega_category_selection_request').first()
     just_saved_batches = range(
-        1, (int(just_saved_request.details.get('query_count', 0)) + 499) // 500 + 1
+        1, (int(just_saved_request.details.get('query_count', 0)) + selected_batch_size - 1) // selected_batch_size + 1
     ) if just_saved_request else ()
     return render(request, 'procurement/selection_rules.html',
                   context(request, apify_session=apify_session, form=form, rule=rule, matched=exported_total,
@@ -442,6 +451,8 @@ def selection_rules(request):
                           next_omega_number=next_omega_number,
                           just_saved_request=just_saved_request,
                           just_saved_batches=just_saved_batches,
+                          export_batch_sizes=EXPORT_BATCH_SIZES,
+                          selected_batch_size=selected_batch_size,
                           apify_query_count=query_count,
                           json_batches=range(1, batches + 1),
                           json_batch_size=JSON_BATCH_SIZE,
