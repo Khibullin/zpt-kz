@@ -217,11 +217,27 @@ def advance_update(batch_id, prepared_rows=None):
     Offer.objects.bulk_update(updates, update_fields, batch_size=BATCH_SIZE)
     KaspiSellerSnapshot.objects.filter(offer_id__in=invalidated).delete()
     today = timezone.localdate()
+    created_ids = {offer.pk for offer in creates}
+    # New, unmatched rows cannot have old Kaspi evidence or review tasks.
+    # One lookup protects valid reuse while avoiding thousands of empty
+    # per-row queries during the first full supplier import.
+    possible_reuse = set(Offer.objects.filter(
+        brand__in=brands, article__in=articles,
+        name__in={offer.name for offer in creates}, match_verified=True,
+    ).exclude(kaspi_url='').values_list('brand', 'article', 'name')) if creates else set()
+    new_review_tasks = []
     for offer in affected:
         if 'подшипник' in (offer.name + ' ' + offer.category).casefold() or 'bearing' in (offer.name + ' ' + offer.category).casefold():
             continue
         if stock_status(offer.stock) != 'in_stock':
             KaspiReviewTask.objects.filter(offer=offer).update(status='done', reason='Нет подтверждённого наличия')
+            continue
+        if (offer.pk in created_ids and not offer.kaspi_url and not offer.match_verified
+                and (offer.brand, offer.article, offer.name) not in possible_reuse):
+            new_review_tasks.append(KaspiReviewTask(
+                offer=offer, batch=batch, priority=3, status='pending',
+                reason='Найти и проверить карточку Kaspi'))
+            batch.summary['queued'] += 1
             continue
         if not offer.kaspi_url and not offer.match_verified and reuse_identity(offer):
             batch.summary['reused'] += 1
@@ -248,6 +264,7 @@ def advance_update(batch_id, prepared_rows=None):
                 'priority': 1 if offer.match_verified else 3,
                 'status': 'blocked' if access_blocked else 'pending'})
             batch.summary['queued'] += 1
+    KaspiReviewTask.objects.bulk_create(new_review_tasks, batch_size=BATCH_SIZE)
     # Actual price processing date, without changing original supplier/Kaspi dates.
     from .models import ProfitableOfferRecord
     ProfitableOfferRecord.objects.filter(offer_id__in=[o.pk for o in affected]).update(processed_at=timezone.now())

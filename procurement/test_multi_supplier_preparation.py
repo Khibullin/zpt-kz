@@ -111,7 +111,11 @@ class MultiSupplierPreparationTests(TestCase):
             summary={k: 0 for k in ('new','changed','unchanged','conflicts','reused','queued','unavailable')})
         self.assertEqual(list(iter_price_rows(batch.pk)), rows)
         self.assertEqual(list(iter_price_rows(batch.pk, fields=['article']))[500], {'article': 'A0500'})
-        advanced = advance_update(batch.pk)
+        from django.test.utils import CaptureQueriesContext
+        from django.db import connection
+        with CaptureQueriesContext(connection) as queries:
+            advanced = advance_update(batch.pk)
+        self.assertLessEqual(len(queries), 40)
         self.assertEqual(advanced.cursor, 699)
         self.assertEqual(Offer.objects.filter(supplier=self.phaeton).count(), 200)
         self.assertTrue(Offer.objects.filter(supplier=self.phaeton, article='A0499').exists())

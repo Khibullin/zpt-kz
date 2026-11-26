@@ -156,7 +156,8 @@ class Command(BaseCommand):
                 # Supplier price uploads have absolute priority: Kaspi access
                 # errors, images or storefront snapshots must never delay a
                 # freshly uploaded supplier file or its profitable calculation.
-                query = PriceUpdate.objects.filter(status__in=['ready', 'running'], supplier__name='Omega').order_by('pk')
+                from procurement.suppliers import ACTIVE_SUPPLIER_NAMES
+                query = PriceUpdate.objects.filter(status__in=['ready', 'running'], supplier__name__in=ACTIVE_SUPPLIER_NAMES).order_by('pk')
                 if options['batch']:
                     query = query.filter(pk=options['batch'])
                 for batch in query.iterator(chunk_size=1):
