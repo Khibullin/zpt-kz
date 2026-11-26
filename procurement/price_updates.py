@@ -18,7 +18,7 @@ from .models import (Activity, Offer, Supplier, PriceUpdate, KaspiReviewTask,
 BATCH_SIZE = 200
 
 
-def prepare_rows(file):
+def prepare_rows(file, *, infer_categories=False):
     raw = load_rows(file, max_rows=150000)
     result, seen = [], {}
     for number, row in raw:
@@ -52,6 +52,13 @@ def prepare_rows(file):
                     # Empty supplier cells must not erase previously sourced details.
                     if value or field not in ('applicability', 'description'):
                         item[field] = value
+            if infer_categories and not item.get('category'):
+                from .supplier_categories import classify_name
+                item['category'] = classify_name(item['name'])
+                item['_category_source'] = 'supplier_name_preliminary'
+            for source, metadata_key in (('Штрихкод', '_barcode'), ('Код ТНВЭД', '_tnved')):
+                if row.get(source) is not None:
+                    item[metadata_key] = str(row[source]).strip()
             test = Offer(supplier_id=1, **{k:v for k,v in item.items() if not k.startswith('_')})
             test.full_clean(exclude=['supplier'] + (['brand'] if not identity['brand'] else []), validate_unique=False, validate_constraints=False)
             if key in seen:
@@ -90,7 +97,7 @@ def stage_update(file, supplier, user, date, full_catalog=False):
             'Для этой даты уже есть прайс с другим содержимым. Проверьте новую версию файла перед заменой.'
         )
     try:
-        rows = prepare_rows(file)
+        rows = prepare_rows(file, infer_categories=supplier.name != 'Omega')
     except (KeyError, OSError) as error:
         raise ValueError('Файл Excel повреждён или содержит неподдерживаемую структуру. Сохраните его заново как XLSX или CSV.') from error
     if full_catalog:

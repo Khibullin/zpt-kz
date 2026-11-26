@@ -1,3 +1,5 @@
+from .suppliers import ACTIVE_SUPPLIER_NAMES
+
 from django import forms
 from django.forms import formset_factory
 from .models import Preferences, Draft, Membership, Supplier, Offer, VehicleFitment, PurchaseOrder
@@ -41,17 +43,8 @@ class SelectionFilterForm(forms.Form):
     def __init__(self, *args, include_historical_suppliers=False,
                  minimal_buying=False, **kwargs):
         super().__init__(*args, **kwargs)
-        # One active supplier across every procurement screen, including
-        # historical best-buying views. Preserve old database records for audit.
-        self.fields['supplier'].queryset = Supplier.objects.filter(name='Omega')
-        omega = Supplier.objects.filter(name='Omega').values_list('pk', flat=True).first()
-        if omega:
-            if self.is_bound:
-                self.data = self.data.copy()
-                self.data['supplier'] = str(omega)
-            else:
-                self.fields['supplier'].initial = omega
-        selected_supplier = self.data.get('supplier', '') if self.is_bound else str(omega or '')
+        self.fields['supplier'].queryset = Supplier.objects.filter(name__in=ACTIVE_SUPPLIER_NAMES)
+        selected_supplier = self.data.get('supplier', '') if self.is_bound else ''
         supplier_id = int(selected_supplier) if str(selected_supplier).isdigit() else None
         category_values, models_by_make = supplier_options(supplier_id)
         categories = list(OMEGA_CATEGORIES) if not selected_supplier else []

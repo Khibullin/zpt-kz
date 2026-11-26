@@ -13,6 +13,8 @@ from io import BytesIO
 from pathlib import PurePath
 from copy import deepcopy
 from datetime import timedelta
+from .suppliers import ACTIVE_SUPPLIER_NAMES
+
 from django.core import signing
 from django.db import transaction
 from functools import wraps
@@ -32,7 +34,7 @@ from django.core.paginator import Paginator
 from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
 
-from .analysis import evaluate, MIN_BEST_PROFIT, PACKAGING_COST
+from .analysis import evaluate, stock_status, MIN_BEST_PROFIT, PACKAGING_COST
 from .permissions import workspace_role
 from .forms import PreferencesForm, UploadForm, DraftForm, SelectionFilterForm, PurchaseConfirmationForm, PurchaseEditForm, PurchaseLineFormSet
 from .importing import import_offers, import_demand, import_enrichment, import_competitors, import_matches, import_card_searches
@@ -75,7 +77,7 @@ def context(request, **extra):
             'upload_url': reverse('procurement:upload') + scope_query,
             'settings_url': reverse('procurement:settings') + scope_query,
             'basket_url': reverse('procurement:basket') + scope_query,
-            'basket_count': Selection.objects.filter(user=request.user, offer__supplier__name='Omega').count(), **extra}
+            'basket_count': Selection.objects.filter(user=request.user, offer__supplier__name__in=ACTIVE_SUPPLIER_NAMES).count(), **extra}
 
 
 def kaspi_status(offer, preferences, today):
@@ -131,7 +133,7 @@ def preserved_best_scope(supplier):
 def filtered_rows(request, preferences, filters, paginate=False):
     # Ranking uses scalar offer facts; detailed descriptions/JSON and seller lists
     # are not needed for every item in the supplier catalogue.
-    query = Offer.objects.filter(supplier__name='Omega').select_related('supplier', 'kaspi_sellers', 'kaspi_card_search').defer('description', 'characteristics', 'supplier_url')
+    query = Offer.objects.filter(supplier__name__in=ACTIVE_SUPPLIER_NAMES).select_related('supplier', 'kaspi_sellers', 'kaspi_card_search').defer('description', 'characteristics', 'supplier_url')
     mode = request.GET.get('mode', 'roi')
     if mode == 'best':
         # Firsthand offers are stored in JSON: load once with the row, not one
@@ -549,7 +551,12 @@ def dashboard(request):
 def detail(request, pk):
     offer = get_object_or_404(Offer.objects.select_related('supplier', 'kaspi_sellers', 'kaspi_card_search'), pk=pk)
     preferences, _ = Preferences.objects.get_or_create(user=request.user)
-    alternatives = Offer.objects.filter(brand__iexact=offer.brand, article__iexact=offer.article).select_related('supplier').order_by('cost')
+    alternatives = list(Offer.objects.filter(brand__iexact=offer.brand, article__iexact=offer.article,
+        supplier__name__in=ACTIVE_SUPPLIER_NAMES).select_related('supplier').order_by('cost', 'pk'))
+    available_costs = [item.cost for item in alternatives if stock_status(item.stock) == 'in_stock']
+    minimum_cost = min(available_costs) if available_costs else None
+    for item in alternatives:
+        item.minimum_available_cost = item.cost == minimum_cost and stock_status(item.stock) == 'in_stock'
     return render(request, 'procurement/detail.html', context(request, offer=offer, analysis=evaluate(offer, preferences), alternatives=alternatives))
 
 
@@ -639,8 +646,8 @@ def upload(request, kaspi_only=False):
             item for item in form.fields['kind'].choices if item[0] in allowed_kinds
         ]
     if request.method == 'POST' and form.is_valid():
-        if form.cleaned_data['supplier'].strip() != 'Omega':
-            form.add_error('supplier', 'Для новых закупочных данных разрешён только поставщик Omega.')
+        if form.cleaned_data['supplier'].strip() not in ACTIVE_SUPPLIER_NAMES:
+            form.add_error('supplier', 'Выберите Omega, Phaeton DC или ZakazAuto.')
         elif form.cleaned_data['checked_on'] > timezone.localdate():
             form.add_error('checked_on', 'Дата не может быть в будущем.')
         else:
@@ -663,7 +670,7 @@ def upload(request, kaspi_only=False):
 @access()
 @require_POST
 def select(request, pk):
-    offer = get_object_or_404(Offer, pk=pk, supplier__name='Omega')
+    offer = get_object_or_404(Offer, pk=pk, supplier__name__in=ACTIVE_SUPPLIER_NAMES)
     as_json = 'application/json' in request.headers.get('Accept', '')
     def invalid_quantity(message):
         return JsonResponse({'error': message}, status=400) if as_json else HttpResponse(message, status=400)
@@ -675,7 +682,7 @@ def select(request, pk):
         return invalid_quantity('Количество вне допустимого диапазона.')
     Selection.objects.update_or_create(user=request.user, offer=offer, defaults={'quantity': quantity})
     if as_json:
-        return JsonResponse({'basket_count': Selection.objects.filter(user=request.user, offer__supplier__name='Omega').count(),
+        return JsonResponse({'basket_count': Selection.objects.filter(user=request.user, offer__supplier__name__in=ACTIVE_SUPPLIER_NAMES).count(),
                              'message': 'Добавлено в список закупки.'})
     target = request.POST.get('next', '')
     if url_has_allowed_host_and_scheme(target, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
@@ -695,7 +702,7 @@ def select_many(request):
         return JsonResponse({'error': message}, status=400) if as_json else HttpResponse(message, status=400)
     ids = set(map(int, ids))
     with transaction.atomic():
-        offers = list(Offer.objects.filter(pk__in=ids, supplier__name='Omega').order_by('pk'))
+        offers = list(Offer.objects.filter(pk__in=ids, supplier__name__in=ACTIVE_SUPPLIER_NAMES).order_by('pk'))
         if len(offers) != len(ids) or any(not 1 <= offer.min_order <= 100000 for offer in offers):
             message = 'Состав списка изменился. Обновите страницу и повторите выбор.'
             return JsonResponse({'error': message}, status=400) if as_json else HttpResponse(message, status=400)
@@ -703,7 +710,7 @@ def select_many(request):
             Selection.objects.get_or_create(user=request.user, offer=offer,
                                             defaults={'quantity': offer.min_order})
     if as_json:
-        return JsonResponse({'basket_count': Selection.objects.filter(user=request.user, offer__supplier__name='Omega').count(),
+        return JsonResponse({'basket_count': Selection.objects.filter(user=request.user, offer__supplier__name__in=ACTIVE_SUPPLIER_NAMES).count(),
                              'selected_ids': sorted(ids), 'message': 'Добавлено в список закупки.'})
     target = request.POST.get('next', '')
     messages.success(request, 'Добавлено в список закупки.')
@@ -748,7 +755,7 @@ def purchase_snapshot(rows):
 @access()
 def basket(request):
     from .purchase_list_excel import offer_unit, PurchaseListExportForm, purchaser_name, organization_details
-    rows = list(Selection.objects.filter(user=request.user, offer__supplier__name='Omega').select_related('offer__supplier').order_by('offer__supplier__name', 'pk'))
+    rows = list(Selection.objects.filter(user=request.user, offer__supplier__name__in=ACTIVE_SUPPLIER_NAMES).select_related('offer__supplier').order_by('offer__supplier__name', 'pk'))
     from .purchase_readiness import blocked_permanent_offer_ids
     unverified_ids = blocked_permanent_offer_ids({row.offer_id for row in rows})
     for row in rows:
@@ -781,7 +788,7 @@ def basket_excel(request):
     form = PurchaseListExportForm(request.GET)
     if not form.is_valid():
         return HttpResponse('Укажите имя закупщика длиной до 200 символов.', status=400)
-    rows = Selection.objects.filter(user=request.user, offer__supplier__name='Omega').select_related('offer__supplier').order_by('offer__supplier__name', 'pk')
+    rows = Selection.objects.filter(user=request.user, offer__supplier__name__in=ACTIVE_SUPPLIER_NAMES).select_related('offer__supplier').order_by('offer__supplier__name', 'pk')
     buyer = form.cleaned_data['buyer'] or purchaser_name(request.user)
     output = export_purchase_list(rows, buyer)
     return FileResponse(output, as_attachment=True,
@@ -791,7 +798,7 @@ def basket_excel(request):
 
 @access()
 def purchase_confirm(request, supplier_id):
-    supplier = get_object_or_404(Supplier, pk=supplier_id, name='Omega')
+    supplier = get_object_or_404(Supplier, pk=supplier_id, name__in=ACTIVE_SUPPLIER_NAMES)
     def selection_rows(lock=False):
         query = Selection.objects.filter(user=request.user, offer__supplier=supplier).select_related('offer').order_by('pk')
         return list(query.select_for_update(of=('self',)) if lock else query)

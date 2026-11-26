@@ -11,6 +11,8 @@ from decimal import Decimal, InvalidOperation
 from pathlib import PurePath
 from urllib.parse import urlsplit
 
+from .suppliers import ACTIVE_SUPPLIER_NAMES
+
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import DecimalField, ExpressionWrapper, F, Value
@@ -77,7 +79,7 @@ def _offer_index(brands):
     for brand in brands:
         brand_filter |= Q(brand__iexact=brand)
     for offer in Offer.objects.filter(
-        brand_filter, supplier__name='Omega'
+        brand_filter, supplier__name__in=ACTIVE_SUPPLIER_NAMES
     ).only('id', 'brand', 'article', 'name', 'kaspi_url', 'match_verified',
            'cost', 'stock', 'category').iterator(chunk_size=1500):
         if offer.article:
@@ -100,8 +102,10 @@ def import_apify_results(upload, filename, user=None):
     # Apify's multi-card search contains unrelated results. Recheck exports
     # have searchQuery per card and must use the separate, non-destructive
     # cross-card minimum-price aggregation path (never old first-card import).
-    if user is not None and any(
-            isinstance(item, dict) and item.get('searchQuery') for item in raw):
+    if user is not None and (any(
+            isinstance(item, dict) and item.get('searchQuery') for item in raw)
+            or Offer.objects.filter(supplier__name__in=[
+                name for name in ACTIVE_SUPPLIER_NAMES if name != 'Omega']).exists()):
         from .apify_price_recheck import import_apify_recheck_results
         return import_apify_recheck_results(raw, filename, user)
     grouped = {}

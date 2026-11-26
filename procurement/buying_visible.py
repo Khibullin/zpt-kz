@@ -5,6 +5,8 @@ No source Offer, warehouse, price or verification flag is mutated.
 """
 from datetime import timedelta
 from decimal import Decimal
+from .suppliers import ACTIVE_SUPPLIER_NAMES
+
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.utils import timezone
@@ -78,7 +80,7 @@ def visible_buying_rows(request, preferences, filters):
         Q(match_status='verified') |
         Q(match_status='candidate',
           source_filename='dataset_kaspi-api_2026-11-21_13-39-32-482(2).json'),
-        offer__isnull=False, offer__supplier__name='Omega',
+        offer__isnull=False, offer__supplier__name__in=ACTIVE_SUPPLIER_NAMES,
     )
     qs = qs.filter(buying_cost_query('offer__'), offer__stock__regex=POSITIVE_STOCK_PATTERN).exclude(profitable_product_exclusions('offer__'))
     if offer_scope is not None:
@@ -160,7 +162,7 @@ def visible_buying_rows(request, preferences, filters):
     # Previously saved profitable offers must not disappear on Apify import.
     # Include currently qualified legacy offers without duplicating an Apify supplier row.
     old = Offer.objects.filter(buying_cost_query(), stock__regex=POSITIVE_STOCK_PATTERN,
-                               supplier__name='Omega', match_verified=True).exclude(
+                               supplier__name__in=ACTIVE_SUPPLIER_NAMES, match_verified=True).exclude(
         profitable_product_exclusions()
     ).select_related(
         'supplier', 'profitable_record',

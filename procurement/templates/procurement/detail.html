@@ -62,10 +62,10 @@
 </thead>
 <tbody>{% for item in alternatives %}<tr>
 <td>{{ item.supplier.name }}</td>
-<td>{{ item.cost }} ₸</td>
+<td{% if item.minimum_available_cost %} style="background:#e7f6ed;font-weight:700"{% endif %}>{{ item.cost }} ₸{% if item.minimum_available_cost %}<small>Минимальная закупочная цена в наличии</small>{% endif %}</td>
 <td>{{ item.stock|default:'Нет данных' }}</td>
 <td>{{ item.min_order }}</td>
-<td>{{ item.checked_on|date:'d.m.Y'|default:'Нет данных' }}</td>
+<td>{{ item.supplier_checked_on|date:'d.m.Y'|default:'Нет данных' }}</td>
 <td>
 <a href="{% url 'procurement:detail' item.pk %}">Выбрать</a>
 </td>

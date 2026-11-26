@@ -8,12 +8,14 @@ from decimal import Decimal, InvalidOperation
 from datetime import date
 import re
 
+from .suppliers import ACTIVE_SUPPLIER_NAMES
+
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.db import transaction
 
 from .analysis import stock_status
-from .models import Activity, PriceUpdate
+from .models import Activity, PriceUpdate, Supplier
 from .price_source import CATEGORY_FIELDS, iter_price_rows
 
 DEFAULT_CATEGORIES = (
@@ -36,8 +38,9 @@ def category_key(value):
     return ' '.join(str(value or '').strip().split()).casefold()
 
 
-def latest_price_batch():
-    return (PriceUpdate.objects.filter(supplier__name='Omega')
+def latest_price_batch(supplier=None):
+    supplier = supplier or Supplier.objects.filter(name='Omega').first()
+    return (PriceUpdate.objects.filter(supplier=supplier)
             .only('id', 'filename', 'checked_on', 'sha256', 'row_count', 'created_at')
             .order_by('-checked_on', '-pk').first())
 
@@ -75,10 +78,40 @@ def _is_spring(row):
     return 'пружин' in text or 'spring' in text
 
 
-def pick_rows(batch, categories, minimum, max_age, in_stock_only=True, exclude_springs=False):
+def fresh_checked_keys(batch):
+    """Skip only already audited, verified, unchanged variants, for seven days."""
+    if batch.supplier.name == 'Omega':
+        return set()  # Preserve the existing Omega request protocol.
+    from datetime import timedelta
+    from django.utils import timezone
+    from django.db.models import F
+    from .models import KaspiPriceAudit
+    now = timezone.now()
+    audits = KaspiPriceAudit.objects.filter(
+        offer__supplier=batch.supplier, offer__match_verified=True,
+        observed_at__gte=now-timedelta(days=7), observed_at__lte=now,
+        card_url=F('offer__kaspi_url'), cost_snapshot=F('offer__cost'),
+    ).select_related('offer').only('card_url', 'cost_snapshot',
+        'offer__brand', 'offer__article', 'offer__name', 'offer__characteristics')
+    return {row_reuse_key(dict(brand=a.offer.brand, article=a.offer.article,
+        name=a.offer.name, cost=str(a.cost_snapshot),
+        _pack_size=a.offer.characteristics.get('supplier_pack_size', 1))) for a in audits}
+
+
+def row_reuse_key(row):
+    return (str(row.get('brand') or '').strip().casefold(),
+            str(row.get('article') or '').strip().casefold(),
+            str(row.get('name') or '').strip(),
+            str(_cost(row).normalize()), str(row.get('_pack_size') or 1))
+
+
+def pick_rows(batch, categories, minimum, max_age, in_stock_only=True, exclude_springs=False, excluded_keys=()):
     keys = {category_key(v) for v in categories}
     selected, unknown = [], 0
+    excluded_keys = set(tuple(key) for key in excluded_keys)
     for row in iter_price_rows(batch.pk):
+        if row_reuse_key(row) in excluded_keys:
+            continue
         if category_key(row.get('category') or 'Без категории') not in keys:
             continue
         if row.get('_conflict') or not row.get('brand') or not row.get('article') or _cost(row) < minimum:
@@ -118,11 +151,11 @@ def price_categories(batch, minimum=Decimal('2000')):
     return result
 
 
-def category_usage(saved_requests):
+def category_usage(saved_requests, include_legacy=True):
     """Show previous request numbers without removing repeatable categories."""
     usage = defaultdict(list)
     has_first = any(int(item.details.get('number', 0)) == 1 for item in saved_requests)
-    if not has_first:
+    if include_legacy and not has_first:
         for name in DEFAULT_CATEGORIES:
             usage[category_key(name)].append(1)
     for item in saved_requests:
@@ -134,21 +167,27 @@ def category_usage(saved_requests):
     return {key: sorted(numbers) for key, numbers in usage.items()}
 
 
-def get_display_history(saved_requests):
+def get_display_history(saved_requests, include_legacy=True):
     """Historical request is shown as a disclosure, not falsified as an Apify run."""
     history = [{'id': item.pk, 'details': item.details,
                 'created_at': item.created_at, 'legacy': False,
                 'export_batches': range(1, (int(item.details.get('query_count') or 0) + 499) // 500 + 1)}
                for item in saved_requests]
-    if not any(int(item['details'].get('number', 0)) == 1 for item in history):
+    if include_legacy and not any(int(item['details'].get('number', 0)) == 1 for item in history):
         history.insert(0, {'id': None, 'details': LEGACY_FIRST_REQUEST,
                            'created_at': None, 'legacy': True, 'export_batches': []})
     return history
 
 
-def request_history():
-    return (Activity.objects.filter(action=REQUEST_ACTION)
-            .select_related('user').order_by('pk'))
+def request_history(supplier=None):
+    from django.db.models import Q
+    supplier = supplier or Supplier.objects.filter(name='Omega').first()
+    if supplier is None:
+        return Activity.objects.none()
+    scope = Q(details__supplier_id=supplier.pk)
+    if supplier.name == 'Omega':
+        scope |= Q(details__supplier_id__isnull=True)
+    return Activity.objects.filter(scope, action=REQUEST_ACTION).select_related('user').order_by('pk')
 
 
 def request_rows(saved):
@@ -161,7 +200,7 @@ def request_rows(saved):
     keys = set(details['category_keys'])
     return pick_rows(batch, keys, minimum, int(details.get('max_vehicle_age', 20)),
                      bool(details.get('in_stock_only', True)),
-                     bool(details.get('exclude_springs', False)))[0]
+                     bool(details.get('exclude_springs', False)), details.get('fresh_checked_keys', []))[0]
 
 
 def request_queries(saved):
@@ -182,8 +221,10 @@ def request_queries(saved):
 @transaction.atomic
 def save_request(*, batch_id, categories, minimum, user,
                  max_vehicle_age=20, in_stock_only=True, exclude_springs=False):
-    batch = PriceUpdate.objects.select_for_update().defer('rows').get(
-        pk=batch_id, supplier__name='Omega')
+    supplier_id = PriceUpdate.objects.values_list('supplier_id', flat=True).get(
+        pk=batch_id, supplier__name__in=ACTIVE_SUPPLIER_NAMES)
+    Supplier.objects.select_for_update().get(pk=supplier_id)
+    batch = PriceUpdate.objects.select_for_update().defer('rows').get(pk=batch_id)
     try:
         minimum = Decimal(str(minimum).replace(',', '.'))
     except (InvalidOperation, ValueError, TypeError):
@@ -201,18 +242,21 @@ def save_request(*, batch_id, categories, minimum, user,
     if not 0 <= max_vehicle_age <= 100:
         raise ValidationError('Допустимый возраст: от 0 до 100 лет.')
     requested = set(unique)
-    filtered, unknown_age = pick_rows(batch, requested, minimum, max_vehicle_age, in_stock_only, exclude_springs)
+    excluded_keys = fresh_checked_keys(batch)
+    filtered, unknown_age = pick_rows(batch, requested, minimum, max_vehicle_age, in_stock_only, exclude_springs, excluded_keys)
     if not filtered:
         raise ValidationError('По выбранным условиям товары не найдены.')
-    previous = list(Activity.objects.select_for_update()
-                    .filter(action=REQUEST_ACTION).only('id', 'details'))
-    number = max((int(item.details.get('number', 0)) for item in previous), default=1) + 1
+    previous = list(request_history(batch.supplier).select_related(None).select_for_update().only('id', 'details'))
+    number = max((int(item.details.get('number', 0)) for item in previous),
+                 default=1 if batch.supplier.name == 'Omega' else 0) + 1
     from .selection_exports import article_variants
     queries = set()
     for row in filtered:
         for article in article_variants(row.get('article')):
             queries.add((' '.join((str(row['brand']).strip(), article))).casefold())
     return Activity.objects.create(user=user, action=REQUEST_ACTION, details={
+        'supplier_id': batch.supplier_id, 'supplier_name': batch.supplier.name,
+        'fresh_checked_keys': sorted(excluded_keys),
         'number': number, 'title': f'Запрос №{number}',
         'price_batch_id': batch.pk, 'price_sha256': batch.sha256,
         'filename': batch.filename, 'checked_on': batch.checked_on.isoformat(),
@@ -232,12 +276,12 @@ def preview_request(*, batch_id, categories, minimum, max_vehicle_age, in_stock_
         raise ValidationError('Проверьте цену закупки и возраст автомобиля.')
     if not minimum.is_finite() or minimum < 0 or not 0 <= max_vehicle_age <= 100:
         raise ValidationError('Некорректные параметры отбора.')
-    batch = PriceUpdate.objects.defer('rows').get(pk=batch_id, supplier__name='Omega')
+    batch = PriceUpdate.objects.defer('rows').get(pk=batch_id, supplier__name__in=ACTIVE_SUPPLIER_NAMES)
     available = {row['key'] for row in price_categories(batch)}
     keys = {category_key(x) for x in categories}
     if not keys.issubset(available):
         raise ValidationError('Категории не найдены в выбранном прайсе.')
-    selected, unknown_age = pick_rows(batch, keys, minimum, max_vehicle_age, in_stock_only, exclude_springs)
+    selected, unknown_age = pick_rows(batch, keys, minimum, max_vehicle_age, in_stock_only, exclude_springs, fresh_checked_keys(batch))
     from .selection_exports import article_variants, JSON_BATCH_SIZE
     queries = {(' '.join((str(row['brand']).strip(), variant))).casefold()
                for row in selected for variant in article_variants(row['article'])}

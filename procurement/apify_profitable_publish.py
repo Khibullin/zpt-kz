@@ -7,6 +7,8 @@ authorizes a purchase. Earlier frozen values remain unchanged.
 import re
 from decimal import Decimal
 
+from .suppliers import ACTIVE_SUPPLIER_NAMES
+
 from django.core.exceptions import ValidationError
 from django.db import transaction
 
@@ -26,7 +28,7 @@ def complete_session(session):
 def eligible_source_audits(source):
     return (KaspiPriceAudit.objects.filter(
         source_filename=source,
-        offer__supplier__name="Omega",
+        offer__supplier__name__in=ACTIVE_SUPPLIER_NAMES,
         roi__gte=ROI_GATE,
         cost_snapshot__gt=0,
         min_price__gt=0,

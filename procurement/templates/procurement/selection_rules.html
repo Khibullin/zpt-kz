@@ -118,7 +118,7 @@
 
 @media(max-width:600px){.step-heading.policy-heading .step-heading-main{flex-basis:auto}.step-policy-content{padding:12px}}
 </style>
-<div class="rule-header"><h1>Подготовка товаров к закупке</h1><p>Прайс Омеги → выбор товара → запросы → Apify → проверка выгодности</p></div>
+<div class="rule-header"><h1>Подготовка товаров к закупке</h1><p>Прайс {{ selected_supplier.name }} → выбор товара → запросы → Apify → проверка выгодности</p></div>
 <section class="rule-card step-card omega-first-step" aria-labelledby="omega-pick-title">
   <div class="step-heading omega-pick-head policy-heading">
     <div class="step-heading-main"><span class="step-number">1</span>
@@ -129,13 +129,13 @@
     <summary>Правила</summary>
     <div class="step-policy-content">
       <ol>
-        <li><strong>Поставщик — Omega.</strong></li>
+        <li><strong>Поставщик — {{ selected_supplier.name }}. История прайсов и запросов ведётся отдельно.</strong></li>
         <li><strong>Закупочная цена — от 2 000 ₸ включительно.</strong></li>
         <li><strong>Наличие — только товары с положительным остатком.</strong></li>
-        <li><strong>Категории — все товары выбранных категорий или групп.</strong></li>
+        <li><strong>Категории — все товары выбранных категорий или групп.</strong> Если в прайсе нет категории, она предварительно определяется по названию. Неопознанные товары остаются в «Без категории»; применимость этим не подтверждается.</li>
         <li><strong>Исключить пружины — отдельная галочка, по умолчанию выключена.</strong></li>
         <li><strong>Возраст автомобиля — до 20 лет, с возможностью изменения.</strong></li>
-        <li><strong>Повторный выбор — разрешён, ранее выбранные категории отмечаются.</strong></li>
+        <li><strong>Повторный выбор — разрешён, ранее выбранные категории отмечаются.</strong> Для новых поставщиков исключаются уже подтверждённые проверки не старше 7 дней при совпадении артикула, названия, комплектности и закупочной цены. Изменённые товары проверяются снова.</li>
         <li><strong>Результат — сохранённый запрос и список товаров для поиска на Kaspi.</strong></li>
       </ol>
     </div>
@@ -160,6 +160,7 @@
   {% if omega_price_batch and omega_categories %}
   <form method="post" id="omega-category-request-form" action="{% url 'procurement:selection_rules' %}">
     {% csrf_token %}
+    <input type="hidden" name="supplier" value="{{ selected_supplier.pk|unlocalize }}">
     <input type="hidden" name="action" value="save_omega_request">
     <input type="hidden" name="price_batch_id" value="{{ omega_price_batch.pk }}">
     <input type="hidden" name="omega_stock_submitted" value="1">
@@ -182,7 +183,7 @@
       <button type="button" id="omega-clear-all">Снять выбор</button>
     </div>
     <div class="omega-category-grid omega-group-grid" id="omega-categories-table"
-         role="group" aria-label="Группы категорий Омеги">
+         role="group" aria-label="Группы категорий поставщика">
       {% for group in omega_category_groups %}
         <details class="omega-group" data-name="{{ group.name|lower }}" data-group="{{ group.key }}">
           <summary class="omega-group-heading">
@@ -375,6 +376,16 @@
 @media(max-width:700px){.omega-group-grid{grid-template-columns:1fr;max-height:415px}.omega-category-tools .omega-history-filter{min-width:130px}}
 </style>
 <script>
+document.addEventListener('DOMContentLoaded', () => {
+ const picker = document.getElementById('price_supplier');
+ if (picker) picker.addEventListener('change', () => {
+   const url = new URL(window.location.href);
+   url.search = ''; url.searchParams.set('supplier', picker.value);
+   window.location.assign(url.href);
+ });
+
+});
+
 document.addEventListener('DOMContentLoaded',function(){
   const form=document.getElementById('omega-category-request-form');
   if(!form)return;
@@ -590,6 +601,9 @@ document.addEventListener('DOMContentLoaded',function(){
     {% endif %}
   </div>
   <script>
+
+});
+
   (function(){
     var controls=document.getElementById('apify-export-controls');
     if(!controls)return;
@@ -720,6 +734,9 @@ document.addEventListener('DOMContentLoaded',function(){
 {% load static %}
 <script src="{% static 'procurement/js/apify_upload.js' %}?v=20261121-200mb" defer></script>
 <script>
+
+});
+
 (function () {
   const form = document.getElementById('apify-batch-form');
   if (!form) return;

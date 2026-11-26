@@ -1,3 +1,5 @@
+from .suppliers import ACTIVE_SUPPLIER_NAMES
+
 from django import forms
 from django.contrib import messages
 from django.core.paginator import Paginator
@@ -55,7 +57,7 @@ class PriceUpdateForm(forms.Form):
 
 
 class SupplierPriceUploadForm(forms.Form):
-    supplier = forms.ModelChoiceField(label='Поставщик', queryset=Supplier.objects.filter(name='Omega'), initial=1)
+    supplier = forms.ModelChoiceField(label='Поставщик', queryset=Supplier.objects.filter(name__in=ACTIVE_SUPPLIER_NAMES), initial=1)
     checked_on = forms.DateField(label='Дата прайса', initial=timezone.localdate,
         widget=forms.DateInput(attrs={'type': 'date'}, format='%Y-%m-%d'))
     file = forms.FileField(label='Прайс-лист XLSX / CSV',
@@ -78,8 +80,9 @@ class SupplierPriceUploadForm(forms.Form):
         return value
 
 
-def price_history_context(request):
-    batches = Paginator(PriceUpdate.objects.filter(supplier__name='Omega').select_related('supplier').defer('rows'), 20).get_page(request.GET.get('price_page'))
+def price_history_context(request, supplier=None):
+    supplier = supplier or Supplier.objects.filter(name='Omega').first()
+    batches = Paginator(PriceUpdate.objects.filter(supplier=supplier).select_related('supplier').defer('rows'), 20).get_page(request.GET.get('price_page'))
     for batch in batches:
         batch.source_conflicts = batch.summary.get('conflict_items', [])
     return {'price_batches': batches}
@@ -92,12 +95,6 @@ def updates(request):
         return redirect('procurement:selection_rules')
     form = PriceUpdateForm(request.POST, request.FILES)
     if form.is_valid():
-        # Keep legacy POST links from silently staging non-Omega supplier files.
-        if (any(form.cleaned_data.get(key + '_file') for key in ('phaeton', 'zakazauto'))
-                or (form.cleaned_data.get('omega_file') and
-                    getattr(form.cleaned_data.get('omega_supplier'), 'name', '') != 'Omega')):
-            messages.error(request, 'В служебном кабинете разрешены только прайс-листы Omega.')
-            return redirect('procurement:selection_rules')
         try:
             # Validate every supplied file before committing any staged run.
             with transaction.atomic():
@@ -118,7 +115,7 @@ def updates(request):
 @access('sales', 'admin')
 @require_POST
 def advance(request, pk):
-    get_object_or_404(PriceUpdate, pk=pk, supplier__name='Omega')
+    get_object_or_404(PriceUpdate, pk=pk, supplier__name__in=ACTIVE_SUPPLIER_NAMES)
     try:
         batch = advance_update(pk)
     except ValueError as error:
@@ -131,7 +128,7 @@ def advance(request, pk):
 def queue_export(request):
     import json
     from urllib.parse import urlencode
-    tasks = KaspiReviewTask.objects.filter(status__in=['pending', 'checking', 'blocked'], offer__supplier__name='Omega').select_related('offer__supplier').order_by('priority', 'pk')
+    tasks = KaspiReviewTask.objects.filter(status__in=['pending', 'checking', 'blocked'], offer__supplier__name__in=ACTIVE_SUPPLIER_NAMES).select_related('offer__supplier').order_by('priority', 'pk')
     payload = [{'offer_id': t.offer_id, 'supplier': t.offer.supplier.name, 'brand': t.offer.brand,
         'article': t.offer.article, 'name': t.offer.name, 'kaspi_url': t.offer.kaspi_url,
         'reason': t.reason, 'search_url': 'https://kaspi.kz/shop/search/?' + urlencode({
@@ -144,7 +141,7 @@ def queue_export(request):
 @access('sales', 'admin')
 @require_POST
 def retry_kaspi(request, pk):
-    batch = get_object_or_404(PriceUpdate, pk=pk, supplier__name='Omega')
+    batch = get_object_or_404(PriceUpdate, pk=pk, supplier__name__in=ACTIVE_SUPPLIER_NAMES)
     count = KaspiReviewTask.objects.filter(batch=batch, status='blocked').update(status='pending', reason='Повторная проверка по команде сотрудника')
     messages.success(request, f'Возобновлено проверок Kaspi: {count}.')
     return redirect('procurement:price_updates')

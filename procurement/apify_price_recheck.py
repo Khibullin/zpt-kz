@@ -16,6 +16,8 @@ from collections import defaultdict
 from decimal import Decimal
 from pathlib import PurePath
 
+from .suppliers import ACTIVE_SUPPLIER_NAMES
+
 from django.db import transaction
 from django.db.models import Q
 
@@ -61,7 +63,7 @@ def _offer_index(brands):
     for brand in brands:
         condition |= Q(brand__iexact=brand)
     for offer in Offer.objects.filter(
-            condition, supplier__name='Omega').only(
+            condition, supplier__name__in=ACTIVE_SUPPLIER_NAMES).only(
             'id', 'brand', 'article', 'name', 'category',
             'cost', 'stock').iterator(chunk_size=1500):
         index[_brand(offer.brand)].append(offer)
@@ -97,45 +99,45 @@ def import_apify_recheck_results(raw, filename, user):
         tokens = article_tokens(title)
         matching = [offer for offer in index.get(brand, [])
                     if normalize_article(offer.article) in tokens]
-        if len(matching) != 1:
+        if not matching or len({normalize_article(offer.article) for offer in matching}) != 1:
             stats['unmatched'] += 1
             stats['recheck_unrelated'] += 1
             continue
-        offer = matching[0]
-        stats['linked'] += 1
-        stats['recheck_matched_cards'] += 1
-        if not re.match(POSITIVE_STOCK_PATTERN, str(offer.stock or '')):
-            stats['rejected_unverifiable'] += 1
-            continue
-        if re.search(r'пружин|spring', ' '.join((
-                offer.name or '', offer.category or '', title)), re.I):
-            stats['rejected_unverifiable'] += 1
-            continue
-        sellers = row.get('offers') or row.get('sellers') or []
-        if not isinstance(sellers, list):
-            sellers = []
-        priced = [(price, str(seller.get('sellerName') or
-                             seller.get('name') or '')[:180])
-                  for seller in sellers if isinstance(seller, dict)
-                  for price in [_money(seller.get('price'))] if price]
-        if not priced or row.get('inStock') is False:
-            stats['rejected_unconfirmed_price'] += 1
-            stats['recheck_missing_sellers'] += 1
-            continue
-        stats['recheck_price_cards'] += 1
-        price, seller_name = min(priced, key=lambda value: value[0])
-        product_id = str(row['id'])[:80]
-        key = offer.pk
-        if key not in grouped:
-            grouped[key] = {'offer': offer, 'minimum': price, 'seller': seller_name,
-                            'product_id': product_id, 'title': title[:500],
-                            'url': str(row.get('url') or '')[:2048],
-                            'card_ids': set()}
-        if price < grouped[key]['minimum']:
-            grouped[key].update(minimum=price, seller=seller_name,
-                                product_id=product_id, title=title[:500],
-                                url=str(row.get('url') or '')[:2048])
-        grouped[key]['card_ids'].add(product_id)
+        for offer in matching:
+            stats['linked'] += 1
+            stats['recheck_matched_cards'] += 1
+            if not re.match(POSITIVE_STOCK_PATTERN, str(offer.stock or '')):
+                stats['rejected_unverifiable'] += 1
+                continue
+            if re.search(r'пружин|spring', ' '.join((
+                    offer.name or '', offer.category or '', title)), re.I):
+                stats['rejected_unverifiable'] += 1
+                continue
+            sellers = row.get('offers') or row.get('sellers') or []
+            if not isinstance(sellers, list):
+                sellers = []
+            priced = [(price, str(seller.get('sellerName') or
+                                 seller.get('name') or '')[:180])
+                      for seller in sellers if isinstance(seller, dict)
+                      for price in [_money(seller.get('price'))] if price]
+            if not priced or row.get('inStock') is False:
+                stats['rejected_unconfirmed_price'] += 1
+                stats['recheck_missing_sellers'] += 1
+                continue
+            stats['recheck_price_cards'] += 1
+            price, seller_name = min(priced, key=lambda value: value[0])
+            product_id = str(row['id'])[:80]
+            key = offer.pk
+            if key not in grouped:
+                grouped[key] = {'offer': offer, 'minimum': price, 'seller': seller_name,
+                                'product_id': product_id, 'title': title[:500],
+                                'url': str(row.get('url') or '')[:2048],
+                                'card_ids': set()}
+            if price < grouped[key]['minimum']:
+                grouped[key].update(minimum=price, seller=seller_name,
+                                    product_id=product_id, title=title[:500],
+                                    url=str(row.get('url') or '')[:2048])
+            grouped[key]['card_ids'].add(product_id)
 
     source = PurePath(filename).name[:255]
     cost_expenses = max(PACKAGING_COST, Decimal(expenses))

@@ -8,6 +8,8 @@ from datetime import date
 from decimal import Decimal
 from io import BytesIO
 
+from .suppliers import ACTIVE_SUPPLIER_NAMES
+
 from django.http import HttpResponse, JsonResponse
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
@@ -26,7 +28,9 @@ APIFY_MAX_ITEMS_PER_QUERY = 2  # Default; configurable from 1 to 5.
 def filtered_offers(rule):
     """Use exactly the same criteria as the saved preview, without mutating offers."""
     # Temporary Omega-only working scope; preserve other supplier records for audited cleanup.
-    rows = Offer.objects.filter(supplier__name='Omega')
+    rows = Offer.objects.filter(supplier__name__in=ACTIVE_SUPPLIER_NAMES)
+    if rule.supplier_id:
+        rows = rows.filter(supplier_id=rule.supplier_id)
     rows = rows.filter(cost__gte=max(rule.min_cost, APIFY_MIN_SUPPLIER_COST))
     if rule.in_stock_only:
         rows = rows.filter(_stock_filter())
@@ -135,7 +139,7 @@ def selection_apify_json(request):
     if not 1 <= cards <= 5:
         return JsonResponse({'error': 'Число карточек должно быть от 1 до 5.'}, status=400)
     if request.GET.get('format') == 'mapping':
-        payload = {'batch': batch, 'source': 'Omega', 'request_id': saved_id, 'mapping': rows}
+        payload = {'batch': batch, 'source': saved.details.get('supplier_name', 'Omega') if saved_id else str(rule.supplier or ''), 'request_id': saved_id, 'mapping': rows}
         filename = f'apify_mapping_{saved_id}_{batch:02d}.json' if saved_id else f'apify_mapping_{batch:02d}.json'
     else:
         payload = {

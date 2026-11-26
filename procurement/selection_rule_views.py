@@ -9,6 +9,8 @@ from time import time
 import json
 from decimal import Decimal
 
+from .suppliers import ACTIVE_SUPPLIER_NAMES
+
 from django import forms
 from django.core.exceptions import ValidationError
 from django.core.cache import cache, caches
@@ -45,7 +47,7 @@ KEYWORDS = {
 
 
 class SelectionRuleForm(forms.Form):
-    supplier = forms.ModelChoiceField(queryset=Supplier.objects.filter(name='Omega'),
+    supplier = forms.ModelChoiceField(queryset=Supplier.objects.filter(name__in=ACTIVE_SUPPLIER_NAMES),
                                      required=True, empty_label=None)
     min_cost = forms.DecimalField(min_value=0, max_digits=14, decimal_places=2,
                                   widget=forms.NumberInput(attrs={'min': '0', 'step': '100'}))
@@ -112,7 +114,7 @@ def selection_preview_counts(effective, *, refresh=False, force=False):
     if completed is not None and not force:
         if not refresh or time() - completed['at'] < 60:
             return tuple(completed['counts'])
-    rows = Offer.objects.filter(supplier__name='Omega')
+    rows = Offer.objects.filter(supplier__name__in=ACTIVE_SUPPLIER_NAMES)
     if supplier_id:
         rows = rows.filter(supplier_id=supplier_id)
     rows = rows.filter(cost__gte=effective.get('min_cost') or 0)
@@ -156,13 +158,18 @@ def omega_selection_rules_help(request):
 
 @access('sales', 'admin')
 def selection_rules(request):
-    omega = Supplier.objects.get(name='Omega')
+    selected_id = request.POST.get('supplier') or request.GET.get('supplier') or request.session.get('preparation_supplier')
+    omega = Supplier.objects.filter(pk=selected_id, name__in=ACTIVE_SUPPLIER_NAMES).first() if str(selected_id or '').isdigit() else None
+    omega = omega or Supplier.objects.get(name='Omega')
+    request.session['preparation_supplier'] = omega.pk
     rule, _ = WholesaleSelectionRule.objects.get_or_create(singleton_key=1)
     from .price_update_views import SupplierPriceUploadForm, price_history_context
     uploading_price = request.method == 'POST' and request.POST.get('action') == 'upload_price'
     price_form = SupplierPriceUploadForm(request.POST if uploading_price else None,
         request.FILES if uploading_price else None, initial={'supplier': omega.pk}, auto_id='price_%s')
     if uploading_price and price_form.is_valid():
+        omega = price_form.cleaned_data['supplier']
+        request.session['preparation_supplier'] = omega.pk
         from .price_updates import stage_update
         import hashlib
         uploaded = price_form.cleaned_data['file']
@@ -279,6 +286,10 @@ def selection_rules(request):
                 session.save(update_fields=['details'])
             return JsonResponse({'error': 'Партия не завершена. Повторите обработку.'}, status=500)
         return JsonResponse(progress)
+    if request.method == 'POST' and request.POST.get('action') in ('preview_omega_request', 'save_omega_request'):
+        if not str(request.POST.get('price_batch_id', '')).isdigit() or not PriceUpdate.objects.filter(pk=request.POST['price_batch_id'], supplier=omega).exists():
+            from django.http import JsonResponse
+            return JsonResponse({'error': 'Выберите прайс текущего поставщика.'}, status=400)
     if request.method == 'POST' and request.POST.get('action') == 'preview_omega_request':
         from django.http import JsonResponse
         from .omega_selection_requests import preview_request
@@ -391,11 +402,11 @@ def selection_rules(request):
         DEFAULT_CATEGORIES, latest_price_batch, price_categories, request_history,
         category_key, category_usage, get_display_history,
     )
-    omega_price_batch = latest_price_batch()
+    omega_price_batch = latest_price_batch(omega)
     omega_categories = price_categories(omega_price_batch) if omega_price_batch else []
     default_category_keys = [category_key(name) for name in DEFAULT_CATEGORIES]
-    saved_omega_requests = list(request_history())
-    previous_category_usage = category_usage(saved_omega_requests)
+    saved_omega_requests = list(request_history(omega))
+    previous_category_usage = category_usage(saved_omega_requests, include_legacy=omega.name == 'Omega')
     for category in omega_categories:
         category['previous_requests'] = previous_category_usage.get(category['key'], [])
     # Historically selected categories lead the compact two-column list.
@@ -404,9 +415,9 @@ def selection_rules(request):
     ))
     from .omega_category_groups import group_categories
     omega_category_groups = group_categories(omega_categories)
-    omega_requests = get_display_history(saved_omega_requests)
+    omega_requests = get_display_history(saved_omega_requests, include_legacy=omega.name == 'Omega')
     next_omega_number = max(
-        [int(saved.details.get('number', 0)) for saved in saved_omega_requests] + [1]
+        [int(saved.details.get('number', 0)) for saved in saved_omega_requests] + [1 if omega.name == 'Omega' else 0]
     ) + 1
     from .models import Activity
     selected_saved_id = request.GET.get('saved_request', '')
@@ -419,9 +430,10 @@ def selection_rules(request):
     ) if just_saved_request else ()
     return render(request, 'procurement/selection_rules.html',
                   context(request, apify_session=apify_session, form=form, rule=rule, matched=exported_total,
-                          price_form=price_form, **price_history_context(request),
+                          price_form=price_form, **price_history_context(request, omega),
                           year_unknown=unknown_years, before_years=before_years,
                           group_choices=GROUPS,
+                          selected_supplier=omega,
                           omega_price_batch=omega_price_batch,
                           omega_categories=omega_categories,
                           omega_category_groups=omega_category_groups,
