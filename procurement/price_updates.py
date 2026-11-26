@@ -73,11 +73,9 @@ def prepare_rows(file, *, infer_categories=False):
     return result
 
 
-@transaction.atomic
 def stage_update(file, supplier, user, date, full_catalog=False):
     if date > timezone.localdate():
         raise ValueError('Дата прайса не может быть в будущем.')
-    Supplier.objects.select_for_update().get(pk=supplier.pk)
     # Check identical source first (including pending staged imports) so a retry
     # never creates another history entry nor blocks with the unfinished batch.
     digest = hashlib.sha256(file.read()).hexdigest()
@@ -85,6 +83,21 @@ def stage_update(file, supplier, user, date, full_catalog=False):
     previous = PriceUpdate.objects.filter(
         supplier=supplier, sha256=digest, checked_on=date,
         full_catalog=full_catalog).order_by('-pk').first()
+    if previous:
+        return previous
+    try:
+        rows = prepare_rows(file, infer_categories=supplier.name != 'Omega')
+    except (KeyError, OSError) as error:
+        raise ValueError('Файл Excel повреждён или содержит неподдерживаемую структуру. Сохраните его заново как XLSX или CSV.') from error
+    from .price_source import encode_price_rows
+    stored = encode_price_rows(rows) if len(rows) > 2000 and supplier.name != 'Omega' else rows
+    return _stage_prepared(file, supplier, user, date, full_catalog, digest, rows, stored)
+
+
+@transaction.atomic
+def _stage_prepared(file, supplier, user, date, full_catalog, digest, rows, stored):
+    Supplier.objects.select_for_update().get(pk=supplier.pk)
+    previous = PriceUpdate.objects.filter(supplier=supplier, sha256=digest, checked_on=date, full_catalog=full_catalog).first()
     if previous:
         return previous
     if PriceUpdate.objects.filter(supplier=supplier, status__in=['ready', 'running']).exists():
@@ -96,16 +109,12 @@ def stage_update(file, supplier, user, date, full_catalog=False):
         raise ValueError(
             'Для этой даты уже есть прайс с другим содержимым. Проверьте новую версию файла перед заменой.'
         )
-    try:
-        rows = prepare_rows(file, infer_categories=supplier.name != 'Omega')
-    except (KeyError, OSError) as error:
-        raise ValueError('Файл Excel повреждён или содержит неподдерживаемую структуру. Сохраните его заново как XLSX или CSV.') from error
     if full_catalog:
         existing = Offer.objects.filter(supplier=supplier).count()
         if existing > 100 and len(rows) < existing / 2:
             raise ValueError('Полный прайс содержит менее половины текущего каталога. Проверьте файл или используйте частичное обновление.')
     batch = PriceUpdate.objects.create(supplier=supplier, user=user, filename=file.name[:255],
-        sha256=digest, checked_on=date, full_catalog=full_catalog, rows=rows, row_count=len(rows),
+        sha256=digest, checked_on=date, full_catalog=full_catalog, rows=stored, row_count=len(rows),
         summary={'new': 0, 'changed': 0, 'unchanged': 0, 'unavailable': 0, 'queued': 0, 'reused': 0, 'conflicts': 0,
                  'conflict_items': [{k:r[k] for k in ('brand', 'article', 'name')} for r in rows if r.get('_conflict')][:100]})
     Activity.objects.create(user=user, action='price_update_staged', details={
@@ -156,8 +165,9 @@ def advance_update(batch_id, prepared_rows=None):
     if batch.status == 'done':
         return batch
     batch.status = 'running'
-    all_rows = prepared_rows if prepared_rows is not None else batch.rows
-    rows = all_rows[batch.cursor:batch.cursor + BATCH_SIZE]
+    from .price_source import stored_rows_slice
+    stored = prepared_rows if prepared_rows is not None else batch.rows
+    rows = list(stored_rows_slice(stored, batch.cursor, batch.cursor + BATCH_SIZE))
     brands = {row['brand'] for row in rows}
     articles = {row['article'] for row in rows}
     existing = {(o.brand, o.article): o for o in Offer.objects.filter(
@@ -245,8 +255,11 @@ def advance_update(batch_id, prepared_rows=None):
     if batch.cursor >= batch.row_count:
         if batch.full_catalog:
             # Only finalize after every validated row was applied. Never act on a partial upload.
-            keys = {(row['brand'], row['article']) for row in all_rows}
-            unknown_brand_articles = {row['article'] for row in all_rows if not row['brand']}
+            keys, unknown_brand_articles = set(), set()
+            for row in stored_rows_slice(stored):
+                keys.add((row['brand'], row['article']))
+                if not row['brand']:
+                    unknown_brand_articles.add(row['article'])
             absent = [o.pk for o in Offer.objects.filter(supplier=batch.supplier).only('pk', 'brand', 'article')
                       if (o.brand, o.article) not in keys and o.article not in unknown_brand_articles]
             for start in range(0, len(absent), 500):

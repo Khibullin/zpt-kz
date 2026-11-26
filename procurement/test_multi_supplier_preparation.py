@@ -95,3 +95,23 @@ class MultiSupplierPreparationTests(TestCase):
         self.assertEqual(len(fresh_checked_keys(batch)), 1)
         offer.cost = 7000; offer.save()
         self.assertFalse(fresh_checked_keys(batch))
+
+    def test_large_price_storage_preserves_rows_and_boundaries(self):
+        from .price_source import encode_price_rows, stored_rows_slice, iter_price_rows
+        from .price_updates import advance_update
+        rows = [dict(brand='555', article=f'A{i:04}', name='Рычаг №' + str(i),
+                     cost='6000', stock='5', min_order=1, category='Рычаг',
+                     _barcode='001234', _tnved='8708809909') for i in range(2001)]
+        stored = encode_price_rows(rows)
+        self.assertLess(len(str(stored)), len(str(rows)))
+        self.assertEqual(list(stored_rows_slice(stored, 499, 701)), rows[499:701])
+        batch = PriceUpdate.objects.create(supplier=self.phaeton, user=self.user,
+            filename='large.xlsx', checked_on=date.today(), sha256='large',
+            rows=stored, row_count=len(rows), cursor=499,
+            summary={k: 0 for k in ('new','changed','unchanged','conflicts','reused','queued','unavailable')})
+        self.assertEqual(list(iter_price_rows(batch.pk)), rows)
+        self.assertEqual(list(iter_price_rows(batch.pk, fields=['article']))[500], {'article': 'A0500'})
+        advanced = advance_update(batch.pk)
+        self.assertEqual(advanced.cursor, 699)
+        self.assertEqual(Offer.objects.filter(supplier=self.phaeton).count(), 200)
+        self.assertTrue(Offer.objects.filter(supplier=self.phaeton, article='A0499').exists())
