@@ -9,7 +9,7 @@
 {% if mode == 'best' and request.GET.batch == 'next100e' %}<small>Партия №7 — товары 461–560; предварительно выгодные, совместимость и комплектность Kaspi требуют проверки.</small>{% endif %}
 {% if mode == 'best' and request.GET.batch == 'next200' %}<small>Партия №8 — 200 товаров 561–760; предварительные совпадения бренда и артикула, исполнение и цена требуют подтверждения до закупки.</small>{% endif %}
 {% if mode == 'best' and request.GET.batch == 'final153' %}<small>Оставшиеся 153 финансовых кандидата Omega; совпадения бренда и артикула предварительные, исполнение и комплектация Kaspi ещё требуют проверки.</small>{% endif %}
-<h1>{% if request.minimum_review_mode %}Требует проверки · Фаэтон{% elif mode == 'best' %}Выгодные к закупке{% else %}Оптовые закупки{% endif %}</h1>
+<h1>{% if mode == 'best' %}Выгодные к закупке{% else %}Оптовые закупки{% endif %}</h1>
 {% if mode == 'best' %}
 <details class="panel" id="buying-policy" style="padding:5px 12px;margin:0 0 0 auto">
  <summary style="cursor:pointer;font-weight:700">Правила</summary>
@@ -19,7 +19,7 @@
   <li>Наличие — подтверждённый положительный остаток у поставщика.</li>
   <li>Первичное совпадение — точное совпадение бренда и полного артикула поставщика и Kaspi.</li>
   <li>Цена выгрузки — минимум только среди полученных карточек и продавцов. Это не подтверждение минимальной цены на всём Kaspi.</li>
-  <li>Фаэтон допускается в рекомендации после отдельной проверки точного товара, всех найденных карточек и продавцов по Казахстану. Непроверенные позиции доступны в «Требует проверки».</li>
+  <li>Результаты Фаэтона доступны в общем списке. Менеджер проверяет товар и актуальную цену на Kaspi при выборе.</li>
   <li>Сравнение карточек — наименование, бренд, артикул, фотографии, характеристики и применимость поставщика и Kaspi.</li>
   <li>На странице сравнения под изображением Kaspi — кнопка «Загрузить скриншот».</li>
   <li>Статусы: «Совпадение подтверждено», «Требует проверки», «Не соответствует».</li>
@@ -40,14 +40,12 @@
 {% if mode == 'best' %}
 <form method="get" class="buying-filter-line" id="buying-filter-line">
 <input type="hidden" name="mode" value="best">
-{% if request.minimum_review_mode %}<input type="hidden" name="price_review" value="1">{% endif %}
 {% for key,values in request.GET.lists %}{% if key == 'batch' or key == 'apify_source' or key == 'rechecked' or key == 'sort' %}{% for value in values %}<input type="hidden" name="{{ key }}" value="{{ value }}">{% endfor %}{% endif %}{% endfor %}
 <label class="filter-field">Поставщик {{ filter_form.supplier }}</label>
 <label class="filter-field">Закупки <select name="purchased"><option value="">Все товары</option><option value="yes" {% if request.GET.purchased == 'yes' %}selected{% endif %}>Закупались</option><option value="no" {% if request.GET.purchased == 'no' %}selected{% endif %}>Не закупались</option>{% for choice in buying_order_choices %}<option value="{{ choice.value }}" {% if request.GET.purchased == choice.value %}selected{% endif %}>{{ choice.label }}</option>{% endfor %}</select></label>
 <label class="filter-field">Наш склад <select name="own_stock"><option value="">Все товары</option><option value="yes" {% if request.GET.own_stock == 'yes' %}selected{% endif %}>В наличии</option><option value="no" {% if request.GET.own_stock == 'no' %}selected{% endif %}>Нет в наличии</option></select></label>
 <label class="filter-field buying-search">Поиск товара {{ filter_form.q }}</label><button type="submit">Найти</button>
 </form>
-{% if mode == 'best' and request.minimum_review_mode %}<p><a class="button" href="{{ request.get_full_path }}&amp;download=apify">Скачать запрос перепроверки</a> Поиск по бренду с артикулом и отдельно по полному артикулу; до 5 карточек на запрос, все доступные города. Запуск Apify — вручную. Ограниченный поиск не подтверждает минимум по Казахстану.</p>{% endif %}
 {% else %}
 <section class="catalog-filters{% if mode == 'best' or mode == 'stale_prices' or mode == 'kaspi_prices' %} best-filters{% endif %}" aria-label="Фильтры товаров">
 <form method="get" class="selection-filters">
@@ -85,7 +83,6 @@
 </form>
 {% endif %}
 <div class="results-toolbar">
-{% if mode == 'best' %}<div class="notice" role="status">{% if request.minimum_review_mode %}<strong>Требует проверки · Фаэтон.</strong> Цены и прибыль предварительные; добавление в закупку отключено. <a href="?mode=best&amp;supplier={{ filter_form.supplier.value|default:'' }}">К рекомендациям</a>{% elif request.minimum_review_total %}Фаэтон: {{ request.minimum_review_total }} позиций с неподтверждённым минимумом. <a href="?mode=best&amp;supplier={{ filter_form.supplier.value|default:'' }}&amp;price_review=1">Требует проверки</a>{% endif %}</div>{% endif %}
 <strong>{% if preliminary %}{{ preliminary_total }} товаров · <span class="preliminary-status">Спрос не подтверждён</span>{% else %}Найдено {{ total }}{% endif %}</strong>
 {% if request.GET.apify_source == 'Omega_6exports_2026-11-21_repeat-check' %}<small class="preliminary-status" style="display:block;margin:4px 0">Новые артикулы из шести выгрузок Kaspi: доходность от 50%, статус соответствия указан под артикулом. Доступность закупки требует отдельного подтверждения.</small>{% endif %}
 {% if mode == 'best' %}<form id="bulk-selection" method="post" action="{% url 'procurement:select_many' %}" data-selection-form data-bulk-selection>{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button class="primary" type="submit">Добавить выбранные в список</button><small data-selection-status role="status" aria-live="polite"></small></form>{% else %}<div class="actions"><a href="{{ settings_url }}">Алгоритм и настройки</a><a class="button" href="{% querystring download='csv' page=None %}">Скачать CSV</a></div>{% endif %}
@@ -156,7 +153,7 @@
 {% endif %}{% if mode == 'best' %}<td class="buying-orders">{% for order in row.purchase_history %}<small>{% if order.own %}<a href="{% url 'procurement:purchase_detail' order.pk %}">{{ order.label }} — {{ order.quantity }} шт.</a>{% elif request.user.is_superuser %}<a href="{% url 'inventory:purchase_register_detail' order.pk %}">{{ order.label }} — {{ order.quantity }} шт.</a>{% else %}{{ order.label }} — {{ order.quantity }} шт.{% endif %}</small>{% empty %}—{% endfor %}</td><td class="money">{{ row.own_stock|default_if_none:"—" }}</td>{% endif %}<td class="row-actions">
 <button type="button" class="quick-view" data-url="{% url 'procurement:detail' row.offer.pk %}?compact=1" aria-haspopup="dialog">Просмотр</button>
 {% if mode == 'best' %}
-{% if row.minimum_review_required %}<small class="preliminary-status">Требует проверки цены и товара</small>{% elif row.in_basket %}<small data-in-basket>Уже в списке</small>{% else %}<label class="purchase-check"><input type="checkbox" name="offer_ids" value="{{ row.offer.pk|unlocalize }}" form="bulk-selection" aria-label="Отметить в список закупки: {{ row.offer.brand }} {{ row.offer.article }}"> В список</label>{% endif %}
+{% if row.in_basket %}<small data-in-basket>Уже в списке</small>{% else %}<label class="purchase-check"><input type="checkbox" name="offer_ids" value="{{ row.offer.pk|unlocalize }}" form="bulk-selection" aria-label="Отметить в список закупки: {{ row.offer.brand }} {{ row.offer.article }}"> В список</label>{% endif %}
 {% elif mode == 'kaspi_prices' %}<small class="preliminary-status">Только для ознакомления — нужна повторная проверка</small>{% elif mode == 'stale_prices' %}<small class="preliminary-status">Сначала обновите цену Kaspi</small>{% elif row.omega_review %}<small class="preliminary-status">Предварительно: требуется проверка Kaspi по Казахстану</small>{% else %}<form method="post" action="{% url 'procurement:select' row.offer.pk %}" data-selection-form>{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button class="primary">+ В закупку</button><small data-selection-status role="status" aria-live="polite"></small></form>{% endif %}
 </td>
 </tr>{% empty %}<tr>

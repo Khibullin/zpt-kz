@@ -38,60 +38,62 @@ class PhaetonMinimumPolicyTests(TestCase):
         self.audit.minimum_review_evidence = dict(scope='kazakhstan', search_complete=True, sellers_complete=True)
         self.audit.save()
 
-    def test_unreviewed_prices_hidden_but_retained_and_reviewable(self):
+    def test_unreviewed_prices_visible_and_retained(self):
         Selection.objects.create(user=self.user, offer=self.offer, quantity=3)
-        self.assertEqual(self.rows(), [])
-        self.assertFalse(eligible_source_audits('pilot.json').exists())
+        self.assertEqual(len(self.rows()), 1)
+        self.assertTrue(eligible_source_audits('pilot.json').exists())
         queue = self.rows(price_review='1')
         self.assertEqual(len(queue), 1)
-        self.assertTrue(queue[0]['minimum_review_required'])
+        self.assertNotIn('minimum_review_required', queue[0])
+        self.assertFalse(queue[0]['purchase_ready'])
         self.assertEqual(Selection.objects.get(offer=self.offer).quantity, 3)
         self.assertTrue(PermanentBuyingItem.objects.filter(pk=self.saved.pk).exists())
 
-    def test_low_roi_stays_in_review_queue(self):
+    def test_low_roi_is_filtered_even_with_legacy_review_parameter(self):
         self.audit.roi = -10
         self.audit.save()
-        self.assertEqual(len(self.rows(price_review='1')), 1)
+        self.assertEqual(self.rows(price_review='1'), [])
 
-    def test_selected_latest_audit_requires_own_review_and_fresh_date(self):
+    def test_review_status_and_age_do_not_hide_results(self):
         self.approve()
         self.assertEqual(len(self.rows()), 1)
         self.audit.minimum_reviewed_at = timezone.now() - timedelta(days=8)
         self.audit.save()
-        self.assertEqual(self.rows(), [])
+        self.assertEqual(len(self.rows()), 1)
         self.approve()
         self.audit.pk = None
         self.audit.source_filename = 'new-unreviewed.json'
         self.audit.minimum_review_status = 'needs_review'
         self.audit.save()
-        self.assertEqual(self.rows(), [])
+        self.assertEqual(len(self.rows()), 1)
         self.assertEqual(len(self.rows(apify_source='pilot.json')), 1)
 
-    def test_almaty_quote_is_not_national_approval(self):
+    def test_almaty_quote_remains_visible_without_falsifying_approval(self):
         self.approve()
         self.audit.minimum_review_evidence['scope'] = 'almaty'
         self.audit.save()
-        self.assertEqual(self.rows(), [])
+        self.assertEqual(len(self.rows()), 1)
 
-    def test_csv_cannot_bypass_gate_and_queue_has_no_purchase_checkbox(self):
+    def test_csv_and_page_include_results_without_review_banner(self):
         self.client.force_login(self.user)
         url = reverse('procurement:dashboard')
         response = self.client.get(url, dict(mode='best', supplier=self.offer.supplier_id, download='csv'))
-        self.assertNotContains(response, 'PSC-B003')
+        self.assertContains(response, 'PSC-B003')
         response = self.client.get(url, dict(mode='best', supplier=self.offer.supplier_id, price_review='1'))
-        self.assertContains(response, 'Требует проверки')
-        self.assertNotContains(response, 'name="offer_ids"')
+        self.assertNotContains(response, 'позиций с неподтверждённым минимумом')
+        self.assertNotContains(response, 'Требует проверки · Фаэтон')
+        self.assertContains(response, 'name="offer_ids"')
 
-    def test_direct_and_bulk_selection_are_blocked_without_mutation(self):
+    def test_direct_and_bulk_selection_allow_manager_review(self):
         self.client.force_login(self.user)
         for endpoint, data in [('select', {}), ('select_many', {'offer_ids': [str(self.offer.pk)]})]:
             args = [self.offer.pk] if endpoint == 'select' else []
             response = self.client.post(reverse('procurement:' + endpoint, args=args), data)
-            self.assertEqual(response.status_code, 400)
-        self.assertFalse(Selection.objects.exists())
-        self.audit.delete()
-        from .minimum_price_policy import blocked_phaeton_offer_ids
-        self.assertEqual(blocked_phaeton_offer_ids([self.offer.pk]), {self.offer.pk})
+            self.assertEqual(response.status_code, 302)
+        self.assertEqual(Selection.objects.filter(user=self.user, offer=self.offer).count(), 1)
+        self.audit.refresh_from_db()
+        self.assertEqual(self.audit.minimum_review_status, 'needs_review')
+        self.assertNotEqual(self.audit.identity_status, 'verified')
 
     def test_recheck_export_includes_brand_alias_and_article_queries(self):
         self.client.force_login(self.user)
@@ -132,4 +134,6 @@ class PhaetonMinimumPolicyTests(TestCase):
         self.assertEqual(self.saved.kaspi_price_snapshot, Decimal('20000'))
         self.assertEqual(observation.min_price, Decimal('4776'))
         self.assertEqual(observation.minimum_review_evidence['scope'], 'almaty')
+        # The latest lower price still fails the ordinary profitability threshold.
         self.assertEqual(self.rows(), [])
+        self.assertEqual(len(self.rows(apify_source='pilot.json')), 1)
