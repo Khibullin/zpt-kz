@@ -111,6 +111,13 @@ def visible_permanent_buying_rows(request, preferences, filters):
     # via the explicit legacy query parameter, not the ordinary buying screen.
     if request.GET.get('rechecked') != '0':
         rows = rows.filter(offer_id__in=KaspiPriceAudit.objects.values('offer_id'))
+        # Current Omega availability controls the active buying shortlist.
+        # Keep the permanent register and explicit archive view intact.
+        from .omega_policy import POSITIVE_STOCK_PATTERN
+        rows = rows.exclude(
+            Q(offer__supplier__name='Omega') &
+            ~Q(offer__stock__regex=POSITIVE_STOCK_PATTERN)
+        )
     source = request.GET.get('apify_source', '').strip()[:255]
     if source:
         rows = rows.filter(offer_id__in=KaspiPriceAudit.objects.filter(

@@ -163,6 +163,23 @@ class PermanentBuyingPageTests(TestCase):
         self.assertNotContains(response, 'Перепроверенные — сравнить цены')
         self.assertNotContains(response, '>Все товары</a>')
 
+    def test_unavailable_omega_leaves_active_shortlist_but_keeps_archive(self):
+        KaspiPriceAudit.objects.create(
+            offer=self.offer, source_filename='stock-refresh.json',
+            min_price=Decimal('20000'), cost_snapshot=Decimal('10000'),
+            commission_snapshot=Decimal('12.5'), expenses_snapshot=Decimal('250'),
+            profit=Decimal('7250'), roi=Decimal('72.5000'))
+        url = reverse('procurement:dashboard')
+        self.assertEqual(self.client.get(url, {'mode': 'best'}).context['total'], 1)
+        self.offer.stock = '0'
+        self.offer.save(update_fields=['stock'])
+        self.assertEqual(self.client.get(url, {'mode': 'best'}).context['total'], 0)
+        self.assertEqual(self.dashboard().context['total'], 1)
+        self.assertTrue(PermanentBuyingItem.objects.filter(pk=self.saved.pk).exists())
+        self.offer.stock = '20>'
+        self.offer.save(update_fields=['stock'])
+        self.assertEqual(self.client.get(url, {'mode': 'best'}).context['total'], 1)
+
     def test_unverified_can_be_chosen_into_draft_but_not_ordered(self):
         response = self.dashboard()
         self.assertContains(response, 'Отметить в список закупки:')
