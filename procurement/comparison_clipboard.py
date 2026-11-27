@@ -50,7 +50,7 @@ def eligible_comparison_offer_ids():
 from .comparison_photo_crop import crop_photo, photo_box_from_request
 from .views import access
 from .comparison_screenshot_ai import (recognize_screenshots, article_agrees,
-                                       price_from_image, FIELDS, TEXT_LIMITS)
+                                       price_from_image, parsed_screenshot_price, FIELDS, TEXT_LIMITS)
 
 MAX_IMAGE_BYTES = 500_000
 MAX_SHOTS = 3
@@ -237,19 +237,64 @@ def confirm_kaspi_screenshots(request, pk):
         return JsonResponse({'error': 'Артикул на скриншоте не совпадает с Omega. Сохранение заблокировано.'}, status=400)
     if fields['brand'].casefold() != offer.brand.casefold():
         return JsonResponse({'error': 'Бренд на скриншоте не совпадает с Omega. Сохранение заблокировано.'}, status=400)
+    try:
+        price = parsed_screenshot_price(fields['screenshot_price']) if fields['screenshot_price'] else None
+        product_id = fields['screenshot_product_id']
+        if product_id and (not product_id.isascii() or not product_id.isdecimal()):
+            raise ValueError('Код товара Kaspi должен содержать только цифры.')
+    except ValueError as exc:
+        return JsonResponse({'error': str(exc)}, status=400)
     with transaction.atomic():
         material = BuyingComparisonMaterial.objects.select_for_update().get(pk=material.pk)
         existing = material.kaspi_data if isinstance(material.kaspi_data, dict) else {}
+        audit = KaspiPriceAudit.objects.select_for_update().filter(
+            offer=offer, source_filename=material.source_filename,
+            product_id=material.kaspi_product_id).first()
+        if price is not None and audit is None:
+            return JsonResponse({'error': 'Нет расчёта для этой выгрузки и карточки. Цена не сохранена.'}, status=400)
+        if price is not None:
+            from decimal import Decimal
+            from .catalog_paging import net_buying_profit
+            previous = {key: str(getattr(audit, key)) for key in (
+                'min_price', 'profit', 'roi', 'product_id', 'card_url', 'seller_name',
+                'card_title', 'identity_status', 'observed_at')}
+            if audit.cost_snapshot <= 0:
+                return JsonResponse({'error': 'Для расчёта требуется закупочная цена.'}, status=400)
+            audit.min_price = price
+            audit.profit = net_buying_profit(price, audit.cost_snapshot,
+                audit.commission_snapshot, audit.expenses_snapshot).quantize(Decimal('.01'))
+            audit.roi = (audit.profit * 100 / audit.cost_snapshot).quantize(Decimal('.0001'))
+            audit.identity_status = 'needs_review'
+            audit.seller_name = ''
+            if product_id:
+                if BuyingComparisonMaterial.objects.filter(offer=offer,
+                        source_filename=material.source_filename,
+                        kaspi_product_id=product_id).exclude(pk=material.pk).exists():
+                    return JsonResponse({'error': 'Для этого кода уже есть сохранённая карточка. Откройте её для исправления.'}, status=409)
+                import re
+                audit.product_id = product_id
+                audit.card_url = re.sub(r'-\d+/?$', '-' + product_id + '/', audit.card_url)
+                if not audit.card_url.endswith('-' + product_id + '/'):
+                    audit.card_url = 'https://kaspi.kz/shop/p/product-' + product_id + '/'
+                material.kaspi_product_id = product_id
+                material.kaspi_url = audit.card_url
+            audit.card_title = fields['name'] or audit.card_title
+            audit.save()
+            Activity.objects.create(user=request.user, action='kaspi_screenshot_price', details={
+                'offer': offer.pk, 'source': material.source_filename,
+                'previous': previous, 'price': str(price), 'product_id': audit.product_id,
+                'material': material.pk})
         screenshots = [
             s for s in existing.get('manual_screenshots', [])
             if isinstance(s, str) and s.startswith('data:image/jpeg;base64,')
         ][:MAX_SHOTS]
         selected_box = photo_box_from_request(request.POST.get('photo_box', ''), len(screenshots))
         photo = crop_photo(screenshots, selected_box) if selected_box else None
-        # Keep screenshot price isolated from monetary fields used for profitability.
+        # Explicit manager confirmation applies this observation to the scoped calculation.
         saved = {
             **existing, **{k: v for k, v in fields.items() if k != 'screenshot_price'},
-            'screenshot_price': price_from_image(fields['screenshot_price']),
+            'screenshot_price': price_from_image(fields['screenshot_price']) or existing.get('screenshot_price', ''),
+            'price_applied': price is not None or existing.get('price_applied', False),
             'manual_confirmed_at': timezone.now().isoformat(),
             'manual_confirmed_by': request.user.pk,
         }
@@ -262,8 +307,8 @@ def confirm_kaspi_screenshots(request, pk):
         material.kaspi_data = saved
         material.kaspi_status = 'manual_verified'
         material.kaspi_error = ''
-        material.save(update_fields=['kaspi_data', 'kaspi_status', 'kaspi_error', 'checked_at'])
-    return JsonResponse({'ok': True, 'message': 'Характеристики Kaspi сохранены, цены Apify не изменены.'})
+        material.save(update_fields=['kaspi_data', 'kaspi_status', 'kaspi_error', 'checked_at', 'kaspi_product_id', 'kaspi_url'])
+    return JsonResponse({'ok': True, 'message': 'Данные Kaspi сохранены. Подтверждённая цена применена к расчёту.' if price is not None else 'Характеристики Kaspi сохранены.'})
 
 
 @access('sales', 'admin')

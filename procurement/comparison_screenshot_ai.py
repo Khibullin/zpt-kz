@@ -12,12 +12,12 @@ from django.conf import settings
 
 logger = logging.getLogger(__name__)
 FIELDS = ('name', 'brand', 'article', 'category', 'description', 'specs',
-          'fitment', 'package', 'oem', 'analogs', 'screenshot_price')
+          'fitment', 'package', 'oem', 'analogs', 'screenshot_price', 'screenshot_product_id')
 TEXT_LIMITS = {
     'name': 350, 'brand': 120, 'article': 120, 'category': 200,
     'description': 1600, 'specs': 1600, 'fitment': 1500,
     'package': 250, 'oem': 400, 'analogs': 500,
-    'screenshot_price': 80,
+    'screenshot_price': 80, 'screenshot_product_id': 80,
 }
 
 
@@ -30,12 +30,12 @@ def recognize_screenshots(images, *, article, brand, session=None):
         'Ты распознаёшь только ВИДИМЫЕ данные на скриншотах страницы Kaspi.kz. '
         'Ничего не выдумывай и не добавляй сведения по памяти или из запроса. '
         'Отделяй реальные характеристики от рекламных блоков. '
-        'Цена на скриншоте НЕ обязательно минимальная цена среди продавцов. '
+        'Цена на скриншоте НЕ обязательно минимальная цена среди продавцов. В screenshot_price укажи одну полную цену товара в тенге, не ежемесячный платёж рассрочки. '
         'Это скриншот для товара Omega: бренд ' + brand[:120] +
         ', артикул ' + article[:120] +
         '. Указанные бренд/артикул используй только для проверки, а не как источник заполнения. '
         'Верни только JSON объект с полями: name, brand, article, category, description, '
-        'specs, fitment, package, oem, analogs, screenshot_price и product_photo_box. '
+        'specs, fitment, package, oem, analogs, screenshot_price, screenshot_product_id (код товара Kaspi) и product_photo_box. '
         'Текстовые значения — строки. Для невидимых сведений оставь пустую строку. '
         'product_photo_box — либо null, либо массив из пяти чисел '
         '[номер_скриншота_с_нуля, левая_граница, верхняя_граница, правая_граница, нижняя_граница]. '
@@ -97,8 +97,32 @@ def article_agrees(extracted, expected):
 
 
 def price_from_image(value):
-    """Only store a display text observation, never convert to an Apify price."""
+    """Keep the literal observed amount alongside the separately validated calculation."""
     clean = str(value or '').strip()[:80]
     if not clean or not re.search(r'\d', clean):
         return ''
     return clean
+
+
+def parsed_screenshot_price(value):
+    """Accept one positive tenge amount; reject instalments and ambiguous text."""
+    from decimal import Decimal
+    text = str(value or '').strip().replace('\u00a0', ' ').replace('\u202f', ' ')
+    text = re.sub(r'\s*(?:₸|тенге|KZT|тг\.?)\s*$', '', text, flags=re.I).strip()
+    if not re.fullmatch(r'(?:\d+|\d{1,3}(?: \d{3})+)(?:[.,]\d{1,2})?', text):
+        raise ValueError('Укажите одну полную цену в тенге, без рассрочки и пояснений.')
+    price = Decimal(text.replace(' ', '').replace(',', '.'))
+    if not 0 < price < Decimal('1000000000000'):
+        raise ValueError('Цена должна быть больше нуля и меньше 1 трлн тенге.')
+    return price.quantize(Decimal('.01'))
+
+
+def screenshot_price_applies(material, audit):
+    if not material or not audit or not isinstance(material.kaspi_data, dict):
+        return False
+    data = material.kaspi_data
+    try:
+        return bool(data.get('price_applied') and
+                    parsed_screenshot_price(data.get('screenshot_price')) == audit.min_price)
+    except ValueError:
+        return False

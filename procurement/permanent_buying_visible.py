@@ -23,7 +23,7 @@ from .comparison_seventh_hundred import SEVENTH_HUNDRED_OFFER_IDS
 from .comparison_eighth_two_hundred import EIGHTH_TWO_HUNDRED_OFFER_IDS
 from .comparison_final_remaining import FINAL_REMAINING_OFFER_IDS
 from .models import (PermanentBuyingItem, Favorite, KaspiBuyingCandidate,
-                     KaspiPreparedCard, KaspiPriceAudit, RetailListing)
+                     KaspiPreparedCard, KaspiPriceAudit, RetailListing, BuyingComparisonMaterial)
 
 
 
@@ -228,6 +228,10 @@ def visible_permanent_buying_rows(request, preferences, filters):
         offer_id__in=offer_ids).exclude(photo_url='').values_list('offer_id', 'photo_url'))
     favorite_ids = set(Favorite.objects.filter(
         user=request.user, offer_id__in=offer_ids).values_list('offer_id', flat=True))
+    materials = {(m.offer_id, m.source_filename, m.kaspi_product_id): m
+                 for m in BuyingComparisonMaterial.objects.filter(offer_id__in=offer_ids,
+                     kaspi_data__price_applied=True).defer('supplier_data')}
+    from .comparison_screenshot_ai import screenshot_price_applies
     result = []
     for item in items:
         offer = item.offer
@@ -345,6 +349,10 @@ def visible_permanent_buying_rows(request, preferences, filters):
             row['best_status'] = (
                 'Повторная проверка Apify · ' +
                 str(len(audit.card_ids or [])) + ' подходящих карточек')
+            material = materials.get((audit.offer_id, audit.source_filename, audit.product_id))
+            if screenshot_price_applies(material, audit):
+                row['price_evidence_status'] = 'Цена подтверждена по скриншоту · исполнение требует проверки'
+                row['best_status'] = 'Цена со скриншота Kaspi'
             row['purchase_ready'] = False
             row['historical'] = False
             row['candidate'] = {

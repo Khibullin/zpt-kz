@@ -30,6 +30,8 @@
 
 
 @media(max-width:650px){.eep-sources,.eep-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:7px}.eep-source{padding:9px}.eep-source h2{font-size:1rem}.eep-img,.eep-missing{height:155px}.eep-cell{padding:9px;font-size:.88rem}.eep-label{margin-top:14px}.eep-top h1{font-size:1.3rem}}
+.eep-shell{font-size:14px;line-height:1.4}.eep-top{margin-bottom:10px;gap:10px}.eep-top h1{font-size:22px}.eep-top p{margin:3px 0}.eep-sources,.eep-row{gap:10px}.eep-sources{align-items:start}.eep-source{padding:10px;border-radius:7px}.eep-source h2{font-size:16px;margin-bottom:5px}.eep-img,.eep-missing{height:130px}.eep-img{cursor:zoom-in}.eep-source a{margin-top:5px}.eep-source p{margin:5px 0;font-size:12px}.eep-thumbs img{height:40px;width:40px}.eep-fields{margin-top:8px}.eep-label{font-size:12px;margin:9px 0 3px}.eep-cell{padding:7px 9px;border-radius:5px}.eep-prices .eep-cell{white-space:normal;padding:8px 10px}.eep-price-name{margin:0 0 2px}.eep-price-amount{font-size:21px}.eep-price-date{margin-top:3px}.eep-tools{margin-top:7px;font-size:13px}.eep-tools summary{cursor:pointer;color:#087d78;font-weight:600;padding:5px 0}.eep-paste-zone{padding:7px;margin-top:6px}.eep-source .eep-tools .eep-muted{font-size:12px}.eep-ai-review[hidden],.eep-ai-photo[hidden]{display:none}.eep-shell>.eep-muted{font-size:12px;margin:7px 0!important}
+@media(max-width:650px){.eep-img,.eep-missing{height:100px}.eep-source{padding:7px}.eep-cell{padding:6px;font-size:13px}.eep-label{margin-top:7px}.eep-price-amount{font-size:18px}}
 </style>
 <div class="eep-shell">
 <header class="eep-top">
@@ -47,9 +49,10 @@
  <section class="eep-source"><h2>Kaspi</h2>
  {% if kaspi_photo %}<img class="eep-img" src="{{ kaspi_photo }}" alt="Фото Kaspi {{ offer.brand }} {{ offer.article }}" referrerpolicy="no-referrer">{% else %}<div class="eep-missing">Нет сохранённого фото Kaspi</div>{% endif %}
  {% if kaspi_gallery %}<div class="eep-thumbs">{% for photo in kaspi_gallery %}<a href="{{ photo }}" target="_blank" rel="noopener noreferrer" aria-label="Дополнительное фото Kaspi"><img src="{{ photo }}" alt="Фото Kaspi {{ forloop.counter|add:1 }}" loading="lazy"></a>{% endfor %}</div>{% endif %}
- {% if kaspi_url %}<a href="{{ kaspi_url }}" target="_blank" rel="noopener noreferrer">{% if apify_srr_review %}Выбранная карточка Kaspi из исходной выгрузки (не проверена){% else %}Карточка Kaspi с минимальной сохранённой ценой{% endif %}</a>{% else %}<p class="eep-muted">Ссылка на выбранную карточку Kaspi отсутствует</p>{% endif %}
+ {% if kaspi_url %}<a href="{{ kaspi_url }}" target="_blank" rel="noopener noreferrer">{% if apify_srr_review %}Выбранная карточка Kaspi из исходной выгрузки (не проверена){% else %}Карточка Kaspi для сравнения{% endif %}</a>{% else %}<p class="eep-muted">Ссылка на выбранную карточку Kaspi отсутствует</p>{% endif %}
  {% if cheaper_kaspi_url %}<p class="eep-muted">Для этого артикула в той же выгрузке нашлась другая карточка с более низкой ценой продавца; ниже в расчётном поле показана именно она.</p><a href="{{ cheaper_kaspi_url }}" target="_blank" rel="noopener noreferrer">Дешевле: карточка Kaspi ID {{ cheaper_kaspi_id }}</a>{% endif %}
  {% if clipboard_pilot %}
+ <details class="eep-tools"><summary>Скриншоты и исправление данных Kaspi</summary>
  <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
   <button type="button" class="button primary" id="eep-upload-screenshot">Загрузить скриншот</button>
   <input type="file" id="eep-screenshot-file" accept="image/png,image/jpeg,image/webp" style="display:none" aria-label="Выберите скриншот Kaspi">
@@ -70,10 +73,11 @@
  </div>
  <dialog id="eep-shot-preview" class="eep-shot-preview" aria-label="Просмотр скриншота Kaspi"><button type="button" class="eep-shot-close">Закрыть ×</button><img alt="Увеличенный скриншот Kaspi"></dialog>
  <form id="eep-manage-form" action="{% url 'procurement:comparison_manage_screenshot' offer.pk %}" method="post" hidden>{% csrf_token %}</form>
- <p class="eep-paste-status" id="eep-paste-status" role="status">Снимки сохраняются к этому товару; сведения {{ offer.supplier.name }} и цена не изменяются.</p>
+ <p class="eep-paste-status" id="eep-paste-status" role="status">После подтверждения цена Kaspi и расчёт обновятся. Закупочная цена не изменяется.</p>
  <form id="eep-paste-form" action="{% url 'procurement:comparison_paste_screenshot' offer.pk %}" method="post" hidden>{% csrf_token %}</form>
  <div class="eep-ai-actions" id="eep-ai-actions">
   <button type="button" class="button primary" id="eep-ai-recognize" {% if not manual_screenshots %}disabled{% endif %}>Распознать и заполнить</button>
+  <button type="button" class="button" id="eep-edit-saved" {% if not manual_screenshots %}disabled{% endif %}>Исправить сохранённые данные</button>
   <span class="eep-muted" style="font-size:12px">Распознавание использует ИИ; перед сохранением проверьте значения.</span>
  </div>
  <div class="eep-ai-review" id="eep-ai-review" hidden>
@@ -94,16 +98,20 @@
   <label class="eep-ai-field"><span>Комплектность</span><textarea name="package" rows="1" maxlength="350"></textarea></label>
   <label class="eep-ai-field"><span>OEM</span><textarea name="oem" rows="1" maxlength="350"></textarea></label>
   <label class="eep-ai-field"><span>Аналоги</span><textarea name="analogs" rows="1" maxlength="350"></textarea></label>
-  <label class="eep-ai-field"><span>Цена на скриншоте (не цена Apify)</span><textarea name="screenshot_price" rows="1" maxlength="350"></textarea></label></div>
+  <label class="eep-ai-field"><span>Цена Kaspi, ₸ — применить к расчёту</span><textarea name="screenshot_price" rows="1" maxlength="350"></textarea></label>
+  <label class="eep-ai-field"><span>Код товара Kaspi на скриншоте</span><textarea name="screenshot_product_id" rows="1" maxlength="80"></textarea></label></div>
   <div class="eep-ai-actions"><button type="button" class="button primary" id="eep-ai-confirm">Подтвердить и сохранить</button></div>
  </div>
+ {{ material.kaspi_data|json_script:'eep-saved-data' }}
  <form id="eep-ai-recognize-form" action="{% url 'procurement:comparison_recognize_screenshots' offer.pk %}" method="post" hidden>{% csrf_token %}</form>
  <form id="eep-ai-confirm-form" action="{% url 'procurement:comparison_confirm_screenshots' offer.pk %}" method="post" hidden>{% csrf_token %}</form>
 
+ </details>
 {% endif %}
- {% if material and material.kaspi_status == "unavailable" %}<p class="eep-muted" role="status">Данные Kaspi не загружены автоматически: {{ material.kaspi_error }}</p>{% elif material and material.kaspi_status == "manual_verified" %}<p class="eep-muted" role="status">Характеристики сверены по предоставленному снимку страницы Kaspi. Автоматический доступ ограничен (HTTP 429).</p>{% endif %}</section>
+ {% if material and material.kaspi_status == "unavailable" %}<p class="eep-muted" role="status">Данные Kaspi не загружены автоматически: {{ material.kaspi_error }}</p>{% elif material and material.kaspi_status == "manual_verified" %}<p class="eep-muted" role="status">Данные сверены по предоставленному скриншоту Kaspi.</p>{% endif %}</section>
 </div>
 
+<dialog id="eep-product-preview" class="eep-shot-preview"><button type="button" class="eep-shot-close">Закрыть ×</button><img alt="Фото товара"></dialog>
 <section class="eep-fields" aria-label="Сравнение полей">
 {% for row in rows %}
  <div class="eep-label">{{ row.label }}</div>
@@ -121,9 +129,9 @@
    {% if omega_price_stale %}<div class="eep-price-stale">Требует обновления</div>{% endif %}
   </div>
   <div class="eep-cell">
-   <div class="eep-price-name">{% if apify_srr_review %}Kaspi — минимум по карточкам того же артикула (Apify, не проверено){% else %}Kaspi — минимальная цена продавца (Apify){% endif %}</div>
+   <div class="eep-price-name">{% if screenshot_price_applied %}Kaspi — подтверждено по скриншоту{% elif apify_srr_review %}Kaspi — минимум по карточкам того же артикула (Apify, не проверено){% else %}Kaspi — минимальная цена продавца (Apify){% endif %}</div>
    <div class="eep-price-amount">{% if kaspi_price is not None %}{{ kaspi_price|floatformat:0 }} ₸{% else %}Нет подтверждённой цены{% endif %}</div>
-   <span class="eep-price-date">Выгрузка Apify: {% if apify_srr_review %}21.11.2026 (исторический снимок){% elif kaspi_checked_at %}{{ kaspi_checked_at|date:"d.m.Y H:i" }}{% else %}дата неизвестна{% endif %}</span>
+   <span class="eep-price-date">{% if screenshot_price_applied %}Подтверждено: {% else %}Выгрузка Apify: {% endif %}{% if apify_srr_review %}21.11.2026 (исторический снимок){% elif kaspi_checked_at %}{{ kaspi_checked_at|date:"d.m.Y H:i" }}{% else %}дата неизвестна{% endif %}</span>
    {% if kaspi_price_stale %}<div class="eep-price-stale">Требует обновления</div>{% endif %}
   </div>
  </div>
@@ -131,10 +139,19 @@
 {% endfor %}
 </section>
 {% if comparison_source %}<p class="eep-muted">Исходная выгрузка Apify: {{ comparison_source }}{% if selected_product_id %} · ID карточки Kaspi: {{ selected_product_id }}{% endif %}</p>{% endif %}
-<p class="eep-muted" style="margin-top:20px">Отсутствие сведений означает, что их не удалось подтвердить из доступного источника; для Kaspi возможен отказ HTTP 429. Сравнение не изменяет карточки, цены и расчёты.</p>
+<p class="eep-muted" style="margin-top:20px">Отсутствие сведений означает, что их не удалось подтвердить из доступного источника; для Kaspi возможен отказ HTTP 429. Подтверждённая цена со скриншота применяется к расчёту. Исходная выгрузка и история закупок сохраняются.</p>
 </div>
 <script>
 (function () {
+  const preview=document.getElementById('eep-product-preview');
+  document.querySelectorAll('.eep-img').forEach(img=>{
+    img.tabIndex=0;img.setAttribute('role','button');img.title='Увеличить фото';
+    const open=()=>{preview.querySelector('img').src=img.src;preview.showModal();};
+    img.addEventListener('click',open);
+    img.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();open();}});
+  });
+  preview.querySelector('button').addEventListener('click',()=>preview.close());
+  preview.addEventListener('click',e=>{if(e.target===preview)preview.close();});
   const back=document.getElementById('eep-back');
   if (!back) return;
   back.addEventListener('click',function () {
@@ -258,6 +275,12 @@
     for(const [key,value] of Object.entries(extra||{}))data.append(key,value);
     return data;
   }
+  document.getElementById('eep-edit-saved')?.addEventListener('click',()=>{
+    const saved=JSON.parse(document.getElementById('eep-saved-data').textContent||'{}');
+    for(const field of review.querySelectorAll('textarea[name]'))field.value=saved[field.name]||'';
+    proposedPhotoBox=null;photoBox.hidden=true;review.hidden=false;
+    show('Проверьте данные, полную цену и код товара на скриншоте. Цена применяется после сохранения.');
+  });
   recognizeButton?.addEventListener('click',async()=>{
     recognizeButton.disabled=true;
     show('Распознаём сохранённые скриншоты…');

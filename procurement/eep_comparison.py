@@ -281,8 +281,8 @@ def _comparison_impl(request, pk):
                  (candidate.url if candidate else "") or
                  (_first(kaspi_source, "url") if kaspi_source else "") or
                  (record.kaspi_url if record and not source_file else ""))
-    # Both prices are read-only source observations. A screenshot's price must
-    # never be substituted for the seller minimum of the selected Apify export.
+    # A manager-confirmed screenshot correction updates only the scoped audit;
+    # the supplier cost and historical admission snapshot remain unchanged.
     # Omega stores a DateField while the Apify audit uses DateTimeField.
     # Comparing date to datetime raises TypeError and broke every detail page.
     omega_checked_at = offer.supplier_checked_on
@@ -290,6 +290,7 @@ def _comparison_impl(request, pk):
                         date(2026, 11, 21) if srr_snapshot else None)
     omega_price_stale = is_price_stale(omega_checked_at)
     kaspi_price_stale = is_price_stale(kaspi_checked_at)
+    from .comparison_screenshot_ai import screenshot_price_applies
     return render(request, "procurement/eep_comparison.html",
                   context(request, offer=offer, rows=rows,
                           supplier_photo=supplier_photos[0] if supplier_photos else "",
@@ -301,6 +302,7 @@ def _comparison_impl(request, pk):
                           comparison_source=source_file or (audit.source_filename if audit else ""),
                           omega_price=offer.cost, omega_checked_at=omega_checked_at,
                           omega_price_stale=omega_price_stale,
+                          screenshot_price_applied=screenshot_price_applies(material, audit),
                           kaspi_price=(audit.min_price if audit else
                                        srr_snapshot["comparison_min_price"] if srr_snapshot else None),
                           cheaper_kaspi_url=(srr_snapshot['cheapest_url'] if srr_snapshot and srr_snapshot['different_cheapest_card'] else ''),
