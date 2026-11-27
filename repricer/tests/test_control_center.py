@@ -137,7 +137,7 @@ class PriceControlCenterTests(TestCase):
         self.assertEqual(self.product.stock_qty, 7)
         self.assertEqual(self.product.price, None)
         self.assertEqual(ProductWarehouseStock.objects.count(), 0)
-        self.assertContains(self.client.get(self.dashboard), "Последняя загрузка")
+        self.assertContains(self.client.get(self.dashboard), "Обновить ассортимент ACTIVE.xlsx")
 
     def test_xlsx_download_contains_saved_draft(self):
         self.client.force_login(self.user)

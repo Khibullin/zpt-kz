@@ -8,20 +8,20 @@
 <div class="kp">
 <a href="{% url 'repricer:dashboard' %}">← Назад в контроль цен</a>
 <h1>Excel для загрузки в Kaspi</h1>
-<p>Новая цена = минимальная подтверждённая цена конкурентов × 0,97, с округлением вниз до тенге.
+<p>Если подтверждённый конкурент дешевле нашей текущей цены, новая цена = его минимальная цена × 0,97, с округлением вниз до тенге. Повышения исключены.
 Используются все сохранённые города и все страницы ACTIVE. Это минимум среди найденных предложений; полнота поиска по Казахстану зависит от загруженных результатов.</p>
 {% if error %}<p class="kp-error" role="alert">{{ error }}</p>{% endif %}
 <div class="kp-card">
 <strong>Доступно к изменению: {{ eligible|length }} · Без изменения: {{ skipped }}</strong>
 <p>Источник: {{ active_batch.filename|default:"ACTIVE.xlsx не загружен" }}{% if active_batch %}, {{ active_batch.finished_at|date:"d.m.Y H:i" }}{% endif %}.
-Проверьте расчёт и снимите отметки с ненужных товаров. Положительная разница означает повышение цены. Дата проверки показана у каждого товара.</p>
+Проверьте расчёт и снимите отметки с ненужных товаров. В выгрузку включаются только снижения. Внутренняя привязка к каталогу ZPT.KZ не требуется, если совпадение с карточкой Kaspi подтверждено. Дата проверки показана у каждого товара.</p>
 </div>
 <form method="post" enctype="multipart/form-data">{% csrf_token %}
 <input type="hidden" name="plan_token" value="{{ plan_token }}">
 <div class="kp-card">
 <strong>1. Загрузите текущий прайс-лист Kaspi</strong>
 <p>В кабинете Kaspi: Управление товарами → Прайс-лист → Скачать в Excel. Выберите этот файл ниже. Система заменит только цены отмеченных SKU; остальные товары, склады PP1–PP5, предзаказ и листы сохранятся из файла.</p>
-<p>Отчёт ACTIVE и «Excel-отчёт контроля цен» используются для анализа и не подходят вместо прайс-листа Kaspi.</p>
+<p>Подходит и файл с названием ACTIVE.xlsx, если это прайс-лист Kaspi с колонками SKU, model, brand, price, PP1–PP5, preorder. «Excel-отчёт контроля цен» не подходит.</p>
 <label for="kaspi-template">Прайс-лист Kaspi (.xlsx)</label>
 <div class="kp-actions"><input id="kaspi-template" type="file" name="kaspi_template" accept=".xlsx" required>
 <button type="submit" {% if not eligible %}disabled{% endif %}>Скачать Excel для Kaspi</button></div>

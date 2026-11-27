@@ -31,17 +31,19 @@ def price_plan(batch):
         reason = ''
         if not record.master_sku or counts[record.master_sku] != 1:
             reason = 'Пустой или повторяющийся SKU в ACTIVE'
-        elif not record.listing_id or not record.listing.is_active:
-            reason = 'Требуется сопоставление с товаром ZPT.KZ'
+        elif record.listing_id and not record.listing.is_active:
+            reason = 'Связанный товар ZPT.KZ неактивен'
         elif record.competitor_scan_status != 'MATCHED' or not record.competitor_min_price:
             reason = 'Нет подтверждённой цены конкурента'
         elif not record.quantity or not record.price:
             reason = 'Нет положительного остатка или текущей цены'
+        elif record.competitor_min_price >= record.price:
+            reason = 'Подтверждённый конкурент не дешевле нашей цены'
         proposed = record.competitor_min_price * 97 // 100 if record.competitor_min_price else None
         if not reason and not (1 <= proposed <= 999999999):
             reason = 'Расчётная цена вне допустимого диапазона'
-        if not reason and proposed == record.price:
-            reason = 'Цена уже соответствует правилу'
+        if not reason and proposed >= record.price:
+            reason = 'Цена не требует снижения'
         plan.append({
             'id': record.pk, 'sku': record.master_sku, 'title': record.product_name,
             'current': record.price, 'minimum': record.competitor_min_price,
@@ -73,7 +75,7 @@ def update_price_file(upload, selected):
     sheet = workbook.worksheets[0]
     headers = [cell.value for cell in sheet[1]]
     if headers != list(HEADERS):
-        raise ValueError('Нужен исходный прайс-лист Kaspi с колонками SKU, model, brand, price, PP1–PP5, preorder. Отчёт ACTIVE и отчёт контроля цен не подходят.')
+        raise ValueError('Нужен прайс-лист Kaspi с колонками SKU, model, brand, price, PP1–PP5, preorder. Имя файла, включая ACTIVE.xlsx, не влияет на проверку.')
     by_sku = {}
     for cells in sheet.iter_rows(min_row=2):
         cell = cells[0]
@@ -90,6 +92,8 @@ def update_price_file(upload, selected):
         raise ValueError('В прайс-листе не найдены выбранные SKU: ' + ', '.join(missing[:5]) + '. Цены не выгружены.')
     for item in selected:
         cells = by_sku[item['sku']]
+        if not (1 <= item['new'] < item['current']):
+            raise ValueError('Выгрузка разрешает только снижение положительной цены.')
         if cells[3].data_type == 'f' or cells[3].value != item['current']:
             raise ValueError(f"Цена SKU {item['sku']} в прайс-листе отличается от ACTIVE. Обновите ACTIVE и проверьте расчёт повторно.")
     for item in selected:

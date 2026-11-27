@@ -260,6 +260,8 @@ class KaspiManualCollectionRun(models.Model):
 
 class KaspiManualPriceDraft(models.Model):
     """Saved manual price for later review/export. Never writes to Kaspi."""
+    # Match the explicit primary key in migration 0005 (no schema change).
+    id = models.BigAutoField(primary_key=True)
     listing = models.OneToOneField(
         "catalog.ProductKaspiListing", on_delete=models.CASCADE,
         related_name="manual_price_draft",

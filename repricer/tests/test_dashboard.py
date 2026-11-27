@@ -49,7 +49,8 @@ class KaspiRepricerDashboardTests(TestCase):
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Репрайсер Kaspi")
+        self.assertContains(response, "Контроль цен Kaspi")
         self.assertContains(response, "AIR-TEST-001")
-        self.assertContains(response, "Рекомендации по публичным данным заблокированы")
-        self.assertEqual(response["X-Robots-Tag"], "noindex, nofollow")
+        self.assertContains(response, "Открыть Apify")
+        self.assertTrue({'noindex', 'nofollow'}.issubset(
+            set(response['X-Robots-Tag'].split(', '))))

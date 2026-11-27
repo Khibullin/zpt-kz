@@ -78,6 +78,9 @@ def _part_codes(title):
     """Normalise exact article tokens including optional hyphens."""
     codes = set()
     for token in re.findall(r"[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*", str(title or "").upper()):
+        # Vehicle production years are not manufacturer part numbers.
+        if re.fullmatch(r"(?:19|20)\d{2}-(?:19|20)\d{2}", token):
+            continue
         if len(token) < 5 or len(token) > 50 or not any(ch.isdigit() for ch in token):
             continue
         if token.isdecimal() and len(token) == 4 and token.startswith(("19", "20")):
@@ -106,6 +109,16 @@ def _part_type(text):
         return "boot"
     if "шрус" in text:
         return "cv"
+    if "упор" in text and "капот" in text:
+        return "hood_support"
+    if "диск" in text:
+        return "disc"
+    if "сайлентблок" in text:
+        return "bushing"
+    if "стойк" in text and "стабилизатор" in text:
+        return "stabilizer_link"
+    if "шаров" in text and "опор" in text:
+        return "ball_joint"
     return ""
 
 
@@ -115,7 +128,7 @@ def _source_codes(row):
     codes = _part_codes(name)
     if listing and listing.product.article:
         codes.update(_part_codes(listing.product.article))
-    if row.merchant_sku:
+    if row.merchant_sku and not str(row.merchant_sku).isdecimal():
         codes.update(_part_codes(row.merchant_sku))
     sku = (row.master_sku or "").strip()
     # A numeric Kaspi SKU cannot establish identity of a car part.
@@ -148,9 +161,9 @@ def _search_match(row, item):
         source_brand = row.listing.product.brand.name
     expected = _brand_normalized(source_brand)
     claimed = _brand_normalized(item.get("brand"))
-    item_title = _brand_normalized(title)
     if expected and claimed not in ("", "безбренда", "nobrand"):
-        if expected != claimed and expected not in item_title:
+        # A car make in a title does not override a different manufacturer.
+        if expected != claimed:
             return False
     return True
 

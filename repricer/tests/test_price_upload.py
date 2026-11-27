@@ -113,3 +113,34 @@ class KaspiPriceUploadTests(TestCase):
         client = Client(enforce_csrf_checks=True)
         client.force_login(self.staff)
         self.assertEqual(client.post(reverse('repricer:prepare_prices'), {}).status_code, 403)
+
+    def test_confirmed_competitor_can_lower_unlinked_active_sku(self):
+        self.ready()
+        self.unknown.competitor_scan_status = 'MATCHED'
+        self.unknown.competitor_min_price = 4000
+        self.unknown.save()
+        response = self.client.get(reverse('repricer:prepare_prices'))
+        eligible = {item['sku']: item for item in response.context['eligible']}
+        self.assertEqual(eligible['UNMAPPED']['new'], 3880)
+        output = self.download(response, selected=[str(self.unknown.pk)])
+        self.assertEqual(output.status_code, 200)
+        wb = load_workbook(BytesIO(output.content))
+        self.assertEqual(wb.active['D3'].value, 3880)
+        self.assertEqual(wb.active['D2'].value, 2700)
+        self.unknown.refresh_from_db()
+        self.assertIsNone(self.unknown.listing_id)
+        self.assertEqual(self.unknown.price, 5000)
+
+    def test_export_skips_equal_or_higher_competitors_and_never_raises_price(self):
+        for minimum in (2700, 2701, 2800, 5000):
+            with self.subTest(minimum=minimum):
+                self.active.competitor_scan_status = 'MATCHED'
+                self.active.competitor_min_price = minimum
+                self.active.save()
+                response = self.client.get(reverse('repricer:prepare_prices'))
+                self.assertFalse(response.context['eligible'])
+
+    def test_upload_defense_rejects_a_price_increase(self):
+        from repricer.price_upload import update_price_file
+        with self.assertRaisesMessage(ValueError, 'только снижение'):
+            update_price_file(self.file(), [{'sku': '1017110XEN01', 'current': 2700, 'new': 2800}])

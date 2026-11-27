@@ -15,6 +15,40 @@ from repricer.models import (
 
 
 class ApifyOutputTests(TestCase):
+    def test_vehicle_make_in_title_does_not_override_different_manufacturer(self):
+        from repricer.apify_output import parse_apify_offers
+        row = KaspiActiveExportRow.objects.create(
+            batch=self.batch, row_number=4, master_sku='865592695',
+            product_name='Воздушный фильтр 151000151AA', brand='Chery',
+            price=2910, quantity=1, status='MISSING_LISTING',
+        )
+        result = parse_apify_offers([{
+            'id': '146393085', 'title': '555 воздушный фильтр Chery Tiggo 8 Pro MAX 151000151AA',
+            'brand': '555', 'city': 'Almaty',
+            'offers': [{'sellerId': 'other', 'price': 2695}],
+        }], [row], ['Almaty'])
+        self.assertEqual(result['evidence'], [])
+
+    def test_year_range_does_not_match_camry_hood_support_to_accent(self):
+        from repricer.apify_output import parse_apify_offers, _part_codes
+        self.assertNotIn('20112017', _part_codes('Toyota Camry 2011-2017'))
+        row = KaspiActiveExportRow.objects.create(
+            batch=self.batch, row_number=4, master_sku='134895078_715785856',
+            product_name='EEP 15A060040 упор капота для Toyota Camry 2011-2017 черный',
+            brand='eep', price=5000, quantity=1, status='MISSING_LISTING',
+        )
+        result = parse_apify_offers([{
+            'id': '108658070', 'title': 'ALK1200014 Hyundai Accent 2011-2017 черный',
+            'brand': 'Без бренда', 'city': 'Almaty',
+            'offers': [{'sellerId': 'other', 'price': 3498}],
+        }], [row], ['Almaty'])
+        self.assertEqual(result['evidence'], [])
+        valid = parse_apify_offers([{
+            'id': '134895078', 'title': row.product_name, 'brand': 'EEP', 'city': 'Almaty',
+            'offers': [{'sellerId': 'other', 'price': 4500}],
+        }], [row], ['Almaty'])
+        self.assertEqual(valid['evidence'][0]['price'], 4500)
+
     def setUp(self):
         self.staff = User.objects.create_user("staff-output", is_staff=True)
         seller = SellerProfile.objects.create(
