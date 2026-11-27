@@ -138,9 +138,10 @@
    {% if omega_price_stale %}<div class="eep-price-stale">Требует обновления</div>{% endif %}
   </td>
   <td class="eep-cell">
-   <div class="eep-price-name">{% if screenshot_price_applied %}Kaspi — цена со скриншота{% elif apify_srr_review %}Kaspi — минимум по карточкам того же артикула (Apify, не проверено){% else %}Kaspi — минимальная цена продавца (Apify){% endif %}</div>
+   <div class="eep-price-name">{% if screenshot_price_applied %}Kaspi — цена со скриншота{% elif apify_srr_review %}Kaspi — минимум по карточкам того же артикула (Apify, не проверено){% else %}Kaspi — минимум полученной выгрузки (Apify){% endif %}</div>
    <div class="eep-price-amount">{% if kaspi_price is not None %}{{ kaspi_price|floatformat:0 }} ₸{% else %}Нет подтверждённой цены{% endif %}</div>
-   <span class="eep-price-date">{% if screenshot_price_applied %}Скриншот: {% else %}Наблюдение цены: {% endif %}{% if apify_srr_review %}21.11.2026 (исторический снимок){% elif kaspi_checked_at %}{{ kaspi_checked_at|date:"d.m.Y H:i" }}{% else %}дата неизвестна{% endif %}</span>
+   <span class="eep-price-date">{% if screenshot_price_applied %}Скриншот: {% else %}Обработано в системе: {% endif %}{% if apify_srr_review %}21.11.2026 (исторический снимок){% elif kaspi_checked_at %}{{ kaspi_checked_at|date:"d.m.Y H:i" }}{% else %}дата неизвестна{% endif %}</span>
+   <span class="eep-price-date">Город цены: {{ price_evidence.city|default:'не указан в источнике' }} · Дата наблюдения в источнике: {{ price_evidence.price_observed_at|default:'не указана' }}. Полнота поиска по Казахстану не подтверждена.</span>
    {% if kaspi_price_stale %}<div class="eep-price-stale">Требует обновления</div>{% endif %}
   </td>
 </tr>{% endif %}

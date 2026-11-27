@@ -96,18 +96,19 @@ def apify_queries(rule):
     """Build query-to-offer mapping before pagination: one batch is 500 queries."""
     seen = set()
     result = []
-    rows = filtered_offers(rule).values('id', 'brand', 'article').iterator(chunk_size=1000)
+    from .kaspi_search_queries import monitoring_search_queries
+    rows = filtered_offers(rule).values('id', 'brand', 'article', 'name').iterator(chunk_size=1000)
     for offer in rows:
         brand = str(offer['brand'] or '').strip()
         for article in article_variants(offer['article']):
-            query = article
-            key = query.casefold()
-            if not brand or not article or key in seen:
-                continue
-            seen.add(key)
-            result.append({'query': query[:240], 'offer_id': offer['id'],
-                           'brand': brand, 'article': article,
-                           'original_article': offer['article']})
+            for query in monitoring_search_queries(brand, article, offer['name']):
+                key = query.casefold()
+                if not brand or key in seen:
+                    continue
+                seen.add(key)
+                result.append({'query': query, 'offer_id': offer['id'],
+                               'brand': brand, 'article': article,
+                               'original_article': offer['article']})
     return result
 
 

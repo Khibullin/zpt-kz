@@ -481,11 +481,11 @@ def dashboard(request):
     preliminary = False
     displayed_rows = rows
     if request.GET.get('download') == 'apify' and request.GET.get('mode') == 'best' and valid:
-        from .kaspi_search_queries import sku_search_queries
+        from .kaspi_search_queries import monitoring_search_queries
         from .apify_cities import APIFY_CITIES
         queries = list(dict.fromkeys(q for row in rows
             if row['offer'].supplier.name == 'Phaeton DC'
-            for q in sku_search_queries(row['offer'].brand, row['offer'].article, row['offer'].supplier.name)))
+            for q in monitoring_search_queries(row['offer'].brand, row['offer'].article, row['offer'].name)))
         from .selection_exports import known_card_urls
         known_urls = known_card_urls([{'brand': row['offer'].brand, 'article': row['offer'].article}
             for row in rows if row['offer'].supplier.name == 'Phaeton DC'])

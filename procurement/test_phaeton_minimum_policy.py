@@ -100,7 +100,7 @@ class PhaetonMinimumPolicyTests(TestCase):
         response = self.client.get(reverse('procurement:dashboard'),
             dict(mode='best', price_review='1', download='apify', supplier=self.offer.supplier_id))
         data = response.json()
-        self.assertEqual(data['searchQueries'], ['PSC-B003'])
+        self.assertEqual(data['searchQueries'], ['Ролик PSC-B003', 'PSC-B003'])
         self.assertEqual(data['maxItemsPerQuery'], 20)
         from .apify_cities import APIFY_CITIES
         self.assertEqual(data['cities'], list(APIFY_CITIES))

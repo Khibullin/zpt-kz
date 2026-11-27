@@ -203,3 +203,17 @@ class ApifyMultiCardRecheckTests(TestCase):
         self.assertEqual(audit.price_evidence['seller_id'], 'S1')
         self.assertEqual(audit.price_evidence['coverage'], 'returned_offers_only')
         self.assertEqual(audit.minimum_review_status, 'needs_review')
+
+    def test_card_creation_date_is_not_price_observation_date(self):
+        row = self.card('777777777', '51331', 80000)
+        row.update(city='Astana', createdAt='2020-01-01T00:00:00Z')
+        self.send([row])
+        audit = KaspiPriceAudit.objects.get()
+        self.assertEqual(audit.price_evidence['city'], 'Astana')
+        self.assertEqual(audit.price_evidence['price_observed_at'], '')
+        row = self.card('888888888', '51331', 79000)
+        row.update(city='Almaty', scrapedAt='2026-11-27T11:00:00Z')
+        self.send([row])
+        audit.refresh_from_db()
+        self.assertEqual(audit.price_evidence['city'], 'Almaty')
+        self.assertEqual(audit.price_evidence['price_observed_at'], '2026-11-27T11:00:00Z')

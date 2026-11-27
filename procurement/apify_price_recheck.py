@@ -100,8 +100,9 @@ def seller_evidence(row, seller, source):
             'seller': str(seller.get('sellerName') or seller.get('name') or '')[:180],
             'seller_id': str(seller.get('sellerId') or seller.get('id') or '')[:180],
             'city': str(seller.get('city') or seller.get('cityId') or row.get('city') or row.get('cityId') or '')[:180],
-            'observed_at': timezone.now().isoformat(),
-            'coverage': 'returned_offers_only', 'policy': 'article_only_v3'}
+            'observed_at': timezone.now().isoformat(),  # Compatibility: processing time.
+            'price_observed_at': str(row.get('scrapedAt') or '')[:80],  # Never card createdAt.
+            'coverage': 'returned_offers_only', 'policy': 'name_article_v4'}
 
 
 def import_apify_recheck_results(raw, filename, user):

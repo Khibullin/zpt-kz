@@ -212,14 +212,18 @@ def request_queries(saved):
     from .selection_exports import article_variants
     from .kaspi_search_queries import sku_search_queries
     seen = {}
+    modern = saved.details.get('search_policy') == 'name_article_v4'
+    from .kaspi_search_queries import monitoring_search_queries
     search_supplier = (saved.details.get('supplier_name', 'Omega')
         if saved.details.get('search_policy') == 'phaeton_article_queries_v2' else 'Omega')
     for row in request_rows(saved):
         brand = str(row.get('brand') or '').strip()
         original = str(row.get('article') or '').strip()
         for article in article_variants(original):
-            for query in sku_search_queries(brand, article, search_supplier,
-                    legacy=saved.details.get('search_policy') != 'article_only_v3'):
+            queries = (monitoring_search_queries(brand, article, row.get('name', '')) if modern
+                       else sku_search_queries(brand, article, search_supplier,
+                           legacy=saved.details.get('search_policy') != 'article_only_v3'))
+            for query in queries:
                 key = query.casefold()
                 if key not in seen:
                     seen[key] = {'query': query, 'brand': brand,
@@ -259,14 +263,14 @@ def save_request(*, batch_id, categories, minimum, user,
     number = max((int(item.details.get('number', 0)) for item in previous),
                  default=1 if batch.supplier.name == 'Omega' else 0) + 1
     from .selection_exports import article_variants
-    from .kaspi_search_queries import sku_search_queries
+    from .kaspi_search_queries import monitoring_search_queries
     queries = set()
     for row in filtered:
         for article in article_variants(row.get('article')):
-            queries.update(q.casefold() for q in sku_search_queries(row['brand'], article, batch.supplier.name))
+            queries.update(q.casefold() for q in monitoring_search_queries(row['brand'], article, row.get('name', '')))
     return Activity.objects.create(user=user, action=REQUEST_ACTION, details={
         'supplier_id': batch.supplier_id, 'supplier_name': batch.supplier.name,
-        'search_policy': 'article_only_v3',
+        'search_policy': 'name_article_v4',
         'fresh_checked_keys': sorted(excluded_keys),
         'number': number, 'title': f'Запрос №{number}',
         'price_batch_id': batch.pk, 'price_sha256': batch.sha256,
@@ -294,9 +298,9 @@ def preview_request(*, batch_id, categories, minimum, max_vehicle_age, in_stock_
         raise ValidationError('Категории не найдены в выбранном прайсе.')
     selected, unknown_age = pick_rows(batch, keys, minimum, max_vehicle_age, in_stock_only, exclude_springs, fresh_checked_keys(batch))
     from .selection_exports import article_variants, JSON_BATCH_SIZE
-    from .kaspi_search_queries import sku_search_queries
+    from .kaspi_search_queries import monitoring_search_queries
     queries = {q.casefold() for row in selected for variant in article_variants(row['article'])
-               for q in sku_search_queries(row['brand'], variant, batch.supplier.name)}
+               for q in monitoring_search_queries(row['brand'], variant, row.get('name', ''))}
     return {'categories': len(keys), 'products': len(selected),
             'queries': len(queries),
             'batches': (len(queries) + JSON_BATCH_SIZE - 1) // JSON_BATCH_SIZE,

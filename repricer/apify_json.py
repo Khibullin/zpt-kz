@@ -59,15 +59,10 @@ def _identity(row):
 
 def _queries_for_row(row):
     name, brand, article = _identity(row)
+    from procurement.kaspi_search_queries import monitoring_search_queries
     candidates = []
     if article:
-        candidates.append(article)
-        if brand:
-            candidates.append(f"{brand} {article}")
-        if name:
-            candidates.append(name if article.casefold() in name.casefold() else f"{name} {article}")
-        if "-" in article:
-            candidates.append(article.replace("-", ""))
+        candidates.extend(monitoring_search_queries(brand, article, name))
     elif name:
         generic = {"воздушный фильтр", "салонный фильтр", "масляный фильтр",
                    "фильтр", "свеча зажигания"}

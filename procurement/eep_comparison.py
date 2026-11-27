@@ -309,6 +309,7 @@ def _comparison_impl(request, pk):
                           cheaper_kaspi_url=(srr_snapshot['cheapest_url'] if srr_snapshot and srr_snapshot['different_cheapest_card'] else ''),
                           cheaper_kaspi_id=(srr_snapshot['cheapest_product_id'] if srr_snapshot and srr_snapshot['different_cheapest_card'] else ''),
                           kaspi_checked_at=kaspi_checked_at,
+                          price_evidence=(audit.price_evidence if audit else {}),
                           kaspi_price_stale=kaspi_price_stale,
                           material=material, manual_screenshots=manual_screenshots,
                           review_only=(review_only or bool(srr_snapshot) or apify_second_review or apify_crossquery_review),
