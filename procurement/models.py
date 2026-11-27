@@ -177,6 +177,7 @@ class KaspiPriceAudit(models.Model):
     minimum_review_status = models.CharField(max_length=24, default='needs_review')
     minimum_reviewed_at = models.DateTimeField(null=True, blank=True)
     minimum_review_evidence = models.JSONField(default=dict, blank=True)
+    price_evidence = models.JSONField(default=dict, blank=True)
     observed_at = models.DateTimeField(auto_now=True)
 
     class Meta:

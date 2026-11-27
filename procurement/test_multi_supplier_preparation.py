@@ -124,3 +124,13 @@ class MultiSupplierPreparationTests(TestCase):
         self.assertEqual(advanced.cursor, 699)
         self.assertEqual(Offer.objects.filter(supplier=self.phaeton).count(), 200)
         self.assertTrue(Offer.objects.filter(supplier=self.phaeton, article='A0499').exists())
+
+    def test_new_search_policy_uses_article_and_keeps_old_request_mapping(self):
+        from .omega_selection_requests import request_queries
+        batch = self.batch(self.phaeton)
+        saved = save_request(batch_id=batch.pk, categories=['Рычаг'], minimum='2000', user=self.user)
+        self.assertEqual(saved.details['search_policy'], 'article_only_v3')
+        self.assertEqual([row['query'] for row in request_queries(saved)], ['SA-1'])
+        saved.details['search_policy'] = 'phaeton_article_queries_v2'
+        saved.save()
+        self.assertEqual([row['query'] for row in request_queries(saved)], ['555 SA-1', 'SA-1'])

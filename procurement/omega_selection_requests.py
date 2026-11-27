@@ -218,7 +218,8 @@ def request_queries(saved):
         brand = str(row.get('brand') or '').strip()
         original = str(row.get('article') or '').strip()
         for article in article_variants(original):
-            for query in sku_search_queries(brand, article, search_supplier):
+            for query in sku_search_queries(brand, article, search_supplier,
+                    legacy=saved.details.get('search_policy') != 'article_only_v3'):
                 key = query.casefold()
                 if key not in seen:
                     seen[key] = {'query': query, 'brand': brand,
@@ -265,7 +266,7 @@ def save_request(*, batch_id, categories, minimum, user,
             queries.update(q.casefold() for q in sku_search_queries(row['brand'], article, batch.supplier.name))
     return Activity.objects.create(user=user, action=REQUEST_ACTION, details={
         'supplier_id': batch.supplier_id, 'supplier_name': batch.supplier.name,
-        'search_policy': 'phaeton_article_queries_v2' if batch.supplier.name == 'Phaeton DC' else 'brand_article_v1',
+        'search_policy': 'article_only_v3',
         'fresh_checked_keys': sorted(excluded_keys),
         'number': number, 'title': f'Запрос №{number}',
         'price_batch_id': batch.pk, 'price_sha256': batch.sha256,

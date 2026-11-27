@@ -175,11 +175,11 @@ def selection_rules(request):
     ui_cities = ('Almaty', 'Astana', 'Shymkent', 'Karaganda', 'Aktobe', 'Atyrau')
     export_cities = [city for city in request.GET.getlist('city') if city in ui_cities] or list(ui_cities)
     try:
-        export_cards = int(request.GET.get('cards', '2'))
+        export_cards = int(request.GET.get('cards', '20'))
     except (TypeError, ValueError):
-        export_cards = 2
-    if export_cards not in range(1, 6):
-        export_cards = 2
+        export_cards = 20
+    if export_cards not in range(1, 21):
+        export_cards = 20
     rule, _ = WholesaleSelectionRule.objects.get_or_create(singleton_key=1)
     from .price_update_views import SupplierPriceUploadForm, price_history_context
     uploading_price = request.method == 'POST' and request.POST.get('action') == 'upload_price'
@@ -350,8 +350,8 @@ def selection_rules(request):
             if request.POST.get('apify_export_settings'):
                 try:
                     size = export_batch_size(request.POST.get('apify_batch_size', 500))
-                    cards = int(request.POST.get('apify_cards', 2))
-                    if cards not in range(1, 6):
+                    cards = int(request.POST.get('apify_cards', 20))
+                    if cards not in range(1, 21):
                         raise ValueError
                     params.extend([('batch_size', str(size)), ('cards', str(cards))])
                     params.extend(('city', city) for city in request.POST.getlist('apify_city') if city in ui_cities)
@@ -473,7 +473,7 @@ def selection_rules(request):
                           just_saved_batches=just_saved_batches,
                           export_batch_sizes=EXPORT_BATCH_SIZES,
                           export_cities=export_cities, export_cards=export_cards,
-                          export_card_choices=range(1, 6),
+                          export_card_choices=range(1, 21),
                           selected_batch_size=selected_batch_size,
                           apify_query_count=query_count,
                           json_batches=range(1, batches + 1),

@@ -1,10 +1,12 @@
 """Durable Apify JSON intake and 500-source-row checkpoints.
 
-Original rows are staged temporarily until processed; completed source batches
-are deleted so rejected low-margin products are not retained in the system.
+Original rows, including rejected cards, are retained for policy replay.
+Completed batches are compressed in the existing private activity archive.
 A failed batch remains available to retry idempotently.
 This is a browser-driven sequential worker; no unattended background promise.
 """
+import base64
+import gzip
 import hashlib
 import json
 
@@ -75,7 +77,7 @@ def process_next_apify_batch(session_id, user):
         source = Activity.objects.get(
             action='apify_upload_source_batch',
             details__session_id=session.pk, details__batch=next_batch)
-        raw = source.details['rows']
+        raw = source_rows(source)
         data = json.dumps(raw, ensure_ascii=False).encode('utf-8')
         uploaded = SimpleUploadedFile(details['filename'], data,
                                      content_type='application/json')
@@ -89,9 +91,10 @@ def process_next_apify_batch(session_id, user):
         details.pop('last_error', None)
         session.details = details
         session.save(update_fields=['details'])
-        # Source rows were needed only for reliable retry. Do not keep
-        # rejected or below-threshold cards in permanent storage.
-        source.delete()
+        # Keep every original JSON value, compressing only its representation.
+        source.details = {'session_id': session.pk, 'batch': next_batch,
+                          'rows_gzip': base64.b64encode(gzip.compress(data, mtime=0)).decode('ascii')}
+        source.save(update_fields=['details'])
         return {'done': details['next_batch'] >= details['total_batches'], **details}
 
 
@@ -200,3 +203,34 @@ def upload_status(source=''):
             'total_batches': total_batches, 'completed_batches': completed,
             'uploaded_batches': uploaded, 'total_cards': total_cards,
             'processed_cards': processed_cards, 'errors': int((details.get('stats') or {}).get('invalid') or 0)}
+
+
+def source_rows(source):
+    details = source.details
+    if 'rows' in details:
+        return details['rows']
+    return json.loads(gzip.decompress(base64.b64decode(details['rows_gzip'])))
+
+
+@transaction.atomic
+def replay_apify_session(session_id, user):
+    """Stage a new processing session from retained rows; never call Apify."""
+    original = Activity.objects.select_for_update().get(
+        pk=session_id, user=user, action='apify_upload_session')
+    details = dict(original.details)
+    if details.get('next_upload_batch', details['total_batches']) != details['total_batches']:
+        raise ValidationError('Исходная загрузка ещё не завершена.')
+    sources = list(Activity.objects.filter(user=user, action='apify_upload_source_batch',
+        details__session_id=original.pk).order_by('id'))
+    if len(sources) != details['total_batches']:
+        raise ValidationError('Исходные строки старой сессии не сохранены. Нужен исходный JSON.')
+    details.update(next_batch=0, next_upload_batch=details['total_batches'],
+                   replay_of=original.pk, last_progress_at=timezone.now().isoformat(),
+                   stats={key: 0 for key in details['stats']})
+    details.pop('last_error', None)
+    replay = Activity.objects.create(user=user, action='apify_upload_session', details=details)
+    for source in sources:
+        copied = dict(source.details)
+        copied['session_id'] = replay.pk
+        Activity.objects.create(user=user, action='apify_upload_source_batch', details=copied)
+    return replay

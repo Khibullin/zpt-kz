@@ -486,8 +486,11 @@ def dashboard(request):
         queries = list(dict.fromkeys(q for row in rows
             if row['offer'].supplier.name == 'Phaeton DC'
             for q in sku_search_queries(row['offer'].brand, row['offer'].article, row['offer'].supplier.name)))
-        response = JsonResponse(dict(searchQueries=queries, cities=list(APIFY_CITIES),
-            sortOrder='relevance', maxItems=0, maxItemsPerQuery=5,
+        from .selection_exports import known_card_urls
+        known_urls = known_card_urls([{'brand': row['offer'].brand, 'article': row['offer'].article}
+            for row in rows if row['offer'].supplier.name == 'Phaeton DC'])
+        response = JsonResponse(dict(searchQueries=queries, startUrls=known_urls, cities=list(APIFY_CITIES),
+            sortOrder='relevance', maxItems=0, maxItemsPerQuery=20,
             includeOffers=True, maxOffersPerProduct=0, includeReviews=False),
             json_dumps_params={'ensure_ascii': False, 'indent': 2})
         response['Content-Disposition'] = 'attachment; filename="phaeton_price_recheck.json"'

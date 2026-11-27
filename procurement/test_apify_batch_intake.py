@@ -7,7 +7,8 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 
 from .apify_batch_intake import (stage_apify_file, process_next_apify_batch,
-                                 begin_chunked_upload, append_chunked_upload)
+                                 begin_chunked_upload, append_chunked_upload,
+                                 replay_apify_session, source_rows)
 from .models import Activity
 
 
@@ -70,3 +71,21 @@ class ApifyBatchIntakeTests(TestCase):
         self.assertEqual(progress['uploaded_batches'], 2)
         self.assertEqual(Activity.objects.filter(
             action='apify_upload_source_batch', details__session_id=session.pk).count(), 2)
+
+    def test_completed_source_retained_and_replayable_without_apify(self):
+        rows = [{'id': '123456789', 'ignored': {'unicode': 'Фаэтон', 'value': None}}]
+        original = stage_apify_file(SimpleUploadedFile('saved.json', json.dumps(rows).encode()), self.user)
+        with patch('procurement.apify_batch_intake.import_apify_results', return_value={'products': 1}) as importer:
+            process_next_apify_batch(original.pk, self.user)
+            archived = Activity.objects.get(action='apify_upload_source_batch', details__session_id=original.pk)
+            self.assertNotIn('rows', archived.details)
+            self.assertEqual(source_rows(archived), rows)
+            replay = replay_apify_session(original.pk, self.user)
+            self.assertNotEqual(replay.pk, original.pk)
+            self.assertEqual(replay.details['replay_of'], original.pk)
+            process_next_apify_batch(replay.pk, self.user)
+            self.assertEqual(importer.call_count, 2)
+            self.assertEqual(json.loads(importer.call_args.args[0].read()), rows)
+        other = get_user_model().objects.create_user('other_operator')
+        with self.assertRaises(Activity.DoesNotExist):
+            replay_apify_session(original.pk, other)

@@ -46,18 +46,18 @@ class OmegaApifyExportTests(TestCase):
 
     def test_search_batch_size_and_complete_cities(self):
         self.assertEqual(JSON_BATCH_SIZE, 500)
-        self.assertEqual(len(APIFY_CITIES), 6)
-        self.assertNotIn('Kostanay', APIFY_CITIES)
+        self.assertEqual(len(APIFY_CITIES), 10)
+        self.assertIn('Kostanay', APIFY_CITIES)
         response = self.client.get(reverse('procurement:selection_apify_json'))
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.content)
-        self.assertEqual(data['cities'], APIFY_CITIES)
-        self.assertEqual(data['searchQueries'], ['SRR 085066', 'SRR 85066', 'TEST 100200'])
-        self.assertEqual(data['maxItemsPerQuery'], 2)
+        self.assertEqual(data['cities'], list(APIFY_CITIES))
+        self.assertEqual(data['searchQueries'], ['085066', '85066', '100200'])
+        self.assertEqual(data['maxItemsPerQuery'], 20)
         self.assertEqual(data['maxItems'], 0)
         self.assertEqual(data['sortOrder'], 'relevance')
         self.assertTrue(data['includeOffers'])
-        self.assertNotIn('startUrls', data)
+        self.assertEqual(data['startUrls'], [])
         self.assertEqual(self.first.cost, Decimal('2000'))
 
     def test_minimum_2000_kg_supplier_price_is_enforced_on_export(self):
@@ -72,9 +72,9 @@ class OmegaApifyExportTests(TestCase):
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.content)
         self.assertNotIn('CHEAP LOW-001', data['searchQueries'])
-        self.assertIn('SRR 085066', data['searchQueries'])
+        self.assertIn('085066', data['searchQueries'])
         self.assertEqual(data['sortOrder'], 'relevance')
-        self.assertEqual(data['maxItemsPerQuery'], 10)
+        self.assertEqual(data['maxItemsPerQuery'], 20)
 
     def test_configurable_cities_and_cards(self):
         response = self.client.get(reverse('procurement:selection_apify_json'),
@@ -85,7 +85,7 @@ class OmegaApifyExportTests(TestCase):
         self.assertEqual(data['maxItemsPerQuery'], 5)
 
     def test_invalid_cards_rejected(self):
-        response = self.client.get(reverse('procurement:selection_apify_json'), {'cards': '10'})
+        response = self.client.get(reverse('procurement:selection_apify_json'), {'cards': '21'})
         self.assertEqual(response.status_code, 400)
 
     def test_traceability_and_no_data_modifications(self):
@@ -106,3 +106,13 @@ class OmegaApifyExportTests(TestCase):
             category='Рулевой наконечник', cost=Decimal('2001'), stock='3',
             applicability=str(date.today().year))
         self.assertEqual(len(apify_queries(self.rule)), 3)
+
+    def test_known_urls_exported_only_for_batch_skus(self):
+        self.first.kaspi_url = 'https://kaspi.kz/shop/p/part-123456789/?c=750000000'
+        self.first.save()
+        self.second.kaspi_url = 'https://example.com/shop/p/part-987654321/'
+        self.second.save()
+        response = self.client.get(reverse('procurement:selection_apify_json'))
+        data = json.loads(response.content)
+        self.assertEqual(data['startUrls'], ['https://kaspi.kz/shop/p/part-123456789/'])
+        self.assertEqual(data['searchQueries'], ['085066', '85066', '100200'])

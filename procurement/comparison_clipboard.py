@@ -303,6 +303,8 @@ def _save_screenshot_fields(request, offer, material, payload, *, photo_box=None
             audit.minimum_reviewed_at = None
             audit.minimum_review_evidence = {}
             audit.seller_name = ''
+            audit.price_evidence = {'source': 'screenshot', 'material_id': material.pk,
+                'observed_at': timezone.now().isoformat(), 'coverage': 'single_card_screenshot'}
             if product_id:
                 if BuyingComparisonMaterial.objects.filter(offer=offer,
                         source_filename=material.source_filename,

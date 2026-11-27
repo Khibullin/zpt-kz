@@ -137,7 +137,9 @@ class ApifyMultiCardRecheckTests(TestCase):
     def test_duplicate_reprocessing_is_idempotent(self):
         row = self.card('999999999', '51331', 78000)
         self.send([row])
+        observed = KaspiPriceAudit.objects.get().observed_at
         self.send([row])
+        self.assertEqual(KaspiPriceAudit.objects.get().observed_at, observed)
         self.assertEqual(KaspiPriceAudit.objects.count(), 1)
         self.assertEqual(len(KaspiPriceAudit.objects.get(
             offer=self.offer).card_ids), 1)
@@ -162,3 +164,42 @@ class ApifyMultiCardRecheckTests(TestCase):
         early,previous=price_audits_for_display([self.offer.pk],'early-history.json')
         self.assertEqual(early[self.offer.pk].min_price,Decimal('145000'))
         self.assertIsNone(previous[self.offer.pk])
+
+    def test_explicit_side_and_pack_conflicts_are_excluded(self):
+        self.offer.name = 'Рычаг правый передний 1 шт'
+        self.offer.save()
+        for product_id, title in [('111111111', 'WXQP рычаг левый передний 51331 1 шт'),
+                                  ('222222222', 'WXQP рычаг правый задний 51331 1 шт'),
+                                  ('333333333', 'WXQP рычаг правый передний 51331 2 шт')]:
+            row = self.card(product_id, '51331', 100)
+            row['title'] = title
+            self.send([row])
+        self.assertFalse(KaspiPriceAudit.objects.exists())
+        self.send([self.card('444444444', '51331', 80000)])
+        self.assertTrue(KaspiPriceAudit.objects.exists())  # Unknown attributes remain manual review.
+
+    def test_screenshot_price_protected_from_cheaper_reimport(self):
+        from .models import BuyingComparisonMaterial
+        self.send([self.card('555555555', '51331', 80000)])
+        audit = KaspiPriceAudit.objects.get()
+        BuyingComparisonMaterial.objects.create(offer=self.offer,
+            source_filename=audit.source_filename, kaspi_product_id=audit.product_id,
+            kaspi_data={'price_applied': True, 'screenshot_price': '80000'})
+        result = self.send([self.card('666666666', '51331', 1000)])
+        audit.refresh_from_db()
+        self.assertEqual(result['protected_verified'], 1)
+        self.assertEqual(audit.min_price, Decimal('80000'))
+        self.assertEqual(audit.product_id, '555555555')
+
+    def test_seller_provenance_and_out_of_stock_seller(self):
+        row = self.card('777777777', '51331', 90000, offers=[
+            {'sellerName': 'Unavailable', 'price': 1, 'inStock': False},
+            {'sellerName': 'Shop', 'sellerId': 'S1', 'price': 80000}])
+        row.update(city='Astana', cityId='710000000')
+        self.send([row])
+        audit = KaspiPriceAudit.objects.get()
+        self.assertEqual(audit.min_price, Decimal('80000'))
+        self.assertEqual(audit.price_evidence['city'], 'Astana')
+        self.assertEqual(audit.price_evidence['seller_id'], 'S1')
+        self.assertEqual(audit.price_evidence['coverage'], 'returned_offers_only')
+        self.assertEqual(audit.minimum_review_status, 'needs_review')

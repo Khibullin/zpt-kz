@@ -34,7 +34,8 @@ def export_batch_size(value):
 
 from .apify_cities import APIFY_CITIES
 APIFY_MIN_SUPPLIER_COST = Decimal('2000')
-APIFY_MAX_ITEMS_PER_QUERY = 2  # Default; configurable from 1 to 5.
+from .kaspi_search_queries import MAX_ITEMS_PER_QUERY
+APIFY_MAX_ITEMS_PER_QUERY = MAX_ITEMS_PER_QUERY
 
 
 def filtered_offers(rule):
@@ -99,7 +100,7 @@ def apify_queries(rule):
     for offer in rows:
         brand = str(offer['brand'] or '').strip()
         for article in article_variants(offer['article']):
-            query = ' '.join((brand, article)).strip()
+            query = article
             key = query.casefold()
             if not brand or not article or key in seen:
                 continue
@@ -108,6 +109,36 @@ def apify_queries(rule):
                            'brand': brand, 'article': article,
                            'original_article': offer['article']})
     return result
+
+
+def known_card_urls(rows, supplier_id=None):
+    from .apify_price_recheck import _brand, normalize_article
+    from .models import KaspiPriceAudit
+    from urllib.parse import urlsplit
+    identities = {(_brand(row.get('brand')), normalize_article(row.get('original_article') or row.get('article'))) for row in rows}
+    brands = {row.get('brand') for row in rows if row.get('brand')}
+    condition = Q(pk__in=[])
+    for brand in brands:
+        condition |= Q(brand__iexact=brand)
+        if _brand(brand) == 'parts-mall':
+            condition |= Q(brand__iexact='PARTS-MALL') | Q(brand__iexact='PMC PARTS MALL') | Q(brand__iexact='PARTS MALL')
+    offers = Offer.objects.filter(condition, supplier__name__in=ACTIVE_SUPPLIER_NAMES)
+    if supplier_id:
+        offers = offers.filter(supplier_id=supplier_id)
+    matched = [offer for offer in offers.only('id', 'brand', 'article', 'kaspi_url')
+               if (_brand(offer.brand), normalize_article(offer.article)) in identities]
+    candidates = [offer.kaspi_url for offer in matched]
+    candidates.extend(KaspiPriceAudit.objects.filter(offer_id__in=[offer.pk for offer in matched]).values_list('card_url', flat=True))
+    urls = set()
+    for value in candidates:
+        try:
+            url = urlsplit(str(value or ''))
+        except ValueError:
+            continue
+        if (url.scheme == 'https' and url.netloc == 'kaspi.kz'
+                and url.path.startswith('/shop/p/') and re.search(r'-\d{6,15}/?$', url.path)):
+            urls.add('https://kaspi.kz' + url.path)
+    return sorted(urls)
 
 
 @access('sales', 'admin')
@@ -151,15 +182,16 @@ def selection_apify_json(request):
     try:
         cards = int(request.GET.get('cards', str(APIFY_MAX_ITEMS_PER_QUERY)))
     except (ValueError, TypeError):
-        return JsonResponse({'error': 'Число карточек должно быть от 1 до 5.'}, status=400)
-    if not 1 <= cards <= 5:
-        return JsonResponse({'error': 'Число карточек должно быть от 1 до 5.'}, status=400)
+        return JsonResponse({'error': 'Число карточек должно быть от 1 до 20.'}, status=400)
+    if not 1 <= cards <= MAX_ITEMS_PER_QUERY:
+        return JsonResponse({'error': 'Число карточек должно быть от 1 до 20.'}, status=400)
     if request.GET.get('format') == 'mapping':
         payload = {'batch': batch, 'source': saved.details.get('supplier_name', 'Omega') if saved_id else str(rule.supplier or ''), 'request_id': saved_id, 'mapping': rows}
         filename = f'apify_mapping_{saved_id}_{batch:02d}.json' if saved_id else f'apify_mapping_{batch:02d}.json'
     else:
         payload = {
             'searchQueries': [row['query'] for row in rows],
+            'startUrls': known_card_urls(rows, saved.details.get('supplier_id') if saved_id else rule.supplier_id),
             'cities': cities,
             'sortOrder': 'relevance',
             'maxItems': 0,

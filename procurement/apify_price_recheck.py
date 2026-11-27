@@ -24,7 +24,8 @@ from django.db.models import Q
 
 from .analysis import PACKAGING_COST
 from .catalog_paging import net_buying_profit
-from .models import KaspiPriceAudit, Offer, Preferences
+from .models import BuyingComparisonMaterial, KaspiPriceAudit, Offer, Preferences
+from django.utils import timezone
 from .omega_policy import POSITIVE_STOCK_PATTERN
 
 
@@ -75,13 +76,41 @@ def _offer_index(brands):
     return index
 
 
+def explicit_execution_conflict(supplier_title, card_title):
+    """Reject only explicit contrary attributes; missing attributes stay unknown."""
+    def attributes(title):
+        text = str(title or '').casefold()
+        text = re.sub(r'(?:лев\w*|прав\w*)\s+рул\w*', '', text)
+        groups = [
+            (r'\b(?:лев\w*|left|lh)\b', r'\b(?:прав\w*|right|rh)\b'),
+            (r'\b(?:передн\w*|front)\b', r'\b(?:задн\w*|rear)\b'),
+        ]
+        result = [{i for i, pattern in enumerate(pair) if re.search(pattern, text)} for pair in groups]
+        quantities = {int(n) for n in re.findall(r'\b(\d{1,3})\s*(?:шт\.?|pcs?)\b', text)}
+        return result, quantities
+    supplier, supplier_qty = attributes(supplier_title)
+    card, card_qty = attributes(card_title)
+    return any(a and b and a.isdisjoint(b) for a, b in zip(supplier, card)) or bool(
+        supplier_qty and card_qty and supplier_qty.isdisjoint(card_qty))
+
+
+def seller_evidence(row, seller, source):
+    return {'source': source, 'product_id': str(row['id']),
+            'card_url': str(row.get('url') or ''),
+            'seller': str(seller.get('sellerName') or seller.get('name') or '')[:180],
+            'seller_id': str(seller.get('sellerId') or seller.get('id') or '')[:180],
+            'city': str(seller.get('city') or seller.get('cityId') or row.get('city') or row.get('cityId') or '')[:180],
+            'observed_at': timezone.now().isoformat(),
+            'coverage': 'returned_offers_only', 'policy': 'article_only_v3'}
+
+
 def import_apify_recheck_results(raw, filename, user):
     preferences = Preferences.objects.filter(user=user).first()
     commission = preferences.commission if preferences else None
     expenses = preferences.expenses if preferences else None
     stats = {
         'rows': len(raw), 'products': 0, 'invalid': 0,
-        'linked': 0, 'verified': 0, 'unmatched': 0,
+        'linked': 0, 'verified': 0, 'unmatched': 0, 'protected_verified': 0,
         'rejected_below_50': 0, 'rejected_unverifiable': 0,
         'rejected_unconfirmed_price': 0,
         'recheck_matched_cards': 0, 'recheck_price_cards': 0,
@@ -111,7 +140,8 @@ def import_apify_recheck_results(raw, filename, user):
             continue
         tokens = article_tokens(title)
         matching = [offer for offer in index.get(brand, [])
-                    if normalize_article(offer.article) in tokens]
+                    if normalize_article(offer.article) in tokens
+                    and not explicit_execution_conflict(offer.name, title)]
         if not matching or len({normalize_article(offer.article) for offer in matching}) != 1:
             stats['unmatched'] += 1
             stats['recheck_unrelated'] += 1
@@ -129,27 +159,29 @@ def import_apify_recheck_results(raw, filename, user):
             sellers = row.get('offers') or row.get('sellers') or []
             if not isinstance(sellers, list):
                 sellers = []
-            priced = [(price, str(seller.get('sellerName') or
-                                 seller.get('name') or '')[:180])
+            priced = [(price, seller)
                       for seller in sellers if isinstance(seller, dict)
+                      and seller.get('inStock') is not False
                       for price in [_money(seller.get('price'))] if price]
             if not priced or row.get('inStock') is False:
                 stats['rejected_unconfirmed_price'] += 1
                 stats['recheck_missing_sellers'] += 1
                 continue
             stats['recheck_price_cards'] += 1
-            price, seller_name = min(priced, key=lambda value: value[0])
+            price, seller = min(priced, key=lambda value: value[0])
+            evidence = seller_evidence(row, seller, PurePath(filename).name[:255])
+            seller_name = evidence['seller']
             product_id = str(row['id'])[:80]
             key = offer.pk
             if key not in grouped:
                 grouped[key] = {'offer': offer, 'minimum': price, 'seller': seller_name,
                                 'product_id': product_id, 'title': title[:500],
                                 'url': str(row.get('url') or '')[:2048],
-                                'card_ids': set()}
+                                'card_ids': set(), 'evidence': evidence}
             if price < grouped[key]['minimum']:
                 grouped[key].update(minimum=price, seller=seller_name,
                                     product_id=product_id, title=title[:500],
-                                    url=str(row.get('url') or '')[:2048])
+                                    url=str(row.get('url') or '')[:2048], evidence=evidence)
             grouped[key]['card_ids'].add(product_id)
 
     source = PurePath(filename).name[:255]
@@ -169,12 +201,19 @@ def import_apify_recheck_results(raw, filename, user):
                 expenses_snapshot=cost_expenses,
                 profit=profit.quantize(Decimal('.01')),
                 roi=(profit * Decimal(100) / offer.cost).quantize(Decimal('.0001')),
-                card_ids=sorted(entry['card_ids']),
+                card_ids=sorted(entry['card_ids']), price_evidence=entry['evidence'],
                 identity_status='needs_review',
             )
             record, created = KaspiPriceAudit.objects.select_for_update().get_or_create(
                 offer=offer, source_filename=source, defaults=defaults)
             if not created:
+                from .comparison_screenshot_ai import screenshot_price_applies
+                materials = BuyingComparisonMaterial.objects.filter(
+                    offer=offer, source_filename=source, kaspi_product_id=record.product_id)
+                if any(screenshot_price_applies(material, record) for material in materials):
+                    stats['protected_verified'] += 1
+                    continue
+                price_changed = price < record.min_price
                 previous = set(record.card_ids or [])
                 combined = sorted(previous | entry['card_ids'])
                 if entry['card_ids'] - previous:
@@ -190,6 +229,7 @@ def import_apify_recheck_results(raw, filename, user):
                     record.minimum_review_evidence = {}
                     record.identity_status = 'needs_review'
                     record.min_price = price
+                    record.price_evidence = entry['evidence']
                     record.product_id = entry['product_id']
                     record.card_url = entry['url']
                     record.card_title = entry['title']
@@ -200,7 +240,8 @@ def import_apify_recheck_results(raw, filename, user):
                     record.profit = new_profit.quantize(Decimal('.01'))
                     record.roi = (new_profit * Decimal(100) /
                                   record.cost_snapshot).quantize(Decimal('.0001'))
-                record.save()
+                if entry['card_ids'] - previous or price_changed:
+                    record.save()
             stats['recheck_offer_updates'] += 1
             if record.roi < Decimal('50'):
                 stats['rejected_below_50'] += 1
