@@ -48,6 +48,8 @@ def recognize_screenshots(images, *, article, brand, session=None):
         'В fitment перечисли марки, модели и годы только если показаны; '
         'в package укажи число в комплекте только если видно. '
         'В specs не придумывай детали. Дословность важнее полноты. '
+        'Артикул может быть виден в названии товара: перенеси его в article, даже если отдельного поля нет. '
+        'Буквы L и R различают левую и правую детали: никогда не заменяй их артикулом поставщика. '
         'Не повторяй текст, не соответствующий товару.'
     )
     content = [{'type': 'input_text', 'text': prompt}]
@@ -148,3 +150,23 @@ def separate_article_oem(fields, expected):
                              and part in oem_tokens for part in extras):
         return fields
     return {**fields, 'article': expected}
+
+
+def screenshot_article_fields(fields):
+    """Recover a single literal part number from the title, never from the offer.
+
+    Numeric OEMs/years are not manufacturer articles. Multiple plausible numbers
+    remain unresolved. Explicit OCR identity (including a mismatch) wins.
+    """
+    if str(fields.get('article') or '').strip():
+        return fields
+    tokens = re.findall(r'(?<![\w./-])[A-Za-z0-9]+(?:[./-][A-Za-z0-9]+)*(?![\w./-])',
+                        str(fields.get('name') or ''))
+    candidates = {token for token in tokens if re.search(r'\d', token)
+                  and (re.search(r'[A-Za-z]', token) or re.search(r'[./-]', token))}
+    oem_tokens = {token.casefold() for token in re.split(r'[\s;,]+', str(fields.get('oem') or ''))}
+    candidates = {token for token in candidates if token.casefold() not in oem_tokens
+                  and token.casefold() != str(fields.get('brand') or '').casefold()}
+    if len(candidates) == 1:
+        return {**fields, 'article': candidates.pop()}
+    return fields

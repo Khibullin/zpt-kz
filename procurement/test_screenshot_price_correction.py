@@ -110,7 +110,7 @@ class AutomaticScreenshotFillTests(ScreenshotPriceCorrectionTests):
         self.assertTrue(Activity.objects.get(action='kaspi_screenshot_price').details['automatic'])
 
     def test_mismatch_or_ambiguous_price_keeps_existing_calculation(self):
-        for change in ({'brand': 'OTHER'}, {'article': ''}, {'screenshot_price': '2067 x 3'}):
+        for change in ({'brand': 'OTHER'}, {'article': '', 'name': ''}, {'screenshot_price': '2067 x 3'}):
             response = self.recognize(change)
             self.assertFalse(response.json()['auto_saved'])
             self.assertTrue(response.json()['auto_error'])
@@ -155,6 +155,35 @@ class ArticleOemSeparationTests(SimpleTestCase):
 
 
 class AutomaticCombinedArticleTests(AutomaticScreenshotFillTests):
+    def test_missing_article_is_read_from_literal_title_and_price_updates(self):
+        response = self.recognize({'article': '', 'screenshot_price': '11 300 ₸'})
+        self.assertTrue(response.json()['auto_saved'], response.content)
+        self.assertEqual(response.json()['fields']['article'], '0121-087')
+        self.audit.refresh_from_db()
+        self.assertEqual(self.audit.min_price, Decimal('11300'))
+
+    def test_left_right_mismatch_is_named_and_preserves_price(self):
+        self.offer.brand = 'CTR'; self.offer.article = 'CQ0735R'; self.offer.save()
+        response = self.recognize({'brand': 'CTR', 'article': '',
+            'name': 'CTR рычаг подвески CQ0735L 552502P000', 'oem': '552502P000',
+            'screenshot_price': '11 356 ₸'})
+        answer = response.json()
+        self.assertFalse(answer['auto_saved'])
+        self.assertEqual(answer['fields']['article'], 'CQ0735L')
+        self.assertIn('CQ0735L', answer['auto_error'])
+        self.assertIn('CQ0735R', answer['auto_error'])
+        self.assertIn('L/R', answer['auto_error'])
+        self.audit.refresh_from_db(); self.material.refresh_from_db()
+        self.assertEqual(self.audit.min_price, Decimal('28627'))
+        self.assertNotIn('price_applied', self.material.kaspi_data)
+        self.assertFalse(Activity.objects.filter(action='kaspi_screenshot_price').exists())
+
+    def test_ambiguous_title_does_not_fill_supplier_article(self):
+        response = self.recognize({'article': '', 'name': 'ASVA 0121-087 0121-088'})
+        self.assertFalse(response.json()['auto_saved'])
+        self.audit.refresh_from_db()
+        self.assertEqual(self.audit.min_price, Decimal('28627'))
+
     def test_recognition_separates_full_article_and_known_oem_before_save(self):
         response = self.recognize({'article': '0121-087 4504669135', 'oem': '4504669135'})
         self.assertTrue(response.json()['auto_saved'], response.content)

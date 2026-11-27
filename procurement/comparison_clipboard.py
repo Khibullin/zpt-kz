@@ -50,7 +50,8 @@ def eligible_comparison_offer_ids():
 from .comparison_photo_crop import crop_photo, photo_box_from_request
 from .views import access
 from .comparison_screenshot_ai import (recognize_screenshots, article_agrees,
-                                       price_from_image, parsed_screenshot_price, separate_article_oem, FIELDS, TEXT_LIMITS)
+                                       price_from_image, parsed_screenshot_price, separate_article_oem,
+                                       screenshot_article_fields, FIELDS, TEXT_LIMITS)
 
 MAX_IMAGE_BYTES = 500_000
 MAX_SHOTS = 3
@@ -202,7 +203,7 @@ def recognize_kaspi_screenshots(request, pk):
         result = recognize_screenshots(screenshots, article=offer.article, brand=offer.brand)
     except ValueError as exc:
         return JsonResponse({'error': str(exc)}, status=503)
-    result = separate_article_oem(result, offer.article)
+    result = separate_article_oem(screenshot_article_fields(result), offer.article)
     proposed_box = result.pop('product_photo_box', None)
     preview = crop_photo(screenshots, proposed_box) if proposed_box else None
     answer = {
@@ -247,11 +248,20 @@ def _save_screenshot_fields(request, offer, material, payload, *, photo_box=None
     """Apply only this offer/export/card; OCR is not a human identity review."""
     fields = {field: str(payload.get(field) or '').strip()[:TEXT_LIMITS[field]]
               for field in FIELDS}
-    fields = separate_article_oem(fields, offer.article)
+    fields = separate_article_oem(screenshot_article_fields(fields), offer.article)
     if not article_agrees(fields['article'], offer.article):
-        return JsonResponse({'error': 'Артикул на скриншоте не совпадает с поставщиком. Сохранение заблокировано.'}, status=400)
+        observed = fields['article'] or 'не распознан'
+        left_right = (observed[:-1].casefold() == offer.article[:-1].casefold()
+                      and {observed[-1:].casefold(), offer.article[-1:].casefold()} == {'l', 'r'})
+        explanation = 'L/R — разные детали. ' if left_right else ''
+        return JsonResponse({'error':
+            f'Цена и данные не обновлены. Артикул Kaspi: {observed}; '
+            f'у поставщика: {offer.article}. ' + explanation +
+            'Проверьте артикул на скриншоте и исправьте распознавание '
+            'или загрузите скриншот точного товара.'}, status=400)
     if fields['brand'].casefold() != offer.brand.casefold():
-        return JsonResponse({'error': 'Бренд на скриншоте не совпадает с поставщиком. Сохранение заблокировано.'}, status=400)
+        return JsonResponse({'error': f'Цена и данные не обновлены. Бренд Kaspi: {fields["brand"] or "не распознан"}; '
+                             f'у поставщика: {offer.brand}. Проверьте бренд на скриншоте.'}, status=400)
     try:
         price = parsed_screenshot_price(fields['screenshot_price']) if fields['screenshot_price'] else None
         product_id = fields['screenshot_product_id']

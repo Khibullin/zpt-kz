@@ -19,6 +19,7 @@
 .eep-shot-preview img{max-width:90vw;max-height:80vh;object-fit:contain;display:block}
 .eep-shot-preview .eep-shot-close{display:block;margin:0 0 7px auto;padding:5px 12px;cursor:pointer}
 .eep-paste-status{margin:5px 0;font-size:12px;color:#3e5d70}
+.eep-paste-status.eep-error{color:#a12525;font-weight:600}
 .eep-ai-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px}
 .eep-ai-actions button{padding:7px 11px;min-height:34px}
 .eep-ai-review{margin-top:12px;padding:10px;border:1px solid #d5e4ed;border-radius:8px;background:#f8fbff}
@@ -171,7 +172,7 @@
   const gallery=document.getElementById('eep-pasted'), form=document.getElementById('eep-paste-form');
   if(!zone||!form)return;
   let sending=false;
-  const show=message=>{status.textContent=message;};
+  const show=(message,error=false)=>{status.textContent=message;status.classList.toggle('eep-error',error);status.setAttribute('role',error?'alert':'status');};
   const tools=zone.closest('details');
   const flashKey='zpt-comparison-flash:'+location.pathname;
   try{const message=sessionStorage.getItem(flashKey);if(message){show(message);sessionStorage.removeItem(flashKey);}}catch(_){}
@@ -317,7 +318,7 @@
         reloadWithStatus(result.message||'Сравнение заполнено автоматически.');
       }else{
         review.hidden=false;
-        show(result.auto_error||'Не удалось подтвердить бренд или артикул. Исправьте данные вручную.');
+        show(result.auto_error||'Не удалось подтвердить бренд или артикул. Исправьте данные вручную.',true);
       }
     }catch(err){show('Скриншот сохранён. '+(err.message||'Не удалось распознать. Нажмите «Повторить распознавание».'));}
     finally{recognizeButton.disabled=false;confirmButton.disabled=false;}
@@ -339,7 +340,7 @@
       const response=await fetch(confirmForm.action,{method:'POST',body:postBody(fields),credentials:'same-origin'});
       const result=await requireJson(response);
       reloadWithStatus(result.message||'Сохранено.');
-    }catch(err){show(err.message||'Не удалось сохранить.');}
+    }catch(err){show(err.message||'Не удалось сохранить.',true);}
     finally{confirmButton.disabled=false;}
   });
   const manageForm=document.getElementById('eep-manage-form');
