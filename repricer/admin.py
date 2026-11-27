@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.db import transaction
 
 from .models import (
     KaspiCompetitorIngestBatch,
@@ -6,7 +7,44 @@ from .models import (
     KaspiOwnPriceSnapshot,
     KaspiRepricerRecommendation,
     KaspiRepricerRule,
+    KaspiActiveExportRow,
 )
+
+
+@admin.register(KaspiActiveExportRow)
+class KaspiActiveExportRowAdmin(admin.ModelAdmin):
+    """Audited article corrections; source prices, stock and bindings are read-only."""
+    list_display = ('master_sku', 'product_name', 'merchant_sku', 'price', 'quantity')
+    search_fields = ('master_sku', 'product_name', 'merchant_sku')
+    fields = ('batch', 'row_number', 'master_sku', 'product_name', 'brand',
+              'merchant_sku', 'price', 'quantity', 'listing', 'competitor_scan_note')
+    readonly_fields = tuple(field for field in fields if field != 'merchant_sku')
+
+    def get_queryset(self, request):
+        from .views import _latest_active_batch
+        batch = _latest_active_batch()
+        return super().get_queryset(request).filter(batch=batch) if batch else super().get_queryset(request).none()
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    @transaction.atomic
+    def save_model(self, request, obj, form, change):
+        if 'merchant_sku' in form.changed_data:
+            # A changed identity invalidates the previous comparison only.
+            for field in ('competitor_seller', 'competitor_seller_id', 'competitor_city',
+                          'competitor_url', 'competitor_scan_status', 'candidate_title',
+                          'candidate_url', 'candidate_seller'):
+                setattr(obj, field, '')
+            obj.competitor_min_price = obj.competitor_checked_at = obj.candidate_price = None
+            obj.competitor_scan_note = 'Артикул уточнён вручную; повторите обработку сохранённого JSON'
+            obj.verified_competitor_offers.all().delete()
+            from .models import KaspiActiveCityCheck
+            KaspiActiveCityCheck.objects.filter(active_row=obj).delete()
+        super().save_model(request, obj, form, change)
 
 
 class ListingAdminMixin:
