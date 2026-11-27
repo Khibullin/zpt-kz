@@ -28,6 +28,21 @@ class ApifyOutputTests(TestCase):
             'offers': [{'sellerId': 'other', 'price': 2695}],
         }], [row], ['Almaty'])
         self.assertEqual(result['evidence'], [])
+        self.assertEqual(result['brand_candidates'][row.pk]['price'], 2695)
+        self._upload([{
+            'id': '146393085', 'title': '555 воздушный фильтр Chery Tiggo 8 Pro MAX 151000151AA',
+            'brand': '555', 'city': 'Almaty',
+            'url': 'https://kaspi.kz/shop/p/filter-151000151aa-146393085/',
+            'offers': [{'sellerId': 'other', 'sellerName': 'Other', 'price': 2695}],
+        }])
+        row.refresh_from_db()
+        self.assertEqual(row.candidate_price, 2695)
+        self.assertIsNone(row.competitor_min_price)
+        page = self.client.get(reverse('repricer:dashboard') + '?status=review')
+        self.assertContains(page, row.master_sku)
+        self.client.post(reverse('repricer:apify_clear'))
+        row.refresh_from_db()
+        self.assertIsNone(row.candidate_price)
 
     def test_year_range_does_not_match_camry_hood_support_to_accent(self):
         from repricer.apify_output import parse_apify_offers, _part_codes

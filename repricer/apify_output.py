@@ -139,7 +139,7 @@ def _source_codes(row):
     return codes
 
 
-def _search_match(row, item):
+def _search_match(row, item, *, check_brand=True):
     """Require exact article, identical part type and compatible product brand.
 
     'Без бренда' is neutral only when article and type match exactly.
@@ -154,6 +154,8 @@ def _search_match(row, item):
         own_type = _part_type(row.listing.product.title)
     if own_type and item_type != own_type:
         return False
+    if not check_brand:
+        return True
     # An explicit brand in ACTIVE is a product brand, not necessarily the
     # vehicle brand in the catalog. Keep AG Parts when it is the label.
     source_brand = (row.brand or "").strip()
@@ -192,6 +194,7 @@ def parse_apify_offers(data, active_rows, cities):
             code_index[code].append(row)
 
     evidence = {}
+    brand_candidates = {}
     verified_rows = set()
     covered_pairs = set()
     unconfirmed = 0
@@ -233,6 +236,28 @@ def parse_apify_offers(data, active_rows, cities):
                 row for row in active_rows
                 if row.pk in candidates and _search_match(row, item)
             ]
+            # Keep a cheaper, different-brand result visible for manual
+            # review, but never treat it as a confirmed competitor minimum.
+            raw_offers = item.get('offers')
+            if isinstance(raw_offers, list):
+                for row in active_rows:
+                    if (row.pk not in candidates or _search_match(row, item)
+                            or not _search_match(row, item, check_brand=False)):
+                        continue
+                    for offer in raw_offers:
+                        if not isinstance(offer, dict):
+                            continue
+                        seller_id = str(offer.get('sellerId') or offer.get('merchantId') or '').strip()
+                        price = _positive_price(offer.get('price'))
+                        if (not seller_id or seller_id in OWN_MERCHANT_IDS or not price
+                                or not row.price or price >= row.price):
+                            continue
+                        offer_counters[row.pk]['different_brand'] += 1
+                        if row.pk not in brand_candidates or price < brand_candidates[row.pk]['price']:
+                            brand_candidates[row.pk] = {
+                                'price': price, 'title': str(item.get('title') or '')[:500],
+                                'url': url, 'seller': str(offer.get('sellerName') or '')[:255],
+                            }
         if not rows:
             unconfirmed += 1
             continue
@@ -300,6 +325,7 @@ def parse_apify_offers(data, active_rows, cities):
         "unconfirmed": unconfirmed,
         "skipped_city": skipped_city,
         "evidence": list(evidence.values()),
+        "brand_candidates": brand_candidates,
         "offer_counters": {k: dict(v) for k, v in offer_counters.items()},
     }
 
@@ -308,6 +334,8 @@ def _missing_reason(row_id, recognized_ids, counters):
     if row_id not in recognized_ids:
         return "Карточка не подтверждена по артикулу и бренду"
     state = counters.get(row_id, {})
+    if state.get('different_brand'):
+        return 'Есть более дешёвая карточка другого бренда; требуется сверка'
     if state.get("missing_offers_array"):
         return "Apify не вернул поле offers"
     if state.get("empty_offers"):
@@ -333,7 +361,7 @@ def import_apify_result(data, batch, *, filename, merge_mode=True, cities=None, 
     ))
     selection = cities if cities is not None else saved_rules().cities
     result = parse_apify_offers(data, rows, selection)
-    if result["recognized"] == 0:
+    if result["recognized"] == 0 and not result['brand_candidates']:
         raise ValueError("Не удалось подтвердить ни одну карточку Kaspi. Данные не изменены.")
     clock = captured_at or timezone.now()
     evidence = result["evidence"]
@@ -377,6 +405,12 @@ def import_apify_result(data, batch, *, filename, merge_mode=True, cities=None, 
                                                          defaults={'checked_at': clock})
         KaspiActiveCompetitorOffer.objects.filter(active_row__batch=batch).delete()
         for row in rows:
+            candidate = result['brand_candidates'].get(row.pk)
+            if candidate or not merge_mode:
+                row.candidate_price = candidate['price'] if candidate else None
+                row.candidate_title = candidate['title'] if candidate else ''
+                row.candidate_url = candidate['url'] if candidate else ''
+                row.candidate_seller = candidate['seller'] if candidate else ''
             offers = all_by_row.get(row.pk, [])
             best = min(offers, key=lambda e: e["price"]) if offers else None
             # Retain the status of previously confirmed cards when partial
@@ -407,6 +441,7 @@ def import_apify_result(data, batch, *, filename, merge_mode=True, cities=None, 
             "competitor_min_price", "competitor_seller", "competitor_seller_id",
             "competitor_city", "competitor_url", "competitor_checked_at",
             "competitor_scan_status", "competitor_scan_note",
+            "candidate_price", "candidate_title", "candidate_url", "candidate_seller",
         ], batch_size=300)
         KaspiActiveCompetitorOffer.objects.bulk_create([
             KaspiActiveCompetitorOffer(
@@ -496,11 +531,16 @@ def repricer_clear_output(request):
             row.competitor_checked_at = None
             row.competitor_scan_status = ""
             row.competitor_scan_note = ""
+            row.candidate_price = None
+            row.candidate_title = ""
+            row.candidate_url = ""
+            row.candidate_seller = ""
         if rows:
             KaspiActiveExportRow.objects.bulk_update(rows, [
                 "competitor_min_price", "competitor_seller", "competitor_seller_id",
                 "competitor_city", "competitor_url", "competitor_checked_at",
                 "competitor_scan_status", "competitor_scan_note",
+                "candidate_price", "candidate_title", "candidate_url", "candidate_seller",
             ])
     request.session.pop("repricer_apify_result", None)
     messages.success(request, "Результаты мониторинга очищены. Наши цены не изменены.")

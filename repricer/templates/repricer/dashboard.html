@@ -325,6 +325,7 @@
                 <div><strong>{{ row.item_title }}</strong><small class="pc-sub">Требует сопоставления · Kaspi SKU: {{ row.active.master_sku }}</small></div>
               {% endif %}
             </div>
+            {% if row.candidate_price != None %}<small class="pc-sub">Другой бренд, требуется сверка: {{ row.candidate_price|intcomma }} ₸ · {{ row.candidate_title }}{% if row.candidate_url %} · <a href="{{ row.candidate_url }}" target="_blank" rel="noopener noreferrer">Проверить карточку</a>{% endif %}. В расчёт не включён.</small>{% endif %}
           </td>
           <td>{% if row.active %}{{ row.article }}<span class="pc-sub">{{ row.brand_name }}</span>{% else %}{{ row.listing.product.article|default:"—" }}<span class="pc-sub">{{ row.listing.product.brand.name|default:"Бренд не указан" }}</span>{% endif %}</td>
           <td class="money">{% if row.active %}{% if row.quantity != None %}{{ row.quantity }} шт.{% else %}—{% endif %}{% elif row.listing.last_known_kaspi_qty != None %}{{ row.listing.last_known_kaspi_qty }} шт.{% else %}—{% endif %}</td>
