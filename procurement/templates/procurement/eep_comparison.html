@@ -127,7 +127,8 @@
  <tbody>{% for row in rows %}
  <tr><th scope="row">{{ row.label }}</th>
  <td class="eep-cell{% if row.different %} eep-different{% endif %}">{{ row.supplier }}</td>
- <td class="eep-cell{% if row.different %} eep-different{% endif %}">{{ row.kaspi }}</td></tr>
+ <td class="eep-cell{% if row.different %} eep-different{% endif %}">{{ row.kaspi }}{% if row.label == "Наименование товара" and kaspi_search_query %}
+ <span class="eep-search-actions"><button type="button" class="eep-search-icon" id="eep-copy-search" data-query="{{ kaspi_search_query }}" title="Копировать: {{ kaspi_search_query }}" aria-label="Копировать название и артикул">⧉</button><a class="eep-search-icon" href="https://kaspi.kz/shop/search/?text={{ kaspi_search_query|urlencode }}" target="_blank" rel="noopener noreferrer" title="Найти в Kaspi: {{ kaspi_search_query }}" aria-label="Найти в Kaspi по названию и артикулу">⌕</a><span id="eep-copy-status" role="status" aria-live="polite"></span></span>{% endif %}</td></tr>
  {% if row.label == "Артикул" %}<tr class="eep-prices"><th scope="row">Цена товара</th>
 
   <td class="eep-cell">
@@ -388,4 +389,28 @@
 })();
 </script>
 {% endif %}
+
+<style>
+.eep-search-actions{display:inline-flex;align-items:center;gap:5px;margin-left:7px;white-space:normal;vertical-align:middle}.eep-search-actions .eep-search-icon{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;min-height:0;margin:0;padding:0;border:1px solid #cbd8e2;border-radius:4px;background:#fff;color:#173b56;text-decoration:none;font:20px Arial;cursor:pointer}.eep-search-actions #eep-copy-status{font-size:11px;color:#087a68}
+</style>
+<script>
+(function(){
+ const button=document.getElementById('eep-copy-search');
+ if(!button)return;
+ button.addEventListener('click',async()=>{
+  const status=document.getElementById('eep-copy-status');
+  try{
+   if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(button.dataset.query);}
+   else{
+    const field=document.createElement('textarea');field.value=button.dataset.query;
+    field.style.cssText='position:fixed;left:-9999px';document.body.appendChild(field);
+    try{field.select();if(!document.execCommand('copy'))throw new Error('copy');}
+    finally{field.remove();button.focus();}
+   }
+   status.textContent='Скопировано';
+  }catch(_){status.textContent='Не удалось скопировать';}
+ });
+}());
+</script>
+
 {% endblock %}
