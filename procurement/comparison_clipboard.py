@@ -50,7 +50,7 @@ def eligible_comparison_offer_ids():
 from .comparison_photo_crop import crop_photo, photo_box_from_request
 from .views import access
 from .comparison_screenshot_ai import (recognize_screenshots, article_agrees,
-                                       price_from_image, parsed_screenshot_price, FIELDS, TEXT_LIMITS)
+                                       price_from_image, parsed_screenshot_price, separate_article_oem, FIELDS, TEXT_LIMITS)
 
 MAX_IMAGE_BYTES = 500_000
 MAX_SHOTS = 3
@@ -202,6 +202,7 @@ def recognize_kaspi_screenshots(request, pk):
         result = recognize_screenshots(screenshots, article=offer.article, brand=offer.brand)
     except ValueError as exc:
         return JsonResponse({'error': str(exc)}, status=503)
+    result = separate_article_oem(result, offer.article)
     proposed_box = result.pop('product_photo_box', None)
     preview = crop_photo(screenshots, proposed_box) if proposed_box else None
     answer = {
@@ -246,6 +247,7 @@ def _save_screenshot_fields(request, offer, material, payload, *, photo_box=None
     """Apply only this offer/export/card; OCR is not a human identity review."""
     fields = {field: str(payload.get(field) or '').strip()[:TEXT_LIMITS[field]]
               for field in FIELDS}
+    fields = separate_article_oem(fields, offer.article)
     if not article_agrees(fields['article'], offer.article):
         return JsonResponse({'error': 'Артикул на скриншоте не совпадает с поставщиком. Сохранение заблокировано.'}, status=400)
     if fields['brand'].casefold() != offer.brand.casefold():

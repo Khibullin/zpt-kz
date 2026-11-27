@@ -37,7 +37,7 @@ def recognize_screenshots(images, *, article, brand, session=None):
         '. Указанные бренд/артикул используй только для проверки, а не как источник заполнения. '
         'Верни только JSON объект с полями: name, brand, article, category, description, '
         'specs, fitment, package, oem, analogs, screenshot_price, screenshot_product_id (код товара Kaspi) и product_photo_box. '
-        'Текстовые значения — строки. Для невидимых или неуверенно распознанных сведений оставь пустую строку. Не угадывай бренд, полный артикул, цену и код товара. Если скриншоты содержат разные товары или противоречащие цены/коды, оставь brand и article пустыми для ручной проверки. '
+        'Текстовые значения — строки. Для невидимых или неуверенно распознанных сведений оставь пустую строку. Не угадывай бренд, полный артикул, цену и код товара. Не объединяй артикул производителя и OEM: в article должен быть только полный артикул детали, оригинальные номера записывай отдельно в oem. Если скриншоты содержат разные товары или противоречащие цены/коды, оставь brand и article пустыми для ручной проверки. '
         'product_photo_box — либо null, либо массив из пяти чисел '
         '[номер_скриншота_с_нуля, левая_граница, верхняя_граница, правая_граница, нижняя_граница]. '
         'Координаты нормализованы от 0 до 1000 по ширине и высоте ПОЛНОГО скриншота. '
@@ -127,3 +127,24 @@ def screenshot_price_applies(material, audit):
                     parsed_screenshot_price(data.get('screenshot_price')) == audit.min_price)
     except ValueError:
         return False
+
+
+def separate_article_oem(fields, expected):
+    """Remove only separately corroborated numeric OEM tokens from an OCR article.
+
+    Full article punctuation stays meaningful. Additional article variants and
+    uncorroborated suffixes cannot turn a mismatch into a match.
+    """
+    article = str(fields.get('article') or '').strip()
+    expected = str(expected or '').strip()
+    if not expected or article_agrees(article, expected) or re.search(r'\s', expected):
+        return fields
+    tokens = [part for part in re.split(r'[\s;,]+', article) if part]
+    if sum(article_agrees(part, expected) for part in tokens) != 1:
+        return fields
+    extras = [part for part in tokens if not article_agrees(part, expected)]
+    oem_tokens = set(re.split(r'[\s;,]+', str(fields.get('oem') or '').strip()))
+    if not extras or not all(part.isascii() and part.isdecimal() and len(part) >= 5
+                             and part in oem_tokens for part in extras):
+        return fields
+    return {**fields, 'article': expected}

@@ -136,3 +136,29 @@ class AutomaticScreenshotFillTests(ScreenshotPriceCorrectionTests):
         self.assertContains(response, '<th scope="col">Параметр</th>')
         self.assertContains(response, "auto_apply:'yes'")
         self.assertContains(response, 'await recognizeAndFill();')
+
+
+class ArticleOemSeparationTests(SimpleTestCase):
+    def test_splits_only_explicitly_corroborated_oem(self):
+        from .comparison_screenshot_ai import separate_article_oem
+        fields = {'article': 'CQ0503 4877048010', 'oem': '4877048010'}
+        self.assertEqual(separate_article_oem(fields, 'CQ0503')['article'], 'CQ0503')
+        self.assertEqual(fields['article'], 'CQ0503 4877048010')
+        for article, oem in (('CQ0503-1 4877048010', '4877048010'),
+                             ('CQ0503 4877048010', ''),
+                             ('CQ0503 CQ0504', 'CQ0504'),
+                             ('CQ0503 12345', '4877048010'),
+                             ('CQ0503 CQ0503 4877048010', '4877048010'),
+                             ('CQ0503 48770', '4877048010')):
+            item = {'article': article, 'oem': oem}
+            self.assertEqual(separate_article_oem(item, 'CQ0503'), item)
+
+
+class AutomaticCombinedArticleTests(AutomaticScreenshotFillTests):
+    def test_recognition_separates_full_article_and_known_oem_before_save(self):
+        response = self.recognize({'article': '0121-087 4504669135', 'oem': '4504669135'})
+        self.assertTrue(response.json()['auto_saved'], response.content)
+        self.assertEqual(response.json()['fields']['article'], '0121-087')
+        self.material.refresh_from_db()
+        self.assertEqual(self.material.kaspi_data['article'], '0121-087')
+        self.assertEqual(self.material.kaspi_data['oem'], '4504669135')
