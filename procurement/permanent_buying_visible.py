@@ -5,7 +5,7 @@ stock, or new Kaspi price can remove an already admitted record.
 """
 from decimal import Decimal
 from django.core.paginator import Paginator
-from django.db.models import Q, F, OuterRef, Subquery, Max, DecimalField
+from django.db.models import Q, F, OuterRef, Subquery, Max, DecimalField, Exists
 from django.db.models.functions import Coalesce
 from .catalog_paging import (consumable_query, profitable_product_exclusions,
                              MIN_CONSUMABLE_COST, MIN_PROFITABLE_COST,
@@ -49,15 +49,18 @@ def apify_source_summary(source, supplier=None):
         offer_id=OuterRef('offer_id'), pk__lt=OuterRef('pk')
     ).order_by('-pk')
     audits = audits.annotate(_prev_price=Subquery(previous.values('min_price')[:1]))
+    from .minimum_price_policy import reviewed_minimum_query
+    reviewed_ids = set(audits.filter(reviewed_minimum_query()).values_list('pk', flat=True))
     counts = {'first': 0, 'changed': 0, 'unchanged': 0, 'total': 0,
               'eligible': 0, 'excluded': 0}
-    for price, prior, roi, cost, name, category in audits.values_list(
+    for price, prior, roi, cost, name, category, pk, supplier_name in audits.values_list(
             'min_price', '_prev_price', 'roi', 'cost_snapshot',
-            'offer__name', 'offer__category').iterator(chunk_size=1000):
+            'offer__name', 'offer__category', 'pk', 'offer__supplier__name').iterator(chunk_size=1000):
         counts['total'] += 1
         counts['first' if prior is None else 'changed' if price != prior else 'unchanged'] += 1
         eligible = (roi is not None and roi >= MIN_PROFITABLE_ROI and
-                    cost is not None and cost >= MIN_PROFITABLE_COST)
+                    cost is not None and cost >= MIN_PROFITABLE_COST and
+                    (supplier_name != 'Phaeton DC' or pk in reviewed_ids))
         counts['eligible' if eligible else 'excluded'] += 1
     return counts
 
@@ -168,6 +171,15 @@ def visible_permanent_buying_rows(request, preferences, filters):
     if source:
         latest = latest.filter(source_filename=source)
     latest = latest.order_by('-observed_at', '-pk')
+    from .minimum_price_policy import reviewed_minimum_query
+    # Review only the exact selected/latest audit, never an older approved price.
+    approved = KaspiPriceAudit.objects.filter(pk=OuterRef('_latest_audit_id')).filter(reviewed_minimum_query())
+    rows = rows.annotate(_latest_audit_id=Subquery(latest.values('pk')[:1]))
+    rows = rows.annotate(_minimum_review_ok=Exists(approved))
+    review_required = Q(offer__supplier__name='Phaeton DC', _minimum_review_ok=False)
+    request.minimum_review_total = rows.filter(review_required).count()
+    request.minimum_review_mode = request.GET.get('price_review') == '1'
+    rows = rows.filter(review_required) if request.minimum_review_mode else rows.exclude(review_required)
     rows = rows.annotate(
         _latest_profit=Subquery(latest.values('profit')[:1]),
         _latest_roi=Subquery(latest.values('roi')[:1]),
@@ -179,13 +191,14 @@ def visible_permanent_buying_rows(request, preferences, filters):
     # to show snapshots that have never had a recheck.
     audited = Q(_latest_roi__isnull=False)
     legacy = Q(_latest_roi__isnull=True) if request.GET.get('rechecked') == '0' and not source else Q(pk__in=[])
-    rows = rows.filter(
-        (audited & Q(_latest_roi__gte=MIN_PROFITABLE_ROI) &
-         Q(_latest_cost__gte=MIN_PROFITABLE_COST))
-        |
-        (legacy & Q(roi_snapshot__gte=MIN_PROFITABLE_ROI) &
-         Q(cost_snapshot__gte=MIN_PROFITABLE_COST))
-    )
+    if not request.minimum_review_mode:
+        rows = rows.filter(
+            (audited & Q(_latest_roi__gte=MIN_PROFITABLE_ROI) &
+             Q(_latest_cost__gte=MIN_PROFITABLE_COST))
+            |
+            (legacy & Q(roi_snapshot__gte=MIN_PROFITABLE_ROI) &
+             Q(cost_snapshot__gte=MIN_PROFITABLE_COST))
+        )
     from .buying_history_display import buying_history, product_key
     purchase_history, own_stock, order_choices = buying_history(request.user)
     request.buying_order_choices = order_choices
@@ -214,7 +227,7 @@ def visible_permanent_buying_rows(request, preferences, filters):
     roi_order = Coalesce('_latest_roi', 'roi_snapshot').desc()
     profit_order = Coalesce('_latest_profit', 'profit_snapshot').desc()
     rows = rows.order_by(profit_order, roi_order, 'pk') if request.GET.get('sort') == 'profit' else rows.order_by(roi_order, profit_order, 'pk')
-    paginator = Paginator(rows, 200 if eighth_two_hundred else 153 if final_remaining else 100 if (next_hundred or fourth_hundred or fifth_hundred or sixth_hundred or seventh_hundred) else 50 if next_fifty else 40)
+    paginator = Paginator(rows, max(rows.count(), 1) if request.GET.get('download') in ('csv', 'apify') else 200 if eighth_two_hundred else 153 if final_remaining else 100 if (next_hundred or fourth_hundred or fifth_hundred or sixth_hundred or seventh_hundred) else 50 if next_fifty else 40)
     page = paginator.get_page(request.GET.get('page'))
     items = list(page.object_list)
     offer_ids = [x.offer_id for x in items]
@@ -369,6 +382,11 @@ def visible_permanent_buying_rows(request, preferences, filters):
             row['apify_previous_audit_price'] = prior_price
             row['audit_file'] = audit.source_filename
             row['audit_observed_at'] = audit.observed_at
+        if request.minimum_review_mode:
+            row['minimum_review_required'] = True
+            row['purchase_ready'] = False
+            row['price_evidence_status'] = 'Требует проверки: минимум по Казахстану и соответствие товара не подтверждены'
+            row['best_status'] = 'Непроверенная цена · расчёт предварительный'
         key = product_key(offer.brand, offer.article)
         row['purchase_history'] = purchase_history.get(key, [])
         row['own_stock'] = own_stock.get(key)

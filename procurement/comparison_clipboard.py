@@ -299,6 +299,9 @@ def _save_screenshot_fields(request, offer, material, payload, *, photo_box=None
                 audit.commission_snapshot, audit.expenses_snapshot).quantize(Decimal('.01'))
             audit.roi = (audit.profit * 100 / audit.cost_snapshot).quantize(Decimal('.0001'))
             audit.identity_status = 'needs_review'
+            audit.minimum_review_status = 'needs_review'
+            audit.minimum_reviewed_at = None
+            audit.minimum_review_evidence = {}
             audit.seller_name = ''
             if product_id:
                 if BuyingComparisonMaterial.objects.filter(offer=offer,

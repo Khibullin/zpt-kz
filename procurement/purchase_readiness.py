@@ -26,6 +26,7 @@ def blocked_permanent_offer_ids(offer_ids):
         ).only('product_id', 'city_offers', 'imported_at')
     }
     blocked = set()
+    from .minimum_price_policy import reviewed_minimum_query
     # Rechecks are evidence, not authorization. A newer unverified or
     # unprofitable observation invalidates an older permanent snapshot.
     latest_audits = {}
@@ -33,12 +34,17 @@ def blocked_permanent_offer_ids(offer_ids):
             'offer_id', '-observed_at', '-pk'):
         latest_audits.setdefault(audit.offer_id, audit)
     for offer_id, audit in latest_audits.items():
+        if (audit.offer.supplier.name == 'Phaeton DC' and not
+                KaspiPriceAudit.objects.filter(pk=audit.pk).filter(reviewed_minimum_query()).exists()):
+            blocked.add(offer_id)
         if (audit.observed_at < cutoff or audit.roi < Decimal('50') or audit.identity_status != 'verified'
                 or not any(item.offer_id == offer_id and item.product_id == audit.product_id
                            and item.kaspi_price_snapshot == audit.min_price
                            for item in items)):
             blocked.add(offer_id)
     for item in items:
+        if item.offer.supplier.name == 'Phaeton DC' and item.offer_id not in latest_audits:
+            blocked.add(item.offer_id)
         if item.offer_id in blocked:
             continue
         latest = latest_audits.get(item.offer_id)

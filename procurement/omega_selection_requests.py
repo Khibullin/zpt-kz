@@ -93,6 +93,11 @@ def fresh_checked_keys(batch):
         card_url=F('offer__kaspi_url'), cost_snapshot=F('offer__cost'),
     ).select_related('offer').only('card_url', 'cost_snapshot',
         'offer__brand', 'offer__article', 'offer__name', 'offer__characteristics')
+    if batch.supplier.name == 'Phaeton DC':
+        from .minimum_price_policy import reviewed_minimum_query
+        from django.db.models import OuterRef, Subquery
+        latest = KaspiPriceAudit.objects.filter(offer_id=OuterRef('offer_id')).order_by('-observed_at', '-pk')
+        audits = audits.filter(reviewed_minimum_query(), pk=Subquery(latest.values('pk')[:1]))
     return {row_reuse_key(dict(brand=a.offer.brand, article=a.offer.article,
         name=a.offer.name, cost=str(a.cost_snapshot),
         _pack_size=a.offer.characteristics.get('supplier_pack_size', 1))) for a in audits}
@@ -205,16 +210,19 @@ def request_rows(saved):
 
 def request_queries(saved):
     from .selection_exports import article_variants
+    from .kaspi_search_queries import sku_search_queries
     seen = {}
+    search_supplier = (saved.details.get('supplier_name', 'Omega')
+        if saved.details.get('search_policy') == 'phaeton_article_queries_v2' else 'Omega')
     for row in request_rows(saved):
         brand = str(row.get('brand') or '').strip()
         original = str(row.get('article') or '').strip()
         for article in article_variants(original):
-            query = ' '.join((brand, article))
-            key = query.casefold()
-            if key not in seen:
-                seen[key] = {'query': query, 'brand': brand,
-                             'article': article, 'original_article': original}
+            for query in sku_search_queries(brand, article, search_supplier):
+                key = query.casefold()
+                if key not in seen:
+                    seen[key] = {'query': query, 'brand': brand,
+                                 'article': article, 'original_article': original}
     return list(seen.values())
 
 
@@ -250,12 +258,14 @@ def save_request(*, batch_id, categories, minimum, user,
     number = max((int(item.details.get('number', 0)) for item in previous),
                  default=1 if batch.supplier.name == 'Omega' else 0) + 1
     from .selection_exports import article_variants
+    from .kaspi_search_queries import sku_search_queries
     queries = set()
     for row in filtered:
         for article in article_variants(row.get('article')):
-            queries.add((' '.join((str(row['brand']).strip(), article))).casefold())
+            queries.update(q.casefold() for q in sku_search_queries(row['brand'], article, batch.supplier.name))
     return Activity.objects.create(user=user, action=REQUEST_ACTION, details={
         'supplier_id': batch.supplier_id, 'supplier_name': batch.supplier.name,
+        'search_policy': 'phaeton_article_queries_v2' if batch.supplier.name == 'Phaeton DC' else 'brand_article_v1',
         'fresh_checked_keys': sorted(excluded_keys),
         'number': number, 'title': f'Запрос №{number}',
         'price_batch_id': batch.pk, 'price_sha256': batch.sha256,
@@ -283,8 +293,9 @@ def preview_request(*, batch_id, categories, minimum, max_vehicle_age, in_stock_
         raise ValidationError('Категории не найдены в выбранном прайсе.')
     selected, unknown_age = pick_rows(batch, keys, minimum, max_vehicle_age, in_stock_only, exclude_springs, fresh_checked_keys(batch))
     from .selection_exports import article_variants, JSON_BATCH_SIZE
-    queries = {(' '.join((str(row['brand']).strip(), variant))).casefold()
-               for row in selected for variant in article_variants(row['article'])}
+    from .kaspi_search_queries import sku_search_queries
+    queries = {q.casefold() for row in selected for variant in article_variants(row['article'])
+               for q in sku_search_queries(row['brand'], variant, batch.supplier.name)}
     return {'categories': len(keys), 'products': len(selected),
             'queries': len(queries),
             'batches': (len(queries) + JSON_BATCH_SIZE - 1) // JSON_BATCH_SIZE,

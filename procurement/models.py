@@ -173,6 +173,10 @@ class KaspiPriceAudit(models.Model):
     card_ids = models.JSONField(default=list, blank=True)
     # Price evidence from seller does NOT prove the execution or fitment.
     identity_status = models.CharField(max_length=24, default='needs_review')
+    # A seller quote or screenshot alone cannot certify national search coverage.
+    minimum_review_status = models.CharField(max_length=24, default='needs_review')
+    minimum_reviewed_at = models.DateTimeField(null=True, blank=True)
+    minimum_review_evidence = models.JSONField(default=dict, blank=True)
     observed_at = models.DateTimeField(auto_now=True)
 
     class Meta:

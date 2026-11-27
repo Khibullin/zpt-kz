@@ -467,7 +467,7 @@ def dashboard(request):
     supplier_stats = None
     if supplier and request.GET.get('mode') != 'best':
         supplier_stats = {'loaded': Offer.objects.filter(supplier=supplier).count()}
-    if valid and request.GET.get('mode') == 'best' and request.GET.get('download') != 'csv':
+    if valid and request.GET.get('mode') == 'best':
         from .permanent_buying_visible import visible_permanent_buying_rows
         rows = visible_permanent_buying_rows(request, preferences, form.cleaned_data)
     else:
@@ -480,6 +480,18 @@ def dashboard(request):
     form.fields['kaspi_status'].choices = [(key, f'{label} ({counts.get(key, 0)})') for key, label in form.fields['kaspi_status'].choices]
     preliminary = False
     displayed_rows = rows
+    if request.GET.get('download') == 'apify' and request.GET.get('mode') == 'best' and valid:
+        from .kaspi_search_queries import sku_search_queries
+        from .apify_cities import APIFY_CITIES
+        queries = list(dict.fromkeys(q for row in rows
+            if row.get('minimum_review_required')
+            for q in sku_search_queries(row['offer'].brand, row['offer'].article, row['offer'].supplier.name)))
+        response = JsonResponse(dict(searchQueries=queries, cities=list(APIFY_CITIES),
+            sortOrder='relevance', maxItems=0, maxItemsPerQuery=5,
+            includeOffers=True, maxOffersPerProduct=0, includeReviews=False),
+            json_dumps_params={'ensure_ascii': False, 'indent': 2})
+        response['Content-Disposition'] = 'attachment; filename="phaeton_price_recheck.json"'
+        return response
     if request.GET.get('download') == 'csv' and valid:
         response = HttpResponse(content_type='text/csv; charset=utf-8')
         response['Content-Disposition'] = 'attachment; filename="procurement-selection.csv"'
@@ -674,6 +686,9 @@ def select(request, pk):
     as_json = 'application/json' in request.headers.get('Accept', '')
     def invalid_quantity(message):
         return JsonResponse({'error': message}, status=400) if as_json else HttpResponse(message, status=400)
+    from .minimum_price_policy import blocked_phaeton_offer_ids
+    if blocked_phaeton_offer_ids([offer.pk]):
+        return invalid_quantity('Фаэтон: сначала подтвердите соответствие товара и минимальную цену по Казахстану.')
     try:
         quantity = int(request.POST.get('quantity', offer.min_order))
     except (ValueError, TypeError):
@@ -701,6 +716,10 @@ def select_many(request):
         message = 'Отметьте от 1 до 200 товаров.'
         return JsonResponse({'error': message}, status=400) if as_json else HttpResponse(message, status=400)
     ids = set(map(int, ids))
+    from .minimum_price_policy import blocked_phaeton_offer_ids
+    if blocked_phaeton_offer_ids(ids):
+        message = 'Фаэтон: в выборе есть товары с неподтверждённой минимальной ценой. Сначала завершите проверку.'
+        return JsonResponse({'error': message}, status=400) if as_json else HttpResponse(message, status=400)
     with transaction.atomic():
         offers = list(Offer.objects.filter(pk__in=ids, supplier__name__in=ACTIVE_SUPPLIER_NAMES).order_by('pk'))
         if len(offers) != len(ids) or any(not 1 <= offer.min_order <= 100000 for offer in offers):

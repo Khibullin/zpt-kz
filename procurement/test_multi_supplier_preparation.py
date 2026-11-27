@@ -92,6 +92,11 @@ class MultiSupplierPreparationTests(TestCase):
         batch = self.batch(self.phaeton)
         self.assertFalse(fresh_checked_keys(batch))
         offer.match_verified = True; offer.kaspi_url = raw[0]['url']; offer.save()
+        self.assertFalse(fresh_checked_keys(batch))
+        from django.utils import timezone
+        KaspiPriceAudit.objects.filter(offer=offer).update(identity_status='verified',
+            minimum_review_status='confirmed', minimum_reviewed_at=timezone.now(),
+            minimum_review_evidence=dict(scope='kazakhstan', search_complete=True, sellers_complete=True))
         self.assertEqual(len(fresh_checked_keys(batch)), 1)
         offer.cost = 7000; offer.save()
         self.assertFalse(fresh_checked_keys(batch))

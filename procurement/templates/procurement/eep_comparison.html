@@ -139,12 +139,12 @@
   <td class="eep-cell">
    <div class="eep-price-name">{% if screenshot_price_applied %}Kaspi — цена со скриншота{% elif apify_srr_review %}Kaspi — минимум по карточкам того же артикула (Apify, не проверено){% else %}Kaspi — минимальная цена продавца (Apify){% endif %}</div>
    <div class="eep-price-amount">{% if kaspi_price is not None %}{{ kaspi_price|floatformat:0 }} ₸{% else %}Нет подтверждённой цены{% endif %}</div>
-   <span class="eep-price-date">{% if screenshot_price_applied %}Скриншот: {% else %}Выгрузка Apify: {% endif %}{% if apify_srr_review %}21.11.2026 (исторический снимок){% elif kaspi_checked_at %}{{ kaspi_checked_at|date:"d.m.Y H:i" }}{% else %}дата неизвестна{% endif %}</span>
+   <span class="eep-price-date">{% if screenshot_price_applied %}Скриншот: {% else %}Наблюдение цены: {% endif %}{% if apify_srr_review %}21.11.2026 (исторический снимок){% elif kaspi_checked_at %}{{ kaspi_checked_at|date:"d.m.Y H:i" }}{% else %}дата неизвестна{% endif %}</span>
    {% if kaspi_price_stale %}<div class="eep-price-stale">Требует обновления</div>{% endif %}
   </td>
 </tr>{% endif %}
  {% endfor %}</tbody></table></div>
-{% if comparison_source %}<p class="eep-muted">Исходная выгрузка Apify: {{ comparison_source }}{% if selected_product_id %} · ID карточки Kaspi: {{ selected_product_id }}{% endif %}</p>{% endif %}
+{% if comparison_source %}<p class="eep-muted">Источник цены: {{ comparison_source }}{% if selected_product_id %} · ID карточки Kaspi: {{ selected_product_id }}{% endif %}</p>{% endif %}
 <p class="eep-muted" title="Нет данных — сведения не подтверждены доступным источником; Kaspi может ограничивать доступ. Исходная выгрузка и история сохраняются.">Цена со скриншота применяется к расчёту. Нет данных — сведения не подтверждены.</p>
 </div>
 <script>

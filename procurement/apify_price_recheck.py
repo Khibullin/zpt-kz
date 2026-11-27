@@ -15,6 +15,7 @@ import re
 from collections import defaultdict
 from decimal import Decimal
 from pathlib import PurePath
+from urllib.parse import urlsplit
 
 from .suppliers import ACTIVE_SUPPLIER_NAMES
 
@@ -42,7 +43,9 @@ def article_tokens(title):
 
 
 def _brand(value):
-    return str(value or '').strip().casefold()
+    value = str(value or '').strip().casefold()
+    # Explicit manufacturer alias, corroborated by the supplier's own seller SKU.
+    return 'parts-mall' if value in ('pmc parts mall', 'parts mall', 'parts-mall') else value
 
 
 def _money(value):
@@ -62,6 +65,8 @@ def _offer_index(brands):
     condition = Q(pk__in=[])
     for brand in brands:
         condition |= Q(brand__iexact=brand)
+        if brand == 'parts-mall':
+            condition |= Q(brand__iexact='PMC PARTS MALL') | Q(brand__iexact='PARTS MALL')
     for offer in Offer.objects.filter(
             condition, supplier__name__in=ACTIVE_SUPPLIER_NAMES).only(
             'id', 'brand', 'article', 'name', 'category',
@@ -96,6 +101,14 @@ def import_apify_recheck_results(raw, filename, user):
         stats['products'] += 1
         brand = _brand(row.get('brand'))
         title = str(row.get('title') or '')
+        url = urlsplit(str(row.get('url') or ''))
+        url_id = re.search(r'-(\d{6,15})/?$', url.path)
+        if (url.scheme != 'https' or url.hostname != 'kaspi.kz'
+                or not url.path.startswith('/shop/p/') or not url_id
+                or url_id.group(1) != str(row['id'])
+                or row.get('currency', 'KZT') != 'KZT'):
+            stats['invalid'] += 1
+            continue
         tokens = article_tokens(title)
         matching = [offer for offer in index.get(brand, [])
                     if normalize_article(offer.article) in tokens]
@@ -164,10 +177,18 @@ def import_apify_recheck_results(raw, filename, user):
             if not created:
                 previous = set(record.card_ids or [])
                 combined = sorted(previous | entry['card_ids'])
+                if entry['card_ids'] - previous:
+                    record.minimum_review_status = 'needs_review'
+                    record.minimum_reviewed_at = None
+                    record.minimum_review_evidence = {}
                 record.card_ids = combined
                 # Freeze the commercial configuration of the first matching
                 # batch; subsequent batches may only improve the minimum.
                 if price < record.min_price:
+                    record.minimum_review_status = 'needs_review'
+                    record.minimum_reviewed_at = None
+                    record.minimum_review_evidence = {}
+                    record.identity_status = 'needs_review'
                     record.min_price = price
                     record.product_id = entry['product_id']
                     record.card_url = entry['url']

@@ -26,13 +26,15 @@ def complete_session(session):
 
 
 def eligible_source_audits(source):
+    from .minimum_price_policy import reviewed_minimum_query
+    from django.db.models import Q
     return (KaspiPriceAudit.objects.filter(
         source_filename=source,
         offer__supplier__name__in=ACTIVE_SUPPLIER_NAMES,
         roi__gte=ROI_GATE,
         cost_snapshot__gt=0,
         min_price__gt=0,
-    ).select_related("offer")
+    ).filter(~Q(offer__supplier__name='Phaeton DC') | reviewed_minimum_query()).select_related("offer")
       .order_by("-roi", "offer_id"))
 
 
