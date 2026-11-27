@@ -36,17 +36,6 @@ def _string(value):
 
 
 
-def manual_kaspi_search(name, brand, article):
-    """Use the supplier's part name and full article, without its brand."""
-    name = _string(name)
-    for value in (_string(brand), _string(article)):
-        if value:
-            name = re.sub(r'(?<!\w)' + re.escape(value) + r'(?!\w)', ' ', name,
-                          flags=re.IGNORECASE)
-    name = ' '.join(name.split()).strip(' ·,;:-')
-    return ' '.join(filter(None, (name, _string(article))))
-
-
 def _first(source, *names):
     if not isinstance(source, dict):
         return ""
@@ -305,7 +294,6 @@ def _comparison_impl(request, pk):
     from .comparison_screenshot_ai import screenshot_price_applies
     return render(request, "procurement/eep_comparison.html",
                   context(request, offer=offer, rows=rows,
-                          kaspi_search_query=manual_kaspi_search(offer.name, offer.brand, offer.article),
                           supplier_photo=supplier_photos[0] if supplier_photos else "",
                           supplier_gallery=supplier_photos[1:],
                           kaspi_photo=kaspi_photos[0] if kaspi_photos else "",
