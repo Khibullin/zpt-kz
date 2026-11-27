@@ -60,7 +60,7 @@ class ScreenshotPriceCorrectionTests(TestCase):
         self.assertEqual(history.details['previous']['min_price'], '28627.00')
         page = self.client.get(reverse('procurement:comparison', args=[self.offer.pk]),
                                {'apify_source': 'current.json'})
-        self.assertContains(page, 'Kaspi — подтверждено по скриншоту')
+        self.assertContains(page, 'Kaspi — цена со скриншота')
         self.assertEqual(page.context['kaspi_price'], Decimal('6201'))
         listing = self.client.get(reverse('procurement:dashboard'),
             {'mode': 'best', 'apify_source': 'current.json', 'q': '0121-087'})
@@ -76,7 +76,63 @@ class ScreenshotPriceCorrectionTests(TestCase):
         self.assertFalse(Activity.objects.filter(action='kaspi_screenshot_price').exists())
 
     def test_characteristics_only_preserves_price(self):
-        response = self.client.post(self.url, {**self.payload, 'screenshot_price': ''})
+        response = self.client.post(self.url, {**self.payload, 'screenshot_price': '', 'screenshot_product_id': ''})
         self.assertEqual(response.status_code, 200)
         self.audit.refresh_from_db()
         self.assertEqual(self.audit.min_price, Decimal('28627'))
+
+
+class AutomaticScreenshotFillTests(ScreenshotPriceCorrectionTests):
+    def recognize(self, fields=None, side_effect=None):
+        from unittest.mock import patch
+        result = {**self.payload, 'product_photo_box': None}
+        result.pop('source_file'); result.pop('product_id')
+        if fields:
+            result.update(fields)
+        with patch('procurement.comparison_clipboard.recognize_screenshots',
+                   return_value=result, side_effect=side_effect):
+            return self.client.post(reverse('procurement:comparison_recognize_screenshots',
+                args=[self.offer.pk]), {'source_file': 'current.json',
+                'product_id': '180093729', 'auto_apply': 'yes'})
+
+    def test_automatic_recognition_saves_price_and_preserves_prior_fields(self):
+        self.material.kaspi_data.update(fitment='Toyota Land Cruiser', manual_confirmed_at='old')
+        self.material.save()
+        response = self.recognize({'fitment': ''})
+        self.assertTrue(response.json()['auto_saved'], response.content)
+        self.audit.refresh_from_db(); self.material.refresh_from_db()
+        self.assertEqual(self.audit.min_price, Decimal('6201'))
+        self.assertEqual(self.material.kaspi_status, 'screenshot_extracted')
+        self.assertEqual(self.material.kaspi_data['fitment'], 'Toyota Land Cruiser')
+        self.assertNotIn('manual_confirmed_at', self.material.kaspi_data)
+        self.assertIn('auto_applied_at', self.material.kaspi_data)
+        self.assertEqual(self.audit.identity_status, 'needs_review')
+        self.assertTrue(Activity.objects.get(action='kaspi_screenshot_price').details['automatic'])
+
+    def test_mismatch_or_ambiguous_price_keeps_existing_calculation(self):
+        for change in ({'brand': 'OTHER'}, {'article': ''}, {'screenshot_price': '2067 x 3'}):
+            response = self.recognize(change)
+            self.assertFalse(response.json()['auto_saved'])
+            self.assertTrue(response.json()['auto_error'])
+            self.audit.refresh_from_db()
+            self.assertEqual(self.audit.min_price, Decimal('28627'))
+        self.assertFalse(Activity.objects.filter(action='kaspi_screenshot_price').exists())
+
+    def test_changed_screenshots_during_recognition_are_not_applied(self):
+        def changed(*args, **kwargs):
+            BuyingComparisonMaterial.objects.filter(pk=self.material.pk).update(
+                kaspi_data={'manual_screenshots': ['data:image/jpeg;base64,new']})
+            return {**self.payload, 'product_photo_box': None}
+        response = self.recognize(side_effect=changed)
+        self.assertFalse(response.json()['auto_saved'])
+        self.assertIn('изменились', response.json()['auto_error'])
+        self.audit.refresh_from_db()
+        self.assertEqual(self.audit.min_price, Decimal('28627'))
+
+    def test_layout_starts_open_and_has_three_table_columns(self):
+        response = self.client.get(reverse('procurement:comparison', args=[self.offer.pk]),
+                                   {'apify_source': 'current.json'})
+        self.assertContains(response, '<details class="eep-tools" open>')
+        self.assertContains(response, '<th scope="col">Параметр</th>')
+        self.assertContains(response, "auto_apply:'yes'")
+        self.assertContains(response, 'await recognizeAndFill();')

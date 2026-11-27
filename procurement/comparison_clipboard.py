@@ -168,7 +168,7 @@ def paste_kaspi_screenshot(request, pk):
             material.kaspi_status = 'manual_pending'
             material.kaspi_error = ''
             material.save(update_fields=['kaspi_data', 'kaspi_status', 'kaspi_error', 'checked_at'])
-    return JsonResponse({'ok': True, 'count': len(updated['manual_screenshots']), 'image': encoded,
+    return JsonResponse({'ok': True, 'changed': changed, 'count': len(updated['manual_screenshots']), 'image': encoded,
                          'message': ('Скриншот сохранён. Характеристики требуют подтверждения.'
                                      if changed else 'Этот скриншот уже сохранён.')})
 
@@ -202,18 +202,24 @@ def recognize_kaspi_screenshots(request, pk):
         result = recognize_screenshots(screenshots, article=offer.article, brand=offer.brand)
     except ValueError as exc:
         return JsonResponse({'error': str(exc)}, status=503)
-    # Return the visual crop as a preview, not yet published product data.
     proposed_box = result.pop('product_photo_box', None)
     preview = crop_photo(screenshots, proposed_box) if proposed_box else None
-    # The manager sees the possible mismatch; no automatic confirmation.
-    return JsonResponse({
+    answer = {
         'photo_box': proposed_box if preview else None,
-        'photo_preview': preview or '',
-        'ok': True, 'fields': result,
+        'photo_preview': preview or '', 'ok': True, 'fields': result,
         'article_matches': article_agrees(result.get('article'), offer.article),
         'brand_matches': result.get('brand', '').casefold() == offer.brand.casefold(),
-        'note': 'Предварительное распознавание. Проверьте все значения перед сохранением.'
-    })
+        'auto_saved': False,
+    }
+    if request.POST.get('auto_apply') == 'yes':
+        response = _save_screenshot_fields(request, offer, material, result,
+            photo_box=proposed_box, automatic=True,
+            expected_screenshots=screenshots)
+        saved = json.loads(response.content)
+        answer['auto_saved'] = response.status_code == 200
+        answer['message' if answer['auto_saved'] else 'auto_error'] = (
+            saved.get('message') or saved.get('error'))
+    return JsonResponse(answer)
 
 
 @access('sales', 'admin')
@@ -231,12 +237,19 @@ def confirm_kaspi_screenshots(request, pk):
             raise ValueError()
     except (ValueError, UnicodeError, json.JSONDecodeError):
         return JsonResponse({'error': 'Неверный формат данных.'}, status=400)
+    return _save_screenshot_fields(request, offer, material, payload,
+        photo_box=request.POST.get('photo_box', ''))
+
+
+def _save_screenshot_fields(request, offer, material, payload, *, photo_box=None,
+                            automatic=False, expected_screenshots=None):
+    """Apply only this offer/export/card; OCR is not a human identity review."""
     fields = {field: str(payload.get(field) or '').strip()[:TEXT_LIMITS[field]]
               for field in FIELDS}
     if not article_agrees(fields['article'], offer.article):
-        return JsonResponse({'error': 'Артикул на скриншоте не совпадает с Omega. Сохранение заблокировано.'}, status=400)
+        return JsonResponse({'error': 'Артикул на скриншоте не совпадает с поставщиком. Сохранение заблокировано.'}, status=400)
     if fields['brand'].casefold() != offer.brand.casefold():
-        return JsonResponse({'error': 'Бренд на скриншоте не совпадает с Omega. Сохранение заблокировано.'}, status=400)
+        return JsonResponse({'error': 'Бренд на скриншоте не совпадает с поставщиком. Сохранение заблокировано.'}, status=400)
     try:
         price = parsed_screenshot_price(fields['screenshot_price']) if fields['screenshot_price'] else None
         product_id = fields['screenshot_product_id']
@@ -247,9 +260,18 @@ def confirm_kaspi_screenshots(request, pk):
     with transaction.atomic():
         material = BuyingComparisonMaterial.objects.select_for_update().get(pk=material.pk)
         existing = material.kaspi_data if isinstance(material.kaspi_data, dict) else {}
+        if expected_screenshots is not None and existing.get('manual_screenshots', []) != expected_screenshots:
+            return JsonResponse({'error': 'Скриншоты изменились во время распознавания. Повторите распознавание.'}, status=409)
+        if automatic:
+            # A partial screenshot must not erase previously saved attributes.
+            fields = {key: value or str(existing.get(key) or '')
+                      for key, value in fields.items() if key in FIELDS}
+            # Brand/article above were checked against the actual OCR, before merging.
         audit = KaspiPriceAudit.objects.select_for_update().filter(
             offer=offer, source_filename=material.source_filename,
             product_id=material.kaspi_product_id).first()
+        if product_id and product_id != material.kaspi_product_id and price is None:
+            return JsonResponse({'error': 'На скриншоте другая карточка, но полная цена не распознана. Уточните цену вручную.'}, status=400)
         if price is not None and audit is None:
             return JsonResponse({'error': 'Нет расчёта для этой выгрузки и карточки. Цена не сохранена.'}, status=400)
         if price is not None:
@@ -283,21 +305,25 @@ def confirm_kaspi_screenshots(request, pk):
             Activity.objects.create(user=request.user, action='kaspi_screenshot_price', details={
                 'offer': offer.pk, 'source': material.source_filename,
                 'previous': previous, 'price': str(price), 'product_id': audit.product_id,
-                'material': material.pk})
+                'material': material.pk, 'automatic': automatic})
         screenshots = [
             s for s in existing.get('manual_screenshots', [])
             if isinstance(s, str) and s.startswith('data:image/jpeg;base64,')
         ][:MAX_SHOTS]
-        selected_box = photo_box_from_request(request.POST.get('photo_box', ''), len(screenshots))
+        selected_box = photo_box_from_request(json.dumps(photo_box) if isinstance(photo_box, list) else photo_box or '', len(screenshots))
         photo = crop_photo(screenshots, selected_box) if selected_box else None
         # Explicit manager confirmation applies this observation to the scoped calculation.
         saved = {
             **existing, **{k: v for k, v in fields.items() if k != 'screenshot_price'},
             'screenshot_price': price_from_image(fields['screenshot_price']) or existing.get('screenshot_price', ''),
             'price_applied': price is not None or existing.get('price_applied', False),
-            'manual_confirmed_at': timezone.now().isoformat(),
-            'manual_confirmed_by': request.user.pk,
         }
+        if automatic:
+            saved.pop('manual_confirmed_at', None)
+            saved.pop('manual_confirmed_by', None)
+            saved.update(auto_applied_at=timezone.now().isoformat(), auto_applied_by=request.user.pk)
+        else:
+            saved.update(manual_confirmed_at=timezone.now().isoformat(), manual_confirmed_by=request.user.pk)
         if photo:
             previous = existing.get('images')
             old_remote = [v for v in previous if isinstance(v, str) and
@@ -305,10 +331,10 @@ def confirm_kaspi_screenshots(request, pk):
             saved['images'] = [photo] + old_remote[:7]
             saved['photo_origin'] = 'cropped_from_manual_screenshot'
         material.kaspi_data = saved
-        material.kaspi_status = 'manual_verified'
+        material.kaspi_status = 'screenshot_extracted' if automatic else 'manual_verified'
         material.kaspi_error = ''
         material.save(update_fields=['kaspi_data', 'kaspi_status', 'kaspi_error', 'checked_at', 'kaspi_product_id', 'kaspi_url'])
-    return JsonResponse({'ok': True, 'message': 'Данные Kaspi сохранены. Подтверждённая цена применена к расчёту.' if price is not None else 'Характеристики Kaspi сохранены.'})
+    return JsonResponse({'ok': True, 'message': 'Данные Kaspi заполнены. Цена применена к расчёту.' if price is not None else 'Характеристики Kaspi заполнены.'})
 
 
 @access('sales', 'admin')

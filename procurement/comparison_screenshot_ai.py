@@ -1,7 +1,8 @@
 """One-shot visual transcription of manually pasted Kaspi screenshots.
 
 The model does not verify identity, price, OEM fitment, or product availability;
-a manager reviews every field before a separate save.
+exact brand/article matches may fill the comparison automatically;
+ambiguous or incomplete identity remains for manual review.
 """
 import json
 import logging
@@ -31,12 +32,12 @@ def recognize_screenshots(images, *, article, brand, session=None):
         'Ничего не выдумывай и не добавляй сведения по памяти или из запроса. '
         'Отделяй реальные характеристики от рекламных блоков. '
         'Цена на скриншоте НЕ обязательно минимальная цена среди продавцов. В screenshot_price укажи одну полную цену товара в тенге, не ежемесячный платёж рассрочки. '
-        'Это скриншот для товара Omega: бренд ' + brand[:120] +
+        'Это скриншот для товара поставщика: бренд ' + brand[:120] +
         ', артикул ' + article[:120] +
         '. Указанные бренд/артикул используй только для проверки, а не как источник заполнения. '
         'Верни только JSON объект с полями: name, brand, article, category, description, '
         'specs, fitment, package, oem, analogs, screenshot_price, screenshot_product_id (код товара Kaspi) и product_photo_box. '
-        'Текстовые значения — строки. Для невидимых сведений оставь пустую строку. '
+        'Текстовые значения — строки. Для невидимых или неуверенно распознанных сведений оставь пустую строку. Не угадывай бренд, полный артикул, цену и код товара. Если скриншоты содержат разные товары или противоречащие цены/коды, оставь brand и article пустыми для ручной проверки. '
         'product_photo_box — либо null, либо массив из пяти чисел '
         '[номер_скриншота_с_нуля, левая_граница, верхняя_граница, правая_граница, нижняя_граница]. '
         'Координаты нормализованы от 0 до 1000 по ширине и высоте ПОЛНОГО скриншота. '

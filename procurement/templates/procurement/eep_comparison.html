@@ -32,6 +32,10 @@
 @media(max-width:650px){.eep-sources,.eep-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:7px}.eep-source{padding:9px}.eep-source h2{font-size:1rem}.eep-img,.eep-missing{height:155px}.eep-cell{padding:9px;font-size:.88rem}.eep-label{margin-top:14px}.eep-top h1{font-size:1.3rem}}
 .eep-shell{font-size:14px;line-height:1.4}.eep-top{margin-bottom:10px;gap:10px}.eep-top h1{font-size:22px}.eep-top p{margin:3px 0}.eep-sources,.eep-row{gap:10px}.eep-sources{align-items:start}.eep-source{padding:10px;border-radius:7px}.eep-source h2{font-size:16px;margin-bottom:5px}.eep-img,.eep-missing{height:130px}.eep-img{cursor:zoom-in}.eep-source a{margin-top:5px}.eep-source p{margin:5px 0;font-size:12px}.eep-thumbs img{height:40px;width:40px}.eep-fields{margin-top:8px}.eep-label{font-size:12px;margin:9px 0 3px}.eep-cell{padding:7px 9px;border-radius:5px}.eep-prices .eep-cell{white-space:normal;padding:8px 10px}.eep-price-name{margin:0 0 2px}.eep-price-amount{font-size:21px}.eep-price-date{margin-top:3px}.eep-tools{margin-top:7px;font-size:13px}.eep-tools summary{cursor:pointer;color:#087d78;font-weight:600;padding:5px 0}.eep-paste-zone{padding:7px;margin-top:6px}.eep-source .eep-tools .eep-muted{font-size:12px}.eep-ai-review[hidden],.eep-ai-photo[hidden]{display:none}.eep-shell>.eep-muted{font-size:12px;margin:7px 0!important}
 @media(max-width:650px){.eep-img,.eep-missing{height:100px}.eep-source{padding:7px}.eep-cell{padding:6px;font-size:13px}.eep-label{margin-top:7px}.eep-price-amount{font-size:18px}}
+
+.eep-shell{font-size:14px;line-height:1.3}.eep-top{margin-bottom:7px}.eep-top h1{font-size:20px}.eep-top p{display:none}.eep-sources{gap:8px}.eep-source{display:grid;grid-template-columns:94px minmax(0,1fr);column-gap:9px;padding:7px;min-height:96px;box-sizing:border-box}.eep-source h2{grid-column:2;font-size:14px;margin:0}.eep-source>.eep-img,.eep-source>.eep-missing{grid-column:1;grid-row:1 / span 4;width:94px;height:80px;font-size:11px;text-align:center}.eep-source>a,.eep-source>p,.eep-source>.eep-thumbs{grid-column:2;margin:2px 0;font-size:12px}.eep-thumbs img{height:28px;width:28px}
+.eep-tools{border:1px solid #d9e1e7;border-radius:6px;background:white;margin:7px 0;padding:5px 8px}.eep-tools summary{font-size:12px;padding:2px 0}.eep-tools-body{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px}.eep-upload-actions{display:flex;align-items:center;gap:6px}.eep-tools .button{font-size:12px;padding:5px 8px;min-height:30px}.eep-paste-zone{margin:0;padding:5px 9px;flex:1;min-width:200px}.eep-paste-zone strong{font-size:12px}.eep-paste-zone small{font-size:11px}.eep-pasted{margin:0;gap:5px}.eep-shot{width:62px;padding:2px}.eep-pasted .eep-shot-img{height:40px;max-width:100%}.eep-shot-actions{gap:2px;margin-top:2px}.eep-shot-actions button{min-width:17px;min-height:20px;padding:0 3px;font-size:11px}.eep-ai-actions{margin:0;gap:5px}.eep-ai-actions>.eep-muted{display:none}.eep-paste-status{flex-basis:100%;order:4;margin:0;font-size:12px}.eep-ai-review{flex-basis:100%;order:5;margin:0}.eep-ai-review p{margin:4px 0}.eep-table-wrap{overflow-x:auto}.eep-fields{width:100%;border-collapse:collapse;table-layout:fixed;margin-top:5px;font-size:14px}.eep-fields th,.eep-fields td{border:1px solid #dce3eb;padding:5px 8px;text-align:left;vertical-align:top;border-radius:0;line-height:1.3}.eep-fields thead th{background:#eaf2f7;font-weight:700}.eep-fields th:first-child{width:19%}.eep-fields tbody th{font-size:12px;color:#34475a;background:#f5f8fb;font-weight:600}.eep-fields .eep-cell{white-space:pre-line}.eep-fields .eep-prices .eep-cell{white-space:normal;padding:6px 8px}.eep-price-name{display:none}.eep-price-amount{font-size:19px}.eep-price-date{font-size:11px;margin-top:2px}.eep-shell>.eep-muted{font-size:11px;margin:4px 0!important}
+@media(max-width:650px){.eep-source{grid-template-columns:56px minmax(0,1fr);gap:5px;padding:5px;min-height:75px}.eep-source>.eep-img,.eep-source>.eep-missing{width:56px;height:64px}.eep-source h2{font-size:12px}.eep-fields{font-size:13px;min-width:520px}.eep-fields th,.eep-fields td{padding:4px 5px}.eep-source>a,.eep-source>p{font-size:11px}.eep-tools-body{gap:5px}.eep-paste-zone{min-width:170px}.eep-price-amount{font-size:17px}}
 </style>
 <div class="eep-shell">
 <header class="eep-top">
@@ -51,15 +55,18 @@
  {% if kaspi_gallery %}<div class="eep-thumbs">{% for photo in kaspi_gallery %}<a href="{{ photo }}" target="_blank" rel="noopener noreferrer" aria-label="Дополнительное фото Kaspi"><img src="{{ photo }}" alt="Фото Kaspi {{ forloop.counter|add:1 }}" loading="lazy"></a>{% endfor %}</div>{% endif %}
  {% if kaspi_url %}<a href="{{ kaspi_url }}" target="_blank" rel="noopener noreferrer">{% if apify_srr_review %}Выбранная карточка Kaspi из исходной выгрузки (не проверена){% else %}Карточка Kaspi для сравнения{% endif %}</a>{% else %}<p class="eep-muted">Ссылка на выбранную карточку Kaspi отсутствует</p>{% endif %}
  {% if cheaper_kaspi_url %}<p class="eep-muted">Для этого артикула в той же выгрузке нашлась другая карточка с более низкой ценой продавца; ниже в расчётном поле показана именно она.</p><a href="{{ cheaper_kaspi_url }}" target="_blank" rel="noopener noreferrer">Дешевле: карточка Kaspi ID {{ cheaper_kaspi_id }}</a>{% endif %}
+
+ {% if material and material.kaspi_status == "unavailable" %}<p class="eep-muted" role="status">Данные Kaspi не загружены автоматически: {{ material.kaspi_error }}</p>{% elif material and material.kaspi_status == "manual_verified" %}<p class="eep-muted" role="status">Данные сверены по предоставленному скриншоту Kaspi.</p>{% elif material and material.kaspi_status == "screenshot_extracted" %}<p class="eep-muted" role="status">Заполнено со скриншота автоматически.</p>{% endif %}</section>
+</div>
  {% if clipboard_pilot %}
- <details class="eep-tools"><summary>Скриншоты и исправление данных Kaspi</summary>
- <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+ <details class="eep-tools" open><summary>Скриншоты и исправление данных Kaspi</summary>
+ <div class="eep-tools-body"><div class="eep-upload-actions">
   <button type="button" class="button primary" id="eep-upload-screenshot">Загрузить скриншот</button>
   <input type="file" id="eep-screenshot-file" accept="image/png,image/jpeg,image/webp" style="display:none" aria-label="Выберите скриншот Kaspi">
  </div>
  <div id="eep-paste-zone" class="eep-paste-zone" tabindex="0" role="button" aria-label="Вставить скриншот Kaspi из буфера обмена правым щелчком мыши">
   <strong>Правый щелчок — вставить скриншот Kaspi</strong>
-  <small>На Kaspi: Win+Shift+S → выделить область; здесь: правая кнопка. Запасной способ — Ctrl+V. До 3 снимков.</small>
+  <small title="На Kaspi выделите область Win+Shift+S. Здесь вставьте Ctrl+V или правой кнопкой. До 3 снимков.">Ctrl+V · правый щелчок · до 3 снимков</small>
  </div>
  <div class="eep-pasted" id="eep-pasted">{% for screenshot in manual_screenshots %}
   <div class="eep-shot" data-index="{{ forloop.counter0 }}">
@@ -73,12 +80,12 @@
  </div>
  <dialog id="eep-shot-preview" class="eep-shot-preview" aria-label="Просмотр скриншота Kaspi"><button type="button" class="eep-shot-close">Закрыть ×</button><img alt="Увеличенный скриншот Kaspi"></dialog>
  <form id="eep-manage-form" action="{% url 'procurement:comparison_manage_screenshot' offer.pk %}" method="post" hidden>{% csrf_token %}</form>
- <p class="eep-paste-status" id="eep-paste-status" role="status">После подтверждения цена Kaspi и расчёт обновятся. Закупочная цена не изменяется.</p>
+ <p class="eep-paste-status" id="eep-paste-status" role="status">Вставьте скриншот — данные Kaspi и расчёт заполнятся автоматически.</p>
  <form id="eep-paste-form" action="{% url 'procurement:comparison_paste_screenshot' offer.pk %}" method="post" hidden>{% csrf_token %}</form>
  <div class="eep-ai-actions" id="eep-ai-actions">
-  <button type="button" class="button primary" id="eep-ai-recognize" {% if not manual_screenshots %}disabled{% endif %}>Распознать и заполнить</button>
+  <button type="button" class="button primary" id="eep-ai-recognize" {% if not manual_screenshots %}disabled{% endif %}>Повторить распознавание</button>
   <button type="button" class="button" id="eep-edit-saved" {% if not manual_screenshots %}disabled{% endif %}>Исправить сохранённые данные</button>
-  <span class="eep-muted" style="font-size:12px">Распознавание использует ИИ; перед сохранением проверьте значения.</span>
+  <span class="eep-muted" style="font-size:12px">При несовпадении бренда или артикула потребуется исправление.</span>
  </div>
  <div class="eep-ai-review" id="eep-ai-review" hidden>
   <strong>Проверка данных Kaspi</strong>
@@ -106,40 +113,34 @@
  <form id="eep-ai-recognize-form" action="{% url 'procurement:comparison_recognize_screenshots' offer.pk %}" method="post" hidden>{% csrf_token %}</form>
  <form id="eep-ai-confirm-form" action="{% url 'procurement:comparison_confirm_screenshots' offer.pk %}" method="post" hidden>{% csrf_token %}</form>
 
- </details>
+ </div></details>
 {% endif %}
- {% if material and material.kaspi_status == "unavailable" %}<p class="eep-muted" role="status">Данные Kaspi не загружены автоматически: {{ material.kaspi_error }}</p>{% elif material and material.kaspi_status == "manual_verified" %}<p class="eep-muted" role="status">Данные сверены по предоставленному скриншоту Kaspi.</p>{% endif %}</section>
-</div>
 
 <dialog id="eep-product-preview" class="eep-shot-preview"><button type="button" class="eep-shot-close">Закрыть ×</button><img alt="Фото товара"></dialog>
-<section class="eep-fields" aria-label="Сравнение полей">
-{% for row in rows %}
- <div class="eep-label">{{ row.label }}</div>
- <div class="eep-row">
-  <div class="eep-cell{% if row.different %} eep-different{% endif %}">{{ row.supplier }}</div>
-  <div class="eep-cell{% if row.different %} eep-different{% endif %}">{{ row.kaspi }}</div>
- </div>
- {% if row.label == "Артикул" %}
- <div class="eep-label">Цена товара</div>
- <div class="eep-row eep-prices">
-  <div class="eep-cell">
+<div class="eep-table-wrap"><table class="eep-fields" aria-label="Сравнение полей">
+ <thead><tr><th scope="col">Параметр</th><th scope="col">{{ offer.supplier.name }}</th><th scope="col">Kaspi</th></tr></thead>
+ <tbody>{% for row in rows %}
+ <tr><th scope="row">{{ row.label }}</th>
+ <td class="eep-cell{% if row.different %} eep-different{% endif %}">{{ row.supplier }}</td>
+ <td class="eep-cell{% if row.different %} eep-different{% endif %}">{{ row.kaspi }}</td></tr>
+ {% if row.label == "Артикул" %}<tr class="eep-prices"><th scope="row">Цена товара</th>
+
+  <td class="eep-cell">
    <div class="eep-price-name">{{ offer.supplier.name }} — закупочная цена</div>
    <div class="eep-price-amount">{% if omega_price is not None %}{{ omega_price|floatformat:0 }} ₸{% else %}Нет данных{% endif %}</div>
    <span class="eep-price-date">Прайс {{ offer.supplier.name }}: {% if omega_checked_at %}{{ omega_checked_at|date:"d.m.Y" }}{% else %}дата неизвестна{% endif %}</span>
    {% if omega_price_stale %}<div class="eep-price-stale">Требует обновления</div>{% endif %}
-  </div>
-  <div class="eep-cell">
-   <div class="eep-price-name">{% if screenshot_price_applied %}Kaspi — подтверждено по скриншоту{% elif apify_srr_review %}Kaspi — минимум по карточкам того же артикула (Apify, не проверено){% else %}Kaspi — минимальная цена продавца (Apify){% endif %}</div>
+  </td>
+  <td class="eep-cell">
+   <div class="eep-price-name">{% if screenshot_price_applied %}Kaspi — цена со скриншота{% elif apify_srr_review %}Kaspi — минимум по карточкам того же артикула (Apify, не проверено){% else %}Kaspi — минимальная цена продавца (Apify){% endif %}</div>
    <div class="eep-price-amount">{% if kaspi_price is not None %}{{ kaspi_price|floatformat:0 }} ₸{% else %}Нет подтверждённой цены{% endif %}</div>
-   <span class="eep-price-date">{% if screenshot_price_applied %}Подтверждено: {% else %}Выгрузка Apify: {% endif %}{% if apify_srr_review %}21.11.2026 (исторический снимок){% elif kaspi_checked_at %}{{ kaspi_checked_at|date:"d.m.Y H:i" }}{% else %}дата неизвестна{% endif %}</span>
+   <span class="eep-price-date">{% if screenshot_price_applied %}Скриншот: {% else %}Выгрузка Apify: {% endif %}{% if apify_srr_review %}21.11.2026 (исторический снимок){% elif kaspi_checked_at %}{{ kaspi_checked_at|date:"d.m.Y H:i" }}{% else %}дата неизвестна{% endif %}</span>
    {% if kaspi_price_stale %}<div class="eep-price-stale">Требует обновления</div>{% endif %}
-  </div>
- </div>
- {% endif %}
-{% endfor %}
-</section>
+  </td>
+</tr>{% endif %}
+ {% endfor %}</tbody></table></div>
 {% if comparison_source %}<p class="eep-muted">Исходная выгрузка Apify: {{ comparison_source }}{% if selected_product_id %} · ID карточки Kaspi: {{ selected_product_id }}{% endif %}</p>{% endif %}
-<p class="eep-muted" style="margin-top:20px">Отсутствие сведений означает, что их не удалось подтвердить из доступного источника; для Kaspi возможен отказ HTTP 429. Подтверждённая цена со скриншота применяется к расчёту. Исходная выгрузка и история закупок сохраняются.</p>
+<p class="eep-muted" title="Нет данных — сведения не подтверждены доступным источником; Kaspi может ограничивать доступ. Исходная выгрузка и история сохраняются.">Цена со скриншота применяется к расчёту. Нет данных — сведения не подтверждены.</p>
 </div>
 <script>
 (function () {
@@ -167,6 +168,22 @@
   if(!zone||!form)return;
   let sending=false;
   const show=message=>{status.textContent=message;};
+  const tools=zone.closest('details');
+  const flashKey='zpt-comparison-flash:'+location.pathname;
+  try{const message=sessionStorage.getItem(flashKey);if(message){show(message);sessionStorage.removeItem(flashKey);}}catch(_){}
+  function reloadWithStatus(message){
+    try{sessionStorage.setItem(flashKey,message);}catch(_){}
+    window.location.reload();
+  }
+  function addSavedShot(answer){
+    if([...gallery.querySelectorAll('img')].some(img=>img.src===answer.image))return;
+    const shot=document.createElement('div');shot.className='eep-shot';shot.dataset.index=answer.count-1;
+    shot.innerHTML='<img class="eep-shot-img" tabindex="0" role="button" title="Увеличить скриншот"><div class="eep-shot-actions"><button type="button" class="eep-shot-open" title="Увеличить">⤢</button><button type="button" class="eep-shot-duplicate" title="Дублировать">⧉</button><button type="button" class="eep-shot-delete" title="Удалить">×</button></div>';
+    const img=shot.querySelector('img');img.src=answer.image;img.alt='Сохранённый скриншот Kaspi №'+answer.count;
+    gallery.append(shot);
+    gallery.querySelectorAll('.eep-shot-duplicate').forEach(button=>{button.disabled=answer.count>=3;});
+    recognizeButton.disabled=false;document.getElementById('eep-edit-saved').disabled=false;
+  }
   async function pasteFromClipboard(){
     if(sending)return;
     if(!navigator.clipboard||!navigator.clipboard.read){
@@ -216,6 +233,7 @@
   async function send(blob){
     if(sending)return;
     if(gallery.querySelectorAll('img').length>=3){show('К карточке можно прикрепить до 3 скриншотов.');return;}
+    tools.open=true;
     sending=true;zone.classList.add('busy');show('Сохраняем скриншот…');
     try{
       const data=new FormData(form);
@@ -227,9 +245,9 @@
       const res=await fetch(form.action,{method:'POST',body:data,credentials:'same-origin',
         headers:{'X-Requested-With':'XMLHttpRequest'}});
       const answer=await requireJson(res);
-      // Reload to present the server-backed screenshots, not an unsaved preview.
-      show('Скриншот сохранён. Обновляем изображение…');
-      window.location.reload();
+      addSavedShot(answer);
+      if(answer.changed===false){show('Этот скриншот уже сохранён. Повторное распознавание не требуется.');return;}
+      await recognizeAndFill();
     }catch(err){show('Не удалось сохранить: '+err.message);}
     finally{sending=false;zone.classList.remove('busy');}
   }
@@ -276,33 +294,34 @@
     return data;
   }
   document.getElementById('eep-edit-saved')?.addEventListener('click',()=>{
-    const saved=JSON.parse(document.getElementById('eep-saved-data').textContent||'{}');
+    const saved=JSON.parse(document.getElementById('eep-saved-data').textContent||'{}')||{};
     for(const field of review.querySelectorAll('textarea[name]'))field.value=saved[field.name]||'';
     proposedPhotoBox=null;photoBox.hidden=true;review.hidden=false;
     show('Проверьте данные, полную цену и код товара на скриншоте. Цена применяется после сохранения.');
   });
-  recognizeButton?.addEventListener('click',async()=>{
-    recognizeButton.disabled=true;
-    show('Распознаём сохранённые скриншоты…');
+  async function recognizeAndFill(){
+    tools.open=true;recognizeButton.disabled=true;confirmButton.disabled=true;
+    show('Распознаём скриншот и заполняем сравнение…');
     try{
-      const response=await fetch(recognizeForm.action,{method:'POST',body:postBody({}),credentials:'same-origin'});
+      const response=await fetch(recognizeForm.action,{method:'POST',body:postBody({auto_apply:'yes'}),credentials:'same-origin'});
       const result=await requireJson(response);
-      for(const field of review.querySelectorAll('textarea[name]')){
-        field.value=result.fields[field.name]||'';
-      }
+      for(const field of review.querySelectorAll('textarea[name]'))field.value=result.fields[field.name]||'';
       proposedPhotoBox=result.photo_box||null;
-      photoPreview.removeAttribute('src');
-      photoBox.hidden=!result.photo_preview;
-      if(result.photo_preview){
-        photoPreview.src=result.photo_preview;
-        photoAccept.checked=true;
+      photoPreview.removeAttribute('src');photoBox.hidden=!result.photo_preview;
+      if(result.photo_preview){photoPreview.src=result.photo_preview;photoAccept.checked=true;}
+      if(result.auto_saved){
+        reloadWithStatus(result.message||'Сравнение заполнено автоматически.');
+      }else{
+        review.hidden=false;
+        show(result.auto_error||'Не удалось подтвердить бренд или артикул. Исправьте данные вручную.');
       }
-      review.hidden=false;
-      if(!result.article_matches||!result.brand_matches){
-        show('Проверьте бренд и артикул: они отличаются или не видны на снимке. Автоматически не подтверждены.');
-      }else{show('Поля распознаны. Проверьте и нажмите «Подтвердить и сохранить».');}
-    }catch(err){show(err.message||'Ошибка распознавания.');}
-    finally{recognizeButton.disabled=false;}
+    }catch(err){show('Скриншот сохранён. '+(err.message||'Не удалось распознать. Нажмите «Повторить распознавание».'));}
+    finally{recognizeButton.disabled=false;confirmButton.disabled=false;}
+  }
+  recognizeButton?.addEventListener('click',async()=>{
+    if(sending)return;
+    sending=true;zone.classList.add('busy');
+    try{await recognizeAndFill();}finally{sending=false;zone.classList.remove('busy');}
   });
   confirmButton?.addEventListener('click',async()=>{
     const fields={};
@@ -315,7 +334,7 @@
     try{
       const response=await fetch(confirmForm.action,{method:'POST',body:postBody(fields),credentials:'same-origin'});
       const result=await requireJson(response);
-      show(result.message||'Сохранено.');window.location.reload();
+      reloadWithStatus(result.message||'Сохранено.');
     }catch(err){show(err.message||'Не удалось сохранить.');}
     finally{confirmButton.disabled=false;}
   });
