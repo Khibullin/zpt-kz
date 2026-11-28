@@ -217,3 +217,33 @@ class ApifyMultiCardRecheckTests(TestCase):
         audit.refresh_from_db()
         self.assertEqual(audit.price_evidence['city'], 'Almaty')
         self.assertEqual(audit.price_evidence['price_observed_at'], '2026-11-27T11:00:00Z')
+
+    def test_cheapest_card_without_dash_wins_across_file_batches(self):
+        self.offer.brand = 'MASUMA'; self.offer.article = 'ML-9108R'
+        self.offer.name = 'Стойка стабилизатора передняя правая'
+        self.offer.cost = Decimal('3940'); self.offer.save()
+        self.send([self.card('177365263', 'ML-9108R', 9527, brand='MASUMA')])
+        self.send([self.card('129901708', 'ML9108R', 4590, brand='MASUMA')])
+        audit = KaspiPriceAudit.objects.get(offer=self.offer)
+        self.assertEqual(audit.min_price, Decimal('4590'))
+        self.assertEqual(audit.product_id, '129901708')
+        self.assertLess(audit.roi, Decimal('50'))
+        self.assertEqual(len(audit.card_ids), 2)
+
+    def test_space_unicode_dash_and_case_keep_full_suffix(self):
+        self.offer.brand = 'MASUMA'; self.offer.article = 'ML-9108R'; self.offer.save()
+        for title in ('MASUMA ML 9108R', 'MASUMA ml–9108r', 'MASUMA ML – 9108R'):
+            row = self.card('129901708', 'ignored', 4590, brand='MASUMA')
+            row['title'] = title
+            self.send([row])
+        self.assertEqual(KaspiPriceAudit.objects.get().min_price, Decimal('4590'))
+        for article in ('ML9108L', 'ML9108RX', 'XML9108R', 'ML/9108R'):
+            self.send([self.card('177365263', article, 1, brand='MASUMA')])
+        self.assertEqual(KaspiPriceAudit.objects.get().min_price, Decimal('4590'))
+
+    def test_malformed_card_does_not_abort_whole_file(self):
+        malformed = self.card('111111111', '51331', 1)
+        malformed['url'] = 'https://[invalid'
+        result = self.send([malformed, self.card('175080373', '51331', 80000)])
+        self.assertEqual(result['invalid'], 1)
+        self.assertEqual(KaspiPriceAudit.objects.get().min_price, Decimal('80000'))

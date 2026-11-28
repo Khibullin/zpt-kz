@@ -228,6 +228,7 @@ def replay_apify_session(session_id, user):
                    replay_of=original.pk, last_progress_at=timezone.now().isoformat(),
                    stats={key: 0 for key in details['stats']})
     details.pop('last_error', None)
+    details.pop('buying_import_result', None)
     replay = Activity.objects.create(user=user, action='apify_upload_session', details=details)
     for source in sources:
         copied = dict(source.details)

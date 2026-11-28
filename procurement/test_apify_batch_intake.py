@@ -75,6 +75,8 @@ class ApifyBatchIntakeTests(TestCase):
     def test_completed_source_retained_and_replayable_without_apify(self):
         rows = [{'id': '123456789', 'ignored': {'unicode': 'Фаэтон', 'value': None}}]
         original = stage_apify_file(SimpleUploadedFile('saved.json', json.dumps(rows).encode()), self.user)
+        original.details['buying_import_result'] = {'added': 1}
+        original.save()
         with patch('procurement.apify_batch_intake.import_apify_results', return_value={'products': 1}) as importer:
             process_next_apify_batch(original.pk, self.user)
             archived = Activity.objects.get(action='apify_upload_source_batch', details__session_id=original.pk)
@@ -83,9 +85,37 @@ class ApifyBatchIntakeTests(TestCase):
             replay = replay_apify_session(original.pk, self.user)
             self.assertNotEqual(replay.pk, original.pk)
             self.assertEqual(replay.details['replay_of'], original.pk)
+            self.assertNotIn('buying_import_result', replay.details)
             process_next_apify_batch(replay.pk, self.user)
             self.assertEqual(importer.call_count, 2)
             self.assertEqual(json.loads(importer.call_args.args[0].read()), rows)
         other = get_user_model().objects.create_user('other_operator')
         with self.assertRaises(Activity.DoesNotExist):
             replay_apify_session(original.pk, other)
+
+    def test_complete_file_late_cheapest_card_updates_once_and_trial_rolls_back(self):
+        from decimal import Decimal
+        from io import StringIO
+        from django.core.management import call_command
+        from .models import Supplier, Offer, Preferences, KaspiPriceAudit
+        supplier = Supplier.objects.create(name='Phaeton DC')
+        offer = Offer.objects.create(supplier=supplier, brand='MASUMA', article='ML-9108R',
+            name='Стойка стабилизатора', cost=3940, stock='4')
+        Preferences.objects.create(user=self.user, commission=Decimal('12.5'), expenses=250)
+        def card(pk, article, price):
+            return dict(id=pk, brand='MASUMA', title='MASUMA '+article,
+                url='https://kaspi.kz/shop/p/part-'+pk+'/', offers=[dict(price=price)], city='Astana')
+        rows = [card('177365263', 'ML-9108R', 9527)] * 500 + [card('129901708', 'ML9108R', 4590)]
+        session = stage_apify_file(SimpleUploadedFile('full_phaeton.json', json.dumps(rows).encode()), self.user)
+        output = StringIO()
+        call_command('audit_apify_upload', session.pk, stdout=output)
+        report = json.loads(output.getvalue())
+        self.assertEqual(report['source_rows'], 501)
+        self.assertEqual(report['new_matches'], 1)
+        self.assertFalse(report['saved'])
+        self.assertFalse(KaspiPriceAudit.objects.exists())
+        process_next_apify_batch(session.pk, self.user)
+        self.assertEqual(KaspiPriceAudit.objects.get(offer=offer).min_price, Decimal('9527'))
+        self.assertTrue(process_next_apify_batch(session.pk, self.user)['done'])
+        self.assertEqual(KaspiPriceAudit.objects.get(offer=offer).min_price, Decimal('4590'))
+        self.assertEqual(KaspiPriceAudit.objects.count(), 1)

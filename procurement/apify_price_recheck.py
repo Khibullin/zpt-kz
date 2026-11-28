@@ -30,17 +30,28 @@ from .omega_policy import POSITIVE_STOCK_PATTERN
 
 
 def normalize_article(value):
-    """Leading zeros are equivalent ONLY for wholly numeric article codes."""
-    value = str(value or '').strip().casefold()
+    """Ignore owner-approved dash/space formatting, preserving full SKU suffixes."""
+    value = re.sub(r'[\s\-\u2010-\u2015\u2212]+', '', str(value or '')).casefold()
     if value.isascii() and value.isdecimal():
         return value.lstrip('0') or '0'
     return value
 
 
 def article_tokens(title):
-    """Complete word-sized tokens, preserving article separators and suffixes."""
-    return {normalize_article(x) for x in re.findall(
-        r'[^\W_]+(?:[-/.][^\W_]+)*', str(title or '').casefold(), re.UNICODE)}
+    """Whole tokens and spaced article variants; never match SKU substrings.
+
+    Keep slash/dot and L/R. Join at most six neighbouring word tokens for OCR
+    and Kaspi formatting such as ML 9108R or ML – 9108R.
+    """
+    parts = re.findall(r'[^\W_]+(?:[-\u2010-\u2015\u2212/.][^\W_]+)*',
+                       str(title or '').casefold(), re.UNICODE)
+    result = {normalize_article(part) for part in parts}
+    for start in range(len(parts)):
+        for end in range(start + 2, min(len(parts), start + 6) + 1):
+            candidate = ''.join(parts[start:end])
+            if len(candidate) <= 120 and re.search(r'\d', candidate):
+                result.add(normalize_article(candidate))
+    return result
 
 
 def _brand(value):
@@ -131,7 +142,11 @@ def import_apify_recheck_results(raw, filename, user):
         stats['products'] += 1
         brand = _brand(row.get('brand'))
         title = str(row.get('title') or '')
-        url = urlsplit(str(row.get('url') or ''))
+        try:
+            url = urlsplit(str(row.get('url') or ''))
+        except ValueError:
+            stats['invalid'] += 1
+            continue
         url_id = re.search(r'-(\d{6,15})/?$', url.path)
         if (url.scheme != 'https' or url.hostname != 'kaspi.kz'
                 or not url.path.startswith('/shop/p/') or not url_id
@@ -163,6 +178,7 @@ def import_apify_recheck_results(raw, filename, user):
             priced = [(price, seller)
                       for seller in sellers if isinstance(seller, dict)
                       and seller.get('inStock') is not False
+                      and seller.get('currency', 'KZT') == 'KZT'
                       for price in [_money(seller.get('price'))] if price]
             if not priced or row.get('inStock') is False:
                 stats['rejected_unconfirmed_price'] += 1
