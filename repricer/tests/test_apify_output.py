@@ -113,7 +113,7 @@ class ApifyOutputTests(TestCase):
             content_type="application/json",
         )
         return self.client.post(reverse("repricer:apify_output"), {
-            "apify_output": payload,
+            "apify_output": payload, "observed_at": timezone.now().isoformat(),
         })
 
     def test_minimum_competitor_price_and_own_seller_exclusion(self):
@@ -205,7 +205,7 @@ class ApifyOutputTests(TestCase):
         wrong.refresh_from_db()
         self.assertIsNone(wrong.competitor_min_price)
 
-    def test_exact_article_unbranded_card_is_allowed_only_for_same_part_type(self):
+    def test_unbranded_alternate_card_requires_manual_confirmation(self):
         row = KaspiActiveExportRow.objects.create(
             batch=self.batch, row_number=4, master_sku="343875218",
             merchant_sku="M111109111", product_name="Воздушный фильтр M111109111",
@@ -225,7 +225,7 @@ class ApifyOutputTests(TestCase):
             },
         ])
         row.refresh_from_db()
-        self.assertEqual(row.competitor_min_price, 3500)
+        self.assertIsNone(row.competitor_min_price)
 
     def test_different_branded_part_is_not_automatically_identical(self):
         row = KaspiActiveExportRow.objects.create(
@@ -246,18 +246,18 @@ class ApifyOutputTests(TestCase):
         a = KaspiActiveExportRow.objects.create(
             batch=self.batch, row_number=4, master_sku="F081109111HD",
             product_name="AS воздушный фильтр Jetour DASHING",
-            brand="ag-parts", price=2730, status="MISSING_LISTING",
+            brand="AS", price=2730, status="MISSING_LISTING",
         )
         b = KaspiActiveExportRow.objects.create(
             batch=self.batch, row_number=5, master_sku="323939926",
             merchant_sku="F081109111HD",
-            product_name="AG Parts воздушный фильтр F081109111HD",
-            brand="ag-parts", price=2730, status="MISSING_LISTING",
+            product_name="AS воздушный фильтр F081109111HD",
+            brand="AS", price=2730, status="MISSING_LISTING",
         )
         self._upload([{
             "id": "123456788",
-            "title": "AG Parts воздушный фильтр F081109111HD",
-            "brand": "AG Parts", "city": "Almaty",
+            "title": "AS воздушный фильтр F081109111HD",
+            "brand": "AS", "city": "Almaty",
             "offers": [{"sellerId": "competitor", "price": 3250}],
         }])
         a.refresh_from_db()
@@ -340,7 +340,7 @@ class ApifyOutputTests(TestCase):
             "offers": [{"sellerId": "30363568", "price": 2000}],
         }]).encode("utf-8"))
         result = self.client.post(reverse("repricer:apify_output"), {
-            "apify_output": upload, "merge": "1",
+            "apify_output": upload, "merge": "1", "observed_at": timezone.now().isoformat(),
         })
         self.assertRedirects(result, reverse("repricer:dashboard"))
         self.active.refresh_from_db()
@@ -359,7 +359,7 @@ class ApifyOutputTests(TestCase):
             "offers": [{"sellerId": "new-shop", "price": 1900}],
         }]).encode("utf-8"))
         self.client.post(reverse("repricer:apify_output"), {
-            "apify_output": upload, "merge": "1",
+            "apify_output": upload, "merge": "1", "observed_at": timezone.now().isoformat(),
         })
         self.active.refresh_from_db()
         self.listing.refresh_from_db()
@@ -379,9 +379,8 @@ class ApifyOutputTests(TestCase):
                                  status="MISSING_LISTING")
             for i in range(25)
         ])
-        self.active.competitor_min_price = 2200
-        self.active.competitor_scan_status = "MATCHED"
-        self.active.save()
+        self._upload([{"id":"141407587","title":self.product.title,"url":self.listing.public_url,
+            "city":"Almaty","offers":[{"sellerId":"other-shop","price":2200}]}])
         response = self.client.get(reverse("repricer:export") + "?page=2")
         self.assertEqual(response.status_code, 200)
         sheet = load_workbook(BytesIO(response.content)).active
@@ -406,3 +405,4 @@ class ApifyOutputTests(TestCase):
         self.assertEqual(load_workbook(BytesIO(empty.content)).active.max_row, 1)
         dashboard = self.client.get(reverse("repricer:dashboard") + "?status=unmatched&q=UNMAPPED")
         self.assertContains(dashboard, url + "?status=unmatched&amp;q=UNMAPPED")
+

@@ -17,7 +17,7 @@ class ApifyApiTests(TestCase):
 
     def item(self, price=2200, city='Almaty', seller='competitor'):
         return {'id': '141407587', 'url': self.listing.public_url,
-            'title': self.product.title, 'city': city,
+            'title': self.product.title, 'city': city, 'scrapedAt':timezone.now().isoformat(),
             'offers': [{'sellerId': seller, 'sellerName': 'Other', 'price': price}]}
 
     def info(self, **changes):
@@ -184,3 +184,4 @@ class ApifyClientTests(SimpleTestCase):
         for value in ('../secrets', 'http://other.test', 'abc?token=secret'):
             with self.assertRaises(api.ApifyError):
                 api.identifier(value)
+

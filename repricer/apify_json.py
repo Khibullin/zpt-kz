@@ -5,6 +5,7 @@ This module deliberately keeps the Actor input free of local mapping metadata.
 """
 import json
 import re
+from urllib.parse import urlsplit
 
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
@@ -21,9 +22,20 @@ def saved_rules():
     rules, _ = KaspiRepricerSearchSettings.objects.get_or_create(
         pk=1, defaults={
             "cities": ["Almaty", "Astana", "Shymkent"],
-            "cards_per_product": 3,
+            "cards_per_product": 20,
         },
     )
+    # One-time owner-authorized default correction; subsequent choices persist.
+    from django.db import transaction
+    from procurement.models import Activity
+    with transaction.atomic():
+        rules = KaspiRepricerSearchSettings.objects.select_for_update().get(pk=rules.pk)
+        if not Activity.objects.filter(action='repricer_search_policy_v2').exists():
+            old = rules.cards_per_product
+            if old == 3:
+                rules.cards_per_product = 20
+                rules.save(update_fields=['cards_per_product', 'updated_at'])
+            Activity.objects.create(action='repricer_search_policy_v2', details={'old_cards': old, 'cards':rules.cards_per_product})
     return rules
 
 
@@ -37,45 +49,9 @@ def export_units(batch):
 
 
 
-def _identity(row):
-    listing = row.listing
-    name = (row.product_name or (listing.product.title if listing else "") or "").strip()
-    catalog_brand = listing.product.brand.name if listing and listing.product.brand else ""
-    listed_brand = (row.brand or "").strip()
-    brand = catalog_brand if listed_brand.lower() in ("ag-parts", "ag parts") else (listed_brand or catalog_brand)
-    article = (listing.product.article or "").strip() if listing else ""
-    article = article or (row.merchant_sku or "").strip()
-    if not article:
-        codes = [x for x in re.findall(r"[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*", name)
-                 if len(x) >= 5 and any(ch.isdigit() for ch in x)]
-        article = codes[-1] if codes else ""
-    if not article:
-        sku = (row.master_sku or "").strip()
-        if (re.fullmatch(r"[A-Za-z0-9-]{5,60}", sku)
-                and re.search(r"[A-Za-z]", sku) and re.search(r"[0-9]", sku)):
-            article = sku
-    return name, brand, article
-
-
-def _queries_for_row(row):
-    name, brand, article = _identity(row)
-    from procurement.kaspi_search_queries import monitoring_search_queries
-    candidates = []
-    if article:
-        candidates.extend(monitoring_search_queries(brand, article, name))
-    elif name:
-        generic = {"воздушный фильтр", "салонный фильтр", "масляный фильтр",
-                   "фильтр", "свеча зажигания"}
-        if name.casefold() not in generic:
-            candidates.append(f"{brand} {name}" if brand else name)
-    queries = []
-    seen = set()
-    for candidate in candidates:
-        candidate = " ".join(candidate.split()).strip()
-        if candidate and candidate.casefold() not in seen:
-            seen.add(candidate.casefold())
-            queries.append(candidate)
-    return queries, name, brand, article
+from .identity import identity as _identity, queries_for_row as _queries_for_row
+from .market_policy import is_fresh, scope_category
+from .competitor_display import competitor_fresh_minutes
 
 
 def _payload(urls, queries, cities, cards):
@@ -93,17 +69,30 @@ def _payload(urls, queries, cities, cards):
     }
 
 
+
+def verified_card_url(listing):
+    if not listing or not listing.public_url_verified_at:
+        return ''
+    value = str(listing.public_url or '').strip().split('?',1)[0]
+    parsed = urlsplit(value)
+    return value if (parsed.scheme == 'https' and parsed.netloc == 'kaspi.kz'
+                     and re.fullmatch(r'/shop/p/[^/]+-\d{6,15}/?',parsed.path)) else ''
+
+
 def input_and_mapping(rows, cities, cards):
     """Full search: verified card plus alternate search for every ACTIVE SKU."""
     urls, queries, mapping = [], [], []
     for row in rows:
         listing = row.listing
-        url = ((listing.public_url or "").strip().split("?", 1)[0]
-               if listing and listing.public_url_verified_at else "")
+        url = verified_card_url(listing)
         searches, name, brand, article = _queries_for_row(row)
         if url:
             urls.append(url)
-        queries.extend(searches)
+        from urllib.parse import urlencode, quote
+        for phrase in searches:
+            urls.append('https://kaspi.kz/shop/search/?' + urlencode({
+                'text': phrase, 'q': ':category:' + scope_category(name),
+                'sort': 'relevance', 'filteredByCategory': 'false'}, quote_via=quote))
         mapping.append({
             "row_number": row.row_number, "sku": row.master_sku,
             "merchant_sku": row.merchant_sku,
@@ -121,12 +110,24 @@ def input_and_mapping(rows, cities, cards):
 
 def remaining_input_and_mapping(rows, cities, cards):
     """Additional search only for SKUs without a confirmed competitor price."""
-    queries, mapping = [], []
+    from .models import KaspiActiveCityCheck
+    rows = list(rows)
+    checks = {(check.active_row_id, check.city):check.checked_at for check in
+        KaspiActiveCityCheck.objects.filter(active_row_id__in=[row.pk for row in rows])}
+    urls, queries, mapping = [], [], []
     for row in rows:
-        if row.competitor_min_price is not None:
+        if row.competitor_min_price is not None and is_fresh(row.competitor_checked_at) and all(is_fresh(checks.get((row.pk, city))) for city in cities):
             continue
         searches, name, brand, article = _queries_for_row(row)
-        queries.extend(searches)
+        from urllib.parse import urlencode, quote
+        listing = row.listing
+        url = verified_card_url(listing)
+        if url:
+            urls.append(url)
+        for phrase in searches:
+            urls.append('https://kaspi.kz/shop/search/?' + urlencode({
+                'text': phrase, 'q': ':category:' + scope_category(name),
+                'sort': 'relevance', 'filteredByCategory': 'false'}, quote_via=quote))
         mapping.append({
             "row_number": row.row_number, "sku": row.master_sku,
             "merchant_sku": row.merchant_sku, "title": name,
@@ -135,7 +136,7 @@ def remaining_input_and_mapping(rows, cities, cards):
             "requires_result_verification": True,
             "source_sku_only_fallback": not bool(article),
         })
-    return _payload([], queries, cities, cards), mapping
+    return _payload(urls, queries, cities, cards), mapping
 
 
 def _download(data, filename):
@@ -163,8 +164,8 @@ def repricer_rules(request):
             city not in APIFY_CITIES for city in selected
         ):
             error = "Выберите города из списка."
-        elif cards_raw not in ("1", "2", "3"):
-            error = "Количество карточек должно быть 1, 2 или 3."
+        elif cards_raw not in tuple(str(n) for n in range(1, 21)):
+            error = "Количество карточек должно быть от 1 до 20."
         if error and request.POST.get("return_to") == "dashboard":
             messages.error(request, error)
             return redirect("repricer:dashboard")
@@ -197,6 +198,7 @@ def repricer_rules(request):
     payload, mapping = input_and_mapping(rows, rules.cities, rules.cards_per_product)
     context = {
         "rules": rules,
+        "fresh_minutes": competitor_fresh_minutes(),
         "cities": [
             {"code": code, "name": CITY_NAMES_RU[code], "checked": code in selected}
             for code in APIFY_CITIES
@@ -206,10 +208,10 @@ def repricer_rules(request):
         "active_batch": batch,
         "row_count": len(rows),
         "url_count": len(payload["startUrls"]),
-        "query_count": len(payload["searchQueries"]),
+        "query_count": sum("/shop/search/" in url for url in payload["startUrls"]),
         "unmapped_count": sum(1 for row in rows if row.listing_id is None),
-        "remaining_count": sum(row.competitor_min_price is None for row in rows),
-        "additional_search_count": len(remaining_input_and_mapping(rows, rules.cities, rules.cards_per_product)[0]["searchQueries"]),
+        "remaining_count": sum(row.competitor_min_price is None or not is_fresh(row.competitor_checked_at) for row in rows),
+        "additional_search_count": len(remaining_input_and_mapping(rows, rules.cities, rules.cards_per_product)[0]["startUrls"]),
         "actor_url": "https://apify.com/firsthand/kaspi-api",
     }
     response = render(request, "repricer/rules.html", context)
@@ -228,7 +230,7 @@ def repricer_apify_export(request):
     if not rules.cities or any(city not in APIFY_CITIES for city in rules.cities):
         messages.error(request, "Сначала выберите города в разделе «Правила».")
         return redirect("repricer:rules")
-    if rules.cards_per_product not in (1, 2, 3):
+    if rules.cards_per_product not in range(1, 21):
         messages.error(request, "Некорректное число карточек. Проверьте правила.")
         return redirect("repricer:rules")
     rows = export_units(batch)
@@ -263,3 +265,4 @@ def repricer_apify_export(request):
         f"zpt_apify_remaining_{batch.pk}.json" if remaining
         else f"zpt_apify_active_{batch.pk}.json"
     ))
+

@@ -27,6 +27,12 @@ MAX_UPLOAD = 25 * 1024 * 1024
 OWN_MERCHANT_IDS = {"30363568"}
 
 
+def own_merchant_ids():
+    from .services import configured_own_merchants
+    return OWN_MERCHANT_IDS | configured_own_merchants()[0]
+
+
+
 def _normalized(value):
     return " ".join(str(value or "").casefold().split())
 
@@ -139,35 +145,21 @@ def _source_codes(row):
     return codes
 
 
-def _search_match(row, item, *, check_brand=True):
-    """Require exact article, identical part type and compatible product brand.
-
-    'Без бренда' is neutral only when article and type match exactly.
-    Explicitly different product brands are NOT automatically interchangeable.
-    """
-    title = str(item.get("title") or "")
-    if not (_source_codes(row) & _part_codes(title)):
+def _search_match(row, item, *, check_brand=True, verified_card=False):
+    from .identity import identity, article_in_title, brand_key, execution_conflict, NEUTRAL_BRANDS
+    name, brand, article = identity(row)
+    title = str(item.get('title') or '')
+    if not article or not article_in_title(article, title) or execution_conflict(name, title):
         return False
-    item_type = _part_type(title)
-    own_type = _part_type(row.product_name)
-    if not own_type and row.listing:
-        own_type = _part_type(row.listing.product.title)
+    own_type, item_type = _part_type(name), _part_type(title)
     if own_type and item_type != own_type:
         return False
     if not check_brand:
         return True
-    # An explicit brand in ACTIVE is a product brand, not necessarily the
-    # vehicle brand in the catalog. Keep AG Parts when it is the label.
-    source_brand = (row.brand or "").strip()
-    if not source_brand and row.listing and row.listing.product.brand:
-        source_brand = row.listing.product.brand.name
-    expected = _brand_normalized(source_brand)
-    claimed = _brand_normalized(item.get("brand"))
-    if expected and claimed not in ("", "безбренда", "nobrand"):
-        # A car make in a title does not override a different manufacturer.
-        if expected != claimed:
-            return False
-    return True
+    expected, claimed = brand_key(brand), brand_key(item.get('brand'))
+    if claimed in NEUTRAL_BRANDS or expected in NEUTRAL_BRANDS:
+        return verified_card
+    return expected == claimed
 
 
 def parse_apify_offers(data, active_rows, cities):
@@ -197,6 +189,7 @@ def parse_apify_offers(data, active_rows, cities):
     brand_candidates = {}
     verified_rows = set()
     covered_pairs = set()
+    incomplete_pairs = set()
     unconfirmed = 0
     skipped_city = 0
     offer_counters = defaultdict(lambda: defaultdict(int))
@@ -220,7 +213,9 @@ def parse_apify_offers(data, active_rows, cities):
         pid = url_id or pid
 
         rows = verified_ids.get(pid, []) if pid else []
-        if len(rows) != 1:
+        rows = [row for row in rows if _search_match(row, item, verified_card=True)]
+        if not rows:
+
             # Candidate hints must agree with a distinctive part article,
             # and known brand, not merely the numeric merchant SKU.
             candidates = set()
@@ -228,6 +223,10 @@ def parse_apify_offers(data, active_rows, cities):
             for code in title_codes:
                 for row in code_index.get(code, []):
                     candidates.add(row.pk)
+            from .identity import identity, article_in_title
+            for candidate in active_rows:
+                if article_in_title(identity(candidate)[2], item.get('title')):
+                    candidates.add(candidate.pk)
             by_id = source_id_hints.get(pid, []) if pid else []
             if by_id:
                 by_id_pks = {row.pk for row in by_id}
@@ -249,7 +248,8 @@ def parse_apify_offers(data, active_rows, cities):
                             continue
                         seller_id = str(offer.get('sellerId') or offer.get('merchantId') or '').strip()
                         price = _positive_price(offer.get('price'))
-                        if (not seller_id or seller_id in OWN_MERCHANT_IDS or not price
+                        if (item.get('inStock') is False or offer.get('inStock') is False
+                                or not seller_id or seller_id in own_merchant_ids() or not price
                                 or not row.price or price >= row.price):
                             continue
                         offer_counters[row.pk]['different_brand'] += 1
@@ -265,14 +265,10 @@ def parse_apify_offers(data, active_rows, cities):
         # part number. Give them the same market comparison only when the
         # verified article and part type are identical; otherwise reject.
         if len(rows) > 1:
-            common = set.intersection(*(_source_codes(row) for row in rows))
-            own_types = {
-                _part_type(row.product_name) or (
-                    _part_type(row.listing.product.title) if row.listing else ""
-                )
-                for row in rows
-            }
-            if not common.intersection(_part_codes(item.get("title"))) or len(own_types) != 1:
+            from .identity import identity, article_key, brand_key
+            articles = {article_key(identity(row)[2]) for row in rows}
+            brands = {brand_key(identity(row)[1]) for row in rows}
+            if len(articles) != 1 or len(brands) != 1:
                 unconfirmed += 1
                 continue
         offers = item.get("offers")
@@ -282,13 +278,15 @@ def parse_apify_offers(data, active_rows, cities):
                 verified_rows.add(row.pk)
                 continue
             verified_rows.add(row.pk)
-            complete = all(isinstance(offer, dict) and
+            complete = not item.get('error') and all(isinstance(offer, dict) and
                 str(offer.get('sellerId') or offer.get('merchantId') or '').strip() and
-                (str(offer.get('sellerId') or offer.get('merchantId')).strip() in OWN_MERCHANT_IDS
+                (str(offer.get('sellerId') or offer.get('merchantId')).strip() in own_merchant_ids()
                  or _positive_price(offer.get('price')) is not None)
                 for offer in offers)
             if complete:
                 covered_pairs.add((row.pk, city))
+            else:
+                incomplete_pairs.add((row.pk, city))
             if not offers:
                 offer_counters[row.pk]["empty_offers"] += 1
             for offer in offers:
@@ -301,7 +299,10 @@ def parse_apify_offers(data, active_rows, cities):
                 if not seller_id:
                     offer_counters[row.pk]["missing_seller_id"] += 1
                     continue
-                if seller_id in OWN_MERCHANT_IDS:
+                if item.get('inStock') is False or offer.get('inStock') is False:
+                    offer_counters[row.pk]['unavailable'] += 1
+                    continue
+                if seller_id in own_merchant_ids():
                     offer_counters[row.pk]["own"] += 1
                     continue
                 price = _positive_price(offer.get("price"))
@@ -319,7 +320,7 @@ def parse_apify_offers(data, active_rows, cities):
 
     return {
         "items": item_count,
-        "covered_pairs": covered_pairs,
+        "covered_pairs": covered_pairs - incomplete_pairs,
         "recognized": len(verified_rows),
         "recognized_row_ids": verified_rows,
         "unconfirmed": unconfirmed,
@@ -344,6 +345,8 @@ def _missing_reason(row_id, recognized_ids, counters):
         return "У предложений отсутствует идентификатор продавца"
     if state.get("invalid_price"):
         return "У предложений некорректная или пустая цена"
+    if state.get("unavailable") and not state.get("valid"):
+        return "Предложения продавцов недоступны"
     if state.get("own") and not state.get("valid"):
         return "Только предложения нашего продавца AG Parts"
     return "Нет подтверждённых предложений других продавцов"
@@ -363,7 +366,8 @@ def import_apify_result(data, batch, *, filename, merge_mode=True, cities=None, 
     result = parse_apify_offers(data, rows, selection)
     if result["recognized"] == 0 and not result['brand_candidates']:
         raise ValueError("Не удалось подтвердить ни одну карточку Kaspi. Данные не изменены.")
-    clock = captured_at or timezone.now()
+    from .market_policy import observation_time
+    clock = observation_time(items, captured_at)
     evidence = result["evidence"]
     offers_by_row = defaultdict(list)
     for record in evidence:
@@ -497,7 +501,14 @@ def repricer_output_upload(request):
         return redirect("repricer:dashboard")
 
     try:
-        summary = import_apify_result(data, batch, filename=upload.name,
+        from django.utils.dateparse import parse_datetime
+        observed = request.POST.get('observed_at', '').strip()
+        captured = parse_datetime(observed) if observed else None
+        if observed and captured is None:
+            raise ValueError('Укажите корректную дату проверки Apify.')
+        if captured is not None and timezone.is_naive(captured):
+            captured = timezone.make_aware(captured)
+        summary = import_apify_result(data, batch, filename=upload.name, captured_at=captured,
                                       merge_mode=request.POST.get("merge") == "1")
     except ValueError as exc:
         messages.error(request, str(exc))
@@ -575,3 +586,4 @@ def repricer_output_diagnostics(request):
             row.competitor_seller, row.competitor_city, row.competitor_url,
         ])
     return response
+

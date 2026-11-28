@@ -10,7 +10,8 @@ from openpyxl.utils.exceptions import InvalidFileException
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core import signing
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.contrib import messages
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods
 from openpyxl import load_workbook
@@ -23,11 +24,21 @@ SALT = 'repricer.kaspi-price-upload.v1'
 MAX_BYTES = 15 * 1024 * 1024
 
 
-def price_plan(batch):
-    records = list(KaspiActiveExportRow.objects.filter(batch=batch).select_related('listing')) if batch else []
+def price_plan(batch, user=None):
+    from .market_policy import is_fresh, floor_records, price_floor
+    from .apify_json import saved_rules
+    from .models import KaspiActiveCityCheck
+    records = list(KaspiActiveExportRow.objects.filter(batch=batch).select_related('listing__product').prefetch_related('verified_competitor_offers')) if batch else []
+    cities = set(saved_rules().cities)
+    floors = floor_records(batch) if batch else {}
+    checks = {(c.active_row_id, c.city): c.checked_at for c in KaspiActiveCityCheck.objects.filter(active_row__batch=batch)} if batch else {}
     counts = Counter(record.master_sku for record in records)
     plan = []
     for record in records:
+        offers = [offer for offer in record.verified_competitor_offers.all() if offer.city in cities and is_fresh(offer.checked_at)]
+        best = min(offers, key=lambda offer: offer.price) if offers else None
+        minimum = best.price if best else None
+        floor = price_floor(record, floors.get(str(record.pk)), user)
         reason = ''
         if not record.master_sku or counts[record.master_sku] != 1:
             reason = 'Пустой или повторяющийся SKU в ACTIVE'
@@ -35,20 +46,28 @@ def price_plan(batch):
             reason = 'Связанный товар ZPT.KZ неактивен'
         elif record.competitor_scan_status != 'MATCHED' or not record.competitor_min_price:
             reason = 'Нет подтверждённой цены конкурента'
+        elif not best:
+            reason = 'Нет свежей цены конкурента в выбранных городах'
+        elif not cities or any(not is_fresh(checks.get((record.pk, city))) for city in cities):
+            reason = 'Не завершена свежая проверка выбранных городов'
         elif not record.quantity or not record.price:
             reason = 'Нет положительного остатка или текущей цены'
-        elif record.competitor_min_price >= record.price:
+        elif minimum >= record.price:
             reason = 'Подтверждённый конкурент не дешевле нашей цены'
-        proposed = record.competitor_min_price * 97 // 100 if record.competitor_min_price else None
+        elif floor is None:
+            reason = 'Укажите минимальную допустимую цену с расходами'
+        proposed = minimum * 97 // 100 if minimum else None
+        if not reason and proposed < floor:
+            reason = 'Цена −3% ниже допустимого минимума'
         if not reason and not (1 <= proposed <= 999999999):
             reason = 'Расчётная цена вне допустимого диапазона'
         if not reason and proposed >= record.price:
             reason = 'Цена не требует снижения'
         plan.append({
             'id': record.pk, 'sku': record.master_sku, 'title': record.product_name,
-            'current': record.price, 'minimum': record.competitor_min_price,
+            'current': record.price, 'minimum': minimum, 'floor': floor,
             'new': proposed, 'delta': proposed - record.price if proposed is not None and record.price else None,
-            'checked_at': record.competitor_checked_at, 'reason': reason,
+            'checked_at': best.checked_at if best else record.competitor_checked_at, 'reason': reason,
         })
     return plan
 
@@ -107,7 +126,7 @@ def update_price_file(upload, selected):
 @require_http_methods(['GET', 'POST'])
 def prepare_kaspi_prices(request):
     batch = _latest_active_batch()
-    plan = price_plan(batch)
+    plan = price_plan(batch, request.user)
     digest = plan_digest(batch, plan)
     eligible = [item for item in plan if not item['reason']]
     error = ''
@@ -116,6 +135,25 @@ def prepare_kaspi_prices(request):
             payload = signing.loads(request.POST.get('plan_token', ''), salt=SALT, max_age=3600)
             if payload != {'digest': digest, 'user': request.user.pk}:
                 raise ValueError('Данные контроля цен изменились. Проверьте обновлённый расчёт и повторите скачивание.')
+            if request.POST.get('action') == 'save_floors':
+                from procurement.models import Activity
+                changes = []
+                for item in plan:
+                    raw = request.POST.get('floor_' + str(item['id']), '').strip()
+                    if not raw:
+                        continue
+                    if not raw.isascii() or not raw.isdecimal() or not 1 <= int(raw) <= 999999999:
+                        raise ValueError('Минимальная цена должна быть целым положительным числом.')
+                    if int(raw) != item['floor']:
+                        changes.append((item, int(raw)))
+                from django.db import transaction
+                with transaction.atomic():
+                    for item, price in changes:
+                        Activity.objects.create(user=request.user, action='repricer_price_floor', details={
+                            'batch_id': batch.pk, 'row_id': item['id'], 'sku': item['sku'],
+                            'price': price, 'previous': item['floor']})
+                messages.success(request, 'Минимальные цены сохранены. Проверьте обновлённый расчёт.')
+                return redirect('repricer:prepare_prices')
             ids = set(request.POST.getlist('selected'))
             selected = [item for item in eligible if str(item['id']) in ids]
             if not selected or ids != {str(item['id']) for item in selected}:
@@ -138,3 +176,4 @@ def prepare_kaspi_prices(request):
         'skipped': len(plan) - len(eligible), 'error': error,
         'plan_token': signing.dumps({'digest': digest, 'user': request.user.pk}, salt=SALT),
     }, status=400 if error else 200)
+

@@ -195,6 +195,10 @@
                   <label><input type="radio" name="cards_per_product" value="1" {% if apify_cards == "1" %}checked{% endif %}>1</label>
                   <label><input type="radio" name="cards_per_product" value="2" {% if apify_cards == "2" %}checked{% endif %}>2</label>
                   <label><input type="radio" name="cards_per_product" value="3" {% if apify_cards == "3" %}checked{% endif %}>3</label>
+                  <label><input type="radio" name="cards_per_product" value="5" {% if apify_cards == "5" %}checked{% endif %}>5</label>
+                  <label><input type="radio" name="cards_per_product" value="10" {% if apify_cards == "10" %}checked{% endif %}>10</label>
+                  <label><input type="radio" name="cards_per_product" value="20" {% if apify_cards == "20" %}checked{% endif %}>20</label>
+
                 </div>
               </div>
               <button class="pc-button" type="submit">Сохранить выбор</button>
@@ -212,7 +216,7 @@
         <div class="pc-panel-actions">
           <button class="pc-button pc-button-primary" type="submit" form="repricer-rules-form" name="action" value="generate">Полный мониторинг — JSON для всех {{ summary.total }}</button>
           {% if active_batch and apify_scan_remaining %}
-          <button class="pc-button pc-button-followup" type="submit" form="repricer-rules-form" name="action" value="generate_remaining">Дополнительный поиск — {{ apify_scan_remaining }} товаров</button>
+          <button class="pc-button pc-button-followup" type="submit" form="repricer-rules-form" name="action" value="generate_remaining">Обновить неподтверждённые и устаревшие — {{ apify_scan_remaining }} товаров</button>
           {% endif %}
           <a class="pc-button" href="{% url 'repricer:apify_export' %}?format=mapping">Соответствия SKU</a>
           <a class="pc-text-link" href="https://apify.com/firsthand/kaspi-api" target="_blank" rel="noopener noreferrer">Открыть Apify</a>
@@ -227,6 +231,7 @@
         <div class="pc-field-label">Output JSON с предложениями продавцов</div>
         <form method="post" enctype="multipart/form-data" action="{% url 'repricer:apify_output' %}" class="pc-output-form">
           {% csrf_token %}
+          <label>Дата и время проверки Apify <input type="datetime-local" name="observed_at" aria-label="Дата и время проверки Apify"></label>
           <input name="apify_output" type="file" accept=".json,application/json" aria-label="Выберите Output JSON" required>
           <label class="pc-merge-label"><input name="merge" type="checkbox" value="1" checked> Дополнить уже найденные цены, не удалять их</label>
           <button class="pc-button pc-button-primary" type="submit">Обработать / Провести мониторинг</button>
@@ -242,7 +247,7 @@
         </form>
         <div class="pc-output-stats">
           <div><small>Наши цены из ACTIVE</small><strong>{{ apify_scan_our_prices }} / {{ summary.total }}</strong></div>
-          <div><small>Цены конкурентов</small><strong>{{ apify_scan_count }}</strong></div>
+          <div><small>Сохранённые цены конкурентов</small><strong>{{ apify_scan_count }}</strong></div>
           <div><small>Только AG Parts в Output</small><strong>{{ apify_scan_only_own }}</strong></div>
           <div><small>Нужна проверка карточки</small><strong>{{ apify_scan_unconfirmed }}</strong></div>
         </div>
@@ -331,7 +336,7 @@
           <td class="money">{% if row.active %}{% if row.quantity != None %}{{ row.quantity }} шт.{% else %}—{% endif %}{% elif row.listing.last_known_kaspi_qty != None %}{{ row.listing.last_known_kaspi_qty }} шт.{% else %}—{% endif %}</td>
           <td class="money">{% if row.listing and row.listing.product.cost_price != None %}{{ row.listing.product.cost_price|intcomma }}{% else %}—{% endif %}</td>
           <td class="money">{% if row.our != None %}<strong>{{ row.our|intcomma }}</strong>{% else %}—{% endif %}</td>
-          <td class="money">{% if row.active %}{% if row.best != None %}<strong>{{ row.best|floatformat:0|intcomma }}</strong>{% if row.apify_best != None %}<span class="pc-sub">{{ row.best_seller }} · {{ row.best_city }}</span>{% if row.best_url %}<a class="pc-inline-link pc-small-link" href="{{ row.best_url }}" target="_blank" rel="noopener noreferrer">Kaspi ↗</a>{% endif %}{% elif row.stale %}<span class="pc-stale">Устарело</span>{% endif %}{% else %}—{% if row.candidate_price != None %}<span class="pc-review-candidate">На проверке: {{ row.candidate_price|intcomma }} ₸</span>{% if row.candidate_url %}<a class="pc-inline-link pc-small-link" href="{{ row.candidate_url }}" target="_blank" rel="noopener noreferrer">Карточка для сверки ↗</a>{% endif %}{% endif %}{% endif %}{% else %}{% if row.state.best_price != None %}{{ row.state.best_price|floatformat:0|intcomma }}{% if row.state.is_stale %}<span class="pc-stale">Устарело</span>{% endif %}{% else %}—{% endif %}{% endif %}</td>
+          <td class="money">{% if row.active %}{% if row.best != None %}<strong>{{ row.best|floatformat:0|intcomma }}</strong>{% if row.apify_best != None %}<span class="pc-sub">{{ row.best_seller }} · {{ row.best_city }}</span>{% if row.best_url %}<a class="pc-inline-link pc-small-link" href="{{ row.best_url }}" target="_blank" rel="noopener noreferrer">Kaspi ↗</a>{% endif %}{% endif %}{% if row.stale %}<span class="pc-stale">Устарело — обновите мониторинг</span>{% endif %}{% if row.apify_checked_at %}<span class="pc-sub">{{ row.apify_checked_at|date:"d.m.Y H:i" }}</span>{% endif %}{% else %}—{% if row.candidate_price != None %}<span class="pc-review-candidate">На проверке: {{ row.candidate_price|intcomma }} ₸</span>{% if row.candidate_url %}<a class="pc-inline-link pc-small-link" href="{{ row.candidate_url }}" target="_blank" rel="noopener noreferrer">Карточка для сверки ↗</a>{% endif %}{% endif %}{% endif %}{% else %}{% if row.state.best_price != None %}{{ row.state.best_price|floatformat:0|intcomma }}{% if row.state.is_stale %}<span class="pc-stale">Устарело</span>{% endif %}{% else %}—{% endif %}{% endif %}</td>
           <td>{% if row.listing %}<a class="pc-inline-link" href="{% url 'repricer:product' row.listing.pk %}">{% if row.active %}{{ row.count }}{% else %}{{ row.state.competitor_count }}{% endif %}</a>{% else %}—{% endif %}<span class="pc-status">{% if row.active %}{{ row.state_label }}{% else %}{{ row.state.state_label }}{% endif %}{% if row.scan_note %}<span class="pc-diagnostic-note">{{ row.scan_note }}</span>{% endif %}{% if row.candidate_title %}<span class="pc-diagnostic-note">Кандидат: {{ row.candidate_title }}</span>{% endif %}</span></td>
           <td class="money">{% if row.listing %}<input class="pc-new-price" aria-label="Новая цена" name="price_{{ row.listing.pk }}" type="number" min="1" max="999999999" step="1" value="{% if row.draft %}{{ row.draft.price }}{% elif row.our != None %}{{ row.our }}{% endif %}">{% if row.draft %}<span class="pc-sub">Черновик</span>{% endif %}{% else %}<a href="{% url 'repricer:prepare_prices' %}">Расчёт в Excel для Kaspi</a>{% endif %}</td>
           <td class="money">{% if row.delta != None %}<span class="{% if row.delta > 0 %}pc-delta-high{% elif row.delta < 0 %}pc-delta-low{% endif %}">{{ row.delta|floatformat:0|intcomma }}</span>{% else %}—{% endif %}</td>
@@ -378,3 +383,4 @@
 </script>
 </div>
 {% endblock %}
+

@@ -6,7 +6,9 @@ from django.test import TestCase
 from django.urls import reverse
 from openpyxl import Workbook, load_workbook
 
-from repricer.models import KaspiActiveExportRow, KaspiManualPriceDraft
+from repricer.models import KaspiActiveExportRow, KaspiManualPriceDraft, KaspiActiveCompetitorOffer, KaspiActiveCityCheck
+from django.utils import timezone
+from procurement.models import Activity
 from repricer.price_upload import HEADERS
 from repricer.tests import test_apify_output as output_tests
 
@@ -14,7 +16,21 @@ from repricer.tests import test_apify_output as output_tests
 class KaspiPriceUploadTests(TestCase):
     setUp = output_tests.ApifyOutputTests.setUp
 
+    def verified(self, row, price):
+        now = timezone.now()
+        for city in ('Almaty', 'Astana'):
+            KaspiActiveCompetitorOffer.objects.update_or_create(active_row=row, city=city,
+                seller_id='test-other', defaults={'price':price,'checked_at':now})
+            KaspiActiveCityCheck.objects.update_or_create(active_row=row, city=city,defaults={'checked_at':now})
+        row.competitor_checked_at = now
+        row.competitor_scan_status = 'MATCHED'
+        row.competitor_min_price = price
+        row.save()
+        Activity.objects.create(user=self.staff,action='repricer_price_floor',
+            details={'batch_id':self.batch.pk,'row_id':row.pk,'price':1500})
+
     def ready(self):
+        self.verified(self.active, 2201)
         self.active.competitor_min_price = 2201
         self.active.competitor_scan_status = 'MATCHED'
         self.active.save()
@@ -71,8 +87,7 @@ class KaspiPriceUploadTests(TestCase):
 
     def test_reject_changed_monitoring_after_preview(self):
         response = self.ready()
-        self.active.competitor_min_price = 1900
-        self.active.save()
+        self.verified(self.active, 1900)
         output = self.download(response)
         self.assertEqual(output.status_code, 400)
         self.assertContains(output, 'Данные контроля цен изменились', status_code=400)
@@ -116,6 +131,7 @@ class KaspiPriceUploadTests(TestCase):
 
     def test_confirmed_competitor_can_lower_unlinked_active_sku(self):
         self.ready()
+        self.verified(self.unknown, 4000)
         self.unknown.competitor_scan_status = 'MATCHED'
         self.unknown.competitor_min_price = 4000
         self.unknown.save()
@@ -144,3 +160,4 @@ class KaspiPriceUploadTests(TestCase):
         from repricer.price_upload import update_price_file
         with self.assertRaisesMessage(ValueError, 'только снижение'):
             update_price_file(self.file(), [{'sku': '1017110XEN01', 'current': 2700, 'new': 2800}])
+

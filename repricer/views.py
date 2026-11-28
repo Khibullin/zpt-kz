@@ -98,26 +98,41 @@ def _active_assortment(request, batch, *, paginate=True):
         )
     if supplier:
         qs = qs.filter(listing__product__supplier=supplier)
+    from .apify_json import saved_rules
+    from procurement.apify_cities import CITY_NAMES_RU
+    from .market_policy import is_fresh
+    chosen_cities = list(saved_rules().cities)
+    has_apify_scan = KaspiActiveExportRow.objects.filter(batch=batch).exclude(competitor_scan_status='').exists()
     if city and city in CITY_BY_ID:
-        city_ids = KaspiCompetitorOfferSnapshot.objects.filter(
-            city_id=city, source__in=PUBLIC_SOURCES,
-        ).values("listing_id")
-        qs = qs.filter(listing_id__in=city_ids)
+        selected_name = CITY_BY_ID[city]
+        chosen_cities = [key for key, name in CITY_NAMES_RU.items() if name == selected_name and key in chosen_cities]
+        if has_apify_scan:
+            qs = qs.filter(verified_competitor_offers__city__in=chosen_cities).distinct()
+        else:
+            city_ids = KaspiCompetitorOfferSnapshot.objects.filter(
+                city_id=city, source__in=PUBLIC_SOURCES).values('listing_id')
+            qs = qs.filter(listing_id__in=city_ids)
     elif city:
-        city = ""
+        city = ''
 
     active_ids = list(KaspiActiveExportRow.objects.filter(batch=batch)
                       .exclude(listing_id__isnull=True)
                       .values_list("listing_id", flat=True))
     states = competitor_states_for_listings(active_ids)
-    has_apify_scan = KaspiActiveExportRow.objects.filter(batch=batch).exclude(
-        competitor_scan_status=""
-    ).exists()
     valid_offers = {pk for pk, state in states.items() if state.competitor_count > 0}
+    from django.db.models import Min
+    from .models import KaspiActiveCompetitorOffer
+    from datetime import timedelta
+    cutoff = timezone.now() - timedelta(minutes=competitor_fresh_minutes())
+    fresh_quotes = KaspiActiveCompetitorOffer.objects.filter(active_row__batch=batch,
+        city__in=chosen_cities, checked_at__gte=cutoff, checked_at__lte=timezone.now()+timedelta(minutes=5))
+    fresh_minima = {entry['active_row_id']: entry['minimum'] for entry in
+        fresh_quotes.values('active_row_id').annotate(minimum=Min('price'))}
+
     if status == "offers":
-        qs = qs.filter(competitor_min_price__isnull=False) if has_apify_scan else qs.filter(listing_id__in=valid_offers)
+        qs = qs.filter(pk__in=fresh_minima) if has_apify_scan else qs.filter(listing_id__in=valid_offers)
     elif status == "missing":
-        qs = qs.filter(competitor_min_price__isnull=True) if has_apify_scan else qs.exclude(listing_id__in=valid_offers)
+        qs = qs.exclude(pk__in=fresh_minima) if has_apify_scan else qs.exclude(listing_id__in=valid_offers)
     elif status == "unmatched":
         qs = qs.filter(listing__isnull=True)
     elif status == "only_own":
@@ -132,12 +147,12 @@ def _active_assortment(request, batch, *, paginate=True):
         # Comparison is based only on a confirmed competitor minimum.
         # After Apify has run, never use old direct-Kaspi snapshot prices.
         if has_apify_scan:
-            prices = qs.filter(price__isnull=False, competitor_min_price__isnull=False)
+            prices = qs.filter(price__isnull=False, pk__in=fresh_minima)
             matches = [
                 row_id for row_id, own, minimum in prices.values_list(
                     "pk", "price", "competitor_min_price"
-                ) if ((own > minimum) if status == "higher" else
-                      (own == minimum) if status == "equal" else (own < minimum))
+                ) if ((own > fresh_minima[row_id]) if status == "higher" else
+                      (own == fresh_minima[row_id]) if status == "equal" else (own < fresh_minima[row_id]))
             ]
             qs = qs.filter(pk__in=matches)
         else:
@@ -164,7 +179,11 @@ def _active_assortment(request, batch, *, paginate=True):
         state = _listing_state(listing, states) if listing else None
         draft = getattr(listing, "manual_price_draft", None) if listing else None
         # Output Apify for this exact ACTIVE row supersedes old cached direct-Kaspi data.
-        apify_best = record.competitor_min_price
+        scoped_quotes = [offer for offer in record.verified_competitor_offers.all() if offer.city in chosen_cities]
+        fresh = [offer for offer in scoped_quotes if is_fresh(offer.checked_at)]
+        chosen = min(fresh or scoped_quotes, key=lambda offer: offer.price) if scoped_quotes else None
+        apify_stale = bool(has_apify_scan and (not chosen or not is_fresh(chosen.checked_at)))
+        apify_best = chosen.price if chosen else None
         best = apify_best if has_apify_scan else (state.best_price if state else None)
         rows.append({
             "active": record, "listing": listing,
@@ -177,9 +196,10 @@ def _active_assortment(request, batch, *, paginate=True):
             ) or "—",
             "our": record.price, "quantity": record.quantity,
             "draft": draft, "state": state,
-            "count": len(record.verified_competitor_offers.all()) if has_apify_scan else (state.competitor_count if state else 0),
+            "count": len(fresh) if has_apify_scan else (state.competitor_count if state else 0),
             "state_label": (
-                "Минимальная цена конкурента" if apify_best is not None
+                "Устарело — обновите мониторинг" if apify_stale and apify_best is not None
+                else "Минимальная цена конкурента" if apify_best is not None
                 else "Только AG Parts" if record.competitor_scan_note == "Только предложения нашего продавца AG Parts"
                 else "Карточка не подтверждена" if record.competitor_scan_status == "NOT_CONFIRMED"
                 else "Нет цены конкурента" if has_apify_scan
@@ -191,19 +211,17 @@ def _active_assortment(request, batch, *, paginate=True):
             "candidate_url": record.candidate_url,
             "best": best,
             "apify_best": apify_best,
-            "best_seller": record.competitor_seller,
-            "best_city": record.competitor_city,
-            "best_url": record.competitor_url,
-            "apify_checked_at": record.competitor_checked_at,
-            "stale": False if has_apify_scan else bool(state and state.is_stale),
-            "delta": record.price - best if record.price is not None and best is not None else None,
-            "above_competitor": bool(record.price is not None and best is not None and record.price > best),
+            "best_seller": chosen.seller_name if chosen else "",
+            "best_city": chosen.city if chosen else "",
+            "best_url": chosen.product_url if chosen else "",
+            "apify_checked_at": chosen.checked_at if chosen else record.competitor_checked_at,
+            "stale": apify_stale if has_apify_scan else bool(state and state.is_stale),
+            "delta": record.price - best if not apify_stale and record.price is not None and best is not None else None,
+            "above_competitor": bool(not apify_stale and record.price is not None and best is not None and record.price > best),
         })
     total = KaspiActiveExportRow.objects.filter(batch=batch).count()
     matched = KaspiActiveExportRow.objects.filter(batch=batch, listing__isnull=False).count()
-    apify_found = KaspiActiveExportRow.objects.filter(
-        batch=batch, competitor_min_price__isnull=False
-    ).count()
+    apify_found = len(fresh_minima)
     found = (
         apify_found if has_apify_scan else
         KaspiActiveExportRow.objects.filter(batch=batch, listing_id__in=valid_offers).count()
@@ -304,7 +322,8 @@ def repricer_dashboard(request):
     scan_rows = KaspiActiveExportRow.objects.filter(batch=active_batch) if active_batch else KaspiActiveExportRow.objects.none()
     scan_count = scan_rows.filter(competitor_min_price__isnull=False).count()
     scan_processed = scan_rows.filter(competitor_scan_status__in=["MATCHED", "NO_OFFERS"]).count()
-    scan_remaining = scan_rows.filter(competitor_min_price__isnull=True).count()
+    from .apify_json import export_units, remaining_input_and_mapping
+    scan_remaining = len(remaining_input_and_mapping(export_units(active_batch), rules.cities, rules.cards_per_product)[1]) if active_batch else 0
     scan_only_own = scan_rows.filter(competitor_scan_note="Только предложения нашего продавца AG Parts").count()
     scan_unconfirmed = scan_rows.filter(competitor_scan_status="NOT_CONFIRMED").count()
     scan_review = scan_rows.filter(candidate_price__isnull=False).count()
@@ -390,12 +409,14 @@ def repricer_product(request, listing_id):
     ).first() if active_batch else None
     if active_row and active_row.competitor_scan_status:
         from procurement.apify_cities import CITY_NAMES_RU
-        offers = list(active_row.verified_competitor_offers.all())
+        from .apify_json import saved_rules
+        offers = list(active_row.verified_competitor_offers.filter(city__in=saved_rules().cities))
         for offer in offers:
             offer.city_name = CITY_NAMES_RU.get(offer.city, offer.city)
+    from .market_policy import is_fresh
     response = render(request, "repricer/product.html", {
         "row": _row(listing, state), "offers": offers,
-        "is_stale": bool(state.is_stale and not (active_row and active_row.competitor_scan_status)),
+        "is_stale": (not is_fresh(active_row.competitor_checked_at) if active_row and active_row.competitor_scan_status else state.is_stale),
         "active_row": active_row,
     })
     response["X-Robots-Tag"] = "noindex, nofollow"
@@ -528,3 +549,4 @@ def repricer_export(request):
     )
     response["Content-Disposition"] = 'attachment; filename="zpt-kaspi-price-control.xlsx"'
     return response
+

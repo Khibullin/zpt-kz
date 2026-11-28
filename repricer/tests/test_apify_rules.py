@@ -1,5 +1,6 @@
 import json
 from datetime import timedelta
+from urllib.parse import unquote
 
 from django.contrib.auth.models import User
 from django.test import TestCase
@@ -7,7 +8,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from catalog.models import CatalogImportBatch, Product, ProductKaspiListing, SellerProfile
-from repricer.models import KaspiActiveExportRow, KaspiRepricerSearchSettings
+from repricer.models import KaspiActiveExportRow, KaspiRepricerSearchSettings, KaspiActiveCityCheck
 
 
 class RepricerApifyRulesTests(TestCase):
@@ -77,9 +78,9 @@ class RepricerApifyRulesTests(TestCase):
         self.assertEqual(data["maxOffersPerProduct"], 0)
         self.assertTrue(data["includeOffers"])
         self.assertFalse(data["includeReviews"])
-        self.assertEqual(len(data["startUrls"]), 1)
-        self.assertGreaterEqual(len(data["searchQueries"]), 2)
-        self.assertIn("1017110XEN01", data["searchQueries"])
+        self.assertEqual(len(data["startUrls"]), 2)
+        self.assertEqual(data["searchQueries"], [])
+        self.assertIn("1017110XEN01", unquote(" ".join(data["startUrls"])))
         self.assertIn("https://kaspi.kz/shop/p/filtr-141407587/", data["startUrls"])
         self.assertNotIn("mapping", data)
         self.assertNotIn("our_price", data)
@@ -108,7 +109,7 @@ class RepricerApifyRulesTests(TestCase):
             master_sku="F081109111HD", product_name="AS воздушный фильтр Jetour DASHING",
             brand="ag-parts", price=2730, status="MISSING_LISTING")
         payload, mapping = input_and_mapping([row], ["Almaty"], 2)
-        self.assertIn("F081109111HD", payload["searchQueries"][0])
+        self.assertIn("F081109111HD", unquote(" ".join(payload["startUrls"])))
         self.assertTrue(mapping[0]["requires_result_verification"])
 
     def test_one_click_generation_saves_checked_cities(self):
@@ -141,18 +142,18 @@ class RepricerApifyRulesTests(TestCase):
         rows = list(KaspiActiveExportRow.objects.filter(batch=self.batch).select_related(
             "listing", "listing__product", "listing__product__brand"))
         payload, mapping = input_and_mapping(rows, ["Almaty", "Astana"], 3)
-        self.assertEqual(len(payload["startUrls"]), 1)
-        self.assertIn("1017110XEN01", payload["searchQueries"])
+        self.assertEqual(len(payload["startUrls"]), 2)
+        self.assertIn("1017110XEN01", unquote(" ".join(payload["startUrls"])))
         self.assertTrue(mapping[0]["requires_result_verification"])
 
-    def test_additional_mode_keeps_verified_url_out_of_recheck(self):
+    def test_additional_mode_rechecks_verified_url_when_incomplete(self):
         from repricer.apify_json import remaining_input_and_mapping
         rows = list(KaspiActiveExportRow.objects.filter(batch=self.batch).select_related(
             "listing", "listing__product", "listing__product__brand"))
         payload, mapping = remaining_input_and_mapping(rows, ["Almaty"], 3)
-        self.assertEqual(payload["startUrls"], [])
+        self.assertTrue(payload["startUrls"])
         self.assertEqual(len(mapping), 2)
-        self.assertIn("1017110XEN01", payload["searchQueries"])
+        self.assertIn("1017110XEN01", unquote(" ".join(payload["startUrls"])))
 
     def test_followup_queries_only_missing_competitor_prices(self):
         from repricer.apify_json import remaining_input_and_mapping
@@ -160,16 +161,18 @@ class RepricerApifyRulesTests(TestCase):
             "listing", "listing__product", "listing__product__brand"))
         # Current live listing had a verified competing price in a previous run.
         rows[0].competitor_min_price = 2000
+        rows[0].competitor_checked_at = timezone.now()
+        KaspiActiveCityCheck.objects.create(active_row=rows[0], city="Almaty", checked_at=timezone.now())
         rows[1].product_name = "FORGA стойка стабилизатора F1207022"
         rows[1].brand = "FORGA"
         payload, mapping = remaining_input_and_mapping(rows, ["Almaty"], 3)
-        self.assertEqual(payload["startUrls"], [])
+        self.assertTrue(payload["startUrls"])
         self.assertEqual(payload["cities"], ["Almaty"])
         self.assertEqual(payload["maxItemsPerQuery"], 3)
         self.assertEqual(len(mapping), 1)
-        self.assertIn("F1207022", " ".join(payload["searchQueries"]))
+        self.assertIn("F1207022", unquote(" ".join(payload["startUrls"])))
         self.assertTrue(mapping[0]["requires_result_verification"])
-        self.assertNotIn("1017110XEN01", " ".join(payload["searchQueries"]))
+        self.assertNotIn("1017110XEN01", unquote(" ".join(payload["startUrls"])))
 
     def test_followup_download_uses_last_saved_cities(self):
         from repricer.apify_json import remaining_input_and_mapping
@@ -183,14 +186,14 @@ class RepricerApifyRulesTests(TestCase):
         payload = json.loads(response.content)
         self.assertEqual(payload["cities"], ["Almaty", "Shymkent"])
         self.assertEqual(payload["maxItemsPerQuery"], 3)
-        self.assertEqual(payload["startUrls"], [])
+        self.assertTrue(payload["startUrls"])
 
     def test_invalid_rules_do_not_change_settings(self):
         self.client.force_login(self.staff)
         self.client.post(reverse("repricer:rules"), {
             "cities": ["FakeCity"], "cards_per_product": "9",
         })
-        self.assertEqual(KaspiRepricerSearchSettings.objects.get(pk=1).cards_per_product, 3)
+        self.assertEqual(KaspiRepricerSearchSettings.objects.get(pk=1).cards_per_product, 20)
 
     def test_later_completed_batch_replaces_source_not_merges(self):
         self.client.force_login(self.staff)
@@ -216,3 +219,4 @@ class RepricerApifyRulesTests(TestCase):
         self.assertEqual(mapping["source_filename"], "ACTIVE_new.xlsx")
         self.assertEqual(len(mapping["rows"]), 1)
         self.assertEqual(mapping["rows"][0]["sku"], "NEW-111")
+

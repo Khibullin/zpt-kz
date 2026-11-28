@@ -9,16 +9,20 @@
 <a href="{% url 'repricer:dashboard' %}">← Назад в контроль цен</a>
 <h1>Excel для загрузки в Kaspi</h1>
 <p>Если подтверждённый конкурент дешевле нашей текущей цены, новая цена = его минимальная цена × 0,97, с округлением вниз до тенге. Повышения исключены.
-Используются все сохранённые города и все страницы ACTIVE. Это минимум среди найденных предложений; полнота поиска по Казахстану зависит от загруженных результатов.</p>
+Для расчёта нужна свежая проверка всех выбранных городов. Нижний предел цены обязателен. Это минимум среди найденных предложений; полнота поиска по Казахстану зависит от загруженных результатов.</p>
 {% if error %}<p class="kp-error" role="alert">{{ error }}</p>{% endif %}
 <div class="kp-card">
 <strong>Доступно к изменению: {{ eligible|length }} · Без изменения: {{ skipped }}</strong>
 <p>Источник: {{ active_batch.filename|default:"ACTIVE.xlsx не загружен" }}{% if active_batch %}, {{ active_batch.finished_at|date:"d.m.Y H:i" }}{% endif %}.
-Проверьте расчёт и снимите отметки с ненужных товаров. В выгрузку включаются только снижения. Внутренняя привязка к каталогу ZPT.KZ не требуется, если совпадение с карточкой Kaspi подтверждено. Дата проверки показана у каждого товара.</p>
+Проверьте расчёт и снимите отметки с ненужных товаров. В выгрузку включаются только снижения. Для товара без внутренней привязки укажите допустимый минимум вручную. Дата проверки показана у каждого товара.</p>
 </div>
 <form method="post" enctype="multipart/form-data">{% csrf_token %}
 <input type="hidden" name="plan_token" value="{{ plan_token }}">
 <div class="kp-card">
+<strong>Минимальные цены</strong>
+<p>Укажите минимальную цену с комиссией и расходами в строках таблицы. Ниже известной закупочной цены система не снизит.</p>
+<button type="submit" name="action" value="save_floors" formnovalidate>Сохранить минимальные цены</button>
+<hr>
 <strong>1. Загрузите текущий прайс-лист Kaspi</strong>
 <p>В кабинете Kaspi: Управление товарами → Прайс-лист → Скачать в Excel. Выберите этот файл ниже. Система заменит только цены отмеченных SKU; остальные товары, склады PP1–PP5, предзаказ и листы сохранятся из файла.</p>
 <p>Подходит и файл с названием ACTIVE.xlsx, если это прайс-лист Kaspi с колонками SKU, model, brand, price, PP1–PP5, preorder. «Excel-отчёт контроля цен» не подходит.</p>
@@ -29,17 +33,19 @@
 <a href="https://guide.kaspi.kz/partner/ru/shop/goods/price_list/q3348" target="_blank" rel="noopener noreferrer">Требования Kaspi к прайс-листу</a>
 </div>
 <div class="kp-card kp-table"><table>
-<thead><tr><th>Выбрать</th><th>SKU / товар</th><th>Текущая, ₸</th><th>Мин. конкурент, ₸</th><th>Новая, ₸</th><th>Разница, ₸</th><th>Проверка / причина пропуска</th></tr></thead>
+<thead><tr><th>Выбрать</th><th>SKU / товар</th><th>Текущая, ₸</th><th>Мин. конкурент, ₸</th><th>Допустимый минимум, ₸</th><th>Новая, ₸</th><th>Разница, ₸</th><th>Проверка / причина пропуска</th></tr></thead>
 <tbody>{% for item in plan %}<tr>
 <td>{% if not item.reason %}<input type="checkbox" name="selected" value="{{ item.id }}" {% if item.selected %}checked{% endif %} aria-label="Выбрать {{ item.sku }}">{% endif %}</td>
 <td>{{ item.sku }}<small>{{ item.title }}</small></td>
 <td class="money">{{ item.current|default_if_none:"—"|intcomma }}</td>
 <td class="money">{{ item.minimum|default_if_none:"—"|intcomma }}</td>
+<td><input type="number" name="floor_{{ item.id }}" value="{{ item.floor|default_if_none:'' }}" min="1" max="999999999" step="1" aria-label="Минимальная цена {{ item.sku }}"></td>
 <td class="money">{% if not item.reason %}<strong>{{ item.new|intcomma }}</strong>{% else %}—{% endif %}</td>
 <td class="money {% if item.delta > 0 %}increase{% endif %}">{% if not item.reason %}{{ item.delta|intcomma }}{% else %}—{% endif %}</td>
 <td>{{ item.reason }}<small>{{ item.checked_at|date:"d.m.Y H:i"|default:"Дата проверки отсутствует" }}</small></td>
-</tr>{% empty %}<tr><td colspan="7">Сначала загрузите ACTIVE.xlsx и результаты мониторинга в контроле цен.</td></tr>{% endfor %}</tbody>
+</tr>{% empty %}<tr><td colspan="8">Сначала загрузите ACTIVE.xlsx и результаты мониторинга в контроле цен.</td></tr>{% endfor %}</tbody>
 </table></div>
 </form>
 </div>
 {% endblock %}
+
