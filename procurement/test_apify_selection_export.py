@@ -1,6 +1,11 @@
 """Safety regression coverage for the Omega Apify export generator."""
 import json
 from datetime import date
+from urllib.parse import parse_qs, urlsplit
+
+def query_texts(data):
+    return [parse_qs(urlsplit(url).query)['text'][0] for url in data['startUrls'] if 'text' in parse_qs(urlsplit(url).query)]
+
 from decimal import Decimal
 
 from django.contrib.auth import get_user_model
@@ -52,12 +57,13 @@ class OmegaApifyExportTests(TestCase):
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.content)
         self.assertEqual(data['cities'], list(APIFY_CITIES))
-        self.assertEqual(data['searchQueries'], ['Рулевой наконечник 085066', '085066', 'Рулевой наконечник 85066', '85066', 'Колодки 100200', '100200'])
+        self.assertEqual(query_texts(data), ['Рулевой наконечник 085066', 'Колодки 100200'])
         self.assertEqual(data['maxItemsPerQuery'], 20)
         self.assertEqual(data['maxItems'], 0)
-        self.assertEqual(data['sortOrder'], 'price-asc')
+        self.assertEqual(data['sortOrder'], 'relevance')
         self.assertTrue(data['includeOffers'])
-        self.assertEqual(data['startUrls'], [])
+        self.assertEqual(data['searchQueries'], [])
+        self.assertTrue(all(':category:Replacement parts' == parse_qs(urlsplit(url).query)['q'][0] for url in data['startUrls']))
         self.assertEqual(self.first.cost, Decimal('2000'))
 
     def test_selected_supplier_price_threshold_is_respected_on_export(self):
@@ -71,13 +77,13 @@ class OmegaApifyExportTests(TestCase):
         response = self.client.get(reverse('procurement:selection_apify_json'))
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.content)
-        self.assertIn('LOW-001', data['searchQueries'])
+        self.assertIn('Рычаг LOW-001', query_texts(data))
         self.rule.min_cost = Decimal('2000')
         self.rule.save(update_fields=['min_cost'])
         higher = self.client.get(reverse('procurement:selection_apify_json'))
-        self.assertNotIn('LOW-001', json.loads(higher.content)['searchQueries'])
-        self.assertIn('085066', data['searchQueries'])
-        self.assertEqual(data['sortOrder'], 'price-asc')
+        self.assertNotIn('Рычаг LOW-001', query_texts(json.loads(higher.content)))
+        self.assertIn('Рулевой наконечник 085066', query_texts(data))
+        self.assertEqual(data['sortOrder'], 'relevance')
         self.assertEqual(data['maxItemsPerQuery'], 20)
 
     def test_configurable_cities_and_cards(self):
@@ -98,9 +104,9 @@ class OmegaApifyExportTests(TestCase):
         response = self.client.get(url, {'format': 'mapping'})
         self.assertEqual(response.status_code, 200)
         rows = json.loads(response.content)['mapping']
-        self.assertEqual(len(rows), 6)
+        self.assertEqual(len(rows), 2)
         self.assertEqual(rows[0]['offer_id'], self.first.pk)
-        self.assertEqual(rows[1]['original_article'], '085066')
+        self.assertEqual(rows[0]['original_article'], '085066')
         self.assertEqual(before, list(Offer.objects.order_by('pk').values_list('pk', 'cost', 'stock')))
         self.assertEqual(self.client.get(url, {'batch': 2}).status_code, 404)
 
@@ -110,7 +116,7 @@ class OmegaApifyExportTests(TestCase):
             category='Рулевой наконечник', cost=Decimal('2001'), stock='3',
             applicability=str(date.today().year))
         queries = [row['query'].casefold() for row in apify_queries(self.rule)]
-        self.assertEqual(queries.count('85066'), 1)
+        self.assertEqual(queries.count('85066'), 0)
         self.assertEqual(len(queries), len(set(queries)))
 
     def test_known_urls_exported_only_for_batch_skus(self):
@@ -120,5 +126,7 @@ class OmegaApifyExportTests(TestCase):
         self.second.save()
         response = self.client.get(reverse('procurement:selection_apify_json'))
         data = json.loads(response.content)
-        self.assertEqual(data['startUrls'], ['https://kaspi.kz/shop/p/part-123456789/'])
-        self.assertEqual(data['searchQueries'], ['Рулевой наконечник 085066', '085066', 'Рулевой наконечник 85066', '85066', 'Колодки 100200', '100200'])
+        self.assertIn('https://kaspi.kz/shop/p/part-123456789/', data['startUrls'])
+        self.assertEqual(len(data['startUrls']),3)
+        self.assertEqual(query_texts(data), ['Рулевой наконечник 085066', 'Колодки 100200'])
+

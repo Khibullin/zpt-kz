@@ -93,22 +93,9 @@ def article_variants(article):
 
 def apify_queries(rule):
     """Build query-to-offer mapping before pagination: batch size is selected at export."""
-    seen = set()
-    result = []
-    from .kaspi_search_queries import procurement_search_queries
-    rows = filtered_offers(rule).values('id', 'brand', 'article', 'name').iterator(chunk_size=1000)
-    for offer in rows:
-        brand = str(offer['brand'] or '').strip()
-        for article in article_variants(offer['article']):
-            for query in procurement_search_queries(brand, article, offer['name']):
-                key = query.casefold()
-                if not brand or key in seen:
-                    continue
-                seen.add(key)
-                result.append({'query': query, 'offer_id': offer['id'],
-                               'brand': brand, 'article': article,
-                               'original_article': offer['article']})
-    return result
+    from .kaspi_category_search import category_mapping
+    rows = filtered_offers(rule).values('id', 'brand', 'article', 'name', 'category').iterator(chunk_size=1000)
+    return category_mapping(rows)
 
 
 def known_card_urls(rows, supplier_id=None):
@@ -188,12 +175,14 @@ def selection_apify_json(request):
         payload = {'batch': batch, 'source': saved.details.get('supplier_name', 'Omega') if saved_id else str(rule.supplier or ''), 'request_id': saved_id, 'mapping': rows}
         filename = f'apify_mapping_{saved_id}_{batch:02d}.json' if saved_id else f'apify_mapping_{batch:02d}.json'
     else:
-        modern = not saved_id or saved.details.get('search_policy') == 'name_article_v5'
+        from .kaspi_category_search import SEARCH_POLICY
+        if saved_id and saved.details.get('search_policy') != SEARCH_POLICY:
+            return JsonResponse({'error': 'Старый INPUT заменён поиском в категории. Нажмите «Сформировать JSON для Apify», чтобы создать исправленный запрос.'}, status=400)
         payload = {
-            'searchQueries': [row['query'] for row in rows],
-            'startUrls': known_card_urls(rows, saved.details.get('supplier_id') if saved_id else rule.supplier_id),
+            'searchQueries': [],
+            'startUrls': [row['url'] for row in rows] + known_card_urls(rows, saved.details.get('supplier_id') if saved_id else rule.supplier_id),
             'cities': cities,
-            'sortOrder': 'price-asc' if modern else 'relevance',
+            'sortOrder': 'relevance',
             'maxItems': 0,
             'maxItemsPerQuery': cards,
             'includeOffers': True,
@@ -212,3 +201,4 @@ def selection_apify_json(request):
                             content_type='application/json; charset=utf-8')
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
     return response
+

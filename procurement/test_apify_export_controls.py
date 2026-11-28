@@ -23,7 +23,7 @@ class ApifyExportControlsTests(TestCase):
             filename='source.xlsx', checked_on=date.today(), sha256='source', status='done', row_count=1,
             rows=[dict(brand='TEST', article='A', name='Рычаг', cost='6000', stock='3', category='Рычаг')])
         cls.saved = Activity.objects.create(user=cls.user, action=REQUEST_ACTION, details={
-            'supplier_id': cls.phaeton.pk, 'supplier_name': cls.phaeton.name,
+            'search_policy':'category_name_article_v6', 'supplier_id': cls.phaeton.pk, 'supplier_name': cls.phaeton.name,
             'number': 1, 'title': 'Запрос №1', 'query_count': 9915,
             'total': 7770, 'min_cost': '2000', 'price_batch_id': cls.price.pk,
             'price_sha256': cls.price.sha256, 'category_keys': ['рычаг']})
@@ -35,7 +35,7 @@ class ApifyExportControlsTests(TestCase):
         self.client.force_login(self.user)
 
     def test_all_sizes_cover_exactly_the_same_queries_without_overlap(self):
-        queries = [dict(query=f'TEST A{i}', brand='TEST', article=f'A{i}') for i in range(9915)]
+        queries = [dict(query=f'TEST A{i}', url=f'https://kaspi.kz/shop/search/?text=TEST+A{i}&q=%3Acategory%3AReplacement+parts', brand='TEST', article=f'A{i}') for i in range(9915)]
         url = reverse('procurement:selection_apify_json')
         with patch('procurement.omega_selection_requests.request_queries', return_value=queries):
             for size, count in [(500,20),(1000,10),(1500,7),(2000,5)]:
@@ -45,13 +45,13 @@ class ApifyExportControlsTests(TestCase):
                         'batch_size': size, 'city': ['Almaty'], 'cards': 3})
                     self.assertEqual(response.status_code, 200)
                     data = json.loads(response.content)
-                    self.assertLessEqual(len(data['searchQueries']), size)
+                    self.assertLessEqual(len(data['startUrls']), size)
                     self.assertEqual(data['cities'], ['Almaty'])
                     self.assertEqual(data['maxItemsPerQuery'], 3)
-                    collected.extend(data['searchQueries'])
+                    collected.extend(data['startUrls'])
                     if size != 500:
                         self.assertIn(f'_size{size}.json', response['Content-Disposition'])
-                self.assertEqual(collected, [item['query'] for item in queries])
+                self.assertEqual(collected, [item['url'] for item in queries])
                 self.assertEqual(self.client.get(url, {'request_id': self.saved.pk,
                     'batch_size': size, 'batch': count+1}).status_code, 404)
 
@@ -64,15 +64,15 @@ class ApifyExportControlsTests(TestCase):
 
     def test_default_is_1000_and_explicit_500_links_still_work(self):
         with patch('procurement.omega_selection_requests.request_queries', return_value=[
-                dict(query=f'TEST {i}') for i in range(1001)]):
+                dict(query=f'TEST {i}', url=f'https://kaspi.kz/shop/search/?text=TEST+{i}&q=%3Acategory%3AReplacement+parts') for i in range(1001)]):
             response = self.client.get(reverse('procurement:selection_apify_json'), {'request_id': self.saved.pk})
-        self.assertEqual(len(json.loads(response.content)['searchQueries']), 1000)
+        self.assertEqual(len(json.loads(response.content)['startUrls']), 1000)
         self.assertIn('_size1000.json', response['Content-Disposition'])
         with patch('procurement.omega_selection_requests.request_queries', return_value=[
-                dict(query=f'TEST {i}') for i in range(1001)]):
+                dict(query=f'TEST {i}', url=f'https://kaspi.kz/shop/search/?text=TEST+{i}&q=%3Acategory%3AReplacement+parts') for i in range(1001)]):
             response = self.client.get(reverse('procurement:selection_apify_json'),
                 {'request_id': self.saved.pk, 'batch_size': 500})
-        self.assertEqual(len(json.loads(response.content)['searchQueries']), 500)
+        self.assertEqual(len(json.loads(response.content)['startUrls']), 500)
         self.assertIn(f'apify_input_{self.saved.pk}_01.json', response['Content-Disposition'])
 
     def test_page_recomputes_main_and_historical_batches(self):
@@ -144,11 +144,11 @@ class ApifyExportControlsTests(TestCase):
         self.saved.save(update_fields=['details'])
         before = self.saved.details.copy()
         with patch('procurement.omega_selection_requests.request_queries',
-                   return_value=[dict(query='Рычаг A', brand='TEST', article='A')]):
+                   return_value=[dict(query='Рычаг A',url='https://kaspi.kz/shop/search/?text=arm+A&q=%3Acategory%3AReplacement+parts',brand='TEST',article='A')]):
             response = self.client.get(reverse('procurement:selection_apify_json'),
                 {'request_id': self.saved.pk, 'batch_size': 1000})
         self.assertEqual(response.status_code, 200, response.content)
-        self.assertEqual(json.loads(response.content)['searchQueries'], ['Рычаг A'])
+        self.assertEqual(json.loads(response.content)['startUrls'], ['https://kaspi.kz/shop/search/?text=arm+A&q=%3Acategory%3AReplacement+parts'])
         self.saved.refresh_from_db()
         self.assertEqual(self.saved.details, before)
 
@@ -156,4 +156,5 @@ class ApifyExportControlsTests(TestCase):
         page = self.client.get(reverse('procurement:selection_rules'), {'supplier': self.phaeton.pk})
         self.assertEqual(page.context['selected_batch_size'], 1000)
         self.assertContains(page, 'value="1000" selected')
-        self.assertContains(page, '20261128-minimum-batch1000')
+        self.assertContains(page, '20261128-category-v6')
+

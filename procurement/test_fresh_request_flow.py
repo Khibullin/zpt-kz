@@ -2,6 +2,7 @@
 import hashlib
 import json
 from datetime import date
+from urllib.parse import parse_qs, urlsplit
 from decimal import Decimal
 from unittest.mock import patch
 
@@ -57,8 +58,9 @@ class FreshRequestFlowTests(TestCase):
     def test_new_input_uses_clean_name_complete_article_price_order_and_known_urls(self):
         data = json.loads(self.client.get(reverse('procurement:selection_apify_json'),
             {'request_id': self.saved.pk, 'city': ['Almaty', 'Astana']}).content)
-        self.assertEqual(data['searchQueries'], ['стойка стабилизатора ML-9108R', 'ML-9108R', 'стойка NEW-101', 'NEW-101'])
-        self.assertEqual(data['sortOrder'], 'price-asc')
+        self.assertEqual(data['searchQueries'], [])
+        self.assertEqual([parse_qs(urlsplit(url).query)['text'][0] for url in data['startUrls'] if 'text=' in url], ['стойка стабилизатора ML-9108R', 'стойка NEW-101'])
+        self.assertEqual(data['sortOrder'], 'relevance')
         self.assertEqual(data['maxItemsPerQuery'], 20)
         self.assertEqual(data['cities'], ['Almaty', 'Astana'])
         self.assertTrue(data['includeOffers']); self.assertFalse(data['includeReviews'])
@@ -68,8 +70,8 @@ class FreshRequestFlowTests(TestCase):
         preview = preview_request(batch_id=self.price.pk, categories=['Стойка'], minimum='2000', max_vehicle_age=20)
         self.assertEqual(preview['queries'], len(request_queries(self.saved)))
         self.saved.details['search_policy'] = 'name_article_v4'; self.saved.save()
-        legacy = json.loads(self.client.get(reverse('procurement:selection_apify_json'), {'request_id': self.saved.pk}).content)
-        self.assertEqual(legacy['sortOrder'], 'relevance')
+        legacy = self.client.get(reverse('procurement:selection_apify_json'), {'request_id':self.saved.pk})
+        self.assertEqual(legacy.status_code,400)
 
     def test_whole_fresh_file_uses_its_price_only_and_only_selected_supplier_and_skus(self):
         rows = [self.card('222222222', 'ML-9108R', 18000)] * 500 + [
@@ -217,3 +219,4 @@ class FreshRequestFlowTests(TestCase):
         self.assertEqual(audit.price_evidence['source'],'part2.json')
         self.old.refresh_from_db()
         self.assertEqual(self.old.min_price,Decimal('2000'))
+

@@ -129,9 +129,10 @@ class MultiSupplierPreparationTests(TestCase):
         from .omega_selection_requests import request_queries
         batch = self.batch(self.phaeton)
         saved = save_request(batch_id=batch.pk, categories=['Рычаг'], minimum='2000', user=self.user)
-        self.assertEqual(saved.details['search_policy'], 'name_article_v5')
-        self.assertEqual([row['query'] for row in request_queries(saved)], ['Рычаг SA-1', 'SA-1'])
+        self.assertEqual(saved.details['search_policy'], 'category_name_article_v6')
+        self.assertEqual([row['query'] for row in request_queries(saved)], ['Рычаг SA-1'])
         self.assertEqual(saved.details['query_count'], len(request_queries(saved)))
         saved.details['search_policy'] = 'phaeton_article_queries_v2'
         saved.save()
         self.assertEqual([row['query'] for row in request_queries(saved)], ['555 SA-1', 'SA-1'])
+

@@ -558,18 +558,18 @@ document.addEventListener('DOMContentLoaded',function(){
 @media(max-width:600px){.apify-city-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
 <section class="rule-card step-card" aria-labelledby="apify-step-title">
-  <div class="step-heading policy-heading"><div class="step-heading-main"><span class="step-number">2</span><div><h2 id="apify-step-title">Подготовка для Apify</h2><p class="muted">Поиск по наименованию и полному артикулу без бренда; бренд проверяется в результатах. Запуск вручную в Apify, без изменения товаров на сайте.</p></div></div>
+  <div class="step-heading policy-heading"><div class="step-heading-main"><span class="step-number">2</span><div><h2 id="apify-step-title">Подготовка для Apify</h2><p class="muted">Поиск по наименованию и полному артикулу в категории «Автозапчасти» Kaspi; бренд проверяется в результатах. Запуск вручную в Apify, без изменения товаров на сайте.</p></div></div>
   <details class="step-policy" id="rules-apify">
     <summary>Правила</summary>
     <div class="step-policy-content"><ol>
-      <li><strong>Поиск Apify — наименование детали и полный артикул без бренда, дополнительно полный артикул отдельно. Известные ссылки карточек добавляются в JSON; совпадение проверяется по бренду и полному артикулу самой найденной карточки. Старые сохранённые запросы сохраняют прежнюю схему поиска.</strong></li>
+      <li><strong>Поиск Apify — название детали и полный артикул в категории «Автозапчасти», для стабилизаторов — «Стабилизатор, крепление». Поиск только по артикулу и общий поиск без категории не запускаются. Проверенные ссылки выбранных SKU добавляются отдельно. Бренд и полный артикул сверяются по самой карточке. Для старого запроса кнопка формирования создаёт исправленную копию с тем же прайсом, товарами и порогом; история сохраняется.</strong></li>
       <li><strong>Города — выбор галочками из доступного списка. Проверка Алматы и Астаны не подтверждает минимум по всему Казахстану.</strong></li>
       <li><strong>Карточки Kaspi — до 20 на запрос, по умолчанию 20. Увеличение охвата может увеличить расходы Apify.</strong></li>
-      <li><strong>Продавцы — все доступные предложения. Новые INPUT сортируют карточки по цене по возрастанию (price-asc).</strong></li>
+      <li><strong>Продавцы — все доступные предложения. Карточки поиска — сначала наиболее подходящие (relevance), чтобы дешёвые посторонние товары не вытесняли нужный артикул. Минимальная цена выбирается после сопоставления среди полученных подходящих карточек и продавцов.</strong></li>
       <li><strong>Отзывы — не загружать.</strong></li>
       <li><strong>Партия JSON — 500, 1 000, 1 500 или 2 000 запросов; по умолчанию 1 000.</strong> Размер меняет число файлов, но не общий объём проверки.</li>
       <li><strong>Сброс подготовки</strong> убирает текущий запрос из блока и возвращает к выбору товаров. Прайсы, история запросов и результаты проверок сохраняются; внешние запуски Apify не отменяются.</li>
-      <li><strong>Дубли запросов — исключать.</strong> Сначала обработать сохранённые выгрузки; новый платный поиск — для пропусков. Лимит карточек ограничивает полноту поиска, отсутствие результата не доказывает отсутствие товара.</li>
+      <li><strong>Дубли одинаковых поисковых ссылок — исключать. Число партий считается по поисковым ссылкам, а каждый файл выполняется во всех выбранных городах: уменьшение числа городов не меняет число файлов.</strong> Сначала обработать сохранённые выгрузки; новый платный поиск — для пропусков. Лимит карточек ограничивает полноту поиска, отсутствие результата не доказывает отсутствие товара.</li>
       <li><strong>Лимит Apify — до $10 на запуск, вручную.</strong></li>
       <li><strong>Результат — JSON для поиска и проверки цен Kaspi.</strong></li>
     </ol></div>
@@ -608,14 +608,14 @@ document.addEventListener('DOMContentLoaded',function(){
     <select id="apify-export-request">
       <option value="">Выберите запрос или завершите отбор в блоке №1</option>
       {% for saved in omega_requests %}{% if saved.id %}
-      <option value="{{ saved.id|unlocalize }}" data-min-cost="{{ saved.details.min_cost|unlocalize }}"{% if saved.id == just_saved_request.pk %} selected{% endif %}>{{ saved.details.title }} · {{ saved.details.total }} товаров · от {{ saved.details.min_cost }} ₸</option>
+      <option value="{{ saved.id|unlocalize }}" data-min-cost="{{ saved.details.min_cost|unlocalize }}" data-search-policy="{{ saved.details.search_policy }}"{% if saved.id == just_saved_request.pk %} selected{% endif %}>{{ saved.details.title }} · {{ saved.details.total }} товаров · от {{ saved.details.min_cost }} ₸</option>
       {% endif %}{% endfor %}
     </select>
     <button type="button" class="primary" id="apify-generate">Сформировать JSON для Apify</button>
     <span id="apify-generate-status" class="muted" role="status" aria-live="polite"></span>
   </div>
   <div class="step-line" id="apify-generated-files">
-    {% if just_saved_request %}
+    {% if just_saved_request.details.search_policy == 'category_name_article_v6' %}
       <span><strong>{{ just_saved_request.details.title }}</strong>: {{ just_saved_request.details.total }} товаров, {{ just_saved_request.details.query_count }} поисковых запросов. Скачайте партии:</span>
       <span class="step-line" data-apify-batches data-primary="1" data-request-id="{{ just_saved_request.pk|unlocalize }}" data-query-count="{{ just_saved_request.details.query_count|unlocalize }}" data-export-url="{% url 'procurement:selection_apify_json' %}">
       {% for batch in just_saved_batches %}
@@ -623,10 +623,10 @@ document.addEventListener('DOMContentLoaded',function(){
       {% endfor %}</span>
       <small data-apify-file-count aria-live="polite">Файлов: {{ just_saved_batches|length }}</small>
     {% else %}
-      <span>Выберите сохранённый запрос выше и нажмите «Сформировать JSON для Apify». Для нового отбора сначала выберите товары в блоке №1 и сохраните запрос.</span>
+      <span>Выберите сохранённый запрос выше и нажмите «Сформировать JSON для Apify». Старый запрос будет скопирован с исправленным поиском в категории; прайс, выбранные товары и закупочный порог сохранятся. Старые скачанные INPUT повторно не используйте.</span>
     {% endif %}
   </div>
-  {% load static %}<script src="{% static 'procurement/js/apify_exports.js' %}?v=20261128-minimum-batch1000" defer></script>
+  {% load static %}<script src="{% static 'procurement/js/apify_exports.js' %}?v=20261128-category-v6" defer></script>
 </section>
 
 <section class="rule-card step-card" aria-labelledby="buying-step-title">
@@ -778,3 +778,4 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 {% load static %}<script src="{% static 'procurement/price_updates.js' %}" defer></script>
 {% endblock %}
+

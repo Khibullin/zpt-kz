@@ -89,7 +89,7 @@
     files.hidden = requestSelect.value !== currentRequest;
     status.textContent = 'Нажмите «Сформировать JSON для Apify».';
   });
-  generate.addEventListener('click', () => {
+  generate.addEventListener('click', async () => {
     if (!selectedCities().length) {
       error.textContent = 'Выберите хотя бы один город.'; error.hidden = false; return;
     }
@@ -113,6 +113,32 @@
       status.textContent = 'Выберите сохранённый запрос в списке выше либо выберите товары и сохраните новый запрос в блоке №1.';
       requestSelect.focus(); return;
     }
+    const option = requestSelect.options[requestSelect.selectedIndex];
+    if (option.dataset.searchPolicy !== 'category_name_article_v6') {
+      generate.disabled = true;
+      status.textContent = 'Готовлю исправленный запрос: название, артикул и категория Kaspi…';
+      try {
+        const data = new FormData();
+        data.append('csrfmiddlewaretoken', document.querySelector('[name="csrfmiddlewaretoken"]').value);
+        data.append('action', 'upgrade_apify_category_request');
+        data.append('request_id', requestSelect.value);
+        data.append('supplier', document.getElementById('price_supplier').value);
+        const response = await fetch(window.location.href, {
+          method: 'POST', credentials: 'same-origin', body: data,
+          headers: {'X-Requested-With': 'XMLHttpRequest'}
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Не удалось подготовить запрос.');
+        const url = new URL(configure(window.location.href));
+        url.searchParams.set('saved_request', result.request_id);
+        url.hash = 'apify-step-title';
+        window.location.assign(url.href);
+      } catch (error) {
+        status.textContent = error.message || 'Ошибка подготовки. Повторите попытку.';
+        generate.disabled = false;
+      }
+      return;
+    }
     if (requestSelect.value === currentRequest) {
       rebuild(); updateLinks(); files.hidden = false;
       status.textContent = 'JSON подготовлены. Скачайте нужные партии ниже.';
@@ -129,3 +155,4 @@
   });
   updateLinks();
 })();
+

@@ -209,6 +209,12 @@ def request_rows(saved):
 
 
 def request_queries(saved):
+    from .kaspi_category_search import SEARCH_POLICY, category_mapping
+    if saved.details.get('search_policy') == SEARCH_POLICY:
+        try:
+            return category_mapping(request_rows(saved))
+        except ValueError as error:
+            raise ValidationError(str(error)) from error
     from .selection_exports import article_variants
     from .kaspi_search_queries import sku_search_queries
     seen = {}
@@ -265,15 +271,14 @@ def save_request(*, batch_id, categories, minimum, user,
     previous = list(request_history(batch.supplier).select_related(None).select_for_update().only('id', 'details'))
     number = max((int(item.details.get('number', 0)) for item in previous),
                  default=1 if batch.supplier.name == 'Omega' else 0) + 1
-    from .selection_exports import article_variants
-    from .kaspi_search_queries import procurement_search_queries
-    queries = set()
-    for row in filtered:
-        for article in article_variants(row.get('article')):
-            queries.update(q.casefold() for q in procurement_search_queries(row['brand'], article, row.get('name', '')))
+    from .kaspi_category_search import SEARCH_POLICY, category_mapping
+    try:
+        queries = category_mapping(filtered)
+    except ValueError as error:
+        raise ValidationError(str(error)) from error
     return Activity.objects.create(user=user, action=REQUEST_ACTION, details={
         'supplier_id': batch.supplier_id, 'supplier_name': batch.supplier.name,
-        'search_policy': 'name_article_v5', 'processing_policy': 'request_snapshot_v1',
+        'search_policy': SEARCH_POLICY, 'processing_policy': 'request_snapshot_v1',
         'fresh_checked_keys': sorted(excluded_keys),
         'number': number, 'title': f'Запрос №{number}',
         'price_batch_id': batch.pk, 'price_sha256': batch.sha256,
@@ -302,11 +307,39 @@ def preview_request(*, batch_id, categories, minimum, max_vehicle_age, in_stock_
     selected, unknown_age = pick_rows(batch, keys, minimum, max_vehicle_age, in_stock_only, exclude_springs, ())
     from .request_snapshot_import import validate_snapshot_rows
     validate_snapshot_rows(selected)
-    from .selection_exports import article_variants, JSON_BATCH_SIZE
-    from .kaspi_search_queries import procurement_search_queries
-    queries = {q.casefold() for row in selected for variant in article_variants(row['article'])
-               for q in procurement_search_queries(row['brand'], variant, row.get('name', ''))}
+    from .selection_exports import JSON_BATCH_SIZE
+    from .kaspi_category_search import category_mapping
+    try:
+        queries = category_mapping(selected)
+    except ValueError as error:
+        raise ValidationError(str(error)) from error
     return {'categories': len(keys), 'products': len(selected),
             'queries': len(queries),
             'batches': (len(queries) + JSON_BATCH_SIZE - 1) // JSON_BATCH_SIZE,
             'unknown_age': unknown_age}
+
+
+
+@transaction.atomic
+def upgrade_category_request(saved, user):
+    """Explicit generation creates an immutable new revision, preserving old inputs."""
+    from .kaspi_category_search import SEARCH_POLICY, category_mapping
+    if saved.details.get('search_policy') == SEARCH_POLICY:
+        return saved
+    supplier = Supplier.objects.select_for_update().get(pk=saved.details['supplier_id'])
+    previous = list(request_history(supplier).select_related(None).only('id', 'details'))
+    existing = next((item for item in previous if item.details.get('upgraded_from') == saved.pk
+                     and item.details.get('search_policy') == SEARCH_POLICY), None)
+    if existing:
+        return existing
+    try:
+        mapping = category_mapping(request_rows(saved))
+    except ValueError as error:
+        raise ValidationError(str(error)) from error
+    if not mapping:
+        raise ValidationError('В сохранённом запросе нет товаров для поиска.')
+    number = max((int(item.details.get('number', 0)) for item in previous), default=0) + 1
+    details = dict(saved.details, search_policy=SEARCH_POLICY, processing_policy='request_snapshot_v1',
+                   upgraded_from=saved.pk, number=number, title=f'Запрос №{number}',
+                   query_count=len(mapping), status='Подготовлен')
+    return Activity.objects.create(user=user, action=REQUEST_ACTION, details=details)

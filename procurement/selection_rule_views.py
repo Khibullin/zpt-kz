@@ -313,6 +313,20 @@ def selection_rules(request):
                 session.save(update_fields=['details'])
             return JsonResponse({'error': 'Партия не завершена. Повторите обработку.'}, status=500)
         return JsonResponse(progress)
+    if request.method == 'POST' and request.POST.get('action') == 'upgrade_apify_category_request':
+        from django.http import JsonResponse
+        from .models import Activity
+        from .omega_selection_requests import REQUEST_ACTION, upgrade_category_request
+        try:
+            saved = Activity.objects.get(pk=int(request.POST.get('request_id', '0')),
+                action=REQUEST_ACTION, details__supplier_id=omega.pk)
+            corrected = upgrade_category_request(saved, request.user)
+        except (Activity.DoesNotExist, ValidationError, ValueError, TypeError, PriceUpdate.DoesNotExist) as error:
+            detail = '; '.join(error.messages) if isinstance(error, ValidationError) else 'Выберите запрос текущего поставщика.'
+            return JsonResponse({'error': detail}, status=400)
+        request.session['apify_prepared_request_id'] = corrected.pk
+        request.session.pop('apify_buying_session_id', None)
+        return JsonResponse({'request_id': corrected.pk, 'title': corrected.details['title']})
     if request.method == 'POST' and request.POST.get('action') in ('preview_omega_request', 'save_omega_request'):
         if not str(request.POST.get('price_batch_id', '')).isdigit() or not PriceUpdate.objects.filter(pk=request.POST['price_batch_id'], supplier=omega).exists():
             from django.http import JsonResponse
@@ -491,3 +505,4 @@ def selection_rules(request):
                           json_batch_size=JSON_BATCH_SIZE,
                           buying_total=buying_total, last_import=last_import,
                           apify_buying_summary=apify_buying_summary))
+

@@ -158,6 +158,13 @@ def import_apify_recheck_results(raw, filename, user, *, selection_request=None,
                 or row.get('currency', 'KZT') != 'KZT'):
             stats['invalid'] += 1
             continue
+        if selection_request is not None:
+            from .kaspi_category_search import SEARCH_POLICY, explicit_non_parts_category
+            if (selection_request.details.get('search_policy') == SEARCH_POLICY
+                    and explicit_non_parts_category(row.get('category'))):
+                stats['unmatched'] += 1
+                stats['recheck_unrelated'] += 1
+                continue
         tokens = article_tokens(title)
         by_article = index.get(brand, {})
         matching = [offer for token in tokens
@@ -194,6 +201,8 @@ def import_apify_recheck_results(raw, filename, user, *, selection_request=None,
             evidence = seller_evidence(row, seller, PurePath(evidence_filename or filename).name[:255])
             if selection_request is not None:
                 evidence.update(selection_request_id=selection_request.pk,
+                    search_policy=selection_request.details.get('search_policy', ''),
+                    kaspi_category=row.get('category', ''),
                     price_batch_id=selection_request.details['price_batch_id'],
                     supplier_checked_on=selection_request.details.get('checked_on', ''),
                     supplier_stock=offer.stock, supplier_title=offer.name,
@@ -282,3 +291,4 @@ def import_apify_recheck_results(raw, filename, user, *, selection_request=None,
                 stats['rejected_below_50'] += 1
     # Only the audit table is altered. No old product or purchase is changed.
     return stats
+
