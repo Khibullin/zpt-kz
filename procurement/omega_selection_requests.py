@@ -172,7 +172,7 @@ def category_usage(saved_requests, include_legacy=True):
     return {key: sorted(numbers) for key, numbers in usage.items()}
 
 
-def get_display_history(saved_requests, include_legacy=True, batch_size=500):
+def get_display_history(saved_requests, include_legacy=True, batch_size=1000):
     """Historical request is shown as a disclosure, not falsified as an Apify run."""
     history = [{'id': item.pk, 'details': item.details,
                 'created_at': item.created_at, 'legacy': False,

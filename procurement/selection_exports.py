@@ -19,7 +19,7 @@ from .models import Offer, WholesaleSelectionRule
 from .selection_rule_views import _stock_filter, _group_filter, matching_years
 from .views import access
 
-JSON_BATCH_SIZE = 500
+JSON_BATCH_SIZE = 1000
 EXPORT_BATCH_SIZES = (500, 1000, 1500, 2000)
 
 
@@ -33,7 +33,6 @@ def export_batch_size(value):
     return size
 
 from .apify_cities import APIFY_CITIES
-APIFY_MIN_SUPPLIER_COST = Decimal('2000')
 from .kaspi_search_queries import MAX_ITEMS_PER_QUERY
 APIFY_MAX_ITEMS_PER_QUERY = MAX_ITEMS_PER_QUERY
 
@@ -44,7 +43,7 @@ def filtered_offers(rule):
     rows = Offer.objects.filter(supplier__name__in=ACTIVE_SUPPLIER_NAMES)
     if rule.supplier_id:
         rows = rows.filter(supplier_id=rule.supplier_id)
-    rows = rows.filter(cost__gte=max(rule.min_cost, APIFY_MIN_SUPPLIER_COST))
+    rows = rows.filter(cost__gte=rule.min_cost)
     if rule.in_stock_only:
         rows = rows.filter(_stock_filter())
     rows = rows.filter(_group_filter(rule.category_groups, rule.classification_mode))
@@ -93,7 +92,7 @@ def article_variants(article):
 
 
 def apify_queries(rule):
-    """Build query-to-offer mapping before pagination: one batch is 500 queries."""
+    """Build query-to-offer mapping before pagination: batch size is selected at export."""
     seen = set()
     result = []
     from .kaspi_search_queries import procurement_search_queries
@@ -162,8 +161,6 @@ def selection_apify_json(request):
         from .omega_selection_requests import REQUEST_ACTION, request_queries
         try:
             saved = get_object_or_404(Activity, pk=int(saved_id), action=REQUEST_ACTION)
-            if Decimal(str(saved.details.get('min_cost', 0))) < APIFY_MIN_SUPPLIER_COST:
-                return JsonResponse({'error': 'Порог закупки в сохранённом запросе ниже 2 000 ₸. Для Apify создайте запрос с минимумом 2 000 ₸.'}, status=400)
             mapping = request_queries(saved)
             request.session['apify_prepared_request_id'] = saved.pk
         except (ValueError, TypeError, KeyError):
@@ -209,7 +206,7 @@ def selection_apify_json(request):
             },
         }
         filename = f'apify_input_{saved_id}_{batch:02d}.json' if saved_id else f'apify_input_{batch:02d}.json'
-    if batch_size != JSON_BATCH_SIZE:
+    if batch_size != 500:
         filename = filename.removesuffix('.json') + f'_size{batch_size}.json'
     response = HttpResponse(json.dumps(payload, ensure_ascii=False, indent=2),
                             content_type='application/json; charset=utf-8')

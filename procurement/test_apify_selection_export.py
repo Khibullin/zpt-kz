@@ -45,7 +45,7 @@ class OmegaApifyExportTests(TestCase):
         self.assertEqual(article_variants('100200'), ['100200'])
 
     def test_search_batch_size_and_complete_cities(self):
-        self.assertEqual(JSON_BATCH_SIZE, 500)
+        self.assertEqual(JSON_BATCH_SIZE, 1000)
         self.assertEqual(len(APIFY_CITIES), 10)
         self.assertIn('Kostanay', APIFY_CITIES)
         response = self.client.get(reverse('procurement:selection_apify_json'))
@@ -60,18 +60,22 @@ class OmegaApifyExportTests(TestCase):
         self.assertEqual(data['startUrls'], [])
         self.assertEqual(self.first.cost, Decimal('2000'))
 
-    def test_minimum_2000_kg_supplier_price_is_enforced_on_export(self):
+    def test_selected_supplier_price_threshold_is_respected_on_export(self):
         Offer.objects.create(
             supplier=self.omega, brand='CHEAP', article='LOW-001',
-            name='Не допускать в Apify', category='Рычаг',
+            name='Рычаг LOW-001', category='Рычаг',
             cost=Decimal('1999.99'), stock='10',
             applicability=str(date.today().year))
-        self.rule.min_cost = Decimal('0')
+        self.rule.min_cost = Decimal('1000')
         self.rule.save(update_fields=['min_cost'])
         response = self.client.get(reverse('procurement:selection_apify_json'))
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.content)
-        self.assertNotIn('CHEAP LOW-001', data['searchQueries'])
+        self.assertIn('LOW-001', data['searchQueries'])
+        self.rule.min_cost = Decimal('2000')
+        self.rule.save(update_fields=['min_cost'])
+        higher = self.client.get(reverse('procurement:selection_apify_json'))
+        self.assertNotIn('LOW-001', json.loads(higher.content)['searchQueries'])
         self.assertIn('085066', data['searchQueries'])
         self.assertEqual(data['sortOrder'], 'price-asc')
         self.assertEqual(data['maxItemsPerQuery'], 20)

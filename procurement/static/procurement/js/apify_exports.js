@@ -5,7 +5,7 @@
   const cards = document.getElementById('apify-export-cards');
   const error = document.getElementById('apify-export-error');
   const sizes = new Set([500, 1000, 1500, 2000]);
-  const batchSize = () => sizes.has(Number(sizeSelect.value)) ? Number(sizeSelect.value) : 500;
+  const batchSize = () => sizes.has(Number(sizeSelect.value)) ? Number(sizeSelect.value) : 1000;
   const selectedCities = () => [...controls.querySelectorAll('input[name="city"]:checked')].map(box => box.value);
 
   function configure(href) {
@@ -96,10 +96,6 @@
     error.hidden = true;
     const hasDraft = draft && draft.querySelector('[name="omega_category"]:checked');
     if (hasDraft) {
-      if (Number(draft.querySelector('[name="omega_min_cost"]').value) < 2000) {
-        status.textContent = 'Для Apify задайте закупочную цену от 2 000 ₸ в блоке №1.';
-        draft.scrollIntoView({behavior: 'smooth', block: 'center'}); return;
-      }
       const save = document.getElementById('omega-save-request');
       if (save.disabled) {
         status.textContent = 'Сначала нажмите «Выбрать товары», проверьте результат и сохраните запрос в блоке №1.';
@@ -116,12 +112,6 @@
     if (!requestSelect.value) {
       status.textContent = 'Выберите сохранённый запрос в списке выше либо выберите товары и сохраните новый запрос в блоке №1.';
       requestSelect.focus(); return;
-    }
-    const option = requestSelect.options[requestSelect.selectedIndex];
-    if (Number(option.dataset.minCost) < 2000) {
-      files.hidden = true;
-      status.textContent = 'Этот запрос сохранён с порогом ниже 2 000 ₸. Создайте новый отбор от 2 000 ₸ в блоке №1; прежний запрос остаётся в истории.';
-      return;
     }
     if (requestSelect.value === currentRequest) {
       rebuild(); updateLinks(); files.hidden = false;

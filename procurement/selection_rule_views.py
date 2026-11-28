@@ -360,7 +360,7 @@ def selection_rules(request):
             params = [('supplier', str(omega.pk)), ('saved_request', str(saved.pk))]
             if request.POST.get('apify_export_settings'):
                 try:
-                    size = export_batch_size(request.POST.get('apify_batch_size', 500))
+                    size = export_batch_size(request.POST.get('apify_batch_size', JSON_BATCH_SIZE))
                     cards = int(request.POST.get('apify_cards', 20))
                     if cards not in range(1, 21):
                         raise ValueError

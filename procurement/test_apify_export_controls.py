@@ -62,10 +62,16 @@ class ApifyExportControlsTests(TestCase):
                     {'request_id': self.saved.pk, 'batch_size': value}).status_code, 400)
             generate.assert_not_called()
 
-    def test_default_remains_500_and_old_download_links_work(self):
+    def test_default_is_1000_and_explicit_500_links_still_work(self):
         with patch('procurement.omega_selection_requests.request_queries', return_value=[
-                dict(query=f'TEST {i}') for i in range(501)]):
+                dict(query=f'TEST {i}') for i in range(1001)]):
             response = self.client.get(reverse('procurement:selection_apify_json'), {'request_id': self.saved.pk})
+        self.assertEqual(len(json.loads(response.content)['searchQueries']), 1000)
+        self.assertIn('_size1000.json', response['Content-Disposition'])
+        with patch('procurement.omega_selection_requests.request_queries', return_value=[
+                dict(query=f'TEST {i}') for i in range(1001)]):
+            response = self.client.get(reverse('procurement:selection_apify_json'),
+                {'request_id': self.saved.pk, 'batch_size': 500})
         self.assertEqual(len(json.loads(response.content)['searchQueries']), 500)
         self.assertIn(f'apify_input_{self.saved.pk}_01.json', response['Content-Disposition'])
 
@@ -90,7 +96,7 @@ class ApifyExportControlsTests(TestCase):
                 'action':'reset_apify_preparation', 'supplier':self.phaeton.pk}, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertIsNone(response.context['just_saved_request'])
-        self.assertEqual(response.context['selected_batch_size'], 500)
+        self.assertEqual(response.context['selected_batch_size'], 1000)
         self.assertNotIn('saved_request=', response.redirect_chain[0][0])
         self.assertNotIn('omega_confirmed_preview', self.client.session)
         self.assertEqual(self.client.session['apify_buying_session_id'], 1234)
@@ -132,3 +138,22 @@ class ApifyExportControlsTests(TestCase):
             'supplier':self.omega.pk, 'saved_request':self.saved.pk})
         self.assertIsNone(page.context['just_saved_request'])
         self.assertNotContains(page, f'data-request-id="{self.saved.pk}"')
+
+    def test_saved_1000_threshold_exports_without_changing_request(self):
+        self.saved.details['min_cost'] = '1000'
+        self.saved.save(update_fields=['details'])
+        before = self.saved.details.copy()
+        with patch('procurement.omega_selection_requests.request_queries',
+                   return_value=[dict(query='Рычаг A', brand='TEST', article='A')]):
+            response = self.client.get(reverse('procurement:selection_apify_json'),
+                {'request_id': self.saved.pk, 'batch_size': 1000})
+        self.assertEqual(response.status_code, 200, response.content)
+        self.assertEqual(json.loads(response.content)['searchQueries'], ['Рычаг A'])
+        self.saved.refresh_from_db()
+        self.assertEqual(self.saved.details, before)
+
+    def test_page_defaults_to_1000_and_loads_updated_export_script(self):
+        page = self.client.get(reverse('procurement:selection_rules'), {'supplier': self.phaeton.pk})
+        self.assertEqual(page.context['selected_batch_size'], 1000)
+        self.assertContains(page, 'value="1000" selected')
+        self.assertContains(page, '20261128-minimum-batch1000')
