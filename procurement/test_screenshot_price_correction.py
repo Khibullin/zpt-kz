@@ -4,7 +4,7 @@ from django.test import TestCase, SimpleTestCase
 from django.urls import reverse
 from .models import (Supplier, Offer, Membership, BuyingComparisonMaterial,
                      KaspiPriceAudit, PermanentBuyingItem, Activity)
-from .comparison_screenshot_ai import parsed_screenshot_price, article_agrees
+from .comparison_screenshot_ai import parsed_screenshot_price, article_agrees, manual_article_agrees
 
 
 class ScreenshotPriceParsingTests(SimpleTestCase):
@@ -24,6 +24,16 @@ class ScreenshotArticleFormattingTests(SimpleTestCase):
             self.assertFalse(article_agrees(article, 'ML-9108R'), article)
         self.assertFalse(article_agrees('', ''))
         self.assertFalse(article_agrees('---', ''))
+
+
+class ManualArticleListTests(SimpleTestCase):
+    def test_only_complete_supplier_article_in_list_allows_manual_confirmation(self):
+        for observed in ('AW1320243LR AW1320008LR', 'AW1320008LR; AW1320243LR',
+                         'AW 1320243LR, AW1320008LR'):
+            self.assertTrue(manual_article_agrees(observed, 'AW1320243LR'))
+        for observed in ('AW1320243LRX AW1320008LR', 'AW1320243L AW1320008LR',
+                         'AW1320008LR', '', 'AW1320243LR/OTHER'):
+            self.assertFalse(manual_article_agrees(observed, 'AW1320243LR'))
 
 
 class ScreenshotPriceCorrectionTests(TestCase):
@@ -117,6 +127,38 @@ class ScreenshotPriceCorrectionTests(TestCase):
         self.assertContains(page, 'id="eep-save-status"')
 
 
+    def test_manual_confirm_multiple_articles_transfers_all_fields_into_card(self):
+        self.offer.brand = 'AYWIPARTS'; self.offer.article = 'AW1320243LR'
+        self.offer.cost = Decimal('4769'); self.offer.save()
+        self.audit.cost_snapshot = Decimal('4769'); self.audit.save()
+        payload = {**self.payload, 'brand': 'AYWIPARTS',
+            'article': 'AW1320243LR AW1320008LR',
+            'name': 'Aywiparts опора шаровая AW1320243LR AW1320008LR',
+            'description': 'Опора шаровая', 'specs': 'Тип: опора шаровая',
+            'fitment': 'Nissan Pathfinder, Terrano; 1986–1995', 'oem': 'AW1320243LR',
+            'screenshot_price': '16973 ₸', 'screenshot_product_id': '134866280'}
+        response = self.client.post(self.url, payload)
+        self.assertEqual(response.status_code, 200, response.content)
+        self.material.refresh_from_db(); self.audit.refresh_from_db()
+        self.assertEqual(self.material.kaspi_data['article'], payload['article'])
+        self.assertEqual(self.material.kaspi_data['manual_confirmed_article'], self.offer.article)
+        self.assertEqual(self.material.kaspi_status, 'manual_verified')
+        self.assertEqual(self.audit.product_id, '134866280')
+        self.assertEqual(self.audit.min_price, Decimal('16973'))
+        self.assertEqual(self.audit.profit, Decimal('9832.38'))
+        page = self.client.get(reverse('procurement:comparison', args=[self.offer.pk]),
+            {'apify_source': 'current.json'})
+        for value in ('Опора шаровая', payload['fitment'], payload['specs'], payload['name']):
+            self.assertContains(page, value)
+        listing = self.client.get(reverse('procurement:dashboard'),
+            {'mode': 'best', 'apify_source': 'current.json'})
+        self.assertContains(listing, 'comparison/' + str(self.offer.pk) + '/')
+        self.assertContains(listing, '16\u00a0973')
+        self.other.refresh_from_db(); self.item.refresh_from_db()
+        self.assertEqual(self.other.min_price, Decimal('28000'))
+        self.assertEqual(self.item.kaspi_price_snapshot, Decimal('28627'))
+
+
 class AutomaticScreenshotFillTests(ScreenshotPriceCorrectionTests):
     def recognize(self, fields=None, side_effect=None):
         from unittest.mock import patch
@@ -129,6 +171,15 @@ class AutomaticScreenshotFillTests(ScreenshotPriceCorrectionTests):
             return self.client.post(reverse('procurement:comparison_recognize_screenshots',
                 args=[self.offer.pk]), {'source_file': 'current.json',
                 'product_id': '180093729', 'auto_apply': 'yes'})
+
+    def test_multi_article_card_waits_for_manual_confirmation(self):
+        self.offer.brand = 'AYWIPARTS'; self.offer.article = 'AW1320243LR'; self.offer.save()
+        response = self.recognize({'brand': 'AYWIPARTS',
+            'article': 'AW1320243LR AW1320008LR', 'oem': 'AW1320243LR',
+            'name': 'Aywiparts опора шаровая AW1320243LR AW1320008LR'})
+        self.assertFalse(response.json()['auto_saved'])
+        self.audit.refresh_from_db()
+        self.assertEqual(self.audit.min_price, Decimal('28627'))
 
     def test_automatic_recognition_saves_price_and_preserves_prior_fields(self):
         self.material.kaspi_data.update(fitment='Toyota Land Cruiser', manual_confirmed_at='old')

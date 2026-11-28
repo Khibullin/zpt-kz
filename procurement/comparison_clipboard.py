@@ -49,7 +49,7 @@ def eligible_comparison_offer_ids():
 
 from .comparison_photo_crop import crop_photo, photo_box_from_request
 from .views import access
-from .comparison_screenshot_ai import (recognize_screenshots, article_agrees,
+from .comparison_screenshot_ai import (recognize_screenshots, article_agrees, manual_article_agrees,
                                        price_from_image, parsed_screenshot_price, separate_article_oem,
                                        screenshot_article_fields, FIELDS, TEXT_LIMITS)
 
@@ -249,7 +249,8 @@ def _save_screenshot_fields(request, offer, material, payload, *, photo_box=None
     fields = {field: str(payload.get(field) or '').strip()[:TEXT_LIMITS[field]]
               for field in FIELDS}
     fields = separate_article_oem(screenshot_article_fields(fields), offer.article)
-    if not article_agrees(fields['article'], offer.article):
+    if not (article_agrees(fields['article'], offer.article) if automatic
+            else manual_article_agrees(fields['article'], offer.article)):
         observed = fields['article'] or 'не распознан'
         left_right = (article_agrees(observed[:-1], offer.article[:-1])
                       and {observed[-1:].casefold(), offer.article[-1:].casefold()} == {'l', 'r'})
@@ -340,7 +341,8 @@ def _save_screenshot_fields(request, offer, material, payload, *, photo_box=None
             saved.pop('manual_confirmed_by', None)
             saved.update(auto_applied_at=timezone.now().isoformat(), auto_applied_by=request.user.pk)
         else:
-            saved.update(manual_confirmed_at=timezone.now().isoformat(), manual_confirmed_by=request.user.pk)
+            saved.update(manual_confirmed_at=timezone.now().isoformat(), manual_confirmed_by=request.user.pk,
+                         manual_confirmed_article=offer.article)
         if photo:
             previous = existing.get('images')
             old_remote = [v for v in previous if isinstance(v, str) and

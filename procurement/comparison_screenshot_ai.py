@@ -103,6 +103,22 @@ def article_agrees(extracted, expected):
     return bool(observed and supplier and observed == supplier)
 
 
+def manual_article_agrees(extracted, expected):
+    """A manager may confirm a multi-number card containing the complete SKU.
+
+    Only explicit manual confirmation uses this. Match whole tokens, allowing
+    spaces inside an article; never accept an expected SKU as a substring.
+    """
+    if article_agrees(extracted, expected):
+        return True
+    parts = [part for part in re.split(r'[\s;,|]+', str(extracted or '').strip()) if part]
+    for start in range(len(parts)):
+        for end in range(start + 1, len(parts) + 1):
+            if article_agrees(' '.join(parts[start:end]), expected):
+                return True
+    return False
+
+
 def price_from_image(value):
     """Keep the literal observed amount alongside the separately validated calculation."""
     clean = str(value or '').strip()[:80]
