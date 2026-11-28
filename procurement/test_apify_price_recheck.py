@@ -247,3 +247,13 @@ class ApifyMultiCardRecheckTests(TestCase):
         result = self.send([malformed, self.card('175080373', '51331', 80000)])
         self.assertEqual(result['invalid'], 1)
         self.assertEqual(KaspiPriceAudit.objects.get().min_price, Decimal('80000'))
+
+    def test_many_catalog_articles_do_not_require_row_times_catalog_comparisons(self):
+        from unittest.mock import patch
+        from .apify_price_recheck import normalize_article
+        Offer.objects.bulk_create([Offer(supplier=self.omega, brand='WXQP',
+            article='EXTRA'+str(i), name='Рычаг', cost=3000, stock='3') for i in range(500)])
+        with patch('procurement.apify_price_recheck.normalize_article', wraps=normalize_article) as normalized:
+            self.send([self.card('175080373', '51331', 80000)] * 30)
+        self.assertLess(normalized.call_count, 5000)
+        self.assertEqual(KaspiPriceAudit.objects.get().min_price, Decimal('80000'))

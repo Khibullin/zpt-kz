@@ -71,7 +71,7 @@ def _money(value):
 
 
 def _offer_index(brands):
-    index = defaultdict(list)
+    index = defaultdict(lambda: defaultdict(list))
     if not brands:
         return index
     condition = Q(pk__in=[])
@@ -82,8 +82,8 @@ def _offer_index(brands):
     for offer in Offer.objects.filter(
             condition, supplier__name__in=ACTIVE_SUPPLIER_NAMES).only(
             'id', 'brand', 'article', 'name', 'category',
-            'cost', 'stock').iterator(chunk_size=1500):
-        index[_brand(offer.brand)].append(offer)
+            'cost', 'stock').order_by().iterator(chunk_size=1500):
+        index[_brand(offer.brand)][normalize_article(offer.article)].append(offer)
     return index
 
 
@@ -155,9 +155,10 @@ def import_apify_recheck_results(raw, filename, user):
             stats['invalid'] += 1
             continue
         tokens = article_tokens(title)
-        matching = [offer for offer in index.get(brand, [])
-                    if normalize_article(offer.article) in tokens
-                    and not explicit_execution_conflict(offer.name, title)]
+        by_article = index.get(brand, {})
+        matching = [offer for token in tokens
+                    for offer in by_article.get(token, [])
+                    if not explicit_execution_conflict(offer.name, title)]
         if not matching or len({normalize_article(offer.article) for offer in matching}) != 1:
             stats['unmatched'] += 1
             stats['recheck_unrelated'] += 1

@@ -47,6 +47,7 @@ class Command(BaseCommand):
                 for key, value in result.items():
                     totals[key] = totals.get(key, 0) + value
                 processed += len(rows)
+                self.stderr.write(f'Проверено {processed} / {details["total"]}')
             if processed != details['total']:
                 raise CommandError('Не все исходные строки проверены.')
             after = snapshot()
