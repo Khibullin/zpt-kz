@@ -4,7 +4,7 @@ from django.test import TestCase, SimpleTestCase
 from django.urls import reverse
 from .models import (Supplier, Offer, Membership, BuyingComparisonMaterial,
                      KaspiPriceAudit, PermanentBuyingItem, Activity)
-from .comparison_screenshot_ai import parsed_screenshot_price
+from .comparison_screenshot_ai import parsed_screenshot_price, article_agrees
 
 
 class ScreenshotPriceParsingTests(SimpleTestCase):
@@ -14,6 +14,16 @@ class ScreenshotPriceParsingTests(SimpleTestCase):
         for text in ('', '0', '-6201', 'NaN', '6201 / 2067 x 3', '6201 и 28627', '6 20 1'):
             with self.assertRaises(ValueError):
                 parsed_screenshot_price(text)
+
+
+class ScreenshotArticleFormattingTests(SimpleTestCase):
+    def test_only_spaces_and_dashes_are_ignored(self):
+        for article in ('ML9108R', 'ML 9108R', ' ML–9108R ', 'ml−9108r', 'ML\u00a09108R'):
+            self.assertTrue(article_agrees(article, 'ML-9108R'), article)
+        for article in ('ML9108L', 'ML9108', 'ML09108R', 'ML/9108R', 'ML.9108R', 'ML9108R 123456'):
+            self.assertFalse(article_agrees(article, 'ML-9108R'), article)
+        self.assertFalse(article_agrees('', ''))
+        self.assertFalse(article_agrees('---', ''))
 
 
 class ScreenshotPriceCorrectionTests(TestCase):
@@ -80,6 +90,31 @@ class ScreenshotPriceCorrectionTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.audit.refresh_from_db()
         self.assertEqual(self.audit.min_price, Decimal('28627'))
+
+
+    def test_confirm_masuma_spaced_article_applies_price_to_list(self):
+        self.offer.brand = 'MASUMA'; self.offer.article = 'ML-9108R'
+        self.offer.cost = Decimal('2000'); self.offer.save()
+        self.audit.cost_snapshot = Decimal('2000'); self.audit.save()
+        for article in ('ML 9108R', 'ML9108R', 'ML–9108R'):
+            response = self.client.post(self.url, {**self.payload,
+                'brand': 'MASUMA', 'article': article, 'name': 'MASUMA стойка стабилизатора ML 9108R',
+                'screenshot_product_id': '', 'screenshot_price': '4108 ₸'})
+            self.assertEqual(response.status_code, 200, response.content)
+            self.audit.refresh_from_db(); self.material.refresh_from_db()
+            self.assertEqual(self.audit.min_price, Decimal('4108'))
+            self.assertEqual(self.audit.profit, Decimal('1344.50'))
+            self.assertEqual(self.material.kaspi_data['article'], article)
+            self.assertEqual(self.material.kaspi_status, 'manual_verified')
+        listing = self.client.get(reverse('procurement:dashboard'),
+            {'mode': 'best', 'apify_source': 'current.json'})
+        self.assertContains(listing, 'comparison/' + str(self.offer.pk) + '/')
+        self.assertContains(listing, '4\u00a0108')
+        page = self.client.get(reverse('procurement:comparison', args=[self.offer.pk]),
+            {'apify_source': 'current.json'})
+        self.assertEqual(page.context['kaspi_price'], Decimal('4108'))
+        self.assertContains(page, 'MASUMA стойка стабилизатора ML 9108R')
+        self.assertContains(page, 'id="eep-save-status"')
 
 
 class AutomaticScreenshotFillTests(ScreenshotPriceCorrectionTests):

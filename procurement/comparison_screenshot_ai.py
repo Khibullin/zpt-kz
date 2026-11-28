@@ -95,8 +95,12 @@ def recognize_screenshots(images, *, article, brand, session=None):
 
 
 def article_agrees(extracted, expected):
-    # Punctuation/case are meaningful for supplier identity.
-    return str(extracted or '').strip().casefold() == str(expected or '').strip().casefold()
+    # Owner-approved: spaces and dash typography are formatting only.
+    # Keep every letter/digit, leading zero, slash, dot and L/R suffix.
+    def normalized(value):
+        return re.sub(r'[\s\-\u2010-\u2015\u2212]+', '', str(value or '')).casefold()
+    observed, supplier = normalized(extracted), normalized(expected)
+    return bool(observed and supplier and observed == supplier)
 
 
 def price_from_image(value):

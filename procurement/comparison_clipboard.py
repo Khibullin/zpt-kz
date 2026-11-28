@@ -251,7 +251,7 @@ def _save_screenshot_fields(request, offer, material, payload, *, photo_box=None
     fields = separate_article_oem(screenshot_article_fields(fields), offer.article)
     if not article_agrees(fields['article'], offer.article):
         observed = fields['article'] or 'не распознан'
-        left_right = (observed[:-1].casefold() == offer.article[:-1].casefold()
+        left_right = (article_agrees(observed[:-1], offer.article[:-1])
                       and {observed[-1:].casefold(), offer.article[-1:].casefold()} == {'l', 'r'})
         explanation = 'L/R — разные детали. ' if left_right else ''
         return JsonResponse({'error':
