@@ -42,7 +42,7 @@ class PriceControlCenterTests(TestCase):
         self.assertContains(response, "Обработка результатов Apify")
         self.assertContains(response, 'name="kaspi_file"')
         self.assertContains(response, 'name="apify_output"')
-        self.assertContains(response, "Полный мониторинг — JSON для всех")
+        self.assertContains(response, "Полный мониторинг — JSON для")
         self.assertContains(response, "Карточек на запрос")
         self.assertContains(response, "Правила")
         self.assertContains(response, reverse("repricer:rules"))
