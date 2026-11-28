@@ -63,7 +63,7 @@ def execution_conflict(left, right):
     def facts(text):
         text = str(text or '').casefold()
         side = {key for key, pattern in (
-            ('left', r'лев|\bleft\b'), ('right', r'прав|\bright\b')) if re.search(pattern, text)}
+            ('left', r'\bлев\w*|\bleft\b'), ('right', r'\bправ\w*|\bright\b')) if re.search(pattern, text)}
         axle = {key for key, pattern in (
             ('front', r'перед|\bпер\.|\bfront\b'), ('rear', r'задн|\bзад\.|\brear\b')) if re.search(pattern, text)}
         number = re.search(r'(?<!\d)(\d+)\s*(?:шт\.?|pcs?\b|pieces?\b)', text)

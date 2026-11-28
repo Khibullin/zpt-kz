@@ -41,6 +41,7 @@ class IdentityV2Tests(SimpleTestCase):
         self.assertFalse(article_in_title('ML-9108R','MASUMA ML9108L'))
         self.assertFalse(article_in_title('CQ0735L','CQ0735LX'))
         self.assertTrue(execution_conflict('Рычаг левый CQ0735L','Рычаг правый CQ0735L'))
+        self.assertTrue(execution_conflict('Направляющая левая','Направляющая правая'))
         self.assertTrue(execution_conflict('2 шт.','1 шт.'))
         self.assertFalse(execution_conflict('левый / правый','правый'))
 
