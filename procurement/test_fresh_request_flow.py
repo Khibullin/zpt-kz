@@ -65,7 +65,7 @@ class FreshRequestFlowTests(TestCase):
         self.assertEqual(data['cities'], ['Almaty', 'Astana'])
         self.assertTrue(data['includeOffers']); self.assertFalse(data['includeReviews'])
         self.assertEqual(data['maxOffersPerProduct'], 0)
-        self.assertIn(self.old.card_url, data['startUrls'])
+        self.assertNotIn(self.old.card_url, data['startUrls'])
         self.assertEqual(self.client.session['apify_prepared_request_id'], self.saved.pk)
         preview = preview_request(batch_id=self.price.pk, categories=['Стойка'], minimum='2000', max_vehicle_age=20)
         self.assertEqual(preview['queries'], len(request_queries(self.saved)))

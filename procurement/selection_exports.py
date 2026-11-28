@@ -180,7 +180,7 @@ def selection_apify_json(request):
             return JsonResponse({'error': 'Старый INPUT заменён поиском в категории. Нажмите «Сформировать JSON для Apify», чтобы создать исправленный запрос.'}, status=400)
         payload = {
             'searchQueries': [],
-            'startUrls': [row['url'] for row in rows] + known_card_urls(rows, saved.details.get('supplier_id') if saved_id else rule.supplier_id),
+            'startUrls': [row['url'] for row in rows],
             'cities': cities,
             'sortOrder': 'relevance',
             'maxItems': 0,

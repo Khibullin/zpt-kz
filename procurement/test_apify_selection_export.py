@@ -119,14 +119,14 @@ class OmegaApifyExportTests(TestCase):
         self.assertEqual(queries.count('85066'), 0)
         self.assertEqual(len(queries), len(set(queries)))
 
-    def test_known_urls_exported_only_for_batch_skus(self):
+    def test_known_card_urls_cannot_bypass_category_filter(self):
         self.first.kaspi_url = 'https://kaspi.kz/shop/p/part-123456789/?c=750000000'
         self.first.save()
         self.second.kaspi_url = 'https://example.com/shop/p/part-987654321/'
         self.second.save()
         response = self.client.get(reverse('procurement:selection_apify_json'))
         data = json.loads(response.content)
-        self.assertIn('https://kaspi.kz/shop/p/part-123456789/', data['startUrls'])
-        self.assertEqual(len(data['startUrls']),3)
+        self.assertNotIn('https://kaspi.kz/shop/p/part-123456789/', data['startUrls'])
+        self.assertEqual(len(data['startUrls']),2)
         self.assertEqual(query_texts(data), ['Рулевой наконечник 085066', 'Колодки 100200'])
 
