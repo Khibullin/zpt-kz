@@ -51,6 +51,10 @@ def identity(row):
         sku = str(row.master_sku or '').strip()
         if re.fullmatch(r'[A-Za-z0-9./-]{5,60}', sku) and re.search('[A-Za-z]', sku) and re.search('[0-9]', sku):
             article = sku
+    if product and article and article_key(name) == article_key(article):
+        catalog_name = str(product.title or '').strip()
+        if article_in_title(article, catalog_name) and article_key(catalog_name) != article_key(article):
+            name = catalog_name
     return name, brand, article
 
 

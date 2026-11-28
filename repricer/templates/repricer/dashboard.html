@@ -214,7 +214,7 @@
           </form>
         </details>
         <div class="pc-panel-actions">
-          <button class="pc-button pc-button-primary" type="submit" form="repricer-rules-form" name="action" value="generate">Полный мониторинг — JSON для всех {{ summary.total }}</button>
+          <button class="pc-button pc-button-primary" type="submit" form="repricer-rules-form" name="action" value="generate">Полный мониторинг — JSON для {{ apify_input_ready }} товаров</button>
           {% if active_batch and apify_scan_remaining %}
           <button class="pc-button pc-button-followup" type="submit" form="repricer-rules-form" name="action" value="generate_remaining">Обновить неподтверждённые и устаревшие — {{ apify_scan_remaining }} товаров</button>
           {% endif %}
@@ -222,6 +222,7 @@
           <a class="pc-text-link" href="https://apify.com/firsthand/kaspi-api" target="_blank" rel="noopener noreferrer">Открыть Apify</a>
           <a class="pc-button" href="{% url 'repricer:apify_api' %}">Прогоны Apify и получение результатов</a>
         </div>
+        {% if apify_input_missing %}<p class="pc-file-hint">Не включены в INPUT: {% for row in apify_input_missing %}SKU {{ row.sku }}{% if not forloop.last %}, {% endif %}{% endfor %}. Нужны название детали и полный артикул либо проверенная карточка Kaspi.</p>{% endif %}
 
       </div>
     </section>
@@ -274,10 +275,10 @@
   </div>
   <section class="pc-metrics" aria-label="Статистика">
     <div class="pc-metric"><span>В продаже по ACTIVE.xlsx</span><strong>{{ summary.total }}</strong><span>{% if active_batch %}{{ active_batch.filename }} · {{ active_batch.finished_at|date:"d.m.Y H:i" }}{% else %}Пока показаны привязки ZPT.KZ. Загрузите ACTIVE.xlsx{% endif %}</span></div>
-    <div class="pc-metric"><span>С предложениями конкурентов</span><strong>{{ summary.found }}</strong></div>
-    <div class="pc-metric"><span>Без проверенных предложений</span><strong>{{ summary.missing }}</strong></div>
+    <div class="pc-metric"><span>Со свежими ценами конкурентов</span><strong>{{ summary.found }}</strong></div>
+    <div class="pc-metric"><span>Без свежей цены конкурента</span><strong>{{ summary.missing }}</strong></div>
     <div class="pc-metric"><span>Не сопоставлено с ZPT.KZ</span><strong>{{ summary.unmatched|default:"0" }}</strong></div><div class="pc-metric"><span>Подготовлено цен вручную</span><strong>{{ summary.drafted }}</strong></div>
-    <div class="pc-metric"><span>Последний сбор</span><time>{% if last_collection %}{{ last_collection.captured_at|date:"d.m.Y H:i" }}{% else %}Пока нет{% endif %}</time><span>Городов с данными: {{ covered_city_count }} из {{ city_total }}</span></div>
+    <div class="pc-metric"><span>Последняя проверка</span><time>{% if active_batch %}{% if apify_scan_date %}{{ apify_scan_date|date:"d.m.Y H:i" }}{% else %}Пока нет{% endif %}{% elif last_collection %}{{ last_collection.captured_at|date:"d.m.Y H:i" }}{% else %}Пока нет{% endif %}</time><span>{% if active_batch %}Городов с сохранёнными проверками: {{ apify_saved_city_count }} из {{ apify_rules.cities|length }}{% else %}Городов с данными: {{ covered_city_count }} из {{ city_total }}{% endif %}</span></div>
   </section>
   <form class="pc-filters" method="get" action="{% url 'repricer:dashboard' %}">
     <input name="q" value="{{ search }}" aria-label="Поиск товаров" placeholder="Поиск: артикул, бренд, название, SKU…">

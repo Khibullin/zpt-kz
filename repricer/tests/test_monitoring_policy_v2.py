@@ -31,6 +31,11 @@ class IdentityV2Tests(SimpleTestCase):
         self.assertTrue(_search_match(row,dict(title='CTR рычаг левый CQ0735L',brand='CTR')))
         self.assertFalse(_search_match(row,dict(title='OTHER рычаг CQ0735L',brand='OTHER')))
 
+    def test_article_only_source_name_uses_existing_catalog_name(self):
+        row=self.row();row.product_name='CQ0735L'
+        self.assertEqual(identity(row)[0],'Рычаг CQ0735L')
+        self.assertTrue(input_and_mapping([row],['Almaty'],20)[1][0]['searches'])
+
     def test_full_article_formatting_suffix_and_side(self):
         self.assertTrue(article_in_title('ML-9108R','MASUMA стойка ML 9108R'))
         self.assertFalse(article_in_title('ML-9108R','MASUMA ML9108L'))
@@ -139,6 +144,15 @@ class MonitoringPolicyFlowTests(TestCase):
         KaspiRepricerSearchSettings.objects.filter(pk=1).update(cities=['Almaty','Astana','Shymkent'])
         plan = price_plan(self.batch,self.staff)
         self.assertIn('городов',next(x for x in plan if x['id']==self.active.pk)['reason'])
+
+    def test_dashboard_counts_current_input_and_selected_cities(self):
+        self.ready()
+        page=self.client.get(reverse('repricer:dashboard'))
+        self.assertEqual(page.context['apify_saved_city_count'],2)
+        self.assertEqual(page.context['apify_input_ready'],1)
+        self.assertEqual(page.context['apify_input_missing'][0]['sku'],'UNMAPPED')
+        self.assertContains(page,'Городов с сохранёнными проверками: 2 из 2')
+        self.assertContains(page,'Не включены в INPUT:')
 
     def test_stale_rows_are_included_in_followup_and_tagged_in_dashboard(self):
         self.ready();old=timezone.now()-timedelta(days=2)

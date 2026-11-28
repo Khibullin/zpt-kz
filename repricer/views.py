@@ -322,8 +322,11 @@ def repricer_dashboard(request):
     scan_rows = KaspiActiveExportRow.objects.filter(batch=active_batch) if active_batch else KaspiActiveExportRow.objects.none()
     scan_count = scan_rows.filter(competitor_min_price__isnull=False).count()
     scan_processed = scan_rows.filter(competitor_scan_status__in=["MATCHED", "NO_OFFERS"]).count()
-    from .apify_json import export_units, remaining_input_and_mapping
-    scan_remaining = len(remaining_input_and_mapping(export_units(active_batch), rules.cities, rules.cards_per_product)[1]) if active_batch else 0
+    from .apify_json import export_units, remaining_input_and_mapping, input_and_mapping
+    input_rows = export_units(active_batch) if active_batch else []
+    scan_remaining = len(remaining_input_and_mapping(input_rows, rules.cities, rules.cards_per_product)[1]) if active_batch else 0
+    input_mapping = input_and_mapping(input_rows, rules.cities, rules.cards_per_product)[1]
+    input_missing = [row for row in input_mapping if not row['verified_url'] and not row['searches']]
     scan_only_own = scan_rows.filter(competitor_scan_note="Только предложения нашего продавца AG Parts").count()
     scan_unconfirmed = scan_rows.filter(competitor_scan_status="NOT_CONFIRMED").count()
     scan_review = scan_rows.filter(candidate_price__isnull=False).count()
@@ -357,6 +360,9 @@ def repricer_dashboard(request):
         "collection_cities": KASPI_KZ_CITIES,
         "manual_run": KaspiManualCollectionRun.objects.filter(created_by=request.user).first(),
         "apify_rules": rules,
+        "apify_input_ready": len(input_rows) - len(input_missing),
+        "apify_input_missing": input_missing,
+        "apify_saved_city_count": sum(bool(apify_coverage.get(city, {}).get('checked')) for city in rules.cities),
         "apify_cities": [
             {"code": code, "name": CITY_NAMES_RU[code], "checked": code in rules.cities}
             for code in APIFY_CITIES
