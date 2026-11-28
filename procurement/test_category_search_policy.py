@@ -22,6 +22,8 @@ class CategoryQueryTests(SimpleTestCase):
         self.assertEqual(params['text'], ['стойка стабилизатора ML-9108R'])
         self.assertEqual(params['q'], [':category:Anti Roll Bars'])
         self.assertEqual(params['sort'], ['relevance'])
+        self.assertNotIn('+', entry['url'])
+        self.assertIn('%20', entry['url'])
         self.assertEqual(len(category_mapping([row, row])), 1)
         self.assertEqual(entry['original_article'], 'ML-9108R')
 

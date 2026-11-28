@@ -1,6 +1,6 @@
 """Category-scoped procurement INPUT. No bare SKU or global search fallback."""
 import re
-from urllib.parse import urlencode
+from urllib.parse import quote, urlencode
 
 from .kaspi_search_queries import procurement_search_queries
 
@@ -29,7 +29,7 @@ def search_entry(row):
               else PARTS_CATEGORY)
     url = 'https://kaspi.kz/shop/search/?' + urlencode({
         'text': phrase, 'q': ':category:' + target,
-        'sort': 'relevance', 'filteredByCategory': 'false'})
+        'sort': 'relevance', 'filteredByCategory': 'false'}, quote_via=quote)
     return {**({'offer_id': row['id']} if 'id' in row else {}), 'query': phrase, 'brand': brand, 'article': article,
             'original_article': article, 'category': target, 'url': url}
 
