@@ -337,6 +337,8 @@ def visible_permanent_buying_rows(request, preferences, filters):
             row['previous_roi'] = item.roi_snapshot
             row['kaspi_price'] = audit.min_price
             row['display_cost'] = audit.cost_snapshot
+            from .request_snapshot_import import supplier_snapshot_date
+            row['display_supplier_date'] = supplier_snapshot_date(audit, offer.supplier_checked_on)
             row['profit'] = audit.profit
             row['markup'] = audit.roi
             row['expenses'] = audit.expenses_snapshot

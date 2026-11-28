@@ -565,7 +565,7 @@ document.addEventListener('DOMContentLoaded',function(){
       <li><strong>Поиск Apify — наименование детали и полный артикул без бренда, дополнительно полный артикул отдельно. Известные ссылки карточек добавляются в JSON; совпадение проверяется по бренду и полному артикулу самой найденной карточки. Старые сохранённые запросы сохраняют прежнюю схему поиска.</strong></li>
       <li><strong>Города — выбор галочками из доступного списка. Проверка Алматы и Астаны не подтверждает минимум по всему Казахстану.</strong></li>
       <li><strong>Карточки Kaspi — до 20 на запрос, по умолчанию 20. Увеличение охвата может увеличить расходы Apify.</strong></li>
-      <li><strong>Продавцы — все доступные предложения.</strong></li>
+      <li><strong>Продавцы — все доступные предложения. Новые INPUT сортируют карточки по цене по возрастанию (price-asc).</strong></li>
       <li><strong>Отзывы — не загружать.</strong></li>
       <li><strong>Партия JSON — 500, 1 000, 1 500 или 2 000 запросов; по умолчанию 500.</strong> Размер меняет число файлов, но не общий объём проверки.</li>
       <li><strong>Сброс подготовки</strong> убирает текущий запрос из блока и возвращает к выбору товаров. Прайсы, история запросов и результаты проверок сохраняются; внешние запуски Apify не отменяются.</li>
@@ -647,6 +647,7 @@ document.addEventListener('DOMContentLoaded',function(){
         <li><strong>Подтверждение соответствия — три статуса: «Совпадение подтверждено», «Требует проверки», «Не соответствует».</strong></li>
         <li><strong>Расчёт доходности — чистая прибыль / закупочная цена × 100%. Упаковка — 250 ₸, учитывается один раз.</strong></li>
         <li><strong>Сортировка — по доходности в процентах, по убыванию.</strong></li>
+        <li><strong>Новый цикл — результаты связываются с выбранным запросом из блока 2; закупочная цена и наличие берутся из его прайса, а цены Kaspi — только из нового JSON. Старые выгрузки не подмешиваются.</strong></li>
         <li><strong>История — исходные строки новых JSON сохраняются для повторной обработки без нового запуска Apify. Цены, расчёты, сравнения и подтверждения сохраняются. Повторный импорт той же выгрузки не перезаписывает применённую цену со скриншота. Старые товары автоматически не удаляются.</strong></li>
         <li><strong>Закупка — только после подтверждения соответствия товара, актуальной цены и возможности исполнения заказа.</strong></li>
       </ol>
@@ -665,7 +666,7 @@ document.addEventListener('DOMContentLoaded',function(){
   </form>
   {% if apify_session %}
   <div class="apify-settings" aria-label="Результаты обработки Apify">
-    <strong>Результаты JSON: {{ apify_session.details.filename }}</strong>
+    <strong>Результаты JSON: {{ apify_session.details.filename }}{% if apify_session.details.selection_title %} · {{ apify_session.details.selection_title }} · прайс {{ apify_session.details.supplier_checked_on }}{% endif %}</strong>
     <p class="muted" style="margin-top:5px">
       {% if apify_buying_summary %}Обработка завершена{% else %}Обработка идёт{% endif %} ·
       <strong id="apify-done">{{ apify_session.details.next_batch }}</strong>
@@ -682,22 +683,23 @@ document.addEventListener('DOMContentLoaded',function(){
       <span class="muted">· ещё не в реестре: {{ apify_buying_summary.new }} · уже имеется: {{ apify_buying_summary.already }}</span>
     </p>
     <p class="muted">Доходность не ниже 50%, наличие и цены продавцов. Менеджер проверяет полноту поиска, цену и соответствие исполнения на Kaspi при выборе товара.</p>
+      <a class="button" href="{% url 'procurement:dashboard' %}?mode=best&amp;apify_source={{ apify_session.details.audit_source|default:apify_session.details.filename|urlencode }}">Посмотреть товары</a>
     {% if apify_buying_summary.published %}
       <button class="primary" type="button" disabled>✓ Выгодные загружены</button>
-      <a class="button" href="{% url 'procurement:dashboard' %}?mode=best&amp;apify_source={{ apify_session.details.filename|urlencode }}">Посмотреть товары</a>
       <p class="muted">Добавлено: {{ apify_session.details.buying_import_result.added }} · уже имеется: {{ apify_session.details.buying_import_result.already }} · не допущено: {{ apify_session.details.buying_import_result.skipped }}</p>
     {% else %}
       <form method="post" style="margin:12px 0 0">
         {% csrf_token %}
         <input type="hidden" name="action" value="publish_apify_profitable">
-        <button type="submit" class="primary" {% if not apify_buying_summary.new %}disabled{% endif %}>↑ Загрузить выгодные ({{ apify_buying_summary.new }})</button>
-        {% if not apify_buying_summary.new %}<span class="muted">Все подходящие товары уже в реестре.</span>{% endif %}
+        <button type="submit" class="primary" {% if not apify_buying_summary.eligible %}disabled{% endif %}>{% if apify_buying_summary.new %}↑ Загрузить выгодные ({{ apify_buying_summary.new }}){% else %}Применить расчёт ({{ apify_buying_summary.eligible }}){% endif %}</button>
+        {% if not apify_buying_summary.new %}<span class="muted">Подходящие товары уже в реестре. Новый расчёт применяется без добавления дублей.</span>{% endif %}
       </form>
     {% endif %}
     {% else %}
       <form id="apify-batch-form" method="post">
         {% csrf_token %}
         <input type="hidden" name="action" value="process_apify_batch">
+        <input type="hidden" name="session_id" value="{{ apify_session.pk|unlocalize }}">
         <button type="submit" class="primary" id="apify-run">Продолжить обработку оставшихся партий</button>
       </form>
     {% endif %}
@@ -730,7 +732,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </section>
 
 {% load static %}
-<script src="{% static 'procurement/js/apify_upload.js' %}?v=20261121-200mb" defer></script>
+<script src="{% static 'procurement/js/apify_upload.js' %}?v=20261128-request-snapshot" defer></script>
 <script>
 (function () {
   const form = document.getElementById('apify-batch-form');

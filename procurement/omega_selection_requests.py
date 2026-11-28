@@ -212,15 +212,16 @@ def request_queries(saved):
     from .selection_exports import article_variants
     from .kaspi_search_queries import sku_search_queries
     seen = {}
-    modern = saved.details.get('search_policy') == 'name_article_v4'
-    from .kaspi_search_queries import monitoring_search_queries
+    modern = saved.details.get('search_policy') in ('name_article_v4', 'name_article_v5')
+    from .kaspi_search_queries import monitoring_search_queries, procurement_search_queries
+    builder = procurement_search_queries if saved.details.get('search_policy') == 'name_article_v5' else monitoring_search_queries
     search_supplier = (saved.details.get('supplier_name', 'Omega')
         if saved.details.get('search_policy') == 'phaeton_article_queries_v2' else 'Omega')
     for row in request_rows(saved):
         brand = str(row.get('brand') or '').strip()
         original = str(row.get('article') or '').strip()
         for article in article_variants(original):
-            queries = (monitoring_search_queries(brand, article, row.get('name', '')) if modern
+            queries = (builder(brand, article, row.get('name', '')) if modern
                        else sku_search_queries(brand, article, search_supplier,
                            legacy=saved.details.get('search_policy') != 'article_only_v3'))
             for query in queries:
@@ -255,22 +256,24 @@ def save_request(*, batch_id, categories, minimum, user,
     if not 0 <= max_vehicle_age <= 100:
         raise ValidationError('Допустимый возраст: от 0 до 100 лет.')
     requested = set(unique)
-    excluded_keys = fresh_checked_keys(batch)
+    excluded_keys = set()
     filtered, unknown_age = pick_rows(batch, requested, minimum, max_vehicle_age, in_stock_only, exclude_springs, excluded_keys)
     if not filtered:
         raise ValidationError('По выбранным условиям товары не найдены.')
+    from .request_snapshot_import import validate_snapshot_rows
+    validate_snapshot_rows(filtered)
     previous = list(request_history(batch.supplier).select_related(None).select_for_update().only('id', 'details'))
     number = max((int(item.details.get('number', 0)) for item in previous),
                  default=1 if batch.supplier.name == 'Omega' else 0) + 1
     from .selection_exports import article_variants
-    from .kaspi_search_queries import monitoring_search_queries
+    from .kaspi_search_queries import procurement_search_queries
     queries = set()
     for row in filtered:
         for article in article_variants(row.get('article')):
-            queries.update(q.casefold() for q in monitoring_search_queries(row['brand'], article, row.get('name', '')))
+            queries.update(q.casefold() for q in procurement_search_queries(row['brand'], article, row.get('name', '')))
     return Activity.objects.create(user=user, action=REQUEST_ACTION, details={
         'supplier_id': batch.supplier_id, 'supplier_name': batch.supplier.name,
-        'search_policy': 'name_article_v4',
+        'search_policy': 'name_article_v5', 'processing_policy': 'request_snapshot_v1',
         'fresh_checked_keys': sorted(excluded_keys),
         'number': number, 'title': f'Запрос №{number}',
         'price_batch_id': batch.pk, 'price_sha256': batch.sha256,
@@ -296,11 +299,13 @@ def preview_request(*, batch_id, categories, minimum, max_vehicle_age, in_stock_
     keys = {category_key(x) for x in categories}
     if not keys.issubset(available):
         raise ValidationError('Категории не найдены в выбранном прайсе.')
-    selected, unknown_age = pick_rows(batch, keys, minimum, max_vehicle_age, in_stock_only, exclude_springs, fresh_checked_keys(batch))
+    selected, unknown_age = pick_rows(batch, keys, minimum, max_vehicle_age, in_stock_only, exclude_springs, ())
+    from .request_snapshot_import import validate_snapshot_rows
+    validate_snapshot_rows(selected)
     from .selection_exports import article_variants, JSON_BATCH_SIZE
-    from .kaspi_search_queries import monitoring_search_queries
+    from .kaspi_search_queries import procurement_search_queries
     queries = {q.casefold() for row in selected for variant in article_variants(row['article'])
-               for q in monitoring_search_queries(row['brand'], variant, row.get('name', ''))}
+               for q in procurement_search_queries(row['brand'], variant, row.get('name', ''))}
     return {'categories': len(keys), 'products': len(selected),
             'queries': len(queries),
             'batches': (len(queries) + JSON_BATCH_SIZE - 1) // JSON_BATCH_SIZE,

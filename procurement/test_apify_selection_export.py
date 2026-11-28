@@ -55,7 +55,7 @@ class OmegaApifyExportTests(TestCase):
         self.assertEqual(data['searchQueries'], ['Рулевой наконечник 085066', '085066', 'Рулевой наконечник 85066', '85066', 'Колодки 100200', '100200'])
         self.assertEqual(data['maxItemsPerQuery'], 20)
         self.assertEqual(data['maxItems'], 0)
-        self.assertEqual(data['sortOrder'], 'relevance')
+        self.assertEqual(data['sortOrder'], 'price-asc')
         self.assertTrue(data['includeOffers'])
         self.assertEqual(data['startUrls'], [])
         self.assertEqual(self.first.cost, Decimal('2000'))
@@ -73,7 +73,7 @@ class OmegaApifyExportTests(TestCase):
         data = json.loads(response.content)
         self.assertNotIn('CHEAP LOW-001', data['searchQueries'])
         self.assertIn('085066', data['searchQueries'])
-        self.assertEqual(data['sortOrder'], 'relevance')
+        self.assertEqual(data['sortOrder'], 'price-asc')
         self.assertEqual(data['maxItemsPerQuery'], 20)
 
     def test_configurable_cities_and_cards(self):

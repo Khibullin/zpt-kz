@@ -116,7 +116,7 @@ def seller_evidence(row, seller, source):
             'coverage': 'returned_offers_only', 'policy': 'name_article_v4'}
 
 
-def import_apify_recheck_results(raw, filename, user):
+def import_apify_recheck_results(raw, filename, user, *, selection_request=None, evidence_filename=None):
     preferences = Preferences.objects.filter(user=user).first()
     commission = preferences.commission if preferences else None
     expenses = preferences.expenses if preferences else None
@@ -133,7 +133,11 @@ def import_apify_recheck_results(raw, filename, user):
         raise ValueError('Для расчёта необходимо задать комиссию Kaspi и расходы.')
     brands = {_brand(row.get('brand')) for row in raw
               if isinstance(row, dict) and row.get('brand')}
-    index = _offer_index(brands)
+    if selection_request is not None:
+        from .request_snapshot_import import scoped_offer_index
+        index = scoped_offer_index(selection_request, brands)
+    else:
+        index = _offer_index(brands)
     grouped = {}
     for row in raw:
         if not isinstance(row, dict) or not row.get('id'):
@@ -187,10 +191,16 @@ def import_apify_recheck_results(raw, filename, user):
                 continue
             stats['recheck_price_cards'] += 1
             price, seller = min(priced, key=lambda value: value[0])
-            evidence = seller_evidence(row, seller, PurePath(filename).name[:255])
+            evidence = seller_evidence(row, seller, PurePath(evidence_filename or filename).name[:255])
+            if selection_request is not None:
+                evidence.update(selection_request_id=selection_request.pk,
+                    price_batch_id=selection_request.details['price_batch_id'],
+                    supplier_checked_on=selection_request.details.get('checked_on', ''),
+                    supplier_stock=offer.stock, supplier_title=offer.name,
+                    supplier_brand=offer.brand, supplier_article=offer.article, supplier_category=offer.category)
             seller_name = evidence['seller']
             product_id = str(row['id'])[:80]
-            key = offer.pk
+            key = offer.pk or (offer.brand, offer.article)
             if key not in grouped:
                 grouped[key] = {'offer': offer, 'minimum': price, 'seller': seller_name,
                                 'product_id': product_id, 'title': title[:500],
@@ -211,6 +221,13 @@ def import_apify_recheck_results(raw, filename, user):
             profit = net_buying_profit(price, offer.cost, commission, expenses)
             if profit is None:
                 continue
+            if offer.pk is None:
+                persisted, _ = Offer.objects.get_or_create(supplier_id=offer.supplier_id,
+                    brand=offer.brand, article=offer.article, defaults={
+                        'name': offer.name, 'category': offer.category, 'cost': offer.cost,
+                        'stock': offer.stock, 'applicability': offer.applicability,
+                        'supplier_checked_on': offer.supplier_checked_on})
+                offer.pk = persisted.pk
             defaults = dict(
                 min_price=price, product_id=entry['product_id'],
                 card_url=entry['url'], card_title=entry['title'],

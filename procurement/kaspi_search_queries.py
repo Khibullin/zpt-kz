@@ -1,5 +1,5 @@
 """Apify recall policy; identity is checked from returned cards, never queries."""
-SEARCH_POLICY = 'name_article_v4'
+SEARCH_POLICY = 'name_article_v5'
 MAX_ITEMS_PER_QUERY = 20
 
 
@@ -36,3 +36,15 @@ def monitoring_search_queries(brand, article, name=''):
     name = re.sub(r'(?<![\w/.-])' + re.escape(article) + r'(?![\w/.-])', ' ', name, flags=re.I)
     name = ' '.join(name.split()).strip(' ,;:')
     return list(dict.fromkeys(filter(None, [f'{name} {article}'.strip(), article])))
+
+
+def procurement_search_queries(brand, article, name=''):
+    """New request policy: remove repeated SKU formatting variants from the name."""
+    import re
+    article = str(article or '').strip()
+    compact = re.sub(r'[\s\-\u2010-\u2015\u2212]+', '', article)
+    if compact:
+        optional_format = r'[\s\-\u2010-\u2015\u2212]*'
+        pattern = r'(?<![\w/.-])' + optional_format.join(map(re.escape, compact)) + r'(?![\w/.-])'
+        name = re.sub(pattern, ' ', str(name or ''), flags=re.I)
+    return monitoring_search_queries(brand, article, name)

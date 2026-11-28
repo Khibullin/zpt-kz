@@ -165,6 +165,7 @@ def selection_rules(request):
     request.session['preparation_supplier'] = omega.pk
     if request.method == 'POST' and request.POST.get('action') == 'reset_apify_preparation':
         request.session.pop('omega_confirmed_preview', None)
+        request.session.pop('apify_prepared_request_id', None)
         messages.success(request, 'Подготовка сброшена. Прайсы, история запросов и результаты проверок сохранены.')
         return redirect(reverse('procurement:selection_rules') + f'?supplier={omega.pk}#omega-pick-title')
     from .selection_exports import EXPORT_BATCH_SIZES, JSON_BATCH_SIZE, export_batch_size
@@ -207,6 +208,8 @@ def selection_rules(request):
                 messages.info(request, 'Этот прайс уже загружен. Используйте существующий; повторной записи нет.')
             else:
                 messages.success(request, 'Прайс сохранён для отбора товаров. Рабочие остатки не изменены.')
+            request.session.pop('apify_prepared_request_id', None)
+            request.session.pop('apify_buying_session_id', None)
             return redirect('procurement:selection_rules')
     initial = {
         'supplier': omega.pk,
@@ -223,11 +226,13 @@ def selection_rules(request):
         action = request.POST['action']
         try:
             if action == 'begin_apify_chunk_upload':
+                from .request_snapshot_import import upload_request
+                selected = upload_request(request, omega)
                 session = begin_chunked_upload(
                     filename=request.POST.get('filename', ''),
                     total=int(request.POST.get('total', '0')),
                     digest=request.POST.get('digest', ''),
-                    user=request.user)
+                    user=request.user, request_id=selected.pk if selected else None)
                 request.session['apify_buying_session_id'] = session.pk
                 details = session.details
                 return JsonResponse({'session_id': session.pk,
@@ -257,7 +262,9 @@ def selection_rules(request):
             messages.error(request, 'Выберите JSON-файл результатов Apify.')
         else:
             try:
-                staged = stage_apify_file(uploaded, request.user)
+                from .request_snapshot_import import upload_request
+                selected = upload_request(request, omega)
+                staged = stage_apify_file(uploaded, request.user, request_id=selected.pk if selected else None)
             except ValidationError as error:
                 messages.error(request, '; '.join(error.messages))
             else:
@@ -287,6 +294,8 @@ def selection_rules(request):
         session_id = request.session.get('apify_buying_session_id')
         if not session_id:
             return JsonResponse({'error': 'Сначала загрузите JSON Apify.'}, status=400)
+        if request.POST.get('session_id') and str(session_id) != request.POST['session_id']:
+            return JsonResponse({'error': 'Открыта другая загрузка. Обновите страницу текущего запроса.'}, status=409)
         try:
             progress = process_next_apify_batch(session_id, request.user)
         except Exception:
@@ -346,6 +355,8 @@ def selection_rules(request):
         else:
             request.session.pop('omega_confirmed_preview', None)
             messages.success(request, f"{saved.details['title']} сохранён. Можно перейти к формированию JSON.")
+            request.session['apify_prepared_request_id'] = saved.pk
+            request.session.pop('apify_buying_session_id', None)
             params = [('supplier', str(omega.pk)), ('saved_request', str(saved.pk))]
             if request.POST.get('apify_export_settings'):
                 try:

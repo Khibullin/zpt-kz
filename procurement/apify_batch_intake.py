@@ -23,7 +23,7 @@ MAX_BYTES = 200 * 1024 * 1024
 MAX_ROWS = 50000
 
 
-def stage_apify_file(upload, user):
+def stage_apify_file(upload, user, *, request_id=None):
     if not upload.name.lower().endswith('.json') or upload.size > MAX_BYTES:
         raise ValidationError('Нужен JSON Apify размером не более 200 МБ.')
     data = upload.read()
@@ -35,18 +35,23 @@ def stage_apify_file(upload, user):
         raise ValidationError('Не удалось прочитать JSON Apify.') from exc
     if not rows or len(rows) > MAX_ROWS:
         raise ValidationError('Допустимо от 1 до 50 000 исходных записей.')
+    from .request_snapshot_import import intake_context, audit_source
+    scope = intake_context(request_id)
     # Exact original JSON values are retained; never drop rejected input rows.
     with transaction.atomic():
         previous = Activity.objects.select_for_update().filter(
             action='apify_upload_session', details__digest=digest, user=user
         ).order_by('-id').first()
+        if previous and previous.details.get('selection_request_id') != scope.get('selection_request_id'):
+            raise ValidationError('Этот JSON уже загружен для другого запроса. Для нового цикла нужны новые результаты Apify.')
         if previous and previous.details.get('next_batch', 0) < previous.details.get('total_batches', 0):
             return previous
         # A completed upload may be deliberately reprocessed after a matching
         # policy fix. Keep the prior session and its audit trail intact.
         total_batches = (len(rows) + BATCH_SIZE - 1) // BATCH_SIZE
         session = Activity.objects.create(user=user, action='apify_upload_session',
-            details={'digest': digest, 'filename': upload.name[:255],
+            details={**scope, 'audit_source': audit_source(upload.name, request_id),
+                     'digest': digest, 'filename': upload.name[:255],
                      'total': len(rows), 'total_batches': total_batches,
                      'next_batch': 0, 'stats': {'products': 0, 'linked': 0,
                      'verified': 0, 'unmatched': 0, 'invalid': 0,
@@ -81,7 +86,14 @@ def process_next_apify_batch(session_id, user):
         data = json.dumps(raw, ensure_ascii=False).encode('utf-8')
         uploaded = SimpleUploadedFile(details['filename'], data,
                                      content_type='application/json')
-        result = import_apify_results(uploaded, details['filename'], user=user)
+        if details.get('selection_request_id'):
+            from .request_snapshot_import import selected_request
+            from .apify_price_recheck import import_apify_recheck_results
+            result = import_apify_recheck_results(raw, details['audit_source'], user,
+                selection_request=selected_request(details['selection_request_id']),
+                evidence_filename=details['filename'])
+        else:
+            result = import_apify_results(uploaded, details['filename'], user=user)
         stats = dict(details['stats'])
         for key in stats:
             stats[key] += result.get(key, 0)
@@ -98,7 +110,7 @@ def process_next_apify_batch(session_id, user):
         return {'done': details['next_batch'] >= details['total_batches'], **details}
 
 
-def begin_chunked_upload(*, filename, total, digest, user):
+def begin_chunked_upload(*, filename, total, digest, user, request_id=None):
     """Create/resume a source file using tiny, independent browser requests."""
     if not str(filename).lower().endswith('.json'):
         raise ValidationError('Требуется файл JSON.')
@@ -107,11 +119,15 @@ def begin_chunked_upload(*, filename, total, digest, user):
     if not isinstance(digest, str) or len(digest) != 64 or any(
             c not in '0123456789abcdef' for c in digest):
         raise ValidationError('Некорректный отпечаток исходного файла.')
+    from .request_snapshot_import import intake_context, audit_source
+    scope = intake_context(request_id)
     with transaction.atomic():
         previous = Activity.objects.select_for_update().filter(
             user=user, action='apify_upload_session', details__digest=digest
         ).order_by('-id').first()
         if previous:
+            if previous.details.get('selection_request_id') != scope.get('selection_request_id'):
+                raise ValidationError('Этот JSON уже загружен для другого запроса. Для нового цикла нужны новые результаты Apify.')
             if previous.details.get('total') != total:
                 raise ValidationError('Число строк отличается от ранее сохранённого файла.')
             if previous.details.get('next_batch', 0) < previous.details.get('total_batches', 0):
@@ -120,7 +136,8 @@ def begin_chunked_upload(*, filename, total, digest, user):
             # an importer bug fix. This is a new, auditable processing session.
         return Activity.objects.create(
             user=user, action='apify_upload_session',
-            details={'digest': digest, 'filename': filename[:255],
+            details={**scope, 'audit_source': audit_source(filename, request_id),
+                     'digest': digest, 'filename': filename[:255],
                      'total': total, 'total_batches': (total + BATCH_SIZE - 1) // BATCH_SIZE,
                      'next_batch': 0, 'next_upload_batch': 0,
                      'last_progress_at': timezone.now().isoformat(),

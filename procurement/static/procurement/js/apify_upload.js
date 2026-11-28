@@ -67,7 +67,8 @@
         const digest = Array.from(new Uint8Array(hash), b => b.toString(16).padStart(2, '0')).join('');
         const token = form.querySelector('[name=csrfmiddlewaretoken]').value;
         const init = await send('begin_apify_chunk_upload', {
-          filename: file.name, total: rows.length, digest
+          filename: file.name, total: rows.length, digest,
+          request_id: document.getElementById('apify-export-request')?.value || ''
         }, token);
         if (!Number.isInteger(init.uploaded_batches) || !Number.isInteger(init.total_batches)) {
           throw new Error('Сервер не сообщил число сохранённых партий.');

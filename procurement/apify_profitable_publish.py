@@ -38,7 +38,8 @@ def eligible_source_audits(source):
 
 def _eligible(audit):
     offer = audit.offer
-    if not re.match(POSITIVE_STOCK_PATTERN, str(offer.stock or "")):
+    stock = audit.price_evidence.get('supplier_stock', offer.stock) if audit.price_evidence.get('selection_request_id') else offer.stock
+    if not re.match(POSITIVE_STOCK_PATTERN, str(stock or "")):
         return False
     if not audit.product_id or not audit.card_url:
         return False
@@ -50,7 +51,7 @@ def _eligible(audit):
 
 
 def source_summary(session):
-    source = str((session.details or {}).get("filename") or "")[:255]
+    source = str((session.details or {}).get("audit_source") or (session.details or {}).get("filename") or "")[:255]
     qs = eligible_source_audits(source)
     records = list(qs)
     eligible = [a for a in records if _eligible(a)]
@@ -71,7 +72,7 @@ def publish_profitable(session_id, user):
             pk=session_id, user=user, action="apify_upload_session")
         if not complete_session(session):
             raise ValidationError("Сначала завершите обработку всех партий JSON.")
-        source = str((session.details or {}).get("filename") or "")[:255]
+        source = str((session.details or {}).get("audit_source") or (session.details or {}).get("filename") or "")[:255]
         if not source.lower().endswith(".json"):
             raise ValidationError("Неверный источник выгрузки.")
         audits = list(eligible_source_audits(source))

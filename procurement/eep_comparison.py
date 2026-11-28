@@ -191,6 +191,11 @@ def _comparison_impl(request, pk):
         "oem": _first(source, "oem", "oem_numbers", "oe_numbers", "original_numbers"),
         "analogs": _first(source, "analogues", "analogs", "cross_references", "replacements"),
     }
+    if audit and audit.price_evidence.get('selection_request_id'):
+        for field, evidence in (('name', 'supplier_title'), ('brand', 'supplier_brand'),
+                                ('article', 'supplier_article'), ('category', 'supplier_category')):
+            if audit.price_evidence.get(evidence):
+                supplier_data[field] = audit.price_evidence[evidence]
     title = ((audit.card_title if audit else "") or
              (candidate.title if candidate else "") or
              (srr_snapshot["title"] if srr_snapshot else "") or
@@ -286,7 +291,8 @@ def _comparison_impl(request, pk):
     # the supplier cost and historical admission snapshot remain unchanged.
     # Omega stores a DateField while the Apify audit uses DateTimeField.
     # Comparing date to datetime raises TypeError and broke every detail page.
-    omega_checked_at = offer.supplier_checked_on
+    from .request_snapshot_import import supplier_snapshot_date
+    omega_checked_at = supplier_snapshot_date(audit, offer.supplier_checked_on)
     kaspi_checked_at = (audit.observed_at if audit else
                         date(2026, 11, 21) if srr_snapshot else None)
     omega_price_stale = is_price_stale(omega_checked_at)
@@ -301,7 +307,7 @@ def _comparison_impl(request, pk):
                           omega_url=offer.supplier_url or offer.supplier.website,
                           kaspi_url=kaspi_url, list_url=target, selected_product_id=product_id,
                           comparison_source=source_file or (audit.source_filename if audit else ""),
-                          omega_price=offer.cost, omega_checked_at=omega_checked_at,
+                          omega_price=(audit.cost_snapshot if audit else offer.cost), omega_checked_at=omega_checked_at,
                           omega_price_stale=omega_price_stale,
                           screenshot_price_applied=screenshot_price_applies(material, audit),
                           kaspi_price=(audit.min_price if audit else

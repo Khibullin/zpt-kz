@@ -29,7 +29,9 @@ class Command(BaseCommand):
             details__session_id=session.pk).order_by('pk')
         if batches.count() != details['total_batches']:
             raise CommandError('Исходные строки не полностью сохранены. Требуется исходный JSON.')
-        source = details['filename']
+        source = details.get('audit_source') or details['filename']
+        from procurement.request_snapshot_import import selected_request
+        selection = selected_request(details.get('selection_request_id'))
         supplier = options['supplier']
         def snapshot():
             return {a.offer_id: a for a in KaspiPriceAudit.objects.filter(
@@ -43,7 +45,7 @@ class Command(BaseCommand):
                 expected = min(BATCH_SIZE, details['total'] - index * BATCH_SIZE)
                 if batch.details['batch'] != index or len(rows) != expected:
                     raise CommandError('Нарушена полнота или последовательность исходных строк.')
-                result = import_apify_recheck_results(rows, source, session.user)
+                result = import_apify_recheck_results(rows, source, session.user, selection_request=selection, evidence_filename=details['filename'])
                 for key, value in result.items():
                     totals[key] = totals.get(key, 0) + value
                 processed += len(rows)

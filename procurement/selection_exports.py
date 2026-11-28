@@ -96,12 +96,12 @@ def apify_queries(rule):
     """Build query-to-offer mapping before pagination: one batch is 500 queries."""
     seen = set()
     result = []
-    from .kaspi_search_queries import monitoring_search_queries
+    from .kaspi_search_queries import procurement_search_queries
     rows = filtered_offers(rule).values('id', 'brand', 'article', 'name').iterator(chunk_size=1000)
     for offer in rows:
         brand = str(offer['brand'] or '').strip()
         for article in article_variants(offer['article']):
-            for query in monitoring_search_queries(brand, article, offer['name']):
+            for query in procurement_search_queries(brand, article, offer['name']):
                 key = query.casefold()
                 if not brand or key in seen:
                     continue
@@ -165,6 +165,7 @@ def selection_apify_json(request):
             if Decimal(str(saved.details.get('min_cost', 0))) < APIFY_MIN_SUPPLIER_COST:
                 return JsonResponse({'error': 'Порог закупки в сохранённом запросе ниже 2 000 ₸. Для Apify создайте запрос с минимумом 2 000 ₸.'}, status=400)
             mapping = request_queries(saved)
+            request.session['apify_prepared_request_id'] = saved.pk
         except (ValueError, TypeError, KeyError):
             return JsonResponse({'error': 'Некорректный запрос.'}, status=400)
     else:
@@ -190,11 +191,12 @@ def selection_apify_json(request):
         payload = {'batch': batch, 'source': saved.details.get('supplier_name', 'Omega') if saved_id else str(rule.supplier or ''), 'request_id': saved_id, 'mapping': rows}
         filename = f'apify_mapping_{saved_id}_{batch:02d}.json' if saved_id else f'apify_mapping_{batch:02d}.json'
     else:
+        modern = not saved_id or saved.details.get('search_policy') == 'name_article_v5'
         payload = {
             'searchQueries': [row['query'] for row in rows],
             'startUrls': known_card_urls(rows, saved.details.get('supplier_id') if saved_id else rule.supplier_id),
             'cities': cities,
-            'sortOrder': 'relevance',
+            'sortOrder': 'price-asc' if modern else 'relevance',
             'maxItems': 0,
             'maxItemsPerQuery': cards,
             'includeOffers': True,
